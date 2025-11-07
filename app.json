@@ -66,5 +66,8 @@
     "experiments": {
       "typedRoutes": true
     }
+    "extra": {
+"OPENAI_API_KEY": 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
+}
   }
 }
