@@ -14,7 +14,7 @@ import { useState, useRef, useEffect } from "react";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { Camera, ImageIcon, X, Sparkles, Zap, BookText } from "lucide-react-native";
+import { Camera, ImageIcon, X, Sparkles, Zap, BookText, FlaskConical } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { generateText } from "@rork/toolkit-sdk";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -360,6 +360,16 @@ Cevabını şu JSON formatında ver:
                     <Text style={styles.newAnalysisText}>Yeni Analiz</Text>
                   </Pressable>
                 </View>
+
+                <Pressable
+                  onPress={() => router.push("/advanced-analysis" as any)}
+                  style={styles.advancedButton}
+                >
+                  <FlaskConical size={20} color="#FFFFFF" />
+                  <Text style={styles.advancedButtonText}>
+                    İleri Düzey Analiz
+                  </Text>
+                </Pressable>
               </Animated.View>
             )}
           </View>
@@ -677,5 +687,26 @@ const styles = StyleSheet.create({
     height: 68,
     borderRadius: 34,
     backgroundColor: Colors.primary.coral,
+  },
+  advancedButton: {
+    backgroundColor: Colors.secondary.lavender,
+    padding: 16,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 12,
+    shadowColor: Colors.secondary.lavender,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  advancedButtonText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.neutral.white,
+    letterSpacing: 0.3,
   },
 });
