@@ -11,13 +11,12 @@ import {
 } from "react-native";
 import { Colors } from "@/constants/colors";
 import { useState, useRef, useEffect } from "react";
-import Constants from "expo-constants";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { Camera, ImageIcon, X, Sparkles, Zap } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import OpenAI from "openai";
+import { generateText } from "@rork/toolkit-sdk";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Analysis = {
@@ -118,22 +117,6 @@ export default function AnalyzeScreen() {
     scaleAnim.setValue(0.9);
 
     try {
-      const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY;
-      
-      if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-        Alert.alert(
-          "API Key Gerekli",
-          "Lütfen app.json dosyasında extra.OPENAI_API_KEY değerini ayarlayın.\n\napp.json dosyasına şunu ekleyin:\n\n\"extra\": {\n  \"OPENAI_API_KEY\": \"sk-your-key-here\"\n}"
-        );
-        setAnalyzing(false);
-        return;
-      }
-
-      const openai = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true,
-      });
-
       const prompt = `Bu çocuk çizimini analiz et. Çocuğun ne anlatmaya çalıştığını, duygusal durumunu ve yaratıcılığını değerlendir. 
 
 Cevabını şu JSON formatında ver:
@@ -146,27 +129,19 @@ Cevabını şu JSON formatında ver:
   "encouragement": "Ebeveyn/öğretmen için teşvik edici mesaj"
 }`;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+      const response = await generateText({
         messages: [
           {
             role: "user",
             content: [
               { type: "text", text: prompt },
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:image/jpeg;base64,${base64}`,
-                },
-              },
+              { type: "image", image: `data:image/jpeg;base64,${base64}` },
             ],
           },
         ],
-        max_tokens: 1000,
       });
 
-      const content = response.choices[0]?.message?.content || "";
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         setAnalysis(parsed);

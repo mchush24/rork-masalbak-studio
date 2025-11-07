@@ -1,16 +1,17 @@
-import { ExpoConfig } from "expo/config";
-
-export default (): ExpoConfig => ({
-  name: "MasalBak",
-  slug: "masalbak",
-  scheme: "masalbak",
-  version: "1.0.0",
-  extra: {
-    api: process.env.EXPO_PUBLIC_API || "http://localhost:4000"
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
   },
-  experiments: { typedRoutes: true },
-  ios: { supportsTablet: true },
-  android: { adaptiveIcon: { foregroundImage: "./assets/icon.png", backgroundColor: "#ffffff" } },
-  orientation: "portrait",
-  splash: { image: "./assets/splash.png", resizeMode: "contain", backgroundColor: "#ffffff" }
-});
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
+}
