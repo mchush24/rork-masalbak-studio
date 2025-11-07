@@ -11,6 +11,7 @@ import {
   Platform,
   Share,
   Dimensions,
+  Modal,
 } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,7 +23,8 @@ import { pickFromLibrary, captureWithCamera } from "@/services/imagePick";
 import { logEvent, buildShareText } from "@/services/abTest";
 import { strings, type Language } from "@/i18n/strings";
 import type { TaskType, AssessmentInput, AssessmentOutput } from "@/types/AssessmentSchema";
-import { Camera, ImageIcon, X, CheckCircle, Share2 } from "lucide-react-native";
+import { PROTOCOLS } from "@/constants/protocols";
+import { Camera, ImageIcon, X, CheckCircle, Share2, BookOpen } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
 export default function AdvancedAnalysisScreen() {
@@ -34,6 +36,7 @@ export default function AdvancedAnalysisScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AssessmentOutput | null>(null);
   const [lang] = useState<Language>("tr");
+  const [showProtocol, setShowProtocol] = useState(false);
   const screenWidth = Dimensions.get('window').width;
 
   const tasks: { type: TaskType; label: string; description: string }[] = [
@@ -153,7 +156,18 @@ export default function AdvancedAnalysisScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{strings[lang].title}</Text>
+          <View style={styles.headerTop}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.headerTitle}>{strings[lang].title}</Text>
+            </View>
+            <Pressable 
+              onPress={() => setShowProtocol(true)} 
+              style={styles.protocolButton}
+            >
+              <BookOpen size={20} color={Colors.primary.coral} />
+              <Text style={styles.protocolButtonText}>Protokol</Text>
+            </Pressable>
+          </View>
           <Text style={styles.headerSubtitle}>
             {strings[lang].professionalTests}
           </Text>
@@ -294,6 +308,53 @@ export default function AdvancedAnalysisScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {showProtocol && (
+        <Modal transparent onRequestClose={() => setShowProtocol(false)} animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{PROTOCOLS[task].title}</Text>
+                <Pressable onPress={() => setShowProtocol(false)} style={styles.modalClose}>
+                  <X size={24} color={Colors.neutral.dark} />
+                </Pressable>
+              </View>
+
+              <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+                <View style={styles.protocolSection}>
+                  <Text style={styles.protocolSectionTitle}>✅ Adımlar:</Text>
+                  {PROTOCOLS[task].steps.map((s, i) => (
+                    <Text key={i} style={styles.protocolItem}>• {s}</Text>
+                  ))}
+                </View>
+
+                <View style={styles.protocolSection}>
+                  <Text style={styles.protocolSectionTitle}>❌ Yapılmaması Gerekenler:</Text>
+                  {PROTOCOLS[task].donts.map((d, i) => (
+                    <Text key={i} style={styles.protocolItem}>× {d}</Text>
+                  ))}
+                </View>
+
+                {PROTOCOLS[task].captureHints && PROTOCOLS[task].captureHints!.length > 0 && (
+                  <View style={styles.protocolSection}>
+                    <Text style={styles.protocolSectionTitle}>📸 Fotoğraf İpuçları:</Text>
+                    {PROTOCOLS[task].captureHints!.map((c, i) => (
+                      <Text key={i} style={styles.protocolItem}>• {c}</Text>
+                    ))}
+                  </View>
+                )}
+              </ScrollView>
+
+              <Pressable 
+                onPress={() => setShowProtocol(false)} 
+                style={styles.modalCloseButton}
+              >
+                <Text style={styles.modalCloseButtonText}>Kapat</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -511,5 +572,96 @@ const styles = StyleSheet.create({
     fontWeight: "700" as const,
     color: Colors.neutral.white,
     letterSpacing: 0.3,
+  },
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 8,
+  },
+  protocolButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: Colors.primary.soft,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary.coral,
+  },
+  protocolButtonText: {
+    fontSize: 13,
+    fontWeight: "700" as const,
+    color: Colors.primary.coral,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: Colors.neutral.white,
+    borderRadius: 24,
+    padding: 24,
+    maxHeight: "80%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800" as const,
+    color: Colors.neutral.darkest,
+    flex: 1,
+  },
+  modalClose: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.neutral.lighter,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalScroll: {
+    maxHeight: 400,
+  },
+  protocolSection: {
+    marginBottom: 20,
+  },
+  protocolSectionTitle: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.neutral.darkest,
+    marginBottom: 10,
+  },
+  protocolItem: {
+    fontSize: 14,
+    color: Colors.neutral.dark,
+    lineHeight: 22,
+    marginBottom: 6,
+    paddingLeft: 8,
+  },
+  modalCloseButton: {
+    backgroundColor: Colors.primary.coral,
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  modalCloseButtonText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.neutral.white,
   },
 });
