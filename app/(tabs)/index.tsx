@@ -14,10 +14,11 @@ import { useState, useRef, useEffect } from "react";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { Camera, ImageIcon, X, Sparkles, Zap } from "lucide-react-native";
+import { Camera, ImageIcon, X, Sparkles, Zap, BookText } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { generateText } from "@rork/toolkit-sdk";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 type Analysis = {
   title: string;
@@ -30,6 +31,7 @@ type Analysis = {
 
 export default function AnalyzeScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -332,12 +334,32 @@ Cevabını şu JSON formatında ver:
                   </Text>
                 </View>
 
-                <Pressable
-                  onPress={resetAnalysis}
-                  style={styles.newAnalysisButton}
-                >
-                  <Text style={styles.newAnalysisText}>Yeni Analiz</Text>
-                </Pressable>
+                <View style={styles.actionRow}>
+                  <Pressable
+                    onPress={() => {
+                      router.push({
+                        pathname: "/storybook",
+                        params: {
+                          imageUri: selectedImage,
+                          title: analysis.title,
+                          description: analysis.description,
+                          themes: JSON.stringify(analysis.themes),
+                        },
+                      });
+                    }}
+                    style={styles.createStoryButton}
+                  >
+                    <BookText size={22} color="#FFFFFF" />
+                    <Text style={styles.createStoryText}>Masal Oluştur</Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={resetAnalysis}
+                    style={styles.newAnalysisButton}
+                  >
+                    <Text style={styles.newAnalysisText}>Yeni Analiz</Text>
+                  </Pressable>
+                </View>
               </Animated.View>
             )}
           </View>
@@ -551,12 +573,38 @@ const styles = StyleSheet.create({
     color: "#8B5A00",
     fontWeight: "500" as const,
   },
+  actionRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  createStoryButton: {
+    flex: 1,
+    backgroundColor: "#9333EA",
+    padding: 18,
+    borderRadius: 18,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    shadowColor: "#9333EA",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  createStoryText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.neutral.white,
+    letterSpacing: 0.3,
+  },
   newAnalysisButton: {
+    flex: 1,
     backgroundColor: Colors.primary.coral,
     padding: 18,
     borderRadius: 18,
     alignItems: "center",
-    marginTop: 8,
     shadowColor: Colors.primary.coral,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
@@ -564,7 +612,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   newAnalysisText: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "700" as const,
     color: Colors.neutral.white,
     letterSpacing: 0.3,
