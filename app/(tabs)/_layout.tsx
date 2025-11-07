@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Camera, Sparkles, BookOpen, User } from "lucide-react-native";
+import { Camera, Sparkles, BookOpen, User, FlaskConical } from "lucide-react-native";
 import React from "react";
 import { Colors } from "@/constants/colors";
 
@@ -47,6 +47,13 @@ export default function TabLayout() {
         options={{
           title: "Hikayeler",
           tabBarIcon: ({ color }) => <BookOpen size={26} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="advanced-analysis"
+        options={{
+          title: "İleri Analiz",
+          tabBarIcon: ({ color }) => <FlaskConical size={26} color={color} />,
         }}
       />
       <Tabs.Screen
