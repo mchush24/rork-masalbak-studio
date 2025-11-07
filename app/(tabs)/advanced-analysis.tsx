@@ -9,15 +9,20 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  Share,
+  Dimensions,
 } from "react-native";
 import { Image } from "expo-image";
-import * as ImagePicker from "expo-image-picker";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { ResultCard } from "@/components/ResultCard";
+import { OverlayEvidence } from "@/components/OverlayEvidence";
 import { analyzeDrawingMock } from "@/services/localMock";
+import { pickFromLibrary, captureWithCamera } from "@/services/imagePick";
+import { logEvent, buildShareText } from "@/services/abTest";
+import { strings, type Language } from "@/i18n/strings";
 import type { TaskType, AssessmentInput, AssessmentOutput } from "@/types/AssessmentSchema";
-import { Camera, ImageIcon, X, CheckCircle } from "lucide-react-native";
+import { Camera, ImageIcon, X, CheckCircle, Share2 } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
 export default function AdvancedAnalysisScreen() {
@@ -28,6 +33,8 @@ export default function AdvancedAnalysisScreen() {
   const [quote, setQuote] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AssessmentOutput | null>(null);
+  const [lang] = useState<Language>("tr");
+  const screenWidth = Dimensions.get('window').width;
 
   const tasks: { type: TaskType; label: string; description: string }[] = [
     { type: "DAP", label: "Bir İnsan Çiz", description: "Koppitz" },
@@ -46,15 +53,11 @@ export default function AdvancedAnalysisScreen() {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images" as any,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setUri(result.assets[0].uri);
+    await logEvent('image_pick_gallery', { task });
+    const imageUri = await pickFromLibrary();
+    
+    if (imageUri) {
+      setUri(imageUri);
       setResult(null);
     }
   }
@@ -64,21 +67,22 @@ export default function AdvancedAnalysisScreen() {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setUri(result.assets[0].uri);
+    await logEvent('image_pick_camera', { task });
+    const imageUri = await captureWithCamera();
+    
+    if (imageUri) {
+      setUri(imageUri);
       setResult(null);
+    } else if (Platform.OS !== 'web') {
+      Alert.alert('İzin Gerekli', 'Kamera kullanımı için izin vermeniz gerekiyor.');
     }
   }
 
   async function onAnalyze() {
     if (!uri) return;
     setLoading(true);
+
+    await logEvent('analyze_click', { task, age });
 
     try {
       const payload: AssessmentInput = {
@@ -93,11 +97,18 @@ export default function AdvancedAnalysisScreen() {
       const out = await analyzeDrawingMock(payload);
       setResult(out);
       
+      await logEvent('analyze_success', { 
+        task, 
+        hypotheses_count: out.reflective_hypotheses.length,
+        has_safety_flags: out.safety_flags.self_harm || out.safety_flags.abuse_concern,
+      });
+      
       if (Platform.OS !== "web") {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     } catch (e: any) {
       console.error(e);
+      await logEvent('analyze_error', { task, error: String(e) });
       Alert.alert("Hata", "Analiz sırasında bir hata oluştu.");
     } finally {
       setLoading(false);
@@ -107,6 +118,28 @@ export default function AdvancedAnalysisScreen() {
   function resetAnalysis() {
     setUri(null);
     setResult(null);
+    logEvent('analysis_reset', { task });
+  }
+
+  async function shareResults() {
+    if (!result) return;
+
+    const topHypothesis = result.reflective_hypotheses[0];
+    if (!topHypothesis) return;
+
+    const shareMessage = buildShareText(
+      topHypothesis.confidence,
+      topHypothesis.theme
+    );
+
+    try {
+      await Share.share({
+        message: shareMessage,
+      });
+      await logEvent('share_results', { task });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -120,14 +153,14 @@ export default function AdvancedAnalysisScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>İleri Düzey Analiz</Text>
+          <Text style={styles.headerTitle}>{strings[lang].title}</Text>
           <Text style={styles.headerSubtitle}>
-            Profesyonel psikolojik çizim testleri
+            {strings[lang].professionalTests}
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Test Türü Seçin</Text>
+          <Text style={styles.sectionLabel}>{strings[lang].selectTestType}</Text>
           <View style={styles.taskGrid}>
             {tasks.map((t) => (
               <Pressable
@@ -161,10 +194,10 @@ export default function AdvancedAnalysisScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Çocuk Bilgileri</Text>
+          <Text style={styles.sectionLabel}>{strings[lang].childInfo}</Text>
           <View style={styles.inputRow}>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Yaş</Text>
+              <Text style={styles.inputLabel}>{strings[lang].age}</Text>
               <TextInput
                 value={age}
                 onChangeText={setAge}
@@ -175,11 +208,11 @@ export default function AdvancedAnalysisScreen() {
               />
             </View>
             <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.inputLabel}>Çocuğun Sözü (opsiyonel)</Text>
+              <Text style={styles.inputLabel}>{strings[lang].childQuote}</Text>
               <TextInput
                 value={quote}
                 onChangeText={setQuote}
-                placeholder="Bu ben ve annem..."
+                placeholder={strings[lang].childQuotePlaceholder}
                 style={styles.input}
                 placeholderTextColor={Colors.neutral.light}
               />
@@ -189,7 +222,7 @@ export default function AdvancedAnalysisScreen() {
 
         {!uri ? (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Görsel Seç</Text>
+            <Text style={styles.sectionLabel}>{strings[lang].selectImage}</Text>
             <View style={styles.actionButtons}>
               <Pressable
                 onPress={openCamera}
@@ -200,7 +233,7 @@ export default function AdvancedAnalysisScreen() {
                 ]}
               >
                 <Camera size={28} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>Fotoğraf Çek</Text>
+                <Text style={styles.actionButtonText}>{strings[lang].takePhoto}</Text>
               </Pressable>
 
               <Pressable
@@ -212,7 +245,7 @@ export default function AdvancedAnalysisScreen() {
                 ]}
               >
                 <ImageIcon size={28} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>Galeriden Seç</Text>
+                <Text style={styles.actionButtonText}>{strings[lang].pickFromGallery}</Text>
               </Pressable>
             </View>
           </View>
@@ -220,6 +253,11 @@ export default function AdvancedAnalysisScreen() {
           <View style={styles.section}>
             <View style={styles.imageWrapper}>
               <Image source={{ uri }} style={styles.image} />
+              <OverlayEvidence 
+                width={screenWidth - 40} 
+                height={(screenWidth - 40) * 0.75} 
+                features={result?.feature_preview}
+              />
               <Pressable onPress={resetAnalysis} style={styles.removeButton}>
                 <X size={20} color="#FFFFFF" />
               </Pressable>
@@ -233,7 +271,7 @@ export default function AdvancedAnalysisScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.analyzeButtonText}>Analiz Et</Text>
+                <Text style={styles.analyzeButtonText}>{strings[lang].analyze}</Text>
               )}
             </Pressable>
           </View>
@@ -242,13 +280,17 @@ export default function AdvancedAnalysisScreen() {
         {result && (
           <View style={styles.section}>
             <ResultCard data={result} />
+            
+            <Pressable onPress={shareResults} style={styles.shareButton}>
+              <Share2 size={20} color="#FFFFFF" />
+              <Text style={styles.shareButtonText}>{strings[lang].share}</Text>
+            </Pressable>
           </View>
         )}
 
         <View style={styles.infoCard}>
           <Text style={styles.infoText}>
-            🔬 Bu araç, profesyonel psikolojik çizim testlerinin dijital analizini
-            sunar. Sonuçlar yönlendirici gözlemlerdir, teşhis değildir.
+            {strings[lang].infoText}
           </Text>
         </View>
       </ScrollView>
@@ -448,5 +490,26 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: "#1E40AF",
     textAlign: "center",
+  },
+  shareButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    backgroundColor: Colors.secondary.sky,
+    padding: 16,
+    borderRadius: 16,
+    marginTop: 16,
+    shadowColor: Colors.secondary.sky,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  shareButtonText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.neutral.white,
+    letterSpacing: 0.3,
   },
 });
