@@ -24,10 +24,10 @@ export default function StudioScreen() {
 
   const [storyTitle, setStoryTitle] = useState("Küçük Kuşun Masalı");
   const [storyResult, setStoryResult] = useState<{
-    title: string;
     pages: { text: string; img_url: string }[];
     pdf_url?: string;
     voice_urls?: string[];
+    record?: any;
   } | null>(null);
 
   const [coloringTitle, setColoringTitle] = useState("Benim Boyama Sayfam");
@@ -79,8 +79,8 @@ export default function StudioScreen() {
     }
     try {
       setLoadingPDF(true);
-      const url = await generateColoringPDF(coloringImage, coloringTitle);
-      setColoringResult(url);
+      const result = await generateColoringPDF(coloringImage, coloringTitle);
+      setColoringResult(result.pdf_url);
       Alert.alert("Boyama PDF hazır!", "PDF başarıyla oluşturuldu.");
     } catch (e: unknown) {
       const errorMessage =

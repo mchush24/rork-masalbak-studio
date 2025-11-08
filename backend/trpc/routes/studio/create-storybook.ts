@@ -1,5 +1,7 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
+import { makeStorybook } from "../../../lib/story.js";
+import { saveStorybookRecord } from "../../../lib/persist.js";
 
 const pageSchema = z.object({
   text: z.string(),
@@ -7,10 +9,12 @@ const pageSchema = z.object({
 });
 
 const storybookInputSchema = z.object({
-  title: z.string(),
-  pages: z.array(pageSchema).min(1).max(10),
-  makePdf: z.boolean().optional(),
-  makeTts: z.boolean().optional(),
+  title: z.string().default("Masal"),
+  pages: z.array(pageSchema).min(3).max(10),
+  lang: z.enum(["tr", "en"]).default("tr"),
+  makePdf: z.boolean().default(true),
+  makeTts: z.boolean().default(true),
+  user_id: z.string().nullable().optional(),
 });
 
 export const createStorybookProcedure = publicProcedure
@@ -18,40 +22,14 @@ export const createStorybookProcedure = publicProcedure
   .mutation(async ({ input }: { input: z.infer<typeof storybookInputSchema> }) => {
     console.log("[Storybook] Creating storybook:", input.title);
 
-    const generatedPages = [];
+    const out = await makeStorybook(input);
+    const record = await saveStorybookRecord(
+      input.user_id ?? null,
+      input.title,
+      out.pages,
+      out.pdf_url ?? null,
+      out.voice_urls ?? null
+    );
 
-    for (let i = 0; i < input.pages.length; i++) {
-      const page = input.pages[i];
-      
-      const imageUrl = `https://placehold.co/600x400/FFE5E5/333333?text=Scene+${i + 1}`;
-
-      generatedPages.push({
-        text: page.text,
-        img_url: imageUrl,
-      });
-
-      console.log(`[Storybook] Page ${i + 1} generated`);
-    }
-
-    let pdfUrl: string | undefined;
-    let voiceUrls: string[] | undefined;
-
-    if (input.makePdf) {
-      pdfUrl = `https://example.com/storybook_${Date.now()}.pdf`;
-      console.log("[Storybook] PDF would be generated:", pdfUrl);
-    }
-
-    if (input.makeTts) {
-      voiceUrls = input.pages.map(
-        (_page: z.infer<typeof pageSchema>, i: number) => `https://example.com/storybook_${Date.now()}_${i + 1}.mp3`
-      );
-      console.log("[Storybook] TTS would be generated:", voiceUrls);
-    }
-
-    return {
-      title: input.title,
-      pages: generatedPages,
-      pdf_url: pdfUrl,
-      voice_urls: voiceUrls,
-    };
+    return { ...out, record };
   });

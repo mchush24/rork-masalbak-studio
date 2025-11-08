@@ -1,322 +1,257 @@
-# 🎉 Uygulama Güncelleme Özeti
+# ✅ MasalBak Supabase Entegrasyonu Tamamlandı
 
-## ✅ Tamamlanan İşlemler
+## 📦 Eklenen Paketler
+- `@supabase/supabase-js` - Supabase client
+- `openai` - DALL-E 3 görsel + TTS ses üretimi
+- `puppeteer` - PDF oluşturma
+- `sharp` - Görsel işleme (line-art dönüşümü)
+- `expo-image-picker` - Mobil galeri/kamera erişimi
 
-### 1. Yeni Dosyalar Eklendi
+## 🗂️ Oluşturulan Dosyalar
 
-#### Services (Servisler)
-- ✅ `services/abTest.ts` - A/B testing, metrik takibi, paylaşım araçları
-- ✅ `services/imagePick.ts` - Gelişmiş kamera ve galeri entegrasyonu
-- ✅ `services/pressureEstimator.ts` - Baskı şiddeti tahmini (placeholder)
-
-#### Components (Bileşenler)
-- ✅ `components/OverlayEvidence.tsx` - Çizim üzerinde kanıt gösterimi
-
-#### Internationalization (i18n)
-- ✅ `i18n/strings.ts` - Türkçe ve İngilizce dil desteği
-
-#### Dokümantasyon
-- ✅ `PRO-FEATURES.md` - Detaylı özellik dokümantasyonu
-- ✅ `IMPLEMENTATION-SUMMARY.md` - Bu dosya
-
-### 2. Güncellenmiş Dosyalar
-
-#### ✅ `app/(tabs)/advanced-analysis.tsx`
-**Eklenen Özellikler:**
-- Çok dilli destek (Türkçe/İngilizce)
-- Overlay kanıt gösterimi
-- Paylaşım butonu
-- Gelişmiş metrik takibi
-- Kamera izin yönetimi
-- İyileştirilmiş hata yönetimi
-
-**Yeni Fonksiyonlar:**
-- `shareResults()` - Sonuçları paylaş
-- Gelişmiş `pickImage()` - Metrik kaydıyla görsel seçimi
-- Gelişmiş `openCamera()` - İzin kontrolüyle kamera
-- Gelişmiş `onAnalyze()` - Detaylı metrik kaydı
-
----
-
-## 🎨 Özellik Özeti
-
-### 1. 📊 Analitik ve Metrik Sistemi
-```typescript
-// Kullanım örnekleri:
-await logEvent('analyze_success', { task: 'DAP', age: 7 });
-const shareText = buildShareText(0.75, 'yakınlık_ozlemi');
-const code = generateReferralCode(userId);
+### Backend
+```
+backend/
+├── lib/
+│   ├── supabase.ts         # Supabase client + uploadBuffer helper
+│   ├── persist.ts           # Veritabanı CRUD işlemleri
+│   ├── story.ts             # Masal kitabı üretimi (AI + PDF + TTS)
+│   └── coloring.ts          # Boyama PDF üretimi (line-art + PDF)
+└── trpc/routes/studio/
+    ├── create-storybook.ts      # tRPC: Masal oluştur
+    ├── generate-coloring-pdf.ts # tRPC: Boyama PDF
+    └── list-history.ts          # tRPC: Geçmiş listeleri
 ```
 
-**Kaydedilen Metrikler:**
-- Image selection (gallery/camera)
-- Analysis start/success/error
-- Share actions
-- Analysis reset
-
-### 2. 🌍 Çok Dilli Destek
-```typescript
-// Desteklenen diller:
-- Türkçe (tr) - Varsayılan
-- İngilizce (en)
-
-// 25+ çevrilmiş metin
-strings[lang].title
-strings[lang].analyze
-strings[lang].share
+### Mobile
 ```
+services/
+└── studio.ts               # Mobile servis (tRPC client wrapper)
 
-### 3. 🎯 Overlay Kanıt Sistemi
-- Çizim üzerinde otomatik bölge işaretleme
-- 5 pozisyon desteği
-- Şeffaf overlay (orijinale zarar vermez)
-- VisionFeatures entegrasyonu
-
-### 4. 📤 Paylaşım Sistemi
-- Otomatik paylaşım metni oluşturma
-- Native Share API kullanımı
-- Viral kancalar (referral desteği hazır)
-- Metrik takibi
-
-### 5. 📱 Gelişmiş UX
-- Haptic feedback (iOS/Android)
-- Loading states
-- Error handling
-- Camera permissions
-- SafeArea support
-
----
-
-## 🚀 Kullanıma Hazır Özellikler
-
-### İleri Düzey Analiz Ekranı
-1. ✅ 9 psikolojik test türü desteği
-2. ✅ Kamera ve galeri entegrasyonu
-3. ✅ Gerçek zamanlı analiz
-4. ✅ Pedagojik sonuç kartı
-5. ✅ Paylaşım özelliği
-6. ✅ Overlay kanıt gösterimi
-7. ✅ Metrik takibi
-
-### Desteklenen Test Türleri
-- **DAP** - Bir İnsan Çiz (Koppitz)
-- **HTP** - Ev-Ağaç-İnsan (Buck)
-- **Aile** - Aile Çiz / Kinetik
-- **Kaktus** - Kaktüs Çiz Testi
-- **Agac** - Ağaç Testi (Koch)
-- **Bahce** - Bahçe Testi
-- **Bender** - Bender-Gestalt II
-- **Rey** - Rey-Osterrieth Figure
-- **Luscher** - Lüscher Renk Testi
-
----
-
-## 📋 Sonraki Adımlar (Opsiyonel)
-
-### Backend Entegrasyonu
-Şu anda `analyzeDrawingMock` kullanılıyor. Gerçek backend hazır olduğunda:
-
-```typescript
-// services/aiClient.ts içinde
-import { analyzeDrawingRemote } from '@/services/aiClient';
-
-// app/(tabs)/advanced-analysis.tsx içinde
-const out = await analyzeDrawingRemote(payload); // Mock yerine
+app/(tabs)/
+└── studio.tsx              # Studio ekranı (güncellendi)
 ```
-
-### Eklenmemiş Fakat İleride Eklenebilecek Özellikler
-(Detaylar için `PRO-FEATURES.md` dosyasına bakın)
-
-1. 🎨 **Sketch-RNN Çizim Tamamlama** - ML tabanlı öneri sistemi
-2. 🖼️ **ControlNet Görsel Yükseltme** - AI ile stil dönüşümü
-3. 🌈 **Otomatik Boyama** - Petalica Paint entegrasyonu
-4. 🎥 **AR Canlandırma** - Quiver style animasyon
-5. 🧸 **Fiziksel Ürün** - Budsies peluş entegrasyonu
-6. 📹 **Reels Oluşturma** - Video paylaşım sistemi
-7. 📚 **Masal Kitabı** - LLM ile hikaye üretimi
-8. 🔍 **Gelişmiş Görüntü İşleme** - OpenCV entegrasyonu
-
----
-
-## 🔧 Teknik Detaylar
-
-### Yüklü Paketler
-Tüm gerekli paketler zaten yüklü:
-- ✅ expo-image-picker (v17.0.8)
-- ✅ expo-haptics (v15.0.7)
-- ✅ expo-image (v3.0.10)
-- ✅ lucide-react-native (v0.475.0)
-- ✅ react-native-safe-area-context (v5.6.0)
-
-### TypeScript Uyumluluğu
-- ✅ Tüm dosyalar tip güvenli
-- ✅ Strict mode uyumlu
-- ✅ Tam interface desteği
-- ✅ Lint hatasız
-
-### Platform Desteği
-- ✅ iOS (native + simulator)
-- ✅ Android (native + emulator)
-- ✅ Web (React Native Web uyumlu)
-
----
-
-## 🎯 Kullanım Örnekleri
-
-### 1. Temel Analiz Akışı
-```typescript
-// 1. Test türü seç
-setTask('DAP');
-
-// 2. Görsel yükle
-const uri = await pickFromLibrary();
-setUri(uri);
-
-// 3. Analiz et
-const result = await analyzeDrawingMock({
-  app_version: "1.0.0",
-  schema_version: "v1.2",
-  child: { age: 7, grade: "1", context: "serbest" },
-  task_type: "DAP",
-  image_uri: uri,
-});
-
-// 4. Sonuçları göster
-<ResultCard data={result} />
-
-// 5. Paylaş
-await shareResults();
-```
-
-### 2. Metrik Takibi
-```typescript
-// Otomatik kaydedilir:
-logEvent('analyze_click', { task: 'DAP', age: 7 });
-logEvent('analyze_success', { 
-  task: 'DAP', 
-  hypotheses_count: 3,
-  has_safety_flags: false 
-});
-```
-
-### 3. Overlay Kullanımı
-```typescript
-<OverlayEvidence 
-  width={screenWidth - 40} 
-  height={(screenWidth - 40) * 0.75} 
-  features={result?.feature_preview}
-/>
-```
-
----
-
-## 📱 Ekran Görüntüleri
-
-### Ana Analiz Ekranı
-- Test türü seçim kartları (9 adet)
-- Çocuk bilgileri formu (yaş, söz)
-- Görsel seçme butonları (kamera/galeri)
-
-### Analiz Sonucu
-- Pedagojik özet kartı
-- Tespit edilen temalar (confidence skorları ile)
-- Kanıt listesi
-- Sohbet soruları (3-5 adet)
-- Etkinlik önerileri (2-4 adet)
-- Güvenlik uyarıları (gerekirse)
-- Sorumluluk reddi
-- Paylaş butonu
-
----
-
-## ⚠️ Önemli Notlar
-
-### 1. Güvenlik ve Etik
-```typescript
-// Her sonuç kartında otomatik gösterilir:
-disclaimers: [
-  "Bu içerik eğitsel amaçlıdır; klinik teşhis yerine geçmez.",
-  "Güvenlik şüphesi varsa okul psikolojik danışmanı/uzmana başvurun."
-]
-```
-
-### 2. KVKK/GDPR Uyumu
-- Çocuk görsellerini güvenli saklayın
-- Ebeveyn onayı alın
-- Veri silme hakkı tanıyın
-- Şeffaf veri kullanımı bildirin
-
-### 3. Test Lisansları
-Profesyonel testler için orijinal sahipleri ile lisans anlaşmaları yapılmalıdır:
-- Koppitz (DAP)
-- Buck (HTP)
-- Koch (Ağaç Testi)
-- vb.
-
----
-
-## 🎓 Pedagojik Temalar
-
-Sistem tarafından tespit edilebilen 11 tema:
-1. **yakınlık_ozlemi** - Yakınlık Özlemi
-2. **kaygi** - Kaygı
-3. **guven_arayisi** - Güven Arayışı
-4. **ic_dunya** - İç Dünya
-5. **dis_dunya** - Dış Dünya
-6. **aidiyet** - Aidiyet
-7. **savunma** - Savunma
-8. **agresyon** - Agresyon
-9. **enerji** - Enerji
-10. **benlik_gucu** - Benlik Gücü
-11. **dikkat_organizasyon** - Dikkat/Organizasyon
-
----
-
-## 📞 Destek ve Yardım
 
 ### Dokümantasyon
-- `PRO-FEATURES.md` - Detaylı özellik listesi
-- `IMPLEMENTATION-SUMMARY.md` - Bu dosya
-- Inline kod yorumları
+```
+schema.sql                  # Supabase veritabanı şeması
+SUPABASE_SETUP.md          # Detaylı kurulum rehberi
+.env.example               # Örnek environment variables
+```
 
-### Örnekler
-Tüm servisler ve bileşenler kullanıma hazır örneklerle birlikte gelir.
+## 🎯 tRPC Endpoints
 
----
+### 1. Masal Kitabı Oluştur
+```typescript
+trpc.studio.createStorybook.mutate({
+  title: "Masal Başlığı",
+  pages: [
+    { text: "Sayfa 1 metni", prompt: "Görsel prompt (opsiyonel)" },
+    { text: "Sayfa 2 metni" },
+    // ...
+  ],
+  lang: "tr",
+  makePdf: true,
+  makeTts: true,
+  user_id: null
+})
+```
 
-## ✅ Test Checklist
+**Çıktı:**
+- Her sayfa için AI üretimi görsel (DALL-E 3)
+- PDF dosyası (Puppeteer)
+- TTS ses dosyaları (OpenAI TTS)
+- Supabase'de kayıt
 
-### Temel Fonksiyonlar
-- [x] Test türü seçimi çalışıyor
-- [x] Galeri seçimi çalışıyor
-- [x] Kamera çalışıyor (native)
-- [x] Analiz mock çalışıyor
-- [x] Sonuç kartı gösterimi doğru
-- [x] Paylaşım çalışıyor
-- [x] Metrik kaydı çalışıyor
-- [x] Overlay gösterimi çalışıyor
-- [x] Haptic feedback çalışıyor (native)
-- [x] Çok dilli destek çalışıyor
+### 2. Boyama PDF Oluştur
+```typescript
+trpc.studio.generateColoringPDF.mutate({
+  title: "Boyama Sayfası",
+  pages: ["data:image/png;base64,..."],
+  size: "A4",
+  user_id: null
+})
+```
 
-### Platform Testleri
-- [ ] iOS cihaz testi
-- [ ] Android cihaz testi
-- [x] Web browser testi
-- [ ] Tablet testi
+**Çıktı:**
+- Line-art dönüşümü (Sharp)
+- PDF dosyası
+- Supabase'de kayıt
 
----
+### 3. Geçmiş Listele
+```typescript
+// Masallar
+trpc.studio.listStorybooks.query({ user_id: null })
 
-## 🎉 Sonuç
+// Boyamalar
+trpc.studio.listColorings.query({ user_id: null })
+```
 
-Çocuk çizimi analiz sistemi başarıyla güncellendi! Tüm PRO özellikler entegre edildi ve kullanıma hazır.
+## 🗄️ Veritabanı Şeması
 
-**Sistem Durumu:** ✅ Kullanıma Hazır
-**Kod Kalitesi:** ✅ TypeScript Safe
-**Platform Desteği:** ✅ iOS / Android / Web
-**Dokümantasyon:** ✅ Eksiksiz
+### `storybooks` Tablosu
+```sql
+id          uuid (PK)
+user_id     text
+title       text
+pages       jsonb         # [{ text, img_url }, ...]
+pdf_url     text
+voice_urls  jsonb         # ["url1.mp3", "url2.mp3", ...]
+created_at  timestamptz
+```
 
----
+### `colorings` Tablosu
+```sql
+id          uuid (PK)
+user_id     text
+title       text
+pdf_url     text
+page_count  int
+created_at  timestamptz
+```
 
-**Geliştirme Tarihi:** 2025-11-07
-**Versiyon:** 1.0.0
-**Geliştirici:** Rork AI
+## ☁️ Supabase Storage Yapısı
+
+```
+masalbak/  (bucket)
+├── images/
+│   ├── story_*.png      # Masal görselleri
+│   └── line_*.png       # Line-art görselleri
+├── pdf/
+│   ├── story_*.pdf      # Masal PDF'leri
+│   └── coloring_*.pdf   # Boyama PDF'leri
+└── audio/
+    └── story_*_*.mp3    # TTS ses dosyaları
+```
+
+## 🔐 Gerekli Environment Variables
+
+```bash
+# Supabase
+SUPABASE_URL=https://xxxxx.supabase.co
+SUPABASE_SERVICE_ROLE=eyJhbGc...
+SUPABASE_BUCKET=masalbak
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Server
+PORT=4000
+
+# Mobile
+EXPO_PUBLIC_API=http://192.168.1.100:4000
+```
+
+## 🚀 Kurulum Adımları
+
+### 1. Supabase Proje Kurulumu
+```bash
+# 1. https://supabase.com adresinden proje oluştur
+# 2. Storage > New Bucket > masalbak (public)
+# 3. SQL Editor'de schema.sql'i çalıştır
+# 4. Settings > API'den key'leri kopyala
+```
+
+### 2. Environment Variables
+```bash
+# .env.example'ı kopyala
+cp .env.example .env
+
+# Değerleri doldur (Supabase + OpenAI)
+nano .env
+```
+
+### 3. Paketleri Kur ve Çalıştır
+```bash
+# Root dizinde
+bun install
+
+# Backend'i çalıştır
+bun dev
+
+# Mobil uygulamayı çalıştır (başka terminal)
+bun start
+```
+
+## 🧪 Test
+
+### Backend Test
+```bash
+curl http://localhost:4000/api/trpc/example.hi
+# Beklenen: {"result":{"data":"Hello from tRPC!"}}
+```
+
+### Masal Oluşturma Testi
+Mobile app'te:
+1. Studio tabına git
+2. "Masal Kitabı Oluştur" butonuna bas
+3. Bekle (AI üretimi zaman alır: ~30-60 saniye)
+4. PDF linkini paylaş
+
+### Boyama PDF Testi
+Mobile app'te:
+1. Studio tabına git
+2. "Görsel Seç" butonuna bas
+3. Bir çizim seç
+4. "Boyama PDF Oluştur" butonuna bas
+5. PDF linkini paylaş
+
+## 📊 Performans ve Maliyet
+
+### OpenAI Maliyetleri (Örnek)
+- **DALL-E 3**: $0.04 / görsel
+- **TTS**: $0.015 / 1K karakter
+- **5 sayfalık masal**: ~$0.25
+
+### İşlem Süreleri
+- **Görsel üretimi**: 10-15 saniye/görsel
+- **PDF oluşturma**: 2-3 saniye
+- **TTS üretimi**: 3-5 saniye/sayfa
+- **5 sayfalık masal toplam**: ~60-90 saniye
+
+## 🐛 Bilinen Sorunlar ve Çözümler
+
+### Puppeteer Linux Hatası
+```bash
+# Chrome bağımlılıklarını kur
+sudo apt-get install -y libgbm1 libnss3 libxss1 libasound2
+```
+
+### Sharp Kurulum Hatası
+```bash
+rm -rf node_modules
+bun install
+```
+
+### Supabase Bağlantı Hatası
+- `.env` dosyasını kontrol et
+- `SUPABASE_URL` ve `SUPABASE_SERVICE_ROLE` doğru mu?
+- Supabase projesinin aktif olduğundan emin ol
+
+## 🎉 Özellikler
+
+✅ AI ile masal görseli üretimi (DALL-E 3)
+✅ Otomatik PDF oluşturma (Puppeteer)
+✅ TTS ses dosyaları (OpenAI TTS)
+✅ Line-art dönüşümü (Sharp)
+✅ Boyama PDF üretimi
+✅ Kalıcı veri depolama (Supabase)
+✅ Dosya yönetimi (Supabase Storage)
+✅ Geçmiş listeleme
+✅ Paylaşım özellikleri
+
+## 📚 Kaynaklar
+
+- [Supabase Docs](https://supabase.com/docs)
+- [OpenAI API](https://platform.openai.com/docs)
+- [Puppeteer](https://pptr.dev/)
+- [Sharp](https://sharp.pixelplumbing.com/)
+- [tRPC](https://trpc.io/)
+
+## 🆘 Destek
+
+Sorun yaşarsan kontrol et:
+1. ✅ Supabase Dashboard > Logs
+2. ✅ Backend console logs
+3. ✅ Mobile Expo DevTools > Console
+4. ✅ SUPABASE_SETUP.md dosyasını oku
