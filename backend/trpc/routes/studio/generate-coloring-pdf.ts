@@ -1,10 +1,13 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
+import { makeColoringPDF } from "../../../lib/coloring.js";
+import { saveColoringRecord } from "../../../lib/persist.js";
 
 const coloringInputSchema = z.object({
-  imageUri: z.string(),
-  title: z.string(),
-  size: z.enum(["A4", "A3"]).optional().default("A4"),
+  size: z.enum(["A4", "A3"]).default("A4"),
+  title: z.string().default("Boyama Sayfası"),
+  pages: z.array(z.string()).min(1),
+  user_id: z.string().nullable().optional(),
 });
 
 export const generateColoringPDFProcedure = publicProcedure
@@ -12,12 +15,13 @@ export const generateColoringPDFProcedure = publicProcedure
   .mutation(async ({ input }: { input: z.infer<typeof coloringInputSchema> }) => {
     console.log("[Coloring PDF] Generating PDF for:", input.title);
 
-    const pdfUrl = `https://example.com/coloring_${Date.now()}.pdf`;
-    console.log("[Coloring PDF] PDF would be generated:", pdfUrl);
+    const { pdfUrl, pageCount } = await makeColoringPDF(input.pages, input.title, input.size);
+    const record = await saveColoringRecord(
+      input.user_id ?? null,
+      input.title,
+      pdfUrl,
+      pageCount
+    );
 
-    return {
-      pdf_url: pdfUrl,
-      title: input.title,
-      size: input.size,
-    };
+    return { pdf_url: pdfUrl, record };
   });

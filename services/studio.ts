@@ -1,64 +1,56 @@
-type PageSpec = { text: string; prompt?: string };
+import * as FileSystem from "expo-file-system";
+import { trpcClient } from "@/lib/trpc";
 
-interface StorybookOptions {
-  title: string;
-  pages: PageSpec[];
-  makePdf?: boolean;
-  makeTts?: boolean;
-}
+export type StoryPageInput = { text: string; prompt?: string };
 
-interface StorybookResult {
-  title: string;
+export type StorybookResult = {
   pages: { text: string; img_url: string }[];
   pdf_url?: string;
   voice_urls?: string[];
-}
+  record?: any;
+};
 
 export async function createStorybook(
-  pages: PageSpec[],
-  options: { makePdf?: boolean; makeTts?: boolean } = {}
+  pages: StoryPageInput[],
+  options?: { lang?: "tr"|"en"; makePdf?: boolean; makeTts?: boolean; title?: string; user_id?: string|null }
 ): Promise<StorybookResult> {
-  const input: StorybookOptions = {
-    title: "Çocuk Masalı",
+  return await trpcClient.studio.createStorybook.mutate({
     pages,
-    ...options,
-  };
-
-  const response = await fetch("/api/trpc/studio.createStorybook", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ json: input }),
+    lang: options?.lang ?? "tr",
+    makePdf: options?.makePdf ?? true,
+    makeTts: options?.makeTts ?? true,
+    title: options?.title ?? "Masal",
+    user_id: options?.user_id ?? null
   });
+}
 
-  if (!response.ok) {
-    throw new Error(`Storybook creation failed: ${response.status}`);
-  }
+export type ColoringPDFResult = { pdf_url: string; record?: any };
 
-  const data = await response.json();
-  return data.result.data.json;
+async function toDataUri(localUri: string): Promise<string> {
+  const base64 = await FileSystem.readAsStringAsync(localUri, { encoding: "base64" });
+  const ext = (localUri.split(".").pop() || "jpg").toLowerCase();
+  const mime = ext === "jpg" ? "jpeg" : ext;
+  return `data:image/${mime};base64,${base64}`;
 }
 
 export async function generateColoringPDF(
   imageUri: string,
   title: string,
-  size: "A4" | "A3" = "A4"
-): Promise<string> {
-  const response = await fetch("/api/trpc/studio.generateColoringPDF", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      json: {
-        imageUri,
-        title,
-        size,
-      },
-    }),
+  options?: { size?: "A4"|"A3"; user_id?: string|null }
+): Promise<ColoringPDFResult> {
+  const dataUri = await toDataUri(imageUri);
+  return await trpcClient.studio.generateColoringPDF.mutate({
+    size: options?.size ?? "A4",
+    title,
+    pages: [dataUri],
+    user_id: options?.user_id ?? null
   });
+}
 
-  if (!response.ok) {
-    throw new Error(`Coloring PDF generation failed: ${response.status}`);
-  }
+export async function listStorybooks(user_id?: string|null) {
+  return await trpcClient.studio.listStorybooks.query({ user_id: user_id ?? null });
+}
 
-  const data = await response.json();
-  return data.result.data.json.pdf_url;
+export async function listColorings(user_id?: string|null) {
+  return await trpcClient.studio.listColorings.query({ user_id: user_id ?? null });
 }
