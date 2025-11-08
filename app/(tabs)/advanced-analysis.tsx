@@ -24,8 +24,12 @@ import { logEvent, buildShareText } from "@/services/abTest";
 import { strings, type Language } from "@/i18n/strings";
 import type { TaskType, AssessmentInput, AssessmentOutput } from "@/types/AssessmentSchema";
 import { PROTOCOLS } from "@/constants/protocols";
-import { Camera, ImageIcon, X, CheckCircle, Share2, BookOpen } from "lucide-react-native";
+import { Camera, ImageIcon, X, CheckCircle, Share2, BookOpen, MessageCircle } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
+import { QuestionnaireModal } from "@/components/QuestionnaireModal";
+import { ExplanationCards } from "@/components/ExplanationCards";
+import { DrawingInsightCard } from "@/components/DrawingInsightCard";
+import type { QuestionnaireAnswer } from "@/types/QuestionnaireSchema";
 
 export default function AdvancedAnalysisScreen() {
   const insets = useSafeAreaInsets();
@@ -37,6 +41,8 @@ export default function AdvancedAnalysisScreen() {
   const [result, setResult] = useState<AssessmentOutput | null>(null);
   const [lang] = useState<Language>("tr");
   const [showProtocol, setShowProtocol] = useState(false);
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<QuestionnaireAnswer[] | null>(null);
   const screenWidth = Dimensions.get('window').width;
 
   const tasks: { type: TaskType; label: string; description: string }[] = [
@@ -105,6 +111,8 @@ export default function AdvancedAnalysisScreen() {
         hypotheses_count: out.reflective_hypotheses.length,
         has_safety_flags: out.safety_flags.self_harm || out.safety_flags.abuse_concern,
       });
+      
+      setShowQuestionnaire(true);
       
       if (Platform.OS !== "web") {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -295,6 +303,30 @@ export default function AdvancedAnalysisScreen() {
           <View style={styles.section}>
             <ResultCard data={result} />
             
+            {!questionnaireAnswers && (
+              <Pressable 
+                onPress={() => setShowQuestionnaire(true)} 
+                style={styles.questionnaireButton}
+              >
+                <MessageCircle size={20} color="#FFFFFF" />
+                <Text style={styles.questionnaireButtonText}>Davranış Soruları</Text>
+              </Pressable>
+            )}
+            
+            {questionnaireAnswers && (
+              <View style={{ gap: 16, marginTop: 20 }}>
+                <DrawingInsightCard
+                  placement="Çocuk figürü sayfanın orta-alt bölgesinde."
+                  interpretation="Bu genelde kendini korumaya alma ve iç dünyayı sessizce düzenleme dönemlerinde görülür. Bu yaş grubunda oldukça yaygındır. Son zamanlarda değişim veya kaygı varsa çocuk bunu çizimle ifade ediyor olabilir. Bu, duygunun sağlıklı bir dışavurum şeklidir."
+                  recommendation='Her gün 5 dakikalık "sessizce birlikte oturma ve çizme" zamanı, çocuğun zihnini rahatlatır ve bağlılık hissini güçlendirir.'
+                />
+                
+                <ExplanationCards 
+                  showSupport={result.safety_flags.self_harm || result.safety_flags.abuse_concern}
+                />
+              </View>
+            )}
+            
             <Pressable onPress={shareResults} style={styles.shareButton}>
               <Share2 size={20} color="#FFFFFF" />
               <Text style={styles.shareButtonText}>{strings[lang].share}</Text>
@@ -355,6 +387,19 @@ export default function AdvancedAnalysisScreen() {
           </View>
         </Modal>
       )}
+      
+      <QuestionnaireModal
+        visible={showQuestionnaire}
+        onComplete={(answers) => {
+          setQuestionnaireAnswers(answers);
+          setShowQuestionnaire(false);
+          logEvent('questionnaire_completed', { 
+            task, 
+            answers_count: answers.length 
+          });
+        }}
+        onClose={() => setShowQuestionnaire(false)}
+      />
     </View>
   );
 }
@@ -568,6 +613,27 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   shareButtonText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.neutral.white,
+    letterSpacing: 0.3,
+  },
+  questionnaireButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    backgroundColor: "#9333EA",
+    padding: 16,
+    borderRadius: 16,
+    marginTop: 16,
+    shadowColor: "#9333EA",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  questionnaireButtonText: {
     fontSize: 16,
     fontWeight: "700" as const,
     color: Colors.neutral.white,
