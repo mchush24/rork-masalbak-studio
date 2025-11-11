@@ -1,0 +1,14 @@
+# Backend API Port
+PORT=4000
+
+# OpenAI API Key (for image generation and TTS)
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Supabase Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key-here
+SUPABASE_SERVICE_ROLE=your-supabase-service-role-key-here
+SUPABASE_BUCKET=masalbak
+
+# Expo Public API URL (for mobile app)
+EXPO_PUBLIC_API=http://localhost:4000

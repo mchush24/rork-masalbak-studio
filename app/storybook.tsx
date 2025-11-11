@@ -14,7 +14,7 @@ import { useState, useRef, useEffect } from "react";
 import { Image } from "expo-image";
 import { ChevronLeft, ChevronRight, Sparkles, BookOpen } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import { generateText } from "@rork/toolkit-sdk";
+import { generateText } from "@rork-ai/toolkit-sdk";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

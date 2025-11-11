@@ -201,7 +201,7 @@ export async function createReels(imageUri: string, caption: string, duration: n
 **Nasıl Eklenebilir:**
 ```javascript
 // services/storybookGeneration.ts
-import { generateText } from "@rork/toolkit-sdk";
+import { generateText } from "@rork-ai/toolkit-sdk";
 
 export async function generateStorybook(analysisId: string, pages: number): Promise<Storybook> {
   const prompt = `Çocuk çizimi analizi ID: ${analysisId} için ${pages} sayfalık bir masal oluştur.`;

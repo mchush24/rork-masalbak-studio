@@ -16,7 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { Camera, ImageIcon, X, Sparkles, Zap, BookText, FlaskConical } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import { generateText } from "@rork/toolkit-sdk";
+import { generateText } from "@rork-ai/toolkit-sdk";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
