@@ -46,11 +46,8 @@ export const PROTOCOLS: Record<string, {
   },
   Bahce: {
     title: "Bahçe Testi",
-    steps: [
-      "Yönerge: 'Bir bahçe çiz.'",
-      "Elemanlar arası ilişkileri ve yerleşimi not et."
-    ],
-    donts: ["Çiçek/ağaç sayısı belirtme"]
+    steps: ["Yönerge: 'Bir bahçe çiz.'", "Detayları not et"],
+    donts: ["Belirli çiçek/ağaç isteme"]
   },
   Bender: {
     title: "Bender–Gestalt II",

@@ -1,7 +1,6 @@
 import { AssessmentInput, AssessmentOutput } from "@/types/AssessmentSchema";
-import Constants from "expo-constants";
 
-const API_BASE = Constants.expoConfig?.extra?.api || "http://localhost:4000";
+const API_BASE = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "http://localhost:4000";
 
 export async function analyzeDrawingRemote(payload: AssessmentInput): Promise<AssessmentOutput> {
   const res = await fetch(`${API_BASE}/analyze`, {
@@ -9,8 +8,11 @@ export async function analyzeDrawingRemote(payload: AssessmentInput): Promise<As
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  
   if (!res.ok) {
-    throw new Error(`Analyze failed: ${res.status}`);
+    const text = await res.text();
+    throw new Error(`Analyze failed: ${res.status} - ${text}`);
   }
+  
   return (await res.json()) as AssessmentOutput;
 }
