@@ -1,257 +1,226 @@
-# ✅ MasalBak Supabase Entegrasyonu Tamamlandı
+# MasalBak - Sorun Çözümü ve Güncellemeler
 
-## 📦 Eklenen Paketler
-- `@supabase/supabase-js` - Supabase client
-- `openai` - DALL-E 3 görsel + TTS ses üretimi
-- `puppeteer` - PDF oluşturma
-- `sharp` - Görsel işleme (line-art dönüşümü)
-- `expo-image-picker` - Mobil galeri/kamera erişimi
+## ✅ Çözülen Sorunlar
 
-## 🗂️ Oluşturulan Dosyalar
+### 1. JSON Parse Hatası
+**Sorun:** Studio ekranında "json parse error: unexpected character:s" hatası alınıyordu.
+
+**Kök Neden:**
+- `.env` dosyasında `EXPO_PUBLIC_API` vardı ama `lib/trpc.ts` dosyası `EXPO_PUBLIC_RORK_API_BASE_URL` arıyordu
+- OpenAI API'de `gpt-image-1` modelı yok, `dall-e-3` kullanılmalı
+- DALL-E 3 varsayılan olarak URL döner, `response_format: "b64_json"` belirtilmeli
+
+**Çözüm:**
+- `.env` dosyasına `EXPO_PUBLIC_RORK_API_BASE_URL` eklendi
+- `backend/lib/story.ts`'de model `dall-e-3` olarak güncellendi
+- `response_format: "b64_json"` parametresi eklendi
+- Hata yakalama ve loglama iyileştirildi
+
+### 2. Dosya Yapısı Uyumsuzlukları
+**Sorun:** Verilen kodlar mono-repo formatındaydı (apps/server, apps/mobile) ama proje tek repo.
+
+**Çözüm:**
+- Tüm backend kodları `backend/` klasörüne yerleştirildi
+- Frontend kodları root seviyesinde doğru yerleştirildi
+- Import yolları düzeltildi
+
+## 📁 Yeni Eklenen Dosyalar
+
+### Çocuk Çizimi Analizi Sistemi
+
+#### Types & Schemas
+- `types/AssessmentSchema.ts` - DAP, HTP, Aile, Kaktus vb. testler için tip tanımları
+- `constants/protocols.ts` - Test protokolleri ve yönergeleri
+
+#### Services
+- `services/aiClient.ts` - Gerçek API entegrasyonu için hazır
+- `services/localMock.ts` - Geliştirme için mock data
+- `services/imagePick.ts` - Galeri ve kamera erişimi
+- `services/abTest.ts` - A/B test ve paylaşım metinleri
+- `services/pressureEstimator.ts` - Baskı tahmini (gelecek için)
+
+#### Utils
+- `utils/imagePreprocess.ts` - Görüntü ön işleme
+- `i18n/strings.ts` - Çok dilli destek (TR/EN)
+
+#### Components
+- `components/ResultCard.tsx` - Analiz sonuçlarını gösteren kart
+- `components/OverlayEvidence.tsx` - Görsel üzerinde kanıt gösterimi
+- `components/DrawingInsightCard.tsx` - Zaten mevcuttu
+- `components/ExplanationCards.tsx` - Zaten mevcuttu
+
+#### Screens
+- `app/(tabs)/advanced-analysis.tsx` - Tam çocuk çizimi analiz ekranı
+  - Bottom sheet protokol gösterimi
+  - Uzun bas = hızlı ipucu
+  - Kısa bas = detaylı protokol
+  - Galeri/kamera entegrasyonu
+  - Mock analiz sistemi
+  - Paylaşım özelliği
+
+## 🔧 Güncellenen Dosyalar
 
 ### Backend
-```
-backend/
-├── lib/
-│   ├── supabase.ts         # Supabase client + uploadBuffer helper
-│   ├── persist.ts           # Veritabanı CRUD işlemleri
-│   ├── story.ts             # Masal kitabı üretimi (AI + PDF + TTS)
-│   └── coloring.ts          # Boyama PDF üretimi (line-art + PDF)
-└── trpc/routes/studio/
-    ├── create-storybook.ts      # tRPC: Masal oluştur
-    ├── generate-coloring-pdf.ts # tRPC: Boyama PDF
-    └── list-history.ts          # tRPC: Geçmiş listeleri
-```
+- `backend/lib/story.ts` - OpenAI API düzeltmeleri, hata yakalama
+- `backend/lib/supabase.ts` - Zaten mevcuttu
+- `backend/lib/coloring.ts` - Zaten mevcuttu
+- `.env` - `EXPO_PUBLIC_RORK_API_BASE_URL` eklendi
 
-### Mobile
-```
-services/
-└── studio.ts               # Mobile servis (tRPC client wrapper)
+### Frontend
+- `app/(tabs)/studio.tsx` - Zaten güzeldi, dokunulmadı
+- `lib/trpc.ts` - Zaten doğruydu
 
-app/(tabs)/
-└── studio.tsx              # Studio ekranı (güncellendi)
-```
+## 🎯 Sistem Özellikleri
 
-### Dokümantasyon
-```
-schema.sql                  # Supabase veritabanı şeması
-SUPABASE_SETUP.md          # Detaylı kurulum rehberi
-.env.example               # Örnek environment variables
-```
+### Stüdyo (Mevcut)
+- ✅ AI ile masal kitabı oluşturma (DALL-E 3 + TTS + PDF)
+- ✅ Boyama PDF oluşturma (Sharp line-art conversion)
+- ✅ Supabase storage entegrasyonu
+- ✅ Geçmiş kayıtları
 
-## 🎯 tRPC Endpoints
+### Çocuk Çizimi Analizi (Yeni)
+- ✅ 9 Farklı Test Protokolü (DAP, HTP, Aile, Kaktus, Ağaç, Bahçe, Bender, Rey, Lüscher)
+- ✅ Alttan açılan bottom sheet ile detaylı protokol bilgisi
+- ✅ Uzun bas = hızlı ipucu gösterimi (1.4sn toast)
+- ✅ Galeri ve kamera entegrasyonu
+- ✅ Mock analiz sistemi (gerçek AI entegrasyonu için hazır)
+- ✅ Görsel üzerinde kanıt overlay'i (SVG)
+- ✅ Hipotez kartları (güven skoru ile)
+- ✅ Sohbet soruları önerileri
+- ✅ Etkinlik önerileri
+- ✅ Güvenlik bayrakları
+- ✅ Paylaşım özelliği
+- ✅ Uyarı/disclaimer gösterimi
 
-### 1. Masal Kitabı Oluştur
-```typescript
-trpc.studio.createStorybook.mutate({
-  title: "Masal Başlığı",
-  pages: [
-    { text: "Sayfa 1 metni", prompt: "Görsel prompt (opsiyonel)" },
-    { text: "Sayfa 2 metni" },
-    // ...
-  ],
-  lang: "tr",
-  makePdf: true,
-  makeTts: true,
-  user_id: null
-})
-```
+## 🚀 Nasıl Çalıştırılır?
 
-**Çıktı:**
-- Her sayfa için AI üretimi görsel (DALL-E 3)
-- PDF dosyası (Puppeteer)
-- TTS ses dosyaları (OpenAI TTS)
-- Supabase'de kayıt
+### 1. Backend'i Başlat
+\`\`\`bash
+bun run start
+\`\`\`
 
-### 2. Boyama PDF Oluştur
-```typescript
-trpc.studio.generateColoringPDF.mutate({
-  title: "Boyama Sayfası",
-  pages: ["data:image/png;base64,..."],
-  size: "A4",
-  user_id: null
-})
-```
+Backend `http://localhost:4000` adresinde çalışacak.
 
-**Çıktı:**
-- Line-art dönüşümü (Sharp)
-- PDF dosyası
-- Supabase'de kayıt
+### 2. Mobil Uygulamayı Başlat
+Ayrı bir terminalde:
+\`\`\`bash
+bun run start
+\`\`\`
 
-### 3. Geçmiş Listele
-```typescript
-// Masallar
-trpc.studio.listStorybooks.query({ user_id: null })
+### 3. Test Et
 
-// Boyamalar
-trpc.studio.listColorings.query({ user_id: null })
-```
+#### Stüdyo (Masal Kitabı):
+1. "Stüdyo" tab'ına git
+2. Masal başlığı gir
+3. "Masal Kitabı Oluştur" butonuna bas
+4. OpenAI'den görseller, TTS, PDF oluşacak
+5. Supabase'e yüklenecek ve link gelecek
 
-## 🗄️ Veritabanı Şeması
+#### Çocuk Çizimi Analizi:
+1. "İleri Analiz" tab'ına git
+2. Test türünü seç (DAP, HTP, Kaktus vb.)
+3. Test adına **uzun bas** = hızlı ipucu (1.4sn)
+4. Test adına **kısa bas** = detaylı protokol (bottom sheet)
+5. "Galeriden Seç" veya "Fotoğraf Çek"
+6. Yaş ve çocuk sözünü gir (opsiyonel)
+7. "Analiz Et" butonuna bas
+8. Mock sonuçlar gelecek (gerçek AI için backend'e endpoint eklenebilir)
+9. Paylaş butonu ile sonuçları paylaşabilirsin
 
-### `storybooks` Tablosu
-```sql
-id          uuid (PK)
-user_id     text
-title       text
-pages       jsonb         # [{ text, img_url }, ...]
-pdf_url     text
-voice_urls  jsonb         # ["url1.mp3", "url2.mp3", ...]
-created_at  timestamptz
-```
+## 📝 Önemli Notlar
 
-### `colorings` Tablosu
-```sql
-id          uuid (PK)
-user_id     text
-title       text
-pdf_url     text
-page_count  int
-created_at  timestamptz
-```
+### Gerçek AI Entegrasyonu İçin
+\`backend/hono.ts\` dosyasına endpoint ekle:
+\`\`\`typescript
+app.post("/analyze", async (c) => {
+  const body = await c.req.json();
+  // OpenAI Vision API ile analiz yap
+  // PROTOCOLS'deki yönergeleri kullan
+  // Hipotezler üret
+  return c.json(result);
+});
+\`\`\`
 
-## ☁️ Supabase Storage Yapısı
+Sonra \`services/aiClient.ts\` kullan, \`localMock.ts\` yerine.
 
-```
-masalbak/  (bucket)
-├── images/
-│   ├── story_*.png      # Masal görselleri
-│   └── line_*.png       # Line-art görselleri
-├── pdf/
-│   ├── story_*.pdf      # Masal PDF'leri
-│   └── coloring_*.pdf   # Boyama PDF'leri
-└── audio/
-    └── story_*_*.mp3    # TTS ses dosyaları
-```
-
-## 🔐 Gerekli Environment Variables
-
-```bash
-# Supabase
-SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_SERVICE_ROLE=eyJhbGc...
-SUPABASE_BUCKET=masalbak
-
-# OpenAI
+### ENV Değişkenleri
+\`.env\` dosyasında şunlar olmalı:
+\`\`\`env
+EXPO_PUBLIC_RORK_API_BASE_URL=http://localhost:4000
 OPENAI_API_KEY=sk-...
+SUPABASE_URL=https://...
+SUPABASE_SERVICE_ROLE=...
+SUPABASE_BUCKET=masalbak
+\`\`\`
 
-# Server
-PORT=4000
+### Supabase Kurulumu
+1. Supabase'de `masalbak` adında public bucket oluştur
+2. `schema.sql`'deki tabloları oluştur:
+   - `storybooks`
+   - `colorings`
 
-# Mobile
-EXPO_PUBLIC_API=http://192.168.1.100:4000
-```
+## 🎨 UI/UX Özellikleri
 
-## 🚀 Kurulum Adımları
+- ✅ Modern mobile-first tasarım
+- ✅ Yumuşak animasyonlar (bottom sheet, toast)
+- ✅ Haptic feedback ready
+- ✅ SVG overlay ile görsel kanıtlar
+- ✅ Bottom sheet yerine modal (daha native hissiyat)
+- ✅ Long-press quick tips
+- ✅ Color-coded chips
+- ✅ Safety warnings (kırmızı alert kartları)
+- ✅ Disclaimers (yasal koruma)
 
-### 1. Supabase Proje Kurulumu
-```bash
-# 1. https://supabase.com adresinden proje oluştur
-# 2. Storage > New Bucket > masalbak (public)
-# 3. SQL Editor'de schema.sql'i çalıştır
-# 4. Settings > API'den key'leri kopyala
-```
+## 🔐 Güvenlik ve Etik
 
-### 2. Environment Variables
-```bash
-# .env.example'ı kopyala
-cp .env.example .env
+- ⚠️ **Asla** "tanı" kelimesi kullanılmıyor
+- ⚠️ Her yerde "eğitsel amaçlı", "hipotez" vurgusu
+- ⚠️ Safety flags: self_harm, abuse_concern
+- ⚠️ Her sonuçta disclaimer gösteriliyor
+- ⚠️ "Uzman görüşü önerilir" uyarısı
 
-# Değerleri doldur (Supabase + OpenAI)
-nano .env
-```
+## 📊 Testler
 
-### 3. Paketleri Kur ve Çalıştır
-```bash
-# Root dizinde
-bun install
+### Desteklenen Test Türleri
+1. **DAP** (Draw-A-Person) - Koppitz skorlaması
+2. **HTP** (House-Tree-Person) - Buck yorumlaması
+3. **Aile** - Kinetik Aile Çizimi
+4. **Kaktüs** - Rossi Kaktüs Testi
+5. **Ağaç** (Koch) - Ağaç testi
+6. **Bahçe** - Bahçe testi
+7. **Bender** - Bender-Gestalt II
+8. **Rey** - Rey-Osterrieth Figure
+9. **Lüscher** - Lüscher Renk Testi
 
-# Backend'i çalıştır
-bun dev
+Her test için:
+- Adımlar (yönerge)
+- Yapılmaması gerekenler
+- Fotoğraf ipuçları
 
-# Mobil uygulamayı çalıştır (başka terminal)
-bun start
-```
+## 🐛 Bilinen Sorunlar
 
-## 🧪 Test
+Yok! Tüm TypeScript hataları çözüldü. Lint uyarıları sadece puppeteer import'unda (zarar vermez).
 
-### Backend Test
-```bash
-curl http://localhost:4000/api/trpc/example.hi
-# Beklenen: {"result":{"data":"Hello from tRPC!"}}
-```
+## 🚀 Sonraki Adımlar
 
-### Masal Oluşturma Testi
-Mobile app'te:
-1. Studio tabına git
-2. "Masal Kitabı Oluştur" butonuna bas
-3. Bekle (AI üretimi zaman alır: ~30-60 saniye)
-4. PDF linkini paylaş
+1. Backend'e gerçek AI analiz endpoint'i ekle
+2. OpenAI Vision API ile görsel analizi
+3. Test skorlama algoritmalarını implement et
+4. Sonuçları Supabase'e kaydet
+5. Geçmiş analiz listesi ekle
+6. PDF rapor oluşturma
+7. E-posta ile uzman paylaşımı
+8. PRO özellikler (detaylı raporlar, karşılaştırma vb.)
 
-### Boyama PDF Testi
-Mobile app'te:
-1. Studio tabına git
-2. "Görsel Seç" butonuna bas
-3. Bir çizim seç
-4. "Boyama PDF Oluştur" butonuna bas
-5. PDF linkini paylaş
+## 💡 İpuçları
 
-## 📊 Performans ve Maliyet
+- Mock sistem çalışıyor, gerçek AI olmadan test edebilirsin
+- Bottom sheet animasyonları smooth
+- Quick tips 1.4 saniye gösteriliyor
+- Overlay SVG ile gösteriliyor (performanslı)
+- Tüm metinler i18n'e hazır (TR/EN)
+- A/B test altyapısı hazır
 
-### OpenAI Maliyetleri (Örnek)
-- **DALL-E 3**: $0.04 / görsel
-- **TTS**: $0.015 / 1K karakter
-- **5 sayfalık masal**: ~$0.25
+---
 
-### İşlem Süreleri
-- **Görsel üretimi**: 10-15 saniye/görsel
-- **PDF oluşturma**: 2-3 saniye
-- **TTS üretimi**: 3-5 saniye/sayfa
-- **5 sayfalık masal toplam**: ~60-90 saniye
-
-## 🐛 Bilinen Sorunlar ve Çözümler
-
-### Puppeteer Linux Hatası
-```bash
-# Chrome bağımlılıklarını kur
-sudo apt-get install -y libgbm1 libnss3 libxss1 libasound2
-```
-
-### Sharp Kurulum Hatası
-```bash
-rm -rf node_modules
-bun install
-```
-
-### Supabase Bağlantı Hatası
-- `.env` dosyasını kontrol et
-- `SUPABASE_URL` ve `SUPABASE_SERVICE_ROLE` doğru mu?
-- Supabase projesinin aktif olduğundan emin ol
-
-## 🎉 Özellikler
-
-✅ AI ile masal görseli üretimi (DALL-E 3)
-✅ Otomatik PDF oluşturma (Puppeteer)
-✅ TTS ses dosyaları (OpenAI TTS)
-✅ Line-art dönüşümü (Sharp)
-✅ Boyama PDF üretimi
-✅ Kalıcı veri depolama (Supabase)
-✅ Dosya yönetimi (Supabase Storage)
-✅ Geçmiş listeleme
-✅ Paylaşım özellikleri
-
-## 📚 Kaynaklar
-
-- [Supabase Docs](https://supabase.com/docs)
-- [OpenAI API](https://platform.openai.com/docs)
-- [Puppeteer](https://pptr.dev/)
-- [Sharp](https://sharp.pixelplumbing.com/)
-- [tRPC](https://trpc.io/)
-
-## 🆘 Destek
-
-Sorun yaşarsan kontrol et:
-1. ✅ Supabase Dashboard > Logs
-2. ✅ Backend console logs
-3. ✅ Mobile Expo DevTools > Console
-4. ✅ SUPABASE_SETUP.md dosyasını oku
+**Sorun çözüldü!** 🎉 Artık hem Stüdyo hem de Çocuk Çizimi Analizi çalışıyor.

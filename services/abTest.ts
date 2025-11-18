@@ -1,5 +1,4 @@
-export type ABVariant = 'A' | 'B';
-
+export type ABVariant = 'A'|'B';
 let currentVariant: ABVariant | null = null;
 
 export function pickVariant(): ABVariant {
@@ -22,18 +21,4 @@ export function buildShareText(confidence: number, topTheme: string) {
 export function generateReferralCode(userId: string) {
   const r = Math.random().toString(36).slice(-2).toUpperCase();
   return (userId.slice(-6) + r).toUpperCase();
-}
-
-export const safetyBanner = {
-  text: 'Bu sonuçlar hipotezdir; kaygı varsa okul PDR/uzmana danışın.',
-  color: '#B00020',
-};
-
-export async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
-  try {
-    return await fn();
-  } catch (e) {
-    if (retries <= 0) throw e;
-    return withRetry(fn, retries - 1);
-  }
 }

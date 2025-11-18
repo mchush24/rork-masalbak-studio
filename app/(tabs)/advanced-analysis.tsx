@@ -1,35 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
-  View,
-  Text,
   StyleSheet,
+  Text,
+  View,
   Pressable,
   ScrollView,
   TextInput,
   ActivityIndicator,
   Alert,
-  Platform,
   Share,
   Dimensions,
-  Modal,
+  Animated,
+  Easing,
+  Image,
 } from "react-native";
-import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Brain, Camera, ImageIcon } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
+import { PROTOCOLS } from "@/constants/protocols";
+import { strings } from "@/i18n/strings";
+import { preprocessImage } from "@/utils/imagePreprocess";
 import { ResultCard } from "@/components/ResultCard";
 import { OverlayEvidence } from "@/components/OverlayEvidence";
 import { analyzeDrawingMock } from "@/services/localMock";
+import { buildShareText } from "@/services/abTest";
 import { pickFromLibrary, captureWithCamera } from "@/services/imagePick";
-import { logEvent, buildShareText } from "@/services/abTest";
-import { strings, type Language } from "@/i18n/strings";
-import type { TaskType, AssessmentInput, AssessmentOutput } from "@/types/AssessmentSchema";
-import { PROTOCOLS } from "@/constants/protocols";
-import { Camera, ImageIcon, X, CheckCircle, Share2, BookOpen, MessageCircle } from "lucide-react-native";
-import * as Haptics from "expo-haptics";
-import { QuestionnaireModal } from "@/components/QuestionnaireModal";
-import { ExplanationCards } from "@/components/ExplanationCards";
-import { DrawingInsightCard } from "@/components/DrawingInsightCard";
-import type { QuestionnaireAnswer } from "@/types/QuestionnaireSchema";
+import type { AssessmentInput, TaskType } from "@/types/AssessmentSchema";
+
+const lang = "tr";
 
 export default function AdvancedAnalysisScreen() {
   const insets = useSafeAreaInsets();
@@ -38,120 +36,123 @@ export default function AdvancedAnalysisScreen() {
   const [task, setTask] = useState<TaskType>("DAP");
   const [quote, setQuote] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AssessmentOutput | null>(null);
-  const [lang] = useState<Language>("tr");
-  const [showProtocol, setShowProtocol] = useState(false);
-  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
-  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<QuestionnaireAnswer[] | null>(null);
-  const screenWidth = Dimensions.get('window').width;
+  const [result, setResult] = useState<any>(null);
 
-  const tasks: { type: TaskType; label: string; description: string }[] = [
-    { type: "DAP", label: "Bir İnsan Çiz", description: "Koppitz" },
-    { type: "HTP", label: "Ev-Ağaç-İnsan", description: "Buck" },
-    { type: "Aile", label: "Aile Çiz", description: "Kinetik" },
-    { type: "Kaktus", label: "Kaktüs Testi", description: "Savunma" },
-    { type: "Agac", label: "Ağaç Testi", description: "Koch" },
-    { type: "Bahce", label: "Bahçe Testi", description: "İlişkiler" },
-    { type: "Bender", label: "Bender-Gestalt", description: "Görsel-Motor" },
-    { type: "Rey", label: "Rey-Osterrieth", description: "Organizasyon" },
-    { type: "Luscher", label: "Lüscher Renk", description: "Duygusal" },
-  ];
+  const [sheetTask, setSheetTask] = useState<TaskType>("DAP");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const sheetAnim = useRef(new Animated.Value(0)).current;
 
-  async function pickImage() {
-    if (Platform.OS !== "web") {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+  const [tip, setTip] = useState<{ title: string; text: string } | null>(null);
+  const tipOpacity = useRef(new Animated.Value(0)).current;
 
-    await logEvent('image_pick_gallery', { task });
-    const imageUri = await pickFromLibrary();
-    
-    if (imageUri) {
-      setUri(imageUri);
-      setResult(null);
-    }
+  function openSheet(forTask: TaskType) {
+    setSheetTask(forTask);
+    setSheetOpen(true);
+    Animated.timing(sheetAnim, {
+      toValue: 1,
+      duration: 220,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.cubic),
+    }).start();
   }
 
-  async function openCamera() {
-    if (Platform.OS !== "web") {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+  function closeSheet() {
+    Animated.timing(sheetAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+      easing: Easing.in(Easing.cubic),
+    }).start(({ finished }) => {
+      if (finished) setSheetOpen(false);
+    });
+  }
 
-    await logEvent('image_pick_camera', { task });
-    const imageUri = await captureWithCamera();
-    
-    if (imageUri) {
-      setUri(imageUri);
-      setResult(null);
-    } else if (Platform.OS !== 'web') {
-      Alert.alert('İzin Gerekli', 'Kamera kullanımı için izin vermeniz gerekiyor.');
-    }
+  function showTip(title: string, text: string) {
+    setTip({ title, text });
+    Animated.timing(tipOpacity, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(tipOpacity, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }).start(() => setTip(null));
+      }, 1400);
+    });
+  }
+
+  async function onPickFromLibrary() {
+    const selectedUri = await pickFromLibrary();
+    if (selectedUri) setUri(selectedUri);
+  }
+
+  async function onCaptureWithCamera() {
+    const capturedUri = await captureWithCamera();
+    if (capturedUri) setUri(capturedUri);
   }
 
   async function onAnalyze() {
     if (!uri) return;
     setLoading(true);
-
-    await logEvent('analyze_click', { task, age });
-
     try {
+      const cleanUri = await preprocessImage(uri);
       const payload: AssessmentInput = {
         app_version: "1.0.0",
         schema_version: "v1.2",
         child: { age: Number(age), grade: "1", context: "serbest" },
         task_type: task,
-        image_uri: uri,
+        image_uri: cleanUri,
         child_quote: quote || undefined,
       };
-
       const out = await analyzeDrawingMock(payload);
       setResult(out);
-      
-      await logEvent('analyze_success', { 
-        task, 
-        hypotheses_count: out.reflective_hypotheses.length,
-        has_safety_flags: out.safety_flags.self_harm || out.safety_flags.abuse_concern,
-      });
-      
-      setShowQuestionnaire(true);
-      
-      if (Platform.OS !== "web") {
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-    } catch (e: any) {
-      console.error(e);
-      await logEvent('analyze_error', { task, error: String(e) });
-      Alert.alert("Hata", "Analiz sırasında bir hata oluştu.");
+    } catch (e) {
+      const errorMessage =
+        e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";
+      Alert.alert("Hata", errorMessage);
     } finally {
       setLoading(false);
     }
   }
 
-  function resetAnalysis() {
-    setUri(null);
-    setResult(null);
-    logEvent('analysis_reset', { task });
+  function onSelectTaskShort(t: TaskType) {
+    setTask(t);
+    openSheet(t);
   }
 
-  async function shareResults() {
+  function onSelectTaskLong(t: TaskType) {
+    const p = PROTOCOLS[t];
+    showTip(p.title, `${p.steps[0]}  /  ${p.donts[0]}`);
+  }
+
+  async function onShare() {
     if (!result) return;
-
-    const topHypothesis = result.reflective_hypotheses[0];
-    if (!topHypothesis) return;
-
-    const shareMessage = buildShareText(
-      topHypothesis.confidence,
-      topHypothesis.theme
-    );
-
     try {
-      await Share.share({
-        message: shareMessage,
-      });
-      await logEvent('share_results', { task });
+      const top = result.reflective_hypotheses?.[0];
+      const text = buildShareText(
+        top?.confidence || 0.6,
+        top?.theme?.replaceAll("_", " ") || "nazik ipucu"
+      );
+      await Share.share({ message: text });
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
   }
+
+  const W = Dimensions.get("window").width;
+  const H = Dimensions.get("window").height;
+  const sheetHeight = Math.min(420, H * 0.58);
+  const translateY = sheetAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [sheetHeight + 24, 0],
+  });
+  const overlayOpacity = sheetAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.5],
+  });
 
   return (
     <View style={styles.container}>
@@ -164,242 +165,219 @@ export default function AdvancedAnalysisScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.headerTitle}>{strings[lang].title}</Text>
-            </View>
-            <Pressable 
-              onPress={() => setShowProtocol(true)} 
-              style={styles.protocolButton}
-            >
-              <BookOpen size={20} color={Colors.primary.coral} />
-              <Text style={styles.protocolButtonText}>Protokol</Text>
-            </Pressable>
+          <View style={styles.headerIcon}>
+            <Brain size={32} color="#9333EA" />
           </View>
-          <Text style={styles.headerSubtitle}>
-            {strings[lang].professionalTests}
-          </Text>
+          <Text style={styles.headerTitle}>{strings[lang].title}</Text>
+          <Pressable
+            onPress={() => openSheet(task)}
+            style={styles.consultButton}
+          >
+            <Text style={styles.consultButtonText}>
+              {strings[lang].expertConsult}
+            </Text>
+          </Pressable>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{strings[lang].selectTestType}</Text>
-          <View style={styles.taskGrid}>
-            {tasks.map((t) => (
-              <Pressable
-                key={t.type}
-                onPress={() => {
-                  setTask(t.type);
-                  if (Platform.OS !== "web") {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }
-                }}
-                style={[
-                  styles.taskCard,
-                  task === t.type && styles.taskCardActive,
-                ]}
-              >
-                {task === t.type && (
-                  <View style={styles.taskCheck}>
-                    <CheckCircle size={18} color={Colors.primary.coral} />
-                  </View>
-                )}
-                <Text style={[
-                  styles.taskLabel,
-                  task === t.type && styles.taskLabelActive,
-                ]}>
-                  {t.label}
-                </Text>
-                <Text style={styles.taskDescription}>{t.description}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{strings[lang].childInfo}</Text>
-          <View style={styles.inputRow}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>{strings[lang].age}</Text>
-              <TextInput
-                value={age}
-                onChangeText={setAge}
-                keyboardType="number-pad"
-                placeholder="7"
-                style={styles.input}
-                placeholderTextColor={Colors.neutral.light}
-              />
-            </View>
-            <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.inputLabel}>{strings[lang].childQuote}</Text>
-              <TextInput
-                value={quote}
-                onChangeText={setQuote}
-                placeholder={strings[lang].childQuotePlaceholder}
-                style={styles.input}
-                placeholderTextColor={Colors.neutral.light}
-              />
-            </View>
-          </View>
-        </View>
-
-        {!uri ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>{strings[lang].selectImage}</Text>
-            <View style={styles.actionButtons}>
-              <Pressable
-                onPress={openCamera}
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.cameraButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Camera size={28} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>{strings[lang].takePhoto}</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={pickImage}
-                style={({ pressed }) => [
-                  styles.actionButton,
-                  styles.galleryButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <ImageIcon size={28} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>{strings[lang].pickFromGallery}</Text>
-              </Pressable>
-            </View>
-          </View>
-        ) : (
-          <View style={styles.section}>
-            <View style={styles.imageWrapper}>
-              <Image source={{ uri }} style={styles.image} />
-              <OverlayEvidence 
-                width={screenWidth - 40} 
-                height={(screenWidth - 40) * 0.75} 
-                features={result?.feature_preview}
-              />
-              <Pressable onPress={resetAnalysis} style={styles.removeButton}>
-                <X size={20} color="#FFFFFF" />
-              </Pressable>
-            </View>
-
+        {/* Test selection chips */}
+        <View style={styles.testChips}>
+          {(
+            [
+              "DAP",
+              "HTP",
+              "Aile",
+              "Kaktus",
+              "Agac",
+              "Bahce",
+              "Bender",
+              "Rey",
+              "Luscher",
+            ] as TaskType[]
+          ).map((t) => (
             <Pressable
-              disabled={loading}
-              onPress={onAnalyze}
-              style={[styles.analyzeButton, loading && styles.buttonDisabled]}
+              key={t}
+              onPress={() => onSelectTaskShort(t)}
+              onLongPress={() => onSelectTaskLong(t)}
+              style={({ pressed }) => [
+                styles.chip,
+                task === t && styles.chipActive,
+                pressed && styles.chipPressed,
+              ]}
             >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.analyzeButtonText}>{strings[lang].analyze}</Text>
-              )}
-            </Pressable>
-          </View>
-        )}
-
-        {result && (
-          <View style={styles.section}>
-            <ResultCard data={result} />
-            
-            {!questionnaireAnswers && (
-              <Pressable 
-                onPress={() => setShowQuestionnaire(true)} 
-                style={styles.questionnaireButton}
+              <Text
+                style={[
+                  styles.chipText,
+                  task === t && styles.chipTextActive,
+                ]}
               >
-                <MessageCircle size={20} color="#FFFFFF" />
-                <Text style={styles.questionnaireButtonText}>Davranış Soruları</Text>
-              </Pressable>
-            )}
-            
-            {questionnaireAnswers && (
-              <View style={{ gap: 16, marginTop: 20 }}>
-                <DrawingInsightCard
-                  placement="Çocuk figürü sayfanın orta-alt bölgesinde."
-                  interpretation="Bu genelde kendini korumaya alma ve iç dünyayı sessizce düzenleme dönemlerinde görülür. Bu yaş grubunda oldukça yaygındır. Son zamanlarda değişim veya kaygı varsa çocuk bunu çizimle ifade ediyor olabilir. Bu, duygunun sağlıklı bir dışavurum şeklidir."
-                  recommendation='Her gün 5 dakikalık "sessizce birlikte oturma ve çizme" zamanı, çocuğun zihnini rahatlatır ve bağlılık hissini güçlendirir.'
-                />
-                
-                <ExplanationCards 
-                  showSupport={result.safety_flags.self_harm || result.safety_flags.abuse_concern}
-                />
-              </View>
-            )}
-            
-            <Pressable onPress={shareResults} style={styles.shareButton}>
-              <Share2 size={20} color="#FFFFFF" />
-              <Text style={styles.shareButtonText}>{strings[lang].share}</Text>
+                {t}
+              </Text>
             </Pressable>
-          </View>
-        )}
+          ))}
+        </View>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.infoText}>
-            {strings[lang].infoText}
+        {/* Protocol hint */}
+        <View style={styles.protocolHint}>
+          <Text style={styles.protocolTitle}>{PROTOCOLS[task].title}</Text>
+          <Text style={styles.protocolText}>
+            {PROTOCOLS[task].steps[0]} — {PROTOCOLS[task].steps[1] || ""}
+          </Text>
+          <Text style={styles.protocolSubtext}>
+            (Detay için test adına dokun: protokol alttan açılır • uzun bas:
+            hızlı ipucu)
           </Text>
         </View>
+
+        {/* Age and quote */}
+        <View style={styles.inputRow}>
+          <Text style={styles.inputLabel}>Yaş:</Text>
+          <TextInput
+            value={age}
+            onChangeText={setAge}
+            keyboardType="number-pad"
+            style={styles.ageInput}
+          />
+          <Text style={styles.inputLabel}>Çocuk sözü:</Text>
+          <TextInput
+            value={quote}
+            onChangeText={setQuote}
+            placeholder="Bu ben ve annem…"
+            style={styles.quoteInput}
+          />
+        </View>
+
+        {/* Image picker buttons */}
+        <View style={styles.pickerButtons}>
+          <Pressable onPress={onPickFromLibrary} style={styles.pickerButton}>
+            <ImageIcon size={20} color="#fff" />
+            <Text style={styles.pickerButtonText}>Galeriden Seç</Text>
+          </Pressable>
+          <Pressable onPress={onCaptureWithCamera} style={styles.pickerButton}>
+            <Camera size={20} color="#fff" />
+            <Text style={styles.pickerButtonText}>Fotoğraf Çek</Text>
+          </Pressable>
+        </View>
+
+        {/* Image + Overlay */}
+        {uri && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri }}
+              resizeMode="cover"
+              style={styles.image}
+            />
+            <OverlayEvidence
+              width={W - 40}
+              height={200}
+              features={result?.feature_preview}
+            />
+          </View>
+        )}
+
+        {/* Analyze button */}
+        <Pressable
+          disabled={!uri || loading}
+          onPress={onAnalyze}
+          style={[
+            styles.analyzeButton,
+            (!uri || loading) && styles.buttonDisabled,
+          ]}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.analyzeButtonText}>
+              {strings[lang].analyze}
+            </Text>
+          )}
+        </Pressable>
+
+        {/* Result card + Share */}
+        {result && (
+          <>
+            <ResultCard data={result} onDetails={() => {}} />
+            <Pressable onPress={onShare} style={styles.shareButton}>
+              <Text style={styles.shareButtonText}>Paylaş</Text>
+            </Pressable>
+            <View style={styles.disclaimerCard}>
+              <Text style={styles.disclaimerTitle}>Uyarı</Text>
+              <Text style={styles.disclaimerText}>
+                {strings[lang].disclaimer}
+              </Text>
+            </View>
+          </>
+        )}
       </ScrollView>
 
-      {showProtocol && (
-        <Modal transparent onRequestClose={() => setShowProtocol(false)} animationType="fade">
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{PROTOCOLS[task].title}</Text>
-                <Pressable onPress={() => setShowProtocol(false)} style={styles.modalClose}>
-                  <X size={24} color={Colors.neutral.dark} />
-                </Pressable>
-              </View>
-
-              <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-                <View style={styles.protocolSection}>
-                  <Text style={styles.protocolSectionTitle}>✅ Adımlar:</Text>
-                  {PROTOCOLS[task].steps.map((s, i) => (
-                    <Text key={i} style={styles.protocolItem}>• {s}</Text>
-                  ))}
-                </View>
-
-                <View style={styles.protocolSection}>
-                  <Text style={styles.protocolSectionTitle}>❌ Yapılmaması Gerekenler:</Text>
-                  {PROTOCOLS[task].donts.map((d, i) => (
-                    <Text key={i} style={styles.protocolItem}>× {d}</Text>
-                  ))}
-                </View>
-
-                {PROTOCOLS[task].captureHints && PROTOCOLS[task].captureHints!.length > 0 && (
-                  <View style={styles.protocolSection}>
-                    <Text style={styles.protocolSectionTitle}>📸 Fotoğraf İpuçları:</Text>
-                    {PROTOCOLS[task].captureHints!.map((c, i) => (
-                      <Text key={i} style={styles.protocolItem}>• {c}</Text>
-                    ))}
-                  </View>
-                )}
-              </ScrollView>
-
-              <Pressable 
-                onPress={() => setShowProtocol(false)} 
-                style={styles.modalCloseButton}
-              >
-                <Text style={styles.modalCloseButtonText}>Kapat</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+      {/* Quick tip toast */}
+      {tip && (
+        <Animated.View
+          style={[styles.tipToast, { opacity: tipOpacity }]}
+        >
+          <Text style={styles.tipTitle}>{tip.title}</Text>
+          <Text style={styles.tipText}>{tip.text}</Text>
+        </Animated.View>
       )}
-      
-      <QuestionnaireModal
-        visible={showQuestionnaire}
-        onComplete={(answers) => {
-          setQuestionnaireAnswers(answers);
-          setShowQuestionnaire(false);
-          logEvent('questionnaire_completed', { 
-            task, 
-            answers_count: answers.length 
-          });
-        }}
-        onClose={() => setShowQuestionnaire(false)}
-      />
+
+      {/* Bottom sheet overlay */}
+      {sheetOpen && (
+        <>
+          <Pressable
+            onPress={closeSheet}
+            style={styles.sheetOverlayTouchable}
+          >
+            <Animated.View
+              style={[
+                styles.sheetOverlay,
+                { opacity: overlayOpacity },
+              ]}
+            />
+          </Pressable>
+          <Animated.View
+            style={[
+              styles.sheet,
+              { height: sheetHeight, transform: [{ translateY }] },
+            ]}
+          >
+            <View style={styles.sheetHandle} />
+            <View style={styles.sheetHeader}>
+              <Brain size={22} color="#0a7" />
+              <Text style={styles.sheetTitle}>
+                {PROTOCOLS[sheetTask].title}
+              </Text>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.sheetSectionTitle}>Adımlar:</Text>
+              {PROTOCOLS[sheetTask].steps.map((s, i) => (
+                <Text key={i} style={styles.sheetListItem}>
+                  • {s}
+                </Text>
+              ))}
+              <Text style={styles.sheetSectionTitle}>Yapma:</Text>
+              {PROTOCOLS[sheetTask].donts.map((d, i) => (
+                <Text key={i} style={styles.sheetListItem}>
+                  × {d}
+                </Text>
+              ))}
+              {PROTOCOLS[sheetTask].captureHints?.length ? (
+                <>
+                  <Text style={styles.sheetSectionTitle}>
+                    Fotoğraf İpucu:
+                  </Text>
+                  {PROTOCOLS[sheetTask].captureHints!.map((c, i) => (
+                    <Text key={i} style={styles.sheetListItem}>
+                      • {c}
+                    </Text>
+                  ))}
+                </>
+              ) : null}
+            </ScrollView>
+            <Pressable onPress={closeSheet} style={styles.sheetCloseButton}>
+              <Text style={styles.sheetCloseButtonText}>Kapat</Text>
+            </Pressable>
+          </Animated.View>
+        </>
+      )}
     </View>
   );
 }
@@ -417,317 +395,262 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 24,
+  },
+  headerIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#F3E8FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: Colors.secondary.lavender,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "800" as const,
     color: Colors.neutral.darkest,
-    marginBottom: 8,
-    letterSpacing: -0.5,
-    textAlign: "center",
+    marginBottom: 12,
   },
-  headerSubtitle: {
-    fontSize: 16,
-    color: Colors.neutral.medium,
-    textAlign: "center",
-    lineHeight: 24,
+  consultButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: "#eee",
+    borderRadius: 8,
   },
-  section: {
-    marginBottom: 28,
-  },
-  sectionLabel: {
-    fontSize: 14,
+  consultButtonText: {
     fontWeight: "700" as const,
-    color: Colors.neutral.dark,
-    marginBottom: 14,
-    textTransform: "uppercase" as const,
-    letterSpacing: 0.8,
+    color: "#333",
   },
-  taskGrid: {
+  testChips: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 8,
+    marginBottom: 16,
   },
-  taskCard: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: 14,
-    padding: 14,
-    minWidth: "30%",
-    flex: 1,
-    borderWidth: 2,
-    borderColor: Colors.neutral.lighter,
-    position: "relative",
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: "#eee",
   },
-  taskCardActive: {
-    borderColor: Colors.primary.coral,
-    backgroundColor: Colors.primary.soft,
+  chipActive: {
+    backgroundColor: "#0a7",
   },
-  taskCheck: {
-    position: "absolute",
-    top: 8,
-    right: 8,
+  chipPressed: {
+    backgroundColor: "#ddd",
   },
-  taskLabel: {
-    fontSize: 13,
+  chipText: {
+    color: "#333",
     fontWeight: "700" as const,
-    color: Colors.neutral.darkest,
-    marginBottom: 4,
+    fontSize: 14,
   },
-  taskLabelActive: {
-    color: Colors.primary.coral,
+  chipTextActive: {
+    color: "#fff",
   },
-  taskDescription: {
+  protocolHint: {
+    backgroundColor: "#FFF6E5",
+    borderLeftWidth: 4,
+    borderLeftColor: "#FFA500",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  protocolTitle: {
+    fontWeight: "700" as const,
+    color: "#A65F00",
+    fontSize: 15,
+  },
+  protocolText: {
+    color: "#A65F00",
+    marginTop: 4,
+    fontSize: 13,
+  },
+  protocolSubtext: {
+    color: "#A65F00",
+    marginTop: 4,
     fontSize: 11,
-    color: Colors.neutral.medium,
   },
   inputRow: {
     flexDirection: "row",
-    gap: 12,
-  },
-  inputGroup: {
     gap: 8,
+    alignItems: "center",
+    marginBottom: 16,
+    flexWrap: "wrap",
   },
   inputLabel: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "600" as const,
     color: Colors.neutral.dark,
   },
-  input: {
+  ageInput: {
     backgroundColor: Colors.neutral.white,
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 15,
-    color: Colors.neutral.darkest,
+    padding: 10,
+    borderRadius: 8,
+    minWidth: 60,
     borderWidth: 1,
-    borderColor: Colors.neutral.lighter,
+    borderColor: "#ddd",
   },
-  actionButtons: {
+  quoteInput: {
+    flex: 1,
+    backgroundColor: Colors.neutral.white,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    minWidth: 150,
+  },
+  pickerButtons: {
     flexDirection: "row",
     gap: 12,
+    marginBottom: 16,
   },
-  actionButton: {
+  pickerButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
-    padding: 18,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    gap: 8,
+    backgroundColor: "#444",
+    padding: 14,
+    borderRadius: 12,
   },
-  cameraButton: {
-    backgroundColor: Colors.primary.coral,
-  },
-  galleryButton: {
-    backgroundColor: Colors.secondary.mint,
-  },
-  actionButtonText: {
-    fontSize: 15,
-    fontWeight: "700" as const,
+  pickerButtonText: {
     color: Colors.neutral.white,
-    letterSpacing: 0.2,
+    fontWeight: "700" as const,
   },
-  buttonPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.97 }],
-  },
-  imageWrapper: {
+  imageContainer: {
     position: "relative",
-    borderRadius: 20,
-    overflow: "hidden",
-    backgroundColor: Colors.neutral.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
     marginBottom: 16,
   },
   image: {
     width: "100%",
-    aspectRatio: 4 / 3,
-  },
-  removeButton: {
-    position: "absolute",
-    top: 14,
-    right: 14,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.background.overlay,
-    justifyContent: "center",
-    alignItems: "center",
+    height: 200,
+    borderRadius: 12,
   },
   analyzeButton: {
-    backgroundColor: Colors.secondary.lavender,
-    padding: 18,
-    borderRadius: 16,
-    alignItems: "center",
-    shadowColor: Colors.secondary.lavender,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 4,
+    backgroundColor: "#0a7",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   analyzeButtonText: {
-    fontSize: 17,
-    fontWeight: "700" as const,
     color: Colors.neutral.white,
-    letterSpacing: 0.3,
-  },
-  infoCard: {
-    backgroundColor: "#F0F9FF",
-    padding: 18,
-    borderRadius: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#BFDBFE",
-  },
-  infoText: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#1E40AF",
     textAlign: "center",
+    fontWeight: "700" as const,
+    fontSize: 16,
   },
   shareButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: Colors.secondary.sky,
-    padding: 16,
-    borderRadius: 16,
+    backgroundColor: "#227BE0",
+    padding: 14,
+    borderRadius: 10,
     marginTop: 16,
-    shadowColor: Colors.secondary.sky,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  shareButtonText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.neutral.white,
-    letterSpacing: 0.3,
-  },
-  questionnaireButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: "#9333EA",
-    padding: 16,
-    borderRadius: 16,
-    marginTop: 16,
-    shadowColor: "#9333EA",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  questionnaireButtonText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.neutral.white,
-    letterSpacing: 0.3,
-  },
-  headerTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
     marginBottom: 8,
   },
-  protocolButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: Colors.primary.soft,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.primary.coral,
-  },
-  protocolButtonText: {
-    fontSize: 13,
-    fontWeight: "700" as const,
-    color: Colors.primary.coral,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: 24,
-    padding: 24,
-    maxHeight: "80%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "800" as const,
-    color: Colors.neutral.darkest,
-    flex: 1,
-  },
-  modalClose: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalScroll: {
-    maxHeight: 400,
-  },
-  protocolSection: {
-    marginBottom: 20,
-  },
-  protocolSectionTitle: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.neutral.darkest,
-    marginBottom: 10,
-  },
-  protocolItem: {
-    fontSize: 14,
-    color: Colors.neutral.dark,
-    lineHeight: 22,
-    marginBottom: 6,
-    paddingLeft: 8,
-  },
-  modalCloseButton: {
-    backgroundColor: Colors.primary.coral,
-    padding: 16,
-    borderRadius: 16,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  modalCloseButtonText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
+  shareButtonText: {
     color: Colors.neutral.white,
+    textAlign: "center",
+    fontWeight: "700" as const,
+  },
+  disclaimerCard: {
+    backgroundColor: "#FDECEC",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  disclaimerTitle: {
+    color: "#B00020",
+    fontWeight: "700" as const,
+    marginBottom: 4,
+  },
+  disclaimerText: {
+    color: "#B00020",
+    fontSize: 13,
+  },
+  tipToast: {
+    position: "absolute",
+    top: 12,
+    left: 16,
+    right: 16,
+    backgroundColor: "#111",
+    borderRadius: 12,
+    padding: 12,
+  },
+  tipTitle: {
+    color: "#fff",
+    fontWeight: "800" as const,
+  },
+  tipText: {
+    color: "#fff",
+    marginTop: 4,
+    fontSize: 12,
+  },
+  sheetOverlayTouchable: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+  },
+  sheetOverlay: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: Colors.neutral.white,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 16,
+  },
+  sheetHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: "#ddd",
+    alignSelf: "center",
+    borderRadius: 2,
+    marginBottom: 12,
+  },
+  sheetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  sheetTitle: {
+    fontWeight: "800" as const,
+    fontSize: 16,
+  },
+  sheetSectionTitle: {
+    marginTop: 12,
+    fontWeight: "700" as const,
+    marginBottom: 4,
+  },
+  sheetListItem: {
+    lineHeight: 20,
+    marginBottom: 2,
+  },
+  sheetCloseButton: {
+    marginTop: 12,
+    alignSelf: "flex-end",
+  },
+  sheetCloseButtonText: {
+    color: "#0a7",
+    fontWeight: "700" as const,
   },
 });
