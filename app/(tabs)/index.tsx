@@ -11,12 +11,12 @@ import {
 } from "react-native";
 import { Colors } from "@/constants/colors";
 import { useState, useRef, useEffect } from "react";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { Camera, ImageIcon, X, Sparkles, Zap, BookText, FlaskConical } from "lucide-react-native";
+import { Camera, ImageIcon, X, Sparkles, Zap, Lightbulb } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import { generateText } from "@rork-ai/toolkit-sdk";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { analyzeDrawingRemote } from "@/services/aiClient";
@@ -42,7 +42,7 @@ export default function AnalyzeScreen() {
   // ✅ YENİ: Error handling state'leri
   const [error, setError] = useState<string | null>(null);
   const [retries, setRetries] = useState(0);
-  const [retrying, setRetrying] = useState(false);
+
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
@@ -62,7 +62,7 @@ export default function AnalyzeScreen() {
         }),
       ]).start();
     }
-  }, [analysis]);
+  }, [analysis, fadeAnim, scaleAnim]);
 
   // ✅ YENİ: İyileştirilmiş handleAnalysis
   const handleAnalysis = async () => {
@@ -119,7 +119,6 @@ export default function AnalyzeScreen() {
       }
     } finally {
       setAnalyzing(false);
-      setRetrying(false);
     }
   };
 
@@ -168,8 +167,136 @@ export default function AnalyzeScreen() {
           </View>
         )}
 
-        {/* Existing code ... */}
-        {/* Camera/Image picker UI */}
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Çizim Analizi</Text>
+          <Text style={styles.headerSubtitle}>
+            Çocuğunuzun çizimini analiz edin ve içgörüler elde edin
+          </Text>
+        </View>
+
+        {/* Görsel Seçme Butonları */}
+        {!selectedImage && !showCamera && (
+          <View style={styles.actionButtons}>
+            <Pressable
+              onPress={async () => {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status === 'granted') {
+                  const result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 0.8,
+                  });
+                  if (!result.canceled && result.assets[0]) {
+                    setSelectedImage(result.assets[0].uri);
+                    if (Platform.OS !== 'web') {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    }
+                  }
+                }
+              }}
+              style={styles.primaryButton}
+            >
+              <ImageIcon size={24} color={Colors.neutral.white} />
+              <Text style={styles.primaryButtonText}>Galeriden Seç</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={async () => {
+                if (!cameraPermission) return;
+                if (!cameraPermission.granted) {
+                  const { granted } = await requestCameraPermission();
+                  if (!granted) {
+                    Alert.alert('Kamera İzni', 'Kamera kullanmak için izin gerekli');
+                    return;
+                  }
+                }
+                setShowCamera(true);
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }
+              }}
+              style={styles.secondaryButton}
+            >
+              <Camera size={24} color={Colors.primary.coral} />
+              <Text style={styles.secondaryButtonText}>Fotoğraf Çek</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {/* Kamera Görünümü */}
+        {showCamera && (
+          <View style={styles.cameraContainer}>
+            <CameraView
+              style={styles.camera}
+              facing="back"
+              ref={(ref) => {
+                if (ref) {
+                  (ref as any).takePictureAsync = async () => {
+                    try {
+                      const photo = await (ref as any).takePictureAsync();
+                      setSelectedImage(photo.uri);
+                      setShowCamera(false);
+                      if (Platform.OS !== 'web') {
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                      }
+                    } catch (err) {
+                      console.error('Camera error:', err);
+                    }
+                  };
+                }
+              }}
+            />
+            <View style={styles.cameraControls}>
+              <Pressable
+                onPress={() => {
+                  setShowCamera(false);
+                  if (Platform.OS !== 'web') {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }
+                }}
+                style={styles.cameraCloseButton}
+              >
+                <X size={24} color={Colors.neutral.white} />
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  // Trigger camera capture
+                  const cameraRef = (CameraView as any)._ref;
+                  if (cameraRef?.takePictureAsync) {
+                    cameraRef.takePictureAsync();
+                  }
+                }}
+                style={styles.cameraCaptureButton}
+              >
+                <View style={styles.cameraCaptureInner} />
+              </Pressable>
+              <View style={{ width: 40 }} />
+            </View>
+          </View>
+        )}
+
+        {/* Seçilen Görsel */}
+        {selectedImage && !showCamera && (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: selectedImage }} style={styles.imagePreview} contentFit="cover" />
+            <Pressable
+              onPress={() => {
+                setSelectedImage(null);
+                setAnalysis(null);
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+              }}
+              style={styles.removeImageButton}
+            >
+              <X size={20} color={Colors.neutral.white} />
+            </Pressable>
+          </View>
+        )}
+
+        {/* Analiz Et Butonu */}
         {selectedImage && !analyzing && !analysis && (
           <Pressable
             onPress={handleAnalysis}
@@ -201,9 +328,74 @@ export default function AnalyzeScreen() {
               },
             ]}
           >
-            <Text style={styles.resultsTitle}>{analysis.title}</Text>
-            <Text style={styles.resultsDescription}>{analysis.description}</Text>
-            {/* Diğer analiz sonuçları ... */}
+            <Text style={styles.resultsTitle}>Analiz Sonuçları</Text>
+            <View style={styles.resultSection}>
+              <Text style={styles.resultLabel}>Başlık</Text>
+              <Text style={styles.resultValue}>{analysis.title}</Text>
+            </View>
+            <View style={styles.resultSection}>
+              <Text style={styles.resultLabel}>Açıklama</Text>
+              <Text style={styles.resultValue}>{analysis.description}</Text>
+            </View>
+            {analysis.emotions && analysis.emotions.length > 0 && (
+              <View style={styles.resultSection}>
+                <Text style={styles.resultLabel}>Duygular</Text>
+                <View style={styles.tagContainer}>
+                  {analysis.emotions.map((emotion, idx) => (
+                    <View key={idx} style={styles.tag}>
+                      <Text style={styles.tagText}>{emotion}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+            {analysis.themes && analysis.themes.length > 0 && (
+              <View style={styles.resultSection}>
+                <Text style={styles.resultLabel}>Temalar</Text>
+                <View style={styles.tagContainer}>
+                  {analysis.themes.map((theme, idx) => (
+                    <View key={idx} style={[styles.tag, styles.themeTag]}>
+                      <Text style={[styles.tagText, styles.themeTagText]}>{theme}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+            {analysis.insights && (
+              <View style={styles.resultSection}>
+                <View style={styles.insightHeader}>
+                  <Lightbulb size={20} color={Colors.secondary.sunshine} />
+                  <Text style={styles.resultLabel}>İçgörüler</Text>
+                </View>
+                <Text style={styles.resultValue}>{analysis.insights}</Text>
+              </View>
+            )}
+            {analysis.encouragement && (
+              <View style={[styles.resultSection, styles.encouragementSection]}>
+                <View style={styles.insightHeader}>
+                  <Sparkles size={20} color={Colors.primary.coral} />
+                  <Text style={[styles.resultLabel, { color: Colors.primary.coral }]}>Teşvik</Text>
+                </View>
+                <Text style={[styles.resultValue, styles.encouragementText]}>
+                  {analysis.encouragement}
+                </Text>
+              </View>
+            )}
+            <Pressable
+              onPress={() => {
+                setSelectedImage(null);
+                setAnalysis(null);
+                setError(null);
+                setRetries(0);
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }
+              }}
+              style={styles.newAnalysisButton}
+            >
+              <Zap size={20} color={Colors.neutral.white} />
+              <Text style={styles.newAnalysisButtonText}>Yeni Analiz</Text>
+            </Pressable>
           </Animated.View>
         )}
       </ScrollView>
@@ -322,5 +514,205 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.neutral.dark,
     lineHeight: 20,
+  },
+  
+  // Header
+  header: {
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: Colors.neutral.darkest,
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: Colors.neutral.dark,
+    lineHeight: 22,
+  },
+  
+  // Action Buttons
+  actionButtons: {
+    gap: 12,
+    marginBottom: 16,
+  },
+  primaryButton: {
+    backgroundColor: Colors.primary.coral,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: Colors.primary.coral,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  primaryButtonText: {
+    color: Colors.neutral.white,
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  secondaryButton: {
+    backgroundColor: Colors.neutral.white,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: Colors.primary.coral,
+  },
+  secondaryButtonText: {
+    color: Colors.primary.coral,
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  
+  // Camera
+  cameraContainer: {
+    height: 400,
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraControls: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 24,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  cameraCloseButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cameraCaptureButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.neutral.white,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cameraCaptureInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.primary.coral,
+  },
+  
+  // Image Preview
+  imagePreviewContainer: {
+    position: "relative",
+    marginBottom: 16,
+  },
+  imagePreview: {
+    width: "100%",
+    height: 300,
+    borderRadius: 16,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.primary.coral,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  
+  // Results
+  resultSection: {
+    marginBottom: 16,
+  },
+  resultLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: Colors.neutral.dark,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  resultValue: {
+    fontSize: 16,
+    color: Colors.neutral.darkest,
+    lineHeight: 24,
+  },
+  tagContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: Colors.secondary.sky + "30",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  tagText: {
+    color: Colors.secondary.sky,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  themeTag: {
+    backgroundColor: Colors.secondary.sunshine + "30",
+  },
+  themeTagText: {
+    color: "#D97706",
+  },
+  insightHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 6,
+  },
+  encouragementSection: {
+    backgroundColor: Colors.primary.coral + "10",
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary.coral,
+  },
+  encouragementText: {
+    fontWeight: "500",
+  },
+  newAnalysisButton: {
+    backgroundColor: Colors.secondary.sky,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  newAnalysisButtonText: {
+    color: Colors.neutral.white,
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
