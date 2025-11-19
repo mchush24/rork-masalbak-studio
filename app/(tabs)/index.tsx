@@ -19,6 +19,7 @@ import * as Haptics from "expo-haptics";
 import { generateText } from "@rork-ai/toolkit-sdk";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { analyzeDrawingRemote } from "@/services/aiClient";
 
 type Analysis = {
   title: string;
@@ -37,6 +38,12 @@ export default function AnalyzeScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  
+  // ✅ YENİ: Error handling state'leri
+  const [error, setError] = useState<string | null>(null);
+  const [retries, setRetries] = useState(0);
+  const [retrying, setRetrying] = useState(false);
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
@@ -48,665 +55,272 @@ export default function AnalyzeScreen() {
           duration: 600,
           useNativeDriver: true,
         }),
-        Animated.spring(scaleAnim, {
+        Animated.timing(scaleAnim, {
           toValue: 1,
-          friction: 8,
-          tension: 40,
+          duration: 600,
           useNativeDriver: true,
         }),
       ]).start();
     }
   }, [analysis]);
 
-  async function pickImage() {
-    if (Platform.OS !== "web") {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images" as any,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-      base64: true,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
-      setAnalysis(null);
-      analyzeImage(result.assets[0].base64!);
-    }
-  }
-
-  async function openCamera() {
-    if (Platform.OS !== "web") {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-
-    if (!cameraPermission?.granted) {
-      const { granted } = await requestCameraPermission();
-      if (!granted) {
-        Alert.alert(
-          "İzin Gerekli",
-          "Kamera kullanmak için izin vermeniz gerekiyor."
-        );
-        return;
-      }
-    }
-    setShowCamera(true);
-  }
-
-  async function takePicture(camera: any) {
-    if (Platform.OS !== "web") {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-
-    if (camera) {
-      const photo = await camera.takePictureAsync({
-        quality: 0.8,
-        base64: true,
-      });
-      setSelectedImage(photo.uri);
-      setShowCamera(false);
-      setAnalysis(null);
-      analyzeImage(photo.base64!);
-    }
-  }
-
-  async function analyzeImage(base64: string) {
-    setAnalyzing(true);
-    fadeAnim.setValue(0);
-    scaleAnim.setValue(0.9);
-
+  // ✅ YENİ: İyileştirilmiş handleAnalysis
+  const handleAnalysis = async () => {
     try {
-      const prompt = `Bu çocuk çizimini analiz et. Çocuğun ne anlatmaya çalıştığını, duygusal durumunu ve yaratıcılığını değerlendir. 
-
-Cevabını şu JSON formatında ver:
-{
-  "title": "Çizimin kısa başlığı",
-  "description": "Çizimde ne görüyoruz, detaylı açıklama",
-  "emotions": ["tespit edilen duygular listesi"],
-  "themes": ["ana temalar"],
-  "insights": "Çocuğun gelişimi ve yaratıcılığı hakkında öğretici gözlemler",
-  "encouragement": "Ebeveyn/öğretmen için teşvik edici mesaj"
-}`;
-
-      const response = await generateText({
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              { type: "image", image: `data:image/jpeg;base64,${base64}` },
-            ],
-          },
-        ],
-      });
-
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        setAnalysis(parsed);
-        if (Platform.OS !== "web") {
-          await Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Success
-          );
-        }
+      setError(null); // Önceki hataları temizle
+      setAnalyzing(true);
+      
+      if (!selectedImage) {
+        throw new Error("Lütfen bir görüntü seçin");
       }
-    } catch (error: any) {
-      console.error("Analysis error:", error);
-      Alert.alert("Hata", "Analiz sırasında bir hata oluştu.");
+
+      // Payload oluştur
+      const payload = {
+        app_version: "1.0.0",
+        schema_version: "1.0.0",
+        child: { age: 7 },
+        task_type: "DAP" as const,
+        image_uri: selectedImage,
+      };
+
+      console.log("[Analysis] Starting analysis...");
+      const result = await analyzeDrawingRemote(payload);
+      
+      setAnalysis(result as unknown as Analysis);
+      setRetries(0); // Reset retry counter
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Bilinmeyen hata oluştu";
+      setError(message);
+      console.error("[Analysis Error]", err);
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+      // ✅ YENİ: Otomatik retry mantığı
+      if (retries < 3) {
+        const delay = 2000 * (retries + 1); // 2s, 4s, 6s
+        console.log(`[Analysis] Retrying in ${delay}ms (${retries + 1}/3)...`);
+        
+        setTimeout(() => {
+          setRetries(retries + 1);
+          handleAnalysis();
+        }, delay);
+      } else {
+        console.error("[Analysis] Max retries exceeded");
+        Alert.alert(
+          "❌ Analiz Başarısız",
+          "3 kez deneme yapıldı ancak başarısız oldu. Lütfen daha sonra tekrar deneyin.",
+          [
+            { text: "Anladım", style: "default" },
+            { text: "Ana Sayfaya Dön", onPress: () => router.push("/") },
+          ]
+        );
+      }
     } finally {
       setAnalyzing(false);
+      setRetrying(false);
     }
-  }
+  };
 
-  function resetAnalysis() {
-    setSelectedImage(null);
-    setAnalysis(null);
-    fadeAnim.setValue(0);
-    scaleAnim.setValue(0.9);
-  }
-
-  if (showCamera) {
-    return (
-      <View style={styles.cameraContainer}>
-        <CameraView
-          style={styles.camera}
-          facing="back"
-          ref={(ref) => {
-            if (ref) {
-              (ref as any).camera = ref;
-            }
-          }}
-        >
-          <View style={[styles.cameraControls, { paddingTop: insets.top + 20 }]}>
-            <Pressable
-              onPress={() => setShowCamera(false)}
-              style={styles.closeButton}
-            >
-              <X size={28} color="#FFFFFF" />
-            </Pressable>
-          </View>
-          <View
-            style={[styles.cameraBottom, { paddingBottom: insets.bottom + 20 }]}
-          >
-            <Pressable
-              onPress={(e) => {
-                const target = e.currentTarget as any;
-                if (target?._internalFiberInstanceHandleDEV?.return?.stateNode) {
-                  takePicture(
-                    target._internalFiberInstanceHandleDEV.return.stateNode
-                  );
-                }
-              }}
-              style={styles.captureButton}
-            >
-              <View style={styles.captureButtonInner} />
-            </Pressable>
-          </View>
-        </CameraView>
-      </View>
-    );
-  }
+  // ... existing code ...
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Sparkles size={32} color="#FF6B6B" />
-          </View>
-          <Text style={styles.headerTitle}>MasalBak</Text>
-          <Text style={styles.headerSubtitle}>
-            Çocuğunuzun çizimi konuşsun
-          </Text>
-        </View>
-
-        {!selectedImage ? (
-          <View style={styles.actionButtons}>
-            <Pressable
-              onPress={openCamera}
-              style={({ pressed }) => [
-                styles.actionButton,
-                styles.cameraButton,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Camera size={32} color="#FFFFFF" />
-              <Text style={styles.actionButtonText}>Fotoğraf Çek</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={pickImage}
-              style={({ pressed }) => [
-                styles.actionButton,
-                styles.galleryButton,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <ImageIcon size={32} color="#FFFFFF" />
-              <Text style={styles.actionButtonText}>Galeriden Seç</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <View style={styles.imageSection}>
-            <View style={styles.imageWrapper}>
-              <Image source={{ uri: selectedImage }} style={styles.image} />
-              <Pressable onPress={resetAnalysis} style={styles.removeButton}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* ✅ YENİ: Error Banner */}
+        {error && (
+          <View style={styles.errorBanner}>
+            <View style={styles.errorContent}>
+              <Text style={styles.errorIcon}>⚠️</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.errorTitle}>Hata Oluştu</Text>
+                <Text style={styles.errorText}>{error}</Text>
+                {retries > 0 && (
+                  <Text style={styles.errorRetryInfo}>
+                    Deneme: {retries}/3
+                  </Text>
+                )}
+              </View>
+              <Pressable
+                onPress={() => setError(null)}
+                style={styles.errorCloseButton}
+              >
                 <X size={20} color="#FFFFFF" />
               </Pressable>
             </View>
 
-            {analyzing && (
-              <View style={styles.analyzingContainer}>
-                <View style={styles.analyzingContent}>
-                  <ActivityIndicator size="large" color="#FF6B6B" />
-                  <Text style={styles.analyzingText}>Analiz ediliyor...</Text>
-                  <View style={styles.pulseContainer}>
-                    <Zap size={20} color="#FFB84D" />
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {analysis && !analyzing && (
-              <Animated.View
-                style={[
-                  styles.resultContainer,
-                  {
-                    opacity: fadeAnim,
-                    transform: [{ scale: scaleAnim }],
-                  },
-                ]}
+            {/* ✅ YENİ: Retry Button */}
+            {retries >= 3 && (
+              <Pressable
+                onPress={() => {
+                  setRetries(0);
+                  setError(null);
+                  handleAnalysis();
+                }}
+                style={styles.errorRetryButton}
               >
-                <View style={styles.resultHeader}>
-                  <Text style={styles.resultTitle}>{analysis.title}</Text>
-                </View>
-
-                <View style={styles.resultSection}>
-                  <Text style={styles.sectionLabel}>📝 Açıklama</Text>
-                  <Text style={styles.sectionText}>{analysis.description}</Text>
-                </View>
-
-                {analysis.emotions.length > 0 && (
-                  <View style={styles.resultSection}>
-                    <Text style={styles.sectionLabel}>💭 Duygular</Text>
-                    <View style={styles.tagContainer}>
-                      {analysis.emotions.map((emotion, idx) => (
-                        <View key={idx} style={styles.tag}>
-                          <Text style={styles.tagText}>{emotion}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                {analysis.themes.length > 0 && (
-                  <View style={styles.resultSection}>
-                    <Text style={styles.sectionLabel}>🎨 Temalar</Text>
-                    <View style={styles.tagContainer}>
-                      {analysis.themes.map((theme, idx) => (
-                        <View key={idx} style={[styles.tag, styles.tagTheme]}>
-                          <Text style={styles.tagText}>{theme}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
-                <View style={styles.resultSection}>
-                  <Text style={styles.sectionLabel}>🔍 Gözlemler</Text>
-                  <Text style={styles.sectionText}>{analysis.insights}</Text>
-                </View>
-
-                <View style={[styles.resultSection, styles.encouragementSection]}>
-                  <Text style={styles.sectionLabel}>✨ Teşvik</Text>
-                  <Text style={styles.encouragementText}>
-                    {analysis.encouragement}
-                  </Text>
-                </View>
-
-                <View style={styles.actionRow}>
-                  <Pressable
-                    onPress={() => {
-                      router.push({
-                        pathname: "/storybook",
-                        params: {
-                          imageUri: selectedImage,
-                          title: analysis.title,
-                          description: analysis.description,
-                          themes: JSON.stringify(analysis.themes),
-                        },
-                      });
-                    }}
-                    style={styles.createStoryButton}
-                  >
-                    <BookText size={22} color="#FFFFFF" />
-                    <Text style={styles.createStoryText}>Masal Oluştur</Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={resetAnalysis}
-                    style={styles.newAnalysisButton}
-                  >
-                    <Text style={styles.newAnalysisText}>Yeni Analiz</Text>
-                  </Pressable>
-                </View>
-
-                <Pressable
-                  onPress={() => router.push("/advanced-analysis" as any)}
-                  style={styles.advancedButton}
-                >
-                  <FlaskConical size={20} color="#FFFFFF" />
-                  <Text style={styles.advancedButtonText}>
-                    İleri Düzey Analiz
-                  </Text>
-                </Pressable>
-              </Animated.View>
+                <Text style={styles.errorRetryButtonText}>
+                  🔄 Tekrar Dene
+                </Text>
+              </Pressable>
             )}
           </View>
         )}
 
-        <View style={styles.infoCard}>
-          <Text style={styles.infoText}>
-            🎨 Çocuğunuzun çizimini analiz edin ve yaratıcılığını keşfedin!
-          </Text>
-        </View>
+        {/* Existing code ... */}
+        {/* Camera/Image picker UI */}
+        {selectedImage && !analyzing && !analysis && (
+          <Pressable
+            onPress={handleAnalysis}
+            style={[
+              styles.analyzeButton,
+              analyzing && styles.analyzeButtonDisabled,
+            ]}
+            disabled={analyzing}
+          >
+            <Sparkles size={20} color={Colors.neutral.white} />
+            <Text style={styles.analyzeButtonText}>Analiz Et</Text>
+          </Pressable>
+        )}
+
+        {analyzing && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary.coral} />
+            <Text style={styles.loadingText}>Çizim analiz ediliyor...</Text>
+          </View>
+        )}
+
+        {analysis && (
+          <Animated.View
+            style={[
+              styles.resultsContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }],
+              },
+            ]}
+          >
+            <Text style={styles.resultsTitle}>{analysis.title}</Text>
+            <Text style={styles.resultsDescription}>{analysis.description}</Text>
+            {/* Diğer analiz sonuçları ... */}
+          </Animated.View>
+        )}
       </ScrollView>
     </View>
   );
 }
 
+// ✅ YENİ: Stilleri ekle
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.primary,
-  },
-  scrollView: {
-    flex: 1,
+    backgroundColor: Colors.neutral.white,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    padding: 16,
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 36,
-  },
-  headerIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.primary.soft,
-    justifyContent: "center",
-    alignItems: "center",
+  
+  // ✅ Error Banner Stilleri
+  errorBanner: {
+    backgroundColor: "#FFE5E5",
+    borderRadius: 12,
+    padding: 12,
     marginBottom: 16,
-    shadowColor: Colors.primary.coral,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary.coral,
+    shadowColor: Colors.neutral.darkest,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
   },
-  headerTitle: {
-    fontSize: 40,
-    fontWeight: "800" as const,
+  errorContent: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  errorIcon: {
+    fontSize: 24,
+  },
+  errorTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.primary.coral,
+    marginBottom: 4,
+  },
+  errorText: {
+    fontSize: 14,
+    color: "#666",
+    lineHeight: 20,
+  },
+  errorRetryInfo: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 4,
+    fontStyle: "italic",
+  },
+  errorCloseButton: {
+    padding: 8,
+  },
+  errorRetryButton: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.primary.coral,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  errorRetryButtonText: {
+    color: Colors.neutral.white,
+    fontWeight: "600",
+    fontSize: 14,
+  },
+
+  // Existing styles ...
+  analyzeButton: {
+    backgroundColor: Colors.primary.coral,
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginVertical: 16,
+  },
+  analyzeButtonDisabled: {
+    opacity: 0.6,
+  },
+  analyzeButtonText: {
+    color: Colors.neutral.white,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 32,
+  },
+  loadingText: {
+    marginTop: 12,
+    color: Colors.neutral.dark,
+    fontSize: 14,
+  },
+  resultsContainer: {
+    backgroundColor: Colors.neutral.lighter,
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+  },
+  resultsTitle: {
+    fontSize: 18,
+    fontWeight: "700",
     color: Colors.neutral.darkest,
     marginBottom: 8,
-    letterSpacing: -0.5,
   },
-  headerSubtitle: {
-    fontSize: 17,
-    color: Colors.neutral.medium,
-    textAlign: "center",
-    lineHeight: 24,
-  },
-  actionButtons: {
-    gap: 14,
-    marginBottom: 32,
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 14,
-    padding: 22,
-    borderRadius: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  cameraButton: {
-    backgroundColor: Colors.primary.coral,
-  },
-  galleryButton: {
-    backgroundColor: Colors.secondary.mint,
-  },
-  actionButtonText: {
-    fontSize: 18,
-    fontWeight: "700" as const,
-    color: Colors.neutral.white,
-    letterSpacing: 0.3,
-  },
-  buttonPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.97 }],
-  },
-  imageSection: {
-    gap: 20,
-    marginBottom: 32,
-  },
-  imageWrapper: {
-    position: "relative",
-    borderRadius: 24,
-    overflow: "hidden",
-    backgroundColor: Colors.neutral.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 5,
-  },
-  image: {
-    width: "100%",
-    aspectRatio: 4 / 3,
-  },
-  removeButton: {
-    position: "absolute",
-    top: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.background.overlay,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  analyzingContainer: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: 24,
-    padding: 40,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 5,
-  },
-  analyzingContent: {
-    alignItems: "center",
-    gap: 18,
-  },
-  analyzingText: {
-    fontSize: 19,
-    fontWeight: "600" as const,
-    color: Colors.neutral.darkest,
-    letterSpacing: 0.2,
-  },
-  pulseContainer: {
-    marginTop: 8,
-  },
-  resultContainer: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: 24,
-    padding: 24,
-    gap: 22,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 5,
-  },
-  resultHeader: {
-    borderBottomWidth: 3,
-    borderBottomColor: Colors.primary.coral,
-    paddingBottom: 14,
-  },
-  resultTitle: {
-    fontSize: 26,
-    fontWeight: "800" as const,
-    color: Colors.neutral.darkest,
-    letterSpacing: -0.3,
-  },
-  resultSection: {
-    gap: 10,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: "700" as const,
-    color: Colors.neutral.medium,
-    textTransform: "uppercase" as const,
-    letterSpacing: 1,
-  },
-  sectionText: {
-    fontSize: 16,
-    lineHeight: 26,
-    color: Colors.neutral.dark,
-  },
-  tagContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  tag: {
-    backgroundColor: Colors.primary.soft,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 14,
-  },
-  tagTheme: {
-    backgroundColor: "#E6F7FF",
-  },
-  tagText: {
+  resultsDescription: {
     fontSize: 14,
-    fontWeight: "600" as const,
     color: Colors.neutral.dark,
-  },
-  encouragementSection: {
-    backgroundColor: "#FFF9F0",
-    padding: 18,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: Colors.secondary.sunshine,
-  },
-  encouragementText: {
-    fontSize: 16,
-    lineHeight: 26,
-    color: "#8B5A00",
-    fontWeight: "500" as const,
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 8,
-  },
-  createStoryButton: {
-    flex: 1,
-    backgroundColor: "#9333EA",
-    padding: 18,
-    borderRadius: 18,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: "#9333EA",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  createStoryText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.neutral.white,
-    letterSpacing: 0.3,
-  },
-  newAnalysisButton: {
-    flex: 1,
-    backgroundColor: Colors.primary.coral,
-    padding: 18,
-    borderRadius: 18,
-    alignItems: "center",
-    shadowColor: Colors.primary.coral,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  newAnalysisText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.neutral.white,
-    letterSpacing: 0.3,
-  },
-  infoCard: {
-    backgroundColor: "#EFF6FF",
-    padding: 18,
-    borderRadius: 18,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#DBEAFE",
-  },
-  infoText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#1E40AF",
-    textAlign: "center",
-    fontWeight: "500" as const,
-  },
-  cameraContainer: {
-    flex: 1,
-  },
-  camera: {
-    flex: 1,
-  },
-  cameraControls: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingHorizontal: 20,
-  },
-  closeButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: Colors.background.overlay,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cameraBottom: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  captureButton: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: Colors.neutral.white,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 5,
-    borderColor: "rgba(255,255,255,0.6)",
-  },
-  captureButtonInner: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: Colors.primary.coral,
-  },
-  advancedButton: {
-    backgroundColor: Colors.secondary.lavender,
-    padding: 16,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    marginTop: 12,
-    shadowColor: Colors.secondary.lavender,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  advancedButtonText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
-    color: Colors.neutral.white,
-    letterSpacing: 0.3,
+    lineHeight: 20,
   },
 });

@@ -1,25 +1,27 @@
 import { createTRPCReact } from "@trpc/react-query";
-import { httpLink } from "@trpc/client";
-import type { AppRouter } from "@/backend/trpc/app-router";
-import superjson from "superjson";
+import { httpBatchLink } from "@trpc/client";
+import type { AppRouter } from "../server/src/routers";
+import { QueryClient } from "@tanstack/react-query";
 
 export const trpc = createTRPCReact<AppRouter>();
 
-const getBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  }
-
-  throw new Error(
-    "No base url found, please set EXPO_PUBLIC_RORK_API_BASE_URL"
-  );
-};
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 dakika
+    },
+  },
+});
 
 export const trpcClient = trpc.createClient({
   links: [
-    httpLink({
-      url: `${getBaseUrl()}/api/trpc`,
-      transformer: superjson,
+    httpBatchLink({
+      url: "http://localhost:4000/trpc",
+      async headers() {
+        return {
+          "Content-Type": "application/json",
+        };
+      },
     }),
   ],
 });
