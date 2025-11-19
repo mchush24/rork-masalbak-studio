@@ -1,66 +1,20 @@
-export type Language = 'tr' | 'en';
-
 export const strings = {
   tr: {
     title: 'Çocuk Çizimi Analizi',
     pick: 'Görsel Seç / Çek',
-    pickFromGallery: 'Galeriden Seç',
-    takePhoto: 'Fotoğraf Çek',
     analyze: 'Analiz Et',
-    analyzing: 'Analiz Ediliyor...',
     details: 'Detayları Gör',
-    detailedReport: 'Detaylı Rapor',
-    summary: 'Özet',
-    hypotheses: 'Tespit Edilen Temalar',
-    conversationPrompts: 'Sohbet Soruları',
-    activityIdeas: 'Etkinlik Önerileri',
-    safetyWarning: 'Güvenlik Uyarısı',
-    safetyWarningText: 'Uzman görüşü önerilir.',
-    disclaimer: 'Bu içerik eğitsel amaçlıdır; klinik teşhis yerine geçmez.',
-    disclaimerExtended: 'Güvenlik şüphesi varsa okul psikolojik danışmanı/uzmana başvurun.',
-    age: 'Yaş',
-    childQuote: 'Çocuğun Sözü (opsiyonel)',
-    childQuotePlaceholder: 'Bu ben ve annem...',
-    selectTestType: 'Test Türü Seçin',
-    childInfo: 'Çocuk Bilgileri',
-    selectImage: 'Görsel Seç',
-    evidence: 'Kanıt',
-    reset: 'Yeni Analiz',
-    share: 'Paylaş',
-    professionalTests: 'Profesyonel psikolojik çizim testleri',
-    infoText: '🔬 Bu araç, profesyonel psikolojik çizim testlerinin dijital analizini sunar. Sonuçlar yönlendirici gözlemlerdir, teşhis değildir.',
+    disclaimer: 'Bu içerik eğitsel amaçlıdır; klinik teşhis yerine geçmez. Güvenlik şüphesi varsa okul PDR birimine danışın.',
+    expertConsult: 'Uzmana Danış',
+    quickTip: 'Hızlı İpucu'
   },
   en: {
     title: 'Child Drawing Analysis',
     pick: 'Pick / Capture',
-    pickFromGallery: 'Pick from Gallery',
-    takePhoto: 'Take Photo',
     analyze: 'Analyze',
-    analyzing: 'Analyzing...',
     details: 'See Details',
-    detailedReport: 'Detailed Report',
-    summary: 'Summary',
-    hypotheses: 'Detected Themes',
-    conversationPrompts: 'Conversation Prompts',
-    activityIdeas: 'Activity Ideas',
-    safetyWarning: 'Safety Warning',
-    safetyWarningText: 'Professional consultation recommended.',
-    disclaimer: 'This content is educational; not a clinical diagnosis.',
-    disclaimerExtended: 'If you have safety concerns, consult school counselor or specialist.',
-    age: 'Age',
-    childQuote: 'Child Quote (optional)',
-    childQuotePlaceholder: 'This is me and my mom...',
-    selectTestType: 'Select Test Type',
-    childInfo: 'Child Information',
-    selectImage: 'Select Image',
-    evidence: 'Evidence',
-    reset: 'New Analysis',
-    share: 'Share',
-    professionalTests: 'Professional psychological drawing tests',
-    infoText: '🔬 This tool provides digital analysis of professional psychological drawing tests. Results are observational guidance, not diagnosis.',
-  },
+    disclaimer: 'This content is educational; not a clinical diagnosis. Consult school counselor if concerned.',
+    expertConsult: 'Consult Expert',
+    quickTip: 'Quick Tip'
+  }
 };
-
-export function getString(lang: Language, key: keyof typeof strings.tr): string {
-  return strings[lang][key];
-}

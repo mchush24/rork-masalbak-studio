@@ -1,13 +1,13 @@
 export type TaskType =
-  | "DAP"
-  | "HTP"
-  | "Aile"
-  | "Kaktus"
-  | "Agac"
-  | "Bahce"
-  | "Bender"
-  | "Rey"
-  | "Luscher";
+  | "DAP"         // Bir İnsan Çiz (Koppitz)
+  | "HTP"         // Ev-Ağaç-İnsan (Buck)
+  | "Aile"        // Bir Aile Çiz / Kinetik Aile Çiz
+  | "Kaktus"      // Kaktüs Çiz Testi
+  | "Agac"        // Ağaç Testi (Koch)
+  | "Bahce"       // Bahçe Testi
+  | "Bender"      // Bender–Gestalt II
+  | "Rey"         // Rey–Osterrieth Figure
+  | "Luscher";    // Lüscher Renk
 
 export interface VisionObject {
   type:
