@@ -1,6 +1,8 @@
 import { AssessmentInput, AssessmentOutput } from "@/types/AssessmentSchema";
 
 export async function analyzeDrawingMock(input: AssessmentInput): Promise<AssessmentOutput> {
+  console.log("[Mock] Analyzing drawing:", input.task_type);
+  
   const isKaktus = input.task_type === "Kaktus";
   const base: AssessmentOutput = {
     task_type: input.task_type,

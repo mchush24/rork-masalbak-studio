@@ -12,3 +12,4 @@ SUPABASE_BUCKET=masalbak
 
 # Expo Public API URL (for mobile app)
 EXPO_PUBLIC_API=http://localhost:4000
+EXPO_PUBLIC_RORK_API_BASE_URL=http://localhost:4000

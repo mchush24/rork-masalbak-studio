@@ -18,18 +18,30 @@ type MakeOptions = {
 
 export async function generateImageForPage(text: string, prompt?: string) {
   const p = prompt || `Children's picture-book illustration, ${BASE_STYLE}. Turkish theme: ${text}`;
+  console.log("[Story] Generating image with prompt:", p.substring(0, 100) + "...");
+  
   const img = await oai.images.generate({ 
     model: "dall-e-3", 
     prompt: p, 
-    size: "1024x1024" 
+    size: "1024x1024",
+    response_format: "b64_json"
   });
-  const b64 = img.data[0].b64_json || img.data[0].url;
-  if (!b64) throw new Error("No image data returned");
-  const isUrl = b64.startsWith("http");
-  if (isUrl) {
-    const res = await fetch(b64);
-    return Buffer.from(await res.arrayBuffer());
+  
+  if (!img.data || !img.data[0]) {
+    throw new Error("No image data returned from OpenAI");
   }
+  
+  const b64 = img.data[0].b64_json;
+  if (!b64) {
+    console.error("[Story] No b64_json in response, trying URL fallback");
+    const url = img.data[0].url;
+    if (url) {
+      const res = await fetch(url);
+      return Buffer.from(await res.arrayBuffer());
+    }
+    throw new Error("No image data returned from OpenAI");
+  }
+  
   return Buffer.from(b64, "base64");
 }
 
