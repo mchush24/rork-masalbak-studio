@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MasalBak Studio",
-    "slug": "masalbak-studio",
+    "name": "Zuna",
+    "slug": "zuna",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.masalbak-studio",
+      "bundleIdentifier": "app.zuna.studio",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.masalbak_studio",
+      "package": "app.zuna.studio",
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",

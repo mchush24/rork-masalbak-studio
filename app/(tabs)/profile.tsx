@@ -1,16 +1,36 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  ScrollView,
-} from "react-native";
-import { User, Settings, Globe, Crown, Shield, HelpCircle } from "lucide-react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, Pressable, ScrollView, Alert } from "react-native";
+import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { Colors } from "@/constants/colors";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Çıkış Yap',
+      'Hesabınızdan çıkmak istediğinize emin misiniz?',
+      [
+        {
+          text: 'İptal',
+          style: 'cancel',
+        },
+        {
+          text: 'Çıkış Yap',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/(onboarding)/welcome');
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -28,8 +48,8 @@ export default function ProfileScreen() {
               <User size={48} color="#FF6B6B" />
             </View>
           </View>
-          <Text style={styles.userName}>Hoş Geldiniz</Text>
-          <Text style={styles.userEmail}>MasalBak Kullanıcısı</Text>
+          <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'MasalBak Kullanıcısı'}</Text>
         </View>
 
         <View style={styles.section}>
@@ -85,6 +105,20 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.menuContent}>
               <Text style={styles.menuLabel}>Yardım Merkezi</Text>
+            </View>
+          </Pressable>
+        </View>
+
+        <View style={styles.section}>
+          <Pressable
+            style={[styles.menuItem, styles.logoutButton]}
+            onPress={handleLogout}
+          >
+            <View style={[styles.menuIcon, styles.logoutIcon]}>
+              <LogOut size={24} color="#EF4444" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={[styles.menuLabel, styles.logoutText]}>Çıkış Yap</Text>
             </View>
           </Pressable>
         </View>

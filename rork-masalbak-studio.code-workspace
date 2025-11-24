@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "name": "Client (Root)",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "eslint.workingDirectories": [
+      { "directory": ".", "changeProcessCWD": false }
+    ],
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/node_modules": true
+    }
+  }
+}

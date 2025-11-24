@@ -1,5 +1,4 @@
-import * as FileSystem from "expo-file-system";
-import { trpcClient } from "@/lib/trpc";
+import * as FileSystem from "expo-file-system/legacy";
 
 export type StoryPageInput = { text: string; prompt?: string };
 
@@ -10,18 +9,15 @@ export type StorybookResult = {
   record?: any;
 };
 
+/**
+ * Studio backend is now integrated via /backend/trpc/routes/studio.
+ * Use tRPC client directly: trpc.studio.createStorybook.useMutation()
+ */
 export async function createStorybook(
   pages: StoryPageInput[],
   options?: { lang?: "tr"|"en"; makePdf?: boolean; makeTts?: boolean; title?: string; user_id?: string|null }
 ): Promise<StorybookResult> {
-  return await trpcClient.studio.createStorybook.mutate({
-    pages,
-    lang: options?.lang ?? "tr",
-    makePdf: options?.makePdf ?? true,
-    makeTts: options?.makeTts ?? true,
-    title: options?.title ?? "Masal",
-    user_id: options?.user_id ?? null
-  });
+  throw new Error("Please use tRPC client directly: trpc.studio.createStorybook.useMutation()");
 }
 
 export type ColoringPDFResult = { pdf_url: string; record?: any };
@@ -38,19 +34,13 @@ export async function generateColoringPDF(
   title: string,
   options?: { size?: "A4"|"A3"; user_id?: string|null }
 ): Promise<ColoringPDFResult> {
-  const dataUri = await toDataUri(imageUri);
-  return await trpcClient.studio.generateColoringPDF.mutate({
-    size: options?.size ?? "A4",
-    title,
-    pages: [dataUri],
-    user_id: options?.user_id ?? null
-  });
+  throw new Error("Please use tRPC client directly: trpc.studio.generateColoringPDF.useMutation()");
 }
 
 export async function listStorybooks(user_id?: string|null) {
-  return await trpcClient.studio.listStorybooks.query({ user_id: user_id ?? null });
+  throw new Error("Please use tRPC client directly: trpc.studio.listStorybooks.useQuery()");
 }
 
 export async function listColorings(user_id?: string|null) {
-  return await trpcClient.studio.listColorings.query({ user_id: user_id ?? null });
+  throw new Error("Please use tRPC client directly: trpc.studio.listColorings.useQuery()");
 }

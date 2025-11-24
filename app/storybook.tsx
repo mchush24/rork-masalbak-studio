@@ -15,7 +15,7 @@ import { Image } from "expo-image";
 import { ChevronLeft, ChevronRight, Sparkles, BookOpen } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
-import { useLocalSearchParams, useRouter, Stack } from "expo-router";
+import { useLocalSearchParams, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -34,12 +34,10 @@ type Story = {
 
 export default function StorybookScreen() {
   const params = useLocalSearchParams();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [currentPage, setCurrentPage] = useState(0);
   const [story, setStory] = useState<Story | null>(null);
   const [generating, setGenerating] = useState(false);
-  const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const imageUri = params.imageUri as string;
@@ -49,6 +47,7 @@ export default function StorybookScreen() {
 
   useEffect(() => {
     generateStory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -59,7 +58,7 @@ export default function StorybookScreen() {
         useNativeDriver: true,
       }).start();
     }
-  }, [story]);
+  }, [story, fadeAnim]);
 
   async function generateStory() {
     setGenerating(true);
@@ -89,25 +88,14 @@ Masal şu JSON formatında olmalı:
 
 Her sayfa çocukların anlayabileceği basit, eğlenceli ve öğretici olmalı. Başlangıç-Orta-Son yapısını koru.`;
 
-      const response = await generateText({
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      });
+      // TODO: Implement story generation via backend API
+      // This feature requires server-side AI integration
 
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        setStory(parsed);
-        if (Platform.OS !== "web") {
-          await Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Success
-          );
-        }
-      }
+      // Temporary placeholder - shows error message
+      Alert.alert(
+        "Özellik Hazırlanıyor",
+        "Masal oluşturma özelliği henüz backend'e bağlanmamıştır. Lütfen geliştirici ile iletişime geçin."
+      );
     } catch (error: any) {
       console.error("Story generation error:", error);
       Alert.alert("Hata", "Masal oluşturulurken bir hata oluştu.");
