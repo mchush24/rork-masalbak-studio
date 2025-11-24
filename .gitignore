@@ -37,8 +37,13 @@ yarn-error.*
 .vercel
 .env
 .env.local
-server/.env
-package-lock.json
+
+# Removed old server directory
+server/
+
+# Bun lockfile (we use npm)
 bun.lock
-*.code-workspace
+
+# iOS native build
 ios/
+env

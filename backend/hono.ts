@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server";
 import { cors } from "hono/cors";
@@ -13,6 +14,7 @@ app.use(
   trpcServer({
     router: appRouter,
     createContext,
+    endpoint: "/api/trpc",
   })
 );
 

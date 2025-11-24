@@ -3,12 +3,17 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "bunx rork start -p x1u65zabswvzhlukscjsr --tunnel",
-    "start-web": "bunx rork start -p x1u65zabswvzhlukscjsr --web --tunnel",
-    "start-web-dev": "DEBUG=expo* bunx rork start -p x1u65zabswvzhlukscjsr --web --tunnel",
+    "start": "npx rork start -p x1u65zabswvzhlukscjsr --tunnel",
+    "start-web": "npx rork start -p x1u65zabswvzhlukscjsr --web --tunnel",
+    "start-web-dev": "DEBUG=expo* npx rork start -p x1u65zabswvzhlukscjsr --web --tunnel",
     "dev": "npx expo start --web",
     "web": "npx expo start --web",
+    "backend": "tsx backend/server.ts",
+    "backend:watch": "tsx watch backend/server.ts",
     "lint": "expo lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },
@@ -66,9 +71,14 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@expo/ngrok": "^4.1.0",
+    "@hono/node-server": "^1.19.6",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.1.10",
     "eslint": "9.31.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
+    "tsx": "^4.20.6",
     "typescript": "~5.9.2"
   },
   "private": true
