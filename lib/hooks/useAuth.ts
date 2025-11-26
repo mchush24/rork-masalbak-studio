@@ -1,14 +1,26 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { trpc } from '@/lib/trpc';
 
 const USER_KEY = '@masalbak_user';
 const ONBOARDING_KEY = '@masalbak_onboarding_completed';
+
+export interface Child {
+  name: string;
+  age: number;
+  birthDate?: string;
+  gender?: 'male' | 'female' | 'other';
+}
 
 export interface UserSession {
   userId: string;
   email: string;
   name?: string;
-  childAge?: number;
+  childAge?: number; // Deprecated: use children array instead
+  children?: Child[];
+  avatarUrl?: string;
+  language?: string;
+  preferences?: Record<string, any>;
 }
 
 export function useAuth() {
@@ -83,6 +95,23 @@ export function useAuth() {
     }
   };
 
+  const refreshUserFromBackend = async () => {
+    if (!user?.userId) return;
+
+    try {
+      // This will be implemented when we add the tRPC query
+      console.log('[useAuth] Refreshing user data from backend...');
+      // const profile = await trpc.user.getProfile.useQuery({ userId: user.userId });
+      // if (profile) {
+      //   const updatedUser = { ...user, ...profile };
+      //   await AsyncStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+      //   setUser(updatedUser);
+      // }
+    } catch (error) {
+      console.error('[useAuth] Error refreshing user:', error);
+    }
+  };
+
   return {
     user,
     isLoading,
@@ -90,6 +119,7 @@ export function useAuth() {
     login,
     logout,
     completeOnboarding,
+    refreshUserFromBackend,
     isAuthenticated: !!user,
   };
 }

@@ -7,6 +7,11 @@ import { listStorybooksProcedure, listColoringsProcedure } from "./routes/studio
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
 import { registerProcedure } from "./routes/auth/register";
 import { completeOnboardingProcedure } from "./routes/auth/complete-onboarding";
+import { getProfileProcedure } from "./routes/user/get-profile";
+import { updateProfileProcedure } from "./routes/user/update-profile";
+import { getUserStatsProcedure } from "./routes/user/get-user-stats";
+import { getSettingsProcedure } from "./routes/user/get-settings";
+import { updateSettingsProcedure } from "./routes/user/update-settings";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -15,6 +20,13 @@ export const appRouter = createTRPCRouter({
   auth: createTRPCRouter({
     register: registerProcedure,
     completeOnboarding: completeOnboardingProcedure,
+  }),
+  user: createTRPCRouter({
+    getProfile: getProfileProcedure,
+    updateProfile: updateProfileProcedure,
+    getUserStats: getUserStatsProcedure,
+    getSettings: getSettingsProcedure,
+    updateSettings: updateSettingsProcedure,
   }),
   studio: createTRPCRouter({
     createStorybook: createStorybookProcedure,
