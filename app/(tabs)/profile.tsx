@@ -144,7 +144,7 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
-              onPress={() => router.push("/(tabs)/analysis-history")}
+              onPress={() => Alert.alert("Analiz Geçmişi", "Analiz geçmişi ekranı yakında eklenecek!")}
             >
               <LinearGradient
                 colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
@@ -156,6 +156,28 @@ export default function ProfileScreen() {
                 <Text style={styles.menuLabel}>Analiz Geçmişi</Text>
                 <View style={styles.menuRight}>
                   <Text style={styles.menuValue}>{stats?.totalAnalyses || 0}</Text>
+                  <ChevronRight size={20} color={Colors.neutral.light} />
+                </View>
+              </View>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => Alert.alert("Boyama Geçmişi", "Boyama geçmişi ekranı yakında eklenecek!")}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                style={styles.menuIcon}
+              >
+                <Palette size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Boyama Geçmişi</Text>
+                <View style={styles.menuRight}>
+                  <Text style={styles.menuValue}>{stats?.totalColorings || 0}</Text>
                   <ChevronRight size={20} color={Colors.neutral.light} />
                 </View>
               </View>
