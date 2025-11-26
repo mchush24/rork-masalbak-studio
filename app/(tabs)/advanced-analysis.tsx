@@ -36,11 +36,13 @@ import type { AssessmentInput, TaskType } from "@/types/AssessmentSchema";
 import { trpc } from "@/lib/trpc";
 import { Platform } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 const lang = "tr";
 
 export default function AdvancedAnalysisScreen() {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const [uri, setUri] = useState<string | null>(null);
   const [imageHeight, setImageHeight] = useState<number>(300);
   const [age, setAge] = useState<string>("7");
@@ -48,9 +50,11 @@ export default function AdvancedAnalysisScreen() {
   const [quote, setQuote] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
 
-  // tRPC mutation for analysis
+  // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
+  const saveAnalysisMutation = trpc.analysis.save.useMutation();
 
   const [sheetTask, setSheetTask] = useState<TaskType>("DAP");
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -221,6 +225,35 @@ export default function AdvancedAnalysisScreen() {
       };
 
       setResult(transformedResult);
+
+      // Auto-save analysis to database
+      if (user?.userId) {
+        try {
+          console.log("[Analysis] Saving analysis to database...");
+          const startTime = Date.now();
+
+          const savedAnalysis = await saveAnalysisMutation.mutateAsync({
+            userId: user.userId,
+            taskType: task,
+            childAge: Number(age),
+            childName: undefined, // Can be added later
+            originalImageUrl: uri || undefined,
+            drawingDescription: undefined,
+            childQuote: quote || undefined,
+            analysisResult: backendResult,
+            aiModel: "gpt-4-vision-preview",
+            aiConfidence: backendResult.meta?.confidence,
+            processingTimeMs: Date.now() - startTime,
+            language: "tr",
+          });
+
+          setSavedAnalysisId(savedAnalysis.id);
+          console.log("[Analysis] ✅ Saved successfully:", savedAnalysis.id);
+        } catch (saveError) {
+          console.error("[Analysis] ❌ Failed to save:", saveError);
+          // Don't show error to user - analysis still works, just not saved
+        }
+      }
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";

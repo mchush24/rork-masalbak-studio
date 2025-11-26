@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 const analysisInputSchema = z.object({
-  taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth"]),
+  taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
   childAge: z.number().optional(),
   imageBase64: z.string().optional(),
   language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
@@ -18,7 +18,7 @@ const analysisInputSchema = z.object({
 
 const analysisResponseSchema = z.object({
   meta: z.object({
-    testType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth"]),
+    testType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
     age: z.number().optional(),
     language: z.enum(["tr", "en", "ru", "tk", "uz"]),
     confidence: z.number().min(0).max(1),

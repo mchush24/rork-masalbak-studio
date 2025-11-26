@@ -12,6 +12,11 @@ import { updateProfileProcedure } from "./routes/user/update-profile";
 import { getUserStatsProcedure } from "./routes/user/get-user-stats";
 import { getSettingsProcedure } from "./routes/user/get-settings";
 import { updateSettingsProcedure } from "./routes/user/update-settings";
+import { saveAnalysisProcedure } from "./routes/analysis/save-analysis";
+import { listAnalysesProcedure } from "./routes/analysis/list-analyses";
+import { getAnalysisProcedure } from "./routes/analysis/get-analysis";
+import { updateAnalysisProcedure } from "./routes/analysis/update-analysis";
+import { deleteAnalysisProcedure } from "./routes/analysis/delete-analysis";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -27,6 +32,13 @@ export const appRouter = createTRPCRouter({
     getUserStats: getUserStatsProcedure,
     getSettings: getSettingsProcedure,
     updateSettings: updateSettingsProcedure,
+  }),
+  analysis: createTRPCRouter({
+    save: saveAnalysisProcedure,
+    list: listAnalysesProcedure,
+    get: getAnalysisProcedure,
+    update: updateAnalysisProcedure,
+    delete: deleteAnalysisProcedure,
   }),
   studio: createTRPCRouter({
     createStorybook: createStorybookProcedure,
