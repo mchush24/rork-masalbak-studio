@@ -1,10 +1,11 @@
-import React from "react";
-import { StyleSheet, Text, View, Pressable, ScrollView, Alert } from "react-native";
-import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut, ChevronRight } from "lucide-react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl } from "react-native";
+import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
 import {
   layout,
@@ -18,6 +19,19 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Fetch user stats from backend
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = trpc.user.getUserStats.useQuery(
+    { userId: user?.userId || '' },
+    { enabled: !!user?.userId, refetchOnMount: true }
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetchStats();
+    setRefreshing(false);
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -40,6 +54,10 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleEditProfile = () => {
+    Alert.alert('Profil Düzenle', 'Profil düzenleme özelliği yakında eklenecek!');
+  };
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -53,6 +71,9 @@ export default function ProfileScreen() {
             { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
           ]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
         >
           <View style={styles.header}>
             <View style={styles.avatarContainer}>
@@ -62,10 +83,58 @@ export default function ProfileScreen() {
               >
                 <User size={layout.icon.large} color={Colors.neutral.white} />
               </LinearGradient>
+              <Pressable
+                style={styles.editButton}
+                onPress={handleEditProfile}
+              >
+                <Edit2 size={16} color={Colors.neutral.white} />
+              </Pressable>
             </View>
             <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
             <Text style={styles.userEmail}>{user?.email || 'MasalBak Kullanıcısı'}</Text>
           </View>
+
+          {/* Stats Cards */}
+          {statsLoading ? (
+            <View style={styles.statsLoading}>
+              <ActivityIndicator size="large" color={Colors.secondary.grass} />
+            </View>
+          ) : stats && (
+            <View style={styles.statsContainer}>
+              <View style={styles.statCard}>
+                <LinearGradient
+                  colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                  style={styles.statCardGradient}
+                >
+                  <BookOpen size={32} color={Colors.neutral.white} />
+                  <Text style={styles.statValue}>{stats.totalStorybooks || 0}</Text>
+                  <Text style={styles.statLabel}>Masal</Text>
+                </LinearGradient>
+              </View>
+
+              <View style={styles.statCard}>
+                <LinearGradient
+                  colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                  style={styles.statCardGradient}
+                >
+                  <Palette size={32} color={Colors.neutral.white} />
+                  <Text style={styles.statValue}>{stats.totalColorings || 0}</Text>
+                  <Text style={styles.statLabel}>Boyama</Text>
+                </LinearGradient>
+              </View>
+
+              <View style={styles.statCard}>
+                <LinearGradient
+                  colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                  style={styles.statCardGradient}
+                >
+                  <Brain size={32} color={Colors.neutral.white} />
+                  <Text style={styles.statValue}>{stats.totalAnalyses || 0}</Text>
+                  <Text style={styles.statLabel}>Analiz</Text>
+                </LinearGradient>
+              </View>
+            </View>
+          )}
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Ayarlar</Text>
@@ -223,6 +292,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginBottom: spacing["5"],
+    position: "relative",
   },
   avatar: {
     width: layout.icon.mega + 24,
@@ -233,6 +303,53 @@ const styles = StyleSheet.create({
     borderWidth: 6,
     borderColor: Colors.neutral.white,
     ...shadows.xl,
+  },
+  editButton: {
+    position: "absolute",
+    bottom: 4,
+    right: 4,
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: Colors.secondary.sky,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: Colors.neutral.white,
+    ...shadows.md,
+  },
+  statsLoading: {
+    paddingVertical: spacing["10"],
+    alignItems: "center",
+  },
+  statsContainer: {
+    flexDirection: "row",
+    gap: spacing["3"],
+    marginBottom: spacing["8"],
+  },
+  statCard: {
+    flex: 1,
+  },
+  statCardGradient: {
+    padding: spacing["5"],
+    borderRadius: radius.xl,
+    alignItems: "center",
+    gap: spacing["3"],
+    ...shadows.md,
+  },
+  statValue: {
+    fontSize: typography.size["3xl"],
+    fontWeight: typography.weight.extrabold,
+    color: Colors.neutral.white,
+    letterSpacing: typography.letterSpacing.tight,
+  },
+  statLabel: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.white,
+    opacity: 0.9,
+    textTransform: "uppercase" as const,
+    letterSpacing: typography.letterSpacing.wide,
   },
   userName: {
     fontSize: typography.size["3xl"],
