@@ -125,25 +125,40 @@ export const layout = {
 } as const;
 
 export const colors = {
-  // Zuna Brand Colors (from logo)
+  // MasalBak Brand Colors - "Gün Batımı Bahçesi" teması
   brand: {
-    primary: '#00536B',      // Deep teal from logo circle
-    secondary: '#FF8C42',    // Warm orange from logo accents
-    accent: '#FDD835',       // Cheerful yellow from smiley
-    greenLeaf: '#66BB6A',    // Green from leaves
-    lightTeal: '#4DB8C4',    // Light teal from logo elements
+    primary: '#FF9B7A',      // Yumuşak turuncu-pembe (ana aksiyon)
+    secondary: '#78C8E8',    // Gökyüzü mavisi (güven, sakinlik)
+    accent: '#FFD56B',       // Güneş sarısı (enerji, neşe)
+    success: '#7ED99C',      // Çimen yeşili (büyüme, başarı)
+    premium: '#A78BFA',      // Lavanta (yaratıcılık, premium)
   },
 
-  // Primary gradients - Zuna themed
+  // Gradient setleri - MasalBak temalı
   gradients: {
-    primary: ['#00536B', '#4DB8C4', '#66BB6A'],     // Teal to green (main brand)
-    warm: ['#FF8C42', '#FDD835', '#FFB74D'],        // Orange to yellow (cheerful)
-    ocean: ['#00536B', '#0277BD', '#4FC3F7'],       // Deep ocean blues
-    sunset: ['#FF8C42', '#FF6F61', '#FDD835'],      // Warm sunset
-    forest: ['#66BB6A', '#81C784', '#A5D6A7'],      // Nature greens
+    // Ana tema - Yumuşak gün batımı (turuncu-pembe-krem)
+    primary: ['#FF9B7A', '#FFB299', '#FFC4B0'],
+
+    // Sıcak ve enerjik - Turuncu-sarı (kayıt ekranı için ideal)
+    warm: ['#FF9B7A', '#FFB55F', '#FFD56B'],
+
+    // Sakin ve güvenli - Mavi-yeşil (profil, ayarlar için)
+    calm: ['#78C8E8', '#7ED99C', '#A8E8BA'],
+
+    // Yaratıcı ve eğlenceli - Pembe-mor (hikaye, yaratıcılık için)
+    creative: ['#FFB299', '#E9B8F7', '#C4B5FD'],
+
+    // Gün batımı gökyüzü - Turuncu-pembe-mor (premium özellikler)
+    sunset: ['#FF9B7A', '#FFB299', '#E9B8F7', '#C4B5FD'],
+
+    // Bahçe - Yeşil-sarı (doğa, öğrenme için)
+    garden: ['#7ED99C', '#A8E8BA', '#FFD56B'],
+
+    // Okyanus - Mavi tonları (analiz, veri için)
+    ocean: ['#4FB3D4', '#78C8E8', '#A3DBF0'],
   },
 
-  // Opacity variants (for white overlays)
+  // Opacity variants (beyaz overlay'ler için)
   opacity: {
     subtle: 0.1,
     light: 0.15,

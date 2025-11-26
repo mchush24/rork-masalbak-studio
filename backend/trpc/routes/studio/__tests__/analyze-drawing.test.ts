@@ -6,13 +6,13 @@ process.env.OPENAI_API_KEY = 'test-api-key';
 // Mock superjson to avoid ESM issues
 jest.mock('superjson', () => ({
   default: {
-    stringify: jest.fn((v) => JSON.stringify(v)),
-    parse: jest.fn((v) => JSON.parse(v)),
+    stringify: jest.fn((v: any) => JSON.stringify(v)),
+    parse: jest.fn((v: string) => JSON.parse(v)),
   },
 }));
 
 // Mock OpenAI before importing
-const mockCreate = jest.fn();
+const mockCreate = jest.fn() as jest.MockedFunction<any>;
 
 jest.mock('openai', () => ({
   __esModule: true,
@@ -25,6 +25,16 @@ jest.mock('openai', () => ({
   },
 }));
 
+// Helper to create valid input
+function createTestInput(overrides: Partial<any> = {}): any {
+  return {
+    taskType: 'DAP',
+    language: 'en',
+    userRole: 'parent',
+    ...overrides,
+  };
+}
+
 describe('analyzeDrawing', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -33,13 +43,35 @@ describe('analyzeDrawing', () => {
   it('should analyze a drawing with image and return structured response', async () => {
     // Arrange
     const mockResponse = {
-      title: 'Happy Family Drawing',
-      insights: 'The child shows strong emotional bonds with family members through the use of warm colors and close proximity of figures.',
-      emotions: ['happy', 'secure', 'loved'],
-      themes: ['family', 'connection', 'warmth'],
+      meta: {
+        testType: 'Family',
+        age: 7,
+        language: 'en',
+        confidence: 0.8,
+        uncertaintyLevel: 'low',
+        dataQualityNotes: [],
+      },
+      insights: [
+        {
+          title: 'Strong family bonds',
+          summary: 'The child shows strong emotional bonds with family members through the use of warm colors and close proximity of figures.',
+          evidence: ['warm_colors', 'figure_proximity'],
+          strength: 'strong',
+        },
+      ],
+      homeTips: [
+        {
+          title: 'Encourage storytelling',
+          steps: ['Ask about the drawing', 'Listen actively'],
+          why: 'Helps emotional expression',
+        },
+      ],
+      riskFlags: [],
+      trendNote: '',
+      disclaimer: 'This content is for informational purposes only and does not constitute a diagnosis.',
     };
 
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [
         {
           message: {
@@ -53,12 +85,11 @@ describe('analyzeDrawing', () => {
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    const result = await analyzeDrawing({
-      taskType: 'Draw your family',
+    const result = await analyzeDrawing(createTestInput({
+      taskType: 'Family',
       childAge: 7,
       imageBase64: 'fake-base64-string',
-      language: 'en',
-    });
+    }));
 
     // Assert
     expect(result).toEqual(mockResponse);
@@ -67,26 +98,49 @@ describe('analyzeDrawing', () => {
     const callArgs: any = mockCreate.mock.calls[0][0];
     expect(callArgs).toMatchObject({
       model: 'gpt-4o-mini',
-      max_tokens: 2000,
+      max_tokens: 4000,
     });
 
     // Verify the message structure
-    expect(callArgs.messages[0].role).toBe('user');
-    expect(callArgs.messages[0].content).toHaveLength(2);
-    expect(callArgs.messages[0].content[0].type).toBe('text');
-    expect(callArgs.messages[0].content[1].type).toBe('image_url');
+    expect(callArgs.messages[0].role).toBe('system');
+    expect(callArgs.messages[1].role).toBe('user');
+    expect(callArgs.messages[1].content).toHaveLength(2);
+    expect(callArgs.messages[1].content[0].type).toBe('text');
+    expect(callArgs.messages[1].content[1].type).toBe('image_url');
   });
 
   it('should handle analysis without image', async () => {
     // Arrange
     const mockResponse = {
-      title: 'Drawing Analysis',
-      insights: 'Analysis based on task description only.',
-      emotions: ['curious', 'thoughtful'],
-      themes: ['imagination', 'creativity'],
+      meta: {
+        testType: 'Tree',
+        age: 5,
+        language: 'en',
+        confidence: 0.7,
+        uncertaintyLevel: 'mid',
+        dataQualityNotes: [],
+      },
+      insights: [
+        {
+          title: 'Creative expression',
+          summary: 'Analysis based on task description only.',
+          evidence: ['task_description'],
+          strength: 'moderate',
+        },
+      ],
+      homeTips: [
+        {
+          title: 'Encourage drawing',
+          steps: ['Provide materials', 'Create time for art'],
+          why: 'Supports imagination',
+        },
+      ],
+      riskFlags: [],
+      trendNote: '',
+      disclaimer: 'This content is for informational purposes only and does not constitute a diagnosis.',
     };
 
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [
         {
           message: {
@@ -99,17 +153,17 @@ describe('analyzeDrawing', () => {
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    const result = await analyzeDrawing({
-      taskType: 'Draw a tree',
+    const result = await analyzeDrawing(createTestInput({
+      taskType: 'Tree',
       childAge: 5,
-    });
+    }));
 
     // Assert
     expect(result).toEqual(mockResponse);
 
     // Ensure image was NOT included
     const callArgs: any = mockCreate.mock.calls[0][0];
-    const messageContent = callArgs.messages[0].content;
+    const messageContent = callArgs.messages[1].content;
     expect(messageContent).toHaveLength(1);
     expect(messageContent[0].type).toBe('text');
   });
@@ -117,13 +171,35 @@ describe('analyzeDrawing', () => {
   it('should handle JSON parsing when response includes markdown code blocks', async () => {
     // Arrange
     const mockResponse = {
-      title: 'Creative Expression',
-      insights: 'The child demonstrates creative thinking.',
-      emotions: ['excited', 'playful'],
-      themes: ['creativity', 'fun'],
+      meta: {
+        testType: 'DAP',
+        age: 6,
+        language: 'en',
+        confidence: 0.75,
+        uncertaintyLevel: 'low',
+        dataQualityNotes: [],
+      },
+      insights: [
+        {
+          title: 'Creative Expression',
+          summary: 'The child demonstrates creative thinking.',
+          evidence: ['creativity_markers'],
+          strength: 'strong',
+        },
+      ],
+      homeTips: [
+        {
+          title: 'Foster creativity',
+          steps: ['Provide open-ended activities'],
+          why: 'Supports creative development',
+        },
+      ],
+      riskFlags: [],
+      trendNote: '',
+      disclaimer: 'This content is for informational purposes only and does not constitute a diagnosis.',
     };
 
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [
         {
           message: {
@@ -136,10 +212,9 @@ describe('analyzeDrawing', () => {
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    const result = await analyzeDrawing({
-      taskType: 'Free drawing',
+    const result = await analyzeDrawing(createTestInput({
       childAge: 6,
-    });
+    }));
 
     // Assert
     expect(result).toEqual(mockResponse);
@@ -147,7 +222,7 @@ describe('analyzeDrawing', () => {
 
   it('should return fallback response on JSON parse error', async () => {
     // Arrange
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [
         {
           message: {
@@ -160,118 +235,177 @@ describe('analyzeDrawing', () => {
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    const result = await analyzeDrawing({
-      taskType: 'Draw something',
+    const result = await analyzeDrawing(createTestInput({
       childAge: 8,
-    });
+      language: 'tr',
+    }));
 
-    // Assert
-    expect(result).toEqual({
-      title: 'Çizim Analizi',
-      insights: 'This is not valid JSON at all!',
-      emotions: ['meraklı', 'yaratıcı', 'enerjik'],
-      themes: ['hayal gücü', 'özgür ifade', 'kendini keşfetme'],
-    });
+    // Assert - Expect fallback response with new schema
+    expect(result.meta.uncertaintyLevel).toBe('high');
+    expect(result.insights[0].title).toBe('Analiz tamamlanamadı');
+    expect(result.riskFlags).toEqual([]);
+    expect(result.disclaimer).toBeTruthy();
   });
 
   it('should throw error when OpenAI API fails', async () => {
     // Arrange
-    mockCreate.mockRejectedValue(new Error('API rate limit exceeded'));
+    (mockCreate.mockRejectedValue as any)(new Error('API rate limit exceeded'));
 
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act & Assert
     await expect(
-      analyzeDrawing({
-        taskType: 'Draw your feelings',
+      analyzeDrawing(createTestInput({
         childAge: 9,
-      })
+      }))
     ).rejects.toThrow('Analysis failed: API rate limit exceeded');
   });
 
   it('should include child age in the prompt when provided', async () => {
     // Arrange
     const mockResponse = {
-      title: 'Test',
-      insights: 'Test insights',
-      emotions: ['happy'],
-      themes: ['test'],
+      meta: {
+        testType: 'HTP',
+        age: 10,
+        language: 'en',
+        confidence: 0.8,
+        uncertaintyLevel: 'low',
+        dataQualityNotes: [],
+      },
+      insights: [
+        {
+          title: 'Test',
+          summary: 'Test insights',
+          evidence: ['test'],
+          strength: 'moderate',
+        },
+      ],
+      homeTips: [
+        {
+          title: 'Test tip',
+          steps: ['Step 1'],
+          why: 'Test reason',
+        },
+      ],
+      riskFlags: [],
+      trendNote: '',
+      disclaimer: 'This content is for informational purposes only and does not constitute a diagnosis.',
     };
 
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [{ message: { content: JSON.stringify(mockResponse) } }],
     });
 
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    await analyzeDrawing({
-      taskType: 'Draw a house',
+    await analyzeDrawing(createTestInput({
+      taskType: 'HTP',
       childAge: 10,
-      language: 'en',
-    });
+    }));
 
     // Assert
     const callArgs: any = mockCreate.mock.calls[0][0];
-    const promptText = callArgs.messages[0].content[0].text;
-    expect(promptText).toContain('Age: 10');
-    expect(promptText).toContain('Task: Draw a house');
+    const promptText = callArgs.messages[1].content[0].text;
+    expect(promptText).toContain('child_age: 10');
   });
 
   it('should handle missing child age gracefully', async () => {
     // Arrange
     const mockResponse = {
-      title: 'Test',
-      insights: 'Test insights',
-      emotions: ['curious'],
-      themes: ['exploration'],
+      meta: {
+        testType: 'DAP',
+        language: 'tr',
+        confidence: 0.6,
+        uncertaintyLevel: 'mid',
+        dataQualityNotes: [],
+      },
+      insights: [
+        {
+          title: 'Test',
+          summary: 'Test insights',
+          evidence: ['exploration'],
+          strength: 'weak',
+        },
+      ],
+      homeTips: [
+        {
+          title: 'Test',
+          steps: ['Step'],
+          why: 'Reason',
+        },
+      ],
+      riskFlags: [],
+      trendNote: '',
+      disclaimer: 'Bu içerik bilgi amaçlıdır, tanı koymaz. Endişeleriniz varsa uzmanla görüşebilirsiniz.',
     };
 
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [{ message: { content: JSON.stringify(mockResponse) } }],
     });
 
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    await analyzeDrawing({
-      taskType: 'Free draw',
-    });
+    await analyzeDrawing(createTestInput({
+      language: 'tr',
+    }));
 
     // Assert
     const callArgs: any = mockCreate.mock.calls[0][0];
-    const promptText = callArgs.messages[0].content[0].text;
-    expect(promptText).toContain('Yaş: bilinmiyor'); // Default is Turkish
+    const promptText = callArgs.messages[1].content[0].text;
+    expect(promptText).toContain('child_age: bilinmiyor');
   });
 
   it('should use Turkish prompt when language is "tr"', async () => {
     // Arrange
     const mockResponse = {
-      title: 'Aile Çizimi',
-      insights: 'Çocuk, ailesine karşı güçlü duygusal bağlar gösteriyor.',
-      emotions: ['mutlu', 'güvenli', 'sevilen'],
-      themes: ['aile', 'bağlılık', 'sıcaklık'],
+      meta: {
+        testType: 'Family',
+        age: 7,
+        language: 'tr',
+        confidence: 0.85,
+        uncertaintyLevel: 'low',
+        dataQualityNotes: [],
+      },
+      insights: [
+        {
+          title: 'Aile Bağları',
+          summary: 'Çocuk, ailesine karşı güçlü duygusal bağlar gösteriyor.',
+          evidence: ['aile', 'bağlılık'],
+          strength: 'strong',
+        },
+      ],
+      homeTips: [
+        {
+          title: 'Aile zamanı',
+          steps: ['Birlikte vakit geçirin'],
+          why: 'Bağları güçlendirir',
+        },
+      ],
+      riskFlags: [],
+      trendNote: '',
+      disclaimer: 'Bu içerik bilgi amaçlıdır, tanı koymaz. Endişeleriniz varsa uzmanla görüşebilirsiniz.',
     };
 
-    mockCreate.mockResolvedValue({
+    (mockCreate.mockResolvedValue as any)({
       choices: [{ message: { content: JSON.stringify(mockResponse) } }],
     });
 
     const { analyzeDrawing } = await import('../analyze-drawing');
 
     // Act
-    await analyzeDrawing({
-      taskType: 'Ailenizi çizin',
+    await analyzeDrawing(createTestInput({
+      taskType: 'Family',
       childAge: 7,
       language: 'tr',
-    });
+    }));
 
     // Assert
     const callArgs: any = mockCreate.mock.calls[0][0];
-    const promptText = callArgs.messages[0].content[0].text;
-    expect(promptText).toContain('Sen uzman bir çocuk psikoloğusun');
-    expect(promptText).toContain('Görev: Ailenizi çizin');
-    expect(promptText).toContain('Yaş: 7');
-    expect(promptText).toContain('TÜRKÇE');
+    const promptText = callArgs.messages[1].content[0].text;
+    expect(promptText).toContain('language: tr');
+    expect(promptText).toContain('child_age: 7');
+    expect(promptText).toContain('test_type: Family');
   });
 });

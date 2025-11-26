@@ -2,6 +2,7 @@ import { createTRPCRouter } from "./create-context";
 import hiRoute from "./routes/example/hi/route";
 import { createStorybookProcedure } from "./routes/studio/create-storybook";
 import { generateColoringPDFProcedure } from "./routes/studio/generate-coloring-pdf";
+import { generateColoringFromDrawingProcedure } from "./routes/studio/generate-coloring-from-drawing";
 import { listStorybooksProcedure, listColoringsProcedure } from "./routes/studio/list-history";
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
 import { registerProcedure } from "./routes/auth/register";
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   studio: createTRPCRouter({
     createStorybook: createStorybookProcedure,
     generateColoringPDF: generateColoringPDFProcedure,
+    generateColoringFromDrawing: generateColoringFromDrawingProcedure,
     listStorybooks: listStorybooksProcedure,
     listColorings: listColoringsProcedure,
     analyzeDrawing: analyzeDrawingProcedure,

@@ -8,9 +8,11 @@ async function toLineArt(input: string|Buffer) {
   let buf: Buffer;
   if (typeof input === "string") {
     if (input.startsWith("data:image/")) {
+      // data:image/png;base64,xxxxx formatı
       buf = Buffer.from(input.split(",").pop()||"", "base64");
     } else {
-      throw new Error("toLineArt expects data-uri or Buffer");
+      // Sadece base64 string (data: prefix olmadan)
+      buf = Buffer.from(input, "base64");
     }
   } else {
     buf = input;
