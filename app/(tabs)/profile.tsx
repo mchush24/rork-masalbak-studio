@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl } from "react-native";
-import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2 } from "lucide-react-native";
+import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -135,6 +135,32 @@ export default function ProfileScreen() {
               </View>
             </View>
           )}
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>İçeriklerim</Text>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => router.push("/(tabs)/analysis-history")}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                style={styles.menuIcon}
+              >
+                <History size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Analiz Geçmişi</Text>
+                <View style={styles.menuRight}>
+                  <Text style={styles.menuValue}>{stats?.totalAnalyses || 0}</Text>
+                  <ChevronRight size={20} color={Colors.neutral.light} />
+                </View>
+              </View>
+            </Pressable>
+          </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Ayarlar</Text>
