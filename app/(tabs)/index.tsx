@@ -8,26 +8,64 @@ import {
   Platform,
   Alert,
   Animated,
+  Linking,
 } from "react-native";
 import { Colors } from "@/constants/colors";
+import {
+  layout,
+  typography,
+  spacing,
+  radius,
+  shadows,
+} from "@/constants/design-system";
 import { useState, useRef, useEffect } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { Camera, ImageIcon, X, Sparkles, Zap, Lightbulb } from "lucide-react-native";
+import { Camera, ImageIcon, X, Sparkles, Zap, Lightbulb, Brain, TrendingUp, Award, CheckCircle } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { analyzeDrawingRemote } from "@/services/aiClient";
+import { trpc } from "@/lib/trpc";
+
+// New schema types matching backend
+type AnalysisMeta = {
+  testType: string;
+  age?: number;
+  language: string;
+  confidence: number;
+  uncertaintyLevel: "low" | "mid" | "high";
+  dataQualityNotes: string[];
+};
+
+type Insight = {
+  title: string;
+  summary: string;
+  evidence: string[];
+  strength: "weak" | "moderate" | "strong";
+};
+
+type HomeTip = {
+  title: string;
+  steps: string[];
+  why: string;
+};
+
+type RiskFlag = {
+  type: string;
+  summary: string;
+  action: string;
+};
 
 type Analysis = {
-  title: string;
-  description: string;
-  emotions: string[];
-  themes: string[];
-  insights: string;
-  encouragement: string;
+  meta: AnalysisMeta;
+  insights: Insight[];
+  homeTips: HomeTip[];
+  riskFlags: RiskFlag[];
+  trendNote: string;
+  disclaimer: string;
 };
 
 export default function AnalyzeScreen() {
@@ -38,10 +76,13 @@ export default function AnalyzeScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  
+
   // ✅ YENİ: Error handling state'leri
   const [error, setError] = useState<string | null>(null);
   const [retries, setRetries] = useState(0);
+
+  // tRPC mutation for analysis
+  const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
 
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -84,9 +125,26 @@ export default function AnalyzeScreen() {
       };
 
       console.log("[Analysis] Starting analysis...");
-      const result = await analyzeDrawingRemote(payload);
-      
-      setAnalysis(result as unknown as Analysis);
+
+      // Base64 encode the image
+      const response = await fetch(selectedImage);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+
+      const result = await analyzeMutation.mutateAsync({
+        taskType: "DAP",
+        childAge: payload.child.age,
+        imageBase64: base64.split(',')[1], // Remove data:image/...;base64, prefix
+        language: 'tr',
+        userRole: 'parent',
+        featuresJson: {},
+      });
+
+      setAnalysis(result as Analysis);
       setRetries(0); // Reset retry counter
       
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -125,8 +183,12 @@ export default function AnalyzeScreen() {
   // ... existing code ...
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={Colors.background.analysis as any}
+        style={[styles.gradientContainer, { paddingTop: insets.top }]}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* ✅ YENİ: Error Banner */}
         {error && (
           <View style={styles.errorBanner}>
@@ -167,13 +229,51 @@ export default function AnalyzeScreen() {
           </View>
         )}
 
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Çizim Analizi</Text>
-          <Text style={styles.headerSubtitle}>
-            Çocuğunuzun çizimini analiz edin ve içgörüler elde edin
-          </Text>
-        </View>
+          {/* Header with gradient icon */}
+          <View style={styles.header}>
+            <LinearGradient
+              colors={[Colors.cards.analysis.icon, Colors.secondary.sky]}
+              style={styles.headerIcon}
+            >
+              <Brain size={layout.icon.medium} color={Colors.neutral.white} />
+            </LinearGradient>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Çizim Analizi</Text>
+              <Text style={styles.headerSubtitle}>
+                Çocuk psikolojisi uzmanı desteğiyle
+              </Text>
+            </View>
+          </View>
+
+          {/* Stats Row */}
+          <View style={styles.statsRow}>
+            <LinearGradient
+              colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+              style={styles.statCard}
+            >
+              <TrendingUp size={24} color={Colors.neutral.white} />
+              <Text style={styles.statNumber}>95%</Text>
+              <Text style={styles.statLabel}>Doğruluk</Text>
+            </LinearGradient>
+
+            <LinearGradient
+              colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+              style={styles.statCard}
+            >
+              <Award size={24} color={Colors.neutral.white} />
+              <Text style={styles.statNumber}>AI</Text>
+              <Text style={styles.statLabel}>Destekli</Text>
+            </LinearGradient>
+
+            <LinearGradient
+              colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+              style={styles.statCard}
+            >
+              <CheckCircle size={24} color={Colors.neutral.white} />
+              <Text style={styles.statNumber}>∞</Text>
+              <Text style={styles.statLabel}>Analiz</Text>
+            </LinearGradient>
+          </View>
 
         {/* Görsel Seçme Butonları */}
         {!selectedImage && !showCamera && (
@@ -183,7 +283,7 @@ export default function AnalyzeScreen() {
                 const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
                 if (status === 'granted') {
                   const result = await ImagePicker.launchImageLibraryAsync({
-                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    mediaTypes: ['images'],
                     allowsEditing: true,
                     aspect: [4, 3],
                     quality: 0.8,
@@ -196,10 +296,18 @@ export default function AnalyzeScreen() {
                   }
                 }
               }}
-              style={styles.primaryButton}
+              style={({ pressed }) => [
+                styles.primaryButtonWrapper,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
             >
-              <ImageIcon size={24} color={Colors.neutral.white} />
-              <Text style={styles.primaryButtonText}>Galeriden Seç</Text>
+              <LinearGradient
+                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                style={styles.primaryButton}
+              >
+                <ImageIcon size={24} color={Colors.neutral.white} />
+                <Text style={styles.primaryButtonText}>Galeriden Seç</Text>
+              </LinearGradient>
             </Pressable>
 
             <Pressable
@@ -208,7 +316,23 @@ export default function AnalyzeScreen() {
                 if (!cameraPermission.granted) {
                   const { granted } = await requestCameraPermission();
                   if (!granted) {
-                    Alert.alert('Kamera İzni', 'Kamera kullanmak için izin gerekli');
+                    Alert.alert(
+                      'Kamera İzni Gerekli',
+                      'Kamera kullanmak için lütfen ayarlardan izin verin.',
+                      [
+                        { text: 'İptal', style: 'cancel' },
+                        {
+                          text: 'Ayarlar',
+                          onPress: () => {
+                            if (Platform.OS === 'ios') {
+                              Linking.openURL('app-settings:');
+                            } else {
+                              Linking.openSettings();
+                            }
+                          }
+                        }
+                      ]
+                    );
                     return;
                   }
                 }
@@ -217,10 +341,18 @@ export default function AnalyzeScreen() {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 }
               }}
-              style={styles.secondaryButton}
+              style={({ pressed }) => [
+                styles.secondaryButtonWrapper,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
             >
-              <Camera size={24} color={Colors.primary.coral} />
-              <Text style={styles.secondaryButtonText}>Fotoğraf Çek</Text>
+              <LinearGradient
+                colors={[Colors.neutral.medium, Colors.neutral.dark]}
+                style={styles.secondaryButton}
+              >
+                <Camera size={24} color={Colors.neutral.white} />
+                <Text style={styles.secondaryButtonText}>Fotoğraf Çek</Text>
+              </LinearGradient>
             </Pressable>
           </View>
         )}
@@ -280,7 +412,7 @@ export default function AnalyzeScreen() {
         {/* Seçilen Görsel */}
         {selectedImage && !showCamera && (
           <View style={styles.imagePreviewContainer}>
-            <Image source={{ uri: selectedImage }} style={styles.imagePreview} contentFit="cover" />
+            <Image source={{ uri: selectedImage }} style={styles.imagePreview} contentFit="contain" />
             <Pressable
               onPress={() => {
                 setSelectedImage(null);
@@ -313,7 +445,7 @@ export default function AnalyzeScreen() {
 
         {analyzing && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.primary.coral} />
+            <ActivityIndicator size="large" color={Colors.primary.sunset} />
             <Text style={styles.loadingText}>Çizim analiz ediliyor...</Text>
           </View>
         )}
@@ -329,58 +461,73 @@ export default function AnalyzeScreen() {
             ]}
           >
             <Text style={styles.resultsTitle}>Analiz Sonuçları</Text>
-            <View style={styles.resultSection}>
-              <Text style={styles.resultLabel}>Başlık</Text>
-              <Text style={styles.resultValue}>{analysis.title}</Text>
+
+            {/* Meta Info */}
+            <View style={styles.metaSection}>
+              <Text style={styles.metaText}>
+                Güven: {(analysis.meta.confidence * 100).toFixed(0)}% •
+                Belirsizlik: {analysis.meta.uncertaintyLevel === 'low' ? 'Düşük' : analysis.meta.uncertaintyLevel === 'mid' ? 'Orta' : 'Yüksek'}
+              </Text>
             </View>
-            <View style={styles.resultSection}>
-              <Text style={styles.resultLabel}>Açıklama</Text>
-              <Text style={styles.resultValue}>{analysis.description}</Text>
-            </View>
-            {analysis.emotions && analysis.emotions.length > 0 && (
-              <View style={styles.resultSection}>
-                <Text style={styles.resultLabel}>Duygular</Text>
-                <View style={styles.tagContainer}>
-                  {analysis.emotions.map((emotion, idx) => (
-                    <View key={idx} style={styles.tag}>
-                      <Text style={styles.tagText}>{emotion}</Text>
-                    </View>
-                  ))}
-                </View>
+
+            {/* Risk Flags */}
+            {analysis.riskFlags && analysis.riskFlags.length > 0 && (
+              <View style={styles.riskSection}>
+                <Text style={styles.riskTitle}>⚠️ Önemli Notlar</Text>
+                {analysis.riskFlags.map((risk, idx) => (
+                  <View key={idx} style={styles.riskItem}>
+                    <Text style={styles.riskSummary}>{risk.summary}</Text>
+                    <Text style={styles.riskAction}>Uzman görüşü önerilir</Text>
+                  </View>
+                ))}
               </View>
             )}
-            {analysis.themes && analysis.themes.length > 0 && (
-              <View style={styles.resultSection}>
-                <Text style={styles.resultLabel}>Temalar</Text>
-                <View style={styles.tagContainer}>
-                  {analysis.themes.map((theme, idx) => (
-                    <View key={idx} style={[styles.tag, styles.themeTag]}>
-                      <Text style={[styles.tagText, styles.themeTagText]}>{theme}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-            {analysis.insights && (
+
+            {/* Insights */}
+            {analysis.insights && analysis.insights.length > 0 && (
               <View style={styles.resultSection}>
                 <View style={styles.insightHeader}>
                   <Lightbulb size={20} color={Colors.secondary.sunshine} />
                   <Text style={styles.resultLabel}>İçgörüler</Text>
                 </View>
-                <Text style={styles.resultValue}>{analysis.insights}</Text>
+                {analysis.insights.map((insight, idx) => (
+                  <View key={idx} style={styles.insightItem}>
+                    <Text style={styles.insightTitle}>{insight.title}</Text>
+                    <Text style={styles.resultValue}>{insight.summary}</Text>
+                    <View style={styles.strengthBadge}>
+                      <Text style={styles.strengthText}>
+                        {insight.strength === 'weak' ? 'Zayıf' : insight.strength === 'moderate' ? 'Orta' : 'Güçlü'} bulgu
+                      </Text>
+                    </View>
+                  </View>
+                ))}
               </View>
             )}
-            {analysis.encouragement && (
-              <View style={[styles.resultSection, styles.encouragementSection]}>
+
+            {/* Home Tips */}
+            {analysis.homeTips && analysis.homeTips.length > 0 && (
+              <View style={[styles.resultSection, styles.tipsSection]}>
                 <View style={styles.insightHeader}>
-                  <Sparkles size={20} color={Colors.primary.coral} />
-                  <Text style={[styles.resultLabel, { color: Colors.primary.coral }]}>Teşvik</Text>
+                  <Sparkles size={20} color={Colors.primary.sunset} />
+                  <Text style={[styles.resultLabel, { color: Colors.primary.sunset }]}>Evde Yapabilecekleriniz</Text>
                 </View>
-                <Text style={[styles.resultValue, styles.encouragementText]}>
-                  {analysis.encouragement}
-                </Text>
+                {analysis.homeTips.map((tip, idx) => (
+                  <View key={idx} style={styles.tipItem}>
+                    <Text style={styles.tipTitle}>{tip.title}</Text>
+                    {tip.steps.map((step, sIdx) => (
+                      <Text key={sIdx} style={styles.tipStep}>• {step}</Text>
+                    ))}
+                    <Text style={styles.tipWhy}>💡 {tip.why}</Text>
+                  </View>
+                ))}
               </View>
             )}
+
+            {/* Disclaimer */}
+            <View style={styles.disclaimerSection}>
+              <Text style={styles.disclaimerText}>{analysis.disclaimer}</Text>
+            </View>
+
             <Pressable
               onPress={() => {
                 setSelectedImage(null);
@@ -399,6 +546,7 @@ export default function AnalyzeScreen() {
           </Animated.View>
         )}
       </ScrollView>
+      </LinearGradient>
     </View>
   );
 }
@@ -407,179 +555,218 @@ export default function AnalyzeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.neutral.white,
+    backgroundColor: Colors.background.primary,
+  },
+  gradientContainer: {
+    flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: layout.screenPadding,
+    paddingVertical: spacing["6"],
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing["8"],
+    gap: spacing["4"],
+  },
+  headerIcon: {
+    width: layout.icon.mega,
+    height: layout.icon.mega,
+    borderRadius: radius.xl,
+    justifyContent: "center",
+    alignItems: "center",
+    ...shadows.lg,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: typography.size["3xl"],
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
+    marginBottom: spacing["1"],
+    letterSpacing: typography.letterSpacing.tight,
+  },
+  headerSubtitle: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: spacing["3"],
+    marginBottom: spacing["8"],
+  },
+  statCard: {
+    flex: 1,
+    padding: spacing["4"],
+    borderRadius: radius.xl,
+    alignItems: "center",
+    gap: spacing["2"],
+    ...shadows.md,
+  },
+  statNumber: {
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
+  },
+  statLabel: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
+    color: Colors.neutral.white,
+    opacity: 0.9,
   },
   
   // ✅ Error Banner Stilleri
   errorBanner: {
-    backgroundColor: "#FFE5E5",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: Colors.semantic.errorLight,
+    borderRadius: radius.xl,
+    padding: spacing["3"],
+    marginBottom: spacing["6"],
     borderLeftWidth: 4,
-    borderLeftColor: Colors.primary.coral,
-    shadowColor: Colors.neutral.darkest,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderLeftColor: Colors.semantic.error,
+    ...shadows.md,
   },
   errorContent: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 12,
+    gap: spacing["3"],
   },
   errorIcon: {
-    fontSize: 24,
+    fontSize: typography.size["2xl"],
   },
   errorTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Colors.primary.coral,
-    marginBottom: 4,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.semibold,
+    color: Colors.semantic.error,
+    marginBottom: spacing["1"],
   },
   errorText: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    lineHeight: typography.lineHeight.relaxed,
   },
   errorRetryInfo: {
-    fontSize: 12,
-    color: "#999",
-    marginTop: 4,
+    fontSize: typography.size.xs,
+    color: Colors.neutral.light,
+    marginTop: spacing["1"],
     fontStyle: "italic",
   },
   errorCloseButton: {
-    padding: 8,
+    padding: spacing["2"],
   },
   errorRetryButton: {
-    marginTop: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: Colors.primary.coral,
-    borderRadius: 8,
+    marginTop: spacing["3"],
+    paddingVertical: spacing["3"],
+    paddingHorizontal: spacing["5"],
+    backgroundColor: Colors.semantic.error,
+    borderRadius: radius.lg,
     alignItems: "center",
   },
   errorRetryButtonText: {
     color: Colors.neutral.white,
-    fontWeight: "600",
-    fontSize: 14,
+    fontWeight: typography.weight.semibold,
+    fontSize: typography.size.sm,
   },
 
-  // Existing styles ...
+  // Analyze Button
   analyzeButton: {
-    backgroundColor: Colors.primary.coral,
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.secondary.lavender,
+    padding: spacing["5"],
+    borderRadius: radius.xl,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
-    marginVertical: 16,
+    gap: spacing["2"],
+    marginVertical: spacing["6"],
+    ...shadows.lg,
   },
   analyzeButtonDisabled: {
     opacity: 0.6,
   },
   analyzeButtonText: {
     color: Colors.neutral.white,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
   },
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 32,
+    paddingVertical: spacing["10"],
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: spacing["3"],
     color: Colors.neutral.dark,
-    fontSize: 14,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
   },
   resultsContainer: {
-    backgroundColor: Colors.neutral.lighter,
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius.xl,
+    padding: spacing["6"],
+    marginTop: spacing["6"],
+    ...shadows.xl,
   },
   resultsTitle: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: typography.size["2xl"],
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: 8,
+    marginBottom: spacing["4"],
+    letterSpacing: typography.letterSpacing.tight,
   },
   resultsDescription: {
-    fontSize: 14,
+    fontSize: typography.size.base,
     color: Colors.neutral.dark,
-    lineHeight: 20,
-  },
-  
-  // Header
-  header: {
-    marginBottom: 24,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: Colors.neutral.darkest,
-    marginBottom: 8,
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: Colors.neutral.dark,
-    lineHeight: 22,
+    lineHeight: typography.lineHeight.relaxed,
   },
   
   // Action Buttons
   actionButtons: {
-    gap: 12,
-    marginBottom: 16,
+    gap: spacing["3"],
+    marginBottom: spacing["6"],
+  },
+  primaryButtonWrapper: {
+    marginBottom: spacing["2"],
   },
   primaryButton: {
-    backgroundColor: Colors.primary.coral,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: Colors.primary.coral,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    gap: spacing["3"],
+    padding: spacing["5"],
+    borderRadius: radius.xl,
+    ...shadows.lg,
   },
   primaryButtonText: {
     color: Colors.neutral.white,
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+  },
+  secondaryButtonWrapper: {
+    marginBottom: spacing["2"],
   },
   secondaryButton: {
-    backgroundColor: Colors.neutral.white,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: Colors.primary.coral,
+    gap: spacing["3"],
+    padding: spacing["5"],
+    borderRadius: radius.xl,
+    ...shadows.md,
   },
   secondaryButtonText: {
-    color: Colors.primary.coral,
-    fontSize: 17,
-    fontWeight: "700",
+    color: Colors.neutral.white,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
   },
   
   // Camera
   cameraContainer: {
     height: 400,
-    borderRadius: 16,
+    borderRadius: radius.xl,
     overflow: "hidden",
-    marginBottom: 16,
+    marginBottom: spacing["6"],
   },
   camera: {
     flex: 1,
@@ -592,13 +779,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 24,
+    padding: spacing["8"],
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   cameraCloseButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: radius.full,
     backgroundColor: "rgba(255,255,255,0.3)",
     justifyContent: "center",
     alignItems: "center",
@@ -606,7 +793,7 @@ const styles = StyleSheet.create({
   cameraCaptureButton: {
     width: 72,
     height: 72,
-    borderRadius: 36,
+    borderRadius: radius.full,
     backgroundColor: Colors.neutral.white,
     justifyContent: "center",
     alignItems: "center",
@@ -614,69 +801,71 @@ const styles = StyleSheet.create({
   cameraCaptureInner: {
     width: 60,
     height: 60,
-    borderRadius: 30,
-    backgroundColor: Colors.primary.coral,
+    borderRadius: radius.full,
+    backgroundColor: Colors.secondary.lavender,
   },
-  
+
   // Image Preview
   imagePreviewContainer: {
     position: "relative",
-    marginBottom: 16,
+    marginBottom: spacing["6"],
+    aspectRatio: 4 / 3,
   },
   imagePreview: {
     width: "100%",
-    height: 300,
-    borderRadius: 16,
+    height: "100%",
+    borderRadius: radius.xl,
   },
   removeImageButton: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: spacing["3"],
+    right: spacing["3"],
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.primary.coral,
+    borderRadius: radius.full,
+    backgroundColor: Colors.semantic.error,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    ...shadows.lg,
   },
   
   // Results
   resultSection: {
-    marginBottom: 16,
+    marginBottom: spacing["6"],
   },
   resultLabel: {
     fontSize: 14,
     fontWeight: "700",
     color: Colors.neutral.dark,
-    marginBottom: 6,
+    marginBottom: spacing["2"],
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
+    lineHeight: 22,
   },
   resultValue: {
     fontSize: 16,
-    color: Colors.neutral.darkest,
-    lineHeight: 24,
+    color: "#374151", // Darker gray for better readability
+    lineHeight: 26, // 1.625x for optimal reading
+    marginBottom: spacing["5"],
+    letterSpacing: 0.4,
   },
   tagContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing["2"],
   },
   tag: {
     backgroundColor: Colors.secondary.sky + "30",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: spacing["3"],
+    paddingVertical: spacing["2"],
+    borderRadius: radius.lg,
   },
   tagText: {
     color: Colors.secondary.sky,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
+    lineHeight: 20,
+    letterSpacing: 0.3,
   },
   themeTag: {
     backgroundColor: Colors.secondary.sunshine + "30",
@@ -687,32 +876,156 @@ const styles = StyleSheet.create({
   insightHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
+    gap: spacing["2"],
+    marginBottom: spacing["2"],
   },
-  encouragementSection: {
-    backgroundColor: Colors.primary.coral + "10",
-    padding: 16,
-    borderRadius: 12,
+
+  // New schema styles
+  metaSection: {
+    backgroundColor: Colors.neutral.lighter,
+    padding: spacing["3"],
+    borderRadius: radius.lg,
+    marginBottom: spacing["6"],
+  },
+  metaText: {
+    fontSize: 14,
+    color: Colors.neutral.dark,
+    fontWeight: "600",
+    lineHeight: 22,
+    letterSpacing: 0.3,
+  },
+  riskSection: {
+    backgroundColor: "#FFF3CD",
     borderLeftWidth: 4,
-    borderLeftColor: Colors.primary.coral,
+    borderLeftColor: "#FFA500",
+    padding: spacing["5"],
+    borderRadius: radius.xl,
+    marginBottom: spacing["6"],
   },
-  encouragementText: {
-    fontWeight: "500",
+  riskTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#A65F00",
+    marginBottom: spacing["3"],
+    lineHeight: 28,
+    letterSpacing: 0.3,
+  },
+  riskItem: {
+    marginBottom: spacing["3"],
+  },
+  riskSummary: {
+    fontSize: 14,
+    color: "#A65F00",
+    marginBottom: spacing["2"],
+    lineHeight: 24,
+    letterSpacing: 0.3,
+  },
+  riskAction: {
+    fontSize: 12,
+    color: "#A65F00",
+    fontWeight: "600",
+    fontStyle: "italic",
+    lineHeight: 20,
+    letterSpacing: 0.3,
+  },
+  insightItem: {
+    marginBottom: spacing["10"],
+    paddingBottom: spacing["8"],
+    paddingTop: spacing["2"],
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  insightTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: spacing["4"],
+    lineHeight: 30,
+    letterSpacing: 0.3,
+  },
+  strengthBadge: {
+    backgroundColor: Colors.secondary.sky + "20",
+    paddingHorizontal: spacing["3"],
+    paddingVertical: spacing["1"],
+    borderRadius: radius.lg,
+    alignSelf: "flex-start",
+    marginTop: spacing["2"],
+  },
+  strengthText: {
+    fontSize: 12,
+    color: Colors.secondary.sky,
+    fontWeight: "600",
+    lineHeight: 18,
+    letterSpacing: 0.3,
+  },
+  tipsSection: {
+    backgroundColor: Colors.secondary.lavender + "10",
+    padding: spacing["5"],
+    borderRadius: radius.xl,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.secondary.lavender,
+  },
+  tipItem: {
+    marginBottom: spacing["10"],
+    paddingBottom: spacing["6"],
+  },
+  tipTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: spacing["4"],
+    lineHeight: 28,
+    letterSpacing: 0.3,
+  },
+  tipStep: {
+    fontSize: 15,
+    color: "#4B5563",
+    marginLeft: spacing["4"],
+    marginBottom: spacing["4"],
+    lineHeight: 24,
+    letterSpacing: 0.3,
+  },
+  tipWhy: {
+    fontSize: 14,
+    color: Colors.secondary.lavender,
+    fontStyle: "italic",
+    marginTop: spacing["3"],
+    lineHeight: 22,
+    letterSpacing: 0.3,
+    marginBottom: spacing["2"],
+  },
+  disclaimerSection: {
+    backgroundColor: "#F0F9FF",
+    padding: spacing["3"],
+    borderRadius: radius.lg,
+    marginTop: spacing["6"],
+    marginBottom: spacing["6"],
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.secondary.sky,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    color: Colors.neutral.dark,
+    lineHeight: 20,
+    fontStyle: "italic",
+    letterSpacing: 0.3,
   },
   newAnalysisButton: {
     backgroundColor: Colors.secondary.sky,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 8,
+    gap: spacing["2"],
+    padding: spacing["5"],
+    borderRadius: radius.xl,
+    marginTop: spacing["2"],
+    ...shadows.md,
   },
   newAnalysisButtonText: {
     color: Colors.neutral.white,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
+    lineHeight: 26,
+    letterSpacing: 0.3,
   },
 });

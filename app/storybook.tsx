@@ -22,9 +22,8 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const PAGE_WIDTH = SCREEN_WIDTH * 0.85;
 
 type StoryPage = {
-  pageNumber: number;
   text: string;
-  illustration?: string;
+  img_url: string;
 };
 
 type Story = {
@@ -40,13 +39,27 @@ export default function StorybookScreen() {
   const [generating, setGenerating] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Check if we're viewing an existing storybook or generating a new one
+  const existingPages = params.pages ? JSON.parse(params.pages as string) : null;
+  const existingTitle = params.title as string;
+
+  // For new storybook generation (from analysis)
   const imageUri = params.imageUri as string;
-  const analysisTitle = params.title as string;
+  const analysisTitle = params.analysisTitle as string;
   const analysisDescription = params.description as string;
-  const themes = JSON.parse((params.themes as string) || "[]");
+  const themes = params.themes ? JSON.parse(params.themes as string) : [];
 
   useEffect(() => {
-    generateStory();
+    if (existingPages && existingTitle) {
+      // Load existing storybook
+      setStory({
+        title: existingTitle,
+        pages: existingPages,
+      });
+    } else if (imageUri && analysisTitle) {
+      // Generate new storybook
+      generateStory();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -158,7 +171,11 @@ Her sayfa çocukların anlayabileceği basit, eğlenceli ve öğretici olmalı. 
             <View style={styles.pageContainer}>
               <View style={styles.page}>
                 <View style={styles.pageImageContainer}>
-                  <Image source={{ uri: imageUri }} style={styles.pageImage} />
+                  <Image
+                    source={{ uri: story.pages[currentPage]?.img_url }}
+                    style={styles.pageImage}
+                    contentFit="cover"
+                  />
                   <View style={styles.pageNumberBadge}>
                     <Text style={styles.pageNumberText}>
                       Sayfa {currentPage + 1} / {story.pages.length}

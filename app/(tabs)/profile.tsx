@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, Text, View, Pressable, ScrollView, Alert } from "react-native";
-import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut } from "lucide-react-native";
+import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut, ChevronRight } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Colors } from "@/constants/colors";
+import {
+  layout,
+  typography,
+  spacing,
+  radius,
+  shadows,
+} from "@/constants/design-system";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -34,94 +42,154 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
-        ]}
-        showsVerticalScrollIndicator={false}
+      <LinearGradient
+        colors={Colors.background.profile as any}
+        style={styles.gradientContainer}
       >
-        <View style={styles.header}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <User size={48} color="#FF6B6B" />
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <View style={styles.avatarContainer}>
+              <LinearGradient
+                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                style={styles.avatar}
+              >
+                <User size={layout.icon.large} color={Colors.neutral.white} />
+              </LinearGradient>
             </View>
+            <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
+            <Text style={styles.userEmail}>{user?.email || 'MasalBak Kullanıcısı'}</Text>
           </View>
-          <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'MasalBak Kullanıcısı'}</Text>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ayarlar</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Ayarlar</Text>
 
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Globe size={24} color="#6B7280" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuLabel}>Dil</Text>
-              <Text style={styles.menuValue}>Türkçe</Text>
-            </View>
-          </Pressable>
-
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Crown size={24} color="#6B7280" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuLabel}>Abonelik</Text>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>Yakında</Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                style={styles.menuIcon}
+              >
+                <Globe size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Dil</Text>
+                <View style={styles.menuRight}>
+                  <Text style={styles.menuValue}>Türkçe</Text>
+                  <ChevronRight size={20} color={Colors.neutral.light} />
+                </View>
               </View>
-            </View>
-          </Pressable>
+            </Pressable>
 
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Shield size={24} color="#6B7280" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuLabel}>Gizlilik ve Güvenlik</Text>
-            </View>
-          </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                style={styles.menuIcon}
+              >
+                <Crown size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Abonelik</Text>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>Yakında</Text>
+                </View>
+              </View>
+            </Pressable>
 
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Settings size={24} color="#6B7280" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuLabel}>Genel Ayarlar</Text>
-            </View>
-          </Pressable>
-        </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                style={styles.menuIcon}
+              >
+                <Shield size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Gizlilik ve Güvenlik</Text>
+                <ChevronRight size={20} color={Colors.neutral.light} />
+              </View>
+            </Pressable>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Destek</Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={[Colors.neutral.medium, Colors.neutral.light]}
+                style={styles.menuIcon}
+              >
+                <Settings size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Genel Ayarlar</Text>
+                <ChevronRight size={20} color={Colors.neutral.light} />
+              </View>
+            </Pressable>
+          </View>
 
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <HelpCircle size={24} color="#6B7280" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuLabel}>Yardım Merkezi</Text>
-            </View>
-          </Pressable>
-        </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Destek</Text>
 
-        <View style={styles.section}>
-          <Pressable
-            style={[styles.menuItem, styles.logoutButton]}
-            onPress={handleLogout}
-          >
-            <View style={[styles.menuIcon, styles.logoutIcon]}>
-              <LogOut size={24} color="#EF4444" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuLabel, styles.logoutText]}>Çıkış Yap</Text>
-            </View>
-          </Pressable>
-        </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.sunshine, Colors.secondary.sunshineLight]}
+                style={styles.menuIcon}
+              >
+                <HelpCircle size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Yardım Merkezi</Text>
+                <ChevronRight size={20} color={Colors.neutral.light} />
+              </View>
+            </Pressable>
+          </View>
+
+          <View style={styles.section}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                styles.logoutButton,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={handleLogout}
+            >
+              <LinearGradient
+                colors={[Colors.semantic.error, Colors.semantic.errorLight]}
+                style={styles.menuIcon}
+              >
+                <LogOut size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={[styles.menuLabel, styles.logoutText]}>Çıkış Yap</Text>
+              </View>
+            </Pressable>
+          </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>MasalBak v1.0.0</Text>
@@ -129,7 +197,8 @@ export default function ProfileScreen() {
             Çocukların hayal dünyasını keşfedin
           </Text>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </LinearGradient>
     </View>
   );
 }
@@ -139,78 +208,72 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background.primary,
   },
+  gradientContainer: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: layout.screenPadding,
   },
   header: {
     alignItems: "center",
-    marginBottom: 36,
+    marginBottom: spacing["10"],
   },
   avatarContainer: {
-    marginBottom: 18,
+    marginBottom: spacing["5"],
   },
   avatar: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    backgroundColor: Colors.primary.soft,
+    width: layout.icon.mega + 24,
+    height: layout.icon.mega + 24,
+    borderRadius: radius.full,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 5,
+    borderWidth: 6,
     borderColor: Colors.neutral.white,
-    shadowColor: Colors.primary.coral,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 6,
+    ...shadows.xl,
   },
   userName: {
-    fontSize: 26,
-    fontWeight: "700" as const,
+    fontSize: typography.size["3xl"],
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: 6,
-    letterSpacing: -0.3,
+    marginBottom: spacing["2"],
+    letterSpacing: typography.letterSpacing.tight,
   },
   userEmail: {
-    fontSize: 16,
+    fontSize: typography.size.md,
     color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
   },
   section: {
-    marginBottom: 32,
+    marginBottom: spacing["8"],
   },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: "700" as const,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.medium,
     textTransform: "uppercase" as const,
-    letterSpacing: 1,
-    marginBottom: 14,
-    paddingHorizontal: 4,
+    letterSpacing: typography.letterSpacing.wider,
+    marginBottom: spacing["4"],
+    paddingHorizontal: spacing["1"],
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: Colors.neutral.white,
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
+    borderRadius: radius.xl,
+    padding: spacing["5"],
+    marginBottom: spacing["3"],
+    ...shadows.md,
   },
   menuIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    backgroundColor: Colors.background.primary,
+    width: layout.icon.huge + 8,
+    height: layout.icon.huge + 8,
+    borderRadius: radius.lg,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
+    marginRight: spacing["4"],
   },
   menuContent: {
     flex: 1,
@@ -219,36 +282,50 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   menuLabel: {
-    fontSize: 17,
-    fontWeight: "600" as const,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
-    letterSpacing: -0.2,
+    letterSpacing: typography.letterSpacing.tight,
+  },
+  menuRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["2"],
   },
   menuValue: {
-    fontSize: 16,
+    fontSize: typography.size.base,
     color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
   },
   badge: {
-    backgroundColor: "#FFF9F0",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 14,
+    backgroundColor: Colors.secondary.sunshineLight,
+    paddingHorizontal: spacing["4"],
+    paddingVertical: spacing["2"],
+    borderRadius: radius.lg,
     borderWidth: 2,
     borderColor: Colors.secondary.sunshine,
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: "700" as const,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
     color: "#8B5A00",
-    letterSpacing: 0.5,
+    letterSpacing: typography.letterSpacing.wide,
   },
   footer: {
     alignItems: "center",
-    paddingVertical: 28,
-    gap: 6,
+    paddingVertical: spacing["8"],
+    gap: spacing["2"],
   },
   footerText: {
-    fontSize: 14,
-    color: Colors.neutral.light,
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
+  },
+  logoutButton: {
+    borderColor: Colors.semantic.errorLight,
+    borderWidth: 2,
+  },
+  logoutText: {
+    color: Colors.semantic.error,
   },
 });

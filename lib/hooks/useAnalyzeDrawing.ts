@@ -140,10 +140,12 @@ export function useAnalyzeDrawing(): UseAnalyzeDrawingReturn {
       console.log("[Hook] 🚀 Sending to backend...");
 
       const mutationPayload = {
-        taskType: payload.taskType,
+        taskType: payload.taskType as "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth",
         childAge: payload.childAge,
         imageBase64,
-        language: payload.language || "tr",
+        language: (payload.language || "tr") as "tr" | "en" | "ru" | "tk" | "uz",
+        userRole: "parent" as const,
+        featuresJson: {},
       };
 
       console.log("[Hook] 📦 Mutation payload:", {

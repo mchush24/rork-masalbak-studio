@@ -7,46 +7,93 @@ const openai = new OpenAI({
 });
 
 const analysisInputSchema = z.object({
-  taskType: z.string(),
+  taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth"]),
   childAge: z.number().optional(),
   imageBase64: z.string().optional(),
-  language: z.enum(["tr", "en"]).optional().default("tr"),
+  language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
+  userRole: z.enum(["parent", "teacher"]).optional().default("parent"),
+  culturalContext: z.string().optional(),
+  featuresJson: z.record(z.string(), z.any()).optional(),
 });
 
 const analysisResponseSchema = z.object({
-  title: z.string(),
-  summary: z.string(),
-  developmental_stage: z.object({
-    age_appropriateness: z.string(),
-    motor_skills: z.string(),
-    cognitive_development: z.string(),
+  meta: z.object({
+    testType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth"]),
+    age: z.number().optional(),
+    language: z.enum(["tr", "en", "ru", "tk", "uz"]),
+    confidence: z.number().min(0).max(1),
+    uncertaintyLevel: z.enum(["low", "mid", "high"]),
+    dataQualityNotes: z.array(z.string()),
   }),
-  visual_elements: z.object({
-    colors: z.string(),
-    composition: z.string(),
-    figures: z.string(),
-    details: z.string(),
-  }),
-  emotional_indicators: z.object({
-    primary_emotions: z.array(z.string()),
-    emotional_tone: z.string(),
-    self_expression: z.string(),
-  }),
-  psychological_themes: z.object({
-    identified_themes: z.array(z.string()),
-    family_dynamics: z.string().optional(),
-    social_connections: z.string().optional(),
-    inner_world: z.string(),
-  }),
-  strengths: z.array(z.string()),
-  areas_for_support: z.array(z.string()),
-  conversation_starters: z.array(z.string()),
-  activity_suggestions: z.array(z.string()),
-  interpretation_notes: z.string(),
+  insights: z.array(
+    z.object({
+      title: z.string(),
+      summary: z.string(),
+      evidence: z.array(z.string()),
+      strength: z.enum(["weak", "moderate", "strong"]),
+    })
+  ),
+  homeTips: z.array(
+    z.object({
+      title: z.string(),
+      steps: z.array(z.string()),
+      why: z.string(),
+    })
+  ),
+  riskFlags: z.array(
+    z.object({
+      type: z.enum([
+        "self_harm",
+        "harm_others",
+        "sexual_inappropriate",
+        "violence",
+        "severe_distress",
+        "trend_regression",
+      ]),
+      summary: z.string(),
+      action: z.literal("consider_consulting_a_specialist"),
+    })
+  ),
+  // NEW: Trauma/violence specific assessment
+  traumaAssessment: z.nullable(z.object({
+    hasTraumaticContent: z.boolean(),
+    contentTypes: z.array(z.enum(["war", "violence", "weapons", "injury", "death", "natural_disaster", "conflict", "none"])),
+    ageAppropriateness: z.enum(["age_appropriate", "borderline", "concerning"]),
+    detailLevel: z.enum(["minimal", "moderate", "excessive"]),
+    emotionalIntensity: z.enum(["low", "moderate", "high"]),
+    urgencyLevel: z.enum(["monitor", "discuss_with_child", "consider_professional", "seek_help_urgently"]),
+  })).optional(),
+  // NEW: Parent conversation guide
+  conversationGuide: z.nullable(z.object({
+    openingQuestions: z.array(z.string()),
+    followUpQuestions: z.array(z.string()),
+    whatToAvoid: z.array(z.string()),
+    therapeuticResponses: z.array(z.string()),
+  })).optional(),
+  // NEW: Professional help resources
+  professionalGuidance: z.nullable(z.object({
+    whenToSeekHelp: z.array(z.string()),
+    whoToContact: z.array(z.string()),
+    preparationTips: z.array(z.string()),
+  })).optional(),
+  trendNote: z.string(),
+  disclaimer: z.string(),
 });
 
 export type AnalysisInput = z.infer<typeof analysisInputSchema>;
 export type AnalysisResponse = z.infer<typeof analysisResponseSchema>;
+
+// Helper function to generate disclaimer based on language
+function getDisclaimer(language: string): string {
+  const disclaimers: Record<string, string> = {
+    tr: "Bu içerik bilgi amaçlıdır, tanı koymaz. Endişeleriniz varsa uzmanla görüşebilirsiniz.",
+    en: "This content is for informational purposes only and does not constitute a diagnosis. If you have concerns, please consult a specialist.",
+    ru: "Этот контент предназначен только для информационных целей и не является диагнозом. Если у вас есть опасения, проконсультируйтесь со специалистом.",
+    tk: "Bu mazmun diňe maglumat maksady bilen berilýär we anyklaýyş däl. Aladalaryňyz bar bolsa, hünärmen bilen maslahatlaşyň.",
+    uz: "Ushbu kontent faqat ma'lumot maqsadida va tashxis emas. Agar tashvishlaringiz bo'lsa, mutaxassis bilan maslahatlashing.",
+  };
+  return disclaimers[language] || disclaimers.tr;
+}
 
 // Exported for testing
 export async function analyzeDrawing(input: AnalysisInput, openaiClient = openai): Promise<AnalysisResponse> {
@@ -57,120 +104,206 @@ export async function analyzeDrawing(input: AnalysisInput, openaiClient = openai
 
   try {
     const language = input.language || "tr";
+    const userRole = input.userRole || "parent";
+    const culturalContext = input.culturalContext || "";
 
-    const promptText = language === "tr"
-      ? `Sen deneyimli bir çocuk gelişimi uzmanısın. Çocukların çizimlerini Piaget, Erikson ve Lowenfeld'in gelişim teorileri ışığında değerlendiriyorsun, ancak ailelerle konuşurken sıcak, samimi ve anlaşılır bir dil kullanıyorsun.
+    // SYSTEM prompt - role definition
+    const systemPrompt = `Rolün: Çocuk çizimleri için projektif tarama asistanısın. Klinik tanı koymazsın.
+Görevin: Verilen test türüne (DAP, HTP, Family/KFD, Cactus, Tree, Garden, BenderGestalt2, ReyOsterrieth), yaşa ve özellik vektörüne (features_json) dayanarak ebeveyn/öğretmen için anlaşılır, kısa ve olasılık diliyle yazılmış içgörü ve evde mikro-öneriler üretmek; belirsizliği açıkça ifade etmek; riskli içerikleri saptayıp nazik bir dille "uzman görüşü öner" bayrağı vermek.
 
-${input.childAge ? `Bu çizim ${input.childAge} yaşında bir çocuğa ait.` : 'Çocuğun yaşı belirtilmemiş.'}
+ÖNEMLİ - Görsel Analiz:
+- Görseli DİKKATLE incele. Gerçekte ne görüyorsan onu yaz.
+- Renklere dikkat et: Koyu/açık tonlar, sıcak/soğuk renkler, renk çeşitliliği
+- Figürlere dikkat et: Yüz ifadeleri (gülümseme/kaşları çatık/nötr), beden dili, duruş
+- Çizgi kalitesine dikkat et: Yumuşak/sert çizgiler, titrek/güçlü çizgiler, baskı gücü
+- Kompozisyona dikkat et: Figürlerin konumu, boşluk kullanımı, sayfanın hangi kısmı dolu
+- Sembollere dikkat et: Güneş/bulut/yağmur, kalpler, yıldırımlar, vs.
+- Resmin genel havasını değerlendir: Neşeli/hüzünlü/endişeli/sakin/hareketli
+- VARSAYIMDA BULUNMA: Görmediğin bir şeyi yazma, görsel kanıtlarla destekle
 
-ÖNEMLİ: Verilen görseli DİKKATLİCE incele. Resimde GERÇEKTEN ne olduğunu yaz - hayal etme veya varsayımda bulunma! Resimde gördüklerini SPESİFİK olarak belirt: hangi renkler VAR, hangi figürler ÇİZİLMİŞ, ne tür nesneler GÖRÜNÜYOR. Eğer askeri temalı, savaş, silah gibi unsurlar varsa bunları doğrudan belirt. Eğer hayvan, insan, bina varsa onları söyle. Gerçekte olmayan şeyler yazma!
+İlke ve kısıtlar:
+- Klinik iddia, teşhis, tedavi ismi, patoloji etiketi YOK. "tanı koymaz", "ipucu olabilir", "gözleniyor olabilir", "karışık" gibi olasılık dili kullan.
+- Kültürel/ailesel bağlamı saygılı ve yargısız yorumla. Ahlaki yargı yok.
+- Çocuk yararı ve gizlilik: isim, yüz, kişisel veri üretme; özel bilgi uydurma.
+- Belirsizlik yönetimi: Veri kısıtlıysa "emin değilim" düzeyi yükselt; içgörüleri daralt; somut, düşük riskli ev içi öneriler ver.
+- Görsel-motor (Bender–Gestalt II, Rey–Osterrieth kopya/bellek) çıktılarında "organizasyon", "planlama", "dikkat" gibi **beceri** terimleri kullan; "bozukluk" iması yapma.
+- Lüscher tarzı renk oyunu kullanılsa bile bunu "mini tercih/oyun" olarak an, bilimsel iddia abartma.
+- Açıkça zararlı/uygunsuz işaretler (kendine/başkasına zarar, yoğun cinsel içerik, şiddet, aşırı karanlık ifadeler, tehdit vb.) → risk flag ve nazik yönlendirme.
+- Zincirleme akıl yürütmeni GÖSTERME. Sadece sonuç cümleleri + kısa kanıt referansı alanlarında özet gerekçe sun.
 
-YAKLAŞIMIN:
-- Ebeveynlerle sanki yüz yüze sohbet ediyormuşsun gibi doğal, destekleyici bir üslup kullan
-- Teknik terimleri sade Türkçe ile açıkla, jargondan kaçın
-- Her zaman önce güçlü yönleri vurgula, sonra gelişim fırsatlarını nezaketle belirt
-- Gözlemleri somut örneklerle destekle
-- Önerileri dayatma gibi değil, seçenek olarak sun
+Test odaklı ipucu taksonomisi (örnek yönlendirmeler, kural değil):
+- **DAP (Bir İnsan Çiz – Koppitz, 4–12):** baş/beden oranı, boyun/eller/parmaklar, yüz ayrıntıları, baskı, sayfa konumu, kıyafet/aksesuar, çizgi sürekliliği.
+- **HTP (Ev-Ağaç-İnsan, 5+):**
+  - Ev→ aile aidiyeti/mahremiyet ipuçları (kapı/pencere oranları, baca, çit).
+  - Ağaç→ benlik gücü/enerji (gövde kalınlığı, kökler, taç doluluğu).
+  - İnsan→ sosyal kendilik (ölçek, duruş, eller).
+- **Family/Kinetic Family (5–12):** figürler arası mesafe, temas, bakış, rol simgeleri, hareket; çocuğun konumu/ölçeği.
+- **Cactus (4–12):** diken yoğunluğu, boyut, saksı/çiçek varlığı → savunma/direnç/duygu regülasyonu ipuçları.
+- **Tree (Koch):** gövde-kök-taç dengesi, dal yönleri, taç doluluğu → enerji/köklenme ipuçları.
+- **Garden:** bitki çeşitliliği, renk canlılığı, kompozisyon → çevre uyumu/yaşam enerjisi ipuçları.
+- **Bender–Gestalt II (4+):** görsel-motor organizasyon, yönelim, orantı, tekrar/atlama; sadece tarama niteliğinde.
+- **Rey–Osterrieth (6+):** kopya stratejisi (bütün→parça ya da parça→bütün), gecikmeli hatırlama; planlama/organizasyon.
 
-ANALİZ KRİTERLERİN:
+Risk bayrakları (örn.):
+- Kendine/başkasına zarar ima eden yazı/simge.
+- Aşırı şiddet/cinsel içerik, yoğun karanlık tema (yaşa uygun değilse).
+- Yoğun kaygı/sıkıntı belirteci olabilecek tekrar eden koyu baskı ve tehditkar mesaj kombinasyonu.
+- Uzun süreli belirgin gerileme trendi (zaman serisinden).
+Bayrak varsa: "uzmanla görüş" öner; panik yaratma.
 
-1. GELİŞİM DEĞERLENDİRMESİ:
-   - Motor becerileri: Kalem tutuşu, çizgi kontrolü, detay yapabilme becerisi
-   - Bilişsel gelişim: Sembolleri kullanma, hikaye kurma, perspektif anlayışı
-   - Yaşa uygunluk: Bu yaş için beklenen özelliklerle kıyaslama
+**ÖZEL ÖNCELİK: Travma ve Şiddet İçerikli Çizimler**
 
-2. GÖRSEL ÖĞELER:
-   - Renkler: Hangi renkleri seçmiş? Canlılık, çeşitlilik, duygusal anlamlar
-   - Kompozisyon: Sayfayı nasıl kullanmış? Figürlerin yerleşimi, boşluk dengesi
-   - Figürler: İnsan, hayvan, nesne çizimleri - detay düzeyi ve özellikler
-   - Dikkat çeken detaylar: Tekrarlayan öğeler, özel semboller, ilginç unsurlar
+Çizimde savaş, silah, yaralanma, ölüm, şiddet, doğal afet veya çatışma teması varsa:
 
-3. DUYGUSAL İZLER:
-   - Baskın duygular: Neşe, merak, heyecan, sakinlik gibi hissiyatlar
-   - Genel hava: Çizimin enerjisi, açıklığı, sıcaklığı
-   - İfade tarzı: Cesur mu, çekingen mi, özgün mü?
+1. **Yaş Uygunluğu Değerlendir:**
+   - 4-6 yaş: Minimal şiddet bile endişe verici olabilir
+   - 7-9 yaş: "İyi vs kötü" temaları normal, ama detaylı şiddet endişe verici
+   - 10-12 yaş: Kahramanlık/macera normal, ama gerçekçi savaş/travma endişe verici
+   - Her yaşta: Aşırı detay, kan, ölüm, acı çeken figürler → profesyonel değerlendirme
 
-4. İÇ DÜNYA VE TEMALAR:
-   - Ana konular: Aile, arkadaşlık, doğa, hayal gücü, macera
-   - Aile dinamikleri: Varsa figür boyutları, yakınlıklar gibi ipuçları
-   - Sosyal bağlantılar: Varsa arkadaşlık, okul gibi sosyal işaretler
-   - Hayal dünyası: İlgi alanları, meraklar, hayaller
+2. **Detay Seviyesini Değerlendir:**
+   - Minimal: Basit silah çizimi, sembolik çatışma → İzle
+   - Moderate: Birden fazla savaş öğesi, net çatışma sahnesi → Çocukla konuş
+   - Excessive: Kan, yaralanma detayları, ölüm sahneleri, acı ifadeleri → Uzman değerlendirmesi
 
-YANIT FORMATI (SADECE JSON):
-{
-  "title": "Kısa, pozitif, çarpıcı bir başlık (ör: 'Renklerin Dansı', 'Cesur Çizgiler', 'Masalsı Bir Dünya')",
-  "summary": "Çizimin ilk izlenimini 2-3 cümlede özetle. Sanki ebeveynle sohbet ediyormuşsun gibi doğal, sıcak bir dil kullan. En dikkat çekici özelliği vurgula.",
-  "developmental_stage": {
-    "age_appropriateness": "Bu yaş için beklenen gelişim özellikleriyle karşılaştır. Samimi ve destekleyici bir dille, 3-4 cümle ile anlat. Ne güzel, ne de gelişmesi gerekiyor?",
-    "motor_skills": "Kalem kontrolü, çizgilerdeki güven, detay yapabilme gibi motor becerileri gözlemle. Doğal bir dille, 2-3 cümle ile değerlendir.",
-    "cognitive_development": "Hikaye kurma, sembol kullanma, perspektif anlayışı gibi bilişsel yetenekleri sade Türkçe ile açıkla. 2-3 cümle yeterli."
-  },
-  "visual_elements": {
-    "colors": "Hangi renkleri kullanmış? Canlı mı, yumuşak mu? Bu renkler ne anlatıyor olabilir? Merakla ve ilgiyle 3-4 cümle ile yaz.",
-    "composition": "Sayfayı nasıl kullanmış? Figürler nerede duruyor? Dengeli mi, dinamik mi? 2-3 cümle ile açıkla.",
-    "figures": "Neler çizmiş? İnsanlar, hayvanlar, nesneler... Detay düzeyi nasıl? Bunları nasıl yorumluyorsun? 3-4 cümle yeterli.",
-    "details": "Dikkatini çeken özel detaylar var mı? Tekrarlayan unsurlar, ilginç semboller, anlamlı öğeler? 2-3 cümle ile paylaş."
-  },
-  "emotional_indicators": {
-    "primary_emotions": ["en fazla 3-4 duygu: neşe, merak, heyecan, sakinlik gibi"],
-    "emotional_tone": "Çizimin genel havası, enerjisi nasıl? Neşeli mi, sakin mi, hareketli mi? 3-4 cümle ile hislerini aktar.",
-    "self_expression": "Çocuk kendini rahatça ifade edebilmiş mi? Cesur mu, çekingen mi, özgün mü? 2-3 cümle yeterli."
-  },
-  "psychological_themes": {
-    "identified_themes": ["en fazla 3-4 tema: aile, arkadaşlık, doğa, hayal gücü gibi"],
-    "family_dynamics": "Ailesiyle ilgili ipuçları varsa samimiyetle paylaş (2-3 cümle), yoksa boş bırak",
-    "social_connections": "Arkadaşlık, sosyal hayatla ilgili işaretler varsa belirt (2-3 cümle), yoksa boş bırak",
-    "inner_world": "Çocuğun hayal dünyasından, meraklarından, ilgi alanlarından ne anlıyorsun? 3-4 cümle ile paylaş."
-  },
-  "strengths": [
-    "Çocuğun bu çizimdeki 3-4 güçlü yönünü somut ve içten bir şekilde yaz",
-    "Her madde kısa ama özgün olsun",
-    "Gerçek gözlemlerden yola çık, övgü dolu ama samimi kal"
-  ],
-  "areas_for_support": [
-    "Ebeveynlere 2-3 yumuşak, uygulanabilir öneri sun",
-    "'Deneyebilirsiniz', 'faydalı olabilir' gibi esnek ifadeler kullan",
-    "Yargılamadan, destekleyici bir dille yaz"
-  ],
-  "conversation_starters": [
-    "Çocukla sohbet başlatmak için 3-4 açık uçlu soru öner",
-    "Merak uyandıran, düşündüren sorular olsun",
-    "Cevap vermeyi eğlenceli hale getirsin"
-  ],
-  "activity_suggestions": [
-    "Yaşına uygun 3-4 pratik aktivite öner",
-    "Eğlenceli, kolay uygulanabilir şeyler olsun",
-    "Gelişimini desteklesin ama zorlayıcı olmasın"
-  ],
-  "interpretation_notes": "Son bir paragrafta (3-5 cümle) ebeveynlere şunu hatırlat: Her çocuk benzersiz, her çizim bir anlık fotoğraf. Uzun vadeli gözlem önemli. Endişeleri varsa profesyonel destek alabilirler, ama öncelikle çocuklarının bu güzel ifadesinin keyfini çıkarsınlar."
+3. **Duygusal Yoğunluğu Değerlendir:**
+   - Çizgi kalitesi: Koyu baskı, sert çizgiler, titreme
+   - Renk seçimi: Çok koyu tonlar, kırmızı/siyah dominansı
+   - Yüz ifadeleri: Korku, acı, öfke
+   - Genel atmosfer: Tehdit hissi, karanlık tema
+
+4. **Aciliyet Seviyesi Belirle:**
+   - monitor: Tek seferlik, minimal detay, yaşa uygun → Çocuğun medya maruziyetini gözden geçir
+   - discuss_with_child: Orta detay veya tekrarlayan tema → Çocukla konuş, duygularını anla
+   - consider_professional: Yüksek detay, yaşa uygun değil, duygusal yoğunluk → Çocuk psikologu öner
+   - seek_help_urgently: Kendine/başkasına zarar teması, aşırı travmatik içerik → Acil profesyonel destek
+
+5. **Ebeveyn İçin Konuşma Rehberi Oluştur:**
+   - Açık uçlu, yargısız sorularla başla: "Bana çizdiğin resmi anlatır mısın?"
+   - Çocuğun duygularını kabul et: "Bu duyguları hissetmen çok doğal"
+   - ASLA yapmaması gerekenler: "Bu çok korkunç!", "Neden böyle şeyler çiziyorsun?", "Utanmalısın"
+   - Terapötik yanıtlar: "Hislerini çizmek çok cesurca", "Bu konuda konuşmak istersen buradayım"
+
+6. **Profesyonel Kaynak Öner:**
+   - Ne zaman uzman yardımı alınmalı: Somut durumlar listele
+   - Kime başvurulmalı: Çocuk psikologu, okul psikolojik danışmanı, Çocuk Koruma Hattı (183)
+   - Nasıl hazırlanmalı: Çizimi sakla, not tut, çocuğu korkutmadan bilgilendir
+
+7. **traumaAssessment, conversationGuide ve professionalGuidance alanlarını MUTLAKA doldur.**
+
+Yerelleştirme:
+- Kullanıcı dili ${language}'dir. Çıktıları bu dilde üret.
+- Hedef okuyucu: ${userRole === "parent" ? "ebeveyn" : "öğretmen"}. Jargon minimum.
+- Cümleler net ve anlaşılır olsun ama yeterince detaylı bilgi ver.
+
+Çıktı formatı: **yalnızca** geçerli JSON döndür. Ek cümle yok.
+Şema zorunludur; fazladan alan ekleme.`;
+
+    // USER prompt - input data
+    const userPrompt = `language: ${language}
+child_age: ${input.childAge || "bilinmiyor"}
+test_type: ${input.taskType}
+context: {
+  "role": "${userRole}",
+  "cultural_context": "${culturalContext}"
 }
 
-UNUTMA:
-- TAMAMEN TÜRKÇE yaz, tek bir İngilizce kelime kullanma
-- Doğal, akıcı, samimi bir dil kullan - sanki arkadaşına anlatıyormuşsun gibi
-- Teknik terimlerden kaçın, sade anlat
-- Pozitif ol ama gerçekçi ve dürüst kal
-- Somut gözlemlerle destekle
-- Sadece JSON formatında yanıt ver, başka hiçbir şey ekleme`
-      : `You are an expert child psychologist. Analyze this child's drawing in detail.
+${input.imageBase64 ? `
+GÖRSEL ANALİZ TALİMATLARI:
+Aşağıdaki görseli analiz ederken:
+1. İlk olarak görselde GERÇEKTEN ne gördüğünü tanımla
+2. Renkleri değerlendir: Hangi renkler dominant? Koyu mu açık mı? Sıcak mı soğuk mu?
+3. Figürleri incele: Yüz ifadeleri var mı? (gülümseme, kaşları çatık, nötr, üzgün)
+4. Beden dilini oku: Duruş, kolların pozisyonu, genel hareket
+5. Çizgi kalitesi: Yumuşak/sert, titrek/kararlı, hafif/koyu baskı
+6. Kompozisyon: Hangi alanlar dolu/boş? Figürler merkezi mi kenarda mı?
+7. Semboller: Güneş, bulut, yağmur, kalp, yıldız, vb. var mı?
+8. Genel duygu: Resmin atmosferi neşeli/hüzünlü/endişeli/sakin/hareketli?
 
-IMPORTANT: Your entire response must be in English only. Do not use any Turkish words.
+BU GÖRSELDEKİ SPESIFIK DETAYLARI kullanarak içgörü üret.
+` : ''}
 
-Task: ${input.taskType}
-Age: ${input.childAge || "unknown"}
+features_json:
+${JSON.stringify(input.featuresJson || {}, null, 2)}
 
-Analyze the drawing and provide your response ONLY in JSON format:
+Kurallar:
+- Yalnızca JSON şeması ile cevap ver.
+- İçgörüler **en fazla 4 madde**, evde ipuçları **3 madde** olsun.
+- Her içgörü için:
+  * title: Kısa başlık (3-5 kelime)
+  * summary: Detaylı açıklama (3-5 cümle, 100-200 kelime arası).
+    - İLK cümlede görselde GERÇEKTEN ne gördüğünü yaz (örn: "Resimde figürlerin yüzlerinde belirgin gülümsemeler var")
+    - Sonra bu gözlemi yorumla
+    - Somut görsel kanıtlarla destekle (renkler, çizgiler, ifadeler, semboller)
+  * evidence: İlgili özellik isimleri (örn: "facial_expressions", "color_warmth", "line_quality")
+  * strength: Bulgunun gücü
+- Her ev ipucu için:
+  * title: Net eylem başlığı
+  * steps: 2-4 somut adım (her adım 1-2 cümle)
+  * why: Gerekçe (2-3 cümle)
+- Cümleler anlaşılır, yargısız ve destekleyici olsun.
+- İçgörülerin her birine **en az bir** evidence anahtarı ekle.
+- Veri zayıfsa \`uncertaintyLevel:"high"\` yap ve içgörüleri kısalt.
+- Risk tespiti yoksa "riskFlags": [] döndür.
+- \`disclaimer\` alanını diline göre üret.
+
+JSON Şeması:
 {
-  "title": "Brief title (English)",
-  "insights": "Detailed psychological insights and observations (English, minimum 3-5 sentences)",
-  "emotions": ["emotion1", "emotion2", "emotion3"],
-  "themes": ["theme1", "theme2", "theme3"]
-}
-
-REMINDER: All text in title, insights, emotions, and themes must be COMPLETELY in English.`;
+  "meta": {
+    "testType": "${input.taskType}",
+    "age": ${input.childAge || "null"},
+    "language": "${language}",
+    "confidence": number, // 0..1
+    "uncertaintyLevel": "low|mid|high",
+    "dataQualityNotes": [string]
+  },
+  "insights": [
+    {
+      "title": string,
+      "summary": string,
+      "evidence": [string],
+      "strength": "weak|moderate|strong"
+    }
+  ],
+  "homeTips": [
+    {
+      "title": string,
+      "steps": [string],
+      "why": string
+    }
+  ],
+  "riskFlags": [
+    {
+      "type": "self_harm|harm_others|sexual_inappropriate|violence|severe_distress|trend_regression",
+      "summary": string,
+      "action": "consider_consulting_a_specialist"
+    }
+  ],
+  "traumaAssessment": { // MUTLAKA ekle eğer çizimde savaş/şiddet/travma varsa, yoksa null
+    "hasTraumaticContent": boolean,
+    "contentTypes": ["war"|"violence"|"weapons"|"injury"|"death"|"natural_disaster"|"conflict"|"none"],
+    "ageAppropriateness": "age_appropriate|borderline|concerning",
+    "detailLevel": "minimal|moderate|excessive",
+    "emotionalIntensity": "low|moderate|high",
+    "urgencyLevel": "monitor|discuss_with_child|consider_professional|seek_help_urgently"
+  },
+  "conversationGuide": { // MUTLAKA ekle eğer traumaAssessment varsa, yoksa null
+    "openingQuestions": [string], // 2-3 açık uçlu soru
+    "followUpQuestions": [string], // 2-3 takip sorusu
+    "whatToAvoid": [string], // 3-4 yapılmaması gereken
+    "therapeuticResponses": [string] // 2-3 destekleyici yanıt örneği
+  },
+  "professionalGuidance": { // MUTLAKA ekle eğer urgencyLevel "consider_professional" veya "seek_help_urgently" ise, yoksa null
+    "whenToSeekHelp": [string], // 3-5 somut durum
+    "whoToContact": [string], // 2-3 kaynak
+    "preparationTips": [string] // 2-3 hazırlık önerisi
+  },
+  "trendNote": string,
+  "disclaimer": string
+}`;
 
     const messageContent: OpenAI.Chat.ChatCompletionContentPart[] = [
-      { type: "text", text: promptText }
+      { type: "text", text: userPrompt }
     ];
 
     // Add image if provided
@@ -193,7 +326,7 @@ REMINDER: All text in title, insights, emotions, and themes must be COMPLETELY i
       messages: [
         {
           role: "system",
-          content: "You are an experienced clinical child psychologist with 20 years of experience analyzing children's drawings and providing guidance to families. You provide detailed, empathetic, and actionable insights based on developmental psychology theories.",
+          content: systemPrompt,
         },
         {
           role: "user",
@@ -216,34 +349,35 @@ REMINDER: All text in title, insights, emotions, and themes must be COMPLETELY i
     } catch (parseErr) {
       console.error("[Drawing Analysis] ⚠️ JSON parse error:", parseErr);
       console.error("[Drawing Analysis] 📄 Raw response:", responseText);
+
+      // Fallback response matching new schema
       parsedResponse = {
-        title: "Çizim Analizi",
-        summary: responseText || "Analiz tamamlandı. Yanıt beklenmeyen formatta geldi.",
-        developmental_stage: {
-          age_appropriateness: "Analiz tamamlanamadı - lütfen tekrar deneyin.",
-          motor_skills: "Detay elde edilemedi.",
-          cognitive_development: "Detay elde edilemedi.",
+        meta: {
+          testType: input.taskType,
+          age: input.childAge,
+          language: language,
+          confidence: 0.3,
+          uncertaintyLevel: "high",
+          dataQualityNotes: ["Yanıt beklenmeyen formatta geldi"],
         },
-        visual_elements: {
-          colors: "Renk analizi yapılamadı.",
-          composition: "Kompozisyon analizi yapılamadı.",
-          figures: "Figür analizi yapılamadı.",
-          details: "Detay analizi yapılamadı.",
-        },
-        emotional_indicators: {
-          primary_emotions: ["meraklı", "yaratıcı", "enerjik"],
-          emotional_tone: "Duygusal ton analizi yapılamadı.",
-          self_expression: "İfade analizi yapılamadı.",
-        },
-        psychological_themes: {
-          identified_themes: ["hayal gücü", "özgür ifade", "kendini keşfetme"],
-          inner_world: "İç dünya analizi yapılamadı.",
-        },
-        strengths: ["Yaratıcılık", "Hayal gücü", "Özgün ifade"],
-        areas_for_support: ["Lütfen analizi tekrar deneyin"],
-        conversation_starters: ["Bu çizimde ne düşündün?", "Neler hissettin çizerken?"],
-        activity_suggestions: ["Farklı malzemelerle çizim yapmayı deneyin"],
-        interpretation_notes: "Analiz beklenmeyen bir formatta döndü. Lütfen tekrar deneyin veya destek ekibiyle iletişime geçin.",
+        insights: [
+          {
+            title: "Analiz tamamlanamadı",
+            summary: responseText || "Yanıt işlenemedi. Lütfen tekrar deneyin.",
+            evidence: ["parse_error"],
+            strength: "weak",
+          },
+        ],
+        homeTips: [
+          {
+            title: "Tekrar deneyin",
+            steps: ["Analizi tekrar çalıştırın", "Sorun devam ederse destek ekibiyle iletişime geçin"],
+            why: "Yanıt beklenmeyen bir formatta geldi",
+          },
+        ],
+        riskFlags: [],
+        trendNote: "",
+        disclaimer: getDisclaimer(language),
       };
     }
 
