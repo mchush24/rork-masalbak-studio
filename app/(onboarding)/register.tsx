@@ -11,22 +11,25 @@ import { spacing, borderRadius, animations, shadows, typography, colors } from '
 const STEPS = {
   WELCOME: 0,
   EMAIL: 1,
-  CHILD_AGE: 2,
-  NAME: 3,
-  CONFIRM: 4,
+  PASSWORD: 2,
+  CHILD_AGE: 3,
+  NAME: 4,
+  CONFIRM: 5,
 };
 
 export default function RegisterScreen() {
   const [currentStep, setCurrentStep] = useState(STEPS.WELCOME);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [childAge, setChildAge] = useState<number | undefined>(undefined);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const router = useRouter();
-  const { login, completeOnboarding } = useAuth();
+  const { signUp, completeOnboarding } = useAuth();
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
