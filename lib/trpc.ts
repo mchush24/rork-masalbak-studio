@@ -18,7 +18,16 @@ export const queryClient = new QueryClient({
 
 // Backend server URL (runs separately from Expo dev server)
 const getApiUrl = () => {
-  // Check if running in Expo Go or on web
+  // Use environment variable if available (production Railway URL)
+  const envApiUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_API || process.env.EXPO_PUBLIC_API;
+
+  if (envApiUrl) {
+    const url = `${envApiUrl}/api/trpc`;
+    console.log('[tRPC] Using environment API URL:', url);
+    return url;
+  }
+
+  // Fallback to localhost for local development
   const debuggerHost = Constants.expoConfig?.hostUri;
   const host = debuggerHost?.split(':')[0];
 
@@ -26,17 +35,15 @@ const getApiUrl = () => {
   console.log('[tRPC] Debugger host:', debuggerHost);
   console.log('[tRPC] Extracted host:', host);
 
-  // Platform-specific URL handling
+  // Platform-specific URL handling for local development
   if (Platform.OS === 'android') {
     // Android emulator: 10.0.2.2 maps to host's localhost
-    // If using Expo on physical device, use the debugger host
     const baseUrl = host || '10.0.2.2';
     const url = `http://${baseUrl}:3000/api/trpc`;
     console.log('[tRPC] Android URL:', url);
     return url;
   } else if (Platform.OS === 'ios') {
     // iOS simulator can use localhost
-    // If using Expo on physical device, use the debugger host
     const baseUrl = host || 'localhost';
     const url = `http://${baseUrl}:3000/api/trpc`;
     console.log('[tRPC] iOS URL:', url);
