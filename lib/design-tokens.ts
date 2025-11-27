@@ -156,6 +156,9 @@ export const colors = {
 
     // Okyanus - Mavi tonları (analiz, veri için)
     ocean: ['#4FB3D4', '#78C8E8', '#A3DBF0'],
+
+    // Orman - Yeşil tonları (doğa, sakinlik için)
+    forest: ['#7ED99C', '#6BC798', '#5AB594'],
   },
 
   // Opacity variants (beyaz overlay'ler için)

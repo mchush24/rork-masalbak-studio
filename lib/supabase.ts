@@ -13,31 +13,30 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Detect if we're running in React Native or Node.js
+// Detect if we're running in React Native, Web, or Node.js
 const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 // Backend Supabase Client (Service Role - Admin Access)
+// Only initialize in Node.js environment (backend)
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE || '';
 
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Only create backend client in Node.js environment
+export const supabase = !isBrowser && supabaseUrl && supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  : null as any; // In browser, this will be null (not used)
 
 // Frontend Supabase Client (Anon Key - User Access)
 let supabaseFrontend: ReturnType<typeof createClient> | null = null;
 
 /**
- * Get Supabase client for frontend (React Native)
+ * Get Supabase client for frontend (React Native & Web)
  * This client uses the ANON key and AsyncStorage for session persistence
  */
 export async function getSupabaseFrontend() {
   if (supabaseFrontend) return supabaseFrontend;
 
-  if (!isReactNative) {
-    throw new Error('Frontend Supabase client should only be used in React Native');
-  }
-
-  // Dynamically import AsyncStorage to avoid errors in Node.js
-  const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
   const Constants = (await import('expo-constants')).default;
 
   const frontendUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -50,14 +49,27 @@ export async function getSupabaseFrontend() {
     );
   }
 
-  supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
-    auth: {
-      storage: AsyncStorage,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-    },
-  });
+  // React Native: Use AsyncStorage for session persistence
+  if (isReactNative) {
+    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
+      auth: {
+        storage: AsyncStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+      },
+    });
+  } else {
+    // Web: Use localStorage (default)
+    supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+      },
+    });
+  }
 
   return supabaseFrontend;
 }
