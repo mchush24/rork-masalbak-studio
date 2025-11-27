@@ -1,10 +1,17 @@
-import sharp from "sharp";
+// TEMPORARILY DISABLED: sharp causing Railway deployment issues
+// Will be re-enabled with proper platform-specific binaries
+// import sharp from "sharp";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
 
 async function toLineArt(input: string|Buffer) {
+  // TEMPORARILY DISABLED: sharp causing Railway deployment issues
+  // This function will be re-enabled with proper sharp configuration
+  throw new Error("Line art conversion is temporarily disabled during deployment. Will be available soon.");
+
+  /* Original sharp implementation:
   let buf: Buffer;
   if (typeof input === "string") {
     if (input.startsWith("data:image/")) {
@@ -26,6 +33,7 @@ async function toLineArt(input: string|Buffer) {
     .toFormat("png")
     .toBuffer();
   return out;
+  */
 }
 
 export async function makeColoringPDF(pages: string[], title: string, size: "A4"|"A3") {
