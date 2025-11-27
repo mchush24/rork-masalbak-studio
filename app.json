@@ -66,6 +66,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "EXPO_PUBLIC_API": "https://rork-masalbak-studio-production.up.railway.app",
+      "EXPO_PUBLIC_RORK_API_BASE_URL": "https://rork-masalbak-studio-production.up.railway.app",
+      "EXPO_PUBLIC_SUPABASE_URL": "https://amtxpjngxgfuqhyiotqu.supabase.co",
+      "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdHhwam5neGdmdXFoeWlvdHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1ODExMzcsImV4cCI6MjA3ODE1NzEzN30.FNxQqH8qxNL8xGZQYVfE0VpMqKZYw2x_QzXWqZNqXxQ"
     }
   }
 }
