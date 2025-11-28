@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Filter,
   Star,
+  ArrowLeft,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -161,18 +162,29 @@ export default function AnalysisHistoryScreen() {
           }
         >
           {/* Header */}
-          <View style={styles.header}>
-            <LinearGradient
-              colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-              style={styles.headerIcon}
+          <View style={styles.headerContainer}>
+            <Pressable
+              onPress={() => router.back()}
+              style={({ pressed }) => [
+                styles.backButton,
+                pressed && { opacity: 0.6 },
+              ]}
             >
-              <Brain size={layout.icon.medium} color={Colors.neutral.white} />
-            </LinearGradient>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Analiz Geçmişi</Text>
-              <Text style={styles.headerSubtitle}>
-                {analyses.length} analiz kayıtlı
-              </Text>
+              <ArrowLeft size={24} color={Colors.neutral.darkest} />
+            </Pressable>
+            <View style={styles.header}>
+              <LinearGradient
+                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                style={styles.headerIcon}
+              >
+                <Brain size={layout.icon.medium} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.headerTextContainer}>
+                <Text style={styles.headerTitle}>Analiz Geçmişi</Text>
+                <Text style={styles.headerSubtitle}>
+                  {analyses.length} analiz kayıtlı
+                </Text>
+              </View>
             </View>
           </View>
 
@@ -348,10 +360,22 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: layout.screenPadding,
   },
+  headerContainer: {
+    marginBottom: spacing["6"],
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.lg,
+    backgroundColor: Colors.neutral.white,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: spacing["3"],
+    ...shadows.md,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing["6"],
     gap: spacing["4"],
   },
   headerIcon: {

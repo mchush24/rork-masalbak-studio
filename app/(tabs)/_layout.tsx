@@ -7,7 +7,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary.coral,
+        tabBarActiveTintColor: Colors.primary.sunset,
         tabBarInactiveTintColor: Colors.neutral.light,
         headerShown: false,
         tabBarStyle: {
@@ -61,6 +61,18 @@ export default function TabLayout() {
         options={{
           title: "Profil",
           tabBarIcon: ({ color }) => <User size={26} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="analysis-history"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="coloring-history"
+        options={{
+          href: null, // Hide from tab bar
         }}
       />
     </Tabs>
