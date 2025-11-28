@@ -6,12 +6,13 @@ import * as Haptics from 'expo-haptics';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
+import { supabase } from '@/lib/supabase';
 
 // Multi-step registration steps
 const STEPS = {
   WELCOME: 0,
   EMAIL: 1,
-  PASSWORD: 2,
+  VERIFY_CODE: 2,
   CHILD_AGE: 3,
   NAME: 4,
   CONFIRM: 5,
@@ -20,16 +21,16 @@ const STEPS = {
 export default function RegisterScreen() {
   const [currentStep, setCurrentStep] = useState(STEPS.WELCOME);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [childAge, setChildAge] = useState<number | undefined>(undefined);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [codeError, setCodeError] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const router = useRouter();
-  const { signUp, completeOnboarding } = useAuth();
+  const { completeOnboarding } = useAuth();
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -38,6 +39,7 @@ export default function RegisterScreen() {
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const registerMutation = trpc.auth.register.useMutation();
+  const verifyEmailMutation = trpc.auth.verifyEmail.useMutation();
   const completeOnboardingMutation = trpc.auth.completeOnboarding.useMutation();
 
   // Animate step transitions
@@ -60,7 +62,7 @@ export default function RegisterScreen() {
 
     // Animate progress bar
     Animated.timing(progressAnim, {
-      toValue: currentStep / 4,
+      toValue: currentStep / Object.keys(STEPS).length,
       duration: animations.normal,
       useNativeDriver: false,
     }).start();
@@ -93,17 +95,19 @@ export default function RegisterScreen() {
   };
 
   // Step navigation
-  const handleNext = () => {
+  const handleNext = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (currentStep === STEPS.WELCOME) {
       setCurrentStep(STEPS.EMAIL);
     } else if (currentStep === STEPS.EMAIL) {
       if (validateEmail(email)) {
-        setCurrentStep(STEPS.CHILD_AGE);
+        await handleSendVerificationEmail();
       } else {
         triggerShake();
       }
+    } else if (currentStep === STEPS.VERIFY_CODE) {
+      await handleVerifyCode();
     } else if (currentStep === STEPS.CHILD_AGE) {
       setCurrentStep(STEPS.NAME);
     } else if (currentStep === STEPS.NAME) {
@@ -120,6 +124,70 @@ export default function RegisterScreen() {
     }
   };
 
+  const handleSendVerificationEmail = async () => {
+    setIsLoading(true);
+    try {
+      console.log('[Register] 📧 Sending verification email to:', email);
+
+      // This will trigger the backend to send the verification email
+      await registerMutation.mutateAsync({
+        email: email.trim(),
+        name: name.trim() || undefined,
+        childAge: childAge,
+      });
+
+      console.log('[Register] ✅ Verification email sent');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setCurrentStep(STEPS.VERIFY_CODE);
+    } catch (error) {
+      console.error('[Register] ❌ Error sending verification email:', error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert(
+        'Hata',
+        'Email gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'
+      );
+      triggerShake();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (verificationCode.length !== 6) {
+      setCodeError('Doğrulama kodu 6 haneli olmalıdır');
+      triggerShake();
+      return;
+    }
+
+    setIsLoading(true);
+    setCodeError('');
+
+    try {
+      console.log('[Register] 🔐 Verifying code:', verificationCode);
+
+      const result = await verifyEmailMutation.mutateAsync({
+        email: email.trim(),
+        code: verificationCode,
+      });
+
+      if (result.success) {
+        console.log('[Register] ✅ Email verified successfully');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setCurrentStep(STEPS.CHILD_AGE);
+      } else {
+        setCodeError(result.message);
+        triggerShake();
+      }
+    } catch (error) {
+      console.error('[Register] ❌ Error verifying code:', error);
+      setCodeError('Doğrulama kodu hatalı. Lütfen tekrar deneyin.');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      triggerShake();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleRegister = async () => {
     if (!agreedToTerms) {
       triggerShake();
@@ -131,33 +199,44 @@ export default function RegisterScreen() {
     setIsLoading(true);
 
     try {
-      const result = await registerMutation.mutateAsync({
-        email: email.trim(),
-        name: name.trim() || undefined,
-        childAge: childAge,
-      });
+      console.log('[Register] 📝 Completing registration...', { email, name, childAge });
 
-      await login({
-        userId: result.userId,
-        email: result.email,
-        name: name.trim() || undefined,
-        childAge: childAge,
-      });
+      // User already created during email verification step
+      // Get user info from register mutation result
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email.trim())
+        .single();
 
+      if (!existingUser) {
+        throw new Error('Kullanıcı bulunamadı. Lütfen tekrar kayıt olun.');
+      }
+
+      console.log('[Register] ✅ User found:', existingUser.id);
+
+      // Mark onboarding as complete in backend
       await completeOnboardingMutation.mutateAsync({
-        userId: result.userId,
+        userId: existingUser.id,
       });
 
+      console.log('[Register] ✅ Onboarding marked complete in backend');
+
+      // Mark onboarding as complete in local storage
       await completeOnboarding();
+
+      console.log('[Register] ✅ Onboarding marked complete locally');
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // Small delay to ensure state updates are propagated
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Small delay to ensure auth state is fully propagated
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      console.log('[Register] 🚀 Navigating to main app...');
 
       router.replace('/(tabs)');
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('[Register] ❌ Registration error:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert(
         'Kayıt Hatası',
@@ -233,6 +312,17 @@ export default function RegisterScreen() {
                 emailError={emailError}
                 setEmailError={setEmailError}
                 onNext={handleNext}
+                isLoading={isLoading}
+              />
+            )}
+            {currentStep === STEPS.VERIFY_CODE && (
+              <VerifyCodeStep
+                verificationCode={verificationCode}
+                setVerificationCode={setVerificationCode}
+                codeError={codeError}
+                onNext={handleNext}
+                isLoading={isLoading}
+                email={email}
               />
             )}
             {currentStep === STEPS.CHILD_AGE && (
@@ -401,12 +491,14 @@ function EmailStep({
   emailError,
   setEmailError,
   onNext,
+  isLoading,
 }: {
   email: string;
   setEmail: (email: string) => void;
   emailError: string;
   setEmailError: (error: string) => void;
   onNext: () => void;
+  isLoading: boolean;
 }) {
   const inputRef = useRef<TextInput>(null);
 
@@ -486,10 +578,10 @@ function EmailStep({
 
       <Pressable
         onPress={onNext}
-        disabled={!email}
+        disabled={!email || isLoading}
         style={({ pressed }) => [
           {
-            backgroundColor: email ? 'white' : 'rgba(255,255,255,0.3)',
+            backgroundColor: email && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: borderRadius.xxxl,
             ...shadows.lg,
@@ -501,11 +593,139 @@ function EmailStep({
           style={{
             fontSize: typography.fontSize.md,
             fontWeight: 'bold',
-            color: email ? colors.brand.primary : 'rgba(255,255,255,0.6)',
+            color: email && !isLoading ? colors.brand.primary : 'rgba(255,255,255,0.6)',
             textAlign: 'center',
           }}
         >
-          Devam Et →
+          {isLoading ? 'Email Gönderiliyor...' : 'Devam Et →'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+// Step 2.5: Verification Code
+function VerifyCodeStep({
+  verificationCode,
+  setVerificationCode,
+  codeError,
+  onNext,
+  isLoading,
+  email,
+}: {
+  verificationCode: string;
+  setVerificationCode: (code: string) => void;
+  codeError: string;
+  onNext: () => void;
+  isLoading: boolean;
+  email: string;
+}) {
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center' }}>
+      <Text
+        style={{
+          fontSize: typography.fontSize.xxl,
+          fontWeight: 'bold',
+          color: 'white',
+          marginBottom: spacing.md,
+        }}
+      >
+        Doğrulama Kodu
+      </Text>
+      <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: spacing.sm }}>
+        {email} adresine gönderilen 6 haneli kodu girin
+      </Text>
+      <Text style={{ fontSize: typography.fontSize.sm, color: 'rgba(255,255,255,0.8)', marginBottom: spacing.xxl }}>
+        Kod 10 dakika geçerlidir
+      </Text>
+
+      <View
+        style={{
+          backgroundColor: 'white',
+          borderRadius: borderRadius.xl,
+          padding: spacing.md,
+          marginBottom: spacing.md,
+          ...shadows.lg,
+          borderWidth: codeError ? 2 : 0,
+          borderColor: codeError ? '#EF4444' : 'transparent',
+        }}
+      >
+        <TextInput
+          ref={inputRef}
+          value={verificationCode}
+          onChangeText={setVerificationCode}
+          placeholder="123456"
+          placeholderTextColor="#9CA3AF"
+          keyboardType="number-pad"
+          maxLength={6}
+          autoComplete="one-time-code"
+          style={{
+            fontSize: typography.fontSize.xxxl,
+            fontWeight: 'bold',
+            color: '#1F2937',
+            padding: spacing.sm,
+            textAlign: 'center',
+            letterSpacing: 8,
+          }}
+        />
+      </View>
+
+      {codeError ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md }}>
+          <Text style={{ fontSize: 18, marginRight: spacing.xs }}>⚠️</Text>
+          <Text style={{ fontSize: typography.fontSize.sm, color: '#FEE2E2', fontWeight: '600' }}>
+            {codeError}
+          </Text>
+        </View>
+      ) : null}
+
+      <View
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          padding: spacing.md,
+          borderRadius: borderRadius.lg,
+          marginBottom: spacing.xl,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
+          <Text style={{ fontSize: 20, marginRight: spacing.sm }}>📧</Text>
+          <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
+            Emailinizi Kontrol Edin
+          </Text>
+        </View>
+        <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)' }}>
+          Spam klasörünüze de bakabilirsiniz
+        </Text>
+      </View>
+
+      <Pressable
+        onPress={onNext}
+        disabled={verificationCode.length !== 6 || isLoading}
+        style={({ pressed }) => [
+          {
+            backgroundColor: verificationCode.length === 6 && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
+            paddingVertical: spacing.md + spacing.xs,
+            borderRadius: borderRadius.xxxl,
+            ...shadows.lg,
+            transform: [{ scale: pressed ? 0.97 : 1 }],
+          },
+        ]}
+      >
+        <Text
+          style={{
+            fontSize: typography.fontSize.md,
+            fontWeight: 'bold',
+            color: verificationCode.length === 6 && !isLoading ? colors.brand.primary : 'rgba(255,255,255,0.6)',
+            textAlign: 'center',
+          }}
+        >
+          {isLoading ? 'Doğrulanıyor...' : 'Doğrula →'}
         </Text>
       </Pressable>
     </View>

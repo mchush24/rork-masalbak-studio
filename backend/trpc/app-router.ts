@@ -6,6 +6,7 @@ import { generateColoringFromDrawingProcedure } from "./routes/studio/generate-c
 import { listStorybooksProcedure, listColoringsProcedure } from "./routes/studio/list-history";
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
 import { registerProcedure } from "./routes/auth/register";
+import { verifyEmailProcedure } from "./routes/auth/verify-email";
 import { completeOnboardingProcedure } from "./routes/auth/complete-onboarding";
 import { getProfileProcedure } from "./routes/user/get-profile";
 import { updateProfileProcedure } from "./routes/user/update-profile";
@@ -24,6 +25,7 @@ export const appRouter = createTRPCRouter({
   }),
   auth: createTRPCRouter({
     register: registerProcedure,
+    verifyEmail: verifyEmailProcedure,
     completeOnboarding: completeOnboardingProcedure,
   }),
   user: createTRPCRouter({

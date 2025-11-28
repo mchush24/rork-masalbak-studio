@@ -1,6 +1,7 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
 import { supabase } from "../../../../lib/supabase";
+import { sendVerificationEmail, generateVerificationCode } from "../../../lib/email";
 
 const registerInputSchema = z.object({
   email: z.string().email(),
@@ -30,12 +31,53 @@ export const registerProcedure = publicProcedure
 
       if (existingUser && !checkError) {
         console.log("[Auth] ✅ User already exists:", existingUser.id);
+
+        // Send verification email for existing users too
+        const verificationCode = generateVerificationCode();
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
+        // Store verification code in database
+        await supabase
+          .from('verification_codes')
+          .insert([
+            {
+              email: input.email,
+              code: verificationCode,
+              expires_at: expiresAt.toISOString(),
+              created_at: new Date().toISOString(),
+            },
+          ]);
+
+        // Send email
+        await sendVerificationEmail(input.email, verificationCode, existingUser.name);
+
         return {
           userId: existingUser.id,
           email: existingUser.email,
           isNewUser: false,
         };
       }
+
+      // Generate verification code for new users
+      const verificationCode = generateVerificationCode();
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
+      // Store verification code in database
+      await supabase
+        .from('verification_codes')
+        .insert([
+          {
+            email: input.email,
+            code: verificationCode,
+            expires_at: expiresAt.toISOString(),
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      // Send verification email
+      await sendVerificationEmail(input.email, verificationCode, input.name);
 
       // Create new user
       const { data: newUser, error: createError } = await supabase
