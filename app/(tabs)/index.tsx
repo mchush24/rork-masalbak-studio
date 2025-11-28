@@ -29,6 +29,8 @@ import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { trpc } from "@/lib/trpc";
+import { useFirstTimeUser } from "@/lib/hooks/useFirstTimeUser";
+import { FirstTimeWelcomeModal } from "@/components/FirstTimeWelcomeModal";
 
 // New schema types matching backend
 type AnalysisMeta = {
@@ -81,12 +83,31 @@ export default function AnalyzeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [retries, setRetries] = useState(0);
 
+  // ✅ YENİ: First time user welcome
+  const { isFirstTime, isLoading: isCheckingFirstTime, markAsReturningUser } = useFirstTimeUser();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
   // tRPC mutation for analysis
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
 
-  
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
+
+  // Show welcome modal for first-time users
+  useEffect(() => {
+    if (!isCheckingFirstTime && isFirstTime) {
+      // Small delay for smooth appearance
+      setTimeout(() => {
+        setShowWelcomeModal(true);
+      }, 500);
+    }
+  }, [isFirstTime, isCheckingFirstTime]);
+
+  const handleDismissWelcome = () => {
+    setShowWelcomeModal(false);
+    markAsReturningUser();
+  };
 
   useEffect(() => {
     if (analysis) {
@@ -184,6 +205,12 @@ export default function AnalyzeScreen() {
 
   return (
     <View style={styles.container}>
+      {/* First Time Welcome Modal */}
+      <FirstTimeWelcomeModal
+        visible={showWelcomeModal}
+        onDismiss={handleDismissWelcome}
+      />
+
       <LinearGradient
         colors={Colors.background.analysis as any}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
