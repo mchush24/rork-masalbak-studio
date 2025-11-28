@@ -31,6 +31,8 @@ import { useRouter } from "expo-router";
 import { trpc } from "@/lib/trpc";
 import { useFirstTimeUser } from "@/lib/hooks/useFirstTimeUser";
 import { FirstTimeWelcomeModal } from "@/components/FirstTimeWelcomeModal";
+import { useAgeCollection } from "@/lib/hooks/useAgeCollection";
+import { AgePickerModal } from "@/components/AgePickerModal";
 
 // New schema types matching backend
 type AnalysisMeta = {
@@ -87,8 +89,14 @@ export default function AnalyzeScreen() {
   const { isFirstTime, isLoading: isCheckingFirstTime, markAsReturningUser } = useFirstTimeUser();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
-  // tRPC mutation for analysis
+  // ✅ YENİ: Age collection for first analysis
+  const { ageCollected, isLoading: isCheckingAge, markAgeAsCollected } = useAgeCollection();
+  const [showAgePickerModal, setShowAgePickerModal] = useState(false);
+  const [selectedAge, setSelectedAge] = useState<number | null>(null);
+
+  // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
+  const updateProfileMutation = trpc.user.updateProfile.useMutation();
 
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -107,6 +115,41 @@ export default function AnalyzeScreen() {
   const handleDismissWelcome = () => {
     setShowWelcomeModal(false);
     markAsReturningUser();
+  };
+
+  // Show age picker when image is selected for the first time
+  useEffect(() => {
+    if (selectedImage && !ageCollected && !isCheckingAge) {
+      // Small delay for smooth transition
+      setTimeout(() => {
+        setShowAgePickerModal(true);
+      }, 300);
+    }
+  }, [selectedImage, ageCollected, isCheckingAge]);
+
+  const handleSelectAge = async (age: number) => {
+    try {
+      setSelectedAge(age);
+      setShowAgePickerModal(false);
+
+      // Update user profile with age
+      await updateProfileMutation.mutateAsync({ child_age: age });
+
+      // Mark age as collected
+      await markAgeAsCollected();
+
+      console.log('[Age] Updated user profile with age:', age);
+    } catch (error) {
+      console.error('[Age] Error updating age:', error);
+      // Still mark as collected to not show modal again
+      await markAgeAsCollected();
+    }
+  };
+
+  const handleSkipAge = async () => {
+    setShowAgePickerModal(false);
+    // Mark as collected so we don't ask again
+    await markAgeAsCollected();
   };
 
   useEffect(() => {
@@ -136,16 +179,10 @@ export default function AnalyzeScreen() {
         throw new Error("Lütfen bir görüntü seçin");
       }
 
-      // Payload oluştur
-      const payload = {
-        app_version: "1.0.0",
-        schema_version: "1.0.0",
-        child: { age: 7 },
-        task_type: "DAP" as const,
-        image_uri: selectedImage,
-      };
+      // Use selectedAge if available, otherwise default to 7
+      const childAge = selectedAge || 7;
 
-      console.log("[Analysis] Starting analysis...");
+      console.log("[Analysis] Starting analysis with age:", childAge);
 
       // Base64 encode the image
       const response = await fetch(selectedImage);
@@ -158,7 +195,7 @@ export default function AnalyzeScreen() {
 
       const result = await analyzeMutation.mutateAsync({
         taskType: "DAP",
-        childAge: payload.child.age,
+        childAge: childAge,
         imageBase64: base64.split(',')[1], // Remove data:image/...;base64, prefix
         language: 'tr',
         userRole: 'parent',
@@ -209,6 +246,13 @@ export default function AnalyzeScreen() {
       <FirstTimeWelcomeModal
         visible={showWelcomeModal}
         onDismiss={handleDismissWelcome}
+      />
+
+      {/* Age Picker Modal - shown on first image selection */}
+      <AgePickerModal
+        visible={showAgePickerModal}
+        onSelectAge={handleSelectAge}
+        onSkip={handleSkipAge}
       />
 
       <LinearGradient
