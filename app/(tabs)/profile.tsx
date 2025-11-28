@@ -144,7 +144,7 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
-              onPress={() => Alert.alert("Analiz Geçmişi", "Analiz geçmişi ekranı yakında eklenecek!")}
+              onPress={() => router.push('/(tabs)/analysis-history')}
             >
               <LinearGradient
                 colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
@@ -166,7 +166,7 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
-              onPress={() => Alert.alert("Boyama Geçmişi", "Boyama geçmişi ekranı yakında eklenecek!")}
+              onPress={() => router.push('/(tabs)/coloring-history')}
             >
               <LinearGradient
                 colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
