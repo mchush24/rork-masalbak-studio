@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
-  Platform,
 } from "react-native";
 import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -26,7 +25,6 @@ import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system/legacy";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 type Storybook = {
@@ -140,48 +138,37 @@ export default function StoriesScreen() {
     try {
       setLoadingStory(true);
 
-      // Convert image to base64
-      let imageBase64: string;
-      if (Platform.OS === "web") {
-        if (storyImage!.startsWith("data:")) {
-          imageBase64 = storyImage!.split(",")[1];
-        } else {
-          const response = await fetch(storyImage!);
-          const blob = await response.blob();
-          imageBase64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64String = reader.result as string;
-              const base64Data = base64String.split(",")[1];
-              resolve(base64Data);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        }
-      } else {
-        let uri = storyImage!;
-        if (!uri.startsWith("file://") && !uri.startsWith("content://")) {
-          uri = `file://${uri}`;
-        }
-        imageBase64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: "base64",
-        });
-      }
+      // TODO: In the future, convert and use the uploaded image for AI story generation
+      // Currently using template-based story generation
+      // const imageBase64 = await convertImageToBase64(storyImage!);
 
+      // Generate story pages using the uploaded image as inspiration
+      // For now, using a simple template. TODO: Integrate with AI to analyze image and generate story
       const pages = [
         {
-          text: "Küçük bir kuş sabah güneşiyle uyanır.",
-          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}`,
+          text: `${storyTitle} adlı macera başlıyor.`,
+          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, based on child drawing`,
         },
-        { text: "Arkadaşlarını bulmak için yola çıkar." },
-        { text: "Bir ağacın dallarında mola verir." },
-        { text: "Rüzgârla birlikte şarkı söyler." },
-        { text: "Akşam güneşinde yuvasına döner." },
+        {
+          text: "Kahramanımız yeni arkadaşlar buldu.",
+          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, colorful characters`
+        },
+        {
+          text: "Birlikte eğlenceli bir keşfe çıktılar.",
+          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, adventure scene`
+        },
+        {
+          text: "Harika anılar biriktirdiler.",
+          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, happy moment`
+        },
+        {
+          text: "Ve mutlu bir şekilde eve döndüler.",
+          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, ending scene`
+        },
       ];
 
       await createStorybookMutation.mutateAsync({
-        title: storyTitle,
+        title: storyTitle || "Benim Masalım",
         pages,
         lang: "tr",
         makePdf: true,

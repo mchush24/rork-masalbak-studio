@@ -7,11 +7,8 @@ import { uploadBuffer } from "./supabase.js";
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
 
 async function toLineArt(input: string|Buffer) {
-  // TEMPORARILY DISABLED: sharp causing Railway deployment issues
-  // This function will be re-enabled with proper sharp configuration
-  throw new Error("Line art conversion is temporarily disabled during deployment. Will be available soon.");
-
-  /* Original sharp implementation:
+  // TEMPORARILY: Return the original image buffer without processing
+  // Sharp library is disabled for Railway deployment
   let buf: Buffer;
   if (typeof input === "string") {
     if (input.startsWith("data:image/")) {
@@ -25,6 +22,11 @@ async function toLineArt(input: string|Buffer) {
     buf = input;
   }
 
+  // Return original buffer until sharp is re-enabled
+  console.warn("[Coloring] Sharp library disabled - returning original image without line art conversion");
+  return buf;
+
+  /* Original sharp implementation (will be re-enabled):
   const out = await sharp(buf)
     .grayscale()
     .median(3)
