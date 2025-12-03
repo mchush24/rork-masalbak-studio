@@ -49,8 +49,13 @@ export const verifyEmailProcedure = publicProcedure
       }
 
       // Check if code matches
-      if (verificationRecord.code !== input.code) {
+      console.log("[Auth] 🔍 Comparing codes - Database:", verificationRecord.code, "| Input:", input.code);
+      console.log("[Auth] 🔍 Code types - Database:", typeof verificationRecord.code, "| Input:", typeof input.code);
+      console.log("[Auth] 🔍 Trimmed comparison - Database:", verificationRecord.code.trim(), "| Input:", input.code.trim());
+
+      if (verificationRecord.code.trim() !== input.code.trim()) {
         console.error("[Auth] ❌ Invalid verification code for:", input.email);
+        console.error("[Auth] ❌ Expected:", verificationRecord.code, "| Got:", input.code);
         return {
           success: false,
           message: "Doğrulama kodu hatalı. Lütfen tekrar deneyin.",
