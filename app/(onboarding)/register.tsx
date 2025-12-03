@@ -23,7 +23,7 @@ export default function RegisterScreen() {
   const [codeError, setCodeError] = useState('');
 
   const router = useRouter();
-  const { completeOnboarding } = useAuth();
+  const { completeOnboarding, setUserSession } = useAuth();
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -163,6 +163,10 @@ export default function RegisterScreen() {
           await completeOnboardingMutation.mutateAsync({
             userId: result.userId,
           });
+
+          // Set user session manually (for custom email verification flow)
+          console.log('[Register] 👤 Setting user session for:', email);
+          await setUserSession(result.userId, email);
         }
 
         // Mark auth as complete

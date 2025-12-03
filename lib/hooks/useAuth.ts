@@ -254,6 +254,27 @@ export function useAuth() {
     }
   };
 
+  /**
+   * Manually set user session (for custom auth flows like email verification)
+   */
+  const setUserSession = async (userId: string, email: string, name?: string) => {
+    try {
+      console.log('[useAuth] 📝 Setting user session manually:', email);
+
+      const userSession: UserSession = {
+        userId,
+        email,
+        name,
+      };
+
+      setUser(userSession);
+      console.log('[useAuth] ✅ User session set:', userSession.email);
+    } catch (error) {
+      console.error('[useAuth] ❌ Error setting user session:', error);
+      throw error;
+    }
+  };
+
   return {
     user,
     session,
@@ -264,6 +285,7 @@ export function useAuth() {
     logout,
     completeOnboarding,
     refreshUserFromBackend,
+    setUserSession,
     isAuthenticated: !!user && !!session,
   };
 }
