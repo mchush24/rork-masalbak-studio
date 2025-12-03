@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
+import { generateImage, generateStorybookSeed, type ImageProvider } from "./image-generation.js";
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
@@ -12,7 +13,7 @@ type MakeOptions = {
   makePdf?: boolean;
   makeTts?: boolean;
   title?: string;
-  user_id?: string|null
+  user_id?: string|null;
 };
 
 /**
@@ -22,50 +23,45 @@ type MakeOptions = {
  * @param prompt - Optional custom prompt (should already include style consistency)
  * @param pageNumber - Current page number (1-indexed)
  * @param totalPages - Total number of pages in the story
+ * @param provider - Image generation provider ('dalle3' or 'flux1')
+ * @param seed - Seed for consistency (only used with Flux.1)
  */
 export async function generateImageForPage(
   text: string,
   prompt?: string,
   pageNumber?: number,
-  totalPages?: number
+  totalPages?: number,
+  provider: ImageProvider = 'flux1',
+  seed?: number
 ) {
   // Use provided prompt or fallback to basic prompt
-  // Frontend should provide consistent prompts, but have fallback just in case
   const finalPrompt = prompt || `Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain background, NO TEXT NO LETTERS, scene: ${text}`;
 
   console.log(`[Story] Generating image ${pageNumber || '?'}/${totalPages || '?'}`);
-  console.log("[Story] Full prompt:", finalPrompt);
+  console.log(`[Story] Provider: ${provider.toUpperCase()}, Seed: ${seed || 'none'}`);
+  console.log("[Story] Prompt:", finalPrompt.substring(0, 150) + "...");
 
-  const img = await oai.images.generate({
-    model: "dall-e-3",
+  return await generateImage({
     prompt: finalPrompt,
-    size: "1024x1024",
-    quality: "standard", // Use standard for consistency and speed
-    response_format: "b64_json"
+    provider,
+    seed,
+    pageNumber,
+    totalPages,
   });
-
-  if (!img.data || !img.data[0]) {
-    throw new Error("No image data returned from OpenAI");
-  }
-
-  const b64 = img.data[0].b64_json;
-  if (!b64) {
-    console.error("[Story] No b64_json in response, trying URL fallback");
-    const url = img.data[0].url;
-    if (url) {
-      const res = await fetch(url);
-      return Buffer.from(await res.arrayBuffer());
-    }
-    throw new Error("No image data returned from OpenAI");
-  }
-
-  return Buffer.from(b64, "base64");
 }
 
 export async function makeStorybook(opts: MakeOptions) {
   console.log("[Story] Starting storybook creation:", opts.title);
   console.log("[Story] Language:", opts.lang || 'tr');
   console.log("[Story] Number of pages:", opts.pages.length);
+  console.log("[Story] Image provider: FLUX.1 (via FAL.ai)");
+
+  // Generate consistent seed for this storybook (same character style across all pages)
+  const seed = generateStorybookSeed(
+    opts.user_id || 'anonymous',
+    Date.now()
+  );
+  console.log("[Story] Using seed for consistency:", seed);
 
   const imgs: string[] = [];
   const totalPages = opts.pages.length;
@@ -79,17 +75,16 @@ export async function makeStorybook(opts: MakeOptions) {
         opts.pages[i].text,
         opts.pages[i].prompt,
         i + 1, // page number (1-indexed)
-        totalPages
+        totalPages,
+        'flux1', // Always use Flux.1 for consistency
+        seed // Same seed for all pages = consistent character
       );
       const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, png, "image/png");
       imgs.push(url);
 
       console.log(`[Story] ✅ Image ${i+1} generated successfully`);
 
-      // Small delay to avoid rate limiting
-      if (i < totalPages - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      // No delay needed - Flux.1 is fast!
     } catch (err) {
       console.error(`[Story] ❌ Image generation failed for page ${i+1}:`, err);
       imgs.push("about:blank");
