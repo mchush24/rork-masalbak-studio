@@ -4,33 +4,50 @@ import { uploadBuffer } from "./supabase.js";
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
-const BASE_STYLE = "soft pastel, minimal line-art, kid-friendly, flat lighting, plain background, no text, copyright-free";
 
 type PageSpec = { text: string; prompt?: string };
-type MakeOptions = { 
-  pages: PageSpec[]; 
-  lang?: "tr"|"en"; 
-  makePdf?: boolean; 
-  makeTts?: boolean; 
-  title?: string; 
-  user_id?: string|null 
+type MakeOptions = {
+  pages: PageSpec[];
+  lang?: "tr"|"en";
+  makePdf?: boolean;
+  makeTts?: boolean;
+  title?: string;
+  user_id?: string|null
 };
 
-export async function generateImageForPage(text: string, prompt?: string) {
-  const p = prompt || `Children's picture-book illustration, ${BASE_STYLE}. Turkish theme: ${text}`;
-  console.log("[Story] Generating image with prompt:", p.substring(0, 100) + "...");
-  
-  const img = await oai.images.generate({ 
-    model: "dall-e-3", 
-    prompt: p, 
+/**
+ * Generate image for a story page with consistent style
+ *
+ * @param text - The story text for this page
+ * @param prompt - Optional custom prompt (should already include style consistency)
+ * @param pageNumber - Current page number (1-indexed)
+ * @param totalPages - Total number of pages in the story
+ */
+export async function generateImageForPage(
+  text: string,
+  prompt?: string,
+  pageNumber?: number,
+  totalPages?: number
+) {
+  // Use provided prompt or fallback to basic prompt
+  // Frontend should provide consistent prompts, but have fallback just in case
+  const finalPrompt = prompt || `Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain background, NO TEXT NO LETTERS, scene: ${text}`;
+
+  console.log(`[Story] Generating image ${pageNumber || '?'}/${totalPages || '?'}`);
+  console.log("[Story] Full prompt:", finalPrompt);
+
+  const img = await oai.images.generate({
+    model: "dall-e-3",
+    prompt: finalPrompt,
     size: "1024x1024",
+    quality: "standard", // Use standard for consistency and speed
     response_format: "b64_json"
   });
-  
+
   if (!img.data || !img.data[0]) {
     throw new Error("No image data returned from OpenAI");
   }
-  
+
   const b64 = img.data[0].b64_json;
   if (!b64) {
     console.error("[Story] No b64_json in response, trying URL fallback");
@@ -41,22 +58,40 @@ export async function generateImageForPage(text: string, prompt?: string) {
     }
     throw new Error("No image data returned from OpenAI");
   }
-  
+
   return Buffer.from(b64, "base64");
 }
 
 export async function makeStorybook(opts: MakeOptions) {
   console.log("[Story] Starting storybook creation:", opts.title);
-  
+  console.log("[Story] Language:", opts.lang || 'tr');
+  console.log("[Story] Number of pages:", opts.pages.length);
+
   const imgs: string[] = [];
-  for (let i=0; i<opts.pages.length; i++){
+  const totalPages = opts.pages.length;
+
+  for (let i=0; i<totalPages; i++){
     try {
-      console.log(`[Story] Generating image ${i+1}/${opts.pages.length}`);
-      const png = await generateImageForPage(opts.pages[i].text, opts.pages[i].prompt);
+      console.log(`[Story] Generating image ${i+1}/${totalPages}`);
+      console.log(`[Story] Page ${i+1} prompt:`, opts.pages[i].prompt?.substring(0, 100) + "...");
+
+      const png = await generateImageForPage(
+        opts.pages[i].text,
+        opts.pages[i].prompt,
+        i + 1, // page number (1-indexed)
+        totalPages
+      );
       const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, png, "image/png");
       imgs.push(url);
+
+      console.log(`[Story] ✅ Image ${i+1} generated successfully`);
+
+      // Small delay to avoid rate limiting
+      if (i < totalPages - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     } catch (err) {
-      console.error(`[Story] Image generation failed for page ${i+1}:`, err);
+      console.error(`[Story] ❌ Image generation failed for page ${i+1}:`, err);
       imgs.push("about:blank");
     }
   }

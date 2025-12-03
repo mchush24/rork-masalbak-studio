@@ -98,18 +98,28 @@ export default function StoriesScreen() {
     const sensitiveKeywords = [
       "savaş", "savaşan", "savaştaki", "silah", "kan", "ölüm", "öldürme",
       "vurmak", "döv", "şiddet", "kavga", "çatışma", "bomba", "patlama",
-      "war", "weapon", "blood", "death", "kill", "fight", "violence"
+      "war", "weapon", "blood", "death", "kill", "fight", "violence",
+      "deprem", "earthquake", "travma", "trauma", "korkuyor", "afraid"
+    ];
+
+    // Also check for therapeutic intent keywords
+    const therapeuticIndicators = [
+      "etkilenmiş", "gördü", "yaşadı", "çok kötü", "üzgün",
+      "affected", "witnessed", "experienced", "very bad", "sad"
     ];
 
     const titleLower = storyTitle.toLowerCase();
     const hasSensitiveContent = sensitiveKeywords.some(keyword =>
       titleLower.includes(keyword)
     );
+    const hasTherapeuticIntent = therapeuticIndicators.some(indicator =>
+      titleLower.includes(indicator)
+    );
 
-    if (hasSensitiveContent) {
+    if (hasSensitiveContent || hasTherapeuticIntent) {
       Alert.alert(
-        "Hassas İçerik Tespit Edildi",
-        "Masal başlığınızda savaş veya şiddet içerikli kelimeler tespit ettik. Çocuğunuz bu tür konularda çizimler yapıyorsa, 'İleri Analiz' bölümündeki 'Çizim Analizi' özelliğini kullanmanızı öneriyoruz.\n\nYine de masal oluşturmak ister misiniz?",
+        "Terapötik Masal Önerisi",
+        "Başlığınızda travmatik konular tespit ettik. Bu durumda:\n\n✅ ÖNERİLEN: Size özel, psikolojik destek odaklı bir masal oluşturabiliriz. Bu masallar çocuğunuzun duygularını işlemesine yardımcı olur.\n\n⚠️ VEYA: 'İleri Analiz' bölümünde profesyonel çizim analizi yapabilirsiniz.\n\nNasıl devam etmek istersiniz?",
         [
           {
             text: "İleri Analiz'e Git",
@@ -122,61 +132,180 @@ export default function StoriesScreen() {
             style: "cancel",
           },
           {
-            text: "Devam Et",
-            style: "destructive",
-            onPress: () => proceedWithStorybook(),
+            text: "Terapötik Masal Oluştur",
+            onPress: () => proceedWithStorybook(true), // therapeutic mode
           },
         ]
       );
       return;
     }
 
-    proceedWithStorybook();
+    proceedWithStorybook(false);
   }
 
-  async function proceedWithStorybook() {
+  async function proceedWithStorybook(therapeuticMode: boolean = false) {
     try {
       setLoadingStory(true);
+
+      console.log('[Stories] Creating storybook with therapeutic mode:', therapeuticMode);
 
       // TODO: In the future, convert and use the uploaded image for AI story generation
       // Currently using template-based story generation
       // const imageBase64 = await convertImageToBase64(storyImage!);
 
-      // Generate story pages using the uploaded image as inspiration
-      // For now, using a simple template. TODO: Integrate with AI to analyze image and generate story
-      const pages = [
-        {
-          text: `${storyTitle} adlı macera başlıyor.`,
-          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, based on child drawing`,
-        },
-        {
-          text: "Kahramanımız yeni arkadaşlar buldu.",
-          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, colorful characters`
-        },
-        {
-          text: "Birlikte eğlenceli bir keşfe çıktılar.",
-          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, adventure scene`
-        },
-        {
-          text: "Harika anılar biriktirdiler.",
-          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, happy moment`
-        },
-        {
-          text: "Ve mutlu bir şekilde eve döndüler.",
-          prompt: `soft pastel, çocuk kitabı illüstrasyonu, ${storyTitle}, ending scene`
-        },
-      ];
+      let pages: Array<{ text: string; prompt: string }>;
+
+      // Get user's language preference for story content
+      const userLang = (user?.language || 'tr') as 'tr' | 'en';
+      const isTurkish = userLang === 'tr';
+
+      // Consistent style prompt (ALWAYS in English for DALL-E)
+      const CONSISTENT_STYLE = "Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain light background, same character design, same art style, VERY IMPORTANT: NO TEXT NO LETTERS NO WORDS on image";
+
+      if (therapeuticMode) {
+        // Therapeutic story generation with metaphorical transformation
+        console.log('[Stories] Using therapeutic story structure');
+
+        if (isTurkish) {
+          pages = [
+            // Phase 1: VALIDATION
+            {
+              text: `${storyTitle} başlıyor. Bazen hayat zor olabilir ve bu normal.`,
+              prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${storyTitle}`,
+            },
+            {
+              text: "Küçük kahramanımız zor günler geçirdi, ama yalnız değildi.",
+              prompt: `${CONSISTENT_STYLE}. Scene: safe space, supportive characters, together, help`,
+            },
+            // Phase 2: PROCESSING
+            {
+              text: "Büyük fırtına geldiğinde, güçlü olmayı öğrendi.",
+              prompt: `${CONSISTENT_STYLE}. Nature metaphor: storm, wind, but sunlight visible, transformation, hope`,
+            },
+            {
+              text: "Arkadaşları yardım etti ve birlikte daha güçlü oldular.",
+              prompt: `${CONSISTENT_STYLE}. Scene: friendship, togetherness, support, strength`,
+            },
+            {
+              text: "Zaman geçtikçe, fırtına sakinleşmeye başladı.",
+              prompt: `${CONSISTENT_STYLE}. Scene: peace, calm, transformation, healing`,
+            },
+            // Phase 3: INTEGRATION
+            {
+              text: "Artık gökkuşağı gökyüzünde parlıyordu. Umut hep vardı.",
+              prompt: `${CONSISTENT_STYLE}. Scene: rainbow in sky, sun, bright colors, hope, happiness`,
+            },
+            {
+              text: "Ve böylece, güçlü ve cesur bir kalple yeni günlere hazır oldular.",
+              prompt: `${CONSISTENT_STYLE}. Closing scene: happiness, safe future, peace, love, family`,
+            },
+          ];
+        } else {
+          pages = [
+            // Phase 1: VALIDATION
+            {
+              text: `${storyTitle} begins. Sometimes life can be hard, and that's okay.`,
+              prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${storyTitle}`,
+            },
+            {
+              text: "Our little hero had difficult days, but was not alone.",
+              prompt: `${CONSISTENT_STYLE}. Scene: safe space, supportive characters, together, help`,
+            },
+            // Phase 2: PROCESSING
+            {
+              text: "When the great storm came, they learned to be strong.",
+              prompt: `${CONSISTENT_STYLE}. Nature metaphor: storm, wind, but sunlight visible, transformation, hope`,
+            },
+            {
+              text: "Friends helped, and together they became stronger.",
+              prompt: `${CONSISTENT_STYLE}. Scene: friendship, togetherness, support, strength`,
+            },
+            {
+              text: "As time passed, the storm began to calm.",
+              prompt: `${CONSISTENT_STYLE}. Scene: peace, calm, transformation, healing`,
+            },
+            // Phase 3: INTEGRATION
+            {
+              text: "Now the rainbow shone in the sky. Hope was always there.",
+              prompt: `${CONSISTENT_STYLE}. Scene: rainbow in sky, sun, bright colors, hope, happiness`,
+            },
+            {
+              text: "And so, with a strong and brave heart, they were ready for new days.",
+              prompt: `${CONSISTENT_STYLE}. Closing scene: happiness, safe future, peace, love, family`,
+            },
+          ];
+        }
+      } else {
+        // Normal story generation
+        if (isTurkish) {
+          pages = [
+            {
+              text: `${storyTitle} adlı macera başlıyor.`,
+              prompt: `${CONSISTENT_STYLE}. Opening scene: adventure begins, child character, ${storyTitle} theme`,
+            },
+            {
+              text: "Kahramanımız yeni arkadaşlar buldu.",
+              prompt: `${CONSISTENT_STYLE}. Scene: making new friends, colorful characters, joyful meeting`,
+            },
+            {
+              text: "Birlikte eğlenceli bir keşfe çıktılar.",
+              prompt: `${CONSISTENT_STYLE}. Scene: fun exploration together, discovery, adventure`,
+            },
+            {
+              text: "Harika anılar biriktirdiler.",
+              prompt: `${CONSISTENT_STYLE}. Scene: happy moments, wonderful memories, joy`,
+            },
+            {
+              text: "Ve mutlu bir şekilde eve döndüler.",
+              prompt: `${CONSISTENT_STYLE}. Closing scene: happy return home, peaceful ending`,
+            },
+          ];
+        } else {
+          pages = [
+            {
+              text: `The adventure of ${storyTitle} begins.`,
+              prompt: `${CONSISTENT_STYLE}. Opening scene: adventure begins, child character, ${storyTitle} theme`,
+            },
+            {
+              text: "Our hero found new friends.",
+              prompt: `${CONSISTENT_STYLE}. Scene: making new friends, colorful characters, joyful meeting`,
+            },
+            {
+              text: "Together they went on a fun exploration.",
+              prompt: `${CONSISTENT_STYLE}. Scene: fun exploration together, discovery, adventure`,
+            },
+            {
+              text: "They created wonderful memories.",
+              prompt: `${CONSISTENT_STYLE}. Scene: happy moments, wonderful memories, joy`,
+            },
+            {
+              text: "And they happily returned home.",
+              prompt: `${CONSISTENT_STYLE}. Closing scene: happy return home, peaceful ending`,
+            },
+          ];
+        }
+      }
+
+      // Get user's language preference, default to Turkish
+      const userLanguage = (user?.language || 'tr') as 'tr' | 'en';
 
       await createStorybookMutation.mutateAsync({
-        title: storyTitle || "Benim Masalım",
+        title: storyTitle || (userLanguage === 'tr' ? "Benim Masalım" : "My Story"),
         pages,
-        lang: "tr",
+        lang: userLanguage,
         makePdf: true,
         makeTts: true,
         user_id: user?.userId || null,
       });
 
-      Alert.alert("Masal hazır!", "Masal kitabınız oluşturuldu.");
+      if (therapeuticMode) {
+        Alert.alert(
+          "Terapötik Masal Hazır!",
+          "Özel olarak hazırlanan masal kitabınız oluşturuldu. Bu masal çocuğunuzun duygularını işlemesine yardımcı olacak şekilde tasarlanmıştır."
+        );
+      } else {
+        Alert.alert("Masal hazır!", "Masal kitabınız oluşturuldu.");
+      }
     } catch (e: unknown) {
       const errorMessage =
         e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";
@@ -190,6 +319,14 @@ export default function StoriesScreen() {
   }
 
   const handleStorybookPress = (storybook: Storybook) => {
+    console.log('[Stories] Storybook card pressed:', storybook.title);
+    console.log('[Stories] Storybook data:', {
+      id: storybook.id,
+      pagesCount: storybook.pages?.length,
+      hasPdf: !!storybook.pdf_url,
+      hasVoice: !!storybook.voice_urls?.length,
+    });
+
     // Navigate to storybook viewer with the storybook data
     router.push({
       pathname: "/storybook",
@@ -327,7 +464,10 @@ export default function StoriesScreen() {
                 styles.createButton,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.96 }] },
               ]}
-              onPress={() => setShowCreateForm(!showCreateForm)}
+              onPress={() => {
+                console.log('[Stories] + button pressed');
+                setShowCreateForm(!showCreateForm);
+              }}
             >
               <Plus size={24} color={Colors.neutral.white} />
             </Pressable>
@@ -363,7 +503,10 @@ export default function StoriesScreen() {
             )}
 
             <Pressable
-              onPress={pickStoryImage}
+              onPress={() => {
+                console.log('[Stories] Pick image button pressed');
+                pickStoryImage();
+              }}
               style={({ pressed }) => [
                 styles.pickButton,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
@@ -381,7 +524,13 @@ export default function StoriesScreen() {
             </Pressable>
 
             <Pressable
-              onPress={handleStorybook}
+              onPress={() => {
+                console.log('[Stories] Create story button pressed');
+                console.log('[Stories] storyImage:', !!storyImage);
+                console.log('[Stories] storyTitle:', storyTitle);
+                console.log('[Stories] loadingStory:', loadingStory);
+                handleStorybook();
+              }}
               disabled={!storyImage || !storyTitle || loadingStory}
               style={({ pressed }) => [
                 styles.createStoryButton,
