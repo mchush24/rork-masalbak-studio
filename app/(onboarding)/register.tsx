@@ -326,7 +326,7 @@ function EmailStepNew({
             <Text style={{ fontSize: typography.fontSize.sm, fontWeight: '600', color: 'white', marginTop: spacing.xs }}>
               Çizim Analizi
             </Text>
-            <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: spacing.xxs }}>
+            <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: spacing.xs }}>
               AI destekli analiz
             </Text>
           </View>
@@ -335,7 +335,7 @@ function EmailStepNew({
             <Text style={{ fontSize: typography.fontSize.sm, fontWeight: '600', color: 'white', marginTop: spacing.xs }}>
               Boyama Sayfaları
             </Text>
-            <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: spacing.xxs }}>
+            <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: spacing.xs }}>
               PDF olarak indir
             </Text>
           </View>
@@ -345,7 +345,7 @@ function EmailStepNew({
           <Text style={{ fontSize: typography.fontSize.sm, fontWeight: '600', color: 'white', marginTop: spacing.xs }}>
             Kişisel Hikayeler
           </Text>
-          <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: spacing.xxs }}>
+          <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)', marginTop: spacing.xs }}>
             Çizimlerden masallar oluşturun
           </Text>
         </View>
@@ -423,7 +423,7 @@ function EmailStepNew({
   );
 }
 
-// Verify Code Step (kept the same)
+// Verify Code Step with resend functionality
 function VerifyCodeStepNew({
   verificationCode,
   setVerificationCode,
@@ -440,10 +440,39 @@ function VerifyCodeStepNew({
   email: string;
 }) {
   const inputRef = useRef<TextInput>(null);
+  const [isResending, setIsResending] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const registerMutation = trpc.auth.register.useMutation();
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Resend timer countdown
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
+  const handleResendCode = async () => {
+    setIsResending(true);
+    try {
+      console.log('[Register] 🔄 Resending verification code to:', email);
+      await registerMutation.mutateAsync({ email });
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Başarılı', 'Yeni doğrulama kodu gönderildi!');
+      setResendTimer(60); // 60 saniye beklet
+    } catch (error) {
+      console.error('[Register] ❌ Error resending code:', error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Hata', 'Kod gönderilemedi. Lütfen tekrar deneyin.');
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -479,18 +508,19 @@ function VerifyCodeStepNew({
           ref={inputRef}
           value={verificationCode}
           onChangeText={setVerificationCode}
-          placeholder="123456"
-          placeholderTextColor="#9CA3AF"
+          placeholder="000000"
+          placeholderTextColor="#E5E7EB"
           keyboardType="number-pad"
           maxLength={6}
           autoComplete="one-time-code"
+          textContentType="oneTimeCode"
           style={{
             fontSize: typography.fontSize.xxxl,
-            fontWeight: 'bold',
+            fontWeight: '600',
             color: '#1F2937',
             padding: spacing.sm,
             textAlign: 'center',
-            letterSpacing: 8,
+            letterSpacing: 12,
           }}
         />
       </View>
@@ -509,7 +539,7 @@ function VerifyCodeStepNew({
           backgroundColor: 'rgba(255,255,255,0.15)',
           padding: spacing.md,
           borderRadius: borderRadius.lg,
-          marginBottom: spacing.xl,
+          marginBottom: spacing.md,
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
@@ -522,6 +552,28 @@ function VerifyCodeStepNew({
           Spam klasörüne de bakabilirsin
         </Text>
       </View>
+
+      {/* Resend Code Button */}
+      <Pressable
+        onPress={handleResendCode}
+        disabled={isResending || resendTimer > 0}
+        style={{ marginBottom: spacing.xl, alignItems: 'center' }}
+      >
+        <Text
+          style={{
+            fontSize: typography.fontSize.sm,
+            color: resendTimer > 0 ? 'rgba(255,255,255,0.5)' : 'white',
+            textDecorationLine: resendTimer > 0 ? 'none' : 'underline',
+            fontWeight: '600',
+          }}
+        >
+          {isResending
+            ? 'Gönderiliyor...'
+            : resendTimer > 0
+            ? `Yeni kod gönder (${resendTimer}s)`
+            : 'Yeni kod gönder'}
+        </Text>
+      </Pressable>
 
       <Pressable
         onPress={onNext}

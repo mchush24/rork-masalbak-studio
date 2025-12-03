@@ -38,7 +38,8 @@ export const registerProcedure = publicProcedure
         expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
         // Store verification code in database
-        await supabase
+        console.log("[Auth] 💾 Storing code for existing user:", verificationCode);
+        const { error: insertError } = await supabase
           .from('verification_codes')
           .insert([
             {
@@ -49,7 +50,14 @@ export const registerProcedure = publicProcedure
             },
           ]);
 
+        if (insertError) {
+          console.error("[Auth] ❌ DB Error:", insertError);
+          throw new Error(`Failed to store code: ${insertError.message}`);
+        }
+        console.log("[Auth] ✅ Code stored in DB");
+
         // Send email
+        console.log("[Auth] 📧 Sending email with code:", verificationCode);
         await sendVerificationEmail(input.email, verificationCode, existingUser.name);
 
         return {
@@ -65,7 +73,8 @@ export const registerProcedure = publicProcedure
       expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
       // Store verification code in database
-      await supabase
+      console.log("[Auth] 💾 Storing code for new user:", verificationCode);
+      const { error: insertError2 } = await supabase
         .from('verification_codes')
         .insert([
           {
@@ -76,7 +85,14 @@ export const registerProcedure = publicProcedure
           },
         ]);
 
+      if (insertError2) {
+        console.error("[Auth] ❌ DB Error:", insertError2);
+        throw new Error(`Failed to store code: ${insertError2.message}`);
+      }
+      console.log("[Auth] ✅ Code stored in DB");
+
       // Send verification email
+      console.log("[Auth] 📧 Sending email with code:", verificationCode);
       await sendVerificationEmail(input.email, verificationCode, input.name);
 
       // Create new user
