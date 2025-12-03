@@ -6,7 +6,6 @@ import * as Haptics from 'expo-haptics';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
-import { supabase } from '@/lib/supabase';
 import { Brain, Palette, BookOpen } from 'lucide-react-native';
 
 // Simplified registration - Minimum friction!
@@ -158,29 +157,24 @@ export default function RegisterScreen() {
         console.log('[Register] ✅ Email verified - completing onboarding');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        // Get user from database
-        const { data: user } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', email.trim())
-          .single();
-
-        if (user) {
-          // Mark onboarding complete
+        // Mark onboarding complete with user ID from backend
+        if (result.userId) {
+          console.log('[Register] 🎯 Marking onboarding complete for user:', result.userId);
           await completeOnboardingMutation.mutateAsync({
-            userId: user.id,
+            userId: result.userId,
           });
-
-          await completeOnboarding();
-
-          console.log('[Register] 🚀 Redirecting to app...');
-
-          // Small delay for smooth transition
-          await new Promise(resolve => setTimeout(resolve, 300));
-
-          // Go directly to app!
-          router.replace('/(tabs)');
         }
+
+        // Mark auth as complete
+        await completeOnboarding();
+
+        console.log('[Register] 🚀 Redirecting to app...');
+
+        // Small delay for smooth transition
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Go directly to app!
+        router.replace('/(tabs)');
       } else {
         setCodeError(result.message);
         triggerShake();
