@@ -10,6 +10,7 @@ const verifyEmailInputSchema = z.object({
 const verifyEmailResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
+  userId: z.string().optional(),
 });
 
 export const verifyEmailProcedure = publicProcedure
@@ -70,9 +71,17 @@ export const verifyEmailProcedure = publicProcedure
 
       console.log("[Auth] ✅ Email verified successfully:", input.email);
 
+      // Get user ID for frontend
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', input.email)
+        .single();
+
       return {
         success: true,
         message: "Email adresiniz başarıyla doğrulandı!",
+        userId: user?.id,
       };
     } catch (error) {
       console.error("[Auth] ❌ Verification error:", error);
