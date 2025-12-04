@@ -28,33 +28,33 @@ export function defineCharacterFromContext(
   ageGroup?: number
 ): CharacterDefinition {
   // TODO: Use AI to extract character from drawing analysis
-  // For now, create age-appropriate default character
+  // For now, create ULTRA-SPECIFIC age-appropriate default character
 
   const age = ageGroup || 5;
 
   if (age <= 3) {
     return {
-      name: "Minik Kahraman",
+      name: "Minik Ayı",
       age: "2-3 yaş",
-      appearance: "küçük, sevimli, yuvarlak yüzlü, büyük gözlü",
-      style: "basit çizgi, minimal detay, çok renkli",
-      clothing: "renkli tulum, yumuşak kumaş",
+      appearance: "KÜÇÜK KAHVE RENGİ AYI YAVRUSU: yuvarlak kafa, iri siyah gözler, pembe burun, yumuşak kulaklar, tombul vücut, kısa bacaklar, PAT PAT bacaklar",
+      style: "çok basit çizgi, 3 renkle sınırlı (kahverengi-pembe-beyaz), minimal detay",
+      clothing: "MAVİ TULUM (askılı), hiç aksesuar yok, çıplak ayak",
     };
   } else if (age <= 6) {
     return {
-      name: "Küçük Kahraman",
+      name: "Tavşan Lale",
       age: "4-6 yaş",
-      appearance: "neşeli, meraklı, orta boy, şirin yüz",
-      style: "dostça, yumuşak hatlar, canlı renkler",
-      clothing: "rahat kıyafet, canlı renkler",
+      appearance: "BEYAZ TAVŞAN KIZI: uzun kulaklar (pembe iç), büyük mavi gözler, pembe burun, sevimli diş, orta boy, yumuşak tüyler, her zaman gülümseyen",
+      style: "yumuşak çizgi, pastel renkler (beyaz-pembe-mavi), dostça ifade",
+      clothing: "PEMBE ELBİSE (noktalı), MAVI KURDELE (kulakta), BEYAZ AYAKKABI",
     };
   } else {
     return {
-      name: "Genç Kahraman",
+      name: "Tilki Can",
       age: "7-10 yaş",
-      appearance: "enerjik, cesur, atletik yapı",
-      style: "detaylı, dinamik pozlar, parlak renkler",
-      clothing: "macera kıyafeti, renkli aksesuarlar",
+      appearance: "TURUNCU TİLKİ: sivri kulaklar (siyah uçlu), yeşil gözler, beyaz göğüs, uzun kırmızı kuyruk (beyaz uçlu), zeki bakış, atletik yapı",
+      style: "detaylı çizgi, canlı renkler (turuncu-beyaz-siyah), dinamik",
+      clothing: "YEŞİL YELEJ (ceketli), KAHVERENGİ PANTOLON (cepli), KIRMIZI ATKI",
     };
   }
 }
@@ -80,7 +80,8 @@ export function defineStoryStyle(language: 'tr' | 'en' = 'tr'): StoryStyle {
 }
 
 /**
- * Generate consistent prompt for each page
+ * Generate ULTRA-SPECIFIC consistent prompt for each page
+ * Key: Extreme detail on character to force consistency
  */
 export function generateConsistentPrompt(
   character: CharacterDefinition,
@@ -90,22 +91,34 @@ export function generateConsistentPrompt(
   pageNumber: number,
   totalPages: number
 ): string {
-  // Base character description (same for all pages)
-  const characterDesc = `Main character: ${character.name}, ${character.age}, ${character.appearance}, ${character.clothing}.`;
+  // ULTRA-DETAILED character (MUST be identical every time)
+  const characterBlock = `
+CHARACTER (EXACT SAME IN ALL IMAGES):
+${character.appearance}
+CLOTHING: ${character.clothing}
+STYLE: ${style.artStyle}
+COLORS: ${style.colorPalette}
+MOOD: ${style.mood}
+`.trim();
 
-  // Art style (same for all pages)
-  const artStyleDesc = `Style: ${style.artStyle}, ${style.colorPalette}, ${style.mood}.`;
+  // Scene description (this changes per page)
+  const sceneBlock = `
+SCENE ${pageNumber}/${totalPages}:
+${sceneDescription}
+Background: simple, minimal, child-friendly
+`.trim();
 
-  // Scene-specific description (different for each page)
-  const sceneDesc = `Scene ${pageNumber}/${totalPages}: ${sceneDescription}.`;
+  // CRITICAL RULES
+  const rules = `
+CRITICAL RULES:
+- NO TEXT, NO LETTERS, NO WORDS anywhere in image
+- Character MUST look IDENTICAL to description above
+- Same colors, same face, same clothing EVERY TIME
+- Simple background, focus on character
+- Soft watercolor style, rounded shapes
+`.trim();
 
-  // Critical: NO TEXT in image
-  const noTextRule = `IMPORTANT: NO TEXT, NO LETTERS, NO WORDS in the image. Pure illustration only.`;
-
-  // Consistency emphasis
-  const consistencyRule = `Keep character appearance EXACTLY the same as previous pages. Same face, same clothing, same style.`;
-
-  return `${characterDesc} ${artStyleDesc} ${sceneDesc} ${noTextRule} ${consistencyRule}`;
+  return `${characterBlock}\n\n${sceneBlock}\n\n${rules}`;
 }
 
 /**
