@@ -1,59 +1,65 @@
 import { supa } from "./supabase.js";
 
 export async function saveStorybookRecord(
-  user_id: string | null, 
-  title: string, 
-  pages: any[], 
-  pdf_url?: string|null, 
+  user_id: string | null,
+  title: string,
+  pages: any[],
+  pdf_url?: string|null,
   voice_urls?: string[]|null
 ) {
   console.log("[Persist] Saving storybook record:", title);
-  
+
+  // Convert user_id string to UUID if needed, or use null
+  const user_uuid = user_id ? user_id : null;
+
   const { data, error } = await supa
     .from("storybooks")
-    .insert({ 
-      user_id, 
-      title, 
-      pages, 
-      pdf_url: pdf_url || null, 
-      voice_urls: voice_urls || null 
+    .insert({
+      user_id_fk: user_uuid,  // Use user_id_fk (new column with FK constraint)
+      title,
+      pages,
+      pdf_url: pdf_url || null,
+      voice_urls: voice_urls || null
     })
     .select("*")
     .single();
-  
+
   if (error) {
     console.error("[Persist] Storybook save failed:", error);
     throw error;
   }
-  
+
   console.log("[Persist] Storybook saved:", data.id);
   return data;
 }
 
 export async function saveColoringRecord(
-  user_id: string | null, 
-  title: string, 
-  pdf_url: string, 
+  user_id: string | null,
+  title: string,
+  pdf_url: string,
   page_count: number
 ) {
   console.log("[Persist] Saving coloring record:", title);
-  
+
+  // Convert user_id string to UUID if needed, or use null
+  const user_uuid = user_id ? user_id : null;
+
   const { data, error } = await supa
     .from("colorings")
-    .insert({ 
-      user_id, 
-      title, 
-      pdf_url, 
-      page_count 
+    .insert({
+      user_id_fk: user_uuid,  // Use user_id_fk (new column with FK constraint)
+      title,
+      pdf_url,
+      page_count
     })
     .select("*")
     .single();
-  
+
   if (error) {
     console.error("[Persist] Coloring save failed:", error);
     throw error;
   }
-  
+
   console.log("[Persist] Coloring saved:", data.id);
   return data;
 }
@@ -64,14 +70,15 @@ export async function listStorybooks(user_id: string | null, limit = 20) {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(limit);
-  
-  const { data, error } = user_id ? await q.eq("user_id", user_id) : await q;
-  
+
+  // Use user_id_fk for filtering
+  const { data, error } = user_id ? await q.eq("user_id_fk", user_id) : await q;
+
   if (error) {
     console.error("[Persist] List storybooks failed:", error);
     throw error;
   }
-  
+
   return data;
 }
 
@@ -81,13 +88,14 @@ export async function listColorings(user_id: string | null, limit = 20) {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(limit);
-  
-  const { data, error } = user_id ? await q.eq("user_id", user_id) : await q;
-  
+
+  // Use user_id_fk for filtering
+  const { data, error } = user_id ? await q.eq("user_id_fk", user_id) : await q;
+
   if (error) {
     console.error("[Persist] List colorings failed:", error);
     throw error;
   }
-  
+
   return data;
 }
