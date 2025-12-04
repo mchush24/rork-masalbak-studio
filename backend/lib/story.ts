@@ -15,6 +15,7 @@ import {
   generateFontImports,
   type TextOverlayOptions,
 } from "./text-overlay.js";
+import { compositeTextOnImage } from "./image-text-compositor.js";
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
@@ -116,10 +117,20 @@ export async function makeStorybook(opts: MakeOptions) {
         'flux1', // Always use Flux.1 for consistency
         seed // Same seed for all pages = consistent character
       );
-      const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, png, "image/png");
+
+      // Composite text onto image
+      console.log(`[Story] Adding text overlay to image ${i+1}/${totalPages}`);
+      const compositeImage = await compositeTextOnImage({
+        imageBuffer: png,
+        text: opts.pages[i].text,
+        language: opts.lang || 'tr',
+        position: 'bottom',
+      });
+
+      const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, compositeImage, "image/png");
       imgs.push(url);
 
-      console.log(`[Story] ✅ Image ${i+1} generated successfully`);
+      console.log(`[Story] ✅ Image ${i+1} generated with text overlay`);
 
       // No delay needed - Flux.1 is fast!
     } catch (err) {
