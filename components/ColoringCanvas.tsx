@@ -15,11 +15,13 @@ import {
 import { Svg, Path } from "react-native-svg";
 import { Colors } from "@/constants/colors";
 import { spacing, radius, shadows, typography } from "@/constants/design-system";
-import { Eraser, Undo, RotateCcw, Palette, Download, Share2, Paintbrush } from "lucide-react-native";
+import { Eraser, Undo, RotateCcw, Palette, Download, Share2, Paintbrush, Droplet } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { captureRef } from "react-native-view-shot";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
+
+type DrawMode = 'brush' | 'fill';
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CANVAS_SIZE = SCREEN_WIDTH - 32;
@@ -33,6 +35,12 @@ type PathData = {
   path: string;
   color: string;
   width: number;
+};
+
+type FillArea = {
+  x: number;
+  y: number;
+  color: string;
 };
 
 const COLORS = [
@@ -74,23 +82,34 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
   const [brushSize, setBrushSize] = useState(BRUSH_SIZES[1].size);
   const [showColorPalette, setShowColorPalette] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [drawMode, setDrawMode] = useState<DrawMode>('brush');
+  const [fillAreas, setFillAreas] = useState<FillArea[]>([]);
 
   const canvasRef = useRef<View>(null);
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => drawMode === 'brush',
       onPanResponderGrant: (evt) => {
         const { locationX, locationY } = evt.nativeEvent;
-        setCurrentPath(`M ${locationX} ${locationY}`);
+
+        if (drawMode === 'fill') {
+          // Tap-to-fill mode
+          handleFillArea(locationX, locationY);
+        } else {
+          // Brush mode
+          setCurrentPath(`M ${locationX} ${locationY}`);
+        }
       },
       onPanResponderMove: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        setCurrentPath((prev) => `${prev} L ${locationX} ${locationY}`);
+        if (drawMode === 'brush') {
+          const { locationX, locationY } = evt.nativeEvent;
+          setCurrentPath((prev) => `${prev} L ${locationX} ${locationY}`);
+        }
       },
       onPanResponderRelease: () => {
-        if (currentPath) {
+        if (drawMode === 'brush' && currentPath) {
           setPaths([
             ...paths,
             {
@@ -105,9 +124,36 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
     })
   ).current;
 
+  const handleFillArea = (x: number, y: number) => {
+    // Simulated fill: Create a large circle at tap location
+    // In a real implementation, this would use flood fill algorithm
+    const radius = 50; // Fill radius
+    const circlePath = `
+      M ${x} ${y}
+      m -${radius}, 0
+      a ${radius},${radius} 0 1,0 ${radius * 2},0
+      a ${radius},${radius} 0 1,0 -${radius * 2},0
+    `;
+
+    setPaths([
+      ...paths,
+      {
+        path: circlePath,
+        color: selectedColor,
+        width: radius * 2,
+      },
+    ]);
+
+    // Also add to fill areas for tracking
+    setFillAreas([...fillAreas, { x, y, color: selectedColor }]);
+  };
+
   const handleUndo = () => {
     if (paths.length > 0) {
       setPaths(paths.slice(0, -1));
+    }
+    if (fillAreas.length > 0) {
+      setFillAreas(fillAreas.slice(0, -1));
     }
   };
 
@@ -120,7 +166,10 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
         {
           text: "Temizle",
           style: "destructive",
-          onPress: () => setPaths([]),
+          onPress: () => {
+            setPaths([]);
+            setFillAreas([]);
+          },
         },
       ]
     );
@@ -207,6 +256,59 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
 
   return (
     <View style={styles.container}>
+      {/* Mode Toggle (Brush vs Fill) */}
+      <View style={styles.modeToggleContainer}>
+        <Pressable
+          onPress={() => setDrawMode('brush')}
+          style={({ pressed }) => [
+            styles.modeButton,
+            drawMode === 'brush' && styles.modeButtonActive,
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <LinearGradient
+            colors={drawMode === 'brush'
+              ? [Colors.secondary.mint, Colors.secondary.mintLight]
+              : [Colors.neutral.light, Colors.neutral.lighter]
+            }
+            style={styles.modeButtonGradient}
+          >
+            <Paintbrush size={20} color={drawMode === 'brush' ? Colors.neutral.white : Colors.neutral.dark} />
+            <Text style={[
+              styles.modeButtonText,
+              drawMode === 'brush' && styles.modeButtonTextActive
+            ]}>
+              Fırça
+            </Text>
+          </LinearGradient>
+        </Pressable>
+
+        <Pressable
+          onPress={() => setDrawMode('fill')}
+          style={({ pressed }) => [
+            styles.modeButton,
+            drawMode === 'fill' && styles.modeButtonActive,
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <LinearGradient
+            colors={drawMode === 'fill'
+              ? [Colors.secondary.sky, Colors.secondary.skyLight]
+              : [Colors.neutral.light, Colors.neutral.lighter]
+            }
+            style={styles.modeButtonGradient}
+          >
+            <Droplet size={20} color={drawMode === 'fill' ? Colors.neutral.white : Colors.neutral.dark} />
+            <Text style={[
+              styles.modeButtonText,
+              drawMode === 'fill' && styles.modeButtonTextActive
+            ]}>
+              Dolgu
+            </Text>
+          </LinearGradient>
+        </Pressable>
+      </View>
+
       {/* Color Palette Toggle */}
       <Pressable
         onPress={() => setShowColorPalette(!showColorPalette)}
@@ -410,8 +512,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.neutral.lighter,
   },
+  modeToggleContainer: {
+    flexDirection: "row",
+    gap: spacing["3"],
+    marginHorizontal: spacing["4"],
+    marginTop: spacing["4"],
+    marginBottom: spacing["2"],
+  },
+  modeButton: {
+    flex: 1,
+    borderRadius: radius.xl,
+    overflow: "hidden",
+    ...shadows.md,
+  },
+  modeButtonActive: {
+    transform: [{ scale: 1.02 }],
+    ...shadows.lg,
+  },
+  modeButtonGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing["2"],
+    paddingVertical: spacing["3"],
+    paddingHorizontal: spacing["4"],
+  },
+  modeButtonText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.dark,
+  },
+  modeButtonTextActive: {
+    color: Colors.neutral.white,
+  },
   paletteToggle: {
-    margin: spacing["4"],
+    marginHorizontal: spacing["4"],
+    marginBottom: spacing["2"],
     borderRadius: radius.xl,
     overflow: "hidden",
     ...shadows.md,
