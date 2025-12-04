@@ -9,13 +9,10 @@ export async function saveStorybookRecord(
 ) {
   console.log("[Persist] Saving storybook record:", title);
 
-  // Convert user_id string to UUID if needed, or use null
-  const user_uuid = user_id ? user_id : null;
-
   const { data, error } = await supa
     .from("storybooks")
     .insert({
-      user_id_fk: user_uuid,  // Use user_id_fk (new column with FK constraint)
+      user_id_fk: user_id,  // Use user_id_fk foreign key column
       title,
       pages,
       pdf_url: pdf_url || null,
@@ -41,13 +38,10 @@ export async function saveColoringRecord(
 ) {
   console.log("[Persist] Saving coloring record:", title);
 
-  // Convert user_id string to UUID if needed, or use null
-  const user_uuid = user_id ? user_id : null;
-
   const { data, error } = await supa
     .from("colorings")
     .insert({
-      user_id_fk: user_uuid,  // Use user_id_fk (new column with FK constraint)
+      user_id_fk: user_id,  // Use user_id_fk foreign key column
       title,
       pdf_url,
       page_count
@@ -89,7 +83,6 @@ export async function listColorings(user_id: string | null, limit = 20) {
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  // Use user_id_fk for filtering
   const { data, error } = user_id ? await q.eq("user_id_fk", user_id) : await q;
 
   if (error) {
