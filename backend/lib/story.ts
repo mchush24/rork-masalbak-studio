@@ -2,6 +2,19 @@ import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
 import { generateImage, generateStorybookSeed, type ImageProvider } from "./image-generation.js";
+import {
+  defineCharacterFromContext,
+  defineStoryStyle,
+  generateConsistentPrompt,
+  extractSceneFromText,
+  type CharacterDefinition,
+  type StoryStyle,
+} from "./character-consistency.js";
+import {
+  generateTextOverlayHTML,
+  generateFontImports,
+  type TextOverlayOptions,
+} from "./text-overlay.js";
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
@@ -14,6 +27,8 @@ type MakeOptions = {
   makeTts?: boolean;
   title?: string;
   user_id?: string|null;
+  ageGroup?: number;
+  drawingAnalysis?: string;
 };
 
 /**
@@ -56,6 +71,14 @@ export async function makeStorybook(opts: MakeOptions) {
   console.log("[Story] Number of pages:", opts.pages.length);
   console.log("[Story] Image provider: FLUX.1 (via FAL.ai)");
 
+  // Define character for consistency across all pages
+  const character = defineCharacterFromContext(opts.drawingAnalysis, opts.ageGroup);
+  console.log("[Story] Character defined:", character.name, character.age);
+
+  // Define story visual style
+  const storyStyle = defineStoryStyle(opts.lang || 'tr');
+  console.log("[Story] Style defined:", storyStyle.artStyle.substring(0, 50) + "...");
+
   // Generate consistent seed for this storybook (same character style across all pages)
   const seed = generateStorybookSeed(
     opts.user_id || 'anonymous',
@@ -69,11 +92,25 @@ export async function makeStorybook(opts: MakeOptions) {
   for (let i=0; i<totalPages; i++){
     try {
       console.log(`[Story] Generating image ${i+1}/${totalPages}`);
-      console.log(`[Story] Page ${i+1} prompt:`, opts.pages[i].prompt?.substring(0, 100) + "...");
+
+      // Extract scene description from text
+      const sceneDesc = extractSceneFromText(opts.pages[i].text, opts.lang || 'tr');
+
+      // Generate consistent prompt (same character, different scene)
+      const consistentPrompt = generateConsistentPrompt(
+        character,
+        storyStyle,
+        opts.pages[i].text,
+        opts.pages[i].prompt || sceneDesc,
+        i + 1,
+        totalPages
+      );
+
+      console.log(`[Story] Page ${i+1} consistent prompt:`, consistentPrompt.substring(0, 150) + "...");
 
       const png = await generateImageForPage(
         opts.pages[i].text,
-        opts.pages[i].prompt,
+        consistentPrompt, // Use consistent prompt
         i + 1, // page number (1-indexed)
         totalPages,
         'flux1', // Always use Flux.1 for consistency
@@ -94,18 +131,21 @@ export async function makeStorybook(opts: MakeOptions) {
   let pdf_url: string|undefined;
   if (opts.makePdf) {
     try {
-      console.log("[Story] Generating PDF");
-      const html = htmlDoc(opts.pages.map((p,i)=>({ text: p.text, img: imgs[i] })));
-      const browser = await puppeteer.launch({ 
-        headless: true, 
-        args: ["--no-sandbox","--disable-setuid-sandbox"] 
+      console.log("[Story] Generating PDF with text overlays");
+      const html = htmlDoc(
+        opts.pages.map((p,i)=>({ text: p.text, img: imgs[i] })),
+        opts.lang || 'tr'
+      );
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox","--disable-setuid-sandbox"]
       });
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: "networkidle0" });
-      const pdf = await page.pdf({ 
-        format: "A4", 
-        printBackground: true, 
-        margin: { top: "16mm", bottom: "16mm", left: "14mm", right: "14mm" } 
+      const pdf = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: "16mm", bottom: "16mm", left: "14mm", right: "14mm" }
       });
       await browser.close();
       pdf_url = await uploadBuffer(BUCKET, `pdf/story_${Date.now()}.pdf`, Buffer.from(pdf), "application/pdf");
@@ -144,18 +184,90 @@ export async function makeStorybook(opts: MakeOptions) {
   };
 }
 
-function htmlDoc(pages: { text: string; img: string }[]) {
-  const items = pages.map(p => `
+function htmlDoc(pages: { text: string; img: string }[], language: 'tr' | 'en' = 'tr') {
+  const fontImports = generateFontImports();
+
+  const items = pages.map((p, index) => {
+    // Generate text overlay HTML
+    const textOverlay = generateTextOverlayHTML(p.text, {
+      text: p.text,
+      language,
+      imageWidth: 1024,
+      imageHeight: 1024,
+      position: 'bottom',
+      maxLines: 3,
+    });
+
+    return `
     <div class="page">
-      <div class="img"><img src="${p.img}" /></div>
-      <div class="text">${escapeHtml(p.text)}</div>
-    </div>`).join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-    body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;color:#0f172a}
-    .page{page-break-after:always;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:16mm}
-    .img img{max-width:100%;max-height:70vh;display:block;margin-bottom:12px}
-    .text{font-size:16px;line-height:1.45;text-align:center}
-  </style></head><body>${items}</body></html>`;
+      <div class="image-container">
+        <img src="${p.img}" alt="Page ${index + 1}" />
+        ${textOverlay}
+      </div>
+    </div>`;
+  }).join("");
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    ${fontImports}
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+    }
+
+    .page {
+      page-break-after: always;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20mm;
+      position: relative;
+    }
+
+    .image-container {
+      position: relative;
+      width: 100%;
+      max-width: 180mm;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .image-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Print-specific styles */
+    @media print {
+      .page {
+        padding: 0;
+      }
+
+      .image-container {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>${items}</body>
+</html>`;
 }
 
 function escapeHtml(s: string){
