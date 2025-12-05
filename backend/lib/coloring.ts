@@ -1,14 +1,16 @@
-// TEMPORARILY DISABLED: sharp causing Railway deployment issues
-// Will be re-enabled with proper platform-specific binaries
-// import sharp from "sharp";
+import sharp from "sharp";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
 
+/**
+ * Convert colorful image to clean line art for coloring
+ * Optimized for children's coloring pages with thick, clear outlines
+ */
 async function toLineArt(input: string|Buffer) {
-  // TEMPORARILY: Return the original image buffer without processing
-  // Sharp library is disabled for Railway deployment
+  console.log("[Coloring] Converting to line art with Sharp");
+
   let buf: Buffer;
   if (typeof input === "string") {
     if (input.startsWith("data:image/")) {
@@ -22,20 +24,33 @@ async function toLineArt(input: string|Buffer) {
     buf = input;
   }
 
-  // Return original buffer until sharp is re-enabled
-  console.warn("[Coloring] Sharp library disabled - returning original image without line art conversion");
-  return buf;
+  try {
+    // ULTRA-AGGRESSIVE line art conversion for toddlers (ages 2-4)
+    // Goal: MAXIMUM simplicity - only 2-3 THICK lines, HUGE white areas
+    const out = await sharp(buf)
+      .resize(1024, 1024, { fit: 'contain', background: { r: 255, g: 255, b: 255 } })
+      .grayscale()                    // Convert to grayscale
+      .blur(8)                        // EXTREME blur to eliminate ALL details
+      .normalize()                    // Maximize contrast
+      .linear(3.0, -80)              // EXTREME contrast boost
+      .median(12)                     // EXTREME noise reduction - merge everything
+      .threshold(160)                 // Very low threshold = VERY THICK LINES
+      .negate()                       // Invert (black → white, white → black)
+      .blur(4)                        // Heavy blur to merge nearby lines
+      .median(8)                      // More smoothing
+      .threshold(150)                 // Re-threshold very low = keep only major shapes
+      .negate()                       // Invert back (white bg, black lines)
+      .blur(2)                        // Final softening
+      .toFormat("png")
+      .toBuffer();
 
-  /* Original sharp implementation (will be re-enabled):
-  const out = await sharp(buf)
-    .grayscale()
-    .median(3)
-    .linear(1.3, -15)
-    .threshold(210)
-    .toFormat("png")
-    .toBuffer();
-  return out;
-  */
+    console.log("[Coloring] ✅ TODDLER-LEVEL line art: MAXIMUM simplicity");
+    return out;
+  } catch (error) {
+    console.error("[Coloring] ❌ Sharp conversion failed:", error);
+    console.warn("[Coloring] Falling back to original image");
+    return buf;
+  }
 }
 
 export async function makeColoringPDF(pages: string[], title: string, size: "A4"|"A3") {
