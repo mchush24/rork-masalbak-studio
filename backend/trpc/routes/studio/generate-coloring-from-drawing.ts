@@ -36,14 +36,18 @@ export const generateColoringFromDrawingProcedure = publicProcedure
             content: [
               {
                 type: "text",
-                text: `Look at this drawing. Identify the ONE biggest, simplest object only.
+                text: `Look at this drawing. Pick ONLY ONE object - the biggest, simplest one.
 
-For a ${input.ageGroup}-year-old toddler, describe in 5-8 words:
-- ONLY ONE big simple shape (like: "a big round sun", "one happy cat")
-- ULTRA SIMPLE language
-- ONE object only, nothing else
+RULES:
+- If you see people/family: pick ONLY ONE person (not a group)
+- If you see a house: say "one simple house" (ignore windows/doors)
+- If you see flowers: say "one big flower" (not multiple)
+- Ignore ALL background, details, decorations
 
-Output in English, max 8 words total.`,
+Describe in 3-5 words ONLY:
+Examples: "one big sun", "one happy dog", "one simple house"
+
+Output: max 5 words.`,
               },
               {
                 type: "image_url",
@@ -54,7 +58,7 @@ Output in English, max 8 words total.`,
             ],
           },
         ],
-        max_tokens: 30,  // Ultra short description (max 8 words)
+        max_tokens: 20,  // Ultra short description (max 5 words)
       });
 
       const drawingAnalysis = analysisResponse.choices[0]?.message?.content || "";
@@ -65,36 +69,43 @@ Output in English, max 8 words total.`,
 
       // EXTREME SIMPLICITY - Like a baby's first coloring book!
       const styleDescriptions = {
-        simple: `Baby's first coloring book: ONE GIANT simple shape, HUGE thick outlines,
-                 solid flat colors, NO details at all, ages 2-3`,
+        simple: `ONE SINGLE OBJECT ONLY. Giant simple shape. Solid color. Thick outline. White background. Nothing else.`,
 
-        detailed: `Toddler coloring book: 1-2 big simple shapes, thick outlines,
-                   flat colors, minimal details, ages 3-5`,
+        detailed: `ONE SINGLE OBJECT. Big simple shape. Flat color. Clear outline. White background. Ages 3-5.`,
 
-        educational: `Preschool coloring: 2-3 basic geometric shapes, clear lines,
-                      primary colors only, ages 4-5`,
+        educational: `ONE OBJECT. Basic geometric shape. Primary color. Thick lines. White background. Ages 4-5.`,
       };
 
       const flux2Prompt = `${drawingAnalysis}
 
-BABY COLORING BOOK STYLE:
+CRITICAL: ONLY ONE OBJECT. WHITE BACKGROUND. NOTHING ELSE.
+
+STYLE:
 - ${styleDescriptions[input.style]}
-- Maximum 1-2 objects ONLY
-- GIANT simple shapes (think: circle, square, triangle level)
-- SOLID FLAT COLORS (like paint by number, NOT photographs)
-- ULTRA THICK black outlines (like comic book ink)
-- Plain white empty background
-- ZERO textures, ZERO gradients, ZERO shading
-- NO small details whatsoever
-- Think: "baby board book illustration"
-- For ${input.ageGroup} year old babies/toddlers
-- Style: Fisher-Price plastic toy simplicity`;
+- ONE single object centered on page
+- GIANT simple shape (like a cookie cutter: one circle, one square, one triangle)
+- SOLID FLAT COLOR (like a painted wooden toy)
+- VERY THICK black outline (like thick marker)
+- COMPLETELY WHITE EMPTY BACKGROUND
+- NO other objects, NO decorations, NO details, NO patterns
+- NO background elements (no flowers, trees, houses, people)
+- Like a baby's shape sorter toy: ONE simple shape only
+- Age: ${input.ageGroup} years old
+
+FORBIDDEN: multiple objects, groups, backgrounds, details, patterns, textures, shading`;
 
       console.log("[Generate Coloring] 📝 Flux 2.0 prompt:", flux2Prompt.substring(0, 100) + "...");
+
+      // NEGATIVE PROMPT - Tell Flux what NOT to generate
+      const negativePrompt = `multiple objects, many items, group of people, family, crowd,
+detailed background, flowers, plants, trees, grass, sky, clouds, buildings, houses with windows,
+patterns, textures, gradients, shading, shadows, realistic, photographic, complex details,
+small objects, decorations, ornaments, multiple colors, busy composition, cluttered scene`;
 
       const result = await fal.subscribe("fal-ai/flux-pro/v1.1", {
         input: {
           prompt: flux2Prompt,
+          negative_prompt: negativePrompt,
           num_images: 1,
           image_size: "square_hd", // 1024x1024
           enable_safety_checker: true,

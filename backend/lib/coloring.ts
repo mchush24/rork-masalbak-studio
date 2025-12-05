@@ -25,26 +25,27 @@ async function toLineArt(input: string|Buffer) {
   }
 
   try {
-    // ULTRA-AGGRESSIVE line art conversion for toddlers (ages 2-4)
-    // Goal: MAXIMUM simplicity - only 2-3 THICK lines, HUGE white areas
+    // MAXIMUM AGGRESSIVE - Eliminate ALL details, keep only 1-2 major shapes
+    // Goal: Like a baby's first coloring book - just BIG SIMPLE outlines
     const out = await sharp(buf)
       .resize(1024, 1024, { fit: 'contain', background: { r: 255, g: 255, b: 255 } })
       .grayscale()                    // Convert to grayscale
-      .blur(8)                        // EXTREME blur to eliminate ALL details
+      .blur(15)                       // MAXIMUM blur - destroy ALL small details
       .normalize()                    // Maximize contrast
-      .linear(3.0, -80)              // EXTREME contrast boost
-      .median(12)                     // EXTREME noise reduction - merge everything
-      .threshold(160)                 // Very low threshold = VERY THICK LINES
-      .negate()                       // Invert (black → white, white → black)
-      .blur(4)                        // Heavy blur to merge nearby lines
-      .median(8)                      // More smoothing
-      .threshold(150)                 // Re-threshold very low = keep only major shapes
+      .linear(3.5, -100)              // MAXIMUM contrast boost
+      .median(20)                     // MAXIMUM noise reduction - merge everything
+      .threshold(140)                 // VERY low threshold = EXTREMELY THICK LINES
+      .negate()                       // Invert
+      .blur(8)                        // Heavy blur to merge all nearby lines
+      .median(15)                     // More aggressive smoothing
+      .threshold(130)                 // Even lower threshold = only major shapes survive
       .negate()                       // Invert back (white bg, black lines)
-      .blur(2)                        // Final softening
+      .blur(3)                        // Final softening
+      .median(5)                      // Final cleanup
       .toFormat("png")
       .toBuffer();
 
-    console.log("[Coloring] ✅ TODDLER-LEVEL line art: MAXIMUM simplicity");
+    console.log("[Coloring] ✅ MAXIMUM SIMPLICITY: Only major shapes remain");
     return out;
   } catch (error) {
     console.error("[Coloring] ❌ Sharp conversion failed:", error);
