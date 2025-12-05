@@ -36,18 +36,24 @@ export const generateColoringFromDrawingProcedure = publicProcedure
             content: [
               {
                 type: "text",
-                text: `Look at this drawing. Pick ONLY ONE object - the biggest, simplest one.
+                text: `Analyze this child's drawing. What is the MAIN SUBJECT?
 
-RULES:
-- If you see people/family: pick ONLY ONE person (not a group)
-- If you see a house: say "one simple house" (ignore windows/doors)
-- If you see flowers: say "one big flower" (not multiple)
-- Ignore ALL background, details, decorations
+Describe the MAIN SUBJECT in ULTRA SIMPLIFIED form:
+- If family/people: "simple family group" or "simple person"
+- If house/building: "simple house"
+- If animals: "simple [animal name]"
+- If nature (flowers/trees): "simple [flower/tree]"
+- If vehicle: "simple [car/boat/etc]"
 
-Describe in 3-5 words ONLY:
-Examples: "one big sun", "one happy dog", "one simple house"
+IMPORTANT:
+- Keep the main subject from the drawing
+- Describe it in the SIMPLEST possible way
+- Use words like "simple", "basic", "plain"
+- Max 6 words total
 
-Output: max 5 words.`,
+Examples: "simple family group", "basic house", "simple flower", "plain cat"
+
+Output: max 6 words.`,
               },
               {
                 type: "image_url",
@@ -58,7 +64,7 @@ Output: max 5 words.`,
             ],
           },
         ],
-        max_tokens: 20,  // Ultra short description (max 5 words)
+        max_tokens: 25,  // Ultra short description (max 6 words)
       });
 
       const drawingAnalysis = analysisResponse.choices[0]?.message?.content || "";
@@ -67,40 +73,47 @@ Output: max 5 words.`,
       // Step 2: Generate colorful illustration with Flux 2.0
       console.log("[Generate Coloring] 🚀 Generating colorful image with Flux 2.0...");
 
-      // EXTREME SIMPLICITY - Like a baby's first coloring book!
+      // Keep the subject but make it ULTRA SIMPLE
       const styleDescriptions = {
-        simple: `ONE SINGLE OBJECT ONLY. Giant simple shape. Solid color. Thick outline. White background. Nothing else.`,
+        simple: `Ultra simplified cartoon. Minimal shapes. Solid colors. Thick outlines. Ages 2-4.`,
 
-        detailed: `ONE SINGLE OBJECT. Big simple shape. Flat color. Clear outline. White background. Ages 3-5.`,
+        detailed: `Simple cartoon style. Basic shapes. Flat colors. Clear lines. Ages 5-7.`,
 
-        educational: `ONE OBJECT. Basic geometric shape. Primary color. Thick lines. White background. Ages 4-5.`,
+        educational: `Educational cartoon. Geometric shapes. Primary colors. Ages 4-6.`,
       };
 
-      const flux2Prompt = `${drawingAnalysis}
+      const flux2Prompt = `Subject: ${drawingAnalysis}
 
-CRITICAL: ONLY ONE OBJECT. WHITE BACKGROUND. NOTHING ELSE.
+ULTRA SIMPLIFIED VERSION - Baby coloring book style:
 
-STYLE:
-- ${styleDescriptions[input.style]}
-- ONE single object centered on page
-- GIANT simple shape (like a cookie cutter: one circle, one square, one triangle)
-- SOLID FLAT COLOR (like a painted wooden toy)
-- VERY THICK black outline (like thick marker)
-- COMPLETELY WHITE EMPTY BACKGROUND
-- NO other objects, NO decorations, NO details, NO patterns
-- NO background elements (no flowers, trees, houses, people)
-- Like a baby's shape sorter toy: ONE simple shape only
+CRITICAL RULES:
+- Keep the main subject from description above
+- Make it EXTREMELY simple (like Fisher-Price toy)
+- SOLID FLAT COLORS only (like painted wooden blocks)
+- VERY THICK black outlines (like thick marker pen)
+- PLAIN WHITE background (no scenery, no details)
+- Minimal geometric shapes (circles, rectangles, triangles)
+- NO small details, NO decorations, NO patterns
+- NO textures, NO shading, NO gradients
+- Style: ${styleDescriptions[input.style]}
 - Age: ${input.ageGroup} years old
 
-FORBIDDEN: multiple objects, groups, backgrounds, details, patterns, textures, shading`;
+If family: 3-4 very simple stick-figure-like people, no facial details
+If house: basic rectangle + triangle roof, no windows/doors details
+If flowers: 2-3 simple circles on stems, no petal details
+If animal: basic oval body + circle head, minimal features
+
+Think: Baby board book illustration, NOT realistic drawing`;
 
       console.log("[Generate Coloring] 📝 Flux 2.0 prompt:", flux2Prompt.substring(0, 100) + "...");
 
-      // NEGATIVE PROMPT - Tell Flux what NOT to generate
-      const negativePrompt = `multiple objects, many items, group of people, family, crowd,
-detailed background, flowers, plants, trees, grass, sky, clouds, buildings, houses with windows,
-patterns, textures, gradients, shading, shadows, realistic, photographic, complex details,
-small objects, decorations, ornaments, multiple colors, busy composition, cluttered scene`;
+      // NEGATIVE PROMPT - Forbid details, not the main subject
+      const negativePrompt = `detailed background, scenery, landscape, sky with clouds, grass, ground texture,
+realistic style, photographic, detailed rendering, complex shading, gradients, shadows, lighting effects,
+small details, decorations, ornaments, patterns, textures, intricate designs, fine lines,
+windows with frames, door details, facial features, hair details, clothing patterns, buttons, jewelry,
+flower petals details, leaf details, tree branches, busy composition, cluttered, many small objects,
+realistic proportions, anatomically correct, professional illustration, adult coloring book style`;
 
       const result = await fal.subscribe("fal-ai/flux-pro/v1.1", {
         input: {
