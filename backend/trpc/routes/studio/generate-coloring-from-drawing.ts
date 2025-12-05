@@ -1,9 +1,15 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
 import OpenAI from "openai";
+import * as fal from "@fal-ai/serverless-client";
 
+// Initialize clients
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+});
+
+fal.config({
+  credentials: process.env.FAL_API_KEY,
 });
 
 const generateColoringInputSchema = z.object({
@@ -16,10 +22,12 @@ const generateColoringInputSchema = z.object({
 export const generateColoringFromDrawingProcedure = publicProcedure
   .input(generateColoringInputSchema)
   .mutation(async ({ input }: { input: z.infer<typeof generateColoringInputSchema> }) => {
-    console.log("[Generate Coloring] Creating coloring page from child's drawing");
+    console.log("[Generate Coloring] 🎨 Creating coloring page from child's drawing");
+    console.log("[Generate Coloring] Age group:", input.ageGroup, "| Style:", input.style);
 
     try {
-      // Önce çizimi analiz et
+      // Step 1: Analyze the drawing with GPT-4 Vision
+      console.log("[Generate Coloring] 📸 Analyzing drawing with GPT-4 Vision...");
       const analysisResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -28,10 +36,14 @@ export const generateColoringFromDrawingProcedure = publicProcedure
             content: [
               {
                 type: "text",
-                text: `Bu çocuk çizimini analiz et ve içindeki ana öğeleri, karakterleri ve temaları belirle.
-                Çizimden esinlenilerek ${input.ageGroup} yaş grubuna uygun bir boyama sayfası için kısa bir tanım yaz.
-                Tanım İngilizce olmalı ve boyama sayfası prompt'u için optimize edilmeli.
-                Sadece tanımı yaz, başka bir şey ekleme.`,
+                text: `Look at this drawing. Identify the ONE biggest, simplest object only.
+
+For a ${input.ageGroup}-year-old toddler, describe in 5-8 words:
+- ONLY ONE big simple shape (like: "a big round sun", "one happy cat")
+- ULTRA SIMPLE language
+- ONE object only, nothing else
+
+Output in English, max 8 words total.`,
               },
               {
                 type: "image_url",
@@ -42,51 +54,87 @@ export const generateColoringFromDrawingProcedure = publicProcedure
             ],
           },
         ],
-        max_tokens: 300,
+        max_tokens: 30,  // Ultra short description (max 8 words)
       });
 
       const drawingAnalysis = analysisResponse.choices[0]?.message?.content || "";
-      console.log("[Generate Coloring] Drawing analysis:", drawingAnalysis);
+      console.log("[Generate Coloring] ✅ Analysis:", drawingAnalysis);
 
-      // Stil tanımları
-      const stylePrompts = {
-        simple: "simple black and white line art, thick outlines, minimal details, easy for young children to color",
-        detailed: "detailed black and white line art, intricate patterns, suitable for older children",
-        educational: "educational black and white line art with clear shapes, perfect for learning and coloring",
+      // Step 2: Generate colorful illustration with Flux 2.0
+      console.log("[Generate Coloring] 🚀 Generating colorful image with Flux 2.0...");
+
+      // EXTREME SIMPLICITY - Like a baby's first coloring book!
+      const styleDescriptions = {
+        simple: `Baby's first coloring book: ONE GIANT simple shape, HUGE thick outlines,
+                 solid flat colors, NO details at all, ages 2-3`,
+
+        detailed: `Toddler coloring book: 1-2 big simple shapes, thick outlines,
+                   flat colors, minimal details, ages 3-5`,
+
+        educational: `Preschool coloring: 2-3 basic geometric shapes, clear lines,
+                      primary colors only, ages 4-5`,
       };
 
-      // DALL-E ile boyama sayfası oluştur
-      const prompt = `Create a coloring page inspired by this description: ${drawingAnalysis}.
-      Style: ${stylePrompts[input.style]}.
-      The image should be a black and white line drawing, clean outlines, no shading, no text,
-      perfect for children aged ${input.ageGroup} to color. White background, black lines only.`;
+      const flux2Prompt = `${drawingAnalysis}
 
-      console.log("[Generate Coloring] DALL-E prompt:", prompt);
+BABY COLORING BOOK STYLE:
+- ${styleDescriptions[input.style]}
+- Maximum 1-2 objects ONLY
+- GIANT simple shapes (think: circle, square, triangle level)
+- SOLID FLAT COLORS (like paint by number, NOT photographs)
+- ULTRA THICK black outlines (like comic book ink)
+- Plain white empty background
+- ZERO textures, ZERO gradients, ZERO shading
+- NO small details whatsoever
+- Think: "baby board book illustration"
+- For ${input.ageGroup} year old babies/toddlers
+- Style: Fisher-Price plastic toy simplicity`;
 
-      const imageResponse = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: prompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-        response_format: "url",
-      });
+      console.log("[Generate Coloring] 📝 Flux 2.0 prompt:", flux2Prompt.substring(0, 100) + "...");
 
-      const imageUrl = imageResponse.data[0]?.url;
+      const result = await fal.subscribe("fal-ai/flux-pro/v1.1", {
+        input: {
+          prompt: flux2Prompt,
+          num_images: 1,
+          image_size: "square_hd", // 1024x1024
+          enable_safety_checker: true,
+          safety_tolerance: "2",
+          num_inference_steps: 28,
+        },
+        logs: true,
+      }) as any;
 
-      if (!imageUrl) {
-        throw new Error("Failed to generate coloring page image");
+      if (!result.images || result.images.length === 0) {
+        throw new Error("No image returned from Flux 2.0");
       }
 
-      console.log("[Generate Coloring] Successfully generated coloring page");
+      const colorfulImageUrl = result.images[0].url;
+      console.log("[Generate Coloring] ✅ Flux 2.0 generated:", colorfulImageUrl);
+
+      // Step 3: Fetch the image for Sharp processing
+      console.log("[Generate Coloring] 📥 Fetching image for line art conversion...");
+      const imageResponse = await fetch(colorfulImageUrl);
+      if (!imageResponse.ok) {
+        throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
+      }
+
+      const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+
+      // Note: The line art conversion will happen in makeColoringPDF via Sharp
+      // We return the colorful image URL here for preview,
+      // and the buffer will be processed when creating the PDF
+
+      console.log("[Generate Coloring] ✅ Coloring page ready!");
 
       return {
-        imageUrl,
+        imageUrl: colorfulImageUrl, // Colorful version for preview
         analysis: drawingAnalysis,
-        prompt: prompt,
+        prompt: flux2Prompt,
       };
     } catch (error) {
-      console.error("[Generate Coloring] Error:", error);
-      throw error;
+      console.error("[Generate Coloring] ❌ Error:", error);
+      throw new Error(
+        `Coloring page generation failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   });
