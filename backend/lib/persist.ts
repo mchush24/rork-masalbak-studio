@@ -92,3 +92,37 @@ export async function listColorings(user_id: string | null, limit = 20) {
 
   return data;
 }
+
+export async function deleteStorybook(storybookId: string) {
+  console.log("[Persist] Deleting storybook:", storybookId);
+
+  const { error } = await supa
+    .from("storybooks")
+    .delete()
+    .eq("id", storybookId);
+
+  if (error) {
+    console.error("[Persist] Delete storybook failed:", error);
+    throw error;
+  }
+
+  console.log("[Persist] Storybook deleted successfully");
+  return { success: true };
+}
+
+export async function deleteColoring(coloringId: string) {
+  console.log("[Persist] Deleting coloring:", coloringId);
+
+  const { error } = await supa
+    .from("colorings")
+    .delete()
+    .eq("id", coloringId);
+
+  if (error) {
+    console.error("[Persist] Delete coloring failed:", error);
+    throw error;
+  }
+
+  console.log("[Persist] Coloring deleted successfully");
+  return { success: true };
+}
