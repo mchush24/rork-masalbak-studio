@@ -3,8 +3,9 @@ import hiRoute from "./routes/example/hi/route";
 import { createStorybookProcedure } from "./routes/studio/create-storybook";
 import { generateColoringPDFProcedure } from "./routes/studio/generate-coloring-pdf";
 import { generateColoringFromDrawingProcedure } from "./routes/studio/generate-coloring-from-drawing";
-import { listStorybooksProcedure, listColoringsProcedure } from "./routes/studio/list-history";
+import { listStorybooksProcedure, listColoringsProcedure, deleteStorybookProcedure, deleteColoringProcedure } from "./routes/studio/list-history";
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
+import { generateStoryFromDrawingProcedure } from "./routes/studio/generate-story-from-drawing";
 import { registerProcedure } from "./routes/auth/register";
 import { verifyEmailProcedure } from "./routes/auth/verify-email";
 import { completeOnboardingProcedure } from "./routes/auth/complete-onboarding";
@@ -46,8 +47,11 @@ export const appRouter = createTRPCRouter({
     createStorybook: createStorybookProcedure,
     generateColoringPDF: generateColoringPDFProcedure,
     generateColoringFromDrawing: generateColoringFromDrawingProcedure,
+    generateStoryFromDrawing: generateStoryFromDrawingProcedure,
     listStorybooks: listStorybooksProcedure,
     listColorings: listColoringsProcedure,
+    deleteStorybook: deleteStorybookProcedure,
+    deleteColoring: deleteColoringProcedure,
     analyzeDrawing: analyzeDrawingProcedure,
   }),
 });
