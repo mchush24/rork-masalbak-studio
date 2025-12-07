@@ -175,10 +175,31 @@ KÖTÜ ÖRNEK (YAPMA!):
   "arc": { "start": "kötü", "end": "iyi" }
 }
 
-HİKAYE BEAT'LERİ (${ageParams.pageCount} sayfa için ${ageParams.pageCount} beat):
-- Beat 1: Karakter tanıtımı, normal günü
-- Beat 2-${ageParams.pageCount - 2}: Problem/macera, duygusal yolculuk
-- Beat ${ageParams.pageCount - 1}-${ageParams.pageCount}: Çözüm, öğrenilen ders
+HİKAYE BEAT'LERİ (${ageParams.pageCount} sayfa, ${ageParams.pageCount} SOMUT OLAY):
+
+❌ KÖTÜ BEAT'LER (GENERİC - YAPMA!):
+1. "Macera başladı"
+2. "Arkadaş buldu"
+3. "Keşfe çıktılar"
+4. "Eğlendiler"
+5. "Eve döndüler"
+
+SORUN: Bunlar ÖZET! Ne olduğu belli değil!
+
+✅ İYİ BEAT'LER (SOMUT OLAYLAR):
+1. "${input.childAge} yaşındaki ${input.childName || 'karakter'} bahçede kelebek kovalıyor, altın bir taş buluyor"
+2. "Taş parlayınca, konuşan bir sincap beliyor ve yardım istiyor"
+3. "Birlikte ormana gidiyorlar, kayıp sincap ailesini arıyorlar"
+4. "Karanlık ağaçlar arasında korku duyuyorlar ama birbirlerine cesaret veriyorlar"
+5. "Sincap ailesini buluyorlar, taş ödül olarak ${input.childName || 'karaktere'} kalıyor"
+
+FARK: Her beat'te BİR SOMUT OLAY var (taş bulma, sincap beliyor, ormana gidiş, korku anı, bulma)
+
+BEAT KURALLARI:
+- Her beat BİR SPESİFİK OLAY olmalı
+- Kim, ne, nerede, ne oldu - hepsi BELLİ
+- "Arkadaş buldu" ❌ → "Konuşan sincap beliyor" ✅
+- "Eğlendiler" ❌ → "Ağaçtan ağaca zıplayarak oyun oynuyorlar" ✅
 
 KURALLAR:
 1. Karakter ${input.childAge} yaşında olmalı (çocuk kendini görsün)
@@ -222,11 +243,22 @@ JSON format:
     }
   },
   "storyBeats": [
-    "Beat 1: Karakter tanıtımı ve normal günü",
-    "Beat 2: İlk olay/problem",
-    ...${ageParams.pageCount} beat
+    "Beat 1 (SOMUT): ${input.childName || 'Karakter'} [nerede], [ne yapıyor], [ne buluyor/görüyor]",
+    "Beat 2 (SOMUT): [Spesifik olay], [kim beliyor], [ne oluyor]",
+    "Beat 3 (SOMUT): [Nereye gidiyorlar], [ne arıyorlar], [ne ile karşılaşıyorlar]",
+    ...${ageParams.pageCount} beat - HER BİRİ BİR SOMUT OLAY!
   ]
-}`;
+}
+
+❌ YAPMA BEAT ÖRNEKLERİ:
+- "Macera başladı" (ne macerası?)
+- "Arkadaş buldu" (kim, nasıl?)
+- "Eğlendiler" (ne yaptılar?)
+
+✅ SOMUT BEAT ÖRNEKLERİ:
+- "Bahçede kelebek kovalıyor, parlayan altın taş buluyor"
+- "Taş parladı, konuşan sincap çıktı, ailesini kaybettiğini söyledi"
+- "Birlikte ormana koştular, dev meşe ağacını bulmaya çalıştılar"`;
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -260,45 +292,93 @@ async function expandScene(
 ): Promise<DetailedScene> {
   console.log(`[Stage 2] 📝 Expanding scene ${pageNumber}...`);
 
-  const systemPrompt = `Sen çocuk kitabı sahne yazarısın.
+  const systemPrompt = `Sen çocuk kitabı sahne yazarısın. ÖZET YAZMA, SAHNE ANLAT!
 
-UZMANLIĞIN: DETAYLI, DUYGU DOLU, CANLI sahneler yazmak.
+KRİTİK: Her sayfa bir GERÇEK SAHNE olmalı, özet/placeholder değil!
 
-İYİ ÖRNEK (${ageParams.wordsPerPage} kelime):
-"${character.name}, parlak kırmızı arabayı görünce kulaları dik oldu. Kalbi hızla çarpmaya başladı.
-'Vay canına!' diye bağırdı ve arabayı nazikçe aldı. Parmaklarıyla tekerlekleri döndürdü.
-'Viııın vııııın!' diye sesler çıkararak arabayı koşturmaya başladı. Gözleri sevinçle parlıyordu.
-O kadar mutluydu ki etrafındaki arkadaşlarını bile unutmuştu."
+❌ KÖTÜ ÖRNEK (ÖZET - ASLA YAPMA!):
+"Kahramanımız yeni arkadaşlar buldu."
+"Birlikte eğlenceli bir keşfe çıktılar."
+"Harika anılar biriktirdiler."
 
-KÖTÜ ÖRNEK (ASLA YAPMA!):
-"${character.name} bir araba buldu. Çok mutlu oldu. Oynadı."
+SORUN: Ne olduğu anlaşılmıyor! Kim, ne, nerede, nasıl yok!
 
-KURALLAR:
-1. Tam ${ageParams.sentencesPerPage} cümle yaz
-2. Toplam ${ageParams.wordsPerPage} kelime (±10 kelime OK)
-3. DUYGULARI göster: "kalbi çarptı", "gözleri parladı", "içi ısındı"
-4. DUYU detayları: renkler, sesler, kokular, hisler
-5. EYLEMLER betimle: "nazikçe aldı", "hızla koştu"
-6. Yaş seviyesine uygun kelimeler: ${ageParams.vocabulary}
-7. Her sahne BİR ANLIK olsun (başlangıç → orta → son)
+✅ İYİ ÖRNEK (GERÇEK SAHNE - ${ageParams.wordsPerPage} kelime):
+"${character.name} büyük çınarın altında durdu. Gözleri parlayan bir şey gördü - kırmızı, parıl parıl bir araba!
+'Vay canına!' diye bağırdı. Dizlerinin üstüne çöktü, arabayı dikkatle aldı eline.
+Tekerlekleri çevirdi, 'Vııın vııın!' diye sesler çıkardı. Gözleri mutluluktan parıldadı.
+Tam o sırada, arkasından bir ses duydu: 'Merhaba!' ${character.name} döndü ve küçük bir sincap gördü."
 
-Karakter özelliklerini kullan:
+FARK:
+- ❌ "Arkadaş buldu" → ✅ "Arkasından ses duydu, döndü, sincap gördü"
+- ❌ "Mutlu oldu" → ✅ "Gözleri mutluluktan parıldadı"
+- ❌ "Oynadı" → ✅ "Tekerlekleri çevirdi, sesler çıkardı"
+
+SAHNE UNSURLARI (HEPSİ OLMALI):
+
+1. **AÇILIŞ** (nerede, ne görüyor):
+   "Büyük çınarın altında durdu. Gözleri parlayan bir şey gördü..."
+
+2. **EYLEM** (ne yapıyor):
+   "Dizlerinin üstüne çöktü, arabayı aldı, tekerlekleri çevirdi..."
+
+3. **DUYU DETAYLARI** (görsel, işitsel):
+   "Kırmızı, parıl parıl" (görsel)
+   "Vııın vııın!" (işitsel)
+
+4. **DUYGU** (içsel tepki):
+   "Gözleri mutluluktan parıldadı"
+
+5. **DİYALOG/SES** (karakterler konuşsun):
+   "'Vay canına!' diye bağırdı"
+   "'Merhaba!' dedi sincap"
+
+6. **BİR ŞEY OLUR** (statik değil, dinamik):
+   "Tam o sırada, arkasından ses duydu..."
+
+ZORUNLU KURALLAR:
+- ${ageParams.sentencesPerPage} cümle
+- ${ageParams.wordsPerPage} kelime (±15 kelime OK)
+- ASLA özet/placeholder yazma ("arkadaş buldu", "eğlendiler", "döndüler")
+- Her cümlede BİR ŞEY OLSUN (görsel, eylem, ses, duygu)
+- Kim, ne, nerede, nasıl - hepsi BELLİ olmalı!
+
+Karakter:
+- ${character.name} (${character.type})
 - Görünüm: ${character.appearance}
 - Kişilik: ${character.personality.join(', ')}
 - Konuşma: ${character.speechStyle}`;
 
-  const userPrompt = `Karakter: ${character.name} (${character.type}, ${character.age} yaşında)
-Sahne Beat: ${beat}
+  const userPrompt = `SAHNE: "${beat}"
+Karakter: ${character.name} (${character.type}, ${character.age} yaş)
 Sayfa: ${pageNumber}
-Ruh Hali: ${mood}
+Hedef: ${ageParams.sentencesPerPage} cümle, ${ageParams.wordsPerPage} kelime
 
-GÖREV: Bu beat'i ${ageParams.sentencesPerPage} cümlelik, ${ageParams.wordsPerPage} kelimelik DETAYLI sahneye çevir.
+GÖREV: Bu beat'i GERÇEK SAHNEYE dönüştür!
+
+ZORUNLU UNSURLAR:
+1. AÇILIŞ: ${character.name} nerede, ne görüyor/yapıyor?
+2. EYLEM: Somut eylemler (tuttu, baktı, koştu, vs.)
+3. GÖRSEL: Renkler, şekiller, nesneler
+4. SES: Diyalog veya ses efekti ("Vııın!", "Merhaba!")
+5. DUYGU: ${character.name}'ın hissi (içsel tepki)
+6. SONUÇ: Sahnenin sonunda bir şey değişti/oldu
+
+❌ YAPMA:
+"${character.name} yeni arkadaşlar buldu."
+"Birlikte eğlendiler."
+"Harika zaman geçirdi."
+
+✅ YAP:
+"${character.name} büyük meşe ağacının altında durdu. Yukarı baktı - dal arasında minik bir kuş!
+'Merhaba küçük arkadaşım!' dedi ${character.name} yumuşak bir sesle.
+Kuş şakıdı, ${character.name} gülümsedi. İlk arkadaşını bulmuştu!"
 
 JSON format:
 {
-  "text": "Sahne metni (DETAYLI, DUYGU DOLU, ${ageParams.wordsPerPage} kelime)",
-  "emotion": "Ana duygu (excited, worried, happy, curious, sad, proud)",
-  "visualElements": ["sahne elemanları", "örn: orman, oyuncak araba, büyük ağaç"]
+  "text": "GERÇEK SAHNE metni (${ageParams.wordsPerPage} kelime, kim/ne/nerede/nasıl BELLİ)",
+  "emotion": "excited / worried / happy / curious / sad / proud",
+  "visualElements": ["meşe ağacı", "minik kuş", "dal", vb.]
 }`;
 
   const completion = await openai.chat.completions.create({
