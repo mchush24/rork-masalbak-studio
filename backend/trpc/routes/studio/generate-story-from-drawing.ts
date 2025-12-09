@@ -83,14 +83,20 @@ export const generateStoryFromDrawingProcedure = publicProcedure
         prompt: page.sceneDescription, // We'll enhance this with character consistency
       }));
 
-      // Step 3: Create character description for consistency
-      const characterDescription = `
-${generatedStory.mainCharacter.appearance}
-Kişilik: ${generatedStory.mainCharacter.personality}
-Karakter: ${generatedStory.mainCharacter.name} (${generatedStory.mainCharacter.type})
-      `.trim();
+      // Step 3: Prepare character info for visual consistency
+      const characterInfo = {
+        name: generatedStory.mainCharacter.name,
+        type: generatedStory.mainCharacter.type,
+        age: input.childAge,
+        appearance: generatedStory.mainCharacter.appearance,
+        personality: generatedStory.mainCharacter.personality,
+        speechStyle: generatedStory.mainCharacter.speechStyle || undefined,
+      };
 
-      console.log("[Generate Story] 🎨 Character for visual consistency:", characterDescription);
+      console.log("[Generate Story] 🎨 Character for visual consistency:");
+      console.log(`  Name: ${characterInfo.name}`);
+      console.log(`  Type: ${characterInfo.type}`);
+      console.log(`  Appearance: ${characterInfo.appearance.substring(0, 80)}...`);
 
       // Step 4: Generate storybook with images
       console.log("[Generate Story] 🖼️  Generating images and storybook...");
@@ -102,7 +108,7 @@ Karakter: ${generatedStory.mainCharacter.name} (${generatedStory.mainCharacter.t
         makeTts: input.makeTts,
         user_id: input.user_id || null,
         ageGroup: input.childAge,
-        drawingAnalysis: characterDescription, // Pass character info for consistency
+        characterInfo: characterInfo, // ✅ PASS FULL CHARACTER OBJECT!
       });
 
       console.log("[Generate Story] ✅ Storybook created with images!");

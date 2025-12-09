@@ -160,7 +160,7 @@ export function defineStoryStyle(language: 'tr' | 'en' = 'tr'): StoryStyle {
 
 /**
  * Generate ULTRA-SPECIFIC consistent prompt for each page
- * Key: Extreme detail on character to force consistency
+ * Key: Extreme detail on character to force consistency with SEED
  */
 export function generateConsistentPrompt(
   character: CharacterDefinition,
@@ -170,34 +170,41 @@ export function generateConsistentPrompt(
   pageNumber: number,
   totalPages: number
 ): string {
-  // ULTRA-DETAILED character (MUST be identical every time)
+  // CRITICAL: Character FIRST (seed will lock this in)
   const characterBlock = `
-CHARACTER (EXACT SAME IN ALL IMAGES):
+MAIN CHARACTER (IDENTICAL IN ALL ${totalPages} IMAGES):
 ${character.appearance}
-CLOTHING: ${character.clothing}
-STYLE: ${style.artStyle}
-COLORS: ${style.colorPalette}
-MOOD: ${style.mood}
+Age: ${character.age}
+Clothing: ${character.clothing}
+Style: ${character.style}
 `.trim();
 
-  // Scene description (this changes per page)
+  // Scene (changes per page, but character stays same)
   const sceneBlock = `
 SCENE ${pageNumber}/${totalPages}:
 ${sceneDescription}
-Background: simple, minimal, child-friendly
 `.trim();
 
-  // CRITICAL RULES
+  // Art style and critical rules
+  const styleBlock = `
+ART STYLE:
+${style.artStyle}
+Colors: ${style.colorPalette}
+Mood: ${style.mood}
+`.trim();
+
+  // ULTRA-CRITICAL RULES (for Flux 2.0)
   const rules = `
-CRITICAL RULES:
-- NO TEXT, NO LETTERS, NO WORDS anywhere in image
-- Character MUST look IDENTICAL to description above
-- Same colors, same face, same clothing EVERY TIME
-- Simple background, focus on character
-- Soft watercolor style, rounded shapes
+🚨 CRITICAL RULES:
+1. CHARACTER: Must be IDENTICAL to description above - same appearance, clothing, colors in ALL pages
+2. NO TEXT: Absolutely NO letters, words, or text anywhere in image
+3. FOCUS: Character is main focus, background is simple and minimal
+4. CONSISTENCY: Using same SEED across all pages ensures character looks identical
+5. QUALITY: Professional children's book illustration style
 `.trim();
 
-  return `${characterBlock}\n\n${sceneBlock}\n\n${rules}`;
+  // Flux 2.0 specific: Character first for seed consistency!
+  return `${characterBlock}\n\n${sceneBlock}\n\n${styleBlock}\n\n${rules}`;
 }
 
 /**
