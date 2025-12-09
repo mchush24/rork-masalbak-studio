@@ -258,7 +258,16 @@ JSON format:
 ✅ SOMUT BEAT ÖRNEKLERİ:
 - "Bahçede kelebek kovalıyor, parlayan altın taş buluyor"
 - "Taş parladı, konuşan sincap çıktı, ailesini kaybettiğini söyledi"
-- "Birlikte ormana koştular, dev meşe ağacını bulmaya çalıştılar"`;
+- "Birlikte ormana koştular, dev meşe ağacını bulmaya çalıştılar"
+
+💡 ÖRNEK: "Ninja Kunduz" hikayesi için İYİ BEAT'LER:
+1. "Ninja Kunduz dojo'da antrenman yapıyor, gizemli bir harita buluyor"
+2. "Haritada gizli hazine gösteriliyor, ama çok tehlikeli bir ormandan geçmek gerekiyor"
+3. "Ormana girince koca bir ayıyla karşılaşıyor, ayı yolu kapatmış bekliyor"
+4. "Ninja hareketleriyle ayıyı geçip, hazine sandığının yanına varıyor"
+5. "Sandığı açınca içinde altın yok ama arkadaşlık madalyası var, bunu köye getiriyor"
+
+HER BEAT'TE SPESİFİK BİR OLAY VAR! (antrenman+harita bulma, ormana giriş, ayıyla karşılaşma, ninja hareket+sandığa varma, madalya bulma+köye dönüş)`;
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -373,6 +382,15 @@ ZORUNLU UNSURLAR:
 "${character.name} büyük meşe ağacının altında durdu. Yukarı baktı - dal arasında minik bir kuş!
 'Merhaba küçük arkadaşım!' dedi ${character.name} yumuşak bir sesle.
 Kuş şakıdı, ${character.name} gülümsedi. İlk arkadaşını bulmuştu!"
+
+💡 ÖRNEK: "Ninja Kunduz dojo'da antrenman yapıyor, gizemli bir harita buluyor" BEAT'İ → SAHNE:
+"Ninja Kunduz bambular arasındaki dojoda tekmeler savuruyordu. Hop! Zıp! Çak!
+'Bir gün en iyi ninja olacağım!' diye bağırdı sevinçle.
+Tam o sırada, ayağı bir şeye takıldı. Eğilip baktı - eski, sararmış bir harita!
+Haritayı açtı, gözleri ışıldadı. Üzerinde büyük bir X işareti vardı.
+'Vay be, bir hazine haritası!' dedi heyecanla. Macera başlıyordu."
+
+FARK: Özet değil, AN BE AN sahne! (nerede, ne yapıyor, nasıl, ne buluyor, ne hissediyor - HEPSİ VAR!)
 
 JSON format:
 {

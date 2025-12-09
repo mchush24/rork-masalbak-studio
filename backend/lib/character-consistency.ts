@@ -21,19 +21,80 @@ export interface StoryStyle {
 }
 
 /**
+ * Extract character features from drawing analysis text
+ */
+function extractCharacterFromAnalysis(analysisText: string): Partial<CharacterDefinition> | null {
+  if (!analysisText) return null;
+
+  const lowerText = analysisText.toLowerCase();
+  const extracted: Partial<CharacterDefinition> = {};
+
+  // Extract colors
+  const colors: string[] = [];
+  if (lowerText.includes('sarı') || lowerText.includes('yellow')) colors.push('sarı');
+  if (lowerText.includes('mavi') || lowerText.includes('blue')) colors.push('mavi');
+  if (lowerText.includes('kırmızı') || lowerText.includes('red')) colors.push('kırmızı');
+  if (lowerText.includes('yeşil') || lowerText.includes('green')) colors.push('yeşil');
+  if (lowerText.includes('pembe') || lowerText.includes('pink')) colors.push('pembe');
+  if (lowerText.includes('turuncu') || lowerText.includes('orange')) colors.push('turuncu');
+  if (lowerText.includes('mor') || lowerText.includes('purple')) colors.push('mor');
+
+  // Extract clothing/accessories
+  const clothing: string[] = [];
+  if (lowerText.includes('elbise') || lowerText.includes('dress')) clothing.push('elbise');
+  if (lowerText.includes('pantolon') || lowerText.includes('pants')) clothing.push('pantolon');
+  if (lowerText.includes('şapka') || lowerText.includes('hat')) clothing.push('şapka');
+  if (lowerText.includes('eşarp') || lowerText.includes('scarf')) clothing.push('eşarp');
+  if (lowerText.includes('ayakkabı') || lowerText.includes('shoes')) clothing.push('ayakkabı');
+
+  // Extract mood/personality hints
+  let personalityHints = '';
+  if (lowerText.includes('mutlu') || lowerText.includes('happy') || lowerText.includes('gülümse')) {
+    personalityHints = 'neşeli, mutlu';
+  } else if (lowerText.includes('sakin') || lowerText.includes('calm') || lowerText.includes('huzur')) {
+    personalityHints = 'sakin, huzurlu';
+  } else if (lowerText.includes('merak') || lowerText.includes('curious')) {
+    personalityHints = 'meraklı, keşfetmeyi seven';
+  } else if (lowerText.includes('cesur') || lowerText.includes('brave')) {
+    personalityHints = 'cesur, güçlü';
+  }
+
+  // Build appearance string if we found features
+  if (colors.length > 0 || clothing.length > 0) {
+    let appearance = '';
+    if (colors.length > 0) {
+      appearance += colors.join(' ve ') + ' renkler';
+    }
+    if (clothing.length > 0) {
+      appearance += (appearance ? ', ' : '') + clothing.join(', ');
+    }
+    extracted.appearance = appearance;
+  }
+
+  if (personalityHints) {
+    extracted.style = personalityHints;
+  }
+
+  return Object.keys(extracted).length > 0 ? extracted : null;
+}
+
+/**
  * Extract character information from user's drawing analysis or create default
  */
 export function defineCharacterFromContext(
   drawingAnalysis?: string,
   ageGroup?: number
 ): CharacterDefinition {
-  // TODO: Use AI to extract character from drawing analysis
-  // For now, create ULTRA-SPECIFIC age-appropriate default character
-
   const age = ageGroup || 5;
 
+  // Try to extract character features from analysis
+  const extractedFeatures = drawingAnalysis ? extractCharacterFromAnalysis(drawingAnalysis) : null;
+
+  // Define base character by age
+  let baseCharacter: CharacterDefinition;
+
   if (age <= 3) {
-    return {
+    baseCharacter = {
       name: "Minik Ayı",
       age: "2-3 yaş",
       appearance: "KÜÇÜK KAHVE RENGİ AYI YAVRUSU: yuvarlak kafa, iri siyah gözler, pembe burun, yumuşak kulaklar, tombul vücut, kısa bacaklar, PAT PAT bacaklar",
@@ -41,7 +102,7 @@ export function defineCharacterFromContext(
       clothing: "MAVİ TULUM (askılı), hiç aksesuar yok, çıplak ayak",
     };
   } else if (age <= 6) {
-    return {
+    baseCharacter = {
       name: "Tavşan Lale",
       age: "4-6 yaş",
       appearance: "BEYAZ TAVŞAN KIZI: uzun kulaklar (pembe iç), büyük mavi gözler, pembe burun, sevimli diş, orta boy, yumuşak tüyler, her zaman gülümseyen",
@@ -49,7 +110,7 @@ export function defineCharacterFromContext(
       clothing: "PEMBE ELBİSE (noktalı), MAVI KURDELE (kulakta), BEYAZ AYAKKABI",
     };
   } else {
-    return {
+    baseCharacter = {
       name: "Tilki Can",
       age: "7-10 yaş",
       appearance: "TURUNCU TİLKİ: sivri kulaklar (siyah uçlu), yeşil gözler, beyaz göğüs, uzun kırmızı kuyruk (beyaz uçlu), zeki bakış, atletik yapı",
@@ -57,6 +118,24 @@ export function defineCharacterFromContext(
       clothing: "YEŞİL YELEJ (ceketli), KAHVERENGİ PANTOLON (cepli), KIRMIZI ATKI",
     };
   }
+
+  // Merge extracted features from drawing analysis
+  if (extractedFeatures) {
+    if (extractedFeatures.appearance) {
+      // Add extracted appearance details to base character
+      baseCharacter.appearance += `. Çizimden: ${extractedFeatures.appearance}`;
+    }
+    if (extractedFeatures.style) {
+      // Enhance style with extracted personality
+      baseCharacter.style += `, ${extractedFeatures.style}`;
+    }
+    if (extractedFeatures.clothing) {
+      // Override or enhance clothing
+      baseCharacter.clothing = extractedFeatures.clothing;
+    }
+  }
+
+  return baseCharacter;
 }
 
 /**

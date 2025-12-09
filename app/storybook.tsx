@@ -17,6 +17,7 @@ import * as Haptics from "expo-haptics";
 
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { trpc } from "@/lib/trpc";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const PAGE_WIDTH = SCREEN_WIDTH * 0.85;
@@ -37,7 +38,10 @@ export default function StorybookScreen() {
   const [currentPage, setCurrentPage] = useState(0);
   const [story, setStory] = useState<Story | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState(0);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   // Check if we're viewing an existing storybook or generating a new one
   const existingPages = params.pages ? JSON.parse(params.pages as string) : null;
@@ -48,6 +52,11 @@ export default function StorybookScreen() {
   const analysisTitle = params.analysisTitle as string;
   const analysisDescription = params.description as string;
   const themes = params.themes ? JSON.parse(params.themes as string) : [];
+  const drawingAnalysis = params.drawingAnalysis ? JSON.parse(params.drawingAnalysis as string) : null;
+  const childAge = params.childAge ? parseInt(params.childAge as string, 10) : 5;
+
+  // tRPC mutation
+  const generateStoryMutation = trpc.studio.generateStoryFromDrawing.useMutation();
 
   useEffect(() => {
     if (existingPages && existingTitle) {
@@ -73,45 +82,100 @@ export default function StorybookScreen() {
     }
   }, [story, fadeAnim]);
 
+  // Loading animations
+  useEffect(() => {
+    if (generating) {
+      // Pulse animation
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      // Rotate animation
+      Animated.loop(
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        })
+      ).start();
+
+      // Step through loading messages
+      const stepInterval = setInterval(() => {
+        setGenerationStep((prev) => (prev + 1) % 4);
+      }, 4000);
+
+      return () => clearInterval(stepInterval);
+    } else {
+      pulseAnim.setValue(1);
+      rotateAnim.setValue(0);
+      setGenerationStep(0);
+    }
+  }, [generating]);
+
+  const rotateInterpolate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   async function generateStory() {
+    if (!drawingAnalysis) {
+      Alert.alert(
+        "Eksik Bilgi",
+        "Masal oluşturmak için çizim analizi gerekli. Lütfen önce bir çizim analiz edin."
+      );
+      return;
+    }
+
     setGenerating(true);
 
     try {
-      const prompt = `Bu çocuk çiziminden ilham alarak 5 sayfalık kısa bir çocuk masalı oluştur.
+      console.log("[Storybook] Starting story generation...");
+      console.log("[Storybook] Child age:", childAge);
+      console.log("[Storybook] Drawing analysis:", drawingAnalysis ? "Available" : "Missing");
 
-Çizim Başlığı: ${analysisTitle}
-Çizim Açıklaması: ${analysisDescription}
-Temalar: ${themes.join(", ")}
+      const result = await generateStoryMutation.mutateAsync({
+        drawingAnalysis: drawingAnalysis,
+        childAge: childAge,
+        language: "tr",
+        drawingTitle: analysisTitle,
+        drawingDescription: analysisDescription,
+        themes: themes,
+        makePdf: true,
+        makeTts: false,
+        user_id: null, // TODO: Get from auth context
+      });
 
-Masal şu JSON formatında olmalı:
-{
-  "title": "Masalın başlığı",
-  "pages": [
-    {
-      "pageNumber": 1,
-      "text": "Sayfa 1'in metni (2-3 cümle, çocuk dostu)"
-    },
-    {
-      "pageNumber": 2,
-      "text": "Sayfa 2'nin metni"
-    },
-    ...5 sayfaya kadar
-  ]
-}
+      console.log("[Storybook] ✅ Story generated successfully!");
+      console.log("[Storybook] Title:", result.story.title);
+      console.log("[Storybook] Pages:", result.storybook.pages.length);
 
-Her sayfa çocukların anlayabileceği basit, eğlenceli ve öğretici olmalı. Başlangıç-Orta-Son yapısını koru.`;
+      // Set story data
+      setStory({
+        title: result.story.title,
+        pages: result.storybook.pages,
+      });
 
-      // TODO: Implement story generation via backend API
-      // This feature requires server-side AI integration
-
-      // Temporary placeholder - shows error message
-      Alert.alert(
-        "Özellik Hazırlanıyor",
-        "Masal oluşturma özelliği henüz backend'e bağlanmamıştır. Lütfen geliştirici ile iletişime geçin."
-      );
+      // Show success haptic feedback
+      if (Platform.OS !== "web") {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     } catch (error: any) {
-      console.error("Story generation error:", error);
-      Alert.alert("Hata", "Masal oluşturulurken bir hata oluştu.");
+      console.error("[Storybook] ❌ Story generation error:", error);
+      Alert.alert(
+        "Hata",
+        error.message || "Masal oluşturulurken bir hata oluştu. Lütfen tekrar deneyin."
+      );
     } finally {
       setGenerating(false);
     }
@@ -151,11 +215,43 @@ Her sayfa çocukların anlayabileceği basit, eğlenceli ve öğretici olmalı. 
         {generating && (
           <View style={styles.loadingContainer}>
             <View style={styles.loadingContent}>
-              <Sparkles size={64} color="#9333EA" />
-              <ActivityIndicator size="large" color="#9333EA" />
-              <Text style={styles.loadingText}>Masalınız oluşturuluyor...</Text>
+              {/* Animated Sparkles Icon */}
+              <Animated.View
+                style={{
+                  transform: [{ scale: pulseAnim }, { rotate: rotateInterpolate }],
+                }}
+              >
+                <Sparkles size={80} color="#9333EA" />
+              </Animated.View>
+
+              {/* Loading Steps with Fun Messages */}
+              <View style={styles.loadingStepsContainer}>
+                <View style={[styles.loadingStep, generationStep >= 0 && styles.loadingStepActive]}>
+                  <Text style={styles.loadingStepIcon}>✨</Text>
+                  <Text style={styles.loadingStepText}>Çizimini inceliyorum...</Text>
+                </View>
+
+                <View style={[styles.loadingStep, generationStep >= 1 && styles.loadingStepActive]}>
+                  <Text style={styles.loadingStepIcon}>📝</Text>
+                  <Text style={styles.loadingStepText}>Hikaye yazıyorum...</Text>
+                </View>
+
+                <View style={[styles.loadingStep, generationStep >= 2 && styles.loadingStepActive]}>
+                  <Text style={styles.loadingStepIcon}>🎨</Text>
+                  <Text style={styles.loadingStepText}>Görseller hazırlıyorum...</Text>
+                </View>
+
+                <View style={[styles.loadingStep, generationStep >= 3 && styles.loadingStepActive]}>
+                  <Text style={styles.loadingStepIcon}>✅</Text>
+                  <Text style={styles.loadingStepText}>Masalını tamamlıyorum!</Text>
+                </View>
+              </View>
+
+              <ActivityIndicator size="large" color="#9333EA" style={{ marginTop: 20 }} />
+
+              <Text style={styles.loadingMainText}>Sihirli masalın hazırlanıyor!</Text>
               <Text style={styles.loadingSubtext}>
-                Çizimden ilham alan benzersiz bir hikaye yazılıyor
+                Bu işlem 1-2 dakika sürebilir
               </Text>
             </View>
           </View>
@@ -285,6 +381,45 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
     textAlign: "center",
     lineHeight: 22,
+  },
+  loadingStepsContainer: {
+    width: "100%",
+    gap: 16,
+    marginTop: 32,
+    marginBottom: 16,
+  },
+  loadingStep: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: Colors.neutral.lighter,
+    borderRadius: 16,
+    opacity: 0.4,
+  },
+  loadingStepActive: {
+    opacity: 1,
+    backgroundColor: "rgba(147, 51, 234, 0.1)",
+    borderWidth: 2,
+    borderColor: "#9333EA",
+  },
+  loadingStepIcon: {
+    fontSize: 24,
+  },
+  loadingStepText: {
+    fontSize: 16,
+    fontWeight: "600" as const,
+    color: Colors.neutral.darkest,
+    flex: 1,
+  },
+  loadingMainText: {
+    fontSize: 22,
+    fontWeight: "800" as const,
+    color: "#9333EA",
+    textAlign: "center",
+    marginTop: 16,
+    letterSpacing: -0.3,
   },
   storyContainer: {
     flex: 1,

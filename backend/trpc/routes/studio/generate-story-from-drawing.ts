@@ -107,8 +107,20 @@ Karakter: ${generatedStory.mainCharacter.name} (${generatedStory.mainCharacter.t
 
       console.log("[Generate Story] ✅ Storybook created with images!");
 
+      // Step 5: Save to database
+      console.log("[Generate Story] 💾 Saving to database...");
+      const savedRecord = await saveStorybookRecord(
+        input.user_id || null,
+        generatedStory.title,
+        storybook.pages,
+        storybook.pdf_url,
+        storybook.voice_urls
+      );
+      console.log("[Generate Story] ✅ Saved to database with ID:", savedRecord.id);
+
       // Return complete storybook data
       return {
+        id: savedRecord.id,
         story: generatedStory,
         storybook: storybook,
         metadata: {

@@ -20,6 +20,7 @@ import {
   ExternalLink,
   ArrowLeft,
 } from "lucide-react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -51,6 +52,12 @@ export default function ColoringHistoryScreen() {
     { enabled: !!user?.userId }
   );
 
+  const deleteColoringMutation = trpc.studio.deleteColoring.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await refetch();
@@ -79,6 +86,26 @@ export default function ColoringHistoryScreen() {
         {
           text: "PDF Aç",
           onPress: () => handleDownloadPDF(pdfUrl, title),
+        },
+      ]
+    );
+  };
+
+  const handleDeleteColoring = (coloringId: string, coloringTitle: string) => {
+    Alert.alert(
+      "Boyamayı Sil",
+      `"${coloringTitle}" adlı boyamayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
+      [
+        {
+          text: "Vazgeç",
+          style: "cancel",
+        },
+        {
+          text: "Sil",
+          style: "destructive",
+          onPress: () => {
+            deleteColoringMutation.mutate({ coloringId });
+          },
         },
       ]
     );
@@ -192,93 +219,112 @@ export default function ColoringHistoryScreen() {
           {/* Colorings Grid */}
           {!isLoading && coloringsList.length > 0 && (
             <View style={styles.grid}>
-              {coloringsList.map((coloring: any) => (
-                <Pressable
-                  key={coloring.id}
-                  style={({ pressed }) => [
-                    styles.coloringCard,
-                    pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
-                  ]}
-                  onPress={() => handleViewColoring(coloring.id, coloring.pdf_url, coloring.title)}
-                >
-                  <LinearGradient
-                    colors={[Colors.neutral.lightest, Colors.neutral.white]}
-                    style={styles.cardGradient}
+              {coloringsList.map((coloring: any) => {
+                const renderRightActions = () => (
+                  <View style={styles.swipeDeleteContainer}>
+                    <Pressable
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteColoring(coloring.id, coloring.title)}
+                    >
+                      <Trash2 size={20} color={Colors.neutral.white} />
+                      <Text style={styles.deleteButtonText}>Sil</Text>
+                    </Pressable>
+                  </View>
+                );
+
+                return (
+                  <Swipeable
+                    key={coloring.id}
+                    renderRightActions={renderRightActions}
+                    overshootRight={false}
                   >
-                    {/* Image Preview Placeholder */}
-                    <View style={styles.imageContainer}>
-                      {coloring.coloring_image_url ? (
-                        <Image
-                          source={{ uri: coloring.coloring_image_url }}
-                          style={styles.image}
-                          contentFit="cover"
-                        />
-                      ) : (
-                        <View style={styles.imagePlaceholder}>
-                          <Palette size={48} color={Colors.neutral.light} />
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Card Content */}
-                    <View style={styles.cardContent}>
-                      <Text style={styles.cardTitle} numberOfLines={2}>
-                        {coloring.title}
-                      </Text>
-
-                      <View style={styles.cardMeta}>
-                        <Calendar size={12} color={Colors.neutral.medium} />
-                        <Text style={styles.cardMetaText}>
-                          {formatDate(coloring.created_at)}
-                        </Text>
-                      </View>
-
-                      {coloring.page_count > 1 && (
-                        <View style={styles.pageCountBadge}>
-                          <Text style={styles.pageCountText}>
-                            {coloring.page_count} sayfa
-                          </Text>
-                        </View>
-                      )}
-
-                      {/* Tags */}
-                      {coloring.tags?.length > 0 && (
-                        <View style={styles.tagsContainer}>
-                          {coloring.tags.slice(0, 2).map((tag: string, index: number) => (
-                            <View key={index} style={styles.tag}>
-                              <Text style={styles.tagText}>{tag}</Text>
-                            </View>
-                          ))}
-                        </View>
-                      )}
-
-                      {/* Favorite Badge */}
-                      {coloring.favorited && (
-                        <View style={styles.favoriteBadge}>
-                          <Star size={12} color={Colors.secondary.sunshine} fill={Colors.secondary.sunshine} />
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Download Button */}
                     <Pressable
                       style={({ pressed }) => [
-                        styles.downloadButton,
-                        pressed && { opacity: 0.7 },
+                        styles.coloringCard,
+                        pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                       ]}
-                      onPress={() => handleDownloadPDF(coloring.pdf_url, coloring.title)}
+                      onPress={() => handleViewColoring(coloring.id, coloring.pdf_url, coloring.title)}
                     >
                       <LinearGradient
-                        colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                        style={styles.downloadButtonGradient}
+                        colors={[Colors.neutral.lightest, Colors.neutral.white]}
+                        style={styles.cardGradient}
                       >
-                        <Download size={16} color={Colors.neutral.white} />
-                        <Text style={styles.downloadButtonText}>İndir</Text>
+                        {/* Image Preview Placeholder */}
+                        <View style={styles.imageContainer}>
+                          {coloring.coloring_image_url ? (
+                            <Image
+                              source={{ uri: coloring.coloring_image_url }}
+                              style={styles.image}
+                              contentFit="cover"
+                            />
+                          ) : (
+                            <View style={styles.imagePlaceholder}>
+                              <Palette size={48} color={Colors.neutral.light} />
+                            </View>
+                          )}
+                        </View>
+
+                        {/* Card Content */}
+                        <View style={styles.cardContent}>
+                          <Text style={styles.cardTitle} numberOfLines={2}>
+                            {coloring.title}
+                          </Text>
+
+                          <View style={styles.cardMeta}>
+                            <Calendar size={12} color={Colors.neutral.medium} />
+                            <Text style={styles.cardMetaText}>
+                              {formatDate(coloring.created_at)}
+                            </Text>
+                          </View>
+
+                          {coloring.page_count > 1 && (
+                            <View style={styles.pageCountBadge}>
+                              <Text style={styles.pageCountText}>
+                                {coloring.page_count} sayfa
+                              </Text>
+                            </View>
+                          )}
+
+                          {/* Tags */}
+                          {coloring.tags?.length > 0 && (
+                            <View style={styles.tagsContainer}>
+                              {coloring.tags.slice(0, 2).map((tag: string, index: number) => (
+                                <View key={index} style={styles.tag}>
+                                  <Text style={styles.tagText}>{tag}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          )}
+
+                          {/* Favorite Badge */}
+                          {coloring.favorited && (
+                            <View style={styles.favoriteBadge}>
+                              <Star size={12} color={Colors.secondary.sunshine} fill={Colors.secondary.sunshine} />
+                            </View>
+                          )}
+                        </View>
+
+                        {/* Download Button */}
+                        <Pressable
+                          style={({ pressed }) => [
+                            styles.downloadButton,
+                            pressed && { opacity: 0.7 },
+                          ]}
+                          onPress={() => handleDownloadPDF(coloring.pdf_url, coloring.title)}
+                        >
+                          <LinearGradient
+                            colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                            style={styles.downloadButtonGradient}
+                          >
+                            <Download size={16} color={Colors.neutral.white} />
+                            <Text style={styles.downloadButtonText}>İndir</Text>
+                          </LinearGradient>
+                        </Pressable>
                       </LinearGradient>
                     </Pressable>
-                  </LinearGradient>
-                </Pressable>
-              ))}
+                  </Swipeable>
+                );
+              })}
             </View>
           )}
         </ScrollView>
@@ -506,5 +552,27 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
+  },
+  swipeDeleteContainer: {
+    justifyContent: "center",
+    alignItems: "flex-end",
+    width: 80,
+    marginBottom: spacing["2"],
+  },
+  deleteButton: {
+    backgroundColor: "#EF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    borderTopRightRadius: radius.xl,
+    borderBottomRightRadius: radius.xl,
+    paddingHorizontal: spacing["2"],
+    gap: spacing["1"],
+  },
+  deleteButtonText: {
+    color: Colors.neutral.white,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
   },
 });
