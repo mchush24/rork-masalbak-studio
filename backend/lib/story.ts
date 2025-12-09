@@ -39,15 +39,15 @@ type MakeOptions = {
  * @param prompt - Optional custom prompt (should already include style consistency)
  * @param pageNumber - Current page number (1-indexed)
  * @param totalPages - Total number of pages in the story
- * @param provider - Image generation provider ('dalle3' or 'flux1')
- * @param seed - Seed for consistency (only used with Flux.1)
+ * @param provider - Image generation provider (always 'flux2')
+ * @param seed - Seed for consistency
  */
 export async function generateImageForPage(
   text: string,
   prompt?: string,
   pageNumber?: number,
   totalPages?: number,
-  provider: ImageProvider = 'flux1',
+  provider: ImageProvider = 'flux2',
   seed?: number
 ) {
   // Use provided prompt or fallback to basic prompt
@@ -70,7 +70,7 @@ export async function makeStorybook(opts: MakeOptions) {
   console.log("[Story] Starting storybook creation:", opts.title);
   console.log("[Story] Language:", opts.lang || 'tr');
   console.log("[Story] Number of pages:", opts.pages.length);
-  console.log("[Story] Image provider: FLUX.1 (via FAL.ai)");
+  console.log("[Story] Image provider: FLUX 2.0 🚀 (via FAL.ai) - FASTEST & BEST!");
 
   // Define character for consistency across all pages
   const character = defineCharacterFromContext(opts.drawingAnalysis, opts.ageGroup);
@@ -114,7 +114,7 @@ export async function makeStorybook(opts: MakeOptions) {
         consistentPrompt, // Use consistent prompt
         i + 1, // page number (1-indexed)
         totalPages,
-        'flux1', // Always use Flux.1 for consistency
+        'flux2', // Always use Flux 2.0 - FASTEST & BEST!
         seed // Same seed for all pages = consistent character
       );
 
@@ -132,7 +132,7 @@ export async function makeStorybook(opts: MakeOptions) {
 
       console.log(`[Story] ✅ Image ${i+1} generated with text overlay`);
 
-      // No delay needed - Flux.1 is fast!
+      // No delay needed - Flux 2.0 is SUPER fast! (1-2 seconds)
     } catch (err) {
       console.error(`[Story] ❌ Image generation failed for page ${i+1}:`, err);
       imgs.push("about:blank");

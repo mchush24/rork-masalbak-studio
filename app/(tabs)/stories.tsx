@@ -10,7 +10,8 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2 } from "lucide-react-native";
+import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2, Trash2 } from "lucide-react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
@@ -54,6 +55,12 @@ export default function StoriesScreen() {
       setShowCreateForm(false);
       setStoryTitle("");
       setStoryImage(null);
+      refetch();
+    },
+  });
+
+  const deleteStorybookMutation = trpc.studio.deleteStorybook.useMutation({
+    onSuccess: () => {
       refetch();
     },
   });
@@ -149,20 +156,14 @@ export default function StoriesScreen() {
 
       console.log('[Stories] Creating storybook with therapeutic mode:', therapeuticMode);
 
-      // TODO: In the future, convert and use the uploaded image for AI story generation
-      // Currently using template-based story generation
-      // const imageBase64 = await convertImageToBase64(storyImage!);
-
-      let pages: Array<{ text: string; prompt: string }>;
-
       // Get user's language preference for story content
       const userLang = (user?.language || 'tr') as 'tr' | 'en';
       const isTurkish = userLang === 'tr';
 
-      // Consistent style prompt (ALWAYS in English for DALL-E)
-      const CONSISTENT_STYLE = "Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain light background, same character design, same art style, VERY IMPORTANT: NO TEXT NO LETTERS NO WORDS on image";
-
       if (therapeuticMode) {
+        // Therapeutic stories use special template-based approach
+        const CONSISTENT_STYLE = "Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain light background, same character design, same art style, VERY IMPORTANT: NO TEXT NO LETTERS NO WORDS on image";
+        let pages: Array<{ text: string; prompt: string }>;
         // Therapeutic story generation with metaphorical transformation
         console.log('[Stories] Using therapeutic story structure');
 
@@ -235,76 +236,63 @@ export default function StoriesScreen() {
             },
           ];
         }
+
+        // For therapeutic mode, use template-based approach
+        await createStorybookMutation.mutateAsync({
+          title: storyTitle || (userLang === 'tr' ? "Benim Masalım" : "My Story"),
+          pages,
+          lang: userLang,
+          makePdf: true,
+          makeTts: false, // ❌ TTS kapalı (maliyet + süre)
+          user_id: user?.userId || null,
+        });
       } else {
-        // Normal story generation
-        if (isTurkish) {
-          pages = [
-            {
-              text: `${storyTitle} adlı macera başlıyor.`,
-              prompt: `${CONSISTENT_STYLE}. Opening scene: adventure begins, child character, ${storyTitle} theme`,
-            },
-            {
-              text: "Kahramanımız yeni arkadaşlar buldu.",
-              prompt: `${CONSISTENT_STYLE}. Scene: making new friends, colorful characters, joyful meeting`,
-            },
-            {
-              text: "Birlikte eğlenceli bir keşfe çıktılar.",
-              prompt: `${CONSISTENT_STYLE}. Scene: fun exploration together, discovery, adventure`,
-            },
-            {
-              text: "Harika anılar biriktirdiler.",
-              prompt: `${CONSISTENT_STYLE}. Scene: happy moments, wonderful memories, joy`,
-            },
-            {
-              text: "Ve mutlu bir şekilde eve döndüler.",
-              prompt: `${CONSISTENT_STYLE}. Closing scene: happy return home, peaceful ending`,
-            },
-          ];
-        } else {
-          pages = [
-            {
-              text: `The adventure of ${storyTitle} begins.`,
-              prompt: `${CONSISTENT_STYLE}. Opening scene: adventure begins, child character, ${storyTitle} theme`,
-            },
-            {
-              text: "Our hero found new friends.",
-              prompt: `${CONSISTENT_STYLE}. Scene: making new friends, colorful characters, joyful meeting`,
-            },
-            {
-              text: "Together they went on a fun exploration.",
-              prompt: `${CONSISTENT_STYLE}. Scene: fun exploration together, discovery, adventure`,
-            },
-            {
-              text: "They created wonderful memories.",
-              prompt: `${CONSISTENT_STYLE}. Scene: happy moments, wonderful memories, joy`,
-            },
-            {
-              text: "And they happily returned home.",
-              prompt: `${CONSISTENT_STYLE}. Closing scene: happy return home, peaceful ending`,
-            },
-          ];
-        }
+        // ✨ NORMAL STORY: Use AI-powered generation with real scenes!
+        console.log('[Stories] 🤖 Using AI-powered story generation from drawing...');
+
+        // Step 1: Analyze the drawing
+        console.log('[Stories] 🔍 Step 1/2: Analyzing drawing...');
+        const analysisResult = await trpc.studio.analyzeDrawing.mutate({
+          imageDataUrl: storyImage!,
+          childAge: 5, // Default age, can be made configurable
+        });
+
+        console.log('[Stories] ✅ Drawing analyzed!', analysisResult.analysis);
+
+        // Step 2: Generate AI-powered story from drawing analysis
+        console.log('[Stories] 📝 Step 2/2: Generating AI-powered story...');
+        const storyResult = await trpc.studio.generateStoryFromDrawing.mutate({
+          drawingAnalysis: analysisResult.analysis,
+          childAge: 5, // Default age
+          language: userLang,
+          drawingTitle: storyTitle,
+          useV2Generator: true, // Use the advanced generator with few-shot examples!
+          makePdf: true,
+          makeTts: false, // ❌ TTS kapalı (maliyet + süre)
+          user_id: user?.userId || null,
+        });
+
+        console.log('[Stories] ✅ AI story generated!', {
+          title: storyResult.story.title,
+          characterName: storyResult.story.mainCharacter.name,
+          pagesCount: storyResult.story.pages.length,
+        });
+
+        // Refetch to show the new story in the list
+        await refetch();
+
+        Alert.alert(
+          "Masal Hazır! 🎉",
+          `"${storyResult.story.title}" adlı masal kitabınız oluşturuldu! Ana karakter: ${storyResult.story.mainCharacter.name}`
+        );
       }
-
-      // Get user's language preference, default to Turkish
-      const userLanguage = (user?.language || 'tr') as 'tr' | 'en';
-
-      await createStorybookMutation.mutateAsync({
-        title: storyTitle || (userLanguage === 'tr' ? "Benim Masalım" : "My Story"),
-        pages,
-        lang: userLanguage,
-        makePdf: true,
-        makeTts: true,
-        user_id: user?.userId || null,
-      });
 
       if (therapeuticMode) {
         Alert.alert(
           "Terapötik Masal Hazır!",
           "Özel olarak hazırlanan masal kitabınız oluşturuldu. Bu masal çocuğunuzun duygularını işlemesine yardımcı olacak şekilde tasarlanmıştır."
         );
-      } else {
-        Alert.alert("Masal hazır!", "Masal kitabınız oluşturuldu.");
+        await refetch();
       }
     } catch (e: unknown) {
       const errorMessage =
@@ -340,6 +328,26 @@ export default function StoriesScreen() {
     });
   };
 
+  const handleDeleteStorybook = (storybookId: string, storybookTitle: string) => {
+    Alert.alert(
+      "Masalı Sil",
+      `"${storybookTitle}" adlı masalı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
+      [
+        {
+          text: "Vazgeç",
+          style: "cancel",
+        },
+        {
+          text: "Sil",
+          style: "destructive",
+          onPress: () => {
+            deleteStorybookMutation.mutate({ storybookId });
+          },
+        },
+      ]
+    );
+  };
+
   const renderStoryCard = (storybook: Storybook) => {
     const firstPageImage = storybook.pages?.[0]?.img_url;
     const pageCount = storybook.pages?.length || 0;
@@ -349,64 +357,81 @@ export default function StoriesScreen() {
       year: "numeric",
     });
 
-    return (
-      <Pressable
-        key={storybook.id}
-        style={({ pressed }) => [
-          styles.storyCard,
-          pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-        ]}
-        onPress={() => handleStorybookPress(storybook)}
-      >
-        <LinearGradient
-          colors={Colors.cards.story.bg as any}
-          style={styles.cardGradient}
+    const renderRightActions = () => (
+      <View style={styles.swipeDeleteContainer}>
+        <Pressable
+          style={styles.deleteButton}
+          onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
         >
-          <View style={styles.cardImageContainer}>
-            {firstPageImage ? (
-              <Image source={{ uri: firstPageImage }} style={styles.cardImage} contentFit="contain" />
-            ) : (
-              <View style={styles.cardImagePlaceholder}>
-                <BookOpen size={layout.icon.large} color={Colors.cards.story.icon} />
-              </View>
-            )}
-            {storybook.pdf_url && (
-              <LinearGradient
-                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                style={styles.pdfBadge}
-              >
-                <FileText size={14} color={Colors.neutral.white} />
-                <Text style={styles.pdfBadgeText}>PDF</Text>
-              </LinearGradient>
-            )}
-          </View>
+          <Trash2 size={24} color={Colors.neutral.white} />
+          <Text style={styles.deleteButtonText}>Sil</Text>
+        </Pressable>
+      </View>
+    );
 
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle} numberOfLines={2}>
-              {storybook.title}
-            </Text>
-
-            <View style={styles.cardMeta}>
-              <View style={styles.cardMetaItem}>
-                <FileText size={14} color={Colors.neutral.medium} />
-                <Text style={styles.cardMetaText}>{pageCount} sayfa</Text>
-              </View>
-
-              <View style={styles.cardMetaItem}>
-                <Calendar size={14} color={Colors.neutral.medium} />
-                <Text style={styles.cardMetaText}>{createdDate}</Text>
-              </View>
+    return (
+      <Swipeable
+        key={storybook.id}
+        renderRightActions={renderRightActions}
+        overshootRight={false}
+      >
+        <Pressable
+          style={({ pressed }) => [
+            styles.storyCard,
+            pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+          ]}
+          onPress={() => handleStorybookPress(storybook)}
+        >
+          <LinearGradient
+            colors={Colors.cards.story.bg as any}
+            style={styles.cardGradient}
+          >
+            <View style={styles.cardImageContainer}>
+              {firstPageImage ? (
+                <Image source={{ uri: firstPageImage }} style={styles.cardImage} contentFit="contain" />
+              ) : (
+                <View style={styles.cardImagePlaceholder}>
+                  <BookOpen size={layout.icon.large} color={Colors.cards.story.icon} />
+                </View>
+              )}
+              {storybook.pdf_url && (
+                <LinearGradient
+                  colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                  style={styles.pdfBadge}
+                >
+                  <FileText size={14} color={Colors.neutral.white} />
+                  <Text style={styles.pdfBadgeText}>PDF</Text>
+                </LinearGradient>
+              )}
             </View>
 
-            {storybook.voice_urls && storybook.voice_urls.length > 0 && (
-              <View style={styles.featureBadge}>
-                <Sparkles size={12} color={Colors.cards.story.icon} />
-                <Text style={styles.featureBadgeText}>Sesli Masal</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle} numberOfLines={2}>
+                {storybook.title}
+              </Text>
+
+              <View style={styles.cardMeta}>
+                <View style={styles.cardMetaItem}>
+                  <FileText size={14} color={Colors.neutral.medium} />
+                  <Text style={styles.cardMetaText}>{pageCount} sayfa</Text>
+                </View>
+
+                <View style={styles.cardMetaItem}>
+                  <Calendar size={14} color={Colors.neutral.medium} />
+                  <Text style={styles.cardMetaText}>{createdDate}</Text>
+                </View>
               </View>
-            )}
-          </View>
-        </LinearGradient>
-      </Pressable>
+
+              {storybook.voice_urls && storybook.voice_urls.length > 0 && (
+                <View style={styles.featureBadge}>
+                  <Sparkles size={12} color={Colors.cards.story.icon} />
+                  <Text style={styles.featureBadgeText}>Sesli Masal</Text>
+                </View>
+              )}
+            </View>
+          </LinearGradient>
+        </Pressable>
+      </Swipeable>
     );
   };
 
@@ -862,5 +887,26 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
+  },
+  swipeDeleteContainer: {
+    justifyContent: "center",
+    alignItems: "flex-end",
+    marginBottom: spacing["4"],
+  },
+  deleteButton: {
+    backgroundColor: "#EF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 90,
+    height: "100%",
+    borderTopRightRadius: radius["2xl"],
+    borderBottomRightRadius: radius["2xl"],
+    paddingHorizontal: spacing["3"],
+    gap: spacing["1"],
+  },
+  deleteButtonText: {
+    color: Colors.neutral.white,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
   },
 });
