@@ -21,6 +21,17 @@ const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
 
 type PageSpec = { text: string; prompt?: string };
+
+// NEW: Character definition from story generation
+type CharacterInfo = {
+  name: string;
+  type: string; // "tilki", "ayı", "kunduz", etc.
+  age: number;
+  appearance: string;
+  personality: string[];
+  speechStyle?: string;
+};
+
 type MakeOptions = {
   pages: PageSpec[];
   lang?: "tr"|"en";
@@ -29,7 +40,8 @@ type MakeOptions = {
   title?: string;
   user_id?: string|null;
   ageGroup?: number;
-  drawingAnalysis?: string;
+  drawingAnalysis?: string; // DEPRECATED: Use characterInfo instead
+  characterInfo?: CharacterInfo; // NEW: Full character from story
 };
 
 /**
@@ -73,7 +85,25 @@ export async function makeStorybook(opts: MakeOptions) {
   console.log("[Story] Image provider: FLUX 2.0 🚀 (via FAL.ai) - FASTEST & BEST!");
 
   // Define character for consistency across all pages
-  const character = defineCharacterFromContext(opts.drawingAnalysis, opts.ageGroup);
+  let character: CharacterDefinition;
+
+  if (opts.characterInfo) {
+    // NEW: Use character from story generation (CORRECT!)
+    console.log("[Story] ✅ Using character from story:", opts.characterInfo.name);
+    character = {
+      name: opts.characterInfo.name,
+      age: `${opts.characterInfo.age} yaş`,
+      appearance: `${opts.characterInfo.type.toUpperCase()}: ${opts.characterInfo.appearance}`,
+      style: opts.characterInfo.personality.join(', '),
+      clothing: opts.characterInfo.speechStyle || "rahat kıyafetler",
+    };
+    console.log("[Story] 🎯 Character appearance:", character.appearance.substring(0, 100) + "...");
+  } else {
+    // FALLBACK: Old method (for backward compatibility)
+    console.log("[Story] ⚠️  Using fallback character (no characterInfo provided)");
+    character = defineCharacterFromContext(opts.drawingAnalysis, opts.ageGroup);
+  }
+
   console.log("[Story] Character defined:", character.name, character.age);
 
   // Define story visual style
@@ -107,7 +137,11 @@ export async function makeStorybook(opts: MakeOptions) {
         totalPages
       );
 
-      console.log(`[Story] Page ${i+1} consistent prompt:`, consistentPrompt.substring(0, 150) + "...");
+      console.log(`[Story] 🎨 Page ${i+1}/${totalPages} Flux 2.0 Prompt:`);
+      console.log(`[Story]   Character: ${character.name}`);
+      console.log(`[Story]   Appearance: ${character.appearance.substring(0, 80)}...`);
+      console.log(`[Story]   Scene: ${(opts.pages[i].prompt || sceneDesc).substring(0, 80)}...`);
+      console.log(`[Story]   Seed: ${seed} (consistent across all pages)`);
 
       const png = await generateImageForPage(
         opts.pages[i].text,
