@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Camera, Sparkles, BookOpen, User, FlaskConical, Clock } from "lucide-react-native";
+import { Home, Camera, User, Clock } from "lucide-react-native";
 import React from "react";
 import { Colors } from "@/constants/colors";
 
@@ -28,18 +28,20 @@ export default function TabLayout() {
         },
       }}
     >
+      {/* NEW: Home Dashboard as main entry point */}
       <Tabs.Screen
         name="index"
         options={{
-          title: "Analiz",
-          tabBarIcon: ({ color }) => <Camera size={26} color={color} />,
+          title: "Ana Sayfa",
+          tabBarIcon: ({ color }) => <Home size={26} color={color} />,
         }}
       />
+      {/* Quick Analysis - moved from index */}
       <Tabs.Screen
-        name="studio"
+        name="quick-analysis"
         options={{
-          title: "Stüdyo",
-          tabBarIcon: ({ color }) => <Sparkles size={26} color={color} />,
+          title: "Hızlı Analiz",
+          tabBarIcon: ({ color }) => <Camera size={26} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -50,37 +52,41 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="stories"
-        options={{
-          title: "Hikayeler",
-          tabBarIcon: ({ color }) => <BookOpen size={26} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="advanced-analysis"
-        options={{
-          title: "İleri Analiz",
-          tabBarIcon: ({ color }) => <FlaskConical size={26} color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="profile"
         options={{
           title: "Profil",
           tabBarIcon: ({ color }) => <User size={26} color={color} />,
         }}
       />
-      {/* Hidden screens - kept for backward compatibility */}
+      {/* Hidden/Secondary screens */}
+      <Tabs.Screen
+        name="studio"
+        options={{
+          href: null, // Hide from tab bar - accessible from Home
+        }}
+      />
+      <Tabs.Screen
+        name="stories"
+        options={{
+          href: null, // Hide from tab bar - accessible from Home
+        }}
+      />
+      <Tabs.Screen
+        name="advanced-analysis"
+        options={{
+          href: null, // Hide from tab bar - accessible from Home
+        }}
+      />
       <Tabs.Screen
         name="analysis-history"
         options={{
-          href: null, // Hide from tab bar
+          href: null, // Hide from tab bar - backward compatibility
         }}
       />
       <Tabs.Screen
         name="coloring-history"
         options={{
-          href: null, // Hide from tab bar
+          href: null, // Hide from tab bar - backward compatibility
         }}
       />
     </Tabs>
