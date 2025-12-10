@@ -26,6 +26,7 @@ import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 type Storybook = {
@@ -50,6 +51,21 @@ export default function StoriesScreen() {
   const [storyImage, setStoryImage] = useState<string | null>(null);
   const [loadingStory, setLoadingStory] = useState(false);
 
+  // Progress tracking for multi-step generation
+  const [progress, setProgress] = useState({
+    step: 0,
+    total: 4,
+    message: '',
+    percentage: 0,
+  });
+
+  const steps = [
+    { name: 'analyze', message: 'Çizim analiz ediliyor...', icon: '🔍', duration: 5 },
+    { name: 'story', message: 'Hikaye yazılıyor...', icon: '✍️', duration: 15 },
+    { name: 'images', message: 'Görseller oluşturuluyor...', icon: '🎨', duration: 20 },
+    { name: 'finalize', message: 'PDF hazırlanıyor...', icon: '📄', duration: 5 },
+  ];
+
   const createStorybookMutation = trpc.studio.createStorybook.useMutation({
     onSuccess: () => {
       setShowCreateForm(false);
@@ -64,6 +80,10 @@ export default function StoriesScreen() {
       refetch();
     },
   });
+
+  // Mutations for story generation flow
+  const analyzeDrawingMutation = trpc.studio.analyzeDrawing.useMutation();
+  const generateStoryMutation = trpc.studio.generateStoryFromDrawing.useMutation();
 
   // Fetch storybooks from backend
   const {
@@ -153,6 +173,13 @@ export default function StoriesScreen() {
   async function proceedWithStorybook(therapeuticMode: boolean = false) {
     try {
       setLoadingStory(true);
+      // Reset progress
+      setProgress({
+        step: 0,
+        total: 4,
+        message: steps[0].message,
+        percentage: 0,
+      });
 
       console.log('[Stories] Creating storybook with therapeutic mode:', therapeuticMode);
 
@@ -237,6 +264,15 @@ export default function StoriesScreen() {
           ];
         }
 
+        // Step 1: Analyze (for therapeutic mode, this is instant)
+        setProgress({ step: 1, total: 4, message: steps[0].message, percentage: 25 });
+
+        // Step 2: Generate story structure
+        setProgress({ step: 2, total: 4, message: steps[1].message, percentage: 50 });
+
+        // Step 3: Generate images (this happens in the mutation)
+        setProgress({ step: 3, total: 4, message: steps[2].message, percentage: 75 });
+
         // For therapeutic mode, use template-based approach
         await createStorybookMutation.mutateAsync({
           title: storyTitle || (userLang === 'tr' ? "Benim Masalım" : "My Story"),
@@ -246,23 +282,46 @@ export default function StoriesScreen() {
           makeTts: false, // ❌ TTS kapalı (maliyet + süre)
           user_id: user?.userId || null,
         });
+
+        // Step 4: Finalize
+        setProgress({ step: 4, total: 4, message: steps[3].message, percentage: 100 });
       } else {
         // ✨ NORMAL STORY: Use AI-powered generation with real scenes!
         console.log('[Stories] 🤖 Using AI-powered story generation from drawing...');
 
-        // Step 1: Analyze the drawing
-        console.log('[Stories] 🔍 Step 1/2: Analyzing drawing...');
-        const analysisResult = await trpc.studio.analyzeDrawing.mutate({
-          imageDataUrl: storyImage!,
-          childAge: 5, // Default age, can be made configurable
+        // Step 1: Convert image to base64 and analyze the drawing
+        console.log('[Stories] 🔍 Step 1/4: Analyzing drawing...');
+        setProgress({ step: 1, total: 4, message: steps[0].message, percentage: 25 });
+
+        // Convert image URI to base64
+        let imageBase64 = "";
+        let cleanUri = storyImage!.replace(/^file:\/\//, "");
+        let fileUri = cleanUri;
+        if (!fileUri.startsWith("file://") && !fileUri.startsWith("content://")) {
+          fileUri = `file://${fileUri}`;
+        }
+        imageBase64 = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: "base64",
         });
 
-        console.log('[Stories] ✅ Drawing analyzed!', analysisResult.analysis);
+        // Analyze the drawing (using "Family" as taskType for story generation context)
+        const analysisResult = await analyzeDrawingMutation.mutateAsync({
+          taskType: "Family", // Use Family drawing analysis for story context
+          childAge: 5, // Default age, can be made configurable
+          imageBase64: imageBase64,
+          language: userLang,
+          userRole: "parent",
+          featuresJson: {},
+        });
+
+        console.log('[Stories] ✅ Drawing analyzed!');
 
         // Step 2: Generate AI-powered story from drawing analysis
-        console.log('[Stories] 📝 Step 2/2: Generating AI-powered story...');
-        const storyResult = await trpc.studio.generateStoryFromDrawing.mutate({
-          drawingAnalysis: analysisResult.analysis,
+        console.log('[Stories] 📝 Step 2/4: Generating AI-powered story...');
+        setProgress({ step: 2, total: 4, message: steps[1].message, percentage: 50 });
+
+        const storyResult = await generateStoryMutation.mutateAsync({
+          drawingAnalysis: analysisResult,
           childAge: 5, // Default age
           language: userLang,
           drawingTitle: storyTitle,
@@ -277,6 +336,12 @@ export default function StoriesScreen() {
           characterName: storyResult.story.mainCharacter.name,
           pagesCount: storyResult.story.pages.length,
         });
+
+        // Step 3: Images (already generated in previous step, but show progress)
+        setProgress({ step: 3, total: 4, message: steps[2].message, percentage: 75 });
+
+        // Step 4: Finalize
+        setProgress({ step: 4, total: 4, message: steps[3].message, percentage: 100 });
 
         // Refetch to show the new story in the list
         await refetch();
@@ -575,9 +640,48 @@ export default function StoriesScreen() {
             </Pressable>
 
             {loadingStory && (
-              <View style={styles.loadingInfo}>
-                <ActivityIndicator size="small" color={Colors.cards.story.icon} />
-                <Text style={styles.loadingInfoText}>
+              <View style={styles.progressContainer}>
+                <Text style={styles.progressTitle}>Masal Oluşturuluyor...</Text>
+
+                {/* Progress Bar */}
+                <View style={styles.progressBarContainer}>
+                  <View style={[styles.progressBarFill, { width: `${progress.percentage}%` }]} />
+                </View>
+                <Text style={styles.progressPercentage}>{progress.percentage}%</Text>
+
+                {/* Current Step Message */}
+                <Text style={styles.progressMessage}>{progress.message}</Text>
+
+                {/* Steps Indicators */}
+                <View style={styles.progressSteps}>
+                  {steps.map((step, i) => {
+                    const stepNumber = i + 1;
+                    const isCompleted = stepNumber < progress.step;
+                    const isActive = stepNumber === progress.step;
+                    const isPending = stepNumber > progress.step;
+
+                    return (
+                      <View key={i} style={styles.progressStepItem}>
+                        <View style={[
+                          styles.stepIconContainer,
+                          isCompleted && styles.stepIconCompleted,
+                          isActive && styles.stepIconActive,
+                          isPending && styles.stepIconPending
+                        ]}>
+                          <Text style={styles.stepIcon}>
+                            {isCompleted ? '✅' : isActive ? step.icon : '⏸️'}
+                          </Text>
+                        </View>
+                        <Text style={[
+                          styles.stepLabel,
+                          isActive && styles.stepLabelActive
+                        ]}>{step.name}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                <Text style={styles.progressFooter}>
                   Bu işlem birkaç dakika sürebilir...
                 </Text>
               </View>
@@ -876,17 +980,88 @@ const styles = StyleSheet.create({
     fontSize: typography.size.md,
     fontWeight: typography.weight.semibold,
   },
-  loadingInfo: {
+  progressContainer: {
+    marginTop: spacing["4"],
+    padding: spacing["4"],
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius.lg,
+    gap: spacing["3"],
+  },
+  progressTitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
+    textAlign: "center",
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: Colors.neutral.lightest,
+    borderRadius: radius.full,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: Colors.secondary.sunshine,
+    borderRadius: radius.full,
+  },
+  progressPercentage: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.cards.story.icon,
+    textAlign: "center",
+  },
+  progressMessage: {
+    fontSize: typography.size.base,
+    color: Colors.neutral.dark,
+    textAlign: "center",
+    fontWeight: typography.weight.medium,
+  },
+  progressSteps: {
     flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    justifyContent: "center",
-    gap: spacing["2"],
     marginTop: spacing["2"],
   },
-  loadingInfoText: {
-    fontSize: typography.size.sm,
+  progressStepItem: {
+    alignItems: "center",
+    gap: spacing["2"],
+    flex: 1,
+  },
+  stepIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.neutral.lightest,
+  },
+  stepIconCompleted: {
+    backgroundColor: Colors.secondary.mint + "40",
+  },
+  stepIconActive: {
+    backgroundColor: Colors.secondary.sunshine + "40",
+  },
+  stepIconPending: {
+    backgroundColor: Colors.neutral.lightest,
+  },
+  stepIcon: {
+    fontSize: 20,
+  },
+  stepLabel: {
+    fontSize: typography.size.xs,
     color: Colors.neutral.medium,
+    textAlign: "center",
     fontWeight: typography.weight.medium,
+  },
+  stepLabelActive: {
+    color: Colors.neutral.darkest,
+    fontWeight: typography.weight.bold,
+  },
+  progressFooter: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    textAlign: "center",
+    marginTop: spacing["2"],
   },
   swipeDeleteContainer: {
     justifyContent: "center",
