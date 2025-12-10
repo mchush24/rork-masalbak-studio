@@ -183,47 +183,55 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
-          {/* Creative Actions */}
+          {/* Creative Actions - Hayal Atölyesi */}
           <View style={styles.creativeActionsContainer}>
-            <Text style={styles.sectionTitle}>✨ Yaratıcılık Merkezi</Text>
-            <View style={styles.creativeActionsGrid}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>✨ Hayal Atölyesi</Text>
               <Pressable
-                style={({ pressed }) => [
-                  styles.creativeCard,
-                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
-                ]}
-                onPress={() => router.push("/stories" as any)}
+                onPress={() => router.push("/hayal-atolyesi" as any)}
+                style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
-                <LinearGradient
-                  colors={Colors.cards.story.bg as any}
-                  style={styles.creativeCardGradient}
-                >
-                  <BookOpen size={40} color={Colors.cards.story.icon} />
-                  <Text style={styles.creativeCardTitle}>📖 Masal</Text>
-                  <Text style={styles.creativeCardDescription}>
-                    Çizimden AI hikaye
-                  </Text>
-                </LinearGradient>
+                <Text style={styles.seeAllText}>Tümünü Gör →</Text>
               </Pressable>
+            </View>
 
-              <Pressable
-                style={({ pressed }) => [
-                  styles.creativeCard,
-                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
-                ]}
-                onPress={() => router.push("/studio" as any)}
+            <Pressable
+              style={({ pressed }) => [
+                styles.hayalAtolyesiCard,
+                pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => router.push("/hayal-atolyesi" as any)}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.mint, Colors.secondary.mintLight]}
+                style={styles.hayalAtolyesiGradient}
               >
-                <LinearGradient
-                  colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                  style={styles.creativeCardGradient}
-                >
-                  <Palette size={40} color={Colors.neutral.white} />
-                  <Text style={styles.creativeCardTitle}>🎨 Boyama</Text>
-                  <Text style={styles.creativeCardDescription}>
-                    Basitleştirilmiş PDF
+                <View style={styles.hayalAtolyesiIcon}>
+                  <Text style={styles.hayalAtolyesiIconText}>🌟</Text>
+                </View>
+                <View style={styles.hayalAtolyesiContent}>
+                  <Text style={styles.hayalAtolyesiTitle}>Çiziminden Yarat</Text>
+                  <Text style={styles.hayalAtolyesiDescription}>
+                    Masal • Boyama • Analiz - Tek yerden tümü
                   </Text>
-                </LinearGradient>
-              </Pressable>
+                </View>
+                <ChevronRight size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+            </Pressable>
+
+            <View style={styles.hayalAtolyesiPreviewGrid}>
+              <View style={styles.hayalAtolyesiPreviewItem}>
+                <BookOpen size={24} color={Colors.cards.story.icon} />
+                <Text style={styles.hayalAtolyesiPreviewText}>Masal</Text>
+              </View>
+              <View style={styles.hayalAtolyesiPreviewItem}>
+                <Palette size={24} color={Colors.secondary.sky} />
+                <Text style={styles.hayalAtolyesiPreviewText}>Boyama</Text>
+              </View>
+              <View style={styles.hayalAtolyesiPreviewItem}>
+                <Brain size={24} color={Colors.secondary.lavender} />
+                <Text style={styles.hayalAtolyesiPreviewText}>Analiz</Text>
+              </View>
             </View>
           </View>
 
@@ -329,7 +337,7 @@ export default function HomeScreen() {
                 styles.quickLink,
                 pressed && { opacity: 0.7 },
               ]}
-              onPress={() => router.push("/(tabs)/history")}
+              onPress={() => router.push("/history" as any)}
             >
               <Clock size={20} color={Colors.neutral.dark} />
               <Text style={styles.quickLinkText}>Tüm Geçmiş</Text>
@@ -341,7 +349,7 @@ export default function HomeScreen() {
                 styles.quickLink,
                 pressed && { opacity: 0.7 },
               ]}
-              onPress={() => router.push("/(tabs)/profile")}
+              onPress={() => router.push("/profile" as any)}
             >
               <TrendingUp size={20} color={Colors.neutral.dark} />
               <Text style={styles.quickLinkText}>İlerleme Takibi</Text>
@@ -437,36 +445,64 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
     opacity: 0.9,
   },
-  // Creative Actions
+  // Creative Actions - Hayal Atölyesi
   creativeActionsContainer: {
     marginBottom: spacing["6"],
   },
-  creativeActionsGrid: {
-    flexDirection: "row",
-    gap: spacing["4"],
-  },
-  creativeCard: {
-    flex: 1,
+  hayalAtolyesiCard: {
     borderRadius: radius.xl,
-    ...shadows.md,
+    ...shadows.lg,
+    marginBottom: spacing["4"],
   },
-  creativeCardGradient: {
+  hayalAtolyesiGradient: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: spacing["5"],
     borderRadius: radius.xl,
-    alignItems: "center",
-    gap: spacing["2"],
+    gap: spacing["4"],
   },
-  creativeCardTitle: {
-    fontSize: typography.size.base,
+  hayalAtolyesiIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.lg,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  hayalAtolyesiIconText: {
+    fontSize: typography.size["2xl"],
+  },
+  hayalAtolyesiContent: {
+    flex: 1,
+  },
+  hayalAtolyesiTitle: {
+    fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
-    textAlign: "center",
+    marginBottom: spacing["1"],
   },
-  creativeCardDescription: {
-    fontSize: typography.size.xs,
+  hayalAtolyesiDescription: {
+    fontSize: typography.size.sm,
     color: Colors.neutral.white,
     opacity: 0.9,
-    textAlign: "center",
+  },
+  hayalAtolyesiPreviewGrid: {
+    flexDirection: "row",
+    gap: spacing["3"],
+  },
+  hayalAtolyesiPreviewItem: {
+    flex: 1,
+    backgroundColor: Colors.neutral.white,
+    padding: spacing["4"],
+    borderRadius: radius.lg,
+    alignItems: "center",
+    gap: spacing["2"],
+    ...shadows.sm,
+  },
+  hayalAtolyesiPreviewText: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
   },
   // Recent Analyses
   recentContainer: {
