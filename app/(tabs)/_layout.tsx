@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Camera, Sparkles, BookOpen, User, FlaskConical } from "lucide-react-native";
+import { Camera, Sparkles, BookOpen, User, FlaskConical, Clock } from "lucide-react-native";
 import React from "react";
 import { Colors } from "@/constants/colors";
 
@@ -43,6 +43,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="history"
+        options={{
+          title: "Geçmiş",
+          tabBarIcon: ({ color }) => <Clock size={26} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="stories"
         options={{
           title: "Hikayeler",
@@ -63,6 +70,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <User size={26} color={color} />,
         }}
       />
+      {/* Hidden screens - kept for backward compatibility */}
       <Tabs.Screen
         name="analysis-history"
         options={{
