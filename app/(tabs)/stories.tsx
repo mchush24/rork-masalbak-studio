@@ -145,22 +145,20 @@ export default function StoriesScreen() {
 
     if (hasSensitiveContent || hasTherapeuticIntent) {
       Alert.alert(
-        "Terapötik Masal Önerisi",
-        "Başlığınızda travmatik konular tespit ettik. Bu durumda:\n\n✅ ÖNERİLEN: Size özel, psikolojik destek odaklı bir masal oluşturabiliriz. Bu masallar çocuğunuzun duygularını işlemesine yardımcı olur.\n\n⚠️ VEYA: 'İleri Analiz' bölümünde profesyonel çizim analizi yapabilirsiniz.\n\nNasıl devam etmek istersiniz?",
+        "💛 Özel Masal Önerisi",
+        "Başlığınızda hassas konular tespit ettik. Çocuğunuz için özel tasarlanmış iki seçeneğimiz var:\n\n✨ TERAPÖTIK MASAL\nDuyguları işlemeye yardımcı, metaforik anlatım, umut odaklı sonuç\n\n📖 NORMAL MASAL  \nHayal gücü odaklı, eğlenceli macera\n\n💡 İPUCU: Travmatik konularda terapötik masalları öneriyoruz.\n\nHangi masal türünü oluşturalım?",
         [
-          {
-            text: "İleri Analiz'e Git",
-            onPress: () => {
-              router.push("/(tabs)/advanced-analysis");
-            },
-          },
           {
             text: "Vazgeç",
             style: "cancel",
           },
           {
-            text: "Terapötik Masal Oluştur",
-            onPress: () => proceedWithStorybook(true), // therapeutic mode
+            text: "Normal Masal",
+            onPress: () => proceedWithStorybook(false),
+          },
+          {
+            text: "Terapötik Masal (Önerilen)",
+            onPress: () => proceedWithStorybook(true),
           },
         ]
       );
