@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { trpc } from '@/lib/trpc';
+import { trpc, trpcClient } from '@/lib/trpc';
 import { getSupabaseFrontend, signIn as supabaseSignIn, signUp as supabaseSignUp, signOut as supabaseSignOut } from '@/lib/supabase';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 
 const ONBOARDING_KEY = '@masalbak_onboarding_completed';
+const MANUAL_SESSION_KEY = '@masalbak_manual_session';
 
 export interface Child {
   name: string;
@@ -63,6 +64,14 @@ export function useAuth() {
 
       if (currentSession) {
         await handleAuthSession(currentSession);
+      } else {
+        // No Supabase session - check for manual session
+        const manualSessionData = await AsyncStorage.getItem(MANUAL_SESSION_KEY);
+        if (manualSessionData) {
+          console.log('[useAuth] 📱 Restoring manual session from AsyncStorage');
+          const manualUser = JSON.parse(manualSessionData) as UserSession;
+          setUser(manualUser);
+        }
       }
 
       // Load onboarding status
@@ -109,7 +118,7 @@ export function useAuth() {
       console.log('[useAuth] 👤 Supabase user:', supabaseUser.email);
 
       // Fetch user profile from backend
-      const profile = await trpc.user.getProfile.query({
+      const profile = await trpcClient.user.getProfile.query({
         userId: supabaseUser.id,
       });
 
@@ -196,6 +205,7 @@ export function useAuth() {
 
       await supabaseSignOut();
       await AsyncStorage.removeItem(ONBOARDING_KEY);
+      await AsyncStorage.removeItem(MANUAL_SESSION_KEY);
 
       setUser(null);
       setSession(null);
@@ -231,7 +241,7 @@ export function useAuth() {
     try {
       console.log('[useAuth] 🔄 Refreshing user profile...');
 
-      const profile = await trpc.user.getProfile.query({
+      const profile = await trpcClient.user.getProfile.query({
         userId: user.userId,
       });
 
@@ -247,7 +257,9 @@ export function useAuth() {
         };
 
         setUser(updatedUser);
-        console.log('[useAuth] ✅ User profile refreshed');
+        // Also update AsyncStorage for persistence
+        await AsyncStorage.setItem(MANUAL_SESSION_KEY, JSON.stringify(updatedUser));
+        console.log('[useAuth] ✅ User profile refreshed and persisted');
       }
     } catch (error) {
       console.error('[useAuth] ❌ Error refreshing user:', error);
@@ -261,14 +273,38 @@ export function useAuth() {
     try {
       console.log('[useAuth] 📝 Setting user session manually:', email);
 
+      // Create basic user session
       const userSession: UserSession = {
         userId,
         email,
         name,
       };
 
-      setUser(userSession);
-      console.log('[useAuth] ✅ User session set:', userSession.email);
+      // Refresh from backend to get full profile (triggers session creation)
+      let finalSession = userSession;
+      try {
+        const profile = await trpcClient.user.getProfile.query({ userId });
+        if (profile) {
+          finalSession = {
+            userId: profile.id,
+            email: profile.email,
+            name: profile.name || undefined,
+            children: profile.children as Child[] | undefined,
+            avatarUrl: profile.avatar_url || undefined,
+            language: profile.language || undefined,
+            preferences: profile.preferences as Record<string, any> | undefined,
+          };
+          console.log('[useAuth] ✅ Full profile loaded from backend');
+        }
+      } catch (profileError) {
+        console.log('[useAuth] ⚠️ Could not fetch full profile, using basic session');
+      }
+
+      // Save to both state and AsyncStorage
+      setUser(finalSession);
+      await AsyncStorage.setItem(MANUAL_SESSION_KEY, JSON.stringify(finalSession));
+
+      console.log('[useAuth] ✅ User session set and persisted:', finalSession.email);
     } catch (error) {
       console.error('[useAuth] ❌ Error setting user session:', error);
       throw error;

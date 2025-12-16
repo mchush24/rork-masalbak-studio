@@ -5,10 +5,8 @@ import {
   View,
   ScrollView,
   Alert,
-  Share,
   Image,
   Pressable,
-  Animated,
   Modal,
   ActivityIndicator,
 } from "react-native";
@@ -19,106 +17,21 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
 import { layout, typography, spacing, radius, shadows, cardVariants, badgeStyles } from "@/constants/design-system";
-import { trpc } from "@/lib/trpc";
 import { Platform } from "react-native";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
 import { useGenerateColoringPage } from "@/lib/hooks/useGenerateColoringPage";
 import * as Linking from "expo-linking";
 import { ColoringCanvas } from "@/components/ColoringCanvas";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 export default function StudioScreen() {
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
-
-  const [loadingPDF, setLoadingPDF] = useState(false);
-  const [coloringTitle, setColoringTitle] = useState("Benim Boyama Sayfam");
-  const [coloringImage, setColoringImage] = useState<string | null>(null);
-  const [coloringResult, setColoringResult] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // AI Boyama Sayfası States
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiDrawingImage, setAIDrawingImage] = useState<string | null>(null);
   const [showColoringCanvas, setShowColoringCanvas] = useState(false);
   const { generate, isGenerating, coloringPage, reset } = useGenerateColoringPage();
-
-  const generateColoringMutation = trpc.studio.generateColoringPDF.useMutation();
-
-  async function pickColoringImage() {
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 0.9,
-    });
-    if (!res.canceled && res.assets?.length) {
-      setColoringImage(res.assets[0].uri);
-    }
-  }
-
-  async function handleColoringPDF() {
-    if (!coloringImage) {
-      Alert.alert("Lütfen önce bir çizim seç.");
-      return;
-    }
-    try {
-      setLoadingPDF(true);
-
-      let imageBase64: string;
-      if (Platform.OS === "web") {
-        if (coloringImage.startsWith("data:")) {
-          imageBase64 = coloringImage.split(",")[1];
-        } else {
-          const response = await fetch(coloringImage);
-          const blob = await response.blob();
-          imageBase64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64String = reader.result as string;
-              const base64Data = base64String.split(",")[1];
-              resolve(base64Data);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        }
-      } else {
-        let uri = coloringImage;
-        if (!uri.startsWith("file://") && !uri.startsWith("content://")) {
-          uri = `file://${uri}`;
-        }
-        imageBase64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: "base64",
-        });
-      }
-
-      const result = await generateColoringMutation.mutateAsync({
-        title: coloringTitle,
-        pages: [imageBase64],
-        size: "A4",
-        user_id: user?.userId || null,
-      });
-
-      setColoringResult(result.pdf_url);
-      Alert.alert("🎉 Boyama PDF Hazır!", "PDF başarıyla oluşturuldu. Şimdi paylaşabilir veya indirebilirsiniz.");
-    } catch (e: unknown) {
-      const errorMessage =
-        e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";
-      Alert.alert("Hata", errorMessage, [
-        { text: "Vazgeç", style: "cancel" },
-        { text: "Tekrar Dene", onPress: handleColoringPDF },
-      ]);
-    } finally {
-      setLoadingPDF(false);
-    }
-  }
-
-  async function shareLink(url: string) {
-    try {
-      await Share.share({ message: `MasalBak Boyama PDF: ${url}` });
-    } catch {
-      console.log("Share failed");
-    }
-  }
 
   // AI Boyama Sayfası Fonksiyonları
   async function pickAIDrawingImage() {
@@ -134,7 +47,7 @@ export default function StudioScreen() {
 
   async function handleGenerateAIColoring() {
     if (!aiDrawingImage) {
-      Alert.alert("Lütfen önce bir çizim seç.");
+      Alert.alert(t.studio.selectDrawingFirst);
       return;
     }
 
@@ -173,10 +86,10 @@ export default function StudioScreen() {
         ageGroup: 5,
       });
 
-      Alert.alert("✨ Başarılı!", "Boyama sayfası oluşturuldu! Şimdi indirebilir veya uygulamada boyayabilirsiniz.");
+      Alert.alert(t.studio.success, t.studio.coloringPageCreated);
     } catch (err) {
       console.error("AI Coloring error:", err);
-      Alert.alert("Hata", "Boyama sayfası oluşturulamadı. Lütfen tekrar deneyin.");
+      Alert.alert(t.common.error, t.studio.coloringPageError);
     }
   }
 
@@ -219,9 +132,9 @@ export default function StudioScreen() {
               <Palette size={32} color={Colors.neutral.white} />
             </LinearGradient>
           </View>
-          <Text style={styles.headerTitle}>Boyama Stüdyosu</Text>
+          <Text style={styles.headerTitle}>{t.studio.title}</Text>
           <Text style={styles.headerSubtitle}>
-            Çizimlerden sihirli boyama sayfaları ✨
+            {t.studio.subtitle}
           </Text>
         </View>
 
@@ -229,7 +142,7 @@ export default function StudioScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>∞</Text>
-            <Text style={styles.statLabel}>Sınırsız</Text>
+            <Text style={styles.statLabel}>{t.studio.unlimited}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>A4</Text>
@@ -237,142 +150,11 @@ export default function StudioScreen() {
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>HD</Text>
-            <Text style={styles.statLabel}>Kalite</Text>
+            <Text style={styles.statLabel}>{t.studio.quality}</Text>
           </View>
         </View>
 
-        {/* Main Feature Card */}
-        <LinearGradient
-          colors={Colors.cards.coloring.bg}
-          style={styles.mainCard}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          {/* Feature Badge */}
-          <View style={styles.featureBadge}>
-            <Sparkles size={14} color={Colors.cards.coloring.icon} />
-            <Text style={styles.featureBadgeText}>Yapay Zeka Destekli</Text>
-          </View>
-
-          {/* Icon & Title */}
-          <View style={styles.cardIconContainer}>
-            <View style={styles.cardIcon}>
-              <Palette size={48} color={Colors.cards.coloring.icon} />
-            </View>
-          </View>
-
-          <Text style={styles.cardTitle}>Boyama Sayfası Oluştur</Text>
-          <Text style={styles.cardDescription}>
-            Çocuğunuzun çizimini profesyonel boyama sayfasına dönüştürün
-          </Text>
-
-          {/* Input Section */}
-          <View style={styles.inputSection}>
-            <Input
-              placeholder="Başlık (ör: Benim Boyama Sayfam)"
-              value={coloringTitle}
-              onChangeText={setColoringTitle}
-              size="md"
-              fullWidth
-              containerStyle={styles.inputContainer}
-            />
-
-            {coloringImage && (
-              <View style={styles.imagePreviewContainer}>
-                <Image
-                  source={{ uri: coloringImage }}
-                  style={styles.imagePreview}
-                  resizeMode="contain"
-                />
-                <LinearGradient
-                  colors={["transparent", "rgba(0,0,0,0.6)"]}
-                  style={styles.imageOverlay}
-                >
-                  <Text style={styles.imageLabel}>Seçilen Görsel</Text>
-                </LinearGradient>
-              </View>
-            )}
-
-            <Pressable
-              onPress={pickColoringImage}
-              style={({ pressed }) => [
-                styles.selectImageButton,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <LinearGradient
-                colors={[Colors.neutral.medium, Colors.neutral.dark]}
-                style={styles.buttonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                <ImagePlus size={20} color={Colors.neutral.white} />
-                <Text style={styles.buttonTextWhite}>
-                  {coloringImage ? "Farklı Görsel Seç" : "Görsel Seç"}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-
-            <Pressable
-              onPress={handleColoringPDF}
-              disabled={!coloringImage || loadingPDF}
-              style={({ pressed }) => [
-                styles.createButton,
-                (!coloringImage || loadingPDF) && styles.buttonDisabled,
-                pressed && !loadingPDF && styles.buttonPressed,
-              ]}
-            >
-              <LinearGradient
-                colors={
-                  !coloringImage || loadingPDF
-                    ? [Colors.neutral.light, Colors.neutral.medium]
-                    : [Colors.cards.coloring.icon, Colors.secondary.grass]
-                }
-                style={styles.buttonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                <Sparkles size={20} color={Colors.neutral.white} />
-                <Text style={styles.buttonTextWhite}>
-                  {loadingPDF ? "Oluşturuluyor..." : "Boyama PDF Oluştur"}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-          </View>
-
-          {/* Result Section */}
-          {coloringResult && (
-            <View style={styles.resultSection}>
-              <View style={styles.successBadge}>
-                <Text style={styles.successBadgeText}>✓ Başarıyla Oluşturuldu</Text>
-              </View>
-
-              <View style={styles.resultCard}>
-                <View style={styles.resultIconContainer}>
-                  <Download size={24} color={Colors.cards.coloring.icon} />
-                </View>
-                <View style={styles.resultTextContainer}>
-                  <Text style={styles.resultTitle}>PDF Hazır</Text>
-                  <Text style={styles.resultUrl} numberOfLines={1}>
-                    {coloringResult}
-                  </Text>
-                </View>
-              </View>
-
-              <Button
-                variant="success"
-                size="lg"
-                onPress={() => shareLink(coloringResult)}
-                fullWidth
-                icon={<Share size={20} color={Colors.neutral.white} />}
-              >
-                Paylaş
-              </Button>
-            </View>
-          )}
-        </LinearGradient>
-
-        {/* AI Coloring Card - NEW */}
+        {/* AI Coloring Card */}
         <LinearGradient
           colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
           style={styles.aiCard}
@@ -382,7 +164,7 @@ export default function StudioScreen() {
           <View style={styles.aiCardHeader}>
             <View style={styles.aiBadge}>
               <Wand2 size={16} color={Colors.secondary.lavender} />
-              <Text style={styles.aiBadgeText}>YENİ ÖZELLIK</Text>
+              <Text style={styles.aiBadgeText}>{t.studio.newFeature}</Text>
             </View>
           </View>
 
@@ -390,9 +172,9 @@ export default function StudioScreen() {
             <Wand2 size={48} color={Colors.neutral.white} />
           </View>
 
-          <Text style={styles.aiCardTitle}>İnteraktif Boyama Faaliyeti Oluştur</Text>
+          <Text style={styles.aiCardTitle}>{t.studio.createInteractive}</Text>
           <Text style={styles.aiCardDescription}>
-            Çocuğunuzun çiziminden esinlenilerek, yapay zeka ile interaktif bir boyama faaliyeti oluşturun!
+            {t.studio.createInteractiveDesc}
           </Text>
 
           <Pressable
@@ -407,7 +189,7 @@ export default function StudioScreen() {
               style={styles.buttonGradient}
             >
               <Sparkles size={20} color={Colors.secondary.lavender} />
-              <Text style={styles.aiButtonText}>Hemen Dene</Text>
+              <Text style={styles.aiButtonText}>{t.studio.tryNow}</Text>
             </LinearGradient>
           </Pressable>
         </LinearGradient>
@@ -418,9 +200,9 @@ export default function StudioScreen() {
             <Text style={styles.infoIcon}>💡</Text>
           </View>
           <View style={styles.infoTextContainer}>
-            <Text style={styles.infoTitle}>Nasıl Çalışır?</Text>
+            <Text style={styles.infoTitle}>{t.studio.howItWorks}</Text>
             <Text style={styles.infoText}>
-              Çizimi seçin, yapay zeka otomatik olarak arka planı temizler ve profesyonel boyama sayfası oluşturur.
+              {t.studio.howItWorksDesc}
             </Text>
           </View>
         </View>
@@ -429,19 +211,19 @@ export default function StudioScreen() {
         <View style={styles.featuresGrid}>
           <View style={styles.featureItem}>
             <Text style={styles.featureEmoji}>🎨</Text>
-            <Text style={styles.featureLabel}>Çizgiyi Korur</Text>
+            <Text style={styles.featureLabel}>{t.studio.preservesLines}</Text>
           </View>
           <View style={styles.featureItem}>
             <Text style={styles.featureEmoji}>✨</Text>
-            <Text style={styles.featureLabel}>HD Kalite</Text>
+            <Text style={styles.featureLabel}>{t.studio.hdQuality}</Text>
           </View>
           <View style={styles.featureItem}>
             <Text style={styles.featureEmoji}>📄</Text>
-            <Text style={styles.featureLabel}>A4 Format</Text>
+            <Text style={styles.featureLabel}>{t.studio.a4Format}</Text>
           </View>
           <View style={styles.featureItem}>
             <Text style={styles.featureEmoji}>⚡</Text>
-            <Text style={styles.featureLabel}>Hızlı İşlem</Text>
+            <Text style={styles.featureLabel}>{t.studio.fastProcessing}</Text>
           </View>
         </View>
       </ScrollView>
@@ -460,7 +242,7 @@ export default function StudioScreen() {
           >
             {/* Modal Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>İnteraktif Boyama Faaliyeti</Text>
+              <Text style={styles.modalTitle}>{t.studio.interactiveColoring}</Text>
               <Pressable onPress={handleCloseAIModal} style={styles.modalCloseButton}>
                 <X size={24} color={Colors.neutral.darkest} />
               </Pressable>
@@ -469,11 +251,9 @@ export default function StudioScreen() {
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
               {/* Instructions */}
               <View style={styles.modalInstructions}>
-                <Text style={styles.instructionsTitle}>Nasıl çalışır?</Text>
+                <Text style={styles.instructionsTitle}>{t.studio.howItWorks}</Text>
                 <Text style={styles.instructionsText}>
-                  1. Çocuğunuzun çizimini seçin{"\n"}
-                  2. AI, çizimi analiz edip yeni bir boyama sayfası oluşturur{"\n"}
-                  3. İndirebilir veya uygulamada boyayabilirsiniz!
+                  {t.studio.instructions}
                 </Text>
               </View>
 
@@ -485,7 +265,7 @@ export default function StudioScreen() {
                     style={styles.modalImage}
                     resizeMode="contain"
                   />
-                  <Text style={styles.modalImageLabel}>Seçilen Çizim</Text>
+                  <Text style={styles.modalImageLabel}>{t.studio.selectedDrawing}</Text>
                 </View>
               )}
 
@@ -502,7 +282,7 @@ export default function StudioScreen() {
                 >
                   <ImagePlus size={20} color={Colors.neutral.white} />
                   <Text style={styles.buttonTextWhite}>
-                    {aiDrawingImage ? "Farklı Çizim Seç" : "Çizim Seç"}
+                    {aiDrawingImage ? t.studio.selectDifferentDrawing : t.studio.selectDrawing}
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -531,7 +311,7 @@ export default function StudioScreen() {
                     <Wand2 size={20} color={Colors.neutral.white} />
                   )}
                   <Text style={styles.buttonTextWhite}>
-                    {isGenerating ? "Oluşturuluyor..." : "Boyama Sayfası Oluştur"}
+                    {isGenerating ? t.studio.creating : t.studio.generateColoringPage}
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -540,7 +320,7 @@ export default function StudioScreen() {
               {coloringPage && (
                 <View style={styles.modalResult}>
                   <View style={styles.modalResultBadge}>
-                    <Text style={styles.modalResultBadgeText}>✨ Hazır!</Text>
+                    <Text style={styles.modalResultBadgeText}>{t.studio.ready}</Text>
                   </View>
 
                   <Image
@@ -566,7 +346,7 @@ export default function StudioScreen() {
                         style={styles.buttonGradient}
                       >
                         <Palette size={20} color={Colors.neutral.white} />
-                        <Text style={styles.buttonTextWhite}>Boyamaya Başla</Text>
+                        <Text style={styles.buttonTextWhite}>{t.studio.startColoring}</Text>
                       </LinearGradient>
                     </Pressable>
 
@@ -582,7 +362,7 @@ export default function StudioScreen() {
                         style={styles.buttonGradient}
                       >
                         <Download size={20} color={Colors.neutral.white} />
-                        <Text style={styles.buttonTextWhite}>İndir</Text>
+                        <Text style={styles.buttonTextWhite}>{t.studio.download}</Text>
                       </LinearGradient>
                     </Pressable>
                   </View>
@@ -601,7 +381,7 @@ export default function StudioScreen() {
       >
         <View style={styles.canvasModalContainer}>
           <View style={styles.canvasModalHeader}>
-            <Text style={styles.canvasModalTitle}>Boyamaya Başla! 🎨</Text>
+            <Text style={styles.canvasModalTitle}>{t.studio.startColoringTitle}</Text>
             <Pressable
               onPress={() => setShowColoringCanvas(false)}
               style={styles.modalCloseButton}
@@ -615,7 +395,7 @@ export default function StudioScreen() {
               backgroundImage={coloringPage.imageUrl}
               onSave={(paths) => {
                 console.log("Saved paths:", paths);
-                Alert.alert("✨ Harika!", "Boyanmış sayfanız kaydedildi!");
+                Alert.alert(t.studio.great, t.studio.coloringSaved);
                 setShowColoringCanvas(false);
               }}
             />

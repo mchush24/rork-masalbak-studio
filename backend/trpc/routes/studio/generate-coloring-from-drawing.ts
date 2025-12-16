@@ -2,6 +2,10 @@ import { publicProcedure } from "../../create-context";
 import { z } from "zod";
 import OpenAI from "openai";
 import * as fal from "@fal-ai/serverless-client";
+import sharp from "sharp";
+import { uploadBuffer } from "../../../lib/supabase.js";
+
+const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
 
 // Initialize clients
 const openai = new OpenAI({
@@ -18,6 +22,43 @@ const generateColoringInputSchema = z.object({
   style: z.enum(["simple", "detailed", "educational"]).default("simple"),
   ageGroup: z.number().min(2).max(12).default(5),
 });
+
+/**
+ * Convert colorful image to clean line art for coloring
+ * Optimized for children's coloring pages with thick, clear outlines
+ */
+async function toLineArt(input: Buffer): Promise<Buffer> {
+  console.log("[Coloring] Converting to line art with Sharp");
+
+  try {
+    // MAXIMUM AGGRESSIVE - Eliminate ALL details, keep only 1-2 major shapes
+    // Goal: Like a baby's first coloring book - just BIG SIMPLE outlines
+    const out = await sharp(input)
+      .resize(1024, 1024, { fit: 'contain', background: { r: 255, g: 255, b: 255 } })
+      .grayscale()                    // Convert to grayscale
+      .blur(15)                       // MAXIMUM blur - destroy ALL small details
+      .normalize()                    // Maximize contrast
+      .linear(3.5, -100)              // MAXIMUM contrast boost
+      .median(20)                     // MAXIMUM noise reduction - merge everything
+      .threshold(140)                 // VERY low threshold = EXTREMELY THICK LINES
+      .negate()                       // Invert
+      .blur(8)                        // Heavy blur to merge all nearby lines
+      .median(15)                     // More aggressive smoothing
+      .threshold(130)                 // Even lower threshold = only major shapes survive
+      .negate()                       // Invert back (white bg, black lines)
+      .blur(3)                        // Final softening
+      .median(5)                      // Final cleanup
+      .toFormat("png")
+      .toBuffer();
+
+    console.log("[Coloring] ✅ MAXIMUM SIMPLICITY: Only major shapes remain");
+    return out;
+  } catch (error) {
+    console.error("[Coloring] ❌ Sharp conversion failed:", error);
+    console.warn("[Coloring] Falling back to original image");
+    return input;
+  }
+}
 
 export const generateColoringFromDrawingProcedure = publicProcedure
   .input(generateColoringInputSchema)
@@ -144,14 +185,24 @@ realistic proportions, anatomically correct, professional illustration, adult co
 
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
-      // Note: The line art conversion will happen in makeColoringPDF via Sharp
-      // We return the colorful image URL here for preview,
-      // and the buffer will be processed when creating the PDF
+      // Step 4: Convert to black & white line art
+      console.log("[Generate Coloring] 🎨 Converting to black & white line art...");
+      const lineArtBuffer = await toLineArt(imageBuffer);
 
-      console.log("[Generate Coloring] ✅ Coloring page ready!");
+      // Step 5: Upload line art to Supabase
+      console.log("[Generate Coloring] ☁️ Uploading line art to Supabase...");
+      const lineArtUrl = await uploadBuffer(
+        BUCKET,
+        `images/line_art_${Date.now()}_${Math.floor(Math.random() * 1e6)}.png`,
+        lineArtBuffer,
+        "image/png"
+      );
+
+      console.log("[Generate Coloring] ✅ Line art coloring page ready!");
+      console.log("[Generate Coloring] 📍 Line art URL:", lineArtUrl);
 
       return {
-        imageUrl: colorfulImageUrl, // Colorful version for preview
+        imageUrl: lineArtUrl, // Black & white line art for coloring
         analysis: drawingAnalysis,
         prompt: flux2Prompt,
       };

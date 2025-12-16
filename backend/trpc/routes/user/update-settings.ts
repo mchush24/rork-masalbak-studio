@@ -10,7 +10,7 @@ const supabase = createClient(
 const updateSettingsInputSchema = z.object({
   userId: z.string().uuid(),
   theme: z.enum(["light", "dark", "auto"]).optional(),
-  language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional(),
+  language: z.enum(["tr", "en", "de", "ar"]).optional(),
   notificationsEnabled: z.boolean().optional(),
   emailNotifications: z.boolean().optional(),
   pushNotifications: z.boolean().optional(),
