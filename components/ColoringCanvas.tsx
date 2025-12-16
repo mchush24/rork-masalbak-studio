@@ -22,6 +22,7 @@ const CANVAS_SIZE = SCREEN_WIDTH - 32;
 
 type ColoringCanvasProps = {
   backgroundImage: string;
+  onSave?: (paths: PathData[]) => void;
 };
 
 type PathData = {
@@ -62,6 +63,30 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
       },
     })
   ).current;
+
+  // Universal touch handler for both web and native
+  const handlePressablePress = (evt: any) => {
+    const touch = evt.nativeEvent;
+
+    if (Platform.OS === 'web') {
+      // Web: use getBoundingClientRect and clientX/clientY
+      const target = evt.currentTarget;
+      if (target) {
+        const rect = target.getBoundingClientRect?.();
+        if (rect) {
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          handleTap(x, y);
+        }
+      }
+    } else {
+      // Native: use locationX/locationY
+      const { locationX, locationY } = touch;
+      if (locationX !== undefined && locationY !== undefined) {
+        handleTap(locationX, locationY);
+      }
+    }
+  };
 
   const handleTap = (x: number, y: number) => {
     console.log(`[ColoringCanvas] 🎨 Tap at (${Math.round(x)}, ${Math.round(y)}) - Color: ${selectedColor}`);
@@ -181,7 +206,10 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
           style={styles.backgroundImage}
           resizeMode="contain"
         />
-        <View style={styles.canvas} {...panResponder.panHandlers}>
+        <Pressable
+          style={styles.canvas}
+          onPress={handlePressablePress}
+        >
           <Svg height={CANVAS_SIZE} width={CANVAS_SIZE} pointerEvents="none">
             {fills.map((fill) => (
               <Circle
@@ -194,7 +222,7 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
               />
             ))}
           </Svg>
-        </View>
+        </Pressable>
       </View>
 
       {/* 🎨 BÜYÜK RENK PALETİ - Çocuklar için kolay! */}

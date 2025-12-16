@@ -18,7 +18,7 @@ const updateProfileInputSchema = z.object({
   userId: z.string().uuid(),
   name: z.string().optional(),
   avatarUrl: z.string().url().optional(),
-  language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional(),
+  language: z.enum(["tr", "en", "de", "ar"]).optional(),
   children: z.array(childSchema).optional(),
   preferences: z.record(z.any()).optional(),
 });

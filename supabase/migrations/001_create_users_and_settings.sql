@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   -- Profil bilgileri
   name TEXT,
   avatar_url TEXT,
-  language TEXT DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'ru', 'tk', 'uz')),
+  language TEXT DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'de', 'ar')),
 
   -- Çocuk bilgileri (birden fazla çocuk için JSONB)
   children JSONB DEFAULT '[]'::jsonb,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS user_settings (
 
   -- Genel ayarlar
   theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark', 'auto')),
-  language TEXT DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'ru', 'tk', 'uz')),
+  language TEXT DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'de', 'ar')),
 
   -- Bildirim tercihleri
   notifications_enabled BOOLEAN DEFAULT true,
