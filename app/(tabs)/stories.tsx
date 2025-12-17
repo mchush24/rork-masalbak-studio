@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -23,7 +23,7 @@ import {
   shadows,
 } from "@/constants/design-system";
 import { trpc } from "@/lib/trpc";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -42,6 +42,7 @@ type Storybook = {
 export default function StoriesScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -50,6 +51,15 @@ export default function StoriesScreen() {
   const [storyTitle, setStoryTitle] = useState("");
   const [storyImage, setStoryImage] = useState<string | null>(null);
   const [loadingStory, setLoadingStory] = useState(false);
+
+  // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
+  useEffect(() => {
+    if (params.imageUri && typeof params.imageUri === 'string') {
+      console.log('[Stories] 🖼️ Image received from Hayal Atölyesi:', params.imageUri);
+      setStoryImage(params.imageUri);
+      setShowCreateForm(true); // Form'u otomatik aç
+    }
+  }, [params.imageUri]);
 
   // Progress tracking for multi-step generation
   const [progress, setProgress] = useState({
@@ -446,7 +456,7 @@ export default function StoriesScreen() {
           onPress={() => handleStorybookPress(storybook)}
         >
           <LinearGradient
-            colors={Colors.cards.story.bg as any}
+            colors={Colors.cards.story.bg}
             style={styles.cardGradient}
           >
             <View style={styles.cardImageContainer}>
@@ -527,7 +537,7 @@ export default function StoriesScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.stories as any}
+        colors={Colors.background.stories}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         {/* Header */}
@@ -565,7 +575,7 @@ export default function StoriesScreen() {
         {/* Create Story Form */}
         {showCreateForm && (
           <LinearGradient
-            colors={Colors.cards.story.bg as any}
+            colors={Colors.cards.story.bg}
             style={styles.createFormContainer}
           >
             <View style={styles.createFormHeader}>
