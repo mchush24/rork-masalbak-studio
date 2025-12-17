@@ -31,27 +31,28 @@ async function toLineArt(input: Buffer): Promise<Buffer> {
   console.log("[Coloring] Converting to line art with Sharp");
 
   try {
-    // MAXIMUM AGGRESSIVE - Eliminate ALL details, keep only 1-2 major shapes
-    // Goal: Like a baby's first coloring book - just BIG SIMPLE outlines
+    // ULTRA AGGRESSIVE - Pure black & white line art only
+    // Goal: Baby coloring book - ONLY thick black outlines on pure white
     const out = await sharp(input)
       .resize(1024, 1024, { fit: 'contain', background: { r: 255, g: 255, b: 255 } })
-      .grayscale()                    // Convert to grayscale
-      .blur(15)                       // MAXIMUM blur - destroy ALL small details
+      .grayscale()                    // Convert to grayscale first
+      .blur(20)                       // ULTRA MAXIMUM blur - obliterate ALL detail
       .normalize()                    // Maximize contrast
-      .linear(3.5, -100)              // MAXIMUM contrast boost
-      .median(20)                     // MAXIMUM noise reduction - merge everything
-      .threshold(140)                 // VERY low threshold = EXTREMELY THICK LINES
-      .negate()                       // Invert
-      .blur(8)                        // Heavy blur to merge all nearby lines
-      .median(15)                     // More aggressive smoothing
-      .threshold(130)                 // Even lower threshold = only major shapes survive
+      .linear(5.0, -150)              // EXTREME contrast boost (5x amplification)
+      .median(25)                     // ULTRA noise reduction - merge EVERYTHING
+      .threshold(160)                 // VERY AGGRESSIVE threshold - only darkest areas survive
+      .negate()                       // Invert (black becomes white, white becomes black)
+      .blur(12)                       // Heavy blur to merge lines completely
+      .median(20)                     // More aggressive smoothing
+      .threshold(150)                 // EXTREME threshold - only keep the thickest strokes
       .negate()                       // Invert back (white bg, black lines)
-      .blur(3)                        // Final softening
-      .median(5)                      // Final cleanup
+      .blur(5)                        // Final softening
+      .median(8)                      // Final cleanup
+      .threshold(200)                 // Final threshold to ensure PURE black & white (no grays)
       .toFormat("png")
       .toBuffer();
 
-    console.log("[Coloring] ✅ MAXIMUM SIMPLICITY: Only major shapes remain");
+    console.log("[Coloring] ✅ PURE LINE ART: Only thick black outlines on pure white");
     return out;
   } catch (error) {
     console.error("[Coloring] ❌ Sharp conversion failed:", error);

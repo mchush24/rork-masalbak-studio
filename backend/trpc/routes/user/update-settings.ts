@@ -1,16 +1,13 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
+import { supa as supabase } from "../../../lib/supabase.js";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+
 
 const updateSettingsInputSchema = z.object({
   userId: z.string().uuid(),
   theme: z.enum(["light", "dark", "auto"]).optional(),
-  language: z.enum(["tr", "en", "de", "ar"]).optional(),
+  language: z.enum(["tr", "en", "de", "ru"]).optional(),
   notificationsEnabled: z.boolean().optional(),
   emailNotifications: z.boolean().optional(),
   pushNotifications: z.boolean().optional(),
@@ -20,7 +17,7 @@ const updateSettingsInputSchema = z.object({
   autoSave: z.boolean().optional(),
   showTips: z.boolean().optional(),
   childLockEnabled: z.boolean().optional(),
-  customSettings: z.record(z.any()).optional(),
+  customSettings: z.record(z.string(), z.any()).optional(),
 });
 
 export const updateSettingsProcedure = publicProcedure
