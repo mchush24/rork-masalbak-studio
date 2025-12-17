@@ -118,7 +118,11 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
     );
   };
 
-  // Universal touch handler
+  // Touch state for brush painting
+  const [isDrawing, setIsDrawing] = useState(false);
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Universal touch handler for single taps
   const handlePressablePress = (evt: any) => {
     const touch = evt.nativeEvent;
 
@@ -138,6 +142,67 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
         handleTap(locationX, locationY);
       }
     }
+  };
+
+  // Touch move handler for brush strokes
+  const handleTouchMove = (evt: any) => {
+    if (!isDrawing) return;
+
+    const touch = evt.nativeEvent;
+    let x: number, y: number;
+
+    if (Platform.OS === 'web') {
+      const target = evt.currentTarget;
+      if (target) {
+        const rect = target.getBoundingClientRect?.();
+        if (rect) {
+          x = touch.clientX - rect.left;
+          y = touch.clientY - rect.top;
+        } else {
+          return;
+        }
+      } else {
+        return;
+      }
+    } else {
+      const { locationX, locationY } = touch;
+      if (locationX !== undefined && locationY !== undefined) {
+        x = locationX;
+        y = locationY;
+      } else {
+        return;
+      }
+    }
+
+    // Interpolate points for smooth brush strokes
+    if (lastPointRef.current) {
+      const dx = x - lastPointRef.current.x;
+      const dy = y - lastPointRef.current.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const steps = Math.ceil(distance / 10); // Add point every 10px
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const interpX = lastPointRef.current.x + dx * t;
+        const interpY = lastPointRef.current.y + dy * t;
+        handleTap(interpX, interpY);
+      }
+    } else {
+      handleTap(x, y);
+    }
+
+    lastPointRef.current = { x, y };
+  };
+
+  const handleTouchStart = (evt: any) => {
+    setIsDrawing(true);
+    lastPointRef.current = null;
+    handlePressablePress(evt);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDrawing(false);
+    lastPointRef.current = null;
   };
 
   const handleTap = (x: number, y: number) => {
@@ -227,7 +292,10 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
               />
               <Pressable
                 style={styles.canvas}
-                onPress={handlePressablePress}
+                onPressIn={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onPressOut={handleTouchEnd}
+                onTouchEnd={handleTouchEnd}
               >
                 <Svg height={CANVAS_SIZE} width={CANVAS_SIZE} pointerEvents="none">
                   {fills.map((fill) => (

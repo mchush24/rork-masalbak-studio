@@ -41,11 +41,9 @@ async function toLineArt(input: Buffer): Promise<Buffer> {
       .linear(5.0, -150)              // EXTREME contrast boost (5x amplification)
       .median(25)                     // ULTRA noise reduction - merge EVERYTHING
       .threshold(160)                 // VERY AGGRESSIVE threshold - only darkest areas survive
-      .negate()                       // Invert (black becomes white, white becomes black)
       .blur(12)                       // Heavy blur to merge lines completely
       .median(20)                     // More aggressive smoothing
       .threshold(150)                 // EXTREME threshold - only keep the thickest strokes
-      .negate()                       // Invert back (white bg, black lines)
       .blur(5)                        // Final softening
       .median(8)                      // Final cleanup
       .threshold(200)                 // Final threshold to ensure PURE black & white (no grays)

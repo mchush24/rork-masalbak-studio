@@ -131,6 +131,9 @@ export default function StoriesScreen() {
       return;
     }
 
+    // Auto-generate title if not provided
+    const finalTitle = storyTitle.trim() || `Benim Masalım ${new Date().toLocaleDateString('tr-TR')}`;
+
     // Check for sensitive content in title
     const sensitiveKeywords = [
       "savaş", "savaşan", "savaştaki", "silah", "kan", "ölüm", "öldürme",
@@ -145,7 +148,7 @@ export default function StoriesScreen() {
       "affected", "witnessed", "experienced", "very bad", "sad"
     ];
 
-    const titleLower = storyTitle.toLowerCase();
+    const titleLower = finalTitle.toLowerCase();
     const hasSensitiveContent = sensitiveKeywords.some(keyword =>
       titleLower.includes(keyword)
     );
@@ -164,21 +167,21 @@ export default function StoriesScreen() {
           },
           {
             text: "Normal Masal",
-            onPress: () => proceedWithStorybook(false),
+            onPress: () => proceedWithStorybook(false, finalTitle),
           },
           {
             text: "Terapötik Masal (Önerilen)",
-            onPress: () => proceedWithStorybook(true),
+            onPress: () => proceedWithStorybook(true, finalTitle),
           },
         ]
       );
       return;
     }
 
-    proceedWithStorybook(false);
+    proceedWithStorybook(false, finalTitle);
   }
 
-  async function proceedWithStorybook(therapeuticMode: boolean = false) {
+  async function proceedWithStorybook(therapeuticMode: boolean = false, title: string) {
     try {
       setLoadingStory(true);
       // Reset progress
@@ -206,8 +209,8 @@ export default function StoriesScreen() {
           pages = [
             // Phase 1: VALIDATION
             {
-              text: `${storyTitle} başlıyor. Bazen hayat zor olabilir ve bu normal.`,
-              prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${storyTitle}`,
+              text: `${title} başlıyor. Bazen hayat zor olabilir ve bu normal.`,
+              prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${title}`,
             },
             {
               text: "Küçük kahramanımız zor günler geçirdi, ama yalnız değildi.",
@@ -240,8 +243,8 @@ export default function StoriesScreen() {
           pages = [
             // Phase 1: VALIDATION
             {
-              text: `${storyTitle} begins. Sometimes life can be hard, and that's okay.`,
-              prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${storyTitle}`,
+              text: `${title} begins. Sometimes life can be hard, and that's okay.`,
+              prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${title}`,
             },
             {
               text: "Our little hero had difficult days, but was not alone.",
@@ -283,7 +286,7 @@ export default function StoriesScreen() {
 
         // For therapeutic mode, use template-based approach
         await createStorybookMutation.mutateAsync({
-          title: storyTitle || (userLang === 'tr' ? "Benim Masalım" : "My Story"),
+          title: title,
           pages,
           lang: userLang,
           makePdf: true,
@@ -332,7 +335,7 @@ export default function StoriesScreen() {
           drawingAnalysis: analysisResult,
           childAge: 5, // Default age
           language: userLang,
-          drawingTitle: storyTitle,
+          drawingTitle: title,
           useV2Generator: true, // Use the advanced generator with few-shot examples!
           makePdf: true,
           makeTts: false, // ❌ TTS kapalı (maliyet + süre)
@@ -629,11 +632,11 @@ export default function StoriesScreen() {
                 console.log('[Stories] loadingStory:', loadingStory);
                 handleStorybook();
               }}
-              disabled={!storyImage || !storyTitle || loadingStory}
+              disabled={!storyImage || loadingStory}
               style={({ pressed }) => [
                 styles.createStoryButton,
-                (!storyImage || !storyTitle || loadingStory) && styles.buttonDisabled,
-                pressed && !(!storyImage || !storyTitle || loadingStory) && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                (!storyImage || loadingStory) && styles.buttonDisabled,
+                pressed && !(!storyImage || loadingStory) && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
             >
               <LinearGradient
