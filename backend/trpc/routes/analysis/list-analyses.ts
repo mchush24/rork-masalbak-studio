@@ -1,11 +1,6 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+import { supa as supabase } from "../../../lib/supabase.js";
 
 const listAnalysesInputSchema = z.object({
   userId: z.string().uuid(),

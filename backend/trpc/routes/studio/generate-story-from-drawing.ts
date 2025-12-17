@@ -84,13 +84,14 @@ export const generateStoryFromDrawingProcedure = publicProcedure
       }));
 
       // Step 3: Prepare character info for visual consistency
-      const characterInfo = {
-        name: generatedStory.mainCharacter.name,
-        type: generatedStory.mainCharacter.type,
+      const mainChar: any = generatedStory.mainCharacter;
+      const characterInfo: any = {
+        name: mainChar.name,
+        type: mainChar.type,
         age: input.childAge,
-        appearance: generatedStory.mainCharacter.appearance,
-        personality: generatedStory.mainCharacter.personality,
-        speechStyle: generatedStory.mainCharacter.speechStyle || undefined,
+        appearance: mainChar.appearance,
+        personality: mainChar.personality,
+        ...(mainChar.speechStyle && { speechStyle: mainChar.speechStyle }),
       };
 
       console.log("[Generate Story] 🎨 Character for visual consistency:");

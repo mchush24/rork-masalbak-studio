@@ -1,11 +1,8 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
+import { supa as supabase } from "../../../lib/supabase.js";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+
 
 const childSchema = z.object({
   name: z.string(),
@@ -18,9 +15,9 @@ const updateProfileInputSchema = z.object({
   userId: z.string().uuid(),
   name: z.string().optional(),
   avatarUrl: z.string().url().optional(),
-  language: z.enum(["tr", "en", "de", "ar"]).optional(),
+  language: z.enum(["tr", "en", "de", "ru"]).optional(),
   children: z.array(childSchema).optional(),
-  preferences: z.record(z.any()).optional(),
+  preferences: z.record(z.string(), z.any()).optional(),
 });
 
 export const updateProfileProcedure = publicProcedure
