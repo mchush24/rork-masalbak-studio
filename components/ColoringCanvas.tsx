@@ -2,27 +2,30 @@ import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
-  PanResponder,
   Dimensions,
   Image,
   Pressable,
   Text,
   Alert,
-  Share,
   Platform,
+  ScrollView,
 } from "react-native";
 import { Svg, Circle } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
 import { spacing, radius, shadows, typography } from "@/constants/design-system";
 import { captureRef } from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
+import { ArrowLeft, X, Undo, Redo } from "lucide-react-native";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CANVAS_SIZE = SCREEN_WIDTH - 32;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const TOOL_PANEL_WIDTH = 100;
+const CANVAS_SIZE = Math.min(SCREEN_WIDTH - TOOL_PANEL_WIDTH - 48, SCREEN_HEIGHT - 180);
 
 type ColoringCanvasProps = {
   backgroundImage: string;
   onSave?: (paths: PathData[]) => void;
+  onClose?: () => void;
 };
 
 type PathData = {
@@ -33,81 +36,67 @@ type PathData = {
   radius: number;
 };
 
-// 🎨 SADECE 6 TEMEL RENK - Çocuklar için basit!
-const SIMPLE_COLORS = [
-  { name: "Kırmızı", color: "#FF6B6B", emoji: "🔴" },
-  { name: "Sarı", color: "#FFD93D", emoji: "🟡" },
-  { name: "Mavi", color: "#4D96FF", emoji: "🔵" },
-  { name: "Yeşil", color: "#6BCB77", emoji: "🟢" },
-  { name: "Pembe", color: "#FF69B4", emoji: "💗" },
-  { name: "Mor", color: "#9D4EDD", emoji: "🟣" },
+type ColorPalette = {
+  id: string;
+  type: "solid" | "gradient";
+  colors: string[];
+  name: string;
+  emoji?: string;
+};
+
+// 🎨 EXTENDED COLOR PALETTES - Solid + Gradients
+const COLOR_PALETTES: ColorPalette[] = [
+  // Solid colors
+  { id: "red", type: "solid", colors: ["#FF6B6B"], name: "Kırmızı", emoji: "🔴" },
+  { id: "orange", type: "solid", colors: ["#FFA500"], name: "Turuncu", emoji: "🟠" },
+  { id: "yellow", type: "solid", colors: ["#FFD93D"], name: "Sarı", emoji: "🟡" },
+  { id: "green", type: "solid", colors: ["#6BCB77"], name: "Yeşil", emoji: "🟢" },
+  { id: "blue", type: "solid", colors: ["#4D96FF"], name: "Mavi", emoji: "🔵" },
+  { id: "purple", type: "solid", colors: ["#9D4EDD"], name: "Mor", emoji: "🟣" },
+  { id: "pink", type: "solid", colors: ["#FF69B4"], name: "Pembe", emoji: "💗" },
+  { id: "brown", type: "solid", colors: ["#8B4513"], name: "Kahverengi", emoji: "🟤" },
+
+  // Gradient patterns
+  { id: "rainbow", type: "gradient", colors: ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#9D4EDD"], name: "Gökkuşağı", emoji: "🌈" },
+  { id: "sunset", type: "gradient", colors: ["#FF6B6B", "#FFA500", "#FFD93D"], name: "Gün Batımı", emoji: "🌅" },
+  { id: "ocean", type: "gradient", colors: ["#4D96FF", "#00CED1", "#20B2AA"], name: "Okyanus", emoji: "🌊" },
+  { id: "forest", type: "gradient", colors: ["#228B22", "#6BCB77", "#90EE90"], name: "Orman", emoji: "🌲" },
+  { id: "fire", type: "gradient", colors: ["#FF4500", "#FF6347", "#FFA500"], name: "Ateş", emoji: "🔥" },
+  { id: "candy", type: "gradient", colors: ["#FF69B4", "#FFB6C1", "#FFC0CB"], name: "Şeker", emoji: "🍬" },
 ];
 
-// Sabit, büyük dolgu boyutu - çocuklar için kolay
-const FILL_RADIUS = 100;
+// Sabit, büyük dolgu boyutu
+const FILL_RADIUS = 80;
 
-export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps) {
-  const [fills, setFills] = useState<PathData[]>([]);
-  const [selectedColor, setSelectedColor] = useState(SIMPLE_COLORS[0].color);
+export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCanvasProps) {
+  // History management for undo/redo
+  const [history, setHistory] = useState<PathData[][]>([[]]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedPalette, setSelectedPalette] = useState<ColorPalette>(COLOR_PALETTES[0]);
   const [isSaving, setIsSaving] = useState(false);
 
   const canvasRef = useRef<View>(null);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => false, // No dragging, only tap
-      onPanResponderGrant: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        handleTap(locationX, locationY);
-      },
-    })
-  ).current;
+  const fills = history[currentIndex] || [];
 
-  // Universal touch handler for both web and native
-  const handlePressablePress = (evt: any) => {
-    const touch = evt.nativeEvent;
-
-    if (Platform.OS === 'web') {
-      // Web: use getBoundingClientRect and clientX/clientY
-      const target = evt.currentTarget;
-      if (target) {
-        const rect = target.getBoundingClientRect?.();
-        if (rect) {
-          const x = touch.clientX - rect.left;
-          const y = touch.clientY - rect.top;
-          handleTap(x, y);
-        }
-      }
-    } else {
-      // Native: use locationX/locationY
-      const { locationX, locationY } = touch;
-      if (locationX !== undefined && locationY !== undefined) {
-        handleTap(locationX, locationY);
-      }
-    }
-  };
-
-  const handleTap = (x: number, y: number) => {
-    console.log(`[ColoringCanvas] 🎨 Tap at (${Math.round(x)}, ${Math.round(y)}) - Color: ${selectedColor}`);
-
-    // Add a new fill circle at tap location
-    const newFill: PathData = {
-      id: `fill-${Date.now()}-${Math.random()}`,
-      x,
-      y,
-      color: selectedColor,
-      radius: FILL_RADIUS,
-    };
-
+  // Add new fill with history tracking
+  const addFill = (newFill: PathData) => {
     const newFills = [...fills, newFill];
-    console.log(`[ColoringCanvas] ✅ Total fills: ${newFills.length}`);
-    setFills(newFills);
+    const newHistory = history.slice(0, currentIndex + 1);
+    newHistory.push(newFills);
+    setHistory(newHistory);
+    setCurrentIndex(currentIndex + 1);
   };
 
   const handleUndo = () => {
-    if (fills.length > 0) {
-      setFills(fills.slice(0, -1));
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleRedo = () => {
+    if (currentIndex < history.length - 1) {
+      setCurrentIndex(currentIndex + 1);
     }
   };
 
@@ -120,10 +109,59 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
         {
           text: "Evet, Sil",
           style: "destructive",
-          onPress: () => setFills([]),
+          onPress: () => {
+            setHistory([[]]);
+            setCurrentIndex(0);
+          },
         },
       ]
     );
+  };
+
+  // Universal touch handler
+  const handlePressablePress = (evt: any) => {
+    const touch = evt.nativeEvent;
+
+    if (Platform.OS === 'web') {
+      const target = evt.currentTarget;
+      if (target) {
+        const rect = target.getBoundingClientRect?.();
+        if (rect) {
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          handleTap(x, y);
+        }
+      }
+    } else {
+      const { locationX, locationY } = touch;
+      if (locationX !== undefined && locationY !== undefined) {
+        handleTap(locationX, locationY);
+      }
+    }
+  };
+
+  const handleTap = (x: number, y: number) => {
+    console.log(`[ColoringCanvas] 🎨 Tap at (${Math.round(x)}, ${Math.round(y)}) - Palette: ${selectedPalette.name}`);
+
+    // Determine color from palette
+    let fillColor: string;
+    if (selectedPalette.type === "solid") {
+      fillColor = selectedPalette.colors[0];
+    } else {
+      // For gradients, pick a random color from the gradient
+      const randomIndex = Math.floor(Math.random() * selectedPalette.colors.length);
+      fillColor = selectedPalette.colors[randomIndex];
+    }
+
+    const newFill: PathData = {
+      id: `fill-${Date.now()}-${Math.random()}`,
+      x,
+      y,
+      color: fillColor,
+      radius: FILL_RADIUS,
+    };
+
+    addFill(newFill);
   };
 
   const handleSaveImage = async () => {
@@ -157,6 +195,10 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
         await MediaLibrary.saveToLibraryAsync(uri);
         Alert.alert("✅ Kaydedildi!", "Boyama sayfan galeriye kaydedildi.");
       }
+
+      if (onSave) {
+        onSave(fills);
+      }
     } catch (error) {
       console.error("Save error:", error);
       Alert.alert("Hata", "Kaydetme sırasında bir hata oluştu.");
@@ -165,165 +207,166 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
     }
   };
 
-  const handleShare = async () => {
-    try {
-      if (!canvasRef.current) return;
-
-      const uri = await captureRef(canvasRef, {
-        format: "png",
-        quality: 1,
-      });
-
-      if (Platform.OS === "web") {
-        if (navigator.share) {
-          await navigator.share({
-            title: "Boyama Sayfam",
-            text: "Boyama sayfamı görün!",
-            url: uri,
-          });
-        } else {
-          Alert.alert("Bilgi", "Web'de paylaşma desteklenmiyor.");
-        }
-      } else {
-        await Share.share({
-          url: uri,
-          message: "Boyama sayfamı görün! 🎨",
-        });
-      }
-    } catch (error: any) {
-      if (error.message !== "User did not share") {
-        console.error("Share error:", error);
-      }
-    }
-  };
-
   return (
     <View style={styles.container}>
-      {/* Canvas */}
-      <View style={styles.canvasContainer} ref={canvasRef} collapsable={false}>
-        <Image
-          source={{ uri: backgroundImage }}
-          style={styles.backgroundImage}
-          resizeMode="contain"
-        />
-        <Pressable
-          style={styles.canvas}
-          onPress={handlePressablePress}
-        >
-          <Svg height={CANVAS_SIZE} width={CANVAS_SIZE} pointerEvents="none">
-            {fills.map((fill) => (
-              <Circle
-                key={fill.id}
-                cx={fill.x}
-                cy={fill.y}
-                r={fill.radius}
-                fill={fill.color}
-                opacity={0.7}
+      {/* Wooden Frame Effect */}
+      <LinearGradient
+        colors={["#8B4513", "#A0522D", "#8B4513"]}
+        style={styles.frameContainer}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.contentContainer}>
+          {/* Canvas Area */}
+          <View style={styles.canvasArea}>
+            <View style={styles.canvasContainer} ref={canvasRef} collapsable={false}>
+              <Image
+                source={{ uri: backgroundImage }}
+                style={styles.backgroundImage}
+                resizeMode="contain"
               />
-            ))}
-          </Svg>
-        </Pressable>
-      </View>
-
-      {/* 🎨 BÜYÜK RENK PALETİ - Çocuklar için kolay! */}
-      <View style={styles.colorPalette}>
-        {SIMPLE_COLORS.map((item) => (
-          <Pressable
-            key={item.color}
-            onPress={() => setSelectedColor(item.color)}
-            style={({ pressed }) => [
-              styles.colorButton,
-              selectedColor === item.color && styles.colorButtonSelected,
-              pressed && { transform: [{ scale: 0.9 }] },
-            ]}
-          >
-            <View
-              style={[
-                styles.colorCircle,
-                { backgroundColor: item.color },
-                selectedColor === item.color && styles.colorCircleSelected,
-              ]}
-            >
-              {selectedColor === item.color && (
-                <Text style={styles.selectedEmoji}>✓</Text>
-              )}
+              <Pressable
+                style={styles.canvas}
+                onPress={handlePressablePress}
+              >
+                <Svg height={CANVAS_SIZE} width={CANVAS_SIZE} pointerEvents="none">
+                  {fills.map((fill) => (
+                    <Circle
+                      key={fill.id}
+                      cx={fill.x}
+                      cy={fill.y}
+                      r={fill.radius}
+                      fill={fill.color}
+                      opacity={0.6}
+                    />
+                  ))}
+                </Svg>
+              </Pressable>
             </View>
-            <Text style={styles.colorLabel}>{item.emoji}</Text>
-          </Pressable>
-        ))}
-      </View>
+          </View>
 
-      {/* 🎮 KONTROL BUTONLARI - Emoji'li ve renkli! */}
-      <View style={styles.controls}>
-        <Pressable
-          onPress={handleUndo}
-          disabled={fills.length === 0}
-          style={({ pressed }) => [
-            styles.controlButton,
-            styles.undoButton,
-            fills.length === 0 && styles.controlButtonDisabled,
-            pressed && fills.length > 0 && { transform: [{ scale: 0.95 }] },
-          ]}
-        >
-          <Text style={styles.controlButtonEmoji}>↶</Text>
-          <Text style={styles.controlButtonText}>Geri Al</Text>
-        </Pressable>
+          {/* Right Tool Panel */}
+          <View style={styles.toolPanel}>
+            {/* Top Actions */}
+            <View style={styles.topActions}>
+              <Pressable
+                onPress={onClose}
+                style={({ pressed }) => [
+                  styles.toolButton,
+                  styles.backButton,
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <ArrowLeft size={24} color={Colors.neutral.white} />
+              </Pressable>
 
-        <Pressable
-          onPress={handleClear}
-          disabled={fills.length === 0}
-          style={({ pressed }) => [
-            styles.controlButton,
-            styles.clearButton,
-            fills.length === 0 && styles.controlButtonDisabled,
-            pressed && fills.length > 0 && { transform: [{ scale: 0.95 }] },
-          ]}
-        >
-          <Text style={styles.controlButtonEmoji}>🗑️</Text>
-          <Text style={styles.controlButtonText}>Temizle</Text>
-        </Pressable>
-      </View>
+              <Pressable
+                onPress={handleClear}
+                disabled={fills.length === 0}
+                style={({ pressed }) => [
+                  styles.toolButton,
+                  styles.closeButton,
+                  fills.length === 0 && styles.toolButtonDisabled,
+                  pressed && fills.length > 0 && { opacity: 0.8 },
+                ]}
+              >
+                <X size={24} color={Colors.neutral.white} />
+              </Pressable>
+            </View>
 
-      {/* 💾 KAYDET VE PAYLAŞ BUTONLARI */}
-      <View style={styles.actionButtons}>
+            {/* Color Palettes - Scrollable */}
+            <ScrollView
+              style={styles.paletteScroll}
+              contentContainerStyle={styles.paletteContainer}
+              showsVerticalScrollIndicator={false}
+            >
+              {COLOR_PALETTES.map((palette) => (
+                <Pressable
+                  key={palette.id}
+                  onPress={() => setSelectedPalette(palette)}
+                  style={({ pressed }) => [
+                    styles.paletteButton,
+                    selectedPalette.id === palette.id && styles.paletteButtonSelected,
+                    pressed && { transform: [{ scale: 0.95 }] },
+                  ]}
+                >
+                  {palette.type === "solid" ? (
+                    <View
+                      style={[
+                        styles.paletteColorBox,
+                        { backgroundColor: palette.colors[0] },
+                      ]}
+                    />
+                  ) : (
+                    <LinearGradient
+                      colors={palette.colors as [string, string, ...string[]]}
+                      style={styles.paletteColorBox}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                    />
+                  )}
+                  {selectedPalette.id === palette.id && (
+                    <View style={styles.selectedIndicator}>
+                      <Text style={styles.selectedCheck}>✓</Text>
+                    </View>
+                  )}
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {/* Bottom Actions */}
+            <View style={styles.bottomActions}>
+              <Pressable
+                onPress={handleUndo}
+                disabled={currentIndex === 0}
+                style={({ pressed }) => [
+                  styles.toolButton,
+                  styles.undoButton,
+                  currentIndex === 0 && styles.toolButtonDisabled,
+                  pressed && currentIndex > 0 && { opacity: 0.8 },
+                ]}
+              >
+                <Undo size={24} color={Colors.neutral.white} />
+              </Pressable>
+
+              <Pressable
+                onPress={handleRedo}
+                disabled={currentIndex === history.length - 1}
+                style={({ pressed }) => [
+                  styles.toolButton,
+                  styles.redoButton,
+                  currentIndex === history.length - 1 && styles.toolButtonDisabled,
+                  pressed && currentIndex < history.length - 1 && { opacity: 0.8 },
+                ]}
+              >
+                <Redo size={24} color={Colors.neutral.white} />
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
+        {/* Save Button - Bottom Center */}
         <Pressable
           onPress={handleSaveImage}
           disabled={fills.length === 0 || isSaving}
           style={({ pressed }) => [
-            styles.actionButton,
             styles.saveButton,
-            (fills.length === 0 || isSaving) && styles.actionButtonDisabled,
-            pressed && fills.length > 0 && !isSaving && { transform: [{ scale: 0.95 }] },
+            (fills.length === 0 || isSaving) && styles.saveButtonDisabled,
+            pressed && fills.length > 0 && !isSaving && { opacity: 0.9, transform: [{ scale: 0.98 }] },
           ]}
         >
-          <Text style={styles.actionButtonEmoji}>💾</Text>
-          <Text style={styles.actionButtonText}>
-            {isSaving ? "Kaydediliyor..." : "Kaydet"}
-          </Text>
+          <LinearGradient
+            colors={fills.length === 0 || isSaving ? ["#ccc", "#aaa"] : ["#6BCB77", "#4CAF50"]}
+            style={styles.saveButtonGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.saveButtonText}>
+              {isSaving ? "💾 Kaydediliyor..." : "💾 Kaydet ve Paylaş"}
+            </Text>
+          </LinearGradient>
         </Pressable>
-
-        <Pressable
-          onPress={handleShare}
-          disabled={fills.length === 0}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.shareButton,
-            fills.length === 0 && styles.actionButtonDisabled,
-            pressed && fills.length > 0 && { transform: [{ scale: 0.95 }] },
-          ]}
-        >
-          <Text style={styles.actionButtonEmoji}>📤</Text>
-          <Text style={styles.actionButtonText}>Paylaş</Text>
-        </Pressable>
-      </View>
-
-      {/* 📌 Seçili Renk Göstergesi */}
-      <View style={styles.selectedColorIndicator}>
-        <View style={[styles.selectedColorCircle, { backgroundColor: selectedColor }]} />
-        <Text style={styles.selectedColorText}>
-          {SIMPLE_COLORS.find((c) => c.color === selectedColor)?.name} seçili
-        </Text>
-      </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -331,19 +374,35 @@ export function ColoringCanvas({ backgroundImage, onSave }: ColoringCanvasProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.neutral.lighter,
+    backgroundColor: "#2C1810", // Dark wood background
+  },
+  frameContainer: {
+    flex: 1,
     padding: spacing["4"],
-    gap: spacing["4"],
+    borderRadius: radius.xl,
+    margin: spacing["2"],
+  },
+  contentContainer: {
+    flex: 1,
+    flexDirection: "row",
+    gap: spacing["3"],
+  },
+
+  // Canvas Area
+  canvasArea: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   canvasContainer: {
     width: CANVAS_SIZE,
     height: CANVAS_SIZE,
-    alignSelf: "center",
-    position: "relative",
-    borderRadius: radius.xl,
+    borderRadius: radius.lg,
     overflow: "hidden",
-    ...shadows.xl,
     backgroundColor: Colors.neutral.white,
+    ...shadows.xl,
+    borderWidth: 4,
+    borderColor: "#654321", // Darker wood border
   },
   backgroundImage: {
     position: "absolute",
@@ -355,137 +414,109 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  // 🎨 Renk Paleti - BÜY ÜK ve KOLAY!
-  colorPalette: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: spacing["3"],
-    padding: spacing["4"],
-    backgroundColor: Colors.neutral.white,
+  // Tool Panel (Right Side)
+  toolPanel: {
+    width: TOOL_PANEL_WIDTH,
+    backgroundColor: "#654321",
     borderRadius: radius.xl,
-    ...shadows.md,
-  },
-  colorButton: {
-    alignItems: "center",
-    gap: spacing["1"],
-  },
-  colorButtonSelected: {
-    transform: [{ scale: 1.1 }],
-  },
-  colorCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 4,
-    borderColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
-    ...shadows.md,
-  },
-  colorCircleSelected: {
-    borderColor: Colors.neutral.darkest,
-    borderWidth: 5,
+    padding: spacing["2"],
+    gap: spacing["3"],
     ...shadows.lg,
   },
-  selectedEmoji: {
-    fontSize: 32,
-    color: Colors.neutral.white,
-    fontWeight: "900",
-  },
-  colorLabel: {
-    fontSize: 20,
-  },
-
-  // 🎮 Kontrol Butonları
-  controls: {
-    flexDirection: "row",
-    gap: spacing["3"],
-  },
-  controlButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+  topActions: {
     gap: spacing["2"],
-    paddingVertical: spacing["4"],
-    borderRadius: radius.xl,
+  },
+  bottomActions: {
+    gap: spacing["2"],
+  },
+  toolButton: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    justifyContent: "center",
+    alignItems: "center",
     ...shadows.md,
+  },
+  backButton: {
+    backgroundColor: "#4D96FF", // Blue
+  },
+  closeButton: {
+    backgroundColor: "#FF6B6B", // Red
   },
   undoButton: {
-    backgroundColor: "#FFA500", // Turuncu
+    backgroundColor: "#4D96FF", // Blue
   },
-  clearButton: {
-    backgroundColor: "#FF6B6B", // Kırmızı
+  redoButton: {
+    backgroundColor: "#FFA500", // Orange
   },
-  controlButtonDisabled: {
-    backgroundColor: Colors.neutral.light,
-    opacity: 0.5,
-  },
-  controlButtonEmoji: {
-    fontSize: 24,
-  },
-  controlButtonText: {
-    fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
-    color: Colors.neutral.white,
+  toolButtonDisabled: {
+    backgroundColor: "#888",
+    opacity: 0.4,
   },
 
-  // 💾 Kaydet ve Paylaş
-  actionButtons: {
-    flexDirection: "row",
-    gap: spacing["3"],
-  },
-  actionButton: {
+  // Color Palette Scroll
+  paletteScroll: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  paletteContainer: {
     gap: spacing["2"],
-    paddingVertical: spacing["5"],
-    borderRadius: radius.xl,
+    paddingVertical: spacing["2"],
+  },
+  paletteButton: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    overflow: "hidden",
+    ...shadows.md,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  paletteButtonSelected: {
+    borderColor: Colors.neutral.white,
+    borderWidth: 3,
     ...shadows.lg,
   },
-  saveButton: {
-    backgroundColor: "#6BCB77", // Yeşil
+  paletteColorBox: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  shareButton: {
-    backgroundColor: "#9D4EDD", // Mor
+  selectedIndicator: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.2)",
   },
-  actionButtonDisabled: {
-    backgroundColor: Colors.neutral.light,
-    opacity: 0.5,
-  },
-  actionButtonEmoji: {
-    fontSize: 28,
-  },
-  actionButtonText: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+  selectedCheck: {
+    fontSize: 24,
+    fontWeight: "900",
     color: Colors.neutral.white,
   },
 
-  // 📌 Seçili Renk Göstergesi
-  selectedColorIndicator: {
-    flexDirection: "row",
+  // Save Button
+  saveButton: {
+    marginTop: spacing["3"],
+    borderRadius: radius.xl,
+    overflow: "hidden",
+    ...shadows.xl,
+  },
+  saveButtonDisabled: {
+    opacity: 0.5,
+  },
+  saveButtonGradient: {
+    paddingVertical: spacing["4"],
+    paddingHorizontal: spacing["6"],
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing["3"],
-    padding: spacing["4"],
-    backgroundColor: Colors.neutral.white,
-    borderRadius: radius.lg,
-    ...shadows.sm,
   },
-  selectedColorCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 3,
-    borderColor: Colors.neutral.darkest,
-  },
-  selectedColorText: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
-    color: Colors.neutral.darkest,
+  saveButtonText: {
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.extrabold,
+    color: Colors.neutral.white,
   },
 });
