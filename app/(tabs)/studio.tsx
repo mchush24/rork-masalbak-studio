@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -22,16 +22,27 @@ import { useGenerateColoringPage } from "@/lib/hooks/useGenerateColoringPage";
 import * as Linking from "expo-linking";
 import { ColoringCanvas } from "@/components/ColoringCanvas";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { useLocalSearchParams } from "expo-router";
 
 export default function StudioScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useLanguage();
+  const params = useLocalSearchParams();
 
   // AI Boyama Sayfası States
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiDrawingImage, setAIDrawingImage] = useState<string | null>(null);
   const [showColoringCanvas, setShowColoringCanvas] = useState(false);
   const { generate, isGenerating, coloringPage, reset } = useGenerateColoringPage();
+
+  // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
+  useEffect(() => {
+    if (params.imageUri && typeof params.imageUri === 'string') {
+      console.log('[Studio] 🖼️ Image received from Hayal Atölyesi:', params.imageUri);
+      setAIDrawingImage(params.imageUri);
+      setShowAIModal(true); // Modal'ı otomatik aç
+    }
+  }, [params.imageUri]);
 
   // AI Boyama Sayfası Fonksiyonları
   async function pickAIDrawingImage() {
