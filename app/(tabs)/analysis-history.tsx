@@ -147,7 +147,7 @@ export default function AnalysisHistoryScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.analysis as any}
+        colors={Colors.background.analysis}
         style={styles.gradientContainer}
       >
         <ScrollView

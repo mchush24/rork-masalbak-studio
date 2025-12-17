@@ -197,7 +197,7 @@ export default function HayalAtolyesiScreen() {
                 onPress={handleCreateStory}
               >
                 <LinearGradient
-                  colors={Colors.cards.story.bg as any}
+                  colors={Colors.cards.story.bg}
                   style={styles.optionCardGradient}
                 >
                   <View style={styles.optionIconContainer}>

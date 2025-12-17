@@ -358,14 +358,38 @@ export default function StoriesScreen() {
 
         // Convert image URI to base64
         let imageBase64 = "";
-        let cleanUri = storyImage!.replace(/^file:\/\//, "");
-        let fileUri = cleanUri;
-        if (!fileUri.startsWith("file://") && !fileUri.startsWith("content://")) {
-          fileUri = `file://${fileUri}`;
+
+        // Web: blob URL handling
+        if (storyImage!.startsWith("blob:")) {
+          console.log('[Stories] 🌐 Converting blob URL to base64...');
+          const response = await fetch(storyImage!);
+          const blob = await response.blob();
+
+          // Convert blob to base64
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const result = reader.result as string;
+              // Remove data URL prefix (data:image/...;base64,)
+              const base64String = result.split(',')[1];
+              resolve(base64String);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+          imageBase64 = base64;
+        } else {
+          // Native: file:// URL handling
+          let cleanUri = storyImage!.replace(/^file:\/\//, "");
+          let fileUri = cleanUri;
+          if (!fileUri.startsWith("file://") && !fileUri.startsWith("content://")) {
+            fileUri = `file://${fileUri}`;
+          }
+          imageBase64 = await FileSystem.readAsStringAsync(fileUri, {
+            encoding: "base64",
+          });
         }
-        imageBase64 = await FileSystem.readAsStringAsync(fileUri, {
-          encoding: "base64",
-        });
 
         // Analyze the drawing (using "Family" as taskType for story generation context)
         const analysisResult = await analyzeDrawingMutation.mutateAsync({

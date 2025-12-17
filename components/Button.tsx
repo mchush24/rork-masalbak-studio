@@ -62,16 +62,20 @@ export function Button({
   const isDisabled = disabled || loading;
 
   const getButtonStyle = ({ pressed }: PressableStateCallbackType): ViewStyle[] => {
+    const variantStyle = buttonVariants[variant];
     const baseStyles: ViewStyle[] = [
       styles.button,
       styles[`button_${size}`],
       {
-        backgroundColor: buttonVariants[variant].backgroundColor,
-        borderColor: buttonVariants[variant].borderColor,
-        borderWidth: buttonVariants[variant].borderWidth,
+        backgroundColor: variantStyle.backgroundColor,
+        ...('borderColor' in variantStyle && variantStyle.borderColor ? { borderColor: variantStyle.borderColor } : {}),
+        ...('borderWidth' in variantStyle && variantStyle.borderWidth ? { borderWidth: variantStyle.borderWidth } : {}),
       },
-      fullWidth && styles.fullWidth,
     ];
+
+    if (fullWidth) {
+      baseStyles.push(styles.fullWidth);
+    }
 
     if (isDisabled) {
       baseStyles.push(styles.disabled);
@@ -133,8 +137,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: radius.md,
     ...shadows.sm,
-    // Smooth press animation
-    transition: "all 150ms ease",
   },
   button_sm: {
     paddingVertical: spacing.sm,

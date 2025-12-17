@@ -132,13 +132,10 @@ export default function AnalyzeScreen() {
       setSelectedAge(age);
       setShowAgePickerModal(false);
 
-      // Update user profile with age
-      await updateProfileMutation.mutateAsync({ child_age: age });
-
       // Mark age as collected
       await markAgeAsCollected();
 
-      console.log('[Age] Updated user profile with age:', age);
+      console.log('[Age] Selected age:', age);
     } catch (error) {
       console.error('[Age] Error updating age:', error);
       // Still mark as collected to not show modal again
@@ -256,7 +253,7 @@ export default function AnalyzeScreen() {
       />
 
       <LinearGradient
-        colors={Colors.background.analysis as any}
+        colors={Colors.background.analysis}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>

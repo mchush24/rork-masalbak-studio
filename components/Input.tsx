@@ -71,7 +71,7 @@ export function Input({
   const getBorderColor = () => {
     if (state === "error") return semantic.error;
     if (state === "success") return semantic.success;
-    if (isFocused) return Colors.primary.coral;
+    if (isFocused) return Colors.primary.sunset;
     return Colors.neutral.medium;
   };
 
@@ -112,8 +112,8 @@ export function Input({
           style={[
             styles.input,
             styles[`input_${size}`],
-            leftIcon && styles.inputWithLeftIcon,
-            rightIcon && styles.inputWithRightIcon,
+            leftIcon ? styles.inputWithLeftIcon : undefined,
+            rightIcon ? styles.inputWithRightIcon : undefined,
           ]}
           placeholderTextColor={Colors.neutral.light}
           onFocus={(e) => {
@@ -164,8 +164,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 2,
     borderColor: Colors.neutral.medium,
-    // Smooth focus animation
-    transition: "border-color 200ms ease",
   },
   inputContainer_sm: {
     minHeight: 36,
@@ -181,7 +179,7 @@ const styles = StyleSheet.create({
   },
   inputContainerFocused: {
     borderWidth: 2,
-    shadowColor: Colors.primary.coral,
+    shadowColor: Colors.primary.sunset,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.15,
     shadowRadius: 8,

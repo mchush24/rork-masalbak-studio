@@ -130,7 +130,7 @@ export default function ColoringHistoryScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.studio as any}
+        colors={Colors.background.studio}
         style={styles.gradientContainer}
       >
         <ScrollView

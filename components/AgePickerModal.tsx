@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.neutral.white,
-    borderTopLeftRadius: radius.xxl,
-    borderTopRightRadius: radius.xxl,
+    borderTopLeftRadius: radius['3xl'],
+    borderTopRightRadius: radius['3xl'],
     padding: spacing['6'],
     paddingBottom: spacing['8'],
     ...shadows.xl,

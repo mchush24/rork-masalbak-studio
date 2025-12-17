@@ -52,8 +52,11 @@ export function Card({
     const baseStyles: ViewStyle[] = [
       styles.card,
       styles[`card_${variant}`],
-      padding !== "none" && styles[`padding_${padding}`],
     ];
+
+    if (padding !== "none") {
+      baseStyles.push(styles[`padding_${padding}`]);
+    }
 
     if (accentColor) {
       baseStyles.push({
@@ -98,8 +101,6 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     backgroundColor: Colors.neutral.white,
-    // Smooth press animation
-    transition: "all 200ms ease",
   },
   card_default: {
     ...shadows.sm,

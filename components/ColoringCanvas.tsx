@@ -77,6 +77,9 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
 
   const canvasRef = useRef<View>(null);
 
+  // Track canvas layout for coordinate conversion
+  const [canvasLayout, setCanvasLayout] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
   const fills = history[currentIndex] || [];
 
   // Add new fill with history tracking
@@ -127,16 +130,20 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
     const touch = evt.nativeEvent;
 
     if (Platform.OS === 'web') {
-      const target = evt.currentTarget;
-      if (target) {
-        const rect = target.getBoundingClientRect?.();
-        if (rect) {
-          const x = touch.clientX - rect.left;
-          const y = touch.clientY - rect.top;
+      // Web: Use offsetX/offsetY which are relative to the target element
+      if (touch.offsetX !== undefined && touch.offsetY !== undefined) {
+        handleTap(touch.offsetX, touch.offsetY);
+      } else {
+        console.warn('[ColoringCanvas] Web: offsetX/offsetY undefined, falling back to pageX/pageY');
+        // Fallback: Use pageX/pageY if offsetX/offsetY are not available
+        if (canvasLayout && touch.pageX !== undefined && touch.pageY !== undefined) {
+          const x = touch.pageX - canvasLayout.x;
+          const y = touch.pageY - canvasLayout.y;
           handleTap(x, y);
         }
       }
     } else {
+      // Native: Use locationX/locationY
       const { locationX, locationY } = touch;
       if (locationX !== undefined && locationY !== undefined) {
         handleTap(locationX, locationY);
@@ -149,30 +156,29 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
     if (!isDrawing) return;
 
     const touch = evt.nativeEvent;
-    let x: number, y: number;
+    let x: number | undefined, y: number | undefined;
 
     if (Platform.OS === 'web') {
-      const target = evt.currentTarget;
-      if (target) {
-        const rect = target.getBoundingClientRect?.();
-        if (rect) {
-          x = touch.clientX - rect.left;
-          y = touch.clientY - rect.top;
-        } else {
-          return;
-        }
-      } else {
-        return;
+      // Web: Use offsetX/offsetY which are relative to the target element
+      if (touch.offsetX !== undefined && touch.offsetY !== undefined) {
+        x = touch.offsetX;
+        y = touch.offsetY;
+      } else if (canvasLayout && touch.pageX !== undefined && touch.pageY !== undefined) {
+        // Fallback
+        x = touch.pageX - canvasLayout.x;
+        y = touch.pageY - canvasLayout.y;
       }
     } else {
+      // Native: Use locationX/locationY
       const { locationX, locationY } = touch;
       if (locationX !== undefined && locationY !== undefined) {
         x = locationX;
         y = locationY;
-      } else {
-        return;
       }
     }
+
+    // Exit if coordinates are invalid
+    if (x === undefined || y === undefined) return;
 
     // Interpolate points for smooth brush strokes
     if (lastPointRef.current) {
@@ -233,30 +239,78 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
     try {
       setIsSaving(true);
 
-      if (Platform.OS !== "web") {
+      if (Platform.OS === "web") {
+        // Web: Create a new canvas and render the content
+        const canvas = document.createElement('canvas');
+        canvas.width = CANVAS_SIZE;
+        canvas.height = CANVAS_SIZE;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          Alert.alert("Hata", "Canvas context alınamadı");
+          return;
+        }
+
+        // Draw white background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+        // Draw background image
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+
+        await new Promise((resolve, reject) => {
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            resolve(true);
+          };
+          img.onerror = reject;
+          img.src = backgroundImage;
+        });
+
+        // Draw all fills (colored circles)
+        fills.forEach((fill) => {
+          ctx.globalAlpha = 0.6;
+          ctx.fillStyle = fill.color;
+          ctx.beginPath();
+          ctx.arc(fill.x, fill.y, fill.radius, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+
+        // Convert to blob and download
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            Alert.alert("Hata", "Görüntü oluşturulamadı");
+            return;
+          }
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `boyama-${Date.now()}.png`;
+          link.click();
+          URL.revokeObjectURL(url);
+
+          Alert.alert("✅ Kaydedildi!", "Boyama sayfan indirildi.");
+        }, 'image/png');
+      } else {
+        // Native: Use captureRef
         const { status } = await MediaLibrary.requestPermissionsAsync();
         if (status !== "granted") {
           Alert.alert("İzin Gerekli", "Galeriye kaydetmek için izin gerekiyor.");
           return;
         }
-      }
 
-      if (!canvasRef.current) {
-        Alert.alert("Hata", "Canvas bulunamadı");
-        return;
-      }
+        if (!canvasRef.current) {
+          Alert.alert("Hata", "Canvas bulunamadı");
+          return;
+        }
 
-      const uri = await captureRef(canvasRef, {
-        format: "png",
-        quality: 1,
-      });
+        const uri = await captureRef(canvasRef, {
+          format: "png",
+          quality: 1,
+        });
 
-      if (Platform.OS === "web") {
-        const link = document.createElement("a");
-        link.href = uri;
-        link.download = `boyama-${Date.now()}.png`;
-        link.click();
-      } else {
         await MediaLibrary.saveToLibraryAsync(uri);
         Alert.alert("✅ Kaydedildi!", "Boyama sayfan galeriye kaydedildi.");
       }
@@ -266,7 +320,7 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
       }
     } catch (error) {
       console.error("Save error:", error);
-      Alert.alert("Hata", "Kaydetme sırasında bir hata oluştu.");
+      Alert.alert("Hata", "Kaydetme sırasında bir hata oluştu: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setIsSaving(false);
     }
@@ -292,6 +346,17 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
               />
               <Pressable
                 style={styles.canvas}
+                onLayout={(event) => {
+                  const { x, y, width, height } = event.nativeEvent.layout;
+                  // For web, measure absolute position
+                  if (Platform.OS === 'web' && event.currentTarget) {
+                    event.currentTarget.measure?.((_fx, _fy, w, h, px, py) => {
+                      setCanvasLayout({ x: px, y: py, width: w, height: h });
+                    });
+                  } else {
+                    setCanvasLayout({ x, y, width, height });
+                  }
+                }}
                 onPressIn={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onPressOut={handleTouchEnd}

@@ -13,6 +13,7 @@ import {
   Animated,
   Easing,
   Image,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -32,15 +33,25 @@ import { ResultCard } from "@/components/ResultCard";
 import { OverlayEvidence } from "@/components/OverlayEvidence";
 import { buildShareText } from "@/services/abTest";
 import { pickFromLibrary, captureWithCamera } from "@/services/imagePick";
-import type { AssessmentInput, TaskType } from "@/types/AssessmentSchema";
+import type { TaskType } from "@/types/AssessmentSchema";
 import { trpc } from "@/lib/trpc";
-import { Platform } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 const lang = "tr";
 
 export default function AdvancedAnalysisScreen() {
+  const TASK_TYPES: TaskType[] = [
+    "DAP",
+    "HTP",
+    "Aile",
+    "Kaktus",
+    "Agac",
+    "Bahce",
+    "Bender",
+    "Rey",
+    "Luscher",
+  ];
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const [uri, setUri] = useState<string | null>(null);
@@ -50,7 +61,6 @@ export default function AdvancedAnalysisScreen() {
   const [quote, setQuote] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
 
   // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
@@ -247,7 +257,6 @@ export default function AdvancedAnalysisScreen() {
             language: "tr",
           });
 
-          setSavedAnalysisId(savedAnalysis.id);
           console.log("[Analysis] ✅ Saved successfully:", savedAnalysis.id);
         } catch (saveError) {
           console.error("[Analysis] ❌ Failed to save:", saveError);
@@ -302,7 +311,7 @@ export default function AdvancedAnalysisScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.analysis as any}
+        colors={Colors.background.analysis}
         style={styles.gradientContainer}
       >
         <ScrollView
@@ -322,7 +331,7 @@ export default function AdvancedAnalysisScreen() {
               <Brain size={layout.icon.medium} color={Colors.neutral.white} />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>{strings[lang].title}</Text>
+              <Text style={styles.headerTitle}>{strings[lang].legacy.title}</Text>
               <Text style={styles.headerSubtitle}>Çocuk psikolojisi uzmanı desteğiyle</Text>
             </View>
           </View>
@@ -371,26 +380,14 @@ export default function AdvancedAnalysisScreen() {
             >
               <Sparkles size={20} color={Colors.neutral.white} />
               <Text style={styles.consultButtonText}>
-                {strings[lang].expertConsult}
+                {strings[lang].legacy.expertConsult}
               </Text>
             </LinearGradient>
           </Pressable>
 
         {/* Test selection chips */}
         <View style={styles.testChips}>
-          {(
-            [
-              "DAP",
-              "HTP",
-              "Aile",
-              "Kaktus",
-              "Agac",
-              "Bahce",
-              "Bender",
-              "Rey",
-              "Luscher",
-            ] as TaskType[]
-          ).map((t) => (
+          {TASK_TYPES.map((t) => (
             <Pressable
               key={t}
               onPress={() => onSelectTaskShort(t)}
@@ -516,7 +513,7 @@ export default function AdvancedAnalysisScreen() {
                 <>
                   <Sparkles size={24} color={Colors.neutral.white} />
                   <Text style={styles.analyzeButtonText}>
-                    {strings[lang].analyze}
+                    {strings[lang].legacy.analyze}
                   </Text>
                 </>
               )}
@@ -533,7 +530,7 @@ export default function AdvancedAnalysisScreen() {
             <View style={styles.disclaimerCard}>
               <Text style={styles.disclaimerTitle}>Uyarı</Text>
               <Text style={styles.disclaimerText}>
-                {strings[lang].disclaimer}
+                {strings[lang].legacy.disclaimer}
               </Text>
             </View>
           </>

@@ -31,26 +31,22 @@ async function toLineArt(input: Buffer): Promise<Buffer> {
   console.log("[Coloring] Converting to line art with Sharp");
 
   try {
-    // ULTRA AGGRESSIVE - Pure black & white line art only
-    // Goal: Baby coloring book - ONLY thick black outlines on pure white
+    // Balanced line art conversion - preserves shapes while creating clean outlines
+    // Goal: Clear coloring book outlines that preserve the original drawing structure
     const out = await sharp(input)
       .resize(1024, 1024, { fit: 'contain', background: { r: 255, g: 255, b: 255 } })
       .grayscale()                    // Convert to grayscale first
-      .blur(20)                       // ULTRA MAXIMUM blur - obliterate ALL detail
       .normalize()                    // Maximize contrast
-      .linear(5.0, -150)              // EXTREME contrast boost (5x amplification)
-      .median(25)                     // ULTRA noise reduction - merge EVERYTHING
-      .threshold(160)                 // VERY AGGRESSIVE threshold - only darkest areas survive
-      .blur(12)                       // Heavy blur to merge lines completely
-      .median(20)                     // More aggressive smoothing
-      .threshold(150)                 // EXTREME threshold - only keep the thickest strokes
-      .blur(5)                        // Final softening
-      .median(8)                      // Final cleanup
-      .threshold(200)                 // Final threshold to ensure PURE black & white (no grays)
+      .linear(2.5, -80)               // Moderate contrast boost (2.5x amplification)
+      .blur(3)                        // Light blur to smooth edges
+      .median(5)                      // Light noise reduction
+      .threshold(120)                 // Balanced threshold - keeps most details
+      .blur(2)                        // Very light blur for smoother lines
+      .threshold(128)                 // Final threshold to ensure clean black & white
       .toFormat("png")
       .toBuffer();
 
-    console.log("[Coloring] ✅ PURE LINE ART: Only thick black outlines on pure white");
+    console.log("[Coloring] ✅ LINE ART: Clean black outlines on white background");
     return out;
   } catch (error) {
     console.error("[Coloring] ❌ Sharp conversion failed:", error);

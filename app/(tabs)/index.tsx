@@ -24,6 +24,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
 import {
   layout,
   typography,
@@ -56,6 +57,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch recent analyses (last 3)
@@ -107,7 +109,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.primary as any}
+        colors={[Colors.background.primary, Colors.primary.soft, Colors.neutral.lightest]}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         <ScrollView
@@ -148,7 +150,7 @@ export default function HomeScreen() {
                   <Zap size={32} color={Colors.neutral.white} />
                 </View>
                 <View style={styles.quickActionContent}>
-                  <Text style={styles.quickActionTitle}>🎨 Hızlı Analiz</Text>
+                  <Text style={styles.quickActionTitle}>🎨 {t.home.quickAnalysis}</Text>
                   <Text style={styles.quickActionDescription}>
                     Çizimi yükle, saniyeler içinde sonuç al
                   </Text>
@@ -173,7 +175,7 @@ export default function HomeScreen() {
                   <Brain size={32} color={Colors.neutral.white} />
                 </View>
                 <View style={styles.quickActionContent}>
-                  <Text style={styles.quickActionTitle}>🔬 Detaylı Analiz</Text>
+                  <Text style={styles.quickActionTitle}>🔬 {t.home.advancedAnalysis}</Text>
                   <Text style={styles.quickActionDescription}>
                     9 farklı projektif test ile derinlemesine analiz
                   </Text>
@@ -186,12 +188,12 @@ export default function HomeScreen() {
           {/* Creative Actions - Hayal Atölyesi */}
           <View style={styles.creativeActionsContainer}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>✨ Hayal Atölyesi</Text>
+              <Text style={styles.sectionTitle}>✨ {t.home.dreamWorkshop}</Text>
               <Pressable
                 onPress={() => router.push("/hayal-atolyesi" as any)}
                 style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
-                <Text style={styles.seeAllText}>Tümünü Gör →</Text>
+                <Text style={styles.seeAllText}>{t.home.viewAll} →</Text>
               </Pressable>
             </View>
 
@@ -243,7 +245,7 @@ export default function HomeScreen() {
                 onPress={() => router.push("/history" as any)}
                 style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
-                <Text style={styles.seeAllText}>Tümünü Gör →</Text>
+                <Text style={styles.seeAllText}>{t.home.viewAll} →</Text>
               </Pressable>
             </View>
 
@@ -256,7 +258,7 @@ export default function HomeScreen() {
                 <Brain size={48} color={Colors.neutral.light} />
                 <Text style={styles.emptyRecentText}>Henüz analiz yok</Text>
                 <Text style={styles.emptyRecentSubtext}>
-                  Hızlı Analiz ile başlayın
+                  {t.home.quickAnalysisDesc}
                 </Text>
               </View>
             ) : (
@@ -310,7 +312,7 @@ export default function HomeScreen() {
 
               <View style={styles.statCard}>
                 <LinearGradient
-                  colors={Colors.cards.story.bg as any}
+                  colors={Colors.cards.story.bg}
                   style={styles.statCardGradient}
                 >
                   <Text style={styles.statNumber}>{stats.totalStorybooks || 0}</Text>
