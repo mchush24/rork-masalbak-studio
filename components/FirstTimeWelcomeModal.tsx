@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.neutral.white,
-    borderRadius: radius.xxl,
+    borderRadius: radius['3xl'],
     padding: spacing['6'],
     ...shadows.xl,
   },

@@ -45,7 +45,7 @@ export function DrawingInsightCard({
 
       <View style={[styles.section, styles.recommendationSection]}>
         <View style={styles.sectionHeader}>
-          <Heart size={16} color={Colors.primary.coral} />
+          <Heart size={16} color={Colors.primary.sunset} />
           <Text style={styles.sectionTitle}>Öneri</Text>
         </View>
         <Text style={[styles.sectionText, styles.recommendationText]}>

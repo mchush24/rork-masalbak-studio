@@ -109,7 +109,7 @@ export function QuestionnaireModal({
                         {isSelected && (
                           <CheckCircle2
                             size={16}
-                            color={Colors.primary.coral}
+                            color={Colors.primary.sunset}
                             style={{ marginRight: 4 }}
                           />
                         )}
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   answerButtonSelected: {
     backgroundColor: Colors.primary.soft,
-    borderColor: Colors.primary.coral,
+    borderColor: Colors.primary.sunset,
   },
   answerText: {
     fontSize: 13,
@@ -260,15 +260,15 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
   },
   answerTextSelected: {
-    color: Colors.primary.coral,
+    color: Colors.primary.sunset,
   },
   completeButton: {
-    backgroundColor: Colors.primary.coral,
+    backgroundColor: Colors.primary.sunset,
     padding: 18,
     borderRadius: 18,
     alignItems: "center",
     marginTop: 12,
-    shadowColor: Colors.primary.coral,
+    shadowColor: Colors.primary.sunset,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,

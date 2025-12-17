@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch } from "react-native";
-import { User, Settings, Globe, Crown, Shield, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Moon, Smartphone, Baby, Plus, Trash2 } from "lucide-react-native";
+import { User, Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
 import {
   layout,
   typography,
@@ -15,27 +16,29 @@ import {
   shadows,
 } from "@/constants/design-system";
 
-type Language = "tr" | "en" | "de" | "ar";
-
-const LANGUAGES: Record<Language, { name: string; nativeName: string; flag: string }> = {
-  tr: { name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷" },
-  en: { name: "English", nativeName: "English", flag: "🇬🇧" },
-  de: { name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
-  ar: { name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
-};
-
+type Language = "tr" | "en" | "de" | "ru";
 type Theme = "light" | "dark" | "auto";
 
-const THEMES: Record<Theme, { icon: string; name: string; description: string }> = {
-  light: { icon: "☀️", name: "Açık Tema", description: "Gündüz için ideal" },
-  dark: { icon: "🌙", name: "Koyu Tema", description: "Gece için ideal" },
-  auto: { icon: "🔄", name: "Otomatik", description: "Sistem ayarlarına göre" },
-};
-
 export default function ProfileScreen() {
+  // Constants - defined inside component
+  const LANGUAGES: Record<Language, { name: string; nativeName: string; flag: string }> = {
+    tr: { name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷" },
+    en: { name: "English", nativeName: "English", flag: "🇬🇧" },
+    de: { name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
+    ru: { name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
+  };
+
+  const DEFAULT_THEME: Theme = "light";
+  const THEMES: Record<Theme, { icon: string; name: string; description: string }> = {
+    light: { icon: "☀️", name: "Açık Tema", description: "Gündüz için ideal" },
+    dark: { icon: "🌙", name: "Koyu Tema", description: "Gece için ideal" },
+    auto: { icon: "🔄", name: "Otomatik", description: "Sistem ayarlarına göre" },
+  };
+
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { t, language, setLanguage: setAppLanguage } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -60,6 +63,13 @@ export default function ProfileScreen() {
     { enabled: !!user?.userId }
   );
 
+  // Sync user's backend language setting with local language context
+  React.useEffect(() => {
+    if (userSettings?.language && userSettings.language !== language) {
+      setAppLanguage(userSettings.language as Language).catch(console.error);
+    }
+  }, [userSettings?.language]);
+
   // Mutations
   const updateSettingsMutation = trpc.user.updateSettings.useMutation();
   const updateProfileMutation = trpc.user.updateProfile.useMutation();
@@ -70,31 +80,35 @@ export default function ProfileScreen() {
     setRefreshing(false);
   };
 
-  const handleLanguageChange = async (language: Language) => {
+  const handleLanguageChange = async (selectedLang: Language) => {
     try {
+      // Update local language context
+      await setAppLanguage(selectedLang);
+
+      // Update backend
       await updateSettingsMutation.mutateAsync({
         userId: user?.userId || '',
-        language,
+        language: selectedLang,
       });
       await refetchSettings();
       setShowLanguageModal(false);
-      Alert.alert('✅ Başarılı', 'Dil tercihiniz kaydedildi.');
+      Alert.alert(t.common.success, t.settings.language + ' ' + t.common.save.toLowerCase());
     } catch (error) {
-      Alert.alert('❌ Hata', 'Dil değiştirilemedi. Lütfen tekrar deneyin.');
+      Alert.alert(t.common.error, t.settings.language + ' ' + t.common.error.toLowerCase());
     }
   };
 
   const handleLogout = () => {
     Alert.alert(
-      'Çıkış Yap',
-      'Hesabınızdan çıkmak istediğinize emin misiniz?',
+      t.profile.logout,
+      t.profile.logoutConfirm,
       [
         {
-          text: 'İptal',
+          text: t.common.cancel,
           style: 'cancel',
         },
         {
-          text: 'Çıkış Yap',
+          text: t.profile.logout,
           style: 'destructive',
           onPress: async () => {
             await logout();
@@ -112,7 +126,7 @@ export default function ProfileScreen() {
 
   const handleProfileSave = async () => {
     if (!editName.trim()) {
-      Alert.alert('Uyarı', 'Lütfen bir isim girin.');
+      Alert.alert(t.common.error, t.profile.name);
       return;
     }
 
@@ -122,11 +136,10 @@ export default function ProfileScreen() {
         name: editName.trim(),
       });
       setShowProfileModal(false);
-      Alert.alert('Başarılı', 'Profiliniz güncellendi!');
-      // Refresh to get updated data
+      Alert.alert(t.common.success, t.profile.editProfile + ' ' + t.common.success.toLowerCase());
       await handleRefresh();
     } catch (error) {
-      Alert.alert('Hata', 'Profil güncellenemedi. Lütfen tekrar deneyin.');
+      Alert.alert(t.common.error, t.profile.editProfile + ' ' + t.common.error.toLowerCase());
     }
   };
 
@@ -196,7 +209,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.profile as any}
+        colors={Colors.background.profile}
         style={styles.gradientContainer}
       >
         <ScrollView
@@ -232,7 +245,7 @@ export default function ProfileScreen() {
           {/* Children Profiles */}
           <View style={styles.childrenSection}>
             <View style={styles.childrenHeader}>
-              <Text style={styles.childrenTitle}>👶 Çocuk Profilleri</Text>
+              <Text style={styles.childrenTitle}>👶 {t.profile.children}</Text>
               <Pressable
                 style={({ pressed }) => [
                   styles.addChildButton,
@@ -311,7 +324,7 @@ export default function ProfileScreen() {
                 >
                   <BookOpen size={32} color={Colors.neutral.white} />
                   <Text style={styles.statValue}>{stats.totalStorybooks || 0}</Text>
-                  <Text style={styles.statLabel}>Masal</Text>
+                  <Text style={styles.statLabel}>{t.profile.stories}</Text>
                 </LinearGradient>
               </Pressable>
 
@@ -328,7 +341,7 @@ export default function ProfileScreen() {
                 >
                   <Palette size={32} color={Colors.neutral.white} />
                   <Text style={styles.statValue}>{stats.totalColorings || 0}</Text>
-                  <Text style={styles.statLabel}>Boyama</Text>
+                  <Text style={styles.statLabel}>{t.profile.colorings}</Text>
                 </LinearGradient>
               </Pressable>
 
@@ -345,14 +358,14 @@ export default function ProfileScreen() {
                 >
                   <Brain size={32} color={Colors.neutral.white} />
                   <Text style={styles.statValue}>{stats.totalAnalyses || 0}</Text>
-                  <Text style={styles.statLabel}>Analiz</Text>
+                  <Text style={styles.statLabel}>{t.profile.analyses}</Text>
                 </LinearGradient>
               </Pressable>
             </View>
           )}
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>İçeriklerim</Text>
+            <Text style={styles.sectionTitle}>{t.profile.stats}</Text>
 
             <Pressable
               style={({ pressed }) => [
@@ -368,7 +381,7 @@ export default function ProfileScreen() {
                 <History size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Tüm İçeriklerim</Text>
+                <Text style={styles.menuLabel}>{t.profile.stats}</Text>
                 <View style={styles.menuRight}>
                   <Text style={styles.menuValue}>
                     {(stats?.totalAnalyses || 0) + (stats?.totalStorybooks || 0) + (stats?.totalColorings || 0)}
@@ -380,7 +393,7 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ayarlar</Text>
+            <Text style={styles.sectionTitle}>{t.settings.title}</Text>
 
             <Pressable
               style={({ pressed }) => [
@@ -396,7 +409,7 @@ export default function ProfileScreen() {
                 <Globe size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Dil / Language</Text>
+                <Text style={styles.menuLabel}>{t.settings.language} / Language</Text>
                 <View style={styles.menuRight}>
                   <Text style={styles.menuValue}>
                     {userSettings?.language ? LANGUAGES[userSettings.language as Language].nativeName : 'Türkçe'}
@@ -419,7 +432,7 @@ export default function ProfileScreen() {
                 <Crown size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Abonelik</Text>
+                <Text style={styles.menuLabel}>{t.settings.subscription}</Text>
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>Yakında</Text>
                 </View>
@@ -440,7 +453,7 @@ export default function ProfileScreen() {
                 <Bell size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Bildirimler</Text>
+                <Text style={styles.menuLabel}>{t.settings.notifications}</Text>
                 <ChevronRight size={20} color={Colors.neutral.light} />
               </View>
             </Pressable>
@@ -459,7 +472,7 @@ export default function ProfileScreen() {
                 <Lock size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Gizlilik ve Güvenlik</Text>
+                <Text style={styles.menuLabel}>{t.settings.privacy}</Text>
                 <ChevronRight size={20} color={Colors.neutral.light} />
               </View>
             </Pressable>
@@ -478,7 +491,7 @@ export default function ProfileScreen() {
                 <Sun size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Tema</Text>
+                <Text style={styles.menuLabel}>{t.settings.theme}</Text>
                 <View style={styles.menuRight}>
                   <Text style={styles.menuValue}>
                     {userSettings?.theme === 'light' ? 'Açık' : userSettings?.theme === 'dark' ? 'Koyu' : 'Otomatik'}
@@ -502,14 +515,14 @@ export default function ProfileScreen() {
                 <Settings size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Genel Ayarlar</Text>
+                <Text style={styles.menuLabel}>{t.settings.general}</Text>
                 <ChevronRight size={20} color={Colors.neutral.light} />
               </View>
             </Pressable>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Destek</Text>
+            <Text style={styles.sectionTitle}>{t.settings.help}</Text>
 
             <Pressable
               style={({ pressed }) => [
@@ -517,7 +530,7 @@ export default function ProfileScreen() {
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
               onPress={() => Alert.alert(
-                '💡 Yardım Merkezi',
+                '💡 ' + t.settings.help,
                 '📧 E-posta: destek@masalbak.com\n\n' +
                 '📱 Uygulama Versiyonu: 1.0.0\n\n' +
                 '🌐 Web: www.masalbak.com\n\n' +
@@ -532,7 +545,7 @@ export default function ProfileScreen() {
                 <HelpCircle size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Yardım Merkezi</Text>
+                <Text style={styles.menuLabel}>{t.settings.help}</Text>
                 <ChevronRight size={20} color={Colors.neutral.light} />
               </View>
             </Pressable>
@@ -554,7 +567,7 @@ export default function ProfileScreen() {
                 <LogOut size={24} color={Colors.neutral.white} />
               </LinearGradient>
               <View style={styles.menuContent}>
-                <Text style={[styles.menuLabel, styles.logoutText]}>Çıkış Yap</Text>
+                <Text style={[styles.menuLabel, styles.logoutText]}>{ t.profile.logout}</Text>
               </View>
             </Pressable>
           </View>
@@ -580,7 +593,7 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🌍 Dil Seçimi / Language</Text>
+                <Text style={styles.modalTitle}>🌍 {t.settings.language} / Language</Text>
                 <Pressable onPress={() => setShowLanguageModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
@@ -630,19 +643,19 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>✏️ Profili Düzenle</Text>
+                <Text style={styles.modalTitle}>✏️ {t.profile.editProfile}</Text>
                 <Pressable onPress={() => setShowProfileModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
               </View>
 
               <View style={styles.profileEditForm}>
-                <Text style={styles.inputLabel}>İsim</Text>
+                <Text style={styles.inputLabel}>{t.profile.name}</Text>
                 <TextInput
                   style={styles.input}
                   value={editName}
                   onChangeText={setEditName}
-                  placeholder="Adınızı girin"
+                  placeholder={t.profile.name}
                   placeholderTextColor={Colors.neutral.light}
                   autoFocus
                 />
@@ -659,7 +672,7 @@ export default function ProfileScreen() {
                     style={styles.saveButtonGradient}
                   >
                     <Check size={20} color={Colors.neutral.white} />
-                    <Text style={styles.saveButtonText}>Kaydet</Text>
+                    <Text style={styles.saveButtonText}>{t.common.save}</Text>
                   </LinearGradient>
                 </Pressable>
               </View>
@@ -680,7 +693,7 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🔔 Bildirimler</Text>
+                <Text style={styles.modalTitle}>🔔 {t.settings.notifications}</Text>
                 <Pressable onPress={() => setShowNotificationsModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
@@ -688,7 +701,7 @@ export default function ProfileScreen() {
 
               <View style={styles.settingsForm}>
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Tüm Bildirimler</Text>
+                  <Text style={styles.settingLabel}>{t.settings.notificationsEnabled}</Text>
                   <Switch
                     value={userSettings?.notifications_enabled ?? true}
                     onValueChange={(value) => handleSettingToggle('notificationsEnabled', value)}
@@ -701,7 +714,7 @@ export default function ProfileScreen() {
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>E-posta Bildirimleri</Text>
+                  <Text style={styles.settingLabel}>{t.settings.emailNotifications}</Text>
                   <Switch
                     value={userSettings?.email_notifications ?? false}
                     onValueChange={(value) => handleSettingToggle('emailNotifications', value)}
@@ -710,11 +723,11 @@ export default function ProfileScreen() {
                   />
                 </View>
                 <Text style={styles.settingDescription}>
-                  Önemli güncellemeleri e-posta ile alın
+                  {t.settings.emailNotifications}
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Push Bildirimleri</Text>
+                  <Text style={styles.settingLabel}>{t.settings.pushNotifications}</Text>
                   <Switch
                     value={userSettings?.push_notifications ?? true}
                     onValueChange={(value) => handleSettingToggle('pushNotifications', value)}
@@ -743,7 +756,7 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🔒 Gizlilik ve Güvenlik</Text>
+                <Text style={styles.modalTitle}>🔒 {t.settings.privacy}</Text>
                 <Pressable onPress={() => setShowPrivacyModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
@@ -751,7 +764,7 @@ export default function ProfileScreen() {
 
               <View style={styles.settingsForm}>
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Veri Paylaşım İzni</Text>
+                  <Text style={styles.settingLabel}>{t.settings.dataSharingConsent}</Text>
                   <Switch
                     value={userSettings?.data_sharing_consent ?? false}
                     onValueChange={(value) => handleSettingToggle('dataSharingConsent', value)}
@@ -764,7 +777,7 @@ export default function ProfileScreen() {
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Profil Görünürlüğü</Text>
+                  <Text style={styles.settingLabel}>{t.settings.profileVisibility}</Text>
                   <Pressable
                     style={styles.selectButton}
                     onPress={() => {
@@ -798,7 +811,7 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>⚙️ Genel Ayarlar</Text>
+                <Text style={styles.modalTitle}>⚙️ {t.settings.general}</Text>
                 <Pressable onPress={() => setShowGeneralModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
@@ -806,7 +819,7 @@ export default function ProfileScreen() {
 
               <View style={styles.settingsForm}>
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Otomatik Kaydet</Text>
+                  <Text style={styles.settingLabel}>{t.settings.autoSave}</Text>
                   <Switch
                     value={userSettings?.auto_save ?? true}
                     onValueChange={(value) => handleSettingToggle('autoSave', value)}
@@ -819,7 +832,7 @@ export default function ProfileScreen() {
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>İpuçlarını Göster</Text>
+                  <Text style={styles.settingLabel}>{t.settings.showTips}</Text>
                   <Switch
                     value={userSettings?.show_tips ?? true}
                     onValueChange={(value) => handleSettingToggle('showTips', value)}
@@ -828,11 +841,11 @@ export default function ProfileScreen() {
                   />
                 </View>
                 <Text style={styles.settingDescription}>
-                  Kullanım ipuçlarını görüntüle
+                  {t.settings.showTips}
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Çocuk Kilidi</Text>
+                  <Text style={styles.settingLabel}>{t.settings.childLock}</Text>
                   <Switch
                     value={userSettings?.child_lock_enabled ?? false}
                     onValueChange={(value) => handleSettingToggle('childLockEnabled', value)}
@@ -861,7 +874,7 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🎨 Tema Seçimi</Text>
+                <Text style={styles.modalTitle}>🎨 {t.settings.theme}</Text>
                 <Pressable onPress={() => setShowThemeModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
@@ -869,7 +882,7 @@ export default function ProfileScreen() {
 
               <View style={styles.themeList}>
                 {(Object.keys(THEMES) as Theme[]).map((theme) => {
-                  const isSelected = (userSettings?.theme || 'light') === theme;
+                  const isSelected = (userSettings?.theme || DEFAULT_THEME) === theme;
                   const themeInfo = THEMES[theme];
 
                   return (
@@ -914,28 +927,28 @@ export default function ProfileScreen() {
           >
             <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>👶 Çocuk Profili Ekle</Text>
+                <Text style={styles.modalTitle}>👶 {t.profile.addChild}</Text>
                 <Pressable onPress={() => setShowChildrenModal(false)} style={styles.modalCloseButton}>
                   <X size={24} color={Colors.neutral.dark} />
                 </Pressable>
               </View>
 
               <View style={styles.profileEditForm}>
-                <Text style={styles.inputLabel}>İsim</Text>
+                <Text style={styles.inputLabel}>{t.profile.childName}</Text>
                 <TextInput
                   style={styles.input}
                   value={childName}
                   onChangeText={setChildName}
-                  placeholder="Çocuğunuzun adı"
+                  placeholder={t.profile.childName}
                   placeholderTextColor={Colors.neutral.light}
                 />
 
-                <Text style={styles.inputLabel}>Yaş</Text>
+                <Text style={styles.inputLabel}>{t.profile.childAge}</Text>
                 <TextInput
                   style={styles.input}
                   value={childAge}
                   onChangeText={setChildAge}
-                  placeholder="Yaş (0-18)"
+                  placeholder={t.profile.childAge + " (0-18)"}
                   placeholderTextColor={Colors.neutral.light}
                   keyboardType="number-pad"
                 />
@@ -952,7 +965,7 @@ export default function ProfileScreen() {
                     style={styles.saveButtonGradient}
                   >
                     <Plus size={20} color={Colors.neutral.white} />
-                    <Text style={styles.saveButtonText}>Ekle</Text>
+                    <Text style={styles.saveButtonText}>{t.common.add}</Text>
                   </LinearGradient>
                 </Pressable>
               </View>

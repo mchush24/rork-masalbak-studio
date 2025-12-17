@@ -30,6 +30,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
 import {
   layout,
   typography,
@@ -43,29 +44,35 @@ type TabType = "analyses" | "stories" | "colorings";
 
 type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
 
-const TASK_TYPE_LABELS: Record<TaskType, string> = {
-  DAP: "İnsan Çizimi",
-  HTP: "Ev-Ağaç-İnsan",
-  Family: "Aile Çizimi",
-  Aile: "Aile Çizimi",
-  Cactus: "Kaktüs Testi",
-  Kaktus: "Kaktüs Testi",
-  Tree: "Ağaç Testi",
-  Agac: "Ağaç Testi",
-  Garden: "Bahçe Testi",
-  Bahce: "Bahçe Testi",
-  BenderGestalt2: "Bender Gestalt",
-  Bender: "Bender Gestalt",
-  ReyOsterrieth: "Rey Figure",
-  Rey: "Rey Figure",
-  Luscher: "Luscher Renk",
-};
-
 export default function HistoryScreen() {
+  // Constants - defined inside component
+  const TAB_ANALYSES: TabType = "analyses";
+  const TAB_STORIES: TabType = "stories";
+  const TAB_COLORINGS: TabType = "colorings";
+
+  const TASK_TYPE_LABELS: Record<TaskType, string> = {
+    DAP: "İnsan Çizimi",
+    HTP: "Ev-Ağaç-İnsan",
+    Family: "Aile Çizimi",
+    Aile: "Aile Çizimi",
+    Cactus: "Kaktüs Testi",
+    Kaktus: "Kaktüs Testi",
+    Tree: "Ağaç Testi",
+    Agac: "Ağaç Testi",
+    Garden: "Bahçe Testi",
+    Bahce: "Bahçe Testi",
+    BenderGestalt2: "Bender Gestalt",
+    Bender: "Bender Gestalt",
+    ReyOsterrieth: "Rey Figure",
+    Rey: "Rey Figure",
+    Luscher: "Luscher Renk",
+  };
+
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>("analyses");
+  const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState<TabType>(TAB_ANALYSES);
   const [refreshing, setRefreshing] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
 
@@ -83,7 +90,7 @@ export default function HistoryScreen() {
       sortBy: "created_at",
       sortOrder: "desc",
     },
-    { enabled: !!user?.userId && activeTab === "analyses" }
+    { enabled: !!user?.userId && activeTab === TAB_ANALYSES }
   );
 
   // Fetch storybooks
@@ -93,7 +100,7 @@ export default function HistoryScreen() {
     refetch: refetchStories,
   } = trpc.studio.listStorybooks.useQuery(
     { user_id: user?.userId || null },
-    { enabled: !!user?.userId && activeTab === "stories" }
+    { enabled: !!user?.userId && activeTab === TAB_STORIES }
   );
 
   // Fetch colorings
@@ -103,7 +110,7 @@ export default function HistoryScreen() {
     refetch: refetchColorings,
   } = trpc.studio.listColorings.useQuery(
     { user_id: user?.userId || null },
-    { enabled: !!user?.userId && activeTab === "colorings" }
+    { enabled: !!user?.userId && activeTab === TAB_COLORINGS }
   );
 
   // Mutations
@@ -114,9 +121,9 @@ export default function HistoryScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    if (activeTab === "analyses") await refetchAnalyses();
-    else if (activeTab === "stories") await refetchStories();
-    else if (activeTab === "colorings") await refetchColorings();
+    if (activeTab === TAB_ANALYSES) await refetchAnalyses();
+    else if (activeTab === TAB_STORIES) await refetchStories();
+    else if (activeTab === TAB_COLORINGS) await refetchColorings();
     setRefreshing(false);
   };
 
@@ -149,12 +156,12 @@ export default function HistoryScreen() {
 
   const handleDeleteAnalysis = (analysisId: string) => {
     Alert.alert(
-      "Analizi Sil",
+      t.history.deleteConfirm,
       "Bu analizi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
       [
         { text: "İptal", style: "cancel" },
         {
-          text: "Sil",
+          text: t.history.delete,
           style: "destructive",
           onPress: async () => {
             try {
@@ -176,12 +183,12 @@ export default function HistoryScreen() {
   // Story Handlers
   const handleDeleteStorybook = (storybookId: string, storybookTitle: string) => {
     Alert.alert(
-      "Masalı Sil",
+      t.history.deleteConfirm,
       `"${storybookTitle}" adlı masalı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
       [
         { text: "Vazgeç", style: "cancel" },
         {
-          text: "Sil",
+          text: t.history.delete,
           style: "destructive",
           onPress: async () => {
             await deleteStorybookMutation.mutateAsync({ storybookId });
@@ -221,12 +228,12 @@ export default function HistoryScreen() {
 
   const handleDeleteColoring = (coloringId: string, coloringTitle: string) => {
     Alert.alert(
-      "Boyamayı Sil",
+      t.history.deleteConfirm,
       `"${coloringTitle}" adlı boyamayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
       [
         { text: "Vazgeç", style: "cancel" },
         {
-          text: "Sil",
+          text: t.history.delete,
           style: "destructive",
           onPress: async () => {
             await deleteColoringMutation.mutateAsync({ coloringId });
@@ -242,13 +249,13 @@ export default function HistoryScreen() {
   const storybooksList = storybooks || [];
   const coloringsList = colorings || [];
 
-  const isLoading = activeTab === "analyses" ? analysesLoading : activeTab === "stories" ? storiesLoading : coloringsLoading;
-  const isEmpty = activeTab === "analyses" ? analyses.length === 0 : activeTab === "stories" ? storybooksList.length === 0 : coloringsList.length === 0;
+  const isLoading = activeTab === TAB_ANALYSES ? analysesLoading : activeTab === TAB_STORIES ? storiesLoading : coloringsLoading;
+  const isEmpty = activeTab === TAB_ANALYSES ? analyses.length === 0 : activeTab === TAB_STORIES ? storybooksList.length === 0 : coloringsList.length === 0;
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.background.primary as any}
+        colors={[Colors.background.primary, Colors.primary.soft, Colors.neutral.lightest]}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         {/* Header */}
@@ -263,9 +270,9 @@ export default function HistoryScreen() {
             <View style={styles.headerTextContainer}>
               <Text style={styles.headerTitle}>Geçmiş</Text>
               <Text style={styles.headerSubtitle}>
-                {activeTab === "analyses" && `${analyses.length} analiz`}
-                {activeTab === "stories" && `${storybooksList.length} masal`}
-                {activeTab === "colorings" && `${coloringsList.length} boyama`}
+                {activeTab === TAB_ANALYSES && `${analyses.length} analiz`}
+                {activeTab === TAB_STORIES && `${storybooksList.length} masal`}
+                {activeTab === TAB_COLORINGS && `${coloringsList.length} boyama`}
               </Text>
             </View>
           </View>
@@ -276,48 +283,48 @@ export default function HistoryScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.tab,
-              activeTab === "analyses" && styles.tabActive,
+              activeTab === TAB_ANALYSES && styles.tabActive,
               pressed && { opacity: 0.7 },
             ]}
-            onPress={() => setActiveTab("analyses")}
+            onPress={() => setActiveTab(TAB_ANALYSES)}
           >
-            <Brain size={20} color={activeTab === "analyses" ? Colors.neutral.white : Colors.neutral.dark} />
-            <Text style={[styles.tabText, activeTab === "analyses" && styles.tabTextActive]}>
-              Analizler
+            <Brain size={20} color={activeTab === TAB_ANALYSES ? Colors.neutral.white : Colors.neutral.dark} />
+            <Text style={[styles.tabText, activeTab === TAB_ANALYSES && styles.tabTextActive]}>
+              {t.history.analyses}
             </Text>
           </Pressable>
 
           <Pressable
             style={({ pressed }) => [
               styles.tab,
-              activeTab === "stories" && styles.tabActive,
+              activeTab === TAB_STORIES && styles.tabActive,
               pressed && { opacity: 0.7 },
             ]}
-            onPress={() => setActiveTab("stories")}
+            onPress={() => setActiveTab(TAB_STORIES)}
           >
-            <BookOpen size={20} color={activeTab === "stories" ? Colors.neutral.white : Colors.neutral.dark} />
-            <Text style={[styles.tabText, activeTab === "stories" && styles.tabTextActive]}>
-              Masallar
+            <BookOpen size={20} color={activeTab === TAB_STORIES ? Colors.neutral.white : Colors.neutral.dark} />
+            <Text style={[styles.tabText, activeTab === TAB_STORIES && styles.tabTextActive]}>
+              {t.history.stories}
             </Text>
           </Pressable>
 
           <Pressable
             style={({ pressed }) => [
               styles.tab,
-              activeTab === "colorings" && styles.tabActive,
+              activeTab === TAB_COLORINGS && styles.tabActive,
               pressed && { opacity: 0.7 },
             ]}
-            onPress={() => setActiveTab("colorings")}
+            onPress={() => setActiveTab(TAB_COLORINGS)}
           >
-            <Palette size={20} color={activeTab === "colorings" ? Colors.neutral.white : Colors.neutral.dark} />
-            <Text style={[styles.tabText, activeTab === "colorings" && styles.tabTextActive]}>
-              Boyamalar
+            <Palette size={20} color={activeTab === TAB_COLORINGS ? Colors.neutral.white : Colors.neutral.dark} />
+            <Text style={[styles.tabText, activeTab === TAB_COLORINGS && styles.tabTextActive]}>
+              {t.history.colorings}
             </Text>
           </Pressable>
         </View>
 
         {/* Filters (only for analyses) */}
-        {activeTab === "analyses" && (
+        {activeTab === TAB_ANALYSES && (
           <View style={styles.filtersContainer}>
             <Pressable
               style={({ pressed }) => [
@@ -363,27 +370,27 @@ export default function HistoryScreen() {
           {/* Empty State */}
           {!isLoading && isEmpty && (
             <View style={styles.emptyContainer}>
-              {activeTab === "analyses" && <Brain size={64} color={Colors.neutral.light} />}
-              {activeTab === "stories" && <BookOpen size={64} color={Colors.neutral.light} />}
-              {activeTab === "colorings" && <Palette size={64} color={Colors.neutral.light} />}
+              {activeTab === TAB_ANALYSES && <Brain size={64} color={Colors.neutral.light} />}
+              {activeTab === TAB_STORIES && <BookOpen size={64} color={Colors.neutral.light} />}
+              {activeTab === TAB_COLORINGS && <Palette size={64} color={Colors.neutral.light} />}
               <Text style={styles.emptyTitle}>
-                {activeTab === "analyses" && (filterFavorites ? "Favori analiz yok" : "Henüz analiz yok")}
-                {activeTab === "stories" && "Henüz masal yok"}
-                {activeTab === "colorings" && "Henüz boyama yok"}
+                {activeTab === TAB_ANALYSES && (filterFavorites ? t.history.empty : t.history.empty)}
+                {activeTab === TAB_STORIES && t.history.empty}
+                {activeTab === TAB_COLORINGS && t.history.empty}
               </Text>
               <Text style={styles.emptyText}>
-                {activeTab === "analyses" &&
+                {activeTab === TAB_ANALYSES &&
                   (filterFavorites
                     ? "Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz"
                     : "Bir çizim analiz ettiğinizde buradan görebilirsiniz")}
-                {activeTab === "stories" && "Hikayeler sekmesinden çizimlerinizden masal oluşturabilirsiniz"}
-                {activeTab === "colorings" && "Studio sekmesinden çizimlerinizi boyama sayfasına dönüştürebilirsiniz"}
+                {activeTab === TAB_STORIES && "Hikayeler sekmesinden çizimlerinizden masal oluşturabilirsiniz"}
+                {activeTab === TAB_COLORINGS && "Studio sekmesinden çizimlerinizi boyama sayfasına dönüştürebilirsiniz"}
               </Text>
             </View>
           )}
 
           {/* Analyses List */}
-          {!isLoading && activeTab === "analyses" && analyses.length > 0 &&
+          {!isLoading && activeTab === TAB_ANALYSES && analyses.length > 0 &&
             analyses.map((analysis: any) => (
               <View key={analysis.id} style={styles.analysisCard}>
                 <Pressable
@@ -449,7 +456,7 @@ export default function HistoryScreen() {
             ))}
 
           {/* Stories List */}
-          {!isLoading && activeTab === "stories" && storybooksList.length > 0 &&
+          {!isLoading && activeTab === TAB_STORIES && storybooksList.length > 0 &&
             storybooksList.map((storybook: any) => {
               const renderRightActions = () => (
                 <View style={styles.swipeDeleteContainer}>
@@ -458,7 +465,7 @@ export default function HistoryScreen() {
                     onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
                   >
                     <Trash2 size={24} color={Colors.neutral.white} />
-                    <Text style={styles.deleteButtonText}>Sil</Text>
+                    <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
                   </Pressable>
                 </View>
               );
@@ -469,7 +476,7 @@ export default function HistoryScreen() {
                     style={({ pressed }) => [styles.storyCard, pressed && { opacity: 0.8 }]}
                     onPress={() => handleStorybookPress(storybook)}
                   >
-                    <LinearGradient colors={Colors.cards.story.bg as any} style={styles.cardGradient}>
+                    <LinearGradient colors={Colors.cards.story.bg} style={styles.cardGradient}>
                       <View style={styles.storyImageContainer}>
                         {storybook.pages?.[0]?.img_url ? (
                           <Image
@@ -502,7 +509,7 @@ export default function HistoryScreen() {
             })}
 
           {/* Colorings Grid */}
-          {!isLoading && activeTab === "colorings" && coloringsList.length > 0 && (
+          {!isLoading && activeTab === TAB_COLORINGS && coloringsList.length > 0 && (
             <View style={styles.coloringsGrid}>
               {coloringsList.map((coloring: any) => {
                 const renderRightActions = () => (
@@ -512,7 +519,7 @@ export default function HistoryScreen() {
                       onPress={() => handleDeleteColoring(coloring.id, coloring.title)}
                     >
                       <Trash2 size={20} color={Colors.neutral.white} />
-                      <Text style={styles.deleteButtonText}>Sil</Text>
+                      <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
                     </Pressable>
                   </View>
                 );

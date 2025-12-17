@@ -62,10 +62,10 @@ export const Colors = {
     primary: "#FFFBF8",      // Fallback solid renk
 
     // Ekran bazlı gradient'ler
-    studio: ["#FFF5F2", "#FFE8F5", "#F5F3FF"],      // Pembe-mor geçişi
-    stories: ["#FFF9E6", "#FFE8CC", "#FFD6A3"],     // Sarı-turuncu geçişi
-    analysis: ["#E8F4FD", "#D6ECFF", "#C2E0FF"],    // Mavi geçişi
-    profile: ["#F0FDF4", "#DCFCE7", "#BBF7D0"],     // Yeşil geçişi
+    studio: ["#FFF5F2", "#FFE8F5", "#F5F3FF"] as const,      // Pembe-mor geçişi
+    stories: ["#FFF9E6", "#FFE8CC", "#FFD6A3"] as const,     // Sarı-turuncu geçişi
+    analysis: ["#E8F4FD", "#D6ECFF", "#C2E0FF"] as const,    // Mavi geçişi
+    profile: ["#F0FDF4", "#DCFCE7", "#BBF7D0"] as const,     // Yeşil geçişi
 
     // Kart arka planları - Hafif renkli
     card: "#FFFFFF",         // Beyaz kart (varsayılan)
@@ -157,22 +157,22 @@ export const Colors = {
   cards: {
     // Her özellik için özel renk kodlaması
     story: {
-      bg: ["#FFF9E6", "#FFE8CC"],           // Sarı gradient
+      bg: ["#FFF9E6", "#FFE8CC"] as const,           // Sarı gradient
       border: "#FFD56B",
       icon: "#FF9B7A",
     },
     analysis: {
-      bg: ["#E8F4FD", "#D6ECFF"],           // Mavi gradient
+      bg: ["#E8F4FD", "#D6ECFF"] as const,           // Mavi gradient
       border: "#78C8E8",
       icon: "#A78BFA",
     },
     coloring: {
-      bg: ["#F0FDF4", "#DCFCE7"],           // Yeşil gradient
+      bg: ["#F0FDF4", "#DCFCE7"] as const,           // Yeşil gradient
       border: "#7ED99C",
       icon: "#6FEDD6",
     },
     premium: {
-      bg: ["#F5F3FF", "#EDE9FE"],           // Mor gradient
+      bg: ["#F5F3FF", "#EDE9FE"] as const,           // Mor gradient
       border: "#A78BFA",
       icon: "#9333EA",
     },
