@@ -52,6 +52,16 @@ export default function StoriesScreen() {
   const [storyImage, setStoryImage] = useState<string | null>(null);
   const [loadingStory, setLoadingStory] = useState(false);
 
+  // Theme suggestion states
+  type ThemeSuggestion = {
+    title: string;
+    theme: string;
+    emoji: string;
+  };
+  const [themeSuggestions, setThemeSuggestions] = useState<ThemeSuggestion[]>([]);
+  const [selectedThemeIndex, setSelectedThemeIndex] = useState<number | null>(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
   // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
   useEffect(() => {
     if (params.imageUri && typeof params.imageUri === 'string') {
@@ -94,6 +104,7 @@ export default function StoriesScreen() {
   // Mutations for story generation flow
   const analyzeDrawingMutation = trpc.studio.analyzeDrawing.useMutation();
   const generateStoryMutation = trpc.studio.generateStoryFromDrawing.useMutation();
+  const suggestThemesMutation = trpc.studio.suggestStoryThemes.useMutation();
 
   // Fetch storybooks from backend
   const {
@@ -121,7 +132,41 @@ export default function StoriesScreen() {
       quality: 0.9,
     });
     if (!res.canceled && res.assets?.length) {
-      setStoryImage(res.assets[0].uri);
+      const imageUri = res.assets[0].uri;
+      setStoryImage(imageUri);
+
+      // Auto-fetch theme suggestions
+      await fetchThemeSuggestions(imageUri);
+    }
+  }
+
+  async function fetchThemeSuggestions(imageUri: string) {
+    try {
+      setLoadingSuggestions(true);
+      console.log('[Stories] 🎨 Fetching theme suggestions...');
+
+      // Convert image to base64
+      const base64 = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const userLang = (user?.language || 'tr') as 'tr' | 'en';
+
+      const result = await suggestThemesMutation.mutateAsync({
+        imageBase64: base64,
+        language: userLang,
+      });
+
+      console.log('[Stories] ✅ Got', result.suggestions.length, 'theme suggestions');
+      setThemeSuggestions(result.suggestions);
+      setSelectedThemeIndex(null); // Reset selection
+      setStoryTitle(""); // Clear manual title
+    } catch (error) {
+      console.error('[Stories] ❌ Error fetching theme suggestions:', error);
+      Alert.alert("Hata", "Tema önerileri alınamadı. Lütfen başlığı kendiniz yazın.");
+      setThemeSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
     }
   }
 
@@ -131,8 +176,15 @@ export default function StoriesScreen() {
       return;
     }
 
-    // Auto-generate title if not provided
-    const finalTitle = storyTitle.trim() || `Benim Masalım ${new Date().toLocaleDateString('tr-TR')}`;
+    // Determine final title: selected theme > manual title > auto-generated
+    let finalTitle: string;
+    if (selectedThemeIndex !== null && themeSuggestions[selectedThemeIndex]) {
+      finalTitle = themeSuggestions[selectedThemeIndex].title;
+    } else if (storyTitle.trim()) {
+      finalTitle = storyTitle.trim();
+    } else {
+      finalTitle = `Benim Masalım ${new Date().toLocaleDateString('tr-TR')}`;
+    }
 
     // Check for sensitive content in title
     const sensitiveKeywords = [
@@ -594,8 +646,51 @@ export default function StoriesScreen() {
               placeholder="Masal başlığı (ör: Orman Macerası)"
               placeholderTextColor={Colors.neutral.light}
               value={storyTitle}
-              onChangeText={setStoryTitle}
+              onChangeText={(text) => {
+                setStoryTitle(text);
+                // Clear theme selection when user types manually
+                if (text.trim() && selectedThemeIndex !== null) {
+                  setSelectedThemeIndex(null);
+                }
+              }}
             />
+
+            {/* AI Theme Suggestions */}
+            {loadingSuggestions && (
+              <View style={styles.suggestionsLoading}>
+                <ActivityIndicator size="small" color={Colors.cards.story.icon} />
+                <Text style={styles.suggestionsLoadingText}>AI tema önerileri hazırlanıyor...</Text>
+              </View>
+            )}
+
+            {!loadingSuggestions && themeSuggestions.length > 0 && (
+              <View style={styles.suggestionsContainer}>
+                <Text style={styles.suggestionsTitle}>💡 AI Tema Önerileri (Seç ya da kendi başlığını yaz)</Text>
+                {themeSuggestions.map((suggestion, index) => (
+                  <Pressable
+                    key={index}
+                    onPress={() => {
+                      setSelectedThemeIndex(index);
+                      setStoryTitle(""); // Clear manual title
+                    }}
+                    style={({ pressed }) => [
+                      styles.suggestionCard,
+                      selectedThemeIndex === index && styles.suggestionCardSelected,
+                      pressed && { opacity: 0.8 },
+                    ]}
+                  >
+                    <Text style={styles.suggestionEmoji}>{suggestion.emoji}</Text>
+                    <View style={styles.suggestionContent}>
+                      <Text style={styles.suggestionTitle}>{suggestion.title}</Text>
+                      <Text style={styles.suggestionTheme}>{suggestion.theme}</Text>
+                    </View>
+                    {selectedThemeIndex === index && (
+                      <Text style={styles.suggestionCheck}>✓</Text>
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+            )}
 
             {storyImage && (
               <View style={styles.imagePreviewWrapper}>
@@ -1093,6 +1188,66 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+  },
+  suggestionsLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["2"],
+    padding: spacing["3"],
+    backgroundColor: Colors.neutral.lightest,
+    borderRadius: radius.lg,
+    marginBottom: spacing["3"],
+  },
+  suggestionsLoadingText: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
+  },
+  suggestionsContainer: {
+    gap: spacing["2"],
+    marginBottom: spacing["3"],
+  },
+  suggestionsTitle: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
+    fontWeight: typography.weight.semibold,
+    marginBottom: spacing["1"],
+  },
+  suggestionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["3"],
+    padding: spacing["3"],
+    backgroundColor: Colors.neutral.lightest,
+    borderRadius: radius.lg,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  suggestionCardSelected: {
+    borderColor: Colors.cards.story.border,
+    backgroundColor: Colors.cards.story.bg[0] + "20",
+  },
+  suggestionEmoji: {
+    fontSize: 32,
+  },
+  suggestionContent: {
+    flex: 1,
+    gap: spacing["1"],
+  },
+  suggestionTitle: {
+    fontSize: typography.size.base,
+    color: Colors.neutral.darkest,
+    fontWeight: typography.weight.bold,
+  },
+  suggestionTheme: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.normal,
+  },
+  suggestionCheck: {
+    fontSize: 24,
+    color: Colors.cards.story.border,
     fontWeight: typography.weight.bold,
   },
 });

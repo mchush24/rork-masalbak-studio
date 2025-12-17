@@ -6,6 +6,7 @@ import { generateColoringFromDrawingProcedure } from "./routes/studio/generate-c
 import { listStorybooksProcedure, listColoringsProcedure, deleteStorybookProcedure, deleteColoringProcedure } from "./routes/studio/list-history";
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
 import { generateStoryFromDrawingProcedure } from "./routes/studio/generate-story-from-drawing";
+import { suggestStoryThemesProcedure } from "./routes/studio/suggest-story-themes";
 import { registerProcedure } from "./routes/auth/register";
 import { verifyEmailProcedure } from "./routes/auth/verify-email";
 import { completeOnboardingProcedure } from "./routes/auth/complete-onboarding";
@@ -53,6 +54,7 @@ export const appRouter = createTRPCRouter({
     deleteStorybook: deleteStorybookProcedure,
     deleteColoring: deleteColoringProcedure,
     analyzeDrawing: analyzeDrawingProcedure,
+    suggestStoryThemes: suggestStoryThemesProcedure,
   }),
 });
 
