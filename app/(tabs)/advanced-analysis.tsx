@@ -31,6 +31,7 @@ import { strings } from "@/i18n/strings";
 import { preprocessImage } from "@/utils/imagePreprocess";
 import { ResultCard } from "@/components/ResultCard";
 import { OverlayEvidence } from "@/components/OverlayEvidence";
+import { LoadingAnimation } from "@/components/LoadingAnimation";
 import { buildShareText } from "@/services/abTest";
 import { pickFromLibrary, captureWithCamera } from "@/services/imagePick";
 import type { TaskType } from "@/types/AssessmentSchema";
@@ -310,18 +311,21 @@ export default function AdvancedAnalysisScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={Colors.background.analysis}
-        style={styles.gradientContainer}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
-          ]}
-          showsVerticalScrollIndicator={false}
+      {loading ? (
+        <LoadingAnimation type="analysis" message="Çizim analiz ediliyor..." />
+      ) : (
+        <LinearGradient
+          colors={Colors.background.analysis}
+          style={styles.gradientContainer}
         >
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
           {/* Header with gradient icon */}
           <View style={styles.header}>
             <LinearGradient
@@ -535,8 +539,9 @@ export default function AdvancedAnalysisScreen() {
             </View>
           </>
         )}
-        </ScrollView>
-      </LinearGradient>
+          </ScrollView>
+        </LinearGradient>
+      )}
 
       {/* Quick tip toast */}
       {tip && (

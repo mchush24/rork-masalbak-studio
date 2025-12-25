@@ -2,9 +2,11 @@ import { publicProcedure } from "../../create-context";
 import { z } from "zod";
 import { supabase } from "../../../../lib/supabase";
 import { sendVerificationEmail, generateVerificationCode } from "../../../lib/email";
+import { hashPassword, validatePasswordStrength } from "../../../lib/password";
 
 const registerInputSchema = z.object({
   email: z.string().email(),
+  password: z.string().min(6).optional(), // Optional for backward compatibility
   name: z.string().optional(),
   childAge: z.number().int().min(1).max(18).optional(),
 });
@@ -32,7 +34,10 @@ export const registerProcedure = publicProcedure
       if (existingUser && !checkError) {
         console.log("[Auth] ✅ User already exists:", existingUser.id);
 
-        // Send verification email for existing users too
+        // User exists - send verification code for login
+        const isLogin = existingUser.onboarding_completed;
+        console.log(`[Auth] 📧 ${isLogin ? 'Login' : 'Resume onboarding'} - sending verification code`);
+
         const verificationCode = generateVerificationCode();
         const expiresAt = new Date();
         expiresAt.setMinutes(expiresAt.getMinutes() + 10);
@@ -95,6 +100,17 @@ export const registerProcedure = publicProcedure
       console.log("[Auth] 📧 Sending email with code:", verificationCode);
       await sendVerificationEmail(input.email, verificationCode, input.name);
 
+      // Hash password if provided
+      let passwordHash: string | undefined;
+      if (input.password) {
+        console.log("[Auth] 🔐 Hashing password for new user");
+        const strength = validatePasswordStrength(input.password);
+        if (!strength.isValid) {
+          throw new Error(strength.feedback.join(', '));
+        }
+        passwordHash = await hashPassword(input.password);
+      }
+
       // Create new user
       const { data: newUser, error: createError } = await supabase
         .from('users')
@@ -103,6 +119,8 @@ export const registerProcedure = publicProcedure
             email: input.email,
             name: input.name,
             child_age: input.childAge,
+            password_hash: passwordHash,
+            password_reset_required: !passwordHash, // Require password if not provided
             onboarding_completed: false,
             created_at: new Date().toISOString(),
           },

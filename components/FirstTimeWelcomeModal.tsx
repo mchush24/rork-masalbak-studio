@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import { Modal, View, Text, Pressable, StyleSheet, Platform, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Camera, Palette, BookOpen, X } from 'lucide-react-native';
@@ -13,6 +13,9 @@ import {
   radius,
   shadows,
 } from '@/constants/design-system';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
 
 interface FirstTimeWelcomeModalProps {
   visible: boolean;
@@ -54,10 +57,12 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
 
             {/* Header */}
             <View style={styles.header}>
-              <Text style={styles.emoji}>👋</Text>
-              <Text style={styles.title}>Hoş Geldin!</Text>
+              {!isSmallDevice && <Text style={styles.emoji}>👋</Text>}
+              <Text style={styles.title}>
+                {isSmallDevice && '👋 '}Hoş Geldin!
+              </Text>
               <Text style={styles.subtitle}>
-                Zuna ile çocuğunun hayal dünyasını keşfet
+                Renkioo ile çocuğunun renkli hayal dünyasını keşfet
               </Text>
             </View>
 
@@ -76,12 +81,14 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
                   style={styles.actionCardGradient}
                 >
                   <View style={styles.actionIconContainer}>
-                    <Camera size={32} color={Colors.neutral.white} />
+                    <Camera size={isSmallDevice ? 28 : 32} color={Colors.neutral.white} />
                   </View>
                   <Text style={styles.actionTitle}>Çizim Analizi</Text>
-                  <Text style={styles.actionDescription}>
-                    Çocuğunuzun çizimlerini AI ile analiz edin
-                  </Text>
+                  {!isSmallDevice && (
+                    <Text style={styles.actionDescription}>
+                      Çocuğunuzun çizimlerini AI ile analiz edin
+                    </Text>
+                  )}
                   <View style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>Hemen Dene →</Text>
                   </View>
@@ -101,12 +108,14 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
                   style={styles.actionCardGradient}
                 >
                   <View style={styles.actionIconContainer}>
-                    <Palette size={32} color={Colors.neutral.white} />
+                    <Palette size={isSmallDevice ? 28 : 32} color={Colors.neutral.white} />
                   </View>
                   <Text style={styles.actionTitle}>Boyama Stüdyosu</Text>
-                  <Text style={styles.actionDescription}>
-                    Çizimleri boyama sayfasına dönüştürün
-                  </Text>
+                  {!isSmallDevice && (
+                    <Text style={styles.actionDescription}>
+                      Çizimleri boyama sayfasına dönüştürün
+                    </Text>
+                  )}
                   <View style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>Keşfet →</Text>
                   </View>
@@ -126,12 +135,14 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
                   style={styles.actionCardGradient}
                 >
                   <View style={styles.actionIconContainer}>
-                    <BookOpen size={32} color={Colors.neutral.white} />
+                    <BookOpen size={isSmallDevice ? 28 : 32} color={Colors.neutral.white} />
                   </View>
                   <Text style={styles.actionTitle}>Kişisel Hikayeler</Text>
-                  <Text style={styles.actionDescription}>
-                    Çizimlerden masallar oluşturun
-                  </Text>
+                  {!isSmallDevice && (
+                    <Text style={styles.actionDescription}>
+                      Çizimlerden masallar oluşturun
+                    </Text>
+                  )}
                   <View style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>Oluştur →</Text>
                   </View>
@@ -168,10 +179,12 @@ const styles = StyleSheet.create({
     maxWidth: 400,
   },
   modalContent: {
-    backgroundColor: Colors.neutral.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.97)',
     borderRadius: radius['3xl'],
-    padding: spacing['6'],
+    padding: isSmallDevice ? spacing['4'] : spacing['6'],
     ...shadows.xl,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
   },
   closeButton: {
     position: 'absolute',
@@ -187,77 +200,93 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: spacing['6'],
+    marginBottom: isSmallDevice ? spacing['4'] : spacing['6'],
   },
   emoji: {
     fontSize: 48,
     marginBottom: spacing['3'],
   },
   title: {
-    fontSize: typography.size['3xl'],
+    fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
   },
   subtitle: {
-    fontSize: typography.size.base,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: typography.size.base * 1.5,
+    lineHeight: isSmallDevice ? typography.size.sm * 1.5 : typography.size.base * 1.5,
+    paddingHorizontal: isSmallDevice ? 0 : spacing['2'],
   },
   actionsContainer: {
-    gap: spacing['3'],
-    marginBottom: spacing['5'],
+    gap: isSmallDevice ? spacing['2'] : spacing['3'],
+    marginBottom: isSmallDevice ? spacing['4'] : spacing['5'],
   },
   actionCard: {
     borderRadius: radius.xl,
     overflow: 'hidden',
-    ...shadows.md,
+    ...shadows.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
   actionCardGradient: {
-    padding: spacing['5'],
+    padding: isSmallDevice ? spacing['4'] : spacing['5'],
   },
   actionIconContainer: {
-    width: 56,
-    height: 56,
+    width: isSmallDevice ? 48 : 56,
+    height: isSmallDevice ? 48 : 56,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing['3'],
+    marginBottom: isSmallDevice ? spacing['2'] : spacing['3'],
   },
   actionTitle: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
-    marginBottom: spacing['2'],
+    marginBottom: isSmallDevice ? spacing['1'] : spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   actionDescription: {
     fontSize: typography.size.sm,
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(255,255,255,0.95)',
     marginBottom: spacing['4'],
     lineHeight: typography.size.sm * 1.5,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   actionButton: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.5)',
     paddingVertical: spacing['2'],
     paddingHorizontal: spacing['4'],
     borderRadius: radius.lg,
   },
   actionButtonText: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.white,
+    textShadowColor: 'rgba(0,0,0,0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   skipButton: {
-    paddingVertical: spacing['3'],
+    paddingVertical: isSmallDevice ? spacing['2'] : spacing['3'],
     alignItems: 'center',
   },
   skipButtonText: {
-    fontSize: typography.size.base,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.medium,
   },

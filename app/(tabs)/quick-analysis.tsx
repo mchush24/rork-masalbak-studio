@@ -31,6 +31,7 @@ import { useRouter } from "expo-router";
 import { trpc } from "@/lib/trpc";
 import { useFirstTimeUser } from "@/lib/hooks/useFirstTimeUser";
 import { FirstTimeWelcomeModal } from "@/components/FirstTimeWelcomeModal";
+import { LoadingAnimation } from "@/components/LoadingAnimation";
 import { useAgeCollection } from "@/lib/hooks/useAgeCollection";
 import { AgePickerModal } from "@/components/AgePickerModal";
 
@@ -252,11 +253,14 @@ export default function AnalyzeScreen() {
         onSkip={handleSkipAge}
       />
 
-      <LinearGradient
-        colors={Colors.background.analysis}
-        style={[styles.gradientContainer, { paddingTop: insets.top }]}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+      {analyzing ? (
+        <LoadingAnimation type="analysis" message="Çizim analiz ediliyor..." />
+      ) : (
+        <LinearGradient
+          colors={Colors.background.analysis}
+          style={[styles.gradientContainer, { paddingTop: insets.top }]}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* ✅ YENİ: Error Banner */}
         {error && (
           <View style={styles.errorBanner}>
@@ -613,8 +617,9 @@ export default function AnalyzeScreen() {
             </Pressable>
           </Animated.View>
         )}
-      </ScrollView>
-      </LinearGradient>
+        </ScrollView>
+        </LinearGradient>
+      )}
     </View>
   );
 }

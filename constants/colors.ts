@@ -1,5 +1,5 @@
 /**
- * MasalBak Renk Paleti - "Renkli Bahçe" Skin
+ * RenkiOO Renk Paleti - "Renkli Bahçe" Skin
  *
  * Çocuk uygulaması için canlı, eğlenceli ve renkli tasarım
  * - Gradient arka planlar
@@ -151,6 +151,19 @@ export const Colors = {
 
     // Deniz - Turkuaz-mavi
     sea: ["#6FEDD6", "#78C8E8", "#A3DBF0"],
+
+    // PROFESSIONAL THEME - Yetişkinler için
+    // Profesyonel mavi - Güven ve uzmanlık
+    professional: ["#2E5266", "#4A7C9D", "#6EA8C6"],
+
+    // Bilimsel yeşil - Analiz ve gelişim
+    scientific: ["#5A7A6A", "#7D9C8E", "#A8C5B5"],
+
+    // Premium mor - Kalite ve teknoloji
+    expertise: ["#5D4E7C", "#7D6B9D", "#9E8FBF"],
+
+    // Sıcak nötr - Erişilebilir ve profesyonel
+    accessible: ["#7B6B5D", "#9D8B7D", "#BFAB9E"],
   },
 
   // Kart Renkleri - Özellik bazlı

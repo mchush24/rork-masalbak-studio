@@ -9,12 +9,13 @@ const childSchema = z.object({
   age: z.number().min(0).max(18),
   birthDate: z.string().optional(),
   gender: z.enum(["male", "female", "other"]).optional(),
+  avatarId: z.string().optional(),
 });
 
 const updateProfileInputSchema = z.object({
   userId: z.string().uuid(),
   name: z.string().optional(),
-  avatarUrl: z.string().url().optional(),
+  avatarUrl: z.string().optional(), // Can be avatar ID or URL
   language: z.enum(["tr", "en", "de", "ru"]).optional(),
   children: z.array(childSchema).optional(),
   preferences: z.record(z.string(), z.any()).optional(),

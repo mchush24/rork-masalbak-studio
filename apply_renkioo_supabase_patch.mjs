@@ -1,8 +1,8 @@
-// apply_masalbak_supabase_patch.mjs
-// MasalBak • Supabase Kalıcı Veri + Gerçek Üretim (OpenAI Img/TTS, Puppeteer PDF, Sharp line-art)
+// apply_renkioo_supabase_patch.mjs
+// RenkiOO • Supabase Kalıcı Veri + Gerçek Üretim (OpenAI Img/TTS, Puppeteer PDF, Sharp line-art)
 // Kullanım:
 //   1) Bu dosyayı repo köküne kaydet
-//   2) node apply_masalbak_supabase_patch.mjs
+//   2) node apply_renkioo_supabase_patch.mjs
 //   3) pnpm i
 //   4) Server env'lerini ayarla (OPENAI_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE, EXPO_PUBLIC_API, ...)
 //   5) pnpm dev
@@ -111,7 +111,7 @@ import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
+const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 const BASE_STYLE = "soft pastel, minimal line-art, kid-friendly, flat lighting, plain background, no text, copyright-free";
 
 type PageSpec = { text: string; prompt?: string };
@@ -187,7 +187,7 @@ import sharp from "sharp";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
 
-const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
+const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
 async function toLineArt(input: string|Buffer) {
   let buf: Buffer;
@@ -337,7 +337,7 @@ create index if not exists colorings_user_created_idx on public.colorings (user_
 `);
 
 W("SUPABASE_SETUP.md", `
-# MasalBak • Supabase Kurulum
+# RenkiOO • Supabase Kurulum
 
 ## 1) Supabase Proje Oluştur
 - https://supabase.com adresine git
@@ -346,7 +346,7 @@ W("SUPABASE_SETUP.md", `
 
 ## 2) Storage Bucket Oluştur
 - Storage -> New Bucket
-- İsim: \`masalbak\`
+- İsim: \`renkioo\`
 - Public: ✓ (checked)
 - Allowed MIME types: image/*, audio/*, application/pdf
 
@@ -359,7 +359,7 @@ W("SUPABASE_SETUP.md", `
 \`\`\`
 SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_SERVICE_ROLE=<service_role_key>
-SUPABASE_BUCKET=masalbak
+SUPABASE_BUCKET=renkioo
 OPENAI_API_KEY=sk-...
 \`\`\`
 
