@@ -2,7 +2,7 @@ import sharp from "sharp";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
 
-const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
+const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
 /**
  * Convert colorful image to clean line art for coloring

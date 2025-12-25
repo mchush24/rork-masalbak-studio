@@ -1,39 +1,44 @@
-import { View, Text, Pressable, Animated, StyleSheet, Platform } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet, Platform, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import { Brain, FileCheck, Shield, CheckCircle } from 'lucide-react-native';
 import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
+const isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 
 const tourSteps = [
   {
-    emoji: '🎨',
-    title: 'Çizimleri Keşfet',
-    description: 'Zuna ile çocuğunuzun çizimlerini anlamak artık çok kolay!',
-    benefits: ['Duygusal gelişim', 'İç dünya keşfi', 'Yaratıcılık analizi'],
-    gradient: colors.gradients.primary,
+    icon: Brain,
+    title: 'Çocuğunuzun İç Dünyasını Anlayın',
+    description: 'Bilimsel çizim analizleri ile duygusal ve psikolojik gelişimi destekleyin',
+    benefits: ['Uzman onaylı değerlendirmeler', 'DAP, HTP, Aile Çizimi testleri', 'Kişiselleştirilmiş raporlar'],
+    gradient: colors.gradients.professional,
   },
   {
-    emoji: '📚',
-    title: 'Hikayeler Yarat',
-    description: 'Her çizim benzersiz bir hikayeye dönüşüyor',
-    benefits: ['Kişiselleştirilmiş', 'Eğitici içerik', 'Hayal gücü'],
-    gradient: colors.gradients.ocean,
+    icon: FileCheck,
+    title: 'Profesyonel Değerlendirme Araçları',
+    description: 'Her çizim yapay zeka ve bilimsel yöntemlerle derinlemesine analiz edilir',
+    benefits: ['Otomatik analiz sistemi', 'Gelişim izleme ve raporlama', 'Ebeveyn-öğretmen işbirliği'],
+    gradient: colors.gradients.scientific,
   },
   {
-    emoji: '🌈',
-    title: 'Renkli Aktiviteler',
-    description: 'Çocuğunuza özel boyama ve aktivitelerle eğlenceli öğrenme',
-    benefits: ['Yaş uyumlu', 'Gelişim odaklı', 'Oyun gibi öğrenme'],
-    gradient: colors.gradients.forest,
+    icon: Shield,
+    title: 'Güvenli ve Hızlı',
+    description: 'KVKK uyumlu veri güvenliği ile dakikalar içinde sonuç alın',
+    benefits: ['Güvenli veri saklama', 'Gizlilik garantisi', 'Anında sonuç bildirimi'],
+    gradient: colors.gradients.expertise,
   },
   {
-    emoji: '⭐',
-    title: 'Gelişimi İzle',
-    description: 'Sanatsal ve duygusal gelişim adım adım takip edilir',
-    benefits: ['Detaylı raporlar', 'İlerleme grafiği', 'Uzman önerileri'],
-    gradient: colors.gradients.sunset,
+    icon: CheckCircle,
+    title: 'Hemen Başlayın',
+    description: 'Ücretsiz deneme ile çocuğunuzun gelişimini takip etmeye başlayın',
+    benefits: ['Kolay kurulum', 'Ücretsiz ilk analiz', 'İptal garantisi'],
+    gradient: colors.gradients.accessible,
   },
 ];
 
@@ -112,20 +117,28 @@ export default function TourScreen() {
             },
           ]}
         >
-          {/* Emoji Icon */}
-          <View style={[styles.iconContainer, shadows.xl]}>
-            <Text style={styles.emoji}>{currentStepData.emoji}</Text>
-          </View>
+          {/* Icon */}
+          {!isSmallDevice && (
+            <View style={[styles.iconContainer, shadows.xl]}>
+              <currentStepData.icon
+                size={isMediumDevice ? 56 : 64}
+                color="white"
+                strokeWidth={1.5}
+              />
+            </View>
+          )}
 
           {/* Title */}
-          <Text style={styles.title}>{currentStepData.title}</Text>
+          <Text style={styles.title}>
+            {currentStepData.title}
+          </Text>
 
           {/* Description */}
           <Text style={styles.description}>{currentStepData.description}</Text>
 
           {/* Benefits */}
-          <View style={[styles.benefitsCard, shadows.md]}>
-            {currentStepData.benefits.map((benefit, idx) => (
+          <View style={[styles.benefitsCard, shadows.lg]}>
+            {currentStepData.benefits.slice(0, isSmallDevice ? 2 : 3).map((benefit, idx) => (
               <View key={idx} style={styles.benefitItem}>
                 <View style={styles.bulletPoint} />
                 <Text style={styles.benefitText}>{benefit}</Text>
@@ -163,7 +176,7 @@ export default function TourScreen() {
             ]}
           >
             <Text style={styles.nextButtonText}>
-              {isLastStep ? 'Zuna ile Başla! 🚀' : 'Devam Et →'}
+              {isLastStep ? 'Hesap Oluştur' : 'Devam Et →'}
             </Text>
           </Pressable>
         </View>
@@ -186,13 +199,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.md,
-    minHeight: 60,
+    paddingVertical: isSmallDevice ? spacing.sm : spacing.md,
+    minHeight: isSmallDevice ? 50 : 60,
   },
   stepCounter: {
     fontSize: typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.85)',
     fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   skipButton: {
     paddingHorizontal: spacing.md,
@@ -200,8 +216,11 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'rgba(255, 255, 255, 0.95)',
     fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 
   // Content
@@ -209,68 +228,82 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.xl,
+    paddingVertical: isSmallDevice ? spacing.md : spacing.xl,
   },
   iconContainer: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: isMediumDevice ? 100 : 120,
+    height: isMediumDevice ? 100 : 120,
+    borderRadius: isMediumDevice ? 50 : 60,
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  emoji: {
-    fontSize: 72,
+    marginBottom: spacing.lg,
   },
   title: {
-    fontSize: typography.fontSize.xxl + 4,
-    fontWeight: 'bold',
+    fontSize: isSmallDevice ? typography.fontSize.lg : isMediumDevice ? typography.fontSize.xl : typography.fontSize.xxl,
+    fontWeight: '700',
     color: 'white',
     textAlign: 'center',
-    marginBottom: spacing.md,
-    letterSpacing: -0.5,
+    marginBottom: isSmallDevice ? spacing.sm : spacing.md,
+    letterSpacing: -0.3,
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+    paddingHorizontal: spacing.md,
   },
   description: {
-    fontSize: typography.fontSize.md,
-    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base,
+    color: 'rgba(255, 255, 255, 0.92)',
     textAlign: 'center',
-    lineHeight: typography.fontSize.md * 1.6,
-    marginBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
+    lineHeight: isSmallDevice ? typography.fontSize.sm * 1.5 : typography.fontSize.base * 1.5,
+    marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+    paddingHorizontal: spacing.xl,
+    textShadowColor: 'rgba(0, 0, 0, 0.08)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+    fontWeight: '500',
   },
 
   // Benefits
   benefitsCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderRadius: borderRadius.lg,
+    padding: isSmallDevice ? spacing.md : spacing.lg,
     width: '100%',
-    maxWidth: 340,
+    maxWidth: isSmallDevice ? 320 : 380,
   },
   benefitItem: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
+    alignItems: 'flex-start',
+    marginBottom: isSmallDevice ? spacing.sm : spacing.md,
   },
   bulletPoint: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'white',
-    marginRight: spacing.md,
+    width: isSmallDevice ? 4 : 5,
+    height: isSmallDevice ? 4 : 5,
+    borderRadius: isSmallDevice ? 2 : 2.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    marginRight: spacing.sm,
+    marginTop: isSmallDevice ? 6 : 7,
   },
   benefitText: {
-    fontSize: typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: isSmallDevice ? typography.fontSize.sm - 1 : typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.88)',
     fontWeight: '500',
     flex: 1,
+    lineHeight: isSmallDevice ? typography.fontSize.sm * 1.4 : typography.fontSize.sm * 1.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.08)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
 
   // Footer
   footer: {
     paddingVertical: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingBottom: isSmallDevice ? spacing.lg : spacing.xl,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -279,35 +312,38 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    width: isSmallDevice ? 6 : 8,
+    height: isSmallDevice ? 6 : 8,
+    borderRadius: isSmallDevice ? 3 : 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     marginHorizontal: spacing.xs,
   },
   progressDotActive: {
-    width: 32,
+    width: isSmallDevice ? 24 : 32,
     backgroundColor: 'white',
   },
   progressDotPassed: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
 
   // CTA Button
   nextButton: {
     backgroundColor: 'white',
     borderRadius: borderRadius.xxxl,
-    paddingVertical: spacing.md + spacing.xs,
+    paddingVertical: isSmallDevice ? spacing.md : spacing.md + spacing.xs,
     paddingHorizontal: spacing.xl,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
   },
   nextButtonPressed: {
     transform: [{ scale: 0.97 }],
-    opacity: 0.9,
+    opacity: 0.85,
   },
   nextButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: 'bold',
+    fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
+    fontWeight: '900',
     color: colors.brand.primary,
     textAlign: 'center',
+    letterSpacing: -0.3,
   },
 });

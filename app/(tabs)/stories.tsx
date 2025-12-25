@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
+  Dimensions,
 } from "react-native";
 import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2, Trash2 } from "lucide-react-native";
 import { Swipeable } from "react-native-gesture-handler";
@@ -28,6 +29,10 @@ import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { LoadingAnimation } from "@/components/LoadingAnimation";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
 
 type Storybook = {
   id: string;
@@ -147,7 +152,7 @@ export default function StoriesScreen() {
 
       // Convert image to base64
       const base64 = await FileSystem.readAsStringAsync(imageUri, {
-        encoding: FileSystem.EncodingType.Base64,
+        encoding: 'base64',
       });
 
       const userLang = (user?.language || 'tr') as 'tr' | 'en';
@@ -209,6 +214,7 @@ export default function StoriesScreen() {
     );
 
     if (hasSensitiveContent || hasTherapeuticIntent) {
+      // eslint-disable-next-line react/no-unescaped-entities
       Alert.alert(
         "💛 Özel Masal Önerisi",
         "Başlığınızda hassas konular tespit ettik. Çocuğunuz için özel tasarlanmış iki seçeneğimiz var:\n\n✨ TERAPÖTIK MASAL\nDuyguları işlemeye yardımcı, metaforik anlatım, umut odaklı sonuç\n\n📖 NORMAL MASAL  \nHayal gücü odaklı, eğlenceli macera\n\n💡 İPUCU: Travmatik konularda terapötik masalları öneriyoruz.\n\nHangi masal türünü oluşturalım?",
@@ -253,7 +259,7 @@ export default function StoriesScreen() {
       if (therapeuticMode) {
         // Therapeutic stories use special template-based approach
         const CONSISTENT_STYLE = "Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain light background, same character design, same art style, VERY IMPORTANT: NO TEXT NO LETTERS NO WORDS on image";
-        let pages: Array<{ text: string; prompt: string }>;
+        let pages: { text: string; prompt: string }[];
         // Therapeutic story generation with metaphorical transformation
         console.log('[Stories] Using therapeutic story structure');
 
@@ -651,8 +657,12 @@ export default function StoriesScreen() {
           </View>
         </View>
 
-        {/* Create Story Form */}
-        {showCreateForm && (
+        {/* Create Story Form / Loading Animation */}
+        {showCreateForm && loadingStory ? (
+          <View style={styles.loadingAnimationContainer}>
+            <LoadingAnimation type="story" message={progress.message || "Hikaye yazılıyor..."} />
+          </View>
+        ) : showCreateForm ? (
           <LinearGradient
             colors={Colors.cards.story.bg}
             style={styles.createFormContainer}
@@ -763,61 +773,11 @@ export default function StoriesScreen() {
                 style={styles.buttonGradient}
               >
                 <Sparkles size={20} color={Colors.neutral.white} />
-                <Text style={styles.buttonText}>
-                  {loadingStory ? "Masal Oluşturuluyor..." : "Masal Oluştur"}
-                </Text>
+                <Text style={styles.buttonText}>Masal Oluştur</Text>
               </LinearGradient>
             </Pressable>
-
-            {loadingStory && (
-              <View style={styles.progressContainer}>
-                <Text style={styles.progressTitle}>Masal Oluşturuluyor...</Text>
-
-                {/* Progress Bar */}
-                <View style={styles.progressBarContainer}>
-                  <View style={[styles.progressBarFill, { width: `${progress.percentage}%` }]} />
-                </View>
-                <Text style={styles.progressPercentage}>{progress.percentage}%</Text>
-
-                {/* Current Step Message */}
-                <Text style={styles.progressMessage}>{progress.message}</Text>
-
-                {/* Steps Indicators */}
-                <View style={styles.progressSteps}>
-                  {steps.map((step, i) => {
-                    const stepNumber = i + 1;
-                    const isCompleted = stepNumber < progress.step;
-                    const isActive = stepNumber === progress.step;
-                    const isPending = stepNumber > progress.step;
-
-                    return (
-                      <View key={i} style={styles.progressStepItem}>
-                        <View style={[
-                          styles.stepIconContainer,
-                          isCompleted && styles.stepIconCompleted,
-                          isActive && styles.stepIconActive,
-                          isPending && styles.stepIconPending
-                        ]}>
-                          <Text style={styles.stepIcon}>
-                            {isCompleted ? '✅' : isActive ? step.icon : '⏸️'}
-                          </Text>
-                        </View>
-                        <Text style={[
-                          styles.stepLabel,
-                          isActive && styles.stepLabelActive
-                        ]}>{step.name}</Text>
-                      </View>
-                    );
-                  })}
-                </View>
-
-                <Text style={styles.progressFooter}>
-                  Bu işlem birkaç dakika sürebilir...
-                </Text>
-              </View>
-            )}
           </LinearGradient>
-        )}
+        ) : null}
 
       {/* Content */}
       {isLoading ? (
@@ -884,13 +844,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: typography.size["3xl"],
+    fontSize: isSmallDevice ? typography.size["2xl"] : typography.size["3xl"],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   headerSubtitle: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
     marginTop: spacing["1"],
     fontWeight: typography.weight.medium,
@@ -905,6 +868,8 @@ const styles = StyleSheet.create({
   storyCard: {
     borderRadius: radius["2xl"],
     overflow: "hidden",
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     ...shadows.lg,
   },
   cardGradient: {
@@ -946,14 +911,17 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
   },
   cardContent: {
-    padding: spacing["4"],
+    padding: isSmallDevice ? spacing["3"] : spacing["4"],
     gap: spacing["3"],
   },
   cardTitle: {
-    fontSize: typography.size.xl,
+    fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    lineHeight: typography.lineHeight.snug * typography.size.xl,
+    lineHeight: typography.lineHeight.snug * (isSmallDevice ? typography.size.lg : typography.size.xl),
+    textShadowColor: 'rgba(0, 0, 0, 0.05)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   cardMeta: {
     flexDirection: "row",
@@ -967,7 +935,7 @@ const styles = StyleSheet.create({
     gap: spacing["2"],
   },
   cardMetaText: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
   },
@@ -1010,16 +978,19 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   emptyTitle: {
-    fontSize: typography.size["2xl"],
+    fontSize: isSmallDevice ? typography.size.xl : typography.size["2xl"],
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     textAlign: "center",
+    textShadowColor: 'rgba(0, 0, 0, 0.05)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   emptyDescription: {
-    fontSize: typography.size.base,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.medium,
     textAlign: "center",
-    lineHeight: typography.lineHeight.relaxed * typography.size.base,
+    lineHeight: typography.lineHeight.relaxed * (isSmallDevice ? typography.size.sm : typography.size.base),
   },
   retryButton: {
     marginTop: spacing["2"],
@@ -1045,8 +1016,10 @@ const styles = StyleSheet.create({
   },
   createFormContainer: {
     margin: layout.screenPadding,
-    padding: spacing["6"],
+    padding: isSmallDevice ? spacing["5"] : spacing["6"],
     borderRadius: radius["2xl"],
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     ...shadows.xl,
   },
   createFormHeader: {
@@ -1056,24 +1029,27 @@ const styles = StyleSheet.create({
     marginBottom: spacing["2"],
   },
   createFormTitle: {
-    fontSize: typography.size.xl,
+    fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
+    textShadowColor: 'rgba(0, 0, 0, 0.05)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   createFormDescription: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
     marginBottom: spacing["4"],
-    lineHeight: typography.lineHeight.normal * typography.size.sm,
+    lineHeight: typography.lineHeight.normal * (isSmallDevice ? typography.size.xs : typography.size.sm),
   },
   input: {
-    backgroundColor: Colors.neutral.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: radius.lg,
-    padding: spacing["4"],
-    fontSize: typography.size.base,
+    padding: isSmallDevice ? spacing["3"] : spacing["4"],
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.darkest,
     borderWidth: 2,
-    borderColor: Colors.cards.story.border,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
     marginBottom: spacing["3"],
     fontWeight: typography.weight.medium,
   },
@@ -1107,8 +1083,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: Colors.neutral.white,
-    fontSize: typography.size.md,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
     fontWeight: typography.weight.semibold,
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   progressContainer: {
     marginTop: spacing["4"],
@@ -1118,10 +1097,13 @@ const styles = StyleSheet.create({
     gap: spacing["3"],
   },
   progressTitle: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     textAlign: "center",
+    textShadowColor: 'rgba(0, 0, 0, 0.05)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   progressBarContainer: {
     height: 8,
@@ -1141,7 +1123,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   progressMessage: {
-    fontSize: typography.size.base,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.dark,
     textAlign: "center",
     fontWeight: typography.weight.medium,
@@ -1241,14 +1223,15 @@ const styles = StyleSheet.create({
   suggestionCard: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing["3"],
-    padding: spacing["3"],
-    backgroundColor: Colors.neutral.lightest,
+    gap: isSmallDevice ? spacing["2"] : spacing["3"],
+    padding: isSmallDevice ? spacing["2"] : spacing["3"],
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: radius.lg,
-    borderWidth: 2,
-    borderColor: "transparent",
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   suggestionCardSelected: {
+    borderWidth: 2,
     borderColor: Colors.cards.story.border,
     backgroundColor: Colors.cards.story.bg[0] + "20",
   },
@@ -1260,18 +1243,25 @@ const styles = StyleSheet.create({
     gap: spacing["1"],
   },
   suggestionTitle: {
-    fontSize: typography.size.base,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.darkest,
     fontWeight: typography.weight.bold,
   },
   suggestionTheme: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.normal,
+    fontWeight: typography.weight.regular,
   },
   suggestionCheck: {
     fontSize: 24,
     color: Colors.cards.story.border,
     fontWeight: typography.weight.bold,
+  },
+  loadingAnimationContainer: {
+    height: 400,
+    marginHorizontal: layout.screenPadding,
+    borderRadius: radius["2xl"],
+    overflow: 'hidden',
+    ...shadows.xl,
   },
 });

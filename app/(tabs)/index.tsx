@@ -8,6 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  Dimensions,
 } from "react-native";
 import {
   BookOpen,
@@ -32,6 +33,9 @@ import {
   radius,
   shadows,
 } from "@/constants/design-system";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
 
 type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
 
@@ -151,9 +155,11 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.quickActionContent}>
                   <Text style={styles.quickActionTitle}>🎨 {t.home.quickAnalysis}</Text>
-                  <Text style={styles.quickActionDescription}>
-                    Çizimi yükle, saniyeler içinde sonuç al
-                  </Text>
+                  {!isSmallDevice && (
+                    <Text style={styles.quickActionDescription}>
+                      Çizimi yükle, saniyeler içinde sonuç al
+                    </Text>
+                  )}
                 </View>
                 <ChevronRight size={24} color={Colors.neutral.white} />
               </LinearGradient>
@@ -176,9 +182,11 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.quickActionContent}>
                   <Text style={styles.quickActionTitle}>🔬 {t.home.advancedAnalysis}</Text>
-                  <Text style={styles.quickActionDescription}>
-                    9 farklı projektif test ile derinlemesine analiz
-                  </Text>
+                  {!isSmallDevice && (
+                    <Text style={styles.quickActionDescription}>
+                      9 farklı projektif test ile derinlemesine analiz
+                    </Text>
+                  )}
                 </View>
                 <ChevronRight size={24} color={Colors.neutral.white} />
               </LinearGradient>
@@ -379,16 +387,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.screenPadding,
   },
   welcomeContainer: {
-    paddingVertical: spacing["6"],
+    paddingVertical: isSmallDevice ? spacing["4"] : spacing["6"],
   },
   welcomeGreeting: {
-    fontSize: typography.size["3xl"],
+    fontSize: isSmallDevice ? typography.size["2xl"] : typography.size["3xl"],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing["2"],
+    textShadowColor: 'rgba(0,0,0,0.05)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   welcomeSubtitle: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
   },
@@ -417,19 +428,23 @@ const styles = StyleSheet.create({
     marginBottom: spacing["3"],
     borderRadius: radius.xl,
     ...shadows.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
   quickActionGradient: {
     flexDirection: "row",
     alignItems: "center",
-    padding: spacing["5"],
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
     borderRadius: radius.xl,
-    gap: spacing["4"],
+    gap: isSmallDevice ? spacing["3"] : spacing["4"],
   },
   quickActionIcon: {
-    width: 56,
-    height: 56,
+    width: isSmallDevice ? 48 : 56,
+    height: isSmallDevice ? 48 : 56,
     borderRadius: radius.lg,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -437,15 +452,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   quickActionTitle: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
     marginBottom: spacing["1"],
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   quickActionDescription: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.white,
-    opacity: 0.9,
+    opacity: 0.95,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   // Creative Actions - Hayal Atölyesi
   creativeActionsContainer: {

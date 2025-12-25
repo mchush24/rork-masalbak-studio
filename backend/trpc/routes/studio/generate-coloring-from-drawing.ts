@@ -5,7 +5,7 @@ import * as fal from "@fal-ai/serverless-client";
 import sharp from "sharp";
 import { uploadBuffer } from "../../../lib/supabase.js";
 
-const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
+const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
 // Initialize clients
 const openai = new OpenAI({

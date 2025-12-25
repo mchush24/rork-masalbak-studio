@@ -144,7 +144,7 @@ export async function getCurrentUser() {
 export async function resetPassword(email: string) {
   const client = await getSupabaseFrontend();
   const { error } = await client.auth.resetPasswordForEmail(email, {
-    redirectTo: 'masalbak://reset-password',
+    redirectTo: 'renkioo://reset-password',
   });
   if (error) throw error;
 }

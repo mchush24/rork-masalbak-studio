@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Zuna",
-    "slug": "zuna",
+    "name": "Renkioo",
+    "slug": "renkioo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,15 +11,16 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4A90A4"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.zuna.studio",
+      "bundleIdentifier": "com.renkioo.studio",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos"
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
+        "NSFaceIDUsageDescription": "Face ID ile hızlı ve güvenli giriş yapmanızı sağlar"
       }
     },
     "android": {
@@ -27,7 +28,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.zuna.studio",
+      "package": "com.renkioo.studio",
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
@@ -62,14 +63,16 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "expo-local-authentication",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "EXPO_PUBLIC_API": "https://rork-masalbak-studio-production.up.railway.app",
-      "EXPO_PUBLIC_RORK_API_BASE_URL": "https://rork-masalbak-studio-production.up.railway.app",
+      "EXPO_PUBLIC_API": "http://localhost:3000",
+      "EXPO_PUBLIC_RORK_API_BASE_URL": "http://localhost:3000",
       "EXPO_PUBLIC_SUPABASE_URL": "https://amtxpjngxgfuqhyiotqu.supabase.co",
       "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdHhwam5neGdmdXFoeWlvdHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1ODExMzcsImV4cCI6MjA3ODE1NzEzN30.FNxQqH8qxNL8xGZQYVfE0VpMqKZYw2x_QzXWqZNqXxQ"
     }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch } from "react-native";
-import { User, Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2 } from "lucide-react-native";
+import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch, Dimensions } from "react-native";
+import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { AvatarPicker, AvatarDisplay } from "@/components/AvatarPicker";
 import {
   layout,
   typography,
@@ -15,6 +16,9 @@ import {
   radius,
   shadows,
 } from "@/constants/design-system";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
 
 type Language = "tr" | "en" | "de" | "ru";
 type Theme = "light" | "dark" | "auto";
@@ -37,7 +41,7 @@ export default function ProfileScreen() {
 
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUserFromBackend } = useAuth();
   const { t, language, setLanguage: setAppLanguage } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -47,9 +51,12 @@ export default function ProfileScreen() {
   const [showGeneralModal, setShowGeneralModal] = useState(false);
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showChildrenModal, setShowChildrenModal] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [showChildAvatarPicker, setShowChildAvatarPicker] = useState(false);
   const [editName, setEditName] = useState('');
   const [childName, setChildName] = useState('');
   const [childAge, setChildAge] = useState('');
+  const [selectedChildAvatarId, setSelectedChildAvatarId] = useState<string | undefined>();
 
   // Fetch user stats from backend
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = trpc.user.getUserStats.useQuery(
@@ -68,6 +75,7 @@ export default function ProfileScreen() {
     if (userSettings?.language && userSettings.language !== language) {
       setAppLanguage(userSettings.language as Language).catch(console.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettings?.language]);
 
   // Mutations
@@ -94,6 +102,7 @@ export default function ProfileScreen() {
       setShowLanguageModal(false);
       Alert.alert(t.common.success, t.settings.language + ' ' + t.common.save.toLowerCase());
     } catch (error) {
+      console.error('[Profile] Language change error:', error);
       Alert.alert(t.common.error, t.settings.language + ' ' + t.common.error.toLowerCase());
     }
   };
@@ -120,6 +129,24 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
+    setShowAvatarPicker(true);
+  };
+
+  const handleAvatarChange = async (avatarId: string) => {
+    try {
+      await updateProfileMutation.mutateAsync({
+        userId: user?.userId || '',
+        avatarUrl: avatarId, // Using avatarUrl field to store avatarId for now
+      });
+      await refreshUserFromBackend();
+      Alert.alert(t.common.success, 'Avatar güncellendi!');
+    } catch (error) {
+      console.error('[Profile] Avatar change error:', error);
+      Alert.alert(t.common.error, 'Avatar güncellenemedi. Lütfen tekrar deneyin.');
+    }
+  };
+
+  const handleEditName = () => {
     setEditName(user?.name || '');
     setShowProfileModal(true);
   };
@@ -137,8 +164,9 @@ export default function ProfileScreen() {
       });
       setShowProfileModal(false);
       Alert.alert(t.common.success, t.profile.editProfile + ' ' + t.common.success.toLowerCase());
-      await handleRefresh();
+      await refreshUserFromBackend();
     } catch (error) {
+      console.error('[Profile] Profile save error:', error);
       Alert.alert(t.common.error, t.profile.editProfile + ' ' + t.common.error.toLowerCase());
     }
   };
@@ -151,6 +179,7 @@ export default function ProfileScreen() {
       });
       await refetchSettings();
     } catch (error) {
+      console.error('[Profile] Setting toggle error:', error);
       Alert.alert('Hata', 'Ayar güncellenemedi. Lütfen tekrar deneyin.');
     }
   };
@@ -172,6 +201,7 @@ export default function ProfileScreen() {
       const newChild = {
         name: childName.trim(),
         age: age,
+        avatarId: selectedChildAvatarId,
       };
 
       await updateProfileMutation.mutateAsync({
@@ -181,10 +211,12 @@ export default function ProfileScreen() {
 
       setChildName('');
       setChildAge('');
+      setSelectedChildAvatarId(undefined);
       setShowChildrenModal(false);
       Alert.alert('Başarılı', 'Çocuk profili eklendi!');
-      await handleRefresh();
+      await refreshUserFromBackend();
     } catch (error) {
+      console.error('[Profile] Add child error:', error);
       Alert.alert('Hata', 'Çocuk profili eklenemedi. Lütfen tekrar deneyin.');
     }
   };
@@ -200,8 +232,9 @@ export default function ProfileScreen() {
       });
 
       Alert.alert('Başarılı', 'Çocuk profili silindi!');
-      await handleRefresh();
+      await refreshUserFromBackend();
     } catch (error) {
+      console.error('[Profile] Remove child error:', error);
       Alert.alert('Hata', 'Çocuk profili silinemedi. Lütfen tekrar deneyin.');
     }
   };
@@ -225,12 +258,12 @@ export default function ProfileScreen() {
         >
           <View style={styles.header}>
             <View style={styles.avatarContainer}>
-              <LinearGradient
-                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.avatar}
-              >
-                <User size={layout.icon.large} color={Colors.neutral.white} />
-              </LinearGradient>
+              <Pressable onPress={handleEditProfile}>
+                <AvatarDisplay
+                  avatarId={user?.avatarUrl}
+                  size={layout.icon.mega + 24}
+                />
+              </Pressable>
               <Pressable
                 style={styles.editButton}
                 onPress={handleEditProfile}
@@ -238,8 +271,10 @@ export default function ProfileScreen() {
                 <Edit2 size={16} color={Colors.neutral.white} />
               </Pressable>
             </View>
-            <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
-            <Text style={styles.userEmail}>{user?.email || 'MasalBak Kullanıcısı'}</Text>
+            <Pressable onPress={handleEditName}>
+              <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
+            </Pressable>
+            <Text style={styles.userEmail}>{user?.email || 'RenkiOO Kullanıcısı'}</Text>
           </View>
 
           {/* Children Profiles */}
@@ -261,11 +296,11 @@ export default function ProfileScreen() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.childrenList}>
                 {user.children.map((child: any, index: number) => (
                   <View key={index} style={styles.childCard}>
-                    <LinearGradient
-                      colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                      style={styles.childCardGradient}
-                    >
-                      <Baby size={32} color={Colors.neutral.white} />
+                    <View style={styles.childCardContent}>
+                      <AvatarDisplay
+                        avatarId={child.avatarId}
+                        size={56}
+                      />
                       <Text style={styles.childName}>{child.name}</Text>
                       <Text style={styles.childAge}>{child.age} yaş</Text>
                       <Pressable
@@ -286,7 +321,7 @@ export default function ProfileScreen() {
                       >
                         <Trash2 size={16} color={Colors.semantic.error} />
                       </Pressable>
-                    </LinearGradient>
+                    </View>
                   </View>
                 ))}
               </ScrollView>
@@ -531,9 +566,9 @@ export default function ProfileScreen() {
               ]}
               onPress={() => Alert.alert(
                 '💡 ' + t.settings.help,
-                '📧 E-posta: destek@masalbak.com\n\n' +
+                '📧 E-posta: destek@renkioo.com\n\n' +
                 '📱 Uygulama Versiyonu: 1.0.0\n\n' +
-                '🌐 Web: www.masalbak.com\n\n' +
+                '🌐 Web: www.renkioo.com\n\n' +
                 'Sorularınız için bize ulaşın!',
                 [{ text: 'Tamam' }]
               )}
@@ -573,9 +608,9 @@ export default function ProfileScreen() {
           </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>MasalBak v1.0.0</Text>
+          <Text style={styles.footerText}>Renkioo v1.0.0</Text>
           <Text style={styles.footerText}>
-            Çocukların hayal dünyasını keşfedin
+            Çocukların renkli hayal dünyası
           </Text>
         </View>
         </ScrollView>
@@ -934,6 +969,20 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.profileEditForm}>
+                <Text style={styles.inputLabel}>Avatar</Text>
+                <Pressable
+                  style={styles.avatarSelector}
+                  onPress={() => setShowChildAvatarPicker(true)}
+                >
+                  <AvatarDisplay
+                    avatarId={selectedChildAvatarId}
+                    size={64}
+                  />
+                  <Text style={styles.avatarSelectorText}>
+                    {selectedChildAvatarId ? 'Avatar Değiştir' : 'Avatar Seç'}
+                  </Text>
+                </Pressable>
+
                 <Text style={styles.inputLabel}>{t.profile.childName}</Text>
                 <TextInput
                   style={styles.input}
@@ -972,6 +1021,25 @@ export default function ProfileScreen() {
             </Pressable>
           </Pressable>
         </Modal>
+
+        {/* Avatar Picker for Profile */}
+        <AvatarPicker
+          visible={showAvatarPicker}
+          selectedAvatarId={user?.avatarUrl}
+          onSelect={handleAvatarChange}
+          onClose={() => setShowAvatarPicker(false)}
+        />
+
+        {/* Avatar Picker for Child */}
+        <AvatarPicker
+          visible={showChildAvatarPicker}
+          selectedAvatarId={selectedChildAvatarId}
+          onSelect={(avatarId) => {
+            setSelectedChildAvatarId(avatarId);
+            setShowChildAvatarPicker(false);
+          }}
+          onClose={() => setShowChildAvatarPicker(false)}
+        />
       </LinearGradient>
     </View>
   );
@@ -1029,42 +1097,55 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: "row",
-    gap: spacing["3"],
+    gap: isSmallDevice ? spacing["2"] : spacing["3"],
     marginBottom: spacing["8"],
   },
   statCard: {
     flex: 1,
+    borderRadius: radius.xl,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    overflow: 'hidden',
   },
   statCardGradient: {
-    padding: spacing["5"],
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
     borderRadius: radius.xl,
     alignItems: "center",
-    gap: spacing["3"],
+    gap: isSmallDevice ? spacing["2"] : spacing["3"],
     ...shadows.md,
   },
   statValue: {
-    fontSize: typography.size["3xl"],
+    fontSize: isSmallDevice ? typography.size["2xl"] : typography.size["3xl"],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.white,
     letterSpacing: typography.letterSpacing.tight,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   statLabel: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.white,
-    opacity: 0.9,
+    opacity: 0.95,
     textTransform: "uppercase" as const,
     letterSpacing: typography.letterSpacing.wide,
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   userName: {
-    fontSize: typography.size["3xl"],
+    fontSize: isSmallDevice ? typography.size["2xl"] : typography.size["3xl"],
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing["2"],
     letterSpacing: typography.letterSpacing.tight,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   userEmail: {
-    fontSize: typography.size.md,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
   },
@@ -1072,7 +1153,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing["8"],
   },
   sectionTitle: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.medium,
     textTransform: "uppercase" as const,
@@ -1085,17 +1166,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
-    padding: spacing["5"],
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
     marginBottom: spacing["3"],
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     ...shadows.md,
   },
   menuIcon: {
-    width: layout.icon.huge + 8,
-    height: layout.icon.huge + 8,
+    width: isSmallDevice ? layout.icon.huge : layout.icon.huge + 8,
+    height: isSmallDevice ? layout.icon.huge : layout.icon.huge + 8,
     borderRadius: radius.lg,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: spacing["4"],
+    marginRight: isSmallDevice ? spacing["3"] : spacing["4"],
   },
   menuContent: {
     flex: 1,
@@ -1104,7 +1187,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   menuLabel: {
-    fontSize: typography.size.md,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
@@ -1159,24 +1242,29 @@ const styles = StyleSheet.create({
     padding: layout.screenPadding,
   },
   modalContent: {
-    backgroundColor: Colors.neutral.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.97)',
     borderRadius: radius.xl,
     width: "100%",
     maxWidth: 400,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
     ...shadows.xl,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: spacing["5"],
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
     borderBottomWidth: 1,
     borderBottomColor: Colors.neutral.lighter,
   },
   modalTitle: {
-    fontSize: typography.size.xl,
+    fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
+    textShadowColor: 'rgba(0, 0, 0, 0.05)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   modalCloseButton: {
     padding: spacing["2"],
@@ -1188,9 +1276,11 @@ const styles = StyleSheet.create({
   languageItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: spacing["4"],
+    padding: isSmallDevice ? spacing["3"] : spacing["4"],
     borderRadius: radius.lg,
-    backgroundColor: Colors.neutral.lightest,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     gap: spacing["3"],
   },
   languageItemSelected: {
@@ -1205,33 +1295,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   languageName: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
   },
   languageNameSecondary: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
   },
   // Profile Edit Form Styles
   profileEditForm: {
-    padding: spacing["5"],
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
     gap: spacing["4"],
   },
   inputLabel: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.dark,
     marginBottom: -spacing["2"],
   },
   input: {
-    backgroundColor: Colors.neutral.lightest,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     borderRadius: radius.lg,
-    padding: spacing["4"],
-    fontSize: typography.size.lg,
+    padding: isSmallDevice ? spacing["3"] : spacing["4"],
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     color: Colors.neutral.darkest,
     borderWidth: 2,
-    borderColor: Colors.neutral.lighter,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
   },
   saveButton: {
     marginTop: spacing["2"],
@@ -1251,7 +1341,7 @@ const styles = StyleSheet.create({
   },
   // Settings Form Styles
   settingsForm: {
-    padding: spacing["5"],
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
     gap: spacing["4"],
   },
   settingRow: {
@@ -1261,13 +1351,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing["1"],
   },
   settingLabel: {
-    fontSize: typography.size.md,
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
     flex: 1,
   },
   settingDescription: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
     marginBottom: spacing["3"],
     lineHeight: typography.lineHeight.relaxed,
@@ -1293,9 +1383,11 @@ const styles = StyleSheet.create({
   themeItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: spacing["4"],
+    padding: isSmallDevice ? spacing["3"] : spacing["4"],
     borderRadius: radius.lg,
-    backgroundColor: Colors.neutral.lightest,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     gap: spacing["3"],
   },
   themeItemSelected: {
@@ -1310,12 +1402,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   themeName: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
   },
   themeDescription: {
-    fontSize: typography.size.sm,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
   },
   // Children Section Styles
@@ -1329,9 +1421,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing["4"],
   },
   childrenTitle: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   addChildButton: {
     backgroundColor: Colors.secondary.lavender,
@@ -1358,13 +1453,13 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   childName: {
-    fontSize: typography.size.lg,
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: Colors.neutral.white,
+    color: Colors.neutral.darkest,
   },
   childAge: {
-    fontSize: typography.size.sm,
-    color: Colors.neutral.white,
+    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
+    color: Colors.neutral.medium,
     opacity: 0.9,
   },
   removeChildButton: {
@@ -1393,5 +1488,32 @@ const styles = StyleSheet.create({
     fontSize: typography.size.md,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
+  },
+  childCardContent: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: isSmallDevice ? spacing["4"] : spacing["5"],
+    borderRadius: radius.xl,
+    alignItems: "center",
+    gap: spacing["2"],
+    minWidth: isSmallDevice ? 120 : 140,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    ...shadows.md,
+  },
+  // Avatar Selector Styles
+  avatarSelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["4"],
+    backgroundColor: Colors.neutral.lightest,
+    borderRadius: radius.lg,
+    padding: spacing["4"],
+    borderWidth: 2,
+    borderColor: Colors.neutral.lighter,
+  },
+  avatarSelectorText: {
+    fontSize: typography.size.md,
+    color: Colors.neutral.dark,
+    fontWeight: typography.weight.semibold,
   },
 });

@@ -9,6 +9,8 @@ import {
   Pressable,
   Modal,
   ActivityIndicator,
+  Platform,
+  useWindowDimensions,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system/legacy";
@@ -17,10 +19,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
 import { layout, typography, spacing, radius, shadows, cardVariants, badgeStyles } from "@/constants/design-system";
-import { Platform } from "react-native";
 import { useGenerateColoringPage } from "@/lib/hooks/useGenerateColoringPage";
 import * as Linking from "expo-linking";
 import { ColoringCanvas } from "@/components/ColoringCanvas";
+import { LoadingAnimation } from "@/components/LoadingAnimation";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { useLocalSearchParams } from "expo-router";
 
@@ -28,6 +30,11 @@ export default function StudioScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const params = useLocalSearchParams();
+  const { width } = useWindowDimensions();
+
+  // Responsive breakpoints
+  const isSmallScreen = width < 380;
+  const screenPadding = isSmallScreen ? spacing["4"] : layout.screenPadding;
 
   // AI Boyama Sayfası States
   const [showAIModal, setShowAIModal] = useState(false);
@@ -127,7 +134,11 @@ export default function StudioScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 },
+          {
+            paddingHorizontal: screenPadding,
+            paddingTop: insets.top + (isSmallScreen ? 12 : 16),
+            paddingBottom: insets.bottom + 24,
+          },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -136,31 +147,69 @@ export default function StudioScreen() {
           <View style={styles.headerIconContainer}>
             <LinearGradient
               colors={[Colors.secondary.mint, Colors.cards.coloring.icon]}
-              style={styles.headerIcon}
+              style={[
+                styles.headerIcon,
+                isSmallScreen && { width: 64, height: 64 },
+              ]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Palette size={32} color={Colors.neutral.white} />
+              <Palette size={isSmallScreen ? 28 : 32} color={Colors.neutral.white} />
             </LinearGradient>
           </View>
-          <Text style={styles.headerTitle}>{t.studio.title}</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[
+            styles.headerTitle,
+            isSmallScreen && { fontSize: typography.size["3xl"] },
+          ]}>
+            {t.studio.title}
+          </Text>
+          <Text style={[
+            styles.headerSubtitle,
+            isSmallScreen && { fontSize: typography.size.sm, paddingHorizontal: spacing["2"] },
+          ]}>
             {t.studio.subtitle}
           </Text>
         </View>
 
         {/* Stats Row */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>∞</Text>
+        <View style={[
+          styles.statsRow,
+          isSmallScreen && { gap: spacing["2"] },
+        ]}>
+          <View style={[
+            styles.statCard,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.statNumber,
+              isSmallScreen && { fontSize: typography.size.xl },
+            ]}>
+              ∞
+            </Text>
             <Text style={styles.statLabel}>{t.studio.unlimited}</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>A4</Text>
+          <View style={[
+            styles.statCard,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.statNumber,
+              isSmallScreen && { fontSize: typography.size.xl },
+            ]}>
+              A4
+            </Text>
             <Text style={styles.statLabel}>PDF</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>HD</Text>
+          <View style={[
+            styles.statCard,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.statNumber,
+              isSmallScreen && { fontSize: typography.size.xl },
+            ]}>
+              HD
+            </Text>
             <Text style={styles.statLabel}>{t.studio.quality}</Text>
           </View>
         </View>
@@ -179,12 +228,23 @@ export default function StudioScreen() {
             </View>
           </View>
 
-          <View style={styles.aiIconContainer}>
-            <Wand2 size={48} color={Colors.neutral.white} />
+          <View style={[
+            styles.aiIconContainer,
+            isSmallScreen && { width: 72, height: 72 },
+          ]}>
+            <Wand2 size={isSmallScreen ? 36 : 48} color={Colors.neutral.white} />
           </View>
 
-          <Text style={styles.aiCardTitle}>{t.studio.createInteractive}</Text>
-          <Text style={styles.aiCardDescription}>
+          <Text style={[
+            styles.aiCardTitle,
+            isSmallScreen && { fontSize: typography.size.xl },
+          ]}>
+            {t.studio.createInteractive}
+          </Text>
+          <Text style={[
+            styles.aiCardDescription,
+            isSmallScreen && { fontSize: typography.size.sm },
+          ]}>
             {t.studio.createInteractiveDesc}
           </Text>
 
@@ -219,22 +279,77 @@ export default function StudioScreen() {
         </View>
 
         {/* Features Grid */}
-        <View style={styles.featuresGrid}>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>🎨</Text>
-            <Text style={styles.featureLabel}>{t.studio.preservesLines}</Text>
+        <View style={[
+          styles.featuresGrid,
+          isSmallScreen && { gap: spacing["2"] },
+        ]}>
+          <View style={[
+            styles.featureItem,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.featureEmoji,
+              isSmallScreen && { fontSize: 24 },
+            ]}>
+              🎨
+            </Text>
+            <Text style={[
+              styles.featureLabel,
+              isSmallScreen && { fontSize: typography.size.xs },
+            ]}>
+              {t.studio.preservesLines}
+            </Text>
           </View>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>✨</Text>
-            <Text style={styles.featureLabel}>{t.studio.hdQuality}</Text>
+          <View style={[
+            styles.featureItem,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.featureEmoji,
+              isSmallScreen && { fontSize: 24 },
+            ]}>
+              ✨
+            </Text>
+            <Text style={[
+              styles.featureLabel,
+              isSmallScreen && { fontSize: typography.size.xs },
+            ]}>
+              {t.studio.hdQuality}
+            </Text>
           </View>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>📄</Text>
-            <Text style={styles.featureLabel}>{t.studio.a4Format}</Text>
+          <View style={[
+            styles.featureItem,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.featureEmoji,
+              isSmallScreen && { fontSize: 24 },
+            ]}>
+              📄
+            </Text>
+            <Text style={[
+              styles.featureLabel,
+              isSmallScreen && { fontSize: typography.size.xs },
+            ]}>
+              {t.studio.a4Format}
+            </Text>
           </View>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureEmoji}>⚡</Text>
-            <Text style={styles.featureLabel}>{t.studio.fastProcessing}</Text>
+          <View style={[
+            styles.featureItem,
+            isSmallScreen && { padding: spacing["3"] },
+          ]}>
+            <Text style={[
+              styles.featureEmoji,
+              isSmallScreen && { fontSize: 24 },
+            ]}>
+              ⚡
+            </Text>
+            <Text style={[
+              styles.featureLabel,
+              isSmallScreen && { fontSize: typography.size.xs },
+            ]}>
+              {t.studio.fastProcessing}
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -246,20 +361,31 @@ export default function StudioScreen() {
         transparent={true}
         onRequestClose={handleCloseAIModal}
       >
-        <View style={styles.modalOverlay}>
-          <LinearGradient
-            colors={Colors.background.studio}
-            style={styles.modalContent}
-          >
-            {/* Modal Header */}
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t.studio.interactiveColoring}</Text>
-              <Pressable onPress={handleCloseAIModal} style={styles.modalCloseButton}>
-                <X size={24} color={Colors.neutral.darkest} />
-              </Pressable>
-            </View>
+        {isGenerating ? (
+          <LoadingAnimation type="painting" message={t.studio.creating} />
+        ) : (
+          <View style={styles.modalOverlay}>
+            <LinearGradient
+              colors={Colors.background.studio}
+              style={[
+                styles.modalContent,
+                { padding: isSmallScreen ? spacing["4"] : spacing["6"] },
+              ]}
+            >
+              {/* Modal Header */}
+              <View style={styles.modalHeader}>
+                <Text style={[
+                  styles.modalTitle,
+                  isSmallScreen && { fontSize: typography.size.xl },
+                ]}>
+                  {t.studio.interactiveColoring}
+                </Text>
+                <Pressable onPress={handleCloseAIModal} style={styles.modalCloseButton}>
+                  <X size={isSmallScreen ? 20 : 24} color={Colors.neutral.darkest} />
+                </Pressable>
+              </View>
 
-            <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+              <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
               {/* Instructions */}
               <View style={styles.modalInstructions}>
                 <Text style={styles.instructionsTitle}>{t.studio.howItWorks}</Text>
@@ -379,9 +505,10 @@ export default function StudioScreen() {
                   </View>
                 </View>
               )}
-            </ScrollView>
-          </LinearGradient>
-        </View>
+              </ScrollView>
+            </LinearGradient>
+          </View>
+        )}
       </Modal>
 
       {/* Coloring Canvas Modal */}
@@ -391,19 +518,31 @@ export default function StudioScreen() {
         onRequestClose={() => setShowColoringCanvas(false)}
       >
         <View style={styles.canvasModalContainer}>
-          <View style={styles.canvasModalHeader}>
-            <Text style={styles.canvasModalTitle}>{t.studio.startColoringTitle}</Text>
+          <View style={[
+            styles.canvasModalHeader,
+            {
+              paddingHorizontal: isSmallScreen ? spacing["4"] : spacing["6"],
+              paddingVertical: isSmallScreen ? spacing["3"] : spacing["5"],
+            },
+          ]}>
+            <Text style={[
+              styles.canvasModalTitle,
+              isSmallScreen && { fontSize: typography.size.xl },
+            ]}>
+              {t.studio.startColoringTitle}
+            </Text>
             <Pressable
               onPress={() => setShowColoringCanvas(false)}
               style={styles.modalCloseButton}
             >
-              <X size={24} color={Colors.neutral.darkest} />
+              <X size={isSmallScreen ? 20 : 24} color={Colors.neutral.darkest} />
             </Pressable>
           </View>
 
           {coloringPage && (
             <ColoringCanvas
               backgroundImage={coloringPage.imageUrl}
+              onClose={() => setShowColoringCanvas(false)}
               onSave={(paths) => {
                 console.log("Saved paths:", paths);
                 Alert.alert(t.studio.great, t.studio.coloringSaved);
@@ -425,7 +564,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: layout.screenPadding,
+    // paddingHorizontal is now applied dynamically based on screen size
   },
 
   // Header
@@ -776,7 +915,7 @@ const styles = StyleSheet.create({
     height: "90%",
     borderTopLeftRadius: radius["2xl"],
     borderTopRightRadius: radius["2xl"],
-    padding: spacing["6"],
+    // padding is now applied dynamically based on screen size
     ...shadows.xl,
   },
   modalHeader: {
@@ -911,8 +1050,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: spacing["6"],
-    paddingVertical: spacing["5"],
+    // padding is now applied dynamically based on screen size
     backgroundColor: Colors.neutral.white,
     ...shadows.md,
   },

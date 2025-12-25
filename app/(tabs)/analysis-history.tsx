@@ -8,6 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import {
   Brain,
@@ -57,9 +58,14 @@ export default function AnalysisHistoryScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const { width } = useWindowDimensions();
   const [refreshing, setRefreshing] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
   const [selectedTaskType, setSelectedTaskType] = useState<TaskType | undefined>();
+
+  // Responsive breakpoints
+  const isSmallScreen = width < 380;
+  const screenPadding = isSmallScreen ? spacing["4"] : layout.screenPadding;
 
   // Fetch analyses list
   const {
@@ -124,8 +130,7 @@ export default function AnalysisHistoryScreen() {
   };
 
   const handleViewAnalysis = (analysisId: string) => {
-    // TODO: Navigate to analysis detail screen
-    Alert.alert("Analiz Detayı", "Analiz detay ekranı yakında eklenecek!");
+    router.push(`/analysis/${analysisId}` as any);
   };
 
   const formatDate = (dateString: string) => {
@@ -154,7 +159,11 @@ export default function AnalysisHistoryScreen() {
           style={styles.scrollView}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+            {
+              paddingHorizontal: screenPadding,
+              paddingTop: insets.top + (isSmallScreen ? 16 : 20),
+              paddingBottom: insets.bottom + 20,
+            },
           ]}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -167,21 +176,39 @@ export default function AnalysisHistoryScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => [
                 styles.backButton,
+                isSmallScreen && { width: 36, height: 36 },
                 pressed && { opacity: 0.6 },
               ]}
             >
-              <ArrowLeft size={24} color={Colors.neutral.darkest} />
+              <ArrowLeft size={isSmallScreen ? 20 : 24} color={Colors.neutral.darkest} />
             </Pressable>
-            <View style={styles.header}>
+            <View style={[
+              styles.header,
+              isSmallScreen && { gap: spacing["3"] },
+            ]}>
               <LinearGradient
                 colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.headerIcon}
+                style={[
+                  styles.headerIcon,
+                  isSmallScreen && { width: 56, height: 56 },
+                ]}
               >
-                <Brain size={layout.icon.medium} color={Colors.neutral.white} />
+                <Brain
+                  size={isSmallScreen ? 28 : layout.icon.medium}
+                  color={Colors.neutral.white}
+                />
               </LinearGradient>
               <View style={styles.headerTextContainer}>
-                <Text style={styles.headerTitle}>Analiz Geçmişi</Text>
-                <Text style={styles.headerSubtitle}>
+                <Text style={[
+                  styles.headerTitle,
+                  isSmallScreen && { fontSize: typography.size.xl },
+                ]}>
+                  Analiz Geçmişi
+                </Text>
+                <Text style={[
+                  styles.headerSubtitle,
+                  isSmallScreen && { fontSize: typography.size.xs },
+                ]}>
                   {analyses.length} analiz kayıtlı
                 </Text>
               </View>
@@ -193,19 +220,21 @@ export default function AnalysisHistoryScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.filterChip,
+                isSmallScreen && { paddingVertical: spacing["1.5"], paddingHorizontal: spacing["2.5"] },
                 filterFavorites && styles.filterChipActive,
                 pressed && { opacity: 0.7 },
               ]}
               onPress={() => setFilterFavorites(!filterFavorites)}
             >
               <Star
-                size={16}
+                size={isSmallScreen ? 14 : 16}
                 color={filterFavorites ? Colors.neutral.white : Colors.secondary.sunshine}
                 fill={filterFavorites ? Colors.neutral.white : "none"}
               />
               <Text
                 style={[
                   styles.filterChipText,
+                  isSmallScreen && { fontSize: typography.size.xs },
                   filterFavorites && styles.filterChipTextActive,
                 ]}
               >
@@ -216,12 +245,18 @@ export default function AnalysisHistoryScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.filterChip,
+                isSmallScreen && { paddingVertical: spacing["1.5"], paddingHorizontal: spacing["2.5"] },
                 pressed && { opacity: 0.7 },
               ]}
               onPress={() => Alert.alert("Filtre", "Test tipi filtreleme yakında!")}
             >
-              <Filter size={16} color={Colors.neutral.dark} />
-              <Text style={styles.filterChipText}>Test Tipi</Text>
+              <Filter size={isSmallScreen ? 14 : 16} color={Colors.neutral.dark} />
+              <Text style={[
+                styles.filterChipText,
+                isSmallScreen && { fontSize: typography.size.xs },
+              ]}>
+                Test Tipi
+              </Text>
             </Pressable>
           </View>
 
@@ -236,11 +271,20 @@ export default function AnalysisHistoryScreen() {
           {/* Empty State */}
           {!isLoading && analyses.length === 0 && (
             <View style={styles.emptyContainer}>
-              <Brain size={64} color={Colors.neutral.light} />
-              <Text style={styles.emptyTitle}>
+              <Brain size={isSmallScreen ? 48 : 64} color={Colors.neutral.light} />
+              <Text style={[
+                styles.emptyTitle,
+                isSmallScreen && { fontSize: typography.size.lg },
+              ]}>
                 {filterFavorites ? "Favori analiz yok" : "Henüz analiz yok"}
               </Text>
-              <Text style={styles.emptyText}>
+              <Text style={[
+                styles.emptyText,
+                isSmallScreen && {
+                  fontSize: typography.size.sm,
+                  paddingHorizontal: spacing["4"],
+                },
+              ]}>
                 {filterFavorites
                   ? "Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz"
                   : "Bir çizim analiz ettiğinizde buradan görebilirsiniz"}
@@ -256,23 +300,33 @@ export default function AnalysisHistoryScreen() {
                   onPress={() => handleViewAnalysis(analysis.id)}
                   style={({ pressed }) => [
                     styles.cardPressable,
+                    isSmallScreen && { padding: spacing["4"] },
                     pressed && { opacity: 0.8 },
                   ]}
                 >
                   <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderLeft}>
+                    <View style={[
+                      styles.cardHeaderLeft,
+                      isSmallScreen && { gap: spacing["2"] },
+                    ]}>
                       <LinearGradient
                         colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                        style={styles.cardIcon}
+                        style={[
+                          styles.cardIcon,
+                          isSmallScreen && { width: 36, height: 36 },
+                        ]}
                       >
-                        <Brain size={20} color={Colors.neutral.white} />
+                        <Brain size={isSmallScreen ? 18 : 20} color={Colors.neutral.white} />
                       </LinearGradient>
                       <View style={styles.cardHeaderText}>
-                        <Text style={styles.cardTitle}>
+                        <Text style={[
+                          styles.cardTitle,
+                          isSmallScreen && { fontSize: typography.size.sm },
+                        ]}>
                           {TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type}
                         </Text>
                         <View style={styles.cardMeta}>
-                          <Calendar size={12} color={Colors.neutral.medium} />
+                          <Calendar size={isSmallScreen ? 10 : 12} color={Colors.neutral.medium} />
                           <Text style={styles.cardMetaText}>
                             {formatDate(analysis.created_at)}
                           </Text>
@@ -287,13 +341,19 @@ export default function AnalysisHistoryScreen() {
                         </View>
                       </View>
                     </View>
-                    <ChevronRight size={20} color={Colors.neutral.light} />
+                    <ChevronRight size={isSmallScreen ? 18 : 20} color={Colors.neutral.light} />
                   </View>
 
                   {/* Insights Preview */}
                   {analysis.analysis_result?.insights?.length > 0 && (
                     <View style={styles.insightsPreview}>
-                      <Text style={styles.insightText} numberOfLines={2}>
+                      <Text
+                        style={[
+                          styles.insightText,
+                          isSmallScreen && { fontSize: typography.size.xs },
+                        ]}
+                        numberOfLines={2}
+                      >
                         {analysis.analysis_result.insights[0].title}:{" "}
                         {analysis.analysis_result.insights[0].summary}
                       </Text>
@@ -302,7 +362,10 @@ export default function AnalysisHistoryScreen() {
 
                   {/* Tags */}
                   {analysis.tags?.length > 0 && (
-                    <View style={styles.tagsContainer}>
+                    <View style={[
+                      styles.tagsContainer,
+                      isSmallScreen && { gap: spacing["1.5"] },
+                    ]}>
                       {analysis.tags.slice(0, 3).map((tag: string, index: number) => (
                         <View key={index} style={styles.tag}>
                           <Text style={styles.tagText}>{tag}</Text>
@@ -313,16 +376,23 @@ export default function AnalysisHistoryScreen() {
                 </Pressable>
 
                 {/* Actions */}
-                <View style={styles.cardActions}>
+                <View style={[
+                  styles.cardActions,
+                  isSmallScreen && {
+                    paddingHorizontal: spacing["4"],
+                    paddingVertical: spacing["2"],
+                  },
+                ]}>
                   <Pressable
                     onPress={() => handleToggleFavorite(analysis.id, analysis.favorited)}
                     style={({ pressed }) => [
                       styles.actionButton,
+                      isSmallScreen && { padding: spacing["1.5"] },
                       pressed && { opacity: 0.6 },
                     ]}
                   >
                     <Heart
-                      size={20}
+                      size={isSmallScreen ? 18 : 20}
                       color={analysis.favorited ? Colors.semantic.error : Colors.neutral.medium}
                       fill={analysis.favorited ? Colors.semantic.error : "none"}
                     />
@@ -332,10 +402,11 @@ export default function AnalysisHistoryScreen() {
                     onPress={() => handleDelete(analysis.id)}
                     style={({ pressed }) => [
                       styles.actionButton,
+                      isSmallScreen && { padding: spacing["1.5"] },
                       pressed && { opacity: 0.6 },
                     ]}
                   >
-                    <Trash2 size={20} color={Colors.neutral.medium} />
+                    <Trash2 size={isSmallScreen ? 18 : 20} color={Colors.neutral.medium} />
                   </Pressable>
                 </View>
               </View>
@@ -358,7 +429,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: layout.screenPadding,
+    // paddingHorizontal is now applied dynamically based on screen size
   },
   headerContainer: {
     marginBottom: spacing["6"],

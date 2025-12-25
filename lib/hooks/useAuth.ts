@@ -4,14 +4,19 @@ import { trpc, trpcClient } from '@/lib/trpc';
 import { getSupabaseFrontend, signIn as supabaseSignIn, signUp as supabaseSignUp, signOut as supabaseSignOut } from '@/lib/supabase';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 
-const ONBOARDING_KEY = '@masalbak_onboarding_completed';
-const MANUAL_SESSION_KEY = '@masalbak_manual_session';
+const ONBOARDING_KEY = '@renkioo_onboarding_completed';
+const MANUAL_SESSION_KEY = '@renkioo_manual_session';
+
+// Legacy keys for migration
+const LEGACY_ONBOARDING_KEY = '@masalbak_onboarding_completed';
+const LEGACY_MANUAL_SESSION_KEY = '@masalbak_manual_session';
 
 export interface Child {
   name: string;
   age: number;
   birthDate?: string;
   gender?: 'male' | 'female' | 'other';
+  avatarId?: string; // Avatar ID from constants/avatars.ts
 }
 
 export interface UserSession {
@@ -40,6 +45,32 @@ export function useAuth() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
 
+  /**
+   * Migrate data from legacy MasalBak keys to new Renkioo keys
+   */
+  const migrateLegacyKeys = async () => {
+    try {
+      // Migrate onboarding status
+      const legacyOnboarding = await AsyncStorage.getItem(LEGACY_ONBOARDING_KEY);
+      if (legacyOnboarding) {
+        await AsyncStorage.setItem(ONBOARDING_KEY, legacyOnboarding);
+        await AsyncStorage.removeItem(LEGACY_ONBOARDING_KEY);
+        console.log('[useAuth] ✅ Migrated onboarding status from legacy key');
+      }
+
+      // Migrate manual session
+      const legacySession = await AsyncStorage.getItem(LEGACY_MANUAL_SESSION_KEY);
+      if (legacySession) {
+        await AsyncStorage.setItem(MANUAL_SESSION_KEY, legacySession);
+        await AsyncStorage.removeItem(LEGACY_MANUAL_SESSION_KEY);
+        console.log('[useAuth] ✅ Migrated manual session from legacy key');
+      }
+    } catch (error) {
+      console.error('[useAuth] ⚠️ Error migrating legacy keys:', error);
+      // Continue anyway - migration is not critical
+    }
+  };
+
   // Load user and listen to auth changes
   useEffect(() => {
     initAuth();
@@ -48,6 +79,9 @@ export function useAuth() {
   const initAuth = async () => {
     try {
       console.log('[useAuth] 🔍 Initializing auth...');
+
+      // Migrate from legacy keys to new keys
+      await migrateLegacyKeys();
 
       const client = await getSupabaseFrontend();
 
@@ -267,6 +301,30 @@ export function useAuth() {
   };
 
   /**
+   * Login with password (using tRPC backend)
+   */
+  const loginWithPassword = async (email: string, password: string) => {
+    try {
+      console.log('[useAuth] 🔐 Logging in with password:', email);
+
+      const result = await trpcClient.auth.loginWithPassword.mutate({
+        email,
+        password,
+      });
+
+      if (result.success && result.userId) {
+        await setUserSession(result.userId, result.email!, result.name);
+        return result;
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error('[useAuth] ❌ Password login error:', error);
+      throw error;
+    }
+  };
+
+  /**
    * Manually set user session (for custom auth flows like email verification)
    */
   const setUserSession = async (userId: string, email: string, name?: string) => {
@@ -318,6 +376,7 @@ export function useAuth() {
     hasCompletedOnboarding,
     signUp,
     login,
+    loginWithPassword,
     logout,
     completeOnboarding,
     refreshUserFromBackend,

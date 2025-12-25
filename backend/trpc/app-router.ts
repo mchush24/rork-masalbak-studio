@@ -7,9 +7,15 @@ import { listStorybooksProcedure, listColoringsProcedure, deleteStorybookProcedu
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
 import { generateStoryFromDrawingProcedure } from "./routes/studio/generate-story-from-drawing";
 import { suggestStoryThemesProcedure } from "./routes/studio/suggest-story-themes";
+import { saveCompletedColoringProcedure } from "./routes/studio/save-completed-coloring";
 import { registerProcedure } from "./routes/auth/register";
 import { verifyEmailProcedure } from "./routes/auth/verify-email";
 import { completeOnboardingProcedure } from "./routes/auth/complete-onboarding";
+import { loginWithPasswordProcedure } from "./routes/auth/login-with-password";
+import { requestPasswordResetProcedure } from "./routes/auth/request-password-reset";
+import { resetPasswordProcedure } from "./routes/auth/reset-password";
+import { setPasswordProcedure } from "./routes/auth/set-password";
+import { updateBiometricProcedure } from "./routes/auth/update-biometric";
 import { getProfileProcedure } from "./routes/user/get-profile";
 import { updateProfileProcedure } from "./routes/user/update-profile";
 import { getUserStatsProcedure } from "./routes/user/get-user-stats";
@@ -29,6 +35,11 @@ export const appRouter = createTRPCRouter({
     register: registerProcedure,
     verifyEmail: verifyEmailProcedure,
     completeOnboarding: completeOnboardingProcedure,
+    loginWithPassword: loginWithPasswordProcedure,
+    requestPasswordReset: requestPasswordResetProcedure,
+    resetPassword: resetPasswordProcedure,
+    setPassword: setPasswordProcedure,
+    updateBiometric: updateBiometricProcedure,
   }),
   user: createTRPCRouter({
     getProfile: getProfileProcedure,
@@ -53,6 +64,7 @@ export const appRouter = createTRPCRouter({
     listColorings: listColoringsProcedure,
     deleteStorybook: deleteStorybookProcedure,
     deleteColoring: deleteColoringProcedure,
+    saveCompletedColoring: saveCompletedColoringProcedure,
     analyzeDrawing: analyzeDrawingProcedure,
     suggestStoryThemes: suggestStoryThemesProcedure,
   }),

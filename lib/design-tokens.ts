@@ -125,7 +125,7 @@ export const layout = {
 } as const;
 
 export const colors = {
-  // MasalBak Brand Colors - "Gün Batımı Bahçesi" teması
+  // RenkiOO Brand Colors - "Gün Batımı Bahçesi" teması
   brand: {
     primary: '#FF9B7A',      // Yumuşak turuncu-pembe (ana aksiyon)
     secondary: '#78C8E8',    // Gökyüzü mavisi (güven, sakinlik)
@@ -134,7 +134,7 @@ export const colors = {
     premium: '#A78BFA',      // Lavanta (yaratıcılık, premium)
   },
 
-  // Gradient setleri - MasalBak temalı
+  // Gradient setleri - RenkiOO temalı
   gradients: {
     // Ana tema - Yumuşak gün batımı (turuncu-pembe-krem)
     primary: ['#FF9B7A', '#FFB299', '#FFC4B0'],
@@ -159,6 +159,19 @@ export const colors = {
 
     // Orman - Yeşil tonları (doğa, sakinlik için)
     forest: ['#7ED99C', '#6BC798', '#5AB594'],
+
+    // PROFESSIONAL THEME - Yetişkinler için (ebeveyn, öğretmen, psikolog)
+    // Profesyonel mavi - Güven ve uzmanlık
+    professional: ['#2E5266', '#4A7C9D', '#6EA8C6'],
+
+    // Bilimsel yeşil - Analiz ve gelişim
+    scientific: ['#5A7A6A', '#7D9C8E', '#A8C5B5'],
+
+    // Premium mor - Kalite ve teknoloji
+    expertise: ['#5D4E7C', '#7D6B9D', '#9E8FBF'],
+
+    // Sıcak nötr - Erişilebilir ve profesyonel
+    accessible: ['#7B6B5D', '#9D8B7D', '#BFAB9E'],
   },
 
   // Opacity variants (beyaz overlay'ler için)

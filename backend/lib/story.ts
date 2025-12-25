@@ -18,7 +18,7 @@ import {
 import { compositeTextOnImage } from "./image-text-compositor.js";
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const BUCKET = process.env.SUPABASE_BUCKET || "masalbak";
+const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
 type PageSpec = { text: string; prompt?: string };
 
