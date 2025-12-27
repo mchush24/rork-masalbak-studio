@@ -49,8 +49,8 @@ const getApiUrl = () => {
     console.log('[tRPC] iOS URL:', url);
     return url;
   } else {
-    // Web
-    const url = 'http://localhost:3000/api/trpc';
+    // Web - use Railway URL in production
+    const url = `${envApiUrl || 'http://localhost:3000'}/api/trpc`;
     console.log('[tRPC] Web URL:', url);
     return url;
   }
