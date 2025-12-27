@@ -18,20 +18,23 @@ export const queryClient = new QueryClient({
 
 // Backend server URL (runs separately from Expo dev server)
 const getApiUrl = () => {
-  // Use environment variable if available (production Railway URL)
+  // Try to get API URL from environment (Railway production URL or local override)
   const envApiUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_API || process.env.EXPO_PUBLIC_API;
 
-  if (envApiUrl) {
+  console.log('[tRPC] Platform:', Platform.OS);
+  console.log('[tRPC] Environment API URL:', envApiUrl);
+
+  // If environment variable is set and not localhost, use it (production mode)
+  if (envApiUrl && !envApiUrl.includes('localhost')) {
     const url = `${envApiUrl}/api/trpc`;
-    console.log('[tRPC] Using environment API URL:', url);
+    console.log('[tRPC] ✅ Using production URL:', url);
     return url;
   }
 
-  // Fallback to localhost for local development
+  // Local development mode - use platform-specific URLs
   const debuggerHost = Constants.expoConfig?.hostUri;
   const host = debuggerHost?.split(':')[0];
 
-  console.log('[tRPC] Platform:', Platform.OS);
   console.log('[tRPC] Debugger host:', debuggerHost);
   console.log('[tRPC] Extracted host:', host);
 
@@ -40,18 +43,18 @@ const getApiUrl = () => {
     // Android emulator: 10.0.2.2 maps to host's localhost
     const baseUrl = host || '10.0.2.2';
     const url = `http://${baseUrl}:3000/api/trpc`;
-    console.log('[tRPC] Android URL:', url);
+    console.log('[tRPC] 📱 Android local URL:', url);
     return url;
   } else if (Platform.OS === 'ios') {
-    // iOS simulator can use localhost
+    // iOS simulator/device - use host IP if available
     const baseUrl = host || 'localhost';
     const url = `http://${baseUrl}:3000/api/trpc`;
-    console.log('[tRPC] iOS URL:', url);
+    console.log('[tRPC] 📱 iOS local URL:', url);
     return url;
   } else {
-    // Web - use Railway URL in production
+    // Web - use environment URL or localhost
     const url = `${envApiUrl || 'http://localhost:3000'}/api/trpc`;
-    console.log('[tRPC] Web URL:', url);
+    console.log('[tRPC] 🌐 Web URL:', url);
     return url;
   }
 };
