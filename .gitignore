@@ -30,13 +30,16 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.local
+.env.production
+.env.development
 .env*.local
+.env.backup
 
 # typescript
 *.tsbuildinfo
 .vercel
-.env
-.env.local
 
 # Removed old server directory
 server/
