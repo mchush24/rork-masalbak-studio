@@ -1,11 +1,14 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_EXPIRES_IN = '7d'; // 7 days
 const REFRESH_TOKEN_EXPIRES_IN = '30d'; // 30 days
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
 }
 
 export interface TokenPayload {
@@ -17,7 +20,7 @@ export interface TokenPayload {
  * Generate access token (short-lived)
  */
 export function generateAccessToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: JWT_EXPIRES_IN,
     issuer: 'masalbak-studio',
     audience: 'masalbak-app',
@@ -28,7 +31,7 @@ export function generateAccessToken(payload: TokenPayload): string {
  * Generate refresh token (long-lived)
  */
 export function generateRefreshToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: REFRESH_TOKEN_EXPIRES_IN,
     issuer: 'masalbak-studio',
     audience: 'masalbak-app',
@@ -41,7 +44,7 @@ export function generateRefreshToken(payload: TokenPayload): string {
  */
 export function verifyToken(token: string): TokenPayload {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET, {
+    const decoded = jwt.verify(token, getJwtSecret(), {
       issuer: 'masalbak-studio',
       audience: 'masalbak-app',
     }) as TokenPayload;

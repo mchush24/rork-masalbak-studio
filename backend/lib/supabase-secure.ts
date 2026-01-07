@@ -12,19 +12,33 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL!;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+let _secureClient: SupabaseClient | null = null;
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+function getSecureSupabaseClient(): SupabaseClient {
+  if (_secureClient) return _secureClient;
+
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  }
+
+  _secureClient = createClient(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  return _secureClient;
 }
 
-// Base Supabase client (used by legacy code)
-export const supa = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
+// Base Supabase client (used by legacy code) - lazy loaded via Proxy
+export const supa = new Proxy({} as SupabaseClient, {
+  get(_, prop) {
+    return (getSecureSupabaseClient() as any)[prop];
+  }
 });
 
 /**
