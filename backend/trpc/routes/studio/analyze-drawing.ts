@@ -1,6 +1,7 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
 import OpenAI from "openai";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -393,7 +394,8 @@ JSON Şeması:
   }
 }
 
-export const analyzeDrawingProcedure = publicProcedure
+export const analyzeDrawingProcedure = protectedProcedure
+  .use(authenticatedAiRateLimit)
   .input(analysisInputSchema)
   .output(analysisResponseSchema)
   .mutation(async ({ input }) => {

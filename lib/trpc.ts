@@ -5,6 +5,9 @@ import { QueryClient } from "@tanstack/react-query";
 import superjson from "superjson";
 import { Platform } from "react-native";
 import Constants from "expo-constants";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const ACCESS_TOKEN_KEY = '@renkioo_access_token';
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -71,9 +74,22 @@ export const trpcClient = trpc.createClient({
         return fetch(url, options);
       },
       async headers() {
-        return {
+        const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
+
+        // Add Authorization header if token exists
+        try {
+          const accessToken = await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+          if (accessToken) {
+            headers["Authorization"] = `Bearer ${accessToken}`;
+            console.log('[tRPC Client] 🔑 Added Authorization header');
+          }
+        } catch (error) {
+          console.error('[tRPC Client] ❌ Error reading access token:', error);
+        }
+
+        return headers;
       },
     }),
   ],

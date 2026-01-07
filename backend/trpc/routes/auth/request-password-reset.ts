@@ -2,6 +2,7 @@ import { publicProcedure } from "../../create-context";
 import { z } from "zod";
 import { supabase } from "../../../../lib/supabase";
 import { sendPasswordResetEmail, generateVerificationCode } from "../../../lib/email";
+import { authRateLimit } from "../../middleware/rate-limit";
 
 const requestPasswordResetInputSchema = z.object({
   email: z.string().email(),
@@ -13,6 +14,7 @@ const requestPasswordResetResponseSchema = z.object({
 });
 
 export const requestPasswordResetProcedure = publicProcedure
+  .use(authRateLimit)
   .input(requestPasswordResetInputSchema)
   .output(requestPasswordResetResponseSchema)
   .mutation(async ({ input }) => {

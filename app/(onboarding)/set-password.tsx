@@ -39,13 +39,12 @@ export default function SetPasswordScreen() {
 
     try {
       await setPasswordMutation.mutateAsync({
-        userId,
         password,
       });
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      await setUserSession(userId, email);
+      // User session and tokens should already be set from email verification
       await completeOnboarding();
 
       router.replace('/(tabs)');

@@ -1,7 +1,8 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
 import { makeStorybook } from "../../../lib/story.js";
 import { saveStorybookRecord } from "../../../lib/persist.js";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
 
 const pageSchema = z.object({
   text: z.string(),
@@ -14,17 +15,18 @@ const storybookInputSchema = z.object({
   lang: z.enum(["tr", "en"]).default("tr"),
   makePdf: z.boolean().default(true),
   makeTts: z.boolean().default(true),
-  user_id: z.string().nullable().optional(),
 });
 
-export const createStorybookProcedure = publicProcedure
+export const createStorybookProcedure = protectedProcedure
+  .use(authenticatedAiRateLimit)
   .input(storybookInputSchema)
-  .mutation(async ({ input }: { input: z.infer<typeof storybookInputSchema> }) => {
-    console.log("[Storybook] Creating storybook:", input.title);
+  .mutation(async ({ ctx, input }: { ctx: any, input: z.infer<typeof storybookInputSchema> }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[Storybook] Creating storybook:", input.title, "for user:", userId);
 
     const out = await makeStorybook(input);
     const record = await saveStorybookRecord(
-      input.user_id ?? null,
+      userId,
       input.title,
       out.pages,
       out.pdf_url ?? null,

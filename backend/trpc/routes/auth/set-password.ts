@@ -1,11 +1,10 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { supabase } from "../../../../lib/supabase";
+import { getSecureClient } from "../../../lib/supabase-secure";
 import { hashPassword, validatePasswordStrength } from "../../../lib/password";
 import { TRPCError } from "@trpc/server";
 
 const setPasswordInputSchema = z.object({
-  userId: z.string(),
   password: z.string().min(6),
 });
 
@@ -14,11 +13,14 @@ const setPasswordResponseSchema = z.object({
   message: z.string(),
 });
 
-export const setPasswordProcedure = publicProcedure
+export const setPasswordProcedure = protectedProcedure
   .input(setPasswordInputSchema)
   .output(setPasswordResponseSchema)
-  .mutation(async ({ input }) => {
-    console.log("[Auth] 🔐 Setting password for user:", input.userId);
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[Auth] 🔐 Setting password for user:", userId);
+
+    const supabase = getSecureClient(ctx);
 
     try {
       // Validate password strength
@@ -41,7 +43,7 @@ export const setPasswordProcedure = publicProcedure
           password_reset_required: false,
           last_password_change: new Date().toISOString(),
         })
-        .eq('id', input.userId);
+        .eq('id', userId);
 
       if (error) {
         throw new Error(`Failed to set password: ${error.message}`);

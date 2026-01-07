@@ -48,7 +48,7 @@ export default function ColoringHistoryScreen() {
     isLoading,
     refetch,
   } = trpc.studio.listColorings.useQuery(
-    { user_id: user?.userId || null },
+    undefined,
     { enabled: !!user?.userId }
   );
 

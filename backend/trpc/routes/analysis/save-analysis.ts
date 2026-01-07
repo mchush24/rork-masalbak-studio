@@ -1,11 +1,8 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
-
-
+import { getSecureClient } from "../../../lib/supabase-secure";
 
 const saveAnalysisInputSchema = z.object({
-  userId: z.string().uuid(),
   taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
   childAge: z.number().optional(),
   childName: z.string().optional(),
@@ -20,15 +17,18 @@ const saveAnalysisInputSchema = z.object({
   language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
 });
 
-export const saveAnalysisProcedure = publicProcedure
+export const saveAnalysisProcedure = protectedProcedure
   .input(saveAnalysisInputSchema)
-  .mutation(async ({ input }) => {
-    console.log("[saveAnalysis] Saving analysis for user:", input.userId);
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[saveAnalysis] Saving analysis for user:", userId);
+
+    const supabase = getSecureClient(ctx);
 
     const { data, error } = await supabase
       .from("analyses")
       .insert({
-        user_id: input.userId,
+        user_id: userId,
         task_type: input.taskType,
         child_age: input.childAge,
         child_name: input.childName,

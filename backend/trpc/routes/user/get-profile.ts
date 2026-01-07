@@ -1,28 +1,18 @@
-import { publicProcedure } from "../../create-context";
-import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
+import { protectedProcedure } from "../../create-context";
+import { getSecureClient } from "../../../lib/supabase-secure";
 
-const getProfileInputSchema = z.object({
-  userId: z.string().uuid().optional(),
-  email: z.string().email().optional(),
-});
+export const getProfileProcedure = protectedProcedure
+  .query(async ({ ctx }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[getProfile] Fetching profile:", userId);
 
-export const getProfileProcedure = publicProcedure
-  .input(getProfileInputSchema)
-  .query(async ({ input }) => {
-    console.log("[getProfile] Fetching profile:", input);
+    const supabase = getSecureClient(ctx);
 
-    let query = supabase.from("users").select("*");
-
-    if (input.userId) {
-      query = query.eq("id", input.userId);
-    } else if (input.email) {
-      query = query.eq("email", input.email);
-    } else {
-      throw new Error("Either userId or email must be provided");
-    }
-
-    const { data, error } = await query.single();
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
 
     if (error) {
       console.error("[getProfile] Error:", error);

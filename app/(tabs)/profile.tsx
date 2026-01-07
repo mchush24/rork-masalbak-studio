@@ -60,13 +60,13 @@ export default function ProfileScreen() {
 
   // Fetch user stats from backend
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = trpc.user.getUserStats.useQuery(
-    { userId: user?.userId || '' },
+    undefined,
     { enabled: !!user?.userId, refetchOnMount: true }
   );
 
   // Fetch user settings
   const { data: userSettings, refetch: refetchSettings } = trpc.user.getSettings.useQuery(
-    { userId: user?.userId || '' },
+    undefined,
     { enabled: !!user?.userId }
   );
 
@@ -95,7 +95,6 @@ export default function ProfileScreen() {
 
       // Update backend
       await updateSettingsMutation.mutateAsync({
-        userId: user?.userId || '',
         language: selectedLang,
       });
       await refetchSettings();
@@ -135,7 +134,6 @@ export default function ProfileScreen() {
   const handleAvatarChange = async (avatarId: string) => {
     try {
       await updateProfileMutation.mutateAsync({
-        userId: user?.userId || '',
         avatarUrl: avatarId, // Using avatarUrl field to store avatarId for now
       });
       await refreshUserFromBackend();
@@ -159,7 +157,6 @@ export default function ProfileScreen() {
 
     try {
       await updateProfileMutation.mutateAsync({
-        userId: user?.userId || '',
         name: editName.trim(),
       });
       setShowProfileModal(false);
@@ -174,7 +171,6 @@ export default function ProfileScreen() {
   const handleSettingToggle = async (setting: string, value: any) => {
     try {
       await updateSettingsMutation.mutateAsync({
-        userId: user?.userId || '',
         [setting]: value,
       });
       await refetchSettings();
@@ -205,7 +201,6 @@ export default function ProfileScreen() {
       };
 
       await updateProfileMutation.mutateAsync({
-        userId: user?.userId || '',
         children: [...currentChildren, newChild],
       });
 
@@ -227,7 +222,6 @@ export default function ProfileScreen() {
       const newChildren = currentChildren.filter((_: any, i: number) => i !== index);
 
       await updateProfileMutation.mutateAsync({
-        userId: user?.userId || '',
         children: newChildren,
       });
 

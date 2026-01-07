@@ -1,8 +1,7 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
-
-
+import { getSecureClient } from "../../../lib/supabase-secure";
+import { TRPCError } from "@trpc/server";
 
 const updateAnalysisInputSchema = z.object({
   analysisId: z.string().uuid(),
@@ -12,10 +11,13 @@ const updateAnalysisInputSchema = z.object({
   childName: z.string().optional(),
 });
 
-export const updateAnalysisProcedure = publicProcedure
+export const updateAnalysisProcedure = protectedProcedure
   .input(updateAnalysisInputSchema)
-  .mutation(async ({ input }) => {
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
     console.log("[updateAnalysis] Updating analysis:", input.analysisId);
+
+    const supabase = getSecureClient(ctx);
 
     const { analysisId, ...updates } = input;
 
@@ -33,10 +35,17 @@ export const updateAnalysisProcedure = publicProcedure
       .from("analyses")
       .update(updateData)
       .eq("id", analysisId)
+      .eq("user_id", userId) // SECURITY: Verify ownership
       .select()
       .single();
 
     if (error) {
+      if (error.code === "PGRST116") {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Analiz bulunamadı veya güncelleme yetkiniz yok",
+        });
+      }
       console.error("[updateAnalysis] Error:", error);
       throw new Error(error.message);
     }

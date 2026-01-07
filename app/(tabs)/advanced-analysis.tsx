@@ -244,7 +244,6 @@ export default function AdvancedAnalysisScreen() {
           const startTime = Date.now();
 
           const savedAnalysis = await saveAnalysisMutation.mutateAsync({
-            userId: user.userId,
             taskType: task,
             childAge: Number(age),
             childName: undefined, // Can be added later

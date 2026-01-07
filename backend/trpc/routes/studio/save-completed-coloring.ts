@@ -5,21 +5,23 @@
  */
 
 import { z } from "zod";
-import { publicProcedure } from "../../create-context";
-import { supa as supabase } from "../../../lib/supabase.js";
+import { protectedProcedure } from "../../create-context";
+import { getSecureClient } from "../../../lib/supabase-secure";
 
-export const saveCompletedColoringProcedure = publicProcedure
+export const saveCompletedColoringProcedure = protectedProcedure
   .input(
     z.object({
-      userId: z.string().uuid(),
       coloringId: z.string().uuid(),
       completedImageData: z.string(), // Base64 image data with data:image/png;base64, prefix
     })
   )
-  .mutation(async ({ input }) => {
-    const { userId, coloringId, completedImageData } = input;
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    const { coloringId, completedImageData } = input;
 
     console.log(`[SaveCompletedColoring] User ${userId} saving coloring ${coloringId}`);
+
+    const supabase = getSecureClient(ctx);
 
     // 1. Verify the coloring belongs to this user
     const { data: coloring, error: fetchError } = await supabase

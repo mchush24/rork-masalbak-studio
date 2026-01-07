@@ -71,7 +71,6 @@ export default function HomeScreen() {
     refetch: refetchAnalyses,
   } = trpc.analysis.list.useQuery(
     {
-      userId: user?.userId || "",
       limit: 3,
       offset: 0,
       sortBy: "created_at",
@@ -85,7 +84,7 @@ export default function HomeScreen() {
     data: userStats,
     refetch: refetchStats,
   } = trpc.user.getUserStats.useQuery(
-    { userId: user?.userId || "" },
+    undefined,
     { enabled: !!user?.userId }
   );
 

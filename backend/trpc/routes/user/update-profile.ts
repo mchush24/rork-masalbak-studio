@@ -1,6 +1,6 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
+import { getSecureClient } from "../../../lib/supabase-secure";
 
 
 
@@ -13,7 +13,6 @@ const childSchema = z.object({
 });
 
 const updateProfileInputSchema = z.object({
-  userId: z.string().uuid(),
   name: z.string().optional(),
   avatarUrl: z.string().optional(), // Can be avatar ID or URL
   language: z.enum(["tr", "en", "de", "ru"]).optional(),
@@ -21,12 +20,15 @@ const updateProfileInputSchema = z.object({
   preferences: z.record(z.string(), z.any()).optional(),
 });
 
-export const updateProfileProcedure = publicProcedure
+export const updateProfileProcedure = protectedProcedure
   .input(updateProfileInputSchema)
-  .mutation(async ({ input }) => {
-    console.log("[updateProfile] Updating profile:", input.userId);
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[updateProfile] Updating profile:", userId);
 
-    const { userId, ...updates } = input;
+    const supabase = getSecureClient(ctx);
+
+    const updates = input;
 
     // Prepare update object
     const updateData: any = {

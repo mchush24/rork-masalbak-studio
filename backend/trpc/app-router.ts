@@ -4,6 +4,8 @@ import { createStorybookProcedure } from "./routes/studio/create-storybook";
 import { generateColoringPDFProcedure } from "./routes/studio/generate-coloring-pdf";
 import { generateColoringFromDrawingProcedure } from "./routes/studio/generate-coloring-from-drawing";
 import { listStorybooksProcedure, listColoringsProcedure, deleteStorybookProcedure, deleteColoringProcedure } from "./routes/studio/list-history";
+import { getStorybookProcedure } from "./routes/studio/get-storybook";
+import { getColoringProcedure } from "./routes/studio/get-coloring";
 import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing";
 import { generateStoryFromDrawingProcedure } from "./routes/studio/generate-story-from-drawing";
 import { suggestStoryThemesProcedure } from "./routes/studio/suggest-story-themes";
@@ -21,6 +23,10 @@ import { updateProfileProcedure } from "./routes/user/update-profile";
 import { getUserStatsProcedure } from "./routes/user/get-user-stats";
 import { getSettingsProcedure } from "./routes/user/get-settings";
 import { updateSettingsProcedure } from "./routes/user/update-settings";
+import { getChildrenProcedure } from "./routes/user/get-children";
+import { updateChildrenProcedure } from "./routes/user/update-children";
+import { deleteAccountProcedure } from "./routes/user/delete-account";
+import { exportDataProcedure } from "./routes/user/export-data";
 import { saveAnalysisProcedure } from "./routes/analysis/save-analysis";
 import { listAnalysesProcedure } from "./routes/analysis/list-analyses";
 import { getAnalysisProcedure } from "./routes/analysis/get-analysis";
@@ -47,6 +53,10 @@ export const appRouter = createTRPCRouter({
     getUserStats: getUserStatsProcedure,
     getSettings: getSettingsProcedure,
     updateSettings: updateSettingsProcedure,
+    getChildren: getChildrenProcedure,
+    updateChildren: updateChildrenProcedure,
+    deleteAccount: deleteAccountProcedure,
+    exportData: exportDataProcedure,
   }),
   analysis: createTRPCRouter({
     save: saveAnalysisProcedure,
@@ -62,6 +72,8 @@ export const appRouter = createTRPCRouter({
     generateStoryFromDrawing: generateStoryFromDrawingProcedure,
     listStorybooks: listStorybooksProcedure,
     listColorings: listColoringsProcedure,
+    getStorybook: getStorybookProcedure,
+    getColoring: getColoringProcedure,
     deleteStorybook: deleteStorybookProcedure,
     deleteColoring: deleteColoringProcedure,
     saveCompletedColoring: saveCompletedColoringProcedure,

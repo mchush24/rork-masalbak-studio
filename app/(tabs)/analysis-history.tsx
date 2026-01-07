@@ -74,7 +74,6 @@ export default function AnalysisHistoryScreen() {
     refetch,
   } = trpc.analysis.list.useQuery(
     {
-      userId: user?.userId || "",
       limit: 50,
       offset: 0,
       favoritedOnly: filterFavorites || undefined,

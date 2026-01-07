@@ -1,6 +1,7 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
 import { supabase } from "../../../../lib/supabase";
+import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt";
 
 const verifyEmailInputSchema = z.object({
   email: z.string().email(),
@@ -11,6 +12,8 @@ const verifyEmailResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   userId: z.string().optional(),
+  accessToken: z.string().optional(),
+  refreshToken: z.string().optional(),
 });
 
 export const verifyEmailProcedure = publicProcedure
@@ -71,17 +74,30 @@ export const verifyEmailProcedure = publicProcedure
 
       console.log("[Auth] ✅ Email verified successfully:", input.email);
 
-      // Get user ID for frontend
+      // Get user for token generation
       const { data: user } = await supabase
         .from('users')
-        .select('id')
+        .select('id, email')
         .eq('email', input.email)
         .single();
+
+      if (!user) {
+        throw new Error("User not found after verification");
+      }
+
+      // Generate JWT tokens
+      const tokenPayload = { userId: user.id, email: user.email };
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
+
+      console.log("[Auth] 🔑 Generated JWT tokens for user:", user.id);
 
       return {
         success: true,
         message: "Email adresiniz başarıyla doğrulandı!",
-        userId: user?.id,
+        userId: user.id,
+        accessToken,
+        refreshToken,
       };
     } catch (error) {
       console.error("[Auth] ❌ Verification error:", error);

@@ -8,6 +8,7 @@ import {
   Dimensions,
   Share,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,33 +26,9 @@ import {
 import { spacing, borderRadius, typography, shadows } from '@/lib/design-tokens';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import { AnalysisShareCard } from '@/components/AnalysisShareCard';
+import { trpc } from '@/lib/trpc';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Mock data - gerçekte tRPC'den gelecek
-const MOCK_ANALYSIS = {
-  id: '1',
-  title: 'Analiz Sonuçları',
-  date: '11 Aralık 2025',
-  taskType: 'DAP',
-  summary: 'Çocuğun genel ruh hali olumlu',
-  emotionalIndicators: [
-    { label: 'Mutluluk', value: 85, color: '#7ED99C' },
-    { label: 'Güven', value: 70, color: '#FFD56B' },
-    { label: 'Yaratıcılık', value: 90, color: '#A78BFA' },
-    { label: 'Sosyallik', value: 75, color: '#78C8E8' },
-  ],
-  insights: [
-    'Çocuğunuz çiziminde parlak renkler kullanmış, bu olumlu duygusal durumu gösteriyor.',
-    'Figürlerin dengeli yerleşimi iyi bir benlik algısına işaret ediyor.',
-    'Detaylı çizimler, dikkat ve konsantrasyon becerisinin geliştiğini gösteriyor.',
-  ],
-  recommendations: [
-    'Yaratıcı aktivitelere devam edin',
-    'Sosyal etkileşimleri destekleyin',
-    'Pozitif geri bildirim vermeye devam edin',
-  ],
-};
 
 export default function AnalysisResultScreen() {
   const router = useRouter();
@@ -59,19 +36,47 @@ export default function AnalysisResultScreen() {
   const { isSmallScreen, screenPadding } = useResponsive();
   const [isFavorited, setIsFavorited] = useState(false);
 
+  // Get analysis ID from params
+  const analysisId = params.id as string;
+
+  // Fetch analysis from backend
+  const { data: analysisData, isLoading, error } = trpc.analysis.get.useQuery(
+    { analysisId },
+    { enabled: !!analysisId }
+  );
+
+  // Update favorite mutation
+  const updateAnalysisMutation = trpc.analysis.update.useMutation();
+
   const handleBack = () => {
     router.back();
   };
 
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
-    // TODO: tRPC mutation to toggle favorite
+  const handleFavorite = async () => {
+    if (!analysisData) return;
+
+    const newFavoritedState = !isFavorited;
+    setIsFavorited(newFavoritedState);
+
+    try {
+      await updateAnalysisMutation.mutateAsync({
+        analysisId: analysisData.id,
+        favorited: newFavoritedState,
+      });
+    } catch (error) {
+      console.error('Failed to update favorite:', error);
+      setIsFavorited(!newFavoritedState); // Revert on error
+      Alert.alert('Hata', 'Favori güncellenemedi');
+    }
   };
 
   const handleShare = async () => {
+    if (!analysisData) return;
+
     try {
+      const summary = analysisData.analysis_result?.insights?.[0]?.summary || 'Analiz tamamlandı';
       await Share.share({
-        message: `RenkiOO Analiz Sonuçları\n\n${MOCK_ANALYSIS.summary}\n\nDetaylar için uygulamayı indirin!`,
+        message: `RenkiOO Analiz Sonuçları\n\n${summary}\n\nDetaylar için uygulamayı indirin!`,
         title: 'Analiz Sonuçları',
       });
     } catch (error) {
@@ -85,9 +90,72 @@ export default function AnalysisResultScreen() {
   };
 
   const handleSave = () => {
-    Alert.alert('Kaydedildi', 'Analiz sonuçları kaydedildi!');
-    // TODO: tRPC mutation to save
+    // Analysis is already saved in backend
+    Alert.alert('Bilgi', 'Analiz zaten kaydedildi!');
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <LinearGradient
+        colors={['#1A2332', '#2E3F5C', '#3D5A80']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="white" />
+            <Text style={styles.loadingText}>Analiz yükleniyor...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Error state
+  if (error || !analysisData) {
+    return (
+      <LinearGradient
+        colors={['#1A2332', '#2E3F5C', '#3D5A80']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>Analiz bulunamadı</Text>
+            <Pressable onPress={handleBack} style={styles.backToHomeButton}>
+              <Text style={styles.backToHomeText}>Geri Dön</Text>
+            </Pressable>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Extract data from analysisData
+  const analysisResult = analysisData.analysis_result || {};
+  const insights = analysisResult.insights || [];
+  const homeTips = analysisResult.homeTips || [];
+  const formattedDate = new Date(analysisData.created_at).toLocaleDateString('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  // Calculate emotional indicators from insights
+  const emotionalIndicators = insights.slice(0, 4).map((insight: any, index: number) => {
+    const colors = ['#7ED99C', '#FFD56B', '#A78BFA', '#78C8E8'];
+    const strengthValue = insight.strength === 'strong' ? 85 : insight.strength === 'moderate' ? 70 : 55;
+    return {
+      label: insight.title || `İçgörü ${index + 1}`,
+      value: strengthValue,
+      color: colors[index % colors.length],
+    };
+  });
+
+  const summary = insights[0]?.summary || 'Analiz tamamlandı';
 
   return (
     <LinearGradient
@@ -117,72 +185,82 @@ export default function AnalysisResultScreen() {
         >
           {/* Title Section */}
           <View style={styles.titleSection}>
-            <Text style={styles.mainTitle}>{MOCK_ANALYSIS.title}</Text>
-            <Text style={styles.dateText}>{MOCK_ANALYSIS.date}</Text>
+            <Text style={styles.mainTitle}>Analiz Sonuçları</Text>
+            <Text style={styles.dateText}>{formattedDate}</Text>
+            <Text style={styles.taskTypeText}>{analysisData.task_type} Testi</Text>
           </View>
 
           {/* Summary Card */}
           <View style={[styles.summaryCard, shadows.lg]}>
-            <Text style={styles.summaryText}>{MOCK_ANALYSIS.summary}</Text>
+            <Text style={styles.summaryText}>{summary}</Text>
           </View>
 
           {/* Emotional Indicators */}
-          <View style={styles.indicatorsSection}>
-            <Text style={styles.sectionTitle}>Duygusal Göstergeler</Text>
-            {MOCK_ANALYSIS.emotionalIndicators.map((indicator, index) => (
-              <View key={index} style={styles.indicatorItem}>
-                <View style={styles.indicatorHeader}>
-                  <Text style={styles.indicatorLabel}>{indicator.label}</Text>
-                  <Text style={styles.indicatorValue}>{indicator.value}%</Text>
+          {emotionalIndicators.length > 0 && (
+            <View style={styles.indicatorsSection}>
+              <Text style={styles.sectionTitle}>Duygusal Göstergeler</Text>
+              {emotionalIndicators.map((indicator: any, index: number) => (
+                <View key={index} style={styles.indicatorItem}>
+                  <View style={styles.indicatorHeader}>
+                    <Text style={styles.indicatorLabel}>{indicator.label}</Text>
+                    <Text style={styles.indicatorValue}>{indicator.value}%</Text>
+                  </View>
+                  <View style={styles.progressBarContainer}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        {
+                          width: `${indicator.value}%`,
+                          backgroundColor: indicator.color,
+                        },
+                      ]}
+                    />
+                  </View>
                 </View>
-                <View style={styles.progressBarContainer}>
-                  <View
-                    style={[
-                      styles.progressBarFill,
-                      {
-                        width: `${indicator.value}%`,
-                        backgroundColor: indicator.color,
-                      },
-                    ]}
-                  />
-                </View>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          )}
 
           {/* Insights Card */}
-          <View style={[styles.insightsCard, shadows.lg]}>
-            <View style={styles.cardHeader}>
-              <Brain size={20} color="#A78BFA" strokeWidth={2} />
-              <Text style={styles.cardTitle}>Gözlemler</Text>
-            </View>
-            {MOCK_ANALYSIS.insights.map((insight, index) => (
-              <View key={index} style={styles.insightItem}>
-                <View style={styles.bulletPoint} />
-                <Text style={styles.insightText}>{insight}</Text>
+          {insights.length > 0 && (
+            <View style={[styles.insightsCard, shadows.lg]}>
+              <View style={styles.cardHeader}>
+                <Brain size={20} color="#A78BFA" strokeWidth={2} />
+                <Text style={styles.cardTitle}>Gözlemler</Text>
               </View>
-            ))}
-          </View>
+              {insights.map((insight: any, index: number) => (
+                <View key={index} style={styles.insightItem}>
+                  <View style={styles.bulletPoint} />
+                  <Text style={styles.insightText}>{insight.summary}</Text>
+                </View>
+              ))}
+            </View>
+          )}
 
           {/* Recommendations Card */}
-          <View style={[styles.insightsCard, shadows.lg, { marginBottom: spacing.xl }]}>
-            <View style={styles.cardHeader}>
-              <Smile size={20} color="#7ED99C" strokeWidth={2} />
-              <Text style={styles.cardTitle}>Öneriler</Text>
-            </View>
-            {MOCK_ANALYSIS.recommendations.map((rec, index) => (
-              <View key={index} style={styles.insightItem}>
-                <View style={[styles.bulletPoint, { backgroundColor: '#7ED99C' }]} />
-                <Text style={styles.insightText}>{rec}</Text>
+          {homeTips.length > 0 && (
+            <View style={[styles.insightsCard, shadows.lg, { marginBottom: spacing.xl }]}>
+              <View style={styles.cardHeader}>
+                <Smile size={20} color="#7ED99C" strokeWidth={2} />
+                <Text style={styles.cardTitle}>Öneriler</Text>
               </View>
-            ))}
-          </View>
+              {homeTips.map((tip: any, index: number) => (
+                <View key={index} style={styles.insightItem}>
+                  <View style={[styles.bulletPoint, { backgroundColor: '#7ED99C' }]} />
+                  <Text style={styles.insightText}>{tip.title}</Text>
+                  {tip.steps?.map((step: string, stepIdx: number) => (
+                    <Text key={stepIdx} style={styles.stepText}>  • {step}</Text>
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
 
           {/* Shareable Card Section */}
           <View style={styles.shareCardSection}>
             <Text style={styles.shareCardTitle}>Paylaş veya Kaydet</Text>
             <AnalysisShareCard
-              summary={MOCK_ANALYSIS.summary}
+              summary={summary}
               mood="happy"
               onSave={handleSave}
             />
@@ -273,6 +351,54 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     color: 'rgba(255, 255, 255, 0.6)',
     fontWeight: '500',
+  },
+  taskTypeText: {
+    fontSize: typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontWeight: '600',
+    marginTop: spacing.xs,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  loadingText: {
+    fontSize: typography.fontSize.base,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.lg,
+    paddingHorizontal: spacing.xl,
+  },
+  errorText: {
+    fontSize: typography.fontSize.lg,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  backToHomeButton: {
+    backgroundColor: 'white',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+  },
+  backToHomeText: {
+    fontSize: typography.fontSize.base,
+    fontWeight: '700',
+    color: '#2E3F5C',
+  },
+  stepText: {
+    fontSize: typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.75)',
+    lineHeight: typography.fontSize.xs * 1.5,
+    marginLeft: spacing.md,
+    marginTop: spacing.xs,
   },
   summaryCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',

@@ -1,22 +1,17 @@
-import { publicProcedure } from "../../create-context";
-import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
+import { protectedProcedure } from "../../create-context";
+import { getSecureClient } from "../../../lib/supabase-secure";
 
+export const getSettingsProcedure = protectedProcedure
+  .query(async ({ ctx }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[getSettings] Fetching settings for user:", userId);
 
-
-const getSettingsInputSchema = z.object({
-  userId: z.string().uuid(),
-});
-
-export const getSettingsProcedure = publicProcedure
-  .input(getSettingsInputSchema)
-  .query(async ({ input }) => {
-    console.log("[getSettings] Fetching settings for user:", input.userId);
+    const supabase = getSecureClient(ctx);
 
     const { data, error } = await supabase
       .from("user_settings")
       .select("*")
-      .eq("user_id", input.userId)
+      .eq("user_id", userId)
       .single();
 
     if (error) {

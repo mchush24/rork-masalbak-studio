@@ -38,4 +38,8 @@ CREATE INDEX IF NOT EXISTS idx_colorings_is_completed
 ON public.colorings(is_completed)
 WHERE is_completed = TRUE;
 
-RAISE NOTICE '✅ Migration completed - Colorings table now supports completed images';
+-- Final message
+DO $$
+BEGIN
+    RAISE NOTICE '✅ Migration completed - Colorings table now supports completed images';
+END$$;

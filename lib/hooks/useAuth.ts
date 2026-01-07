@@ -6,6 +6,8 @@ import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 
 const ONBOARDING_KEY = '@renkioo_onboarding_completed';
 const MANUAL_SESSION_KEY = '@renkioo_manual_session';
+const ACCESS_TOKEN_KEY = '@renkioo_access_token';
+const REFRESH_TOKEN_KEY = '@renkioo_refresh_token';
 
 // Legacy keys for migration
 const LEGACY_ONBOARDING_KEY = '@masalbak_onboarding_completed';
@@ -152,9 +154,7 @@ export function useAuth() {
       console.log('[useAuth] 👤 Supabase user:', supabaseUser.email);
 
       // Fetch user profile from backend
-      const profile = await trpcClient.user.getProfile.query({
-        userId: supabaseUser.id,
-      });
+      const profile = await trpcClient.user.getProfile.query();
 
       if (profile) {
         const userSession: UserSession = {
@@ -240,6 +240,8 @@ export function useAuth() {
       await supabaseSignOut();
       await AsyncStorage.removeItem(ONBOARDING_KEY);
       await AsyncStorage.removeItem(MANUAL_SESSION_KEY);
+      await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
+      await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
 
       setUser(null);
       setSession(null);
@@ -257,9 +259,14 @@ export function useAuth() {
    */
   const completeOnboarding = async () => {
     try {
+      // Call backend endpoint to update database
+      await trpcClient.auth.completeOnboarding.mutate();
+
+      // Update local storage
       await AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(true));
       setHasCompletedOnboarding(true);
-      console.log('[useAuth] ✅ Onboarding completed');
+
+      console.log('[useAuth] ✅ Onboarding completed (backend + local)');
     } catch (error) {
       console.error('[useAuth] ❌ Error completing onboarding:', error);
       throw error;
@@ -275,9 +282,7 @@ export function useAuth() {
     try {
       console.log('[useAuth] 🔄 Refreshing user profile...');
 
-      const profile = await trpcClient.user.getProfile.query({
-        userId: user.userId,
-      });
+      const profile = await trpcClient.user.getProfile.query();
 
       if (profile) {
         const updatedUser: UserSession = {
@@ -327,9 +332,19 @@ export function useAuth() {
   /**
    * Manually set user session (for custom auth flows like email verification)
    */
-  const setUserSession = async (userId: string, email: string, name?: string) => {
+  const setUserSession = async (userId: string, email: string, name?: string, accessToken?: string, refreshToken?: string) => {
     try {
       console.log('[useAuth] 📝 Setting user session manually:', email);
+
+      // Save JWT tokens if provided
+      if (accessToken) {
+        await AsyncStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+        console.log('[useAuth] 🔑 Access token saved');
+      }
+      if (refreshToken) {
+        await AsyncStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        console.log('[useAuth] 🔑 Refresh token saved');
+      }
 
       // Create basic user session
       const userSession: UserSession = {
@@ -341,7 +356,7 @@ export function useAuth() {
       // Refresh from backend to get full profile (triggers session creation)
       let finalSession = userSession;
       try {
-        const profile = await trpcClient.user.getProfile.query({ userId });
+        const profile = await trpcClient.user.getProfile.query();
         if (profile) {
           finalSession = {
             userId: profile.id,

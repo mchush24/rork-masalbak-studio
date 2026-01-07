@@ -1,9 +1,10 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
 import OpenAI from "openai";
 import * as fal from "@fal-ai/serverless-client";
 import sharp from "sharp";
 import { uploadBuffer } from "../../../lib/supabase.js";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
@@ -55,7 +56,8 @@ async function toLineArt(input: Buffer): Promise<Buffer> {
   }
 }
 
-export const generateColoringFromDrawingProcedure = publicProcedure
+export const generateColoringFromDrawingProcedure = protectedProcedure
+  .use(authenticatedAiRateLimit)
   .input(generateColoringInputSchema)
   .mutation(async ({ input }: { input: z.infer<typeof generateColoringInputSchema> }) => {
     console.log("[Generate Coloring] 🎨 Creating coloring page from child's drawing");

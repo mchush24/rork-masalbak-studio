@@ -1,33 +1,27 @@
-import { publicProcedure } from "../../create-context";
-import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
+import { protectedProcedure } from "../../create-context";
+import { getSecureClient } from "../../../lib/supabase-secure";
 
+export const getUserStatsProcedure = protectedProcedure
+  .query(async ({ ctx }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[getUserStats] Fetching stats for user:", userId);
 
+    const supabase = getSecureClient(ctx);
 
-const getUserStatsInputSchema = z.object({
-  userId: z.string().uuid(),
-});
-
-export const getUserStatsProcedure = publicProcedure
-  .input(getUserStatsInputSchema)
-  .query(async ({ input }) => {
-    console.log("[getUserStats] Fetching stats for user:", input.userId);
-
-    // For now, we'll use the user_id field in storybooks and colorings
-    // Later we'll migrate to user_id_fk
+    // Use user_id_fk for storybooks and colorings (foreign key column)
     const [storybooksResult, coloringsResult, userResult] = await Promise.all([
       supabase
         .from("storybooks")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", input.userId),
+        .eq("user_id_fk", userId),
       supabase
         .from("colorings")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", input.userId),
+        .eq("user_id_fk", userId),
       supabase
         .from("users")
         .select("quota_used, created_at")
-        .eq("id", input.userId)
+        .eq("id", userId)
         .single(),
     ]);
 

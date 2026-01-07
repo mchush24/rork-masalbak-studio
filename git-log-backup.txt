@@ -1,0 +1,87 @@
+3dcb9e9 fix: Implement proper environment variable handling
+452e84c fix: Use Railway URL for web platform
+4c4bd66 fix: Update API URL to Railway in app.json
+ee92691 feat: Major updates - new welcome screen, password & biometric auth, loading animations
+7db4dba fix: Correct storybooks primary key - should only be id
+7cadbaa fix: Safe migration to fix storybooks and colorings schema
+997fcc8 fix: Add v2 migration that handles existing tables
+1219cbb feat: Add database tables for storybooks and colorings
+dfa6ead fix: Fix critical bugs in coloring and story features
+6637274 feat: Add AI-powered story theme suggestions
+ce56e75 fix: Critical bug fixes for coloring and story creation
+ebe2dbd fix: Auto-populate drawing from Hayal Atölyesi navigation
+a181880 feat: Complete redesign of ColoringCanvas with professional UI
+82ff053 fix: Use central Supabase client with SERVICE_ROLE for all routes
+a86f31b feat: Add Sharp line art conversion for coloring pages
+24f996e feat: Add Hayal Atölyesi (Dream Workshop) - unified creation hub
+6ff2620 feat: Add Home Dashboard as main entry point (PHASE 2)
+cfde0da feat: Fix therapeutic flow to stay inline (no redirect)
+cb75dee feat: Add unified History screen with tabbed interface
+bffc202 feat: Add multi-step progress indicator to story generation
+3298d2c CRITICAL FIX: Visual consistency - Pass full character object to image generation
+dcb0ec5 feat: Transform story generation to AI-powered with real scenes
+b63ca38 feat: Add delete storybook/coloring backend (swipe-to-delete prep)
+cf75815 CRITICAL FIX: Stop writing summaries, write REAL SCENES!
+e94bc92 feat: Revolutionary multi-stage story generator V2
+ca969e5 fix: Keep main subject but ultra-simplify it for children
+72cf40e CRITICAL: Force ONLY ONE object for toddler coloring pages
+c1a11b1 fix: Ultra-simplify coloring system for toddlers (ages 2-4)
+065a739 CRITICAL FIX: Text overlay and character consistency
+b0e9d7d feat: Add interactive fill mode to coloring canvas
+a17ba63 feat: Add character consistency and text overlay system
+10047d9 feat: Migrate to user_id_fk foreign key column
+1109fbe fix: Use user_id_fk foreign key column for database operations
+c0fdc36 feat: Switch to Flux.1 for 13x cheaper and more consistent story illustrations
+55444f2 feat: Add therapeutic story system with consistent illustrations and language support
+c8b5d30 fix: Set user session after email verification to fix null user_id
+8e52b4a fix: Return userId from verify-email endpoint instead of frontend Supabase call
+b7686c8 chore: Trigger Railway redeploy with RESEND_API_KEY
+f0bf158 feat: Add detailed logging and resend code functionality for email verification
+fcfc702 feat: Add contextual age picker for first analysis
+6724589 feat: Add first-time user welcome modal with guided onboarding
+657c077 refactor: Streamline registration to email + verification only
+abf87c7 refactor: Move history screens to profile content section
+646bc73 feat: Add email verification to registration flow
+787c2e0 fix: PDF generation bypass sharp library issue and improve story creation
+ed4ff6b fix: Add missing forest gradient and fix Supabase web compatibility
+b0faf21 fix: Add health check endpoint and Railway configuration
+48a0492 feat: Configure mobile app to use Railway production backend
+3590eb8 fix: Add nixpacks.toml to force clean Railway build
+e1033f7 fix: Temporarily disable sharp to fix Railway deployment
+27ba977 fix: Update package-lock.json for lucide-react-native@0.480.0
+99d3073 fix: Add .npmrc with legacy-peer-deps for Railway build compatibility
+104f0ff fix: Update lucide-react-native to support React 19
+23ec96b fix: Update lucide-react-native to support React 19
+fc634d8 feat: Implement Supabase Auth integration - Phase 1
+b009a74 feat: Add coloring history UI with PDF download
+ac81dd0 feat: Add comprehensive analysis history UI screen
+5a6526e feat: Implement comprehensive analysis history system
+468c31b feat: Implement comprehensive user profile management system
+b3f4d92 feat: Integrate advanced analysis with backend and fix image aspect ratios
+ddd2e30 Analiz fonksiyonu eksikliğini düzeltti - idle durumunu çözdü
+e5ca081 feat: Implement comprehensive drawing analysis with child psychology framework
+86d4e50 Analiz ekranında eksik butonlar eklendi ve UI tamamlandı
+3b31fc6 Resolve merge conflict: use tRPC integration for aiClient
+116ae7e feat: Add OpenAI integration with secure tRPC backend
+8720dfc Fix JSON parse error and implement child drawing analysis system
+3ff8e88 New version from Rork
+9bfed2a New version from Rork
+40a9f49 New version from Rork
+4a49e80 Update .env
+f06897f Modify .env file with new environment variables
+d63bd95 New version from Rork
+2a35042 New version from Rork
+6e76297 New version from Rork
+25ab573 New version from Rork
+e514f8a New version from Rork
+ed41faf New version from Rork
+bab2555 New version from Rork
+43f78ba New version from Rork
+c6babb8 New version from Rork
+2510593 New version from Rork
+6343ead Restored to previous version
+d149c1a Refactor tsconfig.json to include ExpoConfig
+43d2c82 Remove OPENAI_API_KEY from app.json
+533dd46 Add OPENAI_API_KEY to app.json
+d4a4aa3 Sync snapshot from Rork
+89f1a65 Initial commit

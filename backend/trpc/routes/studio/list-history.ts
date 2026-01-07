@@ -1,10 +1,6 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { listStorybooks, listColorings, deleteStorybook, deleteColoring } from "../../../lib/persist.js";
-
-const historyInputSchema = z.object({
-  user_id: z.string().nullable().optional(),
-});
+import { getSecureClient } from "../../../lib/supabase-secure";
 
 const deleteStorybookInputSchema = z.object({
   storybookId: z.string().uuid(),
@@ -14,30 +10,88 @@ const deleteColoringInputSchema = z.object({
   coloringId: z.string().uuid(),
 });
 
-export const listStorybooksProcedure = publicProcedure
-  .input(historyInputSchema)
-  .query(async ({ input }: { input: z.infer<typeof historyInputSchema> }) => {
-    console.log("[History] Listing storybooks");
-    return await listStorybooks(input.user_id ?? null);
+export const listStorybooksProcedure = protectedProcedure
+  .query(async ({ ctx }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[History] Listing storybooks for user:", userId);
+
+    const supabase = getSecureClient(ctx);
+
+    const { data, error } = await supabase
+      .from("storybooks")
+      .select("*")
+      .eq("user_id_fk", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[History] Error listing storybooks:", error);
+      throw new Error(error.message);
+    }
+
+    return data || [];
   });
 
-export const listColoringsProcedure = publicProcedure
-  .input(historyInputSchema)
-  .query(async ({ input }: { input: z.infer<typeof historyInputSchema> }) => {
-    console.log("[History] Listing colorings");
-    return await listColorings(input.user_id ?? null);
+export const listColoringsProcedure = protectedProcedure
+  .query(async ({ ctx }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[History] Listing colorings for user:", userId);
+
+    const supabase = getSecureClient(ctx);
+
+    const { data, error } = await supabase
+      .from("colorings")
+      .select("*")
+      .eq("user_id_fk", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[History] Error listing colorings:", error);
+      throw new Error(error.message);
+    }
+
+    return data || [];
   });
 
-export const deleteStorybookProcedure = publicProcedure
+export const deleteStorybookProcedure = protectedProcedure
   .input(deleteStorybookInputSchema)
-  .mutation(async ({ input }: { input: z.infer<typeof deleteStorybookInputSchema> }) => {
-    console.log("[History] Deleting storybook:", input.storybookId);
-    return await deleteStorybook(input.storybookId);
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId;
+    console.log("[History] Deleting storybook:", input.storybookId, "for user:", userId);
+
+    const supabase = getSecureClient(ctx);
+
+    const { error } = await supabase
+      .from("storybooks")
+      .delete()
+      .eq("id", input.storybookId)
+      .eq("user_id_fk", userId);
+
+    if (error) {
+      console.error("[History] Error deleting storybook:", error);
+      throw new Error(error.message);
+    }
+
+    return { success: true };
   });
 
-export const deleteColoringProcedure = publicProcedure
+export const deleteColoringProcedure = protectedProcedure
   .input(deleteColoringInputSchema)
-  .mutation(async ({ input }: { input: z.infer<typeof deleteColoringInputSchema> }) => {
-    console.log("[History] Deleting coloring:", input.coloringId);
-    return await deleteColoring(input.coloringId);
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId;
+    console.log("[History] Deleting coloring:", input.coloringId, "for user:", userId);
+
+    const supabase = getSecureClient(ctx);
+
+    const { error } = await supabase
+      .from("colorings")
+      .delete()
+      .eq("id", input.coloringId)
+      .eq("user_id_fk", userId);
+
+    if (error) {
+      console.error("[History] Error deleting coloring:", error);
+      throw new Error(error.message);
+    }
+
+    return { success: true };
   });

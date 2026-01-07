@@ -1,6 +1,7 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
 import OpenAI from "openai";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -17,7 +18,8 @@ type ThemeSuggestion = {
   emoji: string;
 };
 
-export const suggestStoryThemesProcedure = publicProcedure
+export const suggestStoryThemesProcedure = protectedProcedure
+  .use(authenticatedAiRateLimit)
   .input(suggestStoryThemesInputSchema)
   .mutation(async ({ input }: { input: z.infer<typeof suggestStoryThemesInputSchema> }) => {
     console.log("[Suggest Story Themes] 🎨 Analyzing drawing for theme suggestions");

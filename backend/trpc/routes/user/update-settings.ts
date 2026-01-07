@@ -1,11 +1,8 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { supa as supabase } from "../../../lib/supabase.js";
-
-
+import { getSecureClient } from "../../../lib/supabase-secure";
 
 const updateSettingsInputSchema = z.object({
-  userId: z.string().uuid(),
   theme: z.enum(["light", "dark", "auto"]).optional(),
   language: z.enum(["tr", "en", "de", "ru"]).optional(),
   notificationsEnabled: z.boolean().optional(),
@@ -20,12 +17,15 @@ const updateSettingsInputSchema = z.object({
   customSettings: z.record(z.string(), z.any()).optional(),
 });
 
-export const updateSettingsProcedure = publicProcedure
+export const updateSettingsProcedure = protectedProcedure
   .input(updateSettingsInputSchema)
-  .mutation(async ({ input }) => {
-    console.log("[updateSettings] Updating settings for user:", input.userId);
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[updateSettings] Updating settings for user:", userId);
 
-    const { userId, ...settings } = input;
+    const supabase = getSecureClient(ctx);
+
+    const settings = input;
 
     // Prepare update object (convert camelCase to snake_case)
     const updateData: any = {

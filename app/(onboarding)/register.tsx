@@ -266,19 +266,17 @@ export default function RegisterScreen() {
         console.log('[Register] ✅ Email verified - completing onboarding');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        // Mark onboarding complete with user ID from backend
-        if (result.userId) {
-          console.log('[Register] 🎯 Marking onboarding complete for user:', result.userId);
-          await completeOnboardingMutation.mutateAsync({
-            userId: result.userId,
-          });
+        // Save JWT tokens and set user session
+        if (result.userId && result.accessToken) {
+          console.log('[Register] 🔑 Saving auth tokens for user:', result.userId);
+          await setUserSession(result.userId, email, undefined, result.accessToken, result.refreshToken);
 
-          // Set user session manually (for custom email verification flow)
-          console.log('[Register] 👤 Setting user session for:', email);
-          await setUserSession(result.userId, email);
+          // Now call protected endpoints (with Authorization header from tRPC client)
+          console.log('[Register] 🎯 Marking onboarding complete');
+          await completeOnboardingMutation.mutateAsync();
         }
 
-        // Mark auth as complete
+        // Mark auth as complete locally
         await completeOnboarding();
 
         console.log('[Register] 🚀 Registration complete');

@@ -153,7 +153,6 @@ export default function StorybookScreen() {
         themes: themes,
         makePdf: true,
         makeTts: false,
-        user_id: null, // TODO: Get from auth context
       });
 
       console.log("[Storybook] ✅ Story generated successfully!");

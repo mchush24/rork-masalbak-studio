@@ -1,7 +1,10 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// Mock environment variable
+// Set test environment variables
+process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing';
 process.env.OPENAI_API_KEY = 'test-api-key';
+process.env.SUPABASE_URL = 'https://test.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE = 'test-service-role-key';
 
 // Mock superjson to avoid ESM issues
 jest.mock('superjson', () => ({

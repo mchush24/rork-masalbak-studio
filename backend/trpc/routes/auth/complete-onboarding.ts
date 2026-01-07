@@ -1,26 +1,24 @@
-import { publicProcedure } from "../../create-context";
+import { protectedProcedure } from "../../create-context";
 import { z } from "zod";
-import { supabase } from "../../../../lib/supabase";
-
-const completeOnboardingInputSchema = z.object({
-  userId: z.string(),
-});
+import { getSecureClient } from "../../../lib/supabase-secure";
 
 const completeOnboardingResponseSchema = z.object({
   success: z.boolean(),
 });
 
-export const completeOnboardingProcedure = publicProcedure
-  .input(completeOnboardingInputSchema)
+export const completeOnboardingProcedure = protectedProcedure
   .output(completeOnboardingResponseSchema)
-  .mutation(async ({ input }) => {
-    console.log("[Auth] ✅ Completing onboarding for user:", input.userId);
+  .mutation(async ({ ctx }) => {
+    const userId = ctx.userId; // Get from authenticated context
+    console.log("[Auth] ✅ Completing onboarding for user:", userId);
+
+    const supabase = getSecureClient(ctx);
 
     try {
       const { error } = await supabase
         .from('users')
         .update({ onboarding_completed: true })
-        .eq('id', input.userId);
+        .eq('id', userId);
 
       if (error) {
         console.error("[Auth] ❌ Error completing onboarding:", error);

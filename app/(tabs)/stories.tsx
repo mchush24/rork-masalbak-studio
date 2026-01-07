@@ -118,7 +118,7 @@ export default function StoriesScreen() {
     error,
     refetch,
   } = trpc.studio.listStorybooks.useQuery(
-    { user_id: user?.userId || null },
+    undefined,
     {
       refetchOnMount: true,
       refetchOnWindowFocus: false,
@@ -349,7 +349,6 @@ export default function StoriesScreen() {
           lang: userLang,
           makePdf: true,
           makeTts: false, // ❌ TTS kapalı (maliyet + süre)
-          user_id: user?.userId || null,
         });
 
         // Step 4: Finalize
@@ -421,7 +420,6 @@ export default function StoriesScreen() {
           useV2Generator: true, // Use the advanced generator with few-shot examples!
           makePdf: true,
           makeTts: false, // ❌ TTS kapalı (maliyet + süre)
-          user_id: user?.userId || null,
         });
 
         console.log('[Stories] ✅ AI story generated!', {

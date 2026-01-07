@@ -3,6 +3,7 @@ import { z } from "zod";
 import { supabase } from "../../../../lib/supabase";
 import { sendVerificationEmail, generateVerificationCode } from "../../../lib/email";
 import { hashPassword, validatePasswordStrength } from "../../../lib/password";
+import { authRateLimit } from "../../middleware/rate-limit";
 
 const registerInputSchema = z.object({
   email: z.string().email(),
@@ -18,6 +19,7 @@ const registerResponseSchema = z.object({
 });
 
 export const registerProcedure = publicProcedure
+  .use(authRateLimit)
   .input(registerInputSchema)
   .output(registerResponseSchema)
   .mutation(async ({ input }) => {

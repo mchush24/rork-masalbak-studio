@@ -1,10 +1,11 @@
-import { publicProcedure } from "../../create-context.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import { generateStoryFromAnalysis } from "../../../lib/generate-story-from-analysis.js";
 import { generateStoryFromAnalysisV2 } from "../../../lib/generate-story-from-analysis-v2.js";
 import { makeStorybook } from "../../../lib/story.js";
 import { saveStorybookRecord } from "../../../lib/persist.js";
 import type { AnalysisResponse } from "./analyze-drawing.js";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
 
 const generateStoryInputSchema = z.object({
   // Drawing analysis data
@@ -26,9 +27,6 @@ const generateStoryInputSchema = z.object({
   // Generation options
   makePdf: z.boolean().default(true),
   makeTts: z.boolean().default(false),
-
-  // User ID
-  user_id: z.string().nullable().optional(),
 });
 
 /**
@@ -42,9 +40,11 @@ const generateStoryInputSchema = z.object({
  * 5. Optionally generate PDF and TTS audio
  * 6. Save to database
  */
-export const generateStoryFromDrawingProcedure = publicProcedure
+export const generateStoryFromDrawingProcedure = protectedProcedure
+  .use(authenticatedAiRateLimit)
   .input(generateStoryInputSchema)
-  .mutation(async ({ input }) => {
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId; // Get from authenticated context
     console.log("[Generate Story] 🎨 Starting storybook generation from drawing");
     console.log("[Generate Story] 👶 Child age:", input.childAge);
     console.log("[Generate Story] 🌍 Language:", input.language);
@@ -107,7 +107,7 @@ export const generateStoryFromDrawingProcedure = publicProcedure
         lang: input.language,
         makePdf: input.makePdf,
         makeTts: input.makeTts,
-        user_id: input.user_id || null,
+        user_id: userId,
         ageGroup: input.childAge,
         characterInfo: characterInfo, // ✅ PASS FULL CHARACTER OBJECT!
       });
@@ -117,7 +117,7 @@ export const generateStoryFromDrawingProcedure = publicProcedure
       // Step 5: Save to database
       console.log("[Generate Story] 💾 Saving to database...");
       const savedRecord = await saveStorybookRecord(
-        input.user_id || null,
+        userId,
         generatedStory.title,
         storybook.pages,
         storybook.pdf_url,

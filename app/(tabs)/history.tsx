@@ -83,7 +83,6 @@ export default function HistoryScreen() {
     refetch: refetchAnalyses,
   } = trpc.analysis.list.useQuery(
     {
-      userId: user?.userId || "",
       limit: 50,
       offset: 0,
       favoritedOnly: filterFavorites || undefined,
@@ -99,7 +98,7 @@ export default function HistoryScreen() {
     isLoading: storiesLoading,
     refetch: refetchStories,
   } = trpc.studio.listStorybooks.useQuery(
-    { user_id: user?.userId || null },
+    undefined,
     { enabled: !!user?.userId && activeTab === TAB_STORIES }
   );
 
@@ -109,7 +108,7 @@ export default function HistoryScreen() {
     isLoading: coloringsLoading,
     refetch: refetchColorings,
   } = trpc.studio.listColorings.useQuery(
-    { user_id: user?.userId || null },
+    undefined,
     { enabled: !!user?.userId && activeTab === TAB_COLORINGS }
   );
 
@@ -118,6 +117,7 @@ export default function HistoryScreen() {
   const deleteAnalysisMutation = trpc.analysis.delete.useMutation();
   const deleteStorybookMutation = trpc.studio.deleteStorybook.useMutation();
   const deleteColoringMutation = trpc.studio.deleteColoring.useMutation();
+  const generateColoringPDFMutation = trpc.studio.generateColoringPDF.useMutation();
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -213,11 +213,57 @@ export default function HistoryScreen() {
   };
 
   // Coloring Handlers
-  const handleDownloadPDF = async (pdfUrl: string, title: string) => {
+  const handleDownloadPDF = async (coloring: any) => {
     try {
-      const supported = await Linking.canOpenURL(pdfUrl);
+      let pdfUrlToOpen = coloring.pdf_url;
+
+      // If PDF doesn't exist, generate it first
+      if (!pdfUrlToOpen || pdfUrlToOpen.trim() === "") {
+        Alert.alert(
+          "PDF Oluşturuluyor",
+          "PDF dosyası henüz oluşturulmamış. Şimdi oluşturulacak, biraz zaman alabilir.",
+          [
+            { text: "İptal", style: "cancel" },
+            {
+              text: "Oluştur",
+              onPress: async () => {
+                try {
+                  // Show loading indicator
+                  Alert.alert("Lütfen Bekleyin", "PDF oluşturuluyor...");
+
+                  const result = await generateColoringPDFMutation.mutateAsync({
+                    pages: [coloring.coloring_image_url],
+                    title: coloring.title || "Boyama Sayfası",
+                    size: "A4",
+                  });
+
+                  pdfUrlToOpen = result.pdf_url;
+
+                  // Refresh colorings list to show updated PDF URL
+                  await refetchColorings();
+
+                  // Open the newly generated PDF
+                  const supported = await Linking.canOpenURL(pdfUrlToOpen);
+                  if (supported) {
+                    await Linking.openURL(pdfUrlToOpen);
+                  } else {
+                    Alert.alert("Başarılı", "PDF oluşturuldu ancak otomatik açılamadı. Lütfen geçmişten tekrar deneyin.");
+                  }
+                } catch (error: any) {
+                  console.error("PDF generation error:", error);
+                  Alert.alert("Hata", error.message || "PDF oluşturulamadı");
+                }
+              },
+            },
+          ]
+        );
+        return;
+      }
+
+      // PDF already exists, open it directly
+      const supported = await Linking.canOpenURL(pdfUrlToOpen);
       if (supported) {
-        await Linking.openURL(pdfUrl);
+        await Linking.openURL(pdfUrlToOpen);
       } else {
         Alert.alert("Hata", "PDF açılamadı");
       }
@@ -556,14 +602,23 @@ export default function HistoryScreen() {
 
                           <Pressable
                             style={({ pressed }) => [styles.downloadButton, pressed && { opacity: 0.7 }]}
-                            onPress={() => handleDownloadPDF(coloring.pdf_url, coloring.title)}
+                            onPress={() => handleDownloadPDF(coloring)}
+                            disabled={generateColoringPDFMutation.isPending}
                           >
                             <LinearGradient
                               colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
                               style={styles.downloadButtonGradient}
                             >
-                              <Download size={16} color={Colors.neutral.white} />
-                              <Text style={styles.downloadButtonText}>İndir</Text>
+                              {generateColoringPDFMutation.isPending ? (
+                                <ActivityIndicator size="small" color={Colors.neutral.white} />
+                              ) : (
+                                <>
+                                  <Download size={16} color={Colors.neutral.white} />
+                                  <Text style={styles.downloadButtonText}>
+                                    {coloring.pdf_url ? "İndir" : "PDF Oluştur"}
+                                  </Text>
+                                </>
+                              )}
                             </LinearGradient>
                           </Pressable>
                         </View>

@@ -114,7 +114,7 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
   const getGradientColors = () => {
     switch (type) {
       case 'drawing':
-        return colors.gradients.playful; // Rainbow colors
+        return colors.gradients.creative; // Creative colors (pink-purple)
       case 'painting':
         return colors.gradients.scientific; // Blue-purple
       case 'story':
@@ -377,7 +377,7 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={getGradientColors()}
+        colors={getGradientColors() as any}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}

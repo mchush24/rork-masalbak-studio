@@ -12,6 +12,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^(\\.{1,2}/.*)\\.js$': '$1', // Map .js imports to .ts files
   },
   transform: {
     '^.+\\.tsx?$': [

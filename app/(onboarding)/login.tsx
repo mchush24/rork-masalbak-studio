@@ -113,7 +113,6 @@ export default function LoginScreen() {
 
       if (enrolled) {
         await updateBiometricMutation.mutateAsync({
-          userId: result.userId,
           enabled: true,
         });
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
