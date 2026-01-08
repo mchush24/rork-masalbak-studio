@@ -604,9 +604,9 @@ function EmailStepNew({
           }}
         >
           {isLoading
-            ? 'Kod Gönderiliyor...'
+            ? 'Kontrol Ediliyor...'
             : isLoginMode
-              ? 'Giriş Kodu Gönder →'
+              ? 'Giriş Yap →'
               : 'Devam Et →'
           }
         </Text>
