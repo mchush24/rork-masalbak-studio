@@ -54,6 +54,7 @@ export default function RegisterScreen() {
   const completeOnboardingMutation = trpc.auth.completeOnboarding.useMutation();
   const updateBiometricMutation = trpc.auth.updateBiometric.useMutation();
   const loginMutation = trpc.auth.loginWithPassword.useMutation();
+  const checkEmailMutation = trpc.auth.checkEmail.useMutation();
 
   // Animate step transitions
   useEffect(() => {
@@ -127,7 +128,40 @@ export default function RegisterScreen() {
 
     if (currentStep === STEPS.EMAIL) {
       if (validateEmail(email)) {
-        setCurrentStep(STEPS.PASSWORD);
+        // Check if email already exists
+        setIsLoading(true);
+        try {
+          const result = await checkEmailMutation.mutateAsync({ email: email.trim() });
+
+          if (result.exists && result.hasPassword) {
+            // User already registered with password - redirect to login
+            console.log('[Register] 📧 User already exists - redirecting to login');
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            Alert.alert(
+              'Hesap Mevcut',
+              'Bu email adresi zaten kayıtlı. Giriş sayfasına yönlendiriliyorsunuz.',
+              [
+                {
+                  text: 'Giriş Yap',
+                  onPress: () => router.replace({
+                    pathname: '/(onboarding)/login',
+                    params: { email: email.trim() }
+                  }),
+                },
+              ]
+            );
+            return;
+          }
+
+          // New user or user without password - continue to password step
+          setCurrentStep(STEPS.PASSWORD);
+        } catch (error) {
+          console.error('[Register] ❌ Error checking email:', error);
+          // On error, continue to password step (will be caught later)
+          setCurrentStep(STEPS.PASSWORD);
+        } finally {
+          setIsLoading(false);
+        }
       } else {
         triggerShake();
       }

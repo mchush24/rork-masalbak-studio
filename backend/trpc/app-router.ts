@@ -18,6 +18,7 @@ import { requestPasswordResetProcedure } from "./routes/auth/request-password-re
 import { resetPasswordProcedure } from "./routes/auth/reset-password";
 import { setPasswordProcedure } from "./routes/auth/set-password";
 import { updateBiometricProcedure } from "./routes/auth/update-biometric";
+import { checkEmailProcedure } from "./routes/auth/check-email";
 import { getProfileProcedure } from "./routes/user/get-profile";
 import { updateProfileProcedure } from "./routes/user/update-profile";
 import { getUserStatsProcedure } from "./routes/user/get-user-stats";
@@ -46,6 +47,7 @@ export const appRouter = createTRPCRouter({
     resetPassword: resetPasswordProcedure,
     setPassword: setPasswordProcedure,
     updateBiometric: updateBiometricProcedure,
+    checkEmail: checkEmailProcedure,
   }),
   user: createTRPCRouter({
     getProfile: getProfileProcedure,

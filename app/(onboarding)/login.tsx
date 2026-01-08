@@ -1,6 +1,6 @@
 import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert, Animated, ScrollView, ActivityIndicator } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff } from 'lucide-react-native';
@@ -11,7 +11,8 @@ import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal'
 import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  const params = useLocalSearchParams<{ email?: string }>();
+  const [email, setEmail] = useState(params.email || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
