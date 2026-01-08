@@ -84,8 +84,8 @@ export default function LoginScreen() {
       if (result.success && result.userId) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        // Set session
-        await setUserSession(result.userId, result.email!, result.name);
+        // Set session with tokens
+        await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
         await completeOnboarding();
 
         // Check if should show biometric enrollment

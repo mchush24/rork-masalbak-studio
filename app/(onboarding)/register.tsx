@@ -218,8 +218,8 @@ export default function RegisterScreen() {
         console.log('[Register/Login] ✅ Login successful');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-        // Set session
-        await setUserSession(result.userId, result.email!, result.name);
+        // Set session with tokens
+        await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
         await completeOnboarding();
 
         // Check if should show biometric enrollment

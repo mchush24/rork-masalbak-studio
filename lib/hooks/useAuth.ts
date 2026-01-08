@@ -318,7 +318,7 @@ export function useAuth() {
       });
 
       if (result.success && result.userId) {
-        await setUserSession(result.userId, result.email!, result.name);
+        await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
         return result;
       }
 
