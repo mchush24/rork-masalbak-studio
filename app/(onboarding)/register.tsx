@@ -7,6 +7,7 @@ import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
+import { ExistingUserModal } from '@/components/ExistingUserModal';
 import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
 import { Brain, Palette, BookOpen, Eye, EyeOff } from 'lucide-react-native';
 
@@ -36,6 +37,7 @@ export default function RegisterScreen() {
   const [passwordError, setPasswordError] = useState('');
   const [codeError, setCodeError] = useState('');
   const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [showExistingUserModal, setShowExistingUserModal] = useState(false);
   const [isExistingUser, setIsExistingUser] = useState(false);
 
   const router = useRouter();
@@ -134,15 +136,10 @@ export default function RegisterScreen() {
           const result = await checkEmailMutation.mutateAsync({ email: email.trim() });
 
           if (result.exists && result.hasPassword) {
-            // User already registered with password - redirect to login directly
-            console.log('[Register] 📧 User already exists - redirecting to login');
+            // User already registered with password - show modal
+            console.log('[Register] 📧 User already exists - showing modal');
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-            // Direct redirect to login with pre-filled email
-            router.replace({
-              pathname: '/(onboarding)/login',
-              params: { email: email.trim() }
-            });
+            setShowExistingUserModal(true);
             return;
           }
 
@@ -432,6 +429,20 @@ export default function RegisterScreen() {
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Existing User Modal */}
+      <ExistingUserModal
+        visible={showExistingUserModal}
+        email={email}
+        onLogin={() => {
+          setShowExistingUserModal(false);
+          router.replace({
+            pathname: '/(onboarding)/login',
+            params: { email: email.trim() }
+          });
+        }}
+        onDismiss={() => setShowExistingUserModal(false)}
+      />
     </LinearGradient>
   );
 }
