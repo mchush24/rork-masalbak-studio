@@ -134,22 +134,15 @@ export default function RegisterScreen() {
           const result = await checkEmailMutation.mutateAsync({ email: email.trim() });
 
           if (result.exists && result.hasPassword) {
-            // User already registered with password - redirect to login
+            // User already registered with password - redirect to login directly
             console.log('[Register] 📧 User already exists - redirecting to login');
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            Alert.alert(
-              'Hesap Mevcut',
-              'Bu email adresi zaten kayıtlı. Giriş sayfasına yönlendiriliyorsunuz.',
-              [
-                {
-                  text: 'Giriş Yap',
-                  onPress: () => router.replace({
-                    pathname: '/(onboarding)/login',
-                    params: { email: email.trim() }
-                  }),
-                },
-              ]
-            );
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+            // Direct redirect to login with pre-filled email
+            router.replace({
+              pathname: '/(onboarding)/login',
+              params: { email: email.trim() }
+            });
             return;
           }
 
@@ -604,7 +597,7 @@ function EmailStepNew({
           }}
         >
           {isLoading
-            ? 'Kontrol Ediliyor...'
+            ? '...'
             : isLoginMode
               ? 'Giriş Yap →'
               : 'Devam Et →'
