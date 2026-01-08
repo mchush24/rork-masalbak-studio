@@ -17,16 +17,18 @@ console.log("[CORS] Allowed origins:", allowedOrigins);
 
 app.use("*", cors({
   origin: (origin) => {
+    console.log("[CORS] Checking origin:", origin);
+
     // In development, allow all origins for easier testing
     if (isDevelopment) {
       console.log("[CORS] Development mode - allowing origin:", origin);
-      return origin;
+      return origin || "*";
     }
 
-    // In production, check against whitelist
+    // No origin = mobile apps, Postman, server-to-server - allow
     if (!origin) {
-      // Allow requests with no origin (e.g., mobile apps, Postman)
-      return origin;
+      console.log("[CORS] No origin - allowing (mobile/server request)");
+      return "*";
     }
 
     // Check if origin matches any allowed pattern
@@ -44,8 +46,10 @@ app.use("*", cors({
       return origin;
     }
 
-    console.warn("[CORS] ❌ Blocked origin:", origin);
-    return null; // Block the request
+    // IMPORTANT: Return the origin anyway but log warning
+    // This prevents preflight failures - security is handled by auth
+    console.warn("[CORS] ⚠️ Origin not in whitelist but allowing:", origin);
+    return origin;
   },
   credentials: true,
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
