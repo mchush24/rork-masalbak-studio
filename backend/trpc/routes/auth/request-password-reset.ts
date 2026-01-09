@@ -21,12 +21,18 @@ export const requestPasswordResetProcedure = publicProcedure
     console.log("[Auth] 📧 Password reset requested for:", input.email);
 
     try {
+      // Debug: Check Supabase client
+      console.log("[Auth] 🔍 Supabase client status:", supabase ? 'OK' : 'NULL');
+
       // Check if user exists
       const { data: user, error } = await supabase
         .from('users')
         .select('id, name')
         .eq('email', input.email)
         .single();
+
+      // Debug: Log query result
+      console.log("[Auth] 🔍 Password reset query - error:", error?.message, error?.code, "user:", user ? 'found' : 'null');
 
       // Always return success even if user not found (security)
       if (error || !user) {
