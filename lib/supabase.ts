@@ -20,7 +20,8 @@ const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'u
 // Backend Supabase Client (Service Role - Admin Access)
 // Only initialize in Node.js environment (backend)
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE || '';
+// Support both naming conventions
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '';
 
 // Only create backend client in Node.js environment
 export const supabase = !isBrowser && supabaseUrl && supabaseServiceKey
