@@ -172,6 +172,12 @@ export const colors = {
 
     // Sıcak nötr - Erişilebilir ve profesyonel
     accessible: ['#7B6B5D', '#9D8B7D', '#BFAB9E'],
+
+    // Vibrant - Modern ve enerjik (kayıt/giriş için)
+    vibrant: ['#6366F1', '#8B5CF6', '#A78BFA'],
+
+    // Aurora - Çok renkli dinamik (premium onboarding)
+    aurora: ['#EC4899', '#8B5CF6', '#3B82F6'],
   },
 
   // Opacity variants (beyaz overlay'ler için)

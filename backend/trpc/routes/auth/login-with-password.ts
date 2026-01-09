@@ -31,6 +31,9 @@ export const loginWithPasswordProcedure = publicProcedure
     console.log("[Auth] 🔐 Login attempt:", input.email);
 
     try {
+      // Debug: Check Supabase client
+      console.log("[Auth] 🔍 Supabase client status:", supabase ? 'OK' : 'NULL');
+
       // Get user from database
       const { data: user, error } = await supabase
         .from('users')
@@ -38,8 +41,11 @@ export const loginWithPasswordProcedure = publicProcedure
         .eq('email', input.email)
         .single();
 
+      // Debug: Log query result
+      console.log("[Auth] 🔍 Query result - error:", error?.message, "user:", user ? 'found' : 'null');
+
       if (error || !user) {
-        console.error("[Auth] ❌ User not found:", input.email);
+        console.error("[Auth] ❌ User not found:", input.email, "Error:", error?.message);
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Email veya şifre hatalı',

@@ -18,9 +18,11 @@ function getSecureSupabaseClient(): SupabaseClient {
   if (_secureClient) return _secureClient;
 
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Support both naming conventions
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
 
   if (!url || !key) {
+    console.error('[Supabase] Missing env vars. SUPABASE_URL:', !!url, 'SUPABASE_SERVICE_ROLE:', !!key);
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
 

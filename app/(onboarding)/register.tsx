@@ -9,7 +9,7 @@ import { useBiometric } from '@/lib/hooks/useBiometric';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
 import { ExistingUserModal } from '@/components/ExistingUserModal';
 import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
-import { Brain, Palette, BookOpen, Eye, EyeOff } from 'lucide-react-native';
+import { Brain, Palette, BookOpen, Eye, EyeOff, Mail, Sparkles, Shield, ChartLine, Star, Heart, Zap } from 'lucide-react-native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -335,7 +335,7 @@ export default function RegisterScreen() {
 
   return (
     <LinearGradient
-      colors={colors.gradients.accessible}
+      colors={colors.gradients.vibrant}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -413,7 +413,10 @@ export default function RegisterScreen() {
                 isLoading={isLoading}
                 isExistingUser={isExistingUser}
                 bannerSlideAnim={bannerSlideAnim}
-                onForgotPassword={() => router.push('/(onboarding)/forgot-password')}
+                onForgotPassword={() => router.push({
+                  pathname: '/(onboarding)/forgot-password',
+                  params: email ? { email: email.trim() } : undefined,
+                })}
               />
             )}
             {currentStep === STEPS.VERIFY_CODE && (
@@ -447,7 +450,7 @@ export default function RegisterScreen() {
   );
 }
 
-// New Email Step with inline value props
+// New Email Step with colorful value props
 function EmailStepNew({
   email,
   setEmail,
@@ -470,174 +473,311 @@ function EmailStepNew({
   onRegisterPress: () => void;
 }) {
   const inputRef = useRef<TextInput>(null);
+  const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Auto-focus on mount
     setTimeout(() => inputRef.current?.focus(), 300);
+
+    // Subtle glow animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+      ])
+    ).start();
   }, []);
+
+  // Feature cards with vibrant colors
+  const features = [
+    {
+      icon: Brain,
+      title: 'Bilimsel Analiz',
+      subtitle: 'Uzman onaylı',
+      bgColor: '#EC4899',
+      iconBg: 'rgba(236, 72, 153, 0.2)',
+    },
+    {
+      icon: ChartLine,
+      title: 'Gelişim Takibi',
+      subtitle: 'Detaylı raporlar',
+      bgColor: '#10B981',
+      iconBg: 'rgba(16, 185, 129, 0.2)',
+    },
+    {
+      icon: Shield,
+      title: 'Güvenli Veri',
+      subtitle: 'KVKK uyumlu',
+      bgColor: '#3B82F6',
+      iconBg: 'rgba(59, 130, 246, 0.2)',
+    },
+  ];
 
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
+      {/* Sparkle icon */}
+      <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
+        <View
+          style={{
+            width: isSmallDevice ? 56 : 72,
+            height: isSmallDevice ? 56 : 72,
+            borderRadius: isSmallDevice ? 28 : 36,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: 'rgba(255,255,255,0.3)',
+          }}
+        >
+          <Sparkles size={isSmallDevice ? 28 : 36} color="white" strokeWidth={1.5} />
+        </View>
+      </View>
+
       <Text
         style={{
           fontSize: isSmallDevice ? typography.fontSize.xl : typography.fontSize.xxl,
-          fontWeight: '700',
+          fontWeight: '800',
           color: 'white',
-          marginBottom: spacing.sm,
+          marginBottom: spacing.xs,
           textAlign: 'center',
-          textShadowColor: 'rgba(0,0,0,0.15)',
+          textShadowColor: 'rgba(0,0,0,0.2)',
           textShadowOffset: { width: 0, height: 2 },
-          textShadowRadius: 8,
+          textShadowRadius: 10,
         }}
       >
-        {isLoginMode ? 'Giriş Yap' : 'Hesap Oluşturun'}
+        {isLoginMode ? 'Tekrar Hoş Geldiniz!' : 'Masalbak\'a Hoş Geldiniz!'}
       </Text>
-      <Text style={{ fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: isSmallDevice ? spacing.lg : spacing.xl, textAlign: 'center', fontWeight: '500', textShadowColor: 'rgba(0,0,0,0.08)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }}>
+      <Text
+        style={{
+          fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base,
+          color: 'rgba(255,255,255,0.95)',
+          marginBottom: isSmallDevice ? spacing.lg : spacing.xl,
+          textAlign: 'center',
+          fontWeight: '500',
+          lineHeight: 22,
+        }}
+      >
         {isLoginMode ? 'Email adresinizle devam edin' : 'Çocuğunuzun gelişimini profesyonel olarak takip edin'}
       </Text>
 
-      {/* Value Props - Compact Cards (only show on register, not login) */}
+      {/* Colorful Feature Cards (only show on register, not login) */}
       {!isLoginMode && (
-        <View style={{ marginBottom: isSmallDevice ? spacing.md : spacing.xl, gap: isSmallDevice ? spacing.sm : spacing.md }}>
-          <View style={{ flexDirection: 'row', gap: isSmallDevice ? spacing.sm : spacing.md }}>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.22)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', borderRadius: borderRadius.md, padding: isSmallDevice ? spacing.sm : spacing.md, ...shadows.md }}>
-              <Brain size={isSmallDevice ? 20 : 24} color="white" strokeWidth={1.5} />
-              <Text style={{ fontSize: typography.fontSize.sm, fontWeight: '600', color: 'white', marginTop: spacing.xs, textShadowColor: 'rgba(0,0,0,0.1)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }}>
-                Bilimsel Analiz
-              </Text>
-              {!isSmallDevice && (
-                <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs, fontWeight: '400' }}>
-                  Uzman onaylı
+        <View style={{ marginBottom: isSmallDevice ? spacing.lg : spacing.xl }}>
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            {features.map((feature, index) => (
+              <View
+                key={index}
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  borderRadius: borderRadius.lg,
+                  padding: isSmallDevice ? spacing.sm : spacing.md,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255,255,255,0.25)',
+                  alignItems: 'center',
+                }}
+              >
+                {/* Colorful icon circle */}
+                <View
+                  style={{
+                    width: isSmallDevice ? 36 : 44,
+                    height: isSmallDevice ? 36 : 44,
+                    borderRadius: isSmallDevice ? 18 : 22,
+                    backgroundColor: feature.bgColor,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: spacing.xs,
+                    ...shadows.md,
+                  }}
+                >
+                  <feature.icon size={isSmallDevice ? 18 : 22} color="white" strokeWidth={2} />
+                </View>
+                <Text
+                  style={{
+                    fontSize: isSmallDevice ? 11 : typography.fontSize.xs,
+                    fontWeight: '700',
+                    color: 'white',
+                    textAlign: 'center',
+                    marginBottom: 2,
+                  }}
+                >
+                  {feature.title}
                 </Text>
-              )}
-            </View>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.22)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', borderRadius: borderRadius.md, padding: isSmallDevice ? spacing.sm : spacing.md, ...shadows.md }}>
-              <Palette size={isSmallDevice ? 20 : 24} color="white" strokeWidth={1.5} />
-              <Text style={{ fontSize: typography.fontSize.sm, fontWeight: '600', color: 'white', marginTop: spacing.xs, textShadowColor: 'rgba(0,0,0,0.1)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }}>
-                Gelişim Takibi
-              </Text>
-              {!isSmallDevice && (
-                <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs, fontWeight: '400' }}>
-                  Detaylı raporlar
-                </Text>
-              )}
-            </View>
-          </View>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.22)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', borderRadius: borderRadius.md, padding: isSmallDevice ? spacing.sm : spacing.md, ...shadows.md }}>
-            <BookOpen size={isSmallDevice ? 20 : 24} color="white" strokeWidth={1.5} />
-            <Text style={{ fontSize: typography.fontSize.sm, fontWeight: '600', color: 'white', marginTop: spacing.xs, textShadowColor: 'rgba(0,0,0,0.1)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }}>
-              Güvenli Veri Saklama
-            </Text>
-            {!isSmallDevice && (
-              <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs, fontWeight: '400' }}>
-                KVKK uyumlu sistem
-              </Text>
-            )}
+                {!isSmallDevice && (
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: 'rgba(255,255,255,0.8)',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {feature.subtitle}
+                  </Text>
+                )}
+              </View>
+            ))}
           </View>
         </View>
       )}
 
+      {/* Email Input with icon */}
       <View
         style={{
           backgroundColor: 'white',
-          borderRadius: borderRadius.xl,
-          padding: isSmallDevice ? spacing.sm : spacing.md,
+          borderRadius: borderRadius.xxl,
+          padding: spacing.xs,
           marginBottom: spacing.md,
           ...shadows.lg,
-          borderWidth: emailError ? 3 : 2,
-          borderColor: emailError ? '#EF4444' : 'rgba(255,255,255,0.6)',
+          borderWidth: emailError ? 3 : 0,
+          borderColor: emailError ? '#EF4444' : 'transparent',
         }}
       >
-        <TextInput
-          ref={inputRef}
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            if (emailError) setEmailError('');
-          }}
-          placeholder="Email adresiniz"
-          placeholderTextColor="#9CA3AF"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoComplete="email"
-          style={{
-            fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
-            color: '#1F2937',
-            padding: spacing.sm,
-            fontWeight: '500',
-          }}
-        />
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: '#F3F4F6',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginRight: spacing.sm,
+            }}
+          >
+            <Mail size={20} color="#6366F1" strokeWidth={2} />
+          </View>
+          <TextInput
+            ref={inputRef}
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              if (emailError) setEmailError('');
+            }}
+            placeholder="Email adresiniz"
+            placeholderTextColor="#9CA3AF"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            style={{
+              flex: 1,
+              fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
+              color: '#1F2937',
+              paddingVertical: spacing.md,
+              fontWeight: '500',
+            }}
+          />
+        </View>
       </View>
 
       {emailError ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md }}>
-          <Text style={{ fontSize: 18, marginRight: spacing.xs }}>⚠️</Text>
-          <Text style={{ fontSize: typography.fontSize.sm, color: '#FEE2E2', fontWeight: '600' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: spacing.md,
+            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+            padding: spacing.sm,
+            borderRadius: borderRadius.md,
+          }}
+        >
+          <Text style={{ fontSize: 16, marginRight: spacing.xs }}>⚠️</Text>
+          <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
             {emailError}
           </Text>
         </View>
       ) : null}
 
       {!isLoginMode && (
-        <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.7)', textAlign: 'center', marginBottom: spacing.lg }}>
+        <Text
+          style={{
+            fontSize: typography.fontSize.xs,
+            color: 'rgba(255,255,255,0.7)',
+            textAlign: 'center',
+            marginBottom: spacing.md,
+          }}
+        >
           Kayıt olarak gizlilik politikasını kabul edersiniz
         </Text>
       )}
 
-      <View style={{ marginBottom: isLoginMode ? spacing.lg : 0 }} />
-
+      {/* CTA Button with gradient effect */}
       <Pressable
         onPress={onNext}
         disabled={!email || isLoading}
         style={({ pressed }) => [
           {
-            backgroundColor: email && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
+            backgroundColor: email && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: borderRadius.xxxl,
             ...shadows.lg,
             transform: [{ scale: pressed ? 0.97 : 1 }],
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: spacing.sm,
           },
         ]}
       >
-        <Text
-          style={{
-            fontSize: typography.fontSize.md,
-            fontWeight: 'bold',
-            color: email && !isLoading ? colors.brand.primary : 'rgba(255,255,255,0.6)',
-            textAlign: 'center',
-          }}
-        >
-          {isLoading
-            ? '...'
-            : isLoginMode
-              ? 'Giriş Yap →'
-              : 'Devam Et →'
-          }
-        </Text>
+        {isLoading ? (
+          <Text
+            style={{
+              fontSize: typography.fontSize.md,
+              fontWeight: 'bold',
+              color: '#6366F1',
+              textAlign: 'center',
+            }}
+          >
+            ...
+          </Text>
+        ) : (
+          <>
+            <Text
+              style={{
+                fontSize: typography.fontSize.md,
+                fontWeight: '700',
+                color: email ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                textAlign: 'center',
+              }}
+            >
+              {isLoginMode ? 'Giriş Yap' : 'Başlayalım'}
+            </Text>
+            {email && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+          </>
+        )}
       </Pressable>
 
       {/* Login/Register toggle link */}
       <Pressable
         onPress={isLoginMode ? onRegisterPress : onLoginPress}
-        style={{ marginTop: spacing.lg }}
+        style={{ marginTop: spacing.lg, paddingVertical: spacing.sm }}
       >
         <Text
           style={{
             fontSize: typography.fontSize.sm,
-            color: 'rgba(255,255,255,0.9)',
+            color: 'white',
             textAlign: 'center',
-            fontWeight: '500',
-            textDecorationLine: 'underline',
+            fontWeight: '600',
           }}
         >
-          {isLoginMode ? 'Hesabınız yok mu? Kayıt olun' : 'Zaten hesabınız var mı? Giriş yapın'}
+          {isLoginMode ? 'Hesabınız yok mu? ' : 'Zaten hesabınız var mı? '}
+          <Text style={{ textDecorationLine: 'underline' }}>
+            {isLoginMode ? 'Kayıt olun' : 'Giriş yapın'}
+          </Text>
         </Text>
       </Pressable>
     </View>
   );
 }
 
-// Password Step with strength indicator
+// Password Step with modern design
 function PasswordStepNew({
   password,
   setPassword,
@@ -677,6 +817,19 @@ function PasswordStepNew({
     setTimeout(() => passwordInputRef.current?.focus(), 300);
   }, []);
 
+  // Password strength indicator
+  const getPasswordStrength = () => {
+    if (password.length === 0) return { level: 0, text: '', color: '#9CA3AF' };
+    if (password.length < 6) return { level: 1, text: 'Zayıf', color: '#EF4444' };
+    if (password.length < 8) return { level: 2, text: 'Orta', color: '#F59E0B' };
+    if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+      return { level: 3, text: 'Güçlü', color: '#10B981' };
+    }
+    return { level: 2, text: 'İyi', color: '#F59E0B' };
+  };
+
+  const strength = getPasswordStrength();
+
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
       {/* Existing User Banner */}
@@ -685,101 +838,236 @@ function PasswordStepNew({
           style={{
             transform: [{ translateY: bannerSlideAnim }],
             marginBottom: spacing.lg,
-            backgroundColor: '#FEF3C7',
+            backgroundColor: 'rgba(255,255,255,0.95)',
             borderRadius: borderRadius.xl,
             padding: spacing.lg,
-            borderWidth: 2,
-            borderColor: '#F59E0B',
-            ...shadows.md,
+            borderLeftWidth: 4,
+            borderLeftColor: '#F59E0B',
+            ...shadows.lg,
           }}
         >
-          <Text style={{ fontSize: typography.fontSize.lg, fontWeight: '700', color: '#92400E', marginBottom: spacing.xs, textAlign: 'center' }}>
-            ✨ Hoşgeldiniz tekrar!
-          </Text>
-          <Text style={{ fontSize: typography.fontSize.sm, color: '#78350F', textAlign: 'center', marginBottom: spacing.sm }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
+            <Star size={20} color="#F59E0B" fill="#F59E0B" />
+            <Text style={{ fontSize: typography.fontSize.md, fontWeight: '700', color: '#92400E', marginLeft: spacing.sm }}>
+              Hoşgeldiniz tekrar!
+            </Text>
+          </View>
+          <Text style={{ fontSize: typography.fontSize.sm, color: '#78350F' }}>
             Bu email adresi zaten kayıtlı. Şifrenizi girerek giriş yapabilirsiniz.
           </Text>
         </Animated.View>
       )}
 
+      {/* Lock Icon */}
+      <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
+        <View
+          style={{
+            width: isSmallDevice ? 56 : 72,
+            height: isSmallDevice ? 56 : 72,
+            borderRadius: isSmallDevice ? 28 : 36,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 2,
+            borderColor: 'rgba(255,255,255,0.3)',
+          }}
+        >
+          <Shield size={isSmallDevice ? 28 : 36} color="white" strokeWidth={1.5} />
+        </View>
+      </View>
+
       <Text
         style={{
           fontSize: isSmallDevice ? typography.fontSize.xl : typography.fontSize.xxl,
-          fontWeight: '700',
+          fontWeight: '800',
           color: 'white',
-          marginBottom: spacing.sm,
+          marginBottom: spacing.xs,
           textAlign: 'center',
-          textShadowColor: 'rgba(0,0,0,0.15)',
+          textShadowColor: 'rgba(0,0,0,0.2)',
           textShadowOffset: { width: 0, height: 2 },
-          textShadowRadius: 8,
+          textShadowRadius: 10,
         }}
       >
-        {isExistingUser ? 'Giriş Yapın' : 'Güvenli Şifre Oluşturun'}
+        {isExistingUser ? 'Şifrenizi Girin' : 'Güvenli Şifre Oluşturun'}
       </Text>
-      <Text style={{ fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: isSmallDevice ? spacing.lg : spacing.xl, textAlign: 'center', fontWeight: '500', textShadowColor: 'rgba(0,0,0,0.08)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }}>
+      <Text
+        style={{
+          fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base,
+          color: 'rgba(255,255,255,0.95)',
+          marginBottom: isSmallDevice ? spacing.lg : spacing.xl,
+          textAlign: 'center',
+          fontWeight: '500',
+          lineHeight: 22,
+        }}
+      >
         {isExistingUser ? 'Hesabınıza erişmek için şifrenizi girin' : 'Hesabınızı korumak için güçlü bir şifre belirleyin'}
       </Text>
 
       {/* Password Input */}
-      <View style={{ backgroundColor: 'white', borderRadius: borderRadius.xl, padding: spacing.md, marginBottom: spacing.md, ...shadows.lg, flexDirection: 'row', alignItems: 'center', borderWidth: passwordError ? 3 : 2, borderColor: passwordError ? '#EF4444' : 'rgba(255,255,255,0.6)' }}>
-        <TextInput
-          ref={passwordInputRef}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            if (passwordError) setPasswordError('');
-          }}
-          placeholder="Şifreniz (min 6 karakter)"
-          placeholderTextColor="#9CA3AF"
-          secureTextEntry={!showPassword}
-          autoComplete="password-new"
-          style={{ flex: 1, fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md, color: '#1F2937', padding: spacing.sm, fontWeight: '500' }}
-        />
-        <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
-          {showPassword ? <EyeOff size={20} color="#9CA3AF" /> : <Eye size={20} color="#9CA3AF" />}
-        </Pressable>
+      <View
+        style={{
+          backgroundColor: 'white',
+          borderRadius: borderRadius.xxl,
+          padding: spacing.xs,
+          marginBottom: spacing.md,
+          ...shadows.lg,
+          borderWidth: passwordError ? 3 : 0,
+          borderColor: passwordError ? '#EF4444' : 'transparent',
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: '#F3F4F6',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginRight: spacing.sm,
+            }}
+          >
+            <Shield size={20} color="#6366F1" strokeWidth={2} />
+          </View>
+          <TextInput
+            ref={passwordInputRef}
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (passwordError) setPasswordError('');
+            }}
+            placeholder="Şifreniz"
+            placeholderTextColor="#9CA3AF"
+            secureTextEntry={!showPassword}
+            autoComplete="password-new"
+            style={{
+              flex: 1,
+              fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
+              color: '#1F2937',
+              paddingVertical: spacing.md,
+              fontWeight: '500',
+            }}
+          />
+          <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
+            {showPassword ? <EyeOff size={22} color="#6366F1" /> : <Eye size={22} color="#6366F1" />}
+          </Pressable>
+        </View>
       </View>
+
+      {/* Password Strength Indicator - only for new users */}
+      {!isExistingUser && password.length > 0 && (
+        <View style={{ marginBottom: spacing.md }}>
+          <View style={{ flexDirection: 'row', gap: spacing.xs, marginBottom: spacing.xs }}>
+            {[1, 2, 3].map((level) => (
+              <View
+                key={level}
+                style={{
+                  flex: 1,
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: level <= strength.level ? strength.color : 'rgba(255,255,255,0.3)',
+                }}
+              />
+            ))}
+          </View>
+          <Text style={{ fontSize: typography.fontSize.xs, color: strength.color, fontWeight: '600', textAlign: 'right' }}>
+            {strength.text}
+          </Text>
+        </View>
+      )}
 
       {/* Confirm Password Input - Hidden for existing users */}
       {!isExistingUser && (
-        <View style={{ backgroundColor: 'white', borderRadius: borderRadius.xl, padding: spacing.md, marginBottom: spacing.sm, ...shadows.lg, flexDirection: 'row', alignItems: 'center', borderWidth: passwordError ? 3 : 2, borderColor: passwordError ? '#EF4444' : 'rgba(255,255,255,0.6)' }}>
-          <TextInput
-            value={confirmPassword}
-            onChangeText={(text) => {
-              setConfirmPassword(text);
-              if (passwordError) setPasswordError('');
-            }}
-            placeholder="Şifrenizi tekrar girin"
-            placeholderTextColor="#9CA3AF"
-            secureTextEntry={!showConfirmPassword}
-            autoComplete="password-new"
-            style={{ flex: 1, fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md, color: '#1F2937', padding: spacing.sm, fontWeight: '500' }}
-          />
-          <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: spacing.sm }}>
-            {showConfirmPassword ? <EyeOff size={20} color="#9CA3AF" /> : <Eye size={20} color="#9CA3AF" />}
-          </Pressable>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: borderRadius.xxl,
+            padding: spacing.xs,
+            marginBottom: spacing.sm,
+            ...shadows.lg,
+            borderWidth: passwordError && confirmPassword ? 3 : 0,
+            borderColor: passwordError ? '#EF4444' : 'transparent',
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: password === confirmPassword && confirmPassword.length > 0 ? '#D1FAE5' : '#F3F4F6',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: spacing.sm,
+              }}
+            >
+              {password === confirmPassword && confirmPassword.length > 0 ? (
+                <Heart size={20} color="#10B981" fill="#10B981" strokeWidth={2} />
+              ) : (
+                <Shield size={20} color="#9CA3AF" strokeWidth={2} />
+              )}
+            </View>
+            <TextInput
+              value={confirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                if (passwordError) setPasswordError('');
+              }}
+              placeholder="Şifrenizi tekrar girin"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry={!showConfirmPassword}
+              autoComplete="password-new"
+              style={{
+                flex: 1,
+                fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
+                color: '#1F2937',
+                paddingVertical: spacing.md,
+                fontWeight: '500',
+              }}
+            />
+            <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: spacing.sm }}>
+              {showConfirmPassword ? <EyeOff size={22} color="#6366F1" /> : <Eye size={22} color="#6366F1" />}
+            </Pressable>
+          </View>
         </View>
       )}
 
       {passwordError ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md }}>
-          <Text style={{ fontSize: 18, marginRight: spacing.xs }}>⚠️</Text>
-          <Text style={{ fontSize: typography.fontSize.sm, color: '#FEE2E2', fontWeight: '600' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: spacing.md,
+            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+            padding: spacing.sm,
+            borderRadius: borderRadius.md,
+          }}
+        >
+          <Text style={{ fontSize: 16, marginRight: spacing.xs }}>⚠️</Text>
+          <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
             {passwordError}
           </Text>
         </View>
       ) : null}
 
-      {!isExistingUser && (
-        <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.75)', textAlign: 'center', marginBottom: spacing.xl, marginTop: spacing.md }}>
+      {!isExistingUser && !passwordError && (
+        <Text
+          style={{
+            fontSize: typography.fontSize.xs,
+            color: 'rgba(255,255,255,0.7)',
+            textAlign: 'center',
+            marginBottom: spacing.lg,
+            marginTop: spacing.sm,
+          }}
+        >
           En az 6 karakter içermelidir
         </Text>
       )}
 
       {/* Forgot Password Link - Only for existing users */}
       {isExistingUser && (
-        <Pressable onPress={onForgotPassword} style={{ alignSelf: 'flex-end', marginBottom: spacing.lg }}>
-          <Text style={{ fontSize: typography.fontSize.sm, color: 'rgba(255,255,255,0.9)', textDecorationLine: 'underline', fontWeight: '600' }}>
+        <Pressable onPress={onForgotPassword} style={{ alignSelf: 'center', marginBottom: spacing.lg }}>
+          <Text style={{ fontSize: typography.fontSize.sm, color: 'white', textDecorationLine: 'underline', fontWeight: '600' }}>
             Şifremi Unuttum
           </Text>
         </Pressable>
@@ -790,30 +1078,43 @@ function PasswordStepNew({
         disabled={isExistingUser ? !password || isLoading : (!password || !confirmPassword || isLoading)}
         style={({ pressed }) => [
           {
-            backgroundColor: (isExistingUser ? password : (password && confirmPassword)) && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
+            backgroundColor: (isExistingUser ? password : (password && confirmPassword)) && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: borderRadius.xxxl,
             ...shadows.lg,
             transform: [{ scale: pressed ? 0.97 : 1 }],
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: spacing.sm,
           },
         ]}
       >
-        <Text
-          style={{
-            fontSize: typography.fontSize.md,
-            fontWeight: 'bold',
-            color: (isExistingUser ? password : (password && confirmPassword)) && !isLoading ? colors.brand.primary : 'rgba(255,255,255,0.6)',
-            textAlign: 'center',
-          }}
-        >
-          {isLoading ? (isExistingUser ? 'Giriş Yapılıyor...' : 'Kaydediliyor...') : (isExistingUser ? 'Giriş Yap →' : 'Devam Et →')}
-        </Text>
+        {isLoading ? (
+          <Text style={{ fontSize: typography.fontSize.md, fontWeight: 'bold', color: '#6366F1', textAlign: 'center' }}>
+            {isExistingUser ? 'Giriş Yapılıyor...' : 'Kaydediliyor...'}
+          </Text>
+        ) : (
+          <>
+            <Text
+              style={{
+                fontSize: typography.fontSize.md,
+                fontWeight: '700',
+                color: (isExistingUser ? password : (password && confirmPassword)) ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                textAlign: 'center',
+              }}
+            >
+              {isExistingUser ? 'Giriş Yap' : 'Devam Et'}
+            </Text>
+            {(isExistingUser ? password : (password && confirmPassword)) && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+          </>
+        )}
       </Pressable>
     </View>
   );
 }
 
-// Verify Code Step with resend functionality
+// Verify Code Step with modern design
 function VerifyCodeStepNew({
   verificationCode,
   setVerificationCode,
@@ -833,9 +1134,26 @@ function VerifyCodeStepNew({
   const [isResending, setIsResending] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const registerMutation = trpc.auth.register.useMutation();
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     inputRef.current?.focus();
+
+    // Pulse animation for email icon
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+      ])
+    ).start();
   }, []);
 
   // Resend timer countdown
@@ -852,18 +1170,15 @@ function VerifyCodeStepNew({
       console.log('[Register] 🔄 Resending verification code to:', email);
       const result = await registerMutation.mutateAsync({ email });
 
-      // Note: isNewUser should always be false when resending
-      // because we're already in the verification step
       console.log('[Register] 📧 Resend result - isNewUser:', result.isNewUser);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Başarılı', 'Yeni doğrulama kodu gönderildi!');
-      setResendTimer(60); // 60 saniye beklet
+      setResendTimer(60);
     } catch (error) {
       console.error('[Register] ❌ Error resending code:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      // ✅ FIX: Show specific error message from backend
       const errorMessage = error instanceof Error
         ? error.message
         : 'Kod gönderilemedi. Lütfen tekrar deneyin.';
@@ -876,31 +1191,80 @@ function VerifyCodeStepNew({
 
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
+      {/* Mail Icon with pulse animation */}
+      <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
+        <Animated.View
+          style={{
+            width: isSmallDevice ? 56 : 72,
+            height: isSmallDevice ? 56 : 72,
+            borderRadius: isSmallDevice ? 28 : 36,
+            backgroundColor: '#10B981',
+            justifyContent: 'center',
+            alignItems: 'center',
+            transform: [{ scale: pulseAnim }],
+            ...shadows.lg,
+          }}
+        >
+          <Mail size={isSmallDevice ? 28 : 36} color="white" strokeWidth={1.5} />
+        </Animated.View>
+      </View>
+
       <Text
         style={{
-          fontSize: typography.fontSize.xxl,
-          fontWeight: 'bold',
+          fontSize: isSmallDevice ? typography.fontSize.xl : typography.fontSize.xxl,
+          fontWeight: '800',
           color: 'white',
-          marginBottom: spacing.md,
+          marginBottom: spacing.xs,
+          textAlign: 'center',
+          textShadowColor: 'rgba(0,0,0,0.2)',
+          textShadowOffset: { width: 0, height: 2 },
+          textShadowRadius: 10,
         }}
       >
-        Email Adresini Doğrula
+        Email Doğrulama
       </Text>
-      <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: spacing.sm }}>
-        {email} adresine gönderdiğimiz 6 haneli kodu gir
-      </Text>
-      <Text style={{ fontSize: typography.fontSize.sm, color: 'rgba(255,255,255,0.8)', marginBottom: spacing.xxl }}>
-        Kod 10 dakika geçerlidir
+      <Text
+        style={{
+          fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base,
+          color: 'rgba(255,255,255,0.95)',
+          marginBottom: spacing.sm,
+          textAlign: 'center',
+          fontWeight: '500',
+          lineHeight: 22,
+        }}
+      >
+        6 haneli kodu girin
       </Text>
 
+      {/* Email badge */}
+      <View
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          paddingVertical: spacing.sm,
+          paddingHorizontal: spacing.md,
+          borderRadius: borderRadius.full,
+          alignSelf: 'center',
+          marginBottom: spacing.lg,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.xs,
+        }}
+      >
+        <Mail size={14} color="white" />
+        <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
+          {email}
+        </Text>
+      </View>
+
+      {/* Code Input with dots */}
       <View
         style={{
           backgroundColor: 'white',
-          borderRadius: borderRadius.xl,
+          borderRadius: borderRadius.xxl,
           padding: spacing.md,
           marginBottom: spacing.md,
           ...shadows.lg,
-          borderWidth: codeError ? 2 : 0,
+          borderWidth: codeError ? 3 : 0,
           borderColor: codeError ? '#EF4444' : 'transparent',
         }}
       >
@@ -915,49 +1279,92 @@ function VerifyCodeStepNew({
           autoComplete="one-time-code"
           textContentType="oneTimeCode"
           style={{
-            fontSize: typography.fontSize.xxxl,
-            fontWeight: '600',
-            color: '#1F2937',
+            fontSize: typography.fontSize.hero,
+            fontWeight: '700',
+            color: '#6366F1',
             padding: spacing.sm,
             textAlign: 'center',
-            letterSpacing: 12,
+            letterSpacing: 16,
           }}
         />
+
+        {/* Progress dots */}
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm }}>
+          {[0, 1, 2, 3, 4, 5].map((index) => (
+            <View
+              key={index}
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: index < verificationCode.length ? '#6366F1' : '#E5E7EB',
+              }}
+            />
+          ))}
+        </View>
       </View>
 
       {codeError ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md }}>
-          <Text style={{ fontSize: 18, marginRight: spacing.xs }}>⚠️</Text>
-          <Text style={{ fontSize: typography.fontSize.sm, color: '#FEE2E2', fontWeight: '600' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: spacing.md,
+            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+            padding: spacing.sm,
+            borderRadius: borderRadius.md,
+          }}
+        >
+          <Text style={{ fontSize: 16, marginRight: spacing.xs }}>⚠️</Text>
+          <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
             {codeError}
           </Text>
         </View>
       ) : null}
 
+      {/* Timer badge */}
       <View
         style={{
           backgroundColor: 'rgba(255,255,255,0.15)',
           padding: spacing.md,
-          borderRadius: borderRadius.lg,
+          borderRadius: borderRadius.xl,
           marginBottom: spacing.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
-          <Text style={{ fontSize: 20, marginRight: spacing.sm }}>📧</Text>
+        <View
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: '#F59E0B',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Sparkles size={18} color="white" />
+        </View>
+        <View style={{ flex: 1 }}>
           <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
-            Emailini Kontrol Et
+            Kod 10 dakika geçerlidir
+          </Text>
+          <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.7)' }}>
+            Spam klasörünü de kontrol edin
           </Text>
         </View>
-        <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.8)' }}>
-          Spam klasörüne de bakabilirsin
-        </Text>
       </View>
 
       {/* Resend Code Button */}
       <Pressable
         onPress={handleResendCode}
         disabled={isResending || resendTimer > 0}
-        style={{ marginBottom: spacing.xl, alignItems: 'center' }}
+        style={{
+          marginBottom: spacing.lg,
+          alignItems: 'center',
+          paddingVertical: spacing.sm,
+        }}
       >
         <Text
           style={{
@@ -975,29 +1382,43 @@ function VerifyCodeStepNew({
         </Text>
       </Pressable>
 
+      {/* Verify Button */}
       <Pressable
         onPress={onNext}
         disabled={verificationCode.length !== 6 || isLoading}
         style={({ pressed }) => [
           {
-            backgroundColor: verificationCode.length === 6 && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
+            backgroundColor: verificationCode.length === 6 && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: borderRadius.xxxl,
             ...shadows.lg,
             transform: [{ scale: pressed ? 0.97 : 1 }],
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: spacing.sm,
           },
         ]}
       >
-        <Text
-          style={{
-            fontSize: typography.fontSize.md,
-            fontWeight: 'bold',
-            color: verificationCode.length === 6 && !isLoading ? colors.brand.primary : 'rgba(255,255,255,0.6)',
-            textAlign: 'center',
-          }}
-        >
-          {isLoading ? 'Doğrulanıyor...' : 'Doğrula →'}
-        </Text>
+        {isLoading ? (
+          <Text style={{ fontSize: typography.fontSize.md, fontWeight: 'bold', color: '#6366F1', textAlign: 'center' }}>
+            Doğrulanıyor...
+          </Text>
+        ) : (
+          <>
+            <Text
+              style={{
+                fontSize: typography.fontSize.md,
+                fontWeight: '700',
+                color: verificationCode.length === 6 ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                textAlign: 'center',
+              }}
+            >
+              Doğrula
+            </Text>
+            {verificationCode.length === 6 && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+          </>
+        )}
       </Pressable>
     </View>
   );

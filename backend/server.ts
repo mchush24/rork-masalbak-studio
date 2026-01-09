@@ -10,6 +10,8 @@ const port = parseInt(process.env.PORT || "3000");
 
 console.log(`🚀 Starting Hono backend server on port ${port}...`);
 console.log(`🔑 OPENAI_API_KEY loaded: ${process.env.OPENAI_API_KEY?.substring(0, 20)}...${process.env.OPENAI_API_KEY?.slice(-4)}`);
+console.log(`🗄️ SUPABASE_URL: ${process.env.SUPABASE_URL ? 'SET' : 'MISSING'}`);
+console.log(`🗄️ SUPABASE_SERVICE_ROLE_KEY: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.substring(0, 20) + '...' : 'MISSING'}`);
 
 serve({
   fetch: app.fetch,

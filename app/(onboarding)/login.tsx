@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
 import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { Mail, Zap } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const params = useLocalSearchParams<{ email?: string }>();
@@ -60,18 +61,27 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Hata', 'Lütfen email ve şifrenizi girin');
+      if (Platform.OS === 'web') {
+        alert('Lütfen email ve şifrenizi girin');
+      } else {
+        Alert.alert('Hata', 'Lütfen email ve şifrenizi girin');
+      }
       return;
     }
 
     setIsLoading(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
 
     try {
+      console.log('[Login] 🔐 Attempting login for:', email);
       const result = await loginMutation.mutateAsync({
         email: email.trim(),
         password,
       });
+
+      console.log('[Login] ✅ Login result:', result);
 
       if (result.requiresPasswordSetup) {
         // Redirect to password setup for migrated users
@@ -83,23 +93,35 @@ export default function LoginScreen() {
       }
 
       if (result.success && result.userId) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
 
         // Set session with tokens
+        console.log('[Login] 💾 Setting user session...');
         await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
         await completeOnboarding();
 
+        console.log('[Login] 🚀 Navigating to tabs...');
+
         // Check if should show biometric enrollment
-        if (capability.isAvailable) {
+        if (capability.isAvailable && Platform.OS !== 'web') {
           setShowBiometricModal(true);
         } else {
           router.replace('/(tabs)');
         }
       }
     } catch (error: any) {
-      console.error('[Login] Error:', error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Giriş Başarısız', error.message || 'Email veya şifre hatalı');
+      console.error('[Login] ❌ Error:', error);
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+
+      if (Platform.OS === 'web') {
+        alert(error.message || 'Email veya şifre hatalı');
+      } else {
+        Alert.alert('Giriş Başarısız', error.message || 'Email veya şifre hatalı');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +152,7 @@ export default function LoginScreen() {
 
   return (
     <LinearGradient
-      colors={colors.gradients.professional}
+      colors={colors.gradients.vibrant}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -146,53 +168,102 @@ export default function LoginScreen() {
         >
           <Animated.View style={{ flex: 1, opacity: fadeAnim, padding: spacing.lg, justifyContent: 'center' }}>
             {/* Header */}
-            <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '700', color: 'white', marginBottom: spacing.sm, textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.15)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 }}>
-              Giriş Yap
+            <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '800', color: 'white', marginBottom: spacing.xs, textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.2)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 10 }}>
+              Tekrar Hoş Geldiniz!
             </Text>
-            <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500' }}>
+            <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.95)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500', lineHeight: 22 }}>
               Hesabınıza giriş yapın
             </Text>
 
-            {/* Email Input */}
-            <View style={{ backgroundColor: 'white', borderRadius: borderRadius.xl, padding: spacing.md, marginBottom: spacing.md, ...shadows.lg }}>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Email adresiniz"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                style={{ fontSize: typography.fontSize.base, color: '#1F2937', padding: spacing.sm, fontWeight: '500' }}
-              />
+            {/* Email Input with icon */}
+            <View
+              style={{
+                backgroundColor: 'white',
+                borderRadius: borderRadius.xxl,
+                padding: spacing.xs,
+                marginBottom: spacing.md,
+                ...shadows.lg,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: '#F3F4F6',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginRight: spacing.sm,
+                  }}
+                >
+                  <Mail size={20} color="#6366F1" strokeWidth={2} />
+                </View>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Email adresiniz"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  style={{ flex: 1, fontSize: typography.fontSize.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
+                />
+              </View>
             </View>
 
             {/* Password Input */}
-            <View style={{ backgroundColor: 'white', borderRadius: borderRadius.xl, padding: spacing.md, marginBottom: spacing.sm, ...shadows.lg, flexDirection: 'row', alignItems: 'center' }}>
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Şifreniz"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-                autoComplete="password"
-                style={{ flex: 1, fontSize: typography.fontSize.base, color: '#1F2937', padding: spacing.sm, fontWeight: '500' }}
-              />
-              <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
-                {showPassword ? (
-                  <EyeOff size={20} color="#9CA3AF" />
-                ) : (
-                  <Eye size={20} color="#9CA3AF" />
-                )}
-              </Pressable>
+            <View
+              style={{
+                backgroundColor: 'white',
+                borderRadius: borderRadius.xxl,
+                padding: spacing.xs,
+                marginBottom: spacing.sm,
+                ...shadows.lg,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: '#F3F4F6',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginRight: spacing.sm,
+                  }}
+                >
+                  <Eye size={20} color="#6366F1" strokeWidth={2} />
+                </View>
+                <TextInput
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="Şifreniz"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry={!showPassword}
+                  autoComplete="password"
+                  style={{ flex: 1, fontSize: typography.fontSize.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
+                />
+                <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
+                  {showPassword ? (
+                    <EyeOff size={22} color="#6366F1" />
+                  ) : (
+                    <Eye size={22} color="#6366F1" />
+                  )}
+                </Pressable>
+              </View>
             </View>
 
             {/* Forgot Password Link */}
             <Pressable
-              onPress={() => router.push('/(onboarding)/forgot-password')}
-              style={{ alignSelf: 'flex-end', marginBottom: spacing.xl }}
+              onPress={() => router.push({
+                pathname: '/(onboarding)/forgot-password',
+                params: email ? { email: email.trim() } : undefined,
+              })}
+              style={{ alignSelf: 'center', marginBottom: spacing.xl, paddingVertical: spacing.sm }}
             >
-              <Text style={{ fontSize: typography.fontSize.sm, color: 'rgba(255,255,255,0.9)', textDecorationLine: 'underline', fontWeight: '600' }}>
+              <Text style={{ fontSize: typography.fontSize.sm, color: 'white', textDecorationLine: 'underline', fontWeight: '600' }}>
                 Şifremi Unuttum
               </Text>
             </Pressable>
@@ -203,28 +274,35 @@ export default function LoginScreen() {
               disabled={!email || !password || isLoading}
               style={({ pressed }) => [
                 {
-                  backgroundColor: email && password && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
-                  paddingVertical: spacing.lg,
+                  backgroundColor: email && password && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+                  paddingVertical: spacing.md + spacing.xs,
                   borderRadius: borderRadius.xxxl,
                   ...shadows.lg,
                   marginBottom: spacing.lg,
                   transform: [{ scale: pressed ? 0.97 : 1 }],
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: spacing.sm,
                 },
               ]}
             >
               {isLoading ? (
-                <ActivityIndicator color={colors.brand.primary} />
+                <ActivityIndicator color="#6366F1" />
               ) : (
-                <Text style={{ fontSize: typography.fontSize.md, fontWeight: 'bold', color: email && password ? colors.brand.primary : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
-                  Giriş Yap
-                </Text>
+                <>
+                  <Text style={{ fontSize: typography.fontSize.md, fontWeight: '700', color: email && password ? '#6366F1' : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
+                    Giriş Yap
+                  </Text>
+                  {email && password && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+                </>
               )}
             </Pressable>
 
             {/* Register Link */}
-            <Pressable onPress={() => router.push('/(onboarding)/register')}>
-              <Text style={{ fontSize: typography.fontSize.sm, color: 'rgba(255,255,255,0.9)', textAlign: 'center', textDecorationLine: 'underline', fontWeight: '500' }}>
-                Hesabınız yok mu? Kayıt olun
+            <Pressable onPress={() => router.push('/(onboarding)/register')} style={{ paddingVertical: spacing.sm }}>
+              <Text style={{ fontSize: typography.fontSize.sm, color: 'white', textAlign: 'center', fontWeight: '600' }}>
+                Hesabınız yok mu? <Text style={{ textDecorationLine: 'underline' }}>Kayıt olun</Text>
               </Text>
             </Pressable>
           </Animated.View>
