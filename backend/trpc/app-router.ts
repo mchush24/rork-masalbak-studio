@@ -33,6 +33,7 @@ import { listAnalysesProcedure } from "./routes/analysis/list-analyses";
 import { getAnalysisProcedure } from "./routes/analysis/get-analysis";
 import { updateAnalysisProcedure } from "./routes/analysis/update-analysis";
 import { deleteAnalysisProcedure } from "./routes/analysis/delete-analysis";
+import { interactiveStoryRouter } from "./routes/interactive-story";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -82,6 +83,7 @@ export const appRouter = createTRPCRouter({
     analyzeDrawing: analyzeDrawingProcedure,
     suggestStoryThemes: suggestStoryThemesProcedure,
   }),
+  interactiveStory: interactiveStoryRouter,
 });
 
 export type AppRouter = typeof appRouter;
