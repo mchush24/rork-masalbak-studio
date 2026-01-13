@@ -33,6 +33,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useChild } from "@/lib/contexts/ChildContext";
+import { ChildSelectorChip } from "@/components/ChildSelectorChip";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -1041,6 +1042,26 @@ export default function StoriesScreen() {
                 Çocuğunuzun çizimlerinden ilham alan özel bir masal kitabı oluşturun
               </Text>
 
+              {/* Child Selector - Show which child the story is for */}
+              <View style={styles.childSelectorSection}>
+                <Text style={styles.childSelectorLabel}>Bu masal kimin için?</Text>
+                <ChildSelectorChip
+                  selectedChild={selectedChild}
+                  children={userChildren}
+                  onSelectChild={(child) => setSelectedChild(child)}
+                />
+                {selectedChild && (
+                  <Text style={styles.childSelectorHint}>
+                    Hikaye {selectedChild.age} yaş için{selectedChild.gender ? ` (${selectedChild.gender === 'male' ? 'erkek' : 'kız'} karakter)` : ''} oluşturulacak
+                  </Text>
+                )}
+                {!selectedChild && !hasChildren && (
+                  <Text style={styles.childSelectorWarning}>
+                    💡 Profil sayfasından çocuk ekleyerek kişiselleştirilmiş hikayeler oluşturabilirsiniz
+                  </Text>
+                )}
+              </View>
+
               {/* Image Preview - Show first if image exists */}
               {storyImage && (
                 <View style={styles.imagePreviewWrapper}>
@@ -1565,6 +1586,33 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
     marginBottom: spacing["4"],
     lineHeight: typography.lineHeight.normal * (isSmallDevice ? typography.size.xs : typography.size.sm),
+  },
+  // Child Selector Styles
+  childSelectorSection: {
+    marginBottom: spacing["4"],
+    padding: spacing["4"],
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 155, 122, 0.3)',
+  },
+  childSelectorLabel: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
+    marginBottom: spacing["2"],
+  },
+  childSelectorHint: {
+    fontSize: typography.size.xs,
+    color: Colors.secondary.grass,
+    marginTop: spacing["2"],
+    fontWeight: typography.weight.medium,
+  },
+  childSelectorWarning: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    marginTop: spacing["2"],
+    fontStyle: 'italic',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
