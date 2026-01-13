@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt";
 
 const verifyEmailInputSchema = z.object({

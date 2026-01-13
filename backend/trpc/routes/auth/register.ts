@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 import { sendVerificationEmail, generateVerificationCode } from "../../../lib/email";
 import { hashPassword, validatePasswordStrength } from "../../../lib/password";
 import { authRateLimit } from "../../middleware/rate-limit";

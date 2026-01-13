@@ -5,14 +5,37 @@ import { Platform } from "react-native";
 
 type ColoringStyle = "simple" | "detailed" | "educational";
 
+// Comprehensive concern types based on ACEs (Adverse Childhood Experiences) and pediatric psychology
+type ConcernType =
+  // Original categories
+  | 'war' | 'violence' | 'disaster' | 'loss' | 'loneliness' | 'fear' | 'abuse' | 'family_separation' | 'death'
+  // ACEs Framework categories
+  | 'neglect' | 'bullying' | 'domestic_violence_witness' | 'parental_addiction' | 'parental_mental_illness'
+  // Pediatric psychology categories
+  | 'medical_trauma' | 'anxiety' | 'depression' | 'low_self_esteem' | 'anger' | 'school_stress' | 'social_rejection'
+  // Additional categories
+  | 'displacement' | 'poverty' | 'cyberbullying'
+  | 'other';
+
+type ContentAnalysis = {
+  hasConcerningContent: boolean;
+  concernType: ConcernType | null;
+  concernDescription?: string;
+  therapeuticApproach?: string;
+  therapeuticColoringTheme?: string;
+};
+
+type ColoringPageResult = {
+  imageUrl: string;
+  analysis: string;
+  prompt: string;
+  contentAnalysis?: ContentAnalysis | null;
+};
+
 export function useGenerateColoringPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [coloringPage, setColoringPage] = useState<{
-    imageUrl: string;
-    analysis: string;
-    prompt: string;
-  } | null>(null);
+  const [coloringPage, setColoringPage] = useState<ColoringPageResult | null>(null);
 
   const generateMutation = trpc.studio.generateColoringFromDrawing.useMutation();
 

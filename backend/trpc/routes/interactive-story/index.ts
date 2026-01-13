@@ -27,7 +27,7 @@ import {
   THERAPEUTIC_TRAIT_MAPPING,
   ConcernType,
   TherapeuticReportSection,
-} from "../../../../types/InteractiveStory";
+} from "../../../types/InteractiveStory";
 import { createSupabaseClient } from "../../../lib/supabase";
 
 // ============================================
@@ -86,7 +86,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         const { data: storybook, error: storybookError } = await supabase
           .from("storybooks")
           .insert({
-            user_id_fk: ctx.user.id,
+            user_id_fk: ctx.userId,
             title: story.title,
             pages: firstSegment.pages,
             is_interactive: true,
@@ -99,6 +99,9 @@ export const interactiveStoryRouter = createTRPCRouter({
               totalChoicePoints: story.totalChoicePoints,
               mood: story.mood,
               therapeuticContext: story.therapeuticContext,
+              // Store generation parameters for later use
+              language: input.language,
+              childAge: input.childAge,
             },
             total_choice_points: story.totalChoicePoints,
           })
@@ -114,7 +117,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         const { data: session, error: sessionError } = await supabase
           .from("interactive_story_sessions")
           .insert({
-            user_id_fk: ctx.user.id,
+            user_id_fk: ctx.userId,
             storybook_id: storybook.id,
             current_segment_id: story.startSegmentId,
             choices_made: [],
@@ -224,13 +227,17 @@ export const interactiveStoryRouter = createTRPCRouter({
         mood: storyGraph.mood,
       };
 
+      // Get language and childAge from story_graph (stored during story generation)
+      const language = storyGraph.language || "tr";
+      const childAge = storyGraph.childAge || 6;
+
       const { segment, nextChoicePoint, isEnding } = await generateNextSegment(
         story,
         input.choicePointId,
         input.optionId,
         previousChoices,
-        "tr", // TODO: Get from session
-        6 // TODO: Get from session
+        language,
+        childAge
       );
 
       // Session'ı güncelle
@@ -520,7 +527,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       // Veritabanına kaydet
       await supabase.from("parent_choice_reports").insert({
         session_id: input.sessionId,
-        user_id_fk: ctx.user.id,
+        user_id_fk: ctx.userId,
         child_name: input.childName,
         dominant_traits: dominantTraits,
         trait_insights: traitInsights,
@@ -563,7 +570,7 @@ export const interactiveStoryRouter = createTRPCRouter({
           completed_at
         )
       `)
-      .eq("user_id_fk", ctx.user.id)
+      .eq("user_id_fk", ctx.userId)
       .eq("is_interactive", true)
       .order("created_at", { ascending: false });
 
@@ -572,7 +579,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       throw new Error("Failed to list interactive stories");
     }
 
-    return storybooks.map(sb => ({
+    return storybooks.map((sb: any) => ({
       id: sb.id,
       title: sb.title,
       createdAt: sb.created_at,

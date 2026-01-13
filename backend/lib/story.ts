@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
+import { escapeHtml } from "./utils.js";
 import { generateImage, generateStorybookSeed, type ImageProvider } from "./image-generation.js";
 import {
   defineCharacterFromContext,
@@ -15,7 +16,7 @@ import {
   generateFontImports,
   type TextOverlayOptions,
 } from "./text-overlay.js";
-import { compositeTextOnImage } from "./image-text-compositor.js";
+// Note: compositeTextOnImage no longer used - text is shown in app UI instead
 
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
@@ -117,61 +118,51 @@ export async function makeStorybook(opts: MakeOptions) {
   );
   console.log("[Story] Using seed for consistency:", seed);
 
-  const imgs: string[] = [];
   const totalPages = opts.pages.length;
 
-  for (let i=0; i<totalPages; i++){
-    try {
-      console.log(`[Story] Generating image ${i+1}/${totalPages}`);
+  // Generate all images in parallel for faster storybook creation
+  console.log(`[Story] 🚀 Generating ${totalPages} images in PARALLEL...`);
 
+  const imagePromises = opts.pages.map(async (page, i) => {
+    try {
       // Extract scene description from text
-      const sceneDesc = extractSceneFromText(opts.pages[i].text, opts.lang || 'tr');
+      const sceneDesc = extractSceneFromText(page.text, opts.lang || 'tr');
 
       // Generate consistent prompt (same character, different scene)
       const consistentPrompt = generateConsistentPrompt(
         character,
         storyStyle,
-        opts.pages[i].text,
-        opts.pages[i].prompt || sceneDesc,
+        page.text,
+        page.prompt || sceneDesc,
         i + 1,
         totalPages
       );
 
       console.log(`[Story] 🎨 Page ${i+1}/${totalPages} Flux 2.0 Prompt:`);
       console.log(`[Story]   Character: ${character.name}`);
-      console.log(`[Story]   Appearance: ${character.appearance.substring(0, 80)}...`);
-      console.log(`[Story]   Scene: ${(opts.pages[i].prompt || sceneDesc).substring(0, 80)}...`);
-      console.log(`[Story]   Seed: ${seed} (consistent across all pages)`);
+      console.log(`[Story]   Scene: ${(page.prompt || sceneDesc).substring(0, 80)}...`);
 
       const png = await generateImageForPage(
-        opts.pages[i].text,
-        consistentPrompt, // Use consistent prompt
-        i + 1, // page number (1-indexed)
+        page.text,
+        consistentPrompt,
+        i + 1,
         totalPages,
-        'flux2', // Always use Flux 2.0 - FASTEST & BEST!
-        seed // Same seed for all pages = consistent character
+        'flux2',
+        seed
       );
 
-      // Composite text onto image
-      console.log(`[Story] Adding text overlay to image ${i+1}/${totalPages}`);
-      const compositeImage = await compositeTextOnImage({
-        imageBuffer: png,
-        text: opts.pages[i].text,
-        language: opts.lang || 'tr',
-        position: 'bottom',
-      });
-
-      const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, compositeImage, "image/png");
-      imgs.push(url);
-
-      console.log(`[Story] ✅ Image ${i+1} generated with text overlay`);
-
-      // No delay needed - Flux 2.0 is SUPER fast! (1-2 seconds)
+      // Upload image without text overlay (text will be shown in the app UI)
+      const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, png, "image/png");
+      console.log(`[Story] ✅ Image ${i+1}/${totalPages} generated and uploaded`);
+      return url;
     } catch (err) {
       console.error(`[Story] ❌ Image generation failed for page ${i+1}:`, err);
-      imgs.push("about:blank");
+      return "about:blank";
     }
-  }
+  });
+
+  const imgs = await Promise.all(imagePromises);
+  console.log(`[Story] ✅ All ${totalPages} images generated in parallel!`);
 
   let pdf_url: string|undefined;
   if (opts.makePdf) {
@@ -313,8 +304,4 @@ function htmlDoc(pages: { text: string; img: string }[], language: 'tr' | 'en' =
 </head>
 <body>${items}</body>
 </html>`;
-}
-
-function escapeHtml(s: string){
-  return s.replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c] as string));
 }

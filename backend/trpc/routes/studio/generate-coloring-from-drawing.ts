@@ -22,7 +22,52 @@ const generateColoringInputSchema = z.object({
   drawingDescription: z.string().optional(),
   style: z.enum(["simple", "detailed", "educational"]).default("simple"),
   ageGroup: z.number().min(2).max(12).default(5),
+  language: z.enum(["tr", "en"]).default("tr"),
 });
+
+// Comprehensive concern types based on ACEs (Adverse Childhood Experiences) framework
+type ConcernType =
+  | 'war' | 'violence' | 'disaster' | 'loss' | 'loneliness' | 'fear' | 'abuse' | 'family_separation' | 'death'
+  | 'neglect' | 'bullying' | 'domestic_violence_witness' | 'parental_addiction' | 'parental_mental_illness'
+  | 'medical_trauma' | 'anxiety' | 'depression' | 'low_self_esteem' | 'anger' | 'school_stress' | 'social_rejection'
+  | 'displacement' | 'poverty' | 'cyberbullying'
+  | 'other' | null;
+
+type ContentAnalysis = {
+  hasConcerningContent: boolean;
+  concernType: ConcernType;
+  concernDescription?: string;
+  therapeuticApproach?: string;
+  therapeuticColoringTheme?: string; // Special coloring theme for therapeutic purposes
+};
+
+// Therapeutic coloring themes for each concern type
+const THERAPEUTIC_COLORING_THEMES: Record<string, { theme: string; elements: string[] }> = {
+  war: { theme: "peaceful garden with protective walls", elements: ["flowers", "rainbow", "protective trees", "happy birds"] },
+  violence: { theme: "calm forest with strong friendly animals", elements: ["gentle giant", "protective bear", "safe cave"] },
+  disaster: { theme: "rebuilding together scene", elements: ["helping hands", "new house", "rainbow after rain", "community"] },
+  loss: { theme: "memory garden with stars", elements: ["heart-shaped cloud", "eternal flower", "guiding star"] },
+  loneliness: { theme: "making friends scene", elements: ["welcoming animals", "open door", "friendship bridge"] },
+  fear: { theme: "brave little hero", elements: ["flashlight", "protective shield", "friendly monster becoming small"] },
+  abuse: { theme: "safe castle with protectors", elements: ["guardian angel", "strong walls", "loving family"] },
+  family_separation: { theme: "two homes connected by love", elements: ["heart bridge", "two houses", "connected by rainbow"] },
+  death: { theme: "butterfly transformation", elements: ["caterpillar to butterfly", "stars", "memory tree"] },
+  neglect: { theme: "warm caring home", elements: ["cozy bed", "full table", "loving hands"] },
+  bullying: { theme: "friendship circle", elements: ["diverse friends holding hands", "strength together", "kind words"] },
+  domestic_violence_witness: { theme: "peaceful safe haven", elements: ["quiet garden", "protective bubble", "harmony"] },
+  parental_addiction: { theme: "sunshine breaking through clouds", elements: ["hope flower", "helping hands", "bright future"] },
+  parental_mental_illness: { theme: "love always present", elements: ["heart sun", "patient flower", "strong little one"] },
+  medical_trauma: { theme: "brave superhero healing", elements: ["healing powers", "friendly doctor", "strength cape"] },
+  anxiety: { theme: "calm breathing exercise", elements: ["peaceful lake", "gentle breeze", "relaxing cloud"] },
+  depression: { theme: "colors returning to world", elements: ["sun peeking", "rainbow appearing", "flower blooming"] },
+  low_self_esteem: { theme: "unique special star", elements: ["crown", "mirror of beauty", "shining from inside"] },
+  anger: { theme: "taming the anger dragon", elements: ["calm dragon", "breathing exercise", "emotion master"] },
+  school_stress: { theme: "learning adventure", elements: ["happy school", "fun books", "celebrating mistakes"] },
+  social_rejection: { theme: "finding true friends", elements: ["unique character celebrated", "inclusive circle", "belonging"] },
+  displacement: { theme: "home in the heart", elements: ["portable home", "family together", "new adventures"] },
+  poverty: { theme: "richness of love", elements: ["heart treasures", "sharing joy", "family bond"] },
+  cyberbullying: { theme: "digital safety hero", elements: ["shield from screen", "real friends", "safe online"] },
+};
 
 /**
  * Convert colorful image to clean line art for coloring
@@ -63,9 +108,66 @@ export const generateColoringFromDrawingProcedure = protectedProcedure
     console.log("[Generate Coloring] 🎨 Creating coloring page from child's drawing");
     console.log("[Generate Coloring] Age group:", input.ageGroup, "| Style:", input.style);
 
+    const isTurkish = input.language === "tr";
+
     try {
-      // Step 1: Analyze the drawing with GPT-4 Vision
-      console.log("[Generate Coloring] 📸 Analyzing drawing with GPT-4 Vision...");
+      // Step 1: Analyze the drawing with GPT-4 Vision (including therapeutic content check)
+      console.log("[Generate Coloring] 📸 Analyzing drawing with GPT-4 Vision (ACEs framework)...");
+
+      const analysisPrompt = isTurkish
+        ? `Bu çocuk çizimini analiz et.
+
+## GÖREV 1: Ana Konu
+Çizimin ana konusunu ULTRA BASİT şekilde tanımla (max 6 kelime):
+- Aile/insan: "basit aile grubu" veya "basit insan"
+- Ev/bina: "basit ev"
+- Hayvan: "basit [hayvan adı]"
+- Doğa: "basit [çiçek/ağaç]"
+
+## GÖREV 2: İçerik Kontrolü (ACEs Framework)
+Endişe verici içerik var mı kontrol et:
+- Savaş, şiddet, doğal afet, kayıp, yalnızlık, korku, istismar, aile ayrılığı, ölüm
+- İhmal, zorbalık, aile içi şiddete tanıklık, ebeveyn bağımlılığı
+- Tıbbi travma, kaygı, depresyon, düşük öz saygı, öfke, okul stresi
+- Sosyal dışlanma, göç, ekonomik zorluk, siber zorbalık
+
+JSON formatında yanıt ver:
+{
+  "mainSubject": "max 6 kelime basit açıklama",
+  "contentAnalysis": {
+    "hasConcerningContent": boolean,
+    "concernType": "war|violence|disaster|loss|loneliness|fear|abuse|family_separation|death|neglect|bullying|domestic_violence_witness|parental_addiction|parental_mental_illness|medical_trauma|anxiety|depression|low_self_esteem|anger|school_stress|social_rejection|displacement|poverty|cyberbullying|null",
+    "concernDescription": "varsa kısa açıklama",
+    "therapeuticApproach": "varsa önerilen yaklaşım"
+  }
+}`
+        : `Analyze this child's drawing.
+
+## TASK 1: Main Subject
+Describe the MAIN SUBJECT in ULTRA SIMPLIFIED form (max 6 words):
+- Family/people: "simple family group" or "simple person"
+- House/building: "simple house"
+- Animals: "simple [animal name]"
+- Nature: "simple [flower/tree]"
+
+## TASK 2: Content Check (ACEs Framework)
+Check for concerning content:
+- War, violence, disaster, loss, loneliness, fear, abuse, family separation, death
+- Neglect, bullying, domestic violence witness, parental addiction
+- Medical trauma, anxiety, depression, low self-esteem, anger, school stress
+- Social rejection, displacement, poverty, cyberbullying
+
+Respond in JSON format:
+{
+  "mainSubject": "max 6 words simple description",
+  "contentAnalysis": {
+    "hasConcerningContent": boolean,
+    "concernType": "war|violence|disaster|loss|loneliness|fear|abuse|family_separation|death|neglect|bullying|domestic_violence_witness|parental_addiction|parental_mental_illness|medical_trauma|anxiety|depression|low_self_esteem|anger|school_stress|social_rejection|displacement|poverty|cyberbullying|null",
+    "concernDescription": "brief description if any",
+    "therapeuticApproach": "suggested approach if any"
+  }
+}`;
+
       const analysisResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -74,24 +176,7 @@ export const generateColoringFromDrawingProcedure = protectedProcedure
             content: [
               {
                 type: "text",
-                text: `Analyze this child's drawing. What is the MAIN SUBJECT?
-
-Describe the MAIN SUBJECT in ULTRA SIMPLIFIED form:
-- If family/people: "simple family group" or "simple person"
-- If house/building: "simple house"
-- If animals: "simple [animal name]"
-- If nature (flowers/trees): "simple [flower/tree]"
-- If vehicle: "simple [car/boat/etc]"
-
-IMPORTANT:
-- Keep the main subject from the drawing
-- Describe it in the SIMPLEST possible way
-- Use words like "simple", "basic", "plain"
-- Max 6 words total
-
-Examples: "simple family group", "basic house", "simple flower", "plain cat"
-
-Output: max 6 words.`,
+                text: analysisPrompt,
               },
               {
                 type: "image_url",
@@ -102,11 +187,35 @@ Output: max 6 words.`,
             ],
           },
         ],
-        max_tokens: 25,  // Ultra short description (max 6 words)
+        max_tokens: 300,
       });
 
-      const drawingAnalysis = analysisResponse.choices[0]?.message?.content || "";
+      const responseContent = analysisResponse.choices[0]?.message?.content || "{}";
+      console.log("[Generate Coloring] 📝 Raw analysis:", responseContent);
+
+      // Parse the JSON response
+      let parsedAnalysis: { mainSubject: string; contentAnalysis: ContentAnalysis };
+      try {
+        const jsonMatch = responseContent.match(/\{[\s\S]*\}/);
+        parsedAnalysis = JSON.parse(jsonMatch ? jsonMatch[0] : responseContent);
+      } catch (e) {
+        // Fallback: use the response as main subject, no concerning content
+        parsedAnalysis = {
+          mainSubject: responseContent.trim().substring(0, 50),
+          contentAnalysis: { hasConcerningContent: false, concernType: null }
+        };
+      }
+
+      const drawingAnalysis = parsedAnalysis.mainSubject || "simple drawing";
+      const contentAnalysis = parsedAnalysis.contentAnalysis || { hasConcerningContent: false, concernType: null };
+
       console.log("[Generate Coloring] ✅ Analysis:", drawingAnalysis);
+
+      // Log therapeutic content if detected
+      if (contentAnalysis.hasConcerningContent) {
+        console.log("[Generate Coloring] ⚠️ CONCERNING CONTENT DETECTED:", contentAnalysis.concernType);
+        console.log("[Generate Coloring] 💜 Applying therapeutic coloring approach...");
+      }
 
       // Step 2: Generate colorful illustration with Flux 2.0
       console.log("[Generate Coloring] 🚀 Generating colorful image with Flux 2.0...");
@@ -120,7 +229,22 @@ Output: max 6 words.`,
         educational: `Educational cartoon. Geometric shapes. Primary colors. Ages 4-6.`,
       };
 
-      const flux2Prompt = `Subject: ${drawingAnalysis}
+      // Use therapeutic theme if concerning content detected
+      let therapeuticColoringTheme: string | undefined;
+      let subjectForColoring = drawingAnalysis;
+
+      if (contentAnalysis.hasConcerningContent && contentAnalysis.concernType) {
+        const therapeuticTheme = THERAPEUTIC_COLORING_THEMES[contentAnalysis.concernType];
+        if (therapeuticTheme) {
+          therapeuticColoringTheme = therapeuticTheme.theme;
+          // Transform the subject into a therapeutic version
+          subjectForColoring = `${therapeuticTheme.theme} with ${therapeuticTheme.elements.slice(0, 2).join(' and ')}`;
+          console.log("[Generate Coloring] 💜 Therapeutic coloring theme:", therapeuticColoringTheme);
+          console.log("[Generate Coloring] 💜 Modified subject:", subjectForColoring);
+        }
+      }
+
+      const flux2Prompt = `Subject: ${subjectForColoring}
 
 ULTRA SIMPLIFIED VERSION - Baby coloring book style:
 
@@ -202,6 +326,14 @@ realistic proportions, anatomically correct, professional illustration, adult co
         imageUrl: lineArtUrl, // Black & white line art for coloring
         analysis: drawingAnalysis,
         prompt: flux2Prompt,
+        // NEW: Therapeutic content analysis
+        contentAnalysis: contentAnalysis.hasConcerningContent ? {
+          hasConcerningContent: true,
+          concernType: contentAnalysis.concernType,
+          concernDescription: contentAnalysis.concernDescription,
+          therapeuticApproach: contentAnalysis.therapeuticApproach,
+          therapeuticColoringTheme: therapeuticColoringTheme,
+        } : null,
       };
     } catch (error) {
       console.error("[Generate Coloring] ❌ Error:", error);

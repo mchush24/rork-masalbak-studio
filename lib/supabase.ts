@@ -17,6 +17,10 @@ import { createClient } from '@supabase/supabase-js';
 const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
 const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
+// App URL scheme - must match app.config.js scheme
+// Used for deep linking (e.g., password reset redirect)
+const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || 'rork-app';
+
 // Backend Supabase Client (Service Role - Admin Access)
 // Only initialize in Node.js environment (backend)
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -145,7 +149,7 @@ export async function getCurrentUser() {
 export async function resetPassword(email: string) {
   const client = await getSupabaseFrontend();
   const { error } = await client.auth.resetPasswordForEmail(email, {
-    redirectTo: 'renkioo://reset-password',
+    redirectTo: `${APP_SCHEME}://reset-password`,
   });
   if (error) throw error;
 }

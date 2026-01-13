@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system/legacy";
-import { Palette, ImagePlus, Sparkles, Download, X, Wand2 } from "lucide-react-native";
+import { Palette, ImagePlus, Sparkles, Download, X, Wand2, AlertTriangle, Heart } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
@@ -41,6 +41,51 @@ export default function StudioScreen() {
   const [aiDrawingImage, setAIDrawingImage] = useState<string | null>(null);
   const [showColoringCanvas, setShowColoringCanvas] = useState(false);
   const { generate, isGenerating, coloringPage, reset } = useGenerateColoringPage();
+
+  // Content warning modal state
+  const [showContentWarningModal, setShowContentWarningModal] = useState(false);
+
+  // Comprehensive concern types based on ACEs (Adverse Childhood Experiences) and pediatric psychology
+  type ConcernType =
+    | 'war' | 'violence' | 'disaster' | 'loss' | 'loneliness' | 'fear' | 'abuse' | 'family_separation' | 'death'
+    | 'neglect' | 'bullying' | 'domestic_violence_witness' | 'parental_addiction' | 'parental_mental_illness'
+    | 'medical_trauma' | 'anxiety' | 'depression' | 'low_self_esteem' | 'anger' | 'school_stress' | 'social_rejection'
+    | 'displacement' | 'poverty' | 'cyberbullying'
+    | 'other';
+
+  // Human-readable labels for concern types (Turkish) - Based on ACEs framework
+  const concernTypeLabels: Record<string, { label: string; emoji: string; color: string }> = {
+    // Original categories
+    war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: '#6B7280' },
+    violence: { label: 'Şiddet', emoji: '💪', color: '#EF4444' },
+    disaster: { label: 'Doğal Afet', emoji: '🌈', color: '#F59E0B' },
+    loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: '#8B5CF6' },
+    loneliness: { label: 'Yalnızlık', emoji: '🤗', color: '#3B82F6' },
+    fear: { label: 'Korku', emoji: '⭐', color: '#10B981' },
+    abuse: { label: 'İstismar', emoji: '🛡️', color: '#EC4899' },
+    family_separation: { label: 'Aile Ayrılığı', emoji: '❤️', color: '#F97316' },
+    death: { label: 'Ölüm / Yas', emoji: '🦋', color: '#6366F1' },
+    // ACEs Framework categories
+    neglect: { label: 'İhmal', emoji: '🏠', color: '#8B5CF6' },
+    bullying: { label: 'Akran Zorbalığı', emoji: '🤝', color: '#F59E0B' },
+    domestic_violence_witness: { label: 'Aile İçi Şiddete Tanıklık', emoji: '🏡', color: '#EF4444' },
+    parental_addiction: { label: 'Ebeveyn Bağımlılığı', emoji: '🌱', color: '#10B981' },
+    parental_mental_illness: { label: 'Ebeveyn Ruhsal Hastalığı', emoji: '💙', color: '#3B82F6' },
+    // Pediatric psychology categories
+    medical_trauma: { label: 'Tıbbi Travma', emoji: '🏥', color: '#06B6D4' },
+    anxiety: { label: 'Kaygı', emoji: '🌿', color: '#22C55E' },
+    depression: { label: 'Depresyon Belirtileri', emoji: '🌻', color: '#EAB308' },
+    low_self_esteem: { label: 'Düşük Öz Saygı', emoji: '✨', color: '#A855F7' },
+    anger: { label: 'Öfke', emoji: '🧘', color: '#F97316' },
+    school_stress: { label: 'Okul Stresi', emoji: '📚', color: '#6366F1' },
+    social_rejection: { label: 'Sosyal Dışlanma', emoji: '🌟', color: '#EC4899' },
+    // Additional categories
+    displacement: { label: 'Göç / Yerinden Edilme', emoji: '🏠', color: '#14B8A6' },
+    poverty: { label: 'Ekonomik Zorluk', emoji: '💎', color: '#78716C' },
+    cyberbullying: { label: 'Siber Zorbalık', emoji: '📱', color: '#8B5CF6' },
+    // Fallback
+    other: { label: 'Diğer', emoji: '💜', color: '#9CA3AF' },
+  };
 
   // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
   useEffect(() => {
@@ -99,12 +144,18 @@ export default function StudioScreen() {
         });
       }
 
-      await generate(imageBase64, {
+      const result = await generate(imageBase64, {
         style: "simple",
         ageGroup: 5,
       });
 
-      Alert.alert(t.studio.success, t.studio.coloringPageCreated);
+      // Check for concerning content and show warning modal
+      if (result?.contentAnalysis?.hasConcerningContent) {
+        console.log('[Studio] ⚠️ Concerning content detected:', result.contentAnalysis);
+        setShowContentWarningModal(true);
+      } else {
+        Alert.alert(t.studio.success, t.studio.coloringPageCreated);
+      }
     } catch (err) {
       console.error("AI Coloring error:", err);
       Alert.alert(t.common.error, t.studio.coloringPageError);
@@ -550,6 +601,106 @@ export default function StudioScreen() {
               }}
             />
           )}
+        </View>
+      </Modal>
+
+      {/* Content Warning Modal */}
+      <Modal
+        visible={showContentWarningModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowContentWarningModal(false)}
+      >
+        <View style={styles.warningModalOverlay}>
+          <ScrollView
+            style={{ maxHeight: '90%' }}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.contentWarningModal}>
+              <View style={styles.warningIconContainer}>
+                <AlertTriangle size={40} color={Colors.secondary.sunshine} />
+              </View>
+
+              <Text style={styles.warningTitle}>
+                Ebeveyn Bildirimi
+              </Text>
+
+              {/* Concern Type Badge */}
+              {coloringPage?.contentAnalysis?.concernType && concernTypeLabels[coloringPage.contentAnalysis.concernType] && (
+                <View style={[
+                  styles.concernTypeBadge,
+                  { backgroundColor: `${concernTypeLabels[coloringPage.contentAnalysis.concernType].color}20` }
+                ]}>
+                  <Text style={styles.concernTypeEmoji}>
+                    {concernTypeLabels[coloringPage.contentAnalysis.concernType].emoji}
+                  </Text>
+                  <Text style={[
+                    styles.concernTypeLabel,
+                    { color: concernTypeLabels[coloringPage.contentAnalysis.concernType].color }
+                  ]}>
+                    {concernTypeLabels[coloringPage.contentAnalysis.concernType].label}
+                  </Text>
+                </View>
+              )}
+
+              <Text style={styles.warningDescription}>
+                Çocuğunuzun çiziminde dikkat edilmesi gereken duygusal içerik tespit edildi.
+              </Text>
+
+              {coloringPage?.contentAnalysis?.concernDescription && (
+                <View style={styles.warningDetailBox}>
+                  <Text style={styles.warningDetailTitle}>Tespit Edilen İçerik:</Text>
+                  <Text style={styles.warningDetailText}>
+                    {coloringPage.contentAnalysis.concernDescription}
+                  </Text>
+                </View>
+              )}
+
+              {coloringPage?.contentAnalysis?.therapeuticApproach && (
+                <View style={styles.therapeuticBox}>
+                  <Text style={styles.therapeuticTitle}>🎯 Terapötik Yaklaşım:</Text>
+                  <Text style={styles.therapeuticText}>
+                    {coloringPage.contentAnalysis.therapeuticApproach}
+                  </Text>
+                </View>
+              )}
+
+              {coloringPage?.contentAnalysis?.therapeuticColoringTheme && (
+                <View style={styles.coloringThemeBox}>
+                  <Text style={styles.coloringThemeTitle}>🎨 Terapötik Boyama Teması:</Text>
+                  <Text style={styles.coloringThemeText}>
+                    {coloringPage.contentAnalysis.therapeuticColoringTheme}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.warningInfoBox}>
+                <Heart size={20} color={Colors.primary.sunset} />
+                <Text style={styles.warningInfoText}>
+                  Bu boyama sayfası, çocuğunuzun duygularını güvenli bir şekilde işlemesine yardımcı olmak için terapötik temalarla oluşturuldu. Boyama aktivitesi rahatlatıcı ve iyileştirici bir etki sağlar.
+                </Text>
+              </View>
+
+              <View style={styles.professionalNoteBox}>
+                <Text style={styles.professionalNoteText}>
+                  💡 Not: Bu uygulama profesyonel psikolojik destek yerine geçmez. Endişeleriniz varsa bir çocuk psikoloğuna danışmanızı öneririz.
+                </Text>
+              </View>
+
+              <Pressable
+                style={styles.warningButton}
+                onPress={() => setShowContentWarningModal(false)}
+              >
+                <LinearGradient
+                  colors={[Colors.primary.sunset, Colors.secondary.sunshine]}
+                  style={styles.warningButtonGradient}
+                >
+                  <Text style={styles.warningButtonText}>Anladım, Devam Et</Text>
+                </LinearGradient>
+              </Pressable>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     </LinearGradient>
@@ -1058,5 +1209,167 @@ const styles = StyleSheet.create({
     fontSize: typography.size["2xl"],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
+  },
+
+  // Content Warning Modal Styles
+  warningModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing["4"],
+  },
+  contentWarningModal: {
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius["2xl"],
+    padding: spacing["6"],
+    maxWidth: 400,
+    width: '100%',
+    alignItems: 'center',
+    ...shadows.xl,
+  },
+  warningIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 183, 77, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing["4"],
+  },
+  warningTitle: {
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
+    textAlign: 'center',
+    marginBottom: spacing["3"],
+  },
+  warningDescription: {
+    fontSize: typography.size.md,
+    color: Colors.neutral.dark,
+    textAlign: 'center',
+    marginBottom: spacing["3"],
+    lineHeight: 22,
+  },
+  concernTypeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing["4"],
+    paddingVertical: spacing["2"],
+    borderRadius: radius.full,
+    marginBottom: spacing["4"],
+    gap: spacing["2"],
+  },
+  concernTypeEmoji: {
+    fontSize: 20,
+  },
+  concernTypeLabel: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+  },
+  warningDetailBox: {
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    borderRadius: radius.lg,
+    padding: spacing["4"],
+    marginBottom: spacing["4"],
+    width: '100%',
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary.sunset,
+  },
+  warningDetailTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.dark,
+    marginBottom: spacing["2"],
+  },
+  warningDetailText: {
+    fontSize: typography.size.md,
+    color: Colors.neutral.darkest,
+    fontWeight: typography.weight.medium,
+    lineHeight: 20,
+  },
+  therapeuticBox: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderRadius: radius.lg,
+    padding: spacing["4"],
+    marginBottom: spacing["4"],
+    width: '100%',
+    borderLeftWidth: 4,
+    borderLeftColor: '#8B5CF6',
+  },
+  therapeuticTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: '#8B5CF6',
+    marginBottom: spacing["2"],
+  },
+  therapeuticText: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
+    lineHeight: 20,
+  },
+  coloringThemeBox: {
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    borderRadius: radius.lg,
+    padding: spacing["4"],
+    marginBottom: spacing["4"],
+    width: '100%',
+    borderLeftWidth: 4,
+    borderLeftColor: '#22C55E',
+  },
+  coloringThemeTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: '#22C55E',
+    marginBottom: spacing["2"],
+  },
+  coloringThemeText: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
+    lineHeight: 20,
+  },
+  warningInfoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(255, 160, 122, 0.1)',
+    borderRadius: radius.lg,
+    padding: spacing["4"],
+    marginBottom: spacing["5"],
+    gap: spacing["3"],
+  },
+  warningInfoText: {
+    flex: 1,
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
+    lineHeight: 20,
+  },
+  professionalNoteBox: {
+    backgroundColor: 'rgba(156, 163, 175, 0.1)',
+    borderRadius: radius.lg,
+    padding: spacing["3"],
+    marginBottom: spacing["4"],
+    width: '100%',
+  },
+  professionalNoteText: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
+  warningButton: {
+    width: '100%',
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+  },
+  warningButtonGradient: {
+    paddingVertical: spacing["4"],
+    paddingHorizontal: spacing["6"],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  warningButtonText: {
+    color: Colors.neutral.white,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
   },
 });

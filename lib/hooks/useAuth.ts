@@ -1,13 +1,45 @@
 import { useState, useEffect } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { trpc, trpcClient } from '@/lib/trpc';
 import { getSupabaseFrontend, signIn as supabaseSignIn, signUp as supabaseSignUp, signOut as supabaseSignOut } from '@/lib/supabase';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 
 const ONBOARDING_KEY = '@renkioo_onboarding_completed';
 const MANUAL_SESSION_KEY = '@renkioo_manual_session';
-const ACCESS_TOKEN_KEY = '@renkioo_access_token';
-const REFRESH_TOKEN_KEY = '@renkioo_refresh_token';
+const ACCESS_TOKEN_KEY = 'renkioo_access_token'; // No @ prefix for SecureStore
+const REFRESH_TOKEN_KEY = 'renkioo_refresh_token';
+
+/**
+ * Secure token storage helpers
+ * Uses SecureStore on native platforms, AsyncStorage fallback on web
+ */
+const secureStorage = {
+  async setItem(key: string, value: string): Promise<void> {
+    if (Platform.OS === 'web') {
+      // Web fallback - less secure but functional
+      await AsyncStorage.setItem(`@${key}`, value);
+    } else {
+      // Native: Use encrypted SecureStore
+      await SecureStore.setItemAsync(key, value);
+    }
+  },
+  async getItem(key: string): Promise<string | null> {
+    if (Platform.OS === 'web') {
+      return AsyncStorage.getItem(`@${key}`);
+    } else {
+      return SecureStore.getItemAsync(key);
+    }
+  },
+  async deleteItem(key: string): Promise<void> {
+    if (Platform.OS === 'web') {
+      await AsyncStorage.removeItem(`@${key}`);
+    } else {
+      await SecureStore.deleteItemAsync(key);
+    }
+  },
+};
 
 // Legacy keys for migration
 const LEGACY_ONBOARDING_KEY = '@masalbak_onboarding_completed';
@@ -238,10 +270,14 @@ export function useAuth() {
       console.log('[useAuth] 👋 Logging out...');
 
       await supabaseSignOut();
+
+      // Clear non-sensitive data from AsyncStorage
       await AsyncStorage.removeItem(ONBOARDING_KEY);
       await AsyncStorage.removeItem(MANUAL_SESSION_KEY);
-      await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
-      await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+
+      // Clear sensitive tokens from SecureStore
+      await secureStorage.deleteItem(ACCESS_TOKEN_KEY);
+      await secureStorage.deleteItem(REFRESH_TOKEN_KEY);
 
       setUser(null);
       setSession(null);
@@ -336,14 +372,14 @@ export function useAuth() {
     try {
       console.log('[useAuth] 📝 Setting user session manually:', email);
 
-      // Save JWT tokens if provided
+      // Save JWT tokens securely if provided
       if (accessToken) {
-        await AsyncStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-        console.log('[useAuth] 🔑 Access token saved');
+        await secureStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+        console.log('[useAuth] 🔒 Access token saved securely');
       }
       if (refreshToken) {
-        await AsyncStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-        console.log('[useAuth] 🔑 Refresh token saved');
+        await secureStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        console.log('[useAuth] 🔒 Refresh token saved securely');
       }
 
       // Create basic user session

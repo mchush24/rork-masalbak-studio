@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../create-context";
 import { z } from "zod";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 const checkEmailInputSchema = z.object({
   email: z.string().email(),

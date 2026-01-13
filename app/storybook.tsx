@@ -12,7 +12,8 @@ import {
 import { Colors } from "@/constants/colors";
 import { useState, useRef, useEffect } from "react";
 import { Image } from "expo-image";
-import { ChevronLeft, ChevronRight, Sparkles, BookOpen } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Sparkles, BookOpen, Star } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 
 import { useLocalSearchParams, Stack } from "expo-router";
@@ -42,6 +43,8 @@ export default function StorybookScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
+  const pageTransitionAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   // Check if we're viewing an existing storybook or generating a new one
   const existingPages = params.pages ? JSON.parse(params.pages as string) : null;
@@ -180,12 +183,47 @@ export default function StorybookScreen() {
     }
   }
 
+  const animatePageTransition = (direction: 'next' | 'prev', callback: () => void) => {
+    const slideValue = direction === 'next' ? -30 : 30;
+
+    // Fade out and slide
+    Animated.parallel([
+      Animated.timing(pageTransitionAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: slideValue,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      callback();
+      slideAnim.setValue(direction === 'next' ? 30 : -30);
+
+      // Fade in and slide back
+      Animated.parallel([
+        Animated.timing(pageTransitionAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
+
   async function nextPage() {
     if (story && currentPage < story.pages.length - 1) {
       if (Platform.OS !== "web") {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
-      setCurrentPage(currentPage + 1);
+      animatePageTransition('next', () => setCurrentPage(currentPage + 1));
     }
   }
 
@@ -194,7 +232,7 @@ export default function StorybookScreen() {
       if (Platform.OS !== "web") {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
-      setCurrentPage(currentPage - 1);
+      animatePageTransition('prev', () => setCurrentPage(currentPage - 1));
     }
   }
 
@@ -263,7 +301,15 @@ export default function StorybookScreen() {
               <Text style={styles.storyTitle}>{story.title}</Text>
             </View>
 
-            <View style={styles.pageContainer}>
+            <Animated.View
+              style={[
+                styles.pageContainer,
+                {
+                  opacity: pageTransitionAnim,
+                  transform: [{ translateX: slideAnim }],
+                },
+              ]}
+            >
               <View style={styles.page}>
                 <View style={styles.pageImageContainer}>
                   <Image
@@ -278,13 +324,48 @@ export default function StorybookScreen() {
                   </View>
                 </View>
 
-                <View style={styles.pageTextContainer}>
-                  <Text style={styles.pageText}>
-                    {story.pages[currentPage]?.text}
-                  </Text>
-                </View>
+                {/* Beautiful Story Text Container */}
+                <LinearGradient
+                  colors={['#FEF3E2', '#FFF8F0', '#FFFBF5']}
+                  style={styles.pageTextContainer}
+                >
+                  {/* Decorative Corner Stars */}
+                  <View style={styles.decorativeCornerTopLeft}>
+                    <Star size={16} color="#FFD700" fill="#FFD700" />
+                  </View>
+                  <View style={styles.decorativeCornerTopRight}>
+                    <Star size={12} color="#9333EA" fill="#9333EA" />
+                  </View>
+                  <View style={styles.decorativeCornerBottomLeft}>
+                    <Star size={12} color="#9333EA" fill="#9333EA" />
+                  </View>
+                  <View style={styles.decorativeCornerBottomRight}>
+                    <Star size={16} color="#FFD700" fill="#FFD700" />
+                  </View>
+
+                  {/* Story Text with Drop Cap */}
+                  <View style={styles.storyTextWrapper}>
+                    {story.pages[currentPage]?.text && (
+                      <>
+                        <Text style={styles.dropCap}>
+                          {story.pages[currentPage].text.charAt(0)}
+                        </Text>
+                        <Text style={styles.pageText}>
+                          {story.pages[currentPage].text.slice(1)}
+                        </Text>
+                      </>
+                    )}
+                  </View>
+
+                  {/* Decorative Divider */}
+                  <View style={styles.decorativeDivider}>
+                    <View style={styles.dividerLine} />
+                    <Sparkles size={20} color="#9333EA" />
+                    <View style={styles.dividerLine} />
+                  </View>
+                </LinearGradient>
               </View>
-            </View>
+            </Animated.View>
 
             <View style={styles.navigationContainer}>
               <Pressable
@@ -485,16 +566,79 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   pageTextContainer: {
-    padding: 28,
-    minHeight: 160,
+    padding: 24,
+    paddingTop: 28,
+    paddingBottom: 20,
+    minHeight: 180,
     justifyContent: "center",
+    position: "relative",
+    borderTopWidth: 3,
+    borderTopColor: "rgba(147, 51, 234, 0.15)",
+  },
+  storyTextWrapper: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 8,
+  },
+  dropCap: {
+    fontSize: 48,
+    fontWeight: "800" as const,
+    color: "#9333EA",
+    lineHeight: 52,
+    marginRight: 4,
+    marginTop: -4,
+    textShadowColor: "rgba(147, 51, 234, 0.2)",
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 4,
   },
   pageText: {
-    fontSize: 18,
-    lineHeight: 30,
-    color: Colors.neutral.darkest,
-    textAlign: "center",
+    flex: 1,
+    fontSize: 17,
+    lineHeight: 28,
+    color: "#2D1B4E",
+    textAlign: "left",
     fontWeight: "500" as const,
+    letterSpacing: 0.2,
+  },
+  // Decorative Elements
+  decorativeCornerTopLeft: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    opacity: 0.8,
+  },
+  decorativeCornerTopRight: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    opacity: 0.6,
+  },
+  decorativeCornerBottomLeft: {
+    position: "absolute",
+    bottom: 12,
+    left: 12,
+    opacity: 0.6,
+  },
+  decorativeCornerBottomRight: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    opacity: 0.8,
+  },
+  decorativeDivider: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
+    gap: 12,
+  },
+  dividerLine: {
+    height: 2,
+    width: 40,
+    backgroundColor: "rgba(147, 51, 234, 0.2)",
+    borderRadius: 1,
   },
   navigationContainer: {
     flexDirection: "row",

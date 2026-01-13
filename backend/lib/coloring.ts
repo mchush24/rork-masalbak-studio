@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
+import { escapeHtml } from "./utils.js";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
@@ -112,8 +113,4 @@ function htmlDoc(title: string, imgs: string[]) {
   <h1>${escapeHtml(title)}</h1>
   ${items}
   </body></html>`;
-}
-
-function escapeHtml(s: string){
-  return s.replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] as string));
 }

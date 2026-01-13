@@ -2,16 +2,21 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Email configuration from environment variables
+// Set RESEND_FROM_EMAIL in production (e.g., 'Renkioo <hello@renkioo.com>')
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Renkioo <onboarding@resend.dev>';
+const REPLY_TO_EMAIL = process.env.RESEND_REPLY_TO || 'support@resend.dev';
+
 /**
  * Send verification code to user's email
  */
 export async function sendVerificationEmail(email: string, code: string, name?: string) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Renkioo <onboarding@resend.dev>', // TODO: Change to custom domain (e.g., 'Renkioo <hello@yourdomain.com>')
+      from: FROM_EMAIL,
       to: [email],
       subject: 'Doğrulama Kodunuz - Renkioo',
-      replyTo: 'support@resend.dev', // TODO: Change to your support email
+      replyTo: REPLY_TO_EMAIL,
       html: `
         <!DOCTYPE html>
         <html lang="tr">
@@ -205,10 +210,10 @@ export async function sendPasswordResetEmail(
 ) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Renkioo <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to: [email],
       subject: 'Şifre Sıfırlama Kodu - Renkioo',
-      replyTo: 'support@resend.dev',
+      replyTo: REPLY_TO_EMAIL,
       html: `
         <!DOCTYPE html>
         <html lang="tr">

@@ -6,20 +6,30 @@ function getSupabaseClient(): SupabaseClient {
   if (_supa) return _supa;
 
   const url = process.env.SUPABASE_URL;
-  // Check both env var names for service role key (SUPABASE_SERVICE_ROLE_KEY is the standard name)
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || process.env.SUPABASE_ANON_KEY;
+  // SECURITY: Backend MUST use service role key - NEVER fallback to anon key
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
 
-  if (!url || !key) {
-    throw new Error("Supabase env missing: SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY/SUPABASE_SERVICE_ROLE/ANON");
+  if (!url) {
+    throw new Error("[Supabase] SUPABASE_URL environment variable is required");
   }
 
-  console.log("[Supabase Storage] Using key type:",
-    process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE_KEY' :
-    process.env.SUPABASE_SERVICE_ROLE ? 'SERVICE_ROLE' : 'ANON_KEY'
-  );
+  if (!key) {
+    throw new Error(
+      "[Supabase] SUPABASE_SERVICE_ROLE_KEY is required for backend operations. " +
+      "ANON_KEY is NOT allowed in backend for security reasons."
+    );
+  }
 
   _supa = createClient(url, key, { auth: { persistSession: false } });
   return _supa;
+}
+
+/**
+ * Factory function to create/get Supabase client
+ * Used for direct database operations in tRPC routes
+ */
+export function createSupabaseClient(): SupabaseClient {
+  return getSupabaseClient();
 }
 
 export const supa = new Proxy({} as SupabaseClient, {
@@ -27,6 +37,9 @@ export const supa = new Proxy({} as SupabaseClient, {
     return (getSupabaseClient() as any)[prop];
   }
 });
+
+// Alias for backward compatibility with auth routes
+export const supabase = supa;
 
 export async function uploadBuffer(bucket: string, filePath: string, buf: Buffer, contentType: string) {
   console.log(`[Supabase Upload] Starting upload to ${bucket}/${filePath} (${buf.length} bytes, ${contentType})`);

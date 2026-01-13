@@ -1,11 +1,27 @@
 import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { generateStoryFromAnalysis } from "../../../lib/generate-story-from-analysis.js";
-import { generateStoryFromAnalysisV2 } from "../../../lib/generate-story-from-analysis-v2.js";
+import { generateStoryFromAnalysisV2, type Character } from "../../../lib/generate-story-from-analysis-v2.js";
 import { makeStorybook } from "../../../lib/story.js";
 import { saveStorybookRecord } from "../../../lib/persist.js";
 import type { AnalysisResponse } from "./analyze-drawing.js";
 import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+
+// Therapeutic context schema for trauma-informed storytelling (ACEs Framework + Pediatric Psychology)
+const therapeuticContextSchema = z.object({
+  concernType: z.enum([
+    // Original categories
+    'war', 'violence', 'fear', 'loss', 'loneliness', 'disaster', 'abuse', 'family_separation', 'death',
+    // ACEs Framework categories
+    'neglect', 'bullying', 'domestic_violence_witness', 'parental_addiction', 'parental_mental_illness',
+    // Pediatric psychology categories
+    'medical_trauma', 'anxiety', 'depression', 'low_self_esteem', 'anger', 'school_stress', 'social_rejection',
+    // Additional categories
+    'displacement', 'poverty', 'cyberbullying',
+    // Fallback
+    'other'
+  ]),
+  therapeuticApproach: z.string(),
+}).optional();
 
 const generateStoryInputSchema = z.object({
   // Drawing analysis data
@@ -17,12 +33,14 @@ const generateStoryInputSchema = z.object({
 
   // Story preferences
   language: z.enum(["tr", "en"]).default("tr"),
-  useV2Generator: z.boolean().default(true), // NEW: Use multi-stage generator
 
   // Optional metadata
   drawingTitle: z.string().optional(),
   drawingDescription: z.string().optional(),
   themes: z.array(z.string()).optional(),
+
+  // Therapeutic context for trauma-informed storytelling
+  therapeuticContext: therapeuticContextSchema,
 
   // Generation options
   makePdf: z.boolean().default(true),
@@ -49,28 +67,27 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
     console.log("[Generate Story] 👶 Child age:", input.childAge);
     console.log("[Generate Story] 🌍 Language:", input.language);
 
-    try {
-      // Step 1: Generate story using AI (V1 or V2)
-      console.log(`[Generate Story] 📝 Generating story with ${input.useV2Generator ? 'V2 (Multi-Stage)' : 'V1 (Legacy)'} generator...`);
+    // Log therapeutic context if present
+    if (input.therapeuticContext) {
+      console.log("[Generate Story] 💜 THERAPEUTIC MODE ACTIVE");
+      console.log("[Generate Story] 💜 Concern type:", input.therapeuticContext.concernType);
+      console.log("[Generate Story] 💜 Approach:", input.therapeuticContext.therapeuticApproach);
+    }
 
-      const generatedStory = input.useV2Generator
-        ? await generateStoryFromAnalysisV2({
-            drawingAnalysis: input.drawingAnalysis as AnalysisResponse,
-            childAge: input.childAge,
-            childName: input.childName,
-            language: input.language,
-            drawingTitle: input.drawingTitle,
-            drawingDescription: input.drawingDescription,
-            themes: input.themes,
-          })
-        : await generateStoryFromAnalysis({
-            drawingAnalysis: input.drawingAnalysis as AnalysisResponse,
-            childAge: input.childAge,
-            language: input.language,
-            drawingTitle: input.drawingTitle,
-            drawingDescription: input.drawingDescription,
-            themes: input.themes,
-          });
+    try {
+      // Step 1: Generate story using AI (Multi-Stage V2 Generator)
+      console.log("[Generate Story] 📝 Generating story with V2 (Multi-Stage) generator...");
+
+      const generatedStory = await generateStoryFromAnalysisV2({
+        drawingAnalysis: input.drawingAnalysis as AnalysisResponse,
+        childAge: input.childAge,
+        childName: input.childName,
+        language: input.language,
+        drawingTitle: input.drawingTitle,
+        drawingDescription: input.drawingDescription,
+        themes: input.themes,
+        therapeuticContext: input.therapeuticContext,
+      });
 
       console.log("[Generate Story] ✅ Story generated!");
       console.log("[Generate Story] 📖 Title:", generatedStory.title);
@@ -84,8 +101,8 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
       }));
 
       // Step 3: Prepare character info for visual consistency
-      const mainChar: any = generatedStory.mainCharacter;
-      const characterInfo: any = {
+      const mainChar: Character = generatedStory.mainCharacter;
+      const characterInfo = {
         name: mainChar.name,
         type: mainChar.type,
         age: input.childAge,

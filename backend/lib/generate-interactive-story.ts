@@ -27,7 +27,7 @@ import {
   TherapeuticTraitMapping,
   EnhancedTherapeuticContext,
   GenerateInteractiveStoryInput,
-} from "../../types/InteractiveStory";
+} from "../types/InteractiveStory";
 import { AnalysisResponse } from "../trpc/routes/studio/analyze-drawing";
 
 // ============================================

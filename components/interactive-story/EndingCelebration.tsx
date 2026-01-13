@@ -122,7 +122,7 @@ export function EndingCelebration({
                   },
                 ],
                 opacity: anim.opacity,
-                left: (i * 5) % 100 + "%",
+                left: ((i * 5) % 100) / 100 * SCREEN_WIDTH,
               },
             ]}
           >

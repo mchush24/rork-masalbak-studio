@@ -55,10 +55,31 @@ const analysisResponseSchema = z.object({
       action: z.literal("consider_consulting_a_specialist"),
     })
   ),
-  // NEW: Trauma/violence specific assessment
+  // Trauma/concerning content assessment based on ACEs (Adverse Childhood Experiences) framework
   traumaAssessment: z.nullable(z.object({
     hasTraumaticContent: z.boolean(),
-    contentTypes: z.array(z.enum(["war", "violence", "weapons", "injury", "death", "natural_disaster", "conflict", "none"])),
+    // Expanded to 24 categories based on ACEs + pediatric psychology
+    contentTypes: z.array(z.enum([
+      // Original categories
+      "war", "violence", "disaster", "loss", "loneliness", "fear", "abuse", "family_separation", "death",
+      // ACEs Framework categories
+      "neglect", "bullying", "domestic_violence_witness", "parental_addiction", "parental_mental_illness",
+      // Pediatric psychology categories
+      "medical_trauma", "anxiety", "depression", "low_self_esteem", "anger", "school_stress", "social_rejection",
+      // Additional categories
+      "displacement", "poverty", "cyberbullying",
+      // Legacy/compatibility
+      "weapons", "injury", "natural_disaster", "conflict",
+      // No concerning content
+      "none"
+    ])),
+    primaryConcern: z.enum([
+      "war", "violence", "disaster", "loss", "loneliness", "fear", "abuse", "family_separation", "death",
+      "neglect", "bullying", "domestic_violence_witness", "parental_addiction", "parental_mental_illness",
+      "medical_trauma", "anxiety", "depression", "low_self_esteem", "anger", "school_stress", "social_rejection",
+      "displacement", "poverty", "cyberbullying", "other", "none"
+    ]).optional(),
+    therapeuticApproach: z.string().optional(), // Recommended bibliotherapy approach
     ageAppropriateness: z.enum(["age_appropriate", "borderline", "concerning"]),
     detailLevel: z.enum(["minimal", "moderate", "excessive"]),
     emotionalIntensity: z.enum(["low", "moderate", "high"]),
@@ -152,45 +173,89 @@ Risk bayrakları (örn.):
 - Uzun süreli belirgin gerileme trendi (zaman serisinden).
 Bayrak varsa: "uzmanla görüş" öner; panik yaratma.
 
-**ÖZEL ÖNCELİK: Travma ve Şiddet İçerikli Çizimler**
+**ÖZEL ÖNCELİK: ACEs (Adverse Childhood Experiences) Çerçevesinde Travmatik İçerik Tespiti**
 
-Çizimde savaş, silah, yaralanma, ölüm, şiddet, doğal afet veya çatışma teması varsa:
+Çizimde aşağıdaki 24 kategoriden herhangi birini tespit et:
+
+**TEMEL KATEGORİLER:**
+1. SAVAŞ (war): Silahlar, askerler, bombalar, yıkılmış binalar
+2. ŞİDDET (violence): Dövüşen figürler, yaralı karakterler, kan
+3. DOĞAL AFET (disaster): Deprem yıkıntıları, sel, yangın
+4. KAYIP (loss): Mezarlar, boş yerler, eksik aile üyeleri
+5. YALNIZLIK (loneliness): Tek başına figürler, izole karakterler
+6. KORKU (fear): Canavarlar, karanlık temalar, korkmuş ifadeler
+7. İSTİSMAR (abuse): Ağlayan çocuklar, korunmasız pozisyonlar
+8. AİLE AYRILIGI (family_separation): Bölünmüş aileler, ayrılmış figürler
+9. ÖLÜM (death): Melekler, bulutlardaki figürler
+
+**ACEs FRAMEWORK KATEGORİLERİ:**
+10. İHMAL (neglect): Bakımsız görünüm, boş/karanlık ev, yalnız bırakılmış çocuk
+11. ZORBALIK (bullying): Grup tarafından çevrelenmiş tek çocuk, ağlayan yüz, itilen figür
+12. AİLE İÇİ ŞİDDETE TANIKLIK (domestic_violence_witness): Kavga eden ebeveynler, saklanan çocuk
+13. EBEVEYN BAĞIMLILIĞI (parental_addiction): Şişeler, sigara, yatan/hareketsiz ebeveyn
+14. EBEVEYN RUHSAL HASTALIĞI (parental_mental_illness): Üzgün/ağlayan ebeveyn, yatakta yatan anne/baba
+
+**PEDİATRİK PSİKOLOJİ KATEGORİLERİ:**
+15. TIBBİ TRAVMA (medical_trauma): Hastane, iğne, yatak, doktor
+16. KAYGI (anxiety): Titrek çizgiler, büyük gözler, küçük figür, tehdit sembolleri
+17. DEPRESYON (depression): Koyu renkler, ağlayan yüz, yalnız figür, güneşsiz gökyüzü
+18. DÜŞÜK ÖZ SAYGI (low_self_esteem): Çok küçük çizilmiş kendisi, köşede figür, silik çizgiler
+19. ÖFKE (anger): Kırmızı renkler, saldırgan figürler, patlamalar, kırık objeler
+20. OKUL STRESİ (school_stress): Okul binası, kitaplar, sınav, ağlayan öğrenci
+21. SOSYAL DIŞLANMA (social_rejection): Gruptan uzak tek figür, kapalı kapı, duvar
+
+**EK KATEGORİLER:**
+22. GÖÇ/YERİNDEN EDİLME (displacement): Yolculuk, bavul, farklı evler, yabancı ortam
+23. EKONOMİK ZORLUK (poverty): Boş tabak, yırtık kıyafet, eksik eşyalar
+24. SİBER ZORBALIK (cyberbullying): Telefon/tablet, üzgün yüz, mesaj sembolleri
+
+**DEĞERLENDİRME ADIMLARI:**
 
 1. **Yaş Uygunluğu Değerlendir:**
-   - 4-6 yaş: Minimal şiddet bile endişe verici olabilir
-   - 7-9 yaş: "İyi vs kötü" temaları normal, ama detaylı şiddet endişe verici
-   - 10-12 yaş: Kahramanlık/macera normal, ama gerçekçi savaş/travma endişe verici
-   - Her yaşta: Aşırı detay, kan, ölüm, acı çeken figürler → profesyonel değerlendirme
+   - 4-6 yaş: Minimal endişe verici içerik bile dikkat gerektirir
+   - 7-9 yaş: "İyi vs kötü" temaları normal, ama detaylı olumsuz içerik endişe verici
+   - 10-12 yaş: Kahramanlık/macera normal, ama gerçekçi travma endişe verici
+   - Her yaşta: Aşırı detay, yoğun olumsuz duygular → profesyonel değerlendirme
 
 2. **Detay Seviyesini Değerlendir:**
-   - Minimal: Basit silah çizimi, sembolik çatışma → İzle
-   - Moderate: Birden fazla savaş öğesi, net çatışma sahnesi → Çocukla konuş
-   - Excessive: Kan, yaralanma detayları, ölüm sahneleri, acı ifadeleri → Uzman değerlendirmesi
+   - Minimal: Sembolik ifadeler → İzle
+   - Moderate: Net olumsuz tema → Çocukla konuş
+   - Excessive: Detaylı, yoğun olumsuz içerik → Uzman değerlendirmesi
 
 3. **Duygusal Yoğunluğu Değerlendir:**
    - Çizgi kalitesi: Koyu baskı, sert çizgiler, titreme
    - Renk seçimi: Çok koyu tonlar, kırmızı/siyah dominansı
-   - Yüz ifadeleri: Korku, acı, öfke
-   - Genel atmosfer: Tehdit hissi, karanlık tema
+   - Yüz ifadeleri: Korku, acı, öfke, üzüntü
+   - Genel atmosfer: Tehdit hissi, karanlık tema, umutsuzluk
 
 4. **Aciliyet Seviyesi Belirle:**
-   - monitor: Tek seferlik, minimal detay, yaşa uygun → Çocuğun medya maruziyetini gözden geçir
-   - discuss_with_child: Orta detay veya tekrarlayan tema → Çocukla konuş, duygularını anla
-   - consider_professional: Yüksek detay, yaşa uygun değil, duygusal yoğunluk → Çocuk psikologu öner
-   - seek_help_urgently: Kendine/başkasına zarar teması, aşırı travmatik içerik → Acil profesyonel destek
+   - monitor: Tek seferlik, minimal detay, yaşa uygun
+   - discuss_with_child: Orta detay veya tekrarlayan tema
+   - consider_professional: Yüksek detay, yaşa uygun değil, duygusal yoğunluk
+   - seek_help_urgently: Kendine/başkasına zarar teması, aşırı travmatik içerik
 
-5. **Ebeveyn İçin Konuşma Rehberi Oluştur:**
+5. **Terapötik Yaklaşım Öner (therapeuticApproach alanı için):**
+   - Her kategori için bibliotherapy prensipleri:
+     * Psikolojik mesafe: Metafor kullan
+     * Dışsallaştırma: Sorunu ayrı bir varlık olarak göster
+     * Güçlendirme: Çocuğa güç ver
+     * Güvenlik: Güvenli ortamlar vurgula
+     * Umut: Pozitif dönüşüm sun
+
+6. **Ebeveyn İçin Konuşma Rehberi Oluştur:**
    - Açık uçlu, yargısız sorularla başla: "Bana çizdiğin resmi anlatır mısın?"
    - Çocuğun duygularını kabul et: "Bu duyguları hissetmen çok doğal"
-   - ASLA yapmaması gerekenler: "Bu çok korkunç!", "Neden böyle şeyler çiziyorsun?", "Utanmalısın"
+   - ASLA yapmaması gerekenler: "Bu çok korkunç!", "Neden böyle şeyler çiziyorsun?"
    - Terapötik yanıtlar: "Hislerini çizmek çok cesurca", "Bu konuda konuşmak istersen buradayım"
 
-6. **Profesyonel Kaynak Öner:**
+7. **Profesyonel Kaynak Öner:**
    - Ne zaman uzman yardımı alınmalı: Somut durumlar listele
    - Kime başvurulmalı: Çocuk psikologu, okul psikolojik danışmanı, Çocuk Koruma Hattı (183)
    - Nasıl hazırlanmalı: Çizimi sakla, not tut, çocuğu korkutmadan bilgilendir
 
-7. **traumaAssessment, conversationGuide ve professionalGuidance alanlarını MUTLAKA doldur.**
+8. **traumaAssessment, conversationGuide ve professionalGuidance alanlarını MUTLAKA doldur.**
+   - primaryConcern: En baskın kategoriyi belirle
+   - therapeuticApproach: Bibliotherapy yaklaşımını açıkla
 
 Yerelleştirme:
 - Kullanıcı dili ${language}'dir. Çıktıları bu dilde üret.
@@ -280,9 +345,17 @@ JSON Şeması:
       "action": "consider_consulting_a_specialist"
     }
   ],
-  "traumaAssessment": { // MUTLAKA ekle eğer çizimde savaş/şiddet/travma varsa, yoksa null
+  "traumaAssessment": { // MUTLAKA ekle eğer çizimde endişe verici içerik varsa, yoksa null
     "hasTraumaticContent": boolean,
-    "contentTypes": ["war"|"violence"|"weapons"|"injury"|"death"|"natural_disaster"|"conflict"|"none"],
+    "contentTypes": [
+      // Temel: "war"|"violence"|"disaster"|"loss"|"loneliness"|"fear"|"abuse"|"family_separation"|"death"
+      // ACEs: "neglect"|"bullying"|"domestic_violence_witness"|"parental_addiction"|"parental_mental_illness"
+      // Pediatrik: "medical_trauma"|"anxiety"|"depression"|"low_self_esteem"|"anger"|"school_stress"|"social_rejection"
+      // Ek: "displacement"|"poverty"|"cyberbullying"
+      // Yok: "none"
+    ],
+    "primaryConcern": "en baskın kategori (yukarıdakilerden biri veya 'none')",
+    "therapeuticApproach": "Bibliotherapy yaklaşımı açıklaması (2-3 cümle)",
     "ageAppropriateness": "age_appropriate|borderline|concerning",
     "detailLevel": "minimal|moderate|excessive",
     "emotionalIntensity": "low|moderate|high",
