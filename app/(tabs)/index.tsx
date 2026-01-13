@@ -23,9 +23,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useChild } from "@/lib/contexts/ChildContext";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { ChildSelectorChip } from "@/components/ChildSelectorChip";
 import {
   layout,
   typography,
@@ -62,6 +64,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { selectedChild, setSelectedChild, children: userChildren, hasChildren } = useChild();
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch recent analyses (last 3)
@@ -131,6 +134,61 @@ export default function HomeScreen() {
           <View style={styles.welcomeContainer}>
             <Text style={styles.welcomeGreeting}>👋 Merhaba!</Text>
             <Text style={styles.welcomeSubtitle}>Bugün ne yapmak istersin?</Text>
+          </View>
+
+          {/* Active Child Card - Prominent placement */}
+          <View style={styles.activeChildSection}>
+            <LinearGradient
+              colors={
+                selectedChild?.gender === 'male'
+                  ? [Colors.secondary.sky, Colors.secondary.skyLight]
+                  : selectedChild?.gender === 'female'
+                  ? [Colors.secondary.rose, Colors.secondary.roseLight]
+                  : [Colors.primary.sunset, Colors.primary.peach]
+              }
+              style={styles.activeChildCard}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <View style={styles.activeChildHeader}>
+                <Text style={styles.activeChildLabel}>
+                  {hasChildren ? '👶 Aktif Çocuk' : '👶 Çocuk Seçin'}
+                </Text>
+              </View>
+
+              <View style={styles.activeChildContent}>
+                <ChildSelectorChip
+                  selectedChild={selectedChild}
+                  children={userChildren}
+                  onSelectChild={(child) => setSelectedChild(child)}
+                />
+
+                {selectedChild && (
+                  <Text style={styles.activeChildInfo}>
+                    Tüm içerikler {selectedChild.name} için ({selectedChild.age} yaş
+                    {selectedChild.gender ? `, ${selectedChild.gender === 'male' ? 'erkek' : 'kız'}` : ''})
+                    kişiselleştirilecek
+                  </Text>
+                )}
+
+                {!hasChildren && (
+                  <View style={styles.noChildHint}>
+                    <Text style={styles.noChildHintText}>
+                      Profil sayfasından çocuk ekleyerek kişiselleştirilmiş içerik oluşturabilirsiniz
+                    </Text>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.addChildLink,
+                        pressed && { opacity: 0.7 },
+                      ]}
+                      onPress={() => router.push('/profile' as any)}
+                    >
+                      <Text style={styles.addChildLinkText}>Çocuk Ekle →</Text>
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+            </LinearGradient>
           </View>
 
           {/* Quick Actions */}
@@ -401,6 +459,60 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
+  },
+  // Active Child Section
+  activeChildSection: {
+    marginBottom: spacing["6"],
+  },
+  activeChildCard: {
+    borderRadius: radius["2xl"],
+    padding: spacing["4"],
+    ...shadows.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  activeChildHeader: {
+    marginBottom: spacing["3"],
+  },
+  activeChildLabel: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  activeChildContent: {
+    gap: spacing["3"],
+  },
+  activeChildInfo: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.white,
+    opacity: 0.9,
+    textAlign: 'center',
+    marginTop: spacing["2"],
+  },
+  noChildHint: {
+    alignItems: 'center',
+    paddingVertical: spacing["2"],
+  },
+  noChildHintText: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.white,
+    opacity: 0.9,
+    textAlign: 'center',
+    marginBottom: spacing["2"],
+  },
+  addChildLink: {
+    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing["4"],
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: radius.lg,
+  },
+  addChildLinkText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.white,
   },
   sectionTitle: {
     fontSize: typography.size.xl,
