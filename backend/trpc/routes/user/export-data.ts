@@ -1,10 +1,11 @@
-import { protectedProcedure } from "../../create-context";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 export const exportDataProcedure = protectedProcedure
   .mutation(async ({ ctx }) => {
     const userId = ctx.userId;
-    console.log("[exportData] User requesting data export:", userId);
+    logger.info("[exportData] User requesting data export:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -19,7 +20,7 @@ export const exportDataProcedure = protectedProcedure
       .single();
 
     if (userError) {
-      console.error("[exportData] Error fetching user:", userError);
+      logger.error("[exportData] Error fetching user:", userError);
       throw new Error("Failed to fetch user data");
     }
 
@@ -35,7 +36,7 @@ export const exportDataProcedure = protectedProcedure
 
     if (settingsError && settingsError.code !== "PGRST116") {
       // PGRST116 = not found, which is ok
-      console.error("[exportData] Error fetching settings:", settingsError);
+      logger.error("[exportData] Error fetching settings:", settingsError);
     }
 
     // 3. Analyses
@@ -46,7 +47,7 @@ export const exportDataProcedure = protectedProcedure
       .order("created_at", { ascending: false });
 
     if (analysesError) {
-      console.error("[exportData] Error fetching analyses:", analysesError);
+      logger.error("[exportData] Error fetching analyses:", analysesError);
     }
 
     // 4. Storybooks
@@ -57,7 +58,7 @@ export const exportDataProcedure = protectedProcedure
       .order("created_at", { ascending: false });
 
     if (storybooksError) {
-      console.error("[exportData] Error fetching storybooks:", storybooksError);
+      logger.error("[exportData] Error fetching storybooks:", storybooksError);
     }
 
     // 5. Colorings
@@ -68,7 +69,7 @@ export const exportDataProcedure = protectedProcedure
       .order("created_at", { ascending: false });
 
     if (coloringsError) {
-      console.error("[exportData] Error fetching colorings:", coloringsError);
+      logger.error("[exportData] Error fetching colorings:", coloringsError);
     }
 
     // Compile all data into a single export object
@@ -95,7 +96,7 @@ export const exportDataProcedure = protectedProcedure
       },
     };
 
-    console.log("[exportData] ✅ Data export completed:", {
+    logger.info("[exportData] ✅ Data export completed:", {
       userId,
       analysesCount: analysesData?.length || 0,
       storybooksCount: storybooksData?.length || 0,

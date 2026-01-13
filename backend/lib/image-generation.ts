@@ -1,3 +1,4 @@
+import { logger } from "./utils.js";
 /**
  * Image Generation Module
  *
@@ -39,9 +40,9 @@ async function generateWithFlux2(
   prompt: string,
   seed: number = 42
 ): Promise<Buffer> {
-  console.log("[ImageGen] 🚀 Using Flux 2.0 Pro via FAL.ai");
-  console.log("[ImageGen] Seed:", seed, "(same seed for consistency)");
-  console.log("[ImageGen] Prompt:", prompt.substring(0, 150) + "...");
+  logger.info("[ImageGen] 🚀 Using Flux 2.0 Pro via FAL.ai");
+  logger.info("[ImageGen] Seed:", seed, "(same seed for consistency)");
+  logger.info("[ImageGen] Prompt:", prompt.substring(0, 150) + "...");
 
   try {
     const result = await fal.subscribe("fal-ai/flux-pro/v1.1", {
@@ -57,7 +58,7 @@ async function generateWithFlux2(
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
-          console.log("[ImageGen] Flux 2.0 progress:", update.logs?.map(log => log.message).join(" "));
+          logger.info("[ImageGen] Flux 2.0 progress:", update.logs?.map(log => log.message).join(" "));
         }
       },
     }) as any;
@@ -67,7 +68,7 @@ async function generateWithFlux2(
     }
 
     const imageUrl = result.images[0].url;
-    console.log("[ImageGen] Flux 2.0 image URL:", imageUrl);
+    logger.info("[ImageGen] Flux 2.0 image URL:", imageUrl);
 
     // Fetch the image
     const response = await fetch(imageUrl);
@@ -77,7 +78,7 @@ async function generateWithFlux2(
 
     return Buffer.from(await response.arrayBuffer());
   } catch (error) {
-    console.error("[ImageGen] Flux 2.0 error:", error);
+    logger.error("[ImageGen] Flux 2.0 error:", error);
     throw new Error(`Flux 2.0 generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -91,15 +92,15 @@ async function generateWithFlux2(
 export async function generateImage(options: ImageGenerationOptions): Promise<Buffer> {
   const seed = options.seed || 42; // Default seed for consistency
 
-  console.log(`[ImageGen] Generating image ${options.pageNumber || '?'}/${options.totalPages || '?'}`);
-  console.log(`[ImageGen] Provider: FLUX 2.0 PRO 🚀`);
+  logger.info(`[ImageGen] Generating image ${options.pageNumber || '?'}/${options.totalPages || '?'}`);
+  logger.info(`[ImageGen] Provider: FLUX 2.0 PRO 🚀`);
 
   const startTime = Date.now();
 
   const buffer = await generateWithFlux2(options.prompt, seed);
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-  console.log(`[ImageGen] ✅ Image generated in ${duration}s`);
+  logger.info(`[ImageGen] ✅ Image generated in ${duration}s`);
 
   return buffer;
 }

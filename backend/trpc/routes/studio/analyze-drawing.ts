@@ -1,7 +1,8 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import OpenAI from "openai";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -119,10 +120,10 @@ function getDisclaimer(language: string): string {
 
 // Exported for testing
 export async function analyzeDrawing(input: AnalysisInput, openaiClient = openai): Promise<AnalysisResponse> {
-  console.log("[Drawing Analysis] 🎯 Starting analysis");
-  console.log("[Drawing Analysis] 📝 Task type:", input.taskType);
-  console.log("[Drawing Analysis] 👶 Child age:", input.childAge);
-  console.log("[Drawing Analysis] 🖼️  Has image:", !!input.imageBase64);
+  logger.info("[Drawing Analysis] 🎯 Starting analysis");
+  logger.info("[Drawing Analysis] 📝 Task type:", input.taskType);
+  logger.info("[Drawing Analysis] 👶 Child age:", input.childAge);
+  logger.info("[Drawing Analysis] 🖼️  Has image:", !!input.imageBase64);
 
   try {
     const language = input.language || "tr";
@@ -382,7 +383,7 @@ JSON Şeması:
 
     // Add image if provided
     if (input.imageBase64) {
-      console.log("[Drawing Analysis] 🖼️ Adding image to request...");
+      logger.info("[Drawing Analysis] 🖼️ Adding image to request...");
       messageContent.push({
         type: "image_url",
         image_url: {
@@ -391,7 +392,7 @@ JSON Şeması:
       });
     }
 
-    console.log("[Drawing Analysis] 🤖 Calling OpenAI API...");
+    logger.info("[Drawing Analysis] 🤖 Calling OpenAI API...");
 
     const completion = await openaiClient.chat.completions.create({
       model: "gpt-4o-mini",
@@ -411,18 +412,18 @@ JSON Şeması:
 
     const responseText = completion.choices[0]?.message?.content || "";
 
-    console.log("[Drawing Analysis] 📝 Response received, length:", responseText.length);
+    logger.info("[Drawing Analysis] 📝 Response received, length:", responseText.length);
 
     let parsedResponse;
     try {
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       const jsonString = jsonMatch ? jsonMatch[0] : responseText;
       parsedResponse = JSON.parse(jsonString);
-      console.log("[Drawing Analysis] 🔍 Parsed response keys:", Object.keys(parsedResponse));
-      console.log("[Drawing Analysis] 📦 Parsed response:", JSON.stringify(parsedResponse, null, 2));
+      logger.info("[Drawing Analysis] 🔍 Parsed response keys:", Object.keys(parsedResponse));
+      logger.info("[Drawing Analysis] 📦 Parsed response:", JSON.stringify(parsedResponse, null, 2));
     } catch (parseErr) {
-      console.error("[Drawing Analysis] ⚠️ JSON parse error:", parseErr);
-      console.error("[Drawing Analysis] 📄 Raw response:", responseText);
+      logger.error("[Drawing Analysis] ⚠️ JSON parse error:", parseErr);
+      logger.error("[Drawing Analysis] 📄 Raw response:", responseText);
 
       // Fallback response matching new schema
       parsedResponse = {
@@ -457,10 +458,10 @@ JSON Şeması:
 
     const result = analysisResponseSchema.parse(parsedResponse);
 
-    console.log("[Drawing Analysis] ✅ Analysis complete!");
+    logger.info("[Drawing Analysis] ✅ Analysis complete!");
     return result;
   } catch (error) {
-    console.error("[Drawing Analysis] ❌ Error:", error);
+    logger.error("[Drawing Analysis] ❌ Error:", error);
     throw new Error(
       `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
     );

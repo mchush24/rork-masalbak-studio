@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const updateBiometricInputSchema = z.object({
   enabled: z.boolean(),
@@ -15,7 +16,7 @@ export const updateBiometricProcedure = protectedProcedure
   .output(updateBiometricResponseSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[Auth] 🔐 Updating biometric for user:", userId, "enabled:", input.enabled);
+    logger.info("[Auth] 🔐 Updating biometric for user:", userId, "enabled:", input.enabled);
 
     const supabase = getSecureClient(ctx);
 
@@ -32,11 +33,11 @@ export const updateBiometricProcedure = protectedProcedure
         throw new Error(`Failed to update biometric: ${error.message}`);
       }
 
-      console.log("[Auth] ✅ Biometric updated successfully");
+      logger.info("[Auth] ✅ Biometric updated successfully");
 
       return { success: true };
     } catch (error) {
-      console.error("[Auth] ❌ Biometric update error:", error);
+      logger.error("[Auth] ❌ Biometric update error:", error);
       throw error;
     }
   });

@@ -57,7 +57,7 @@ jest.mock('../../../lib/email', () => ({
 }));
 
 // Import after mocking
-import { appRouter } from '../../app-router';
+import { appRouter } from '../../app-router.js';
 
 describe('Authentication Integration Tests', () => {
   beforeEach(() => {

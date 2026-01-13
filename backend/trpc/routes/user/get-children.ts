@@ -1,10 +1,11 @@
-import { protectedProcedure } from "../../create-context";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 export const getChildrenProcedure = protectedProcedure
   .query(async ({ ctx }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[getChildren] Fetching children for user:", userId);
+    logger.info("[getChildren] Fetching children for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -15,11 +16,11 @@ export const getChildrenProcedure = protectedProcedure
       .single();
 
     if (error) {
-      console.error("[getChildren] Error:", error);
+      logger.error("[getChildren] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[getChildren] Children found:", data?.children?.length || 0);
+    logger.info("[getChildren] Children found:", data?.children?.length || 0);
 
     // Return children array or empty array if null
     return data?.children || [];

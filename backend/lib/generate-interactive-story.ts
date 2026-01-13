@@ -1,3 +1,4 @@
+import { logger } from "./utils.js";
 /**
  * Interaktif Hikaye Üretim Motoru
  *
@@ -27,8 +28,8 @@ import {
   TherapeuticTraitMapping,
   EnhancedTherapeuticContext,
   GenerateInteractiveStoryInput,
-} from "../types/InteractiveStory";
-import { AnalysisResponse } from "../trpc/routes/studio/analyze-drawing";
+} from "../types/InteractiveStory.js";
+import { AnalysisResponse } from "../trpc/routes/studio/analyze-drawing.js";
 
 // ============================================
 // Terapötik Bağlam Yardımcı Fonksiyonları
@@ -148,7 +149,7 @@ export async function planInteractiveOutline(
   input: GenerateInteractiveStoryInput,
   drawingAnalysis?: AnalysisResponse
 ): Promise<InteractiveOutline> {
-  console.log("[Interactive Story] 📋 Planning interactive outline...");
+  logger.info("[Interactive Story] 📋 Planning interactive outline...");
 
   const ageParams = getAgeParams(input.childAge);
   const isTurkish = input.language === "tr";
@@ -357,7 +358,7 @@ JSON SCHEMA:
     });
 
     const content = response.choices[0]?.message?.content || "";
-    console.log("[Interactive Story] 📝 Outline response received");
+    logger.info("[Interactive Story] 📝 Outline response received");
 
     // Parse JSON
     const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -373,11 +374,11 @@ JSON SCHEMA:
       // Could add retry logic here
     }
 
-    console.log("[Interactive Story] ✅ Outline planned with", outline.choicePoints.length, "choice points");
+    logger.info("[Interactive Story] ✅ Outline planned with", outline.choicePoints.length, "choice points");
     return outline;
 
   } catch (error) {
-    console.error("[Interactive Story] ❌ Outline generation failed:", error);
+    logger.error("[Interactive Story] ❌ Outline generation failed:", error);
     throw error;
   }
 }
@@ -395,7 +396,7 @@ export async function generateSegment(
   language: 'tr' | 'en',
   childAge: number
 ): Promise<StorySegment> {
-  console.log("[Interactive Story] 📖 Generating segment:", segmentId);
+  logger.info("[Interactive Story] 📖 Generating segment:", segmentId);
 
   const ageParams = getAgeParams(childAge);
   const isTurkish = language === "tr";
@@ -513,11 +514,11 @@ JSON SCHEMA:
       endsWithChoice: !isEnding,
     };
 
-    console.log("[Interactive Story] ✅ Segment generated with", segment.pages.length, "pages");
+    logger.info("[Interactive Story] ✅ Segment generated with", segment.pages.length, "pages");
     return segment;
 
   } catch (error) {
-    console.error("[Interactive Story] ❌ Segment generation failed:", error);
+    logger.error("[Interactive Story] ❌ Segment generation failed:", error);
     throw error;
   }
 }
@@ -607,9 +608,9 @@ export async function generateInteractiveStory(
   firstSegment: StorySegment;
   firstChoicePoint: ChoicePoint;
 }> {
-  console.log("[Interactive Story] 🚀 Starting interactive story generation");
-  console.log("[Interactive Story] Child age:", input.childAge);
-  console.log("[Interactive Story] Language:", input.language);
+  logger.info("[Interactive Story] 🚀 Starting interactive story generation");
+  logger.info("[Interactive Story] Child age:", input.childAge);
+  logger.info("[Interactive Story] Language:", input.language);
 
   // Aşama 1: Taslak planla
   const outline = await planInteractiveOutline(input, drawingAnalysis);
@@ -658,9 +659,9 @@ export async function generateInteractiveStory(
     enhancedTherapeuticContext: enhancedTherapeutic || undefined
   };
 
-  console.log("[Interactive Story] ✅ Interactive story created");
-  console.log("[Interactive Story] Total choice points:", story.totalChoicePoints);
-  console.log("[Interactive Story] First segment pages:", firstSegment.pages.length);
+  logger.info("[Interactive Story] ✅ Interactive story created");
+  logger.info("[Interactive Story] Total choice points:", story.totalChoicePoints);
+  logger.info("[Interactive Story] First segment pages:", firstSegment.pages.length);
 
   return {
     story,
@@ -685,7 +686,7 @@ export async function generateNextSegment(
   nextChoicePoint?: ChoicePoint;
   isEnding: boolean;
 }> {
-  console.log("[Interactive Story] 🔄 Generating next segment after choice");
+  logger.info("[Interactive Story] 🔄 Generating next segment after choice");
 
   const choicePoint = story.choicePoints[choicePointId];
   if (!choicePoint) {

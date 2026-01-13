@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const childSchema = z.object({
   name: z.string().min(1, "İsim gereklidir"),
@@ -18,8 +19,8 @@ export const updateChildrenProcedure = protectedProcedure
   .input(updateChildrenInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[updateChildren] Updating children for user:", userId);
-    console.log("[updateChildren] New children data:", input.children);
+    logger.info("[updateChildren] Updating children for user:", userId);
+    logger.info("[updateChildren] New children data:", input.children);
 
     const supabase = getSecureClient(ctx);
 
@@ -34,10 +35,10 @@ export const updateChildrenProcedure = protectedProcedure
       .single();
 
     if (error) {
-      console.error("[updateChildren] Error:", error);
+      logger.error("[updateChildren] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[updateChildren] Children updated successfully:", data?.children?.length || 0);
+    logger.info("[updateChildren] Children updated successfully:", data?.children?.length || 0);
     return data?.children || [];
   });

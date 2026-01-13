@@ -1,10 +1,11 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import OpenAI from "openai";
 import * as fal from "@fal-ai/serverless-client";
 import sharp from "sharp";
 import { uploadBuffer } from "../../../lib/supabase.js";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
@@ -74,7 +75,7 @@ const THERAPEUTIC_COLORING_THEMES: Record<string, { theme: string; elements: str
  * Optimized for children's coloring pages with thick, clear outlines
  */
 async function toLineArt(input: Buffer): Promise<Buffer> {
-  console.log("[Coloring] Converting to line art with Sharp");
+  logger.info("[Coloring] Converting to line art with Sharp");
 
   try {
     // Balanced line art conversion - preserves shapes while creating clean outlines
@@ -92,11 +93,11 @@ async function toLineArt(input: Buffer): Promise<Buffer> {
       .toFormat("png")
       .toBuffer();
 
-    console.log("[Coloring] ✅ LINE ART: Clean black outlines on white background");
+    logger.info("[Coloring] ✅ LINE ART: Clean black outlines on white background");
     return out;
   } catch (error) {
-    console.error("[Coloring] ❌ Sharp conversion failed:", error);
-    console.warn("[Coloring] Falling back to original image");
+    logger.error("[Coloring] ❌ Sharp conversion failed:", error);
+    logger.warn("[Coloring] Falling back to original image");
     return input;
   }
 }
@@ -105,14 +106,14 @@ export const generateColoringFromDrawingProcedure = protectedProcedure
   .use(authenticatedAiRateLimit)
   .input(generateColoringInputSchema)
   .mutation(async ({ input }: { input: z.infer<typeof generateColoringInputSchema> }) => {
-    console.log("[Generate Coloring] 🎨 Creating coloring page from child's drawing");
-    console.log("[Generate Coloring] Age group:", input.ageGroup, "| Style:", input.style);
+    logger.info("[Generate Coloring] 🎨 Creating coloring page from child's drawing");
+    logger.info("[Generate Coloring] Age group:", input.ageGroup, "| Style:", input.style);
 
     const isTurkish = input.language === "tr";
 
     try {
       // Step 1: Analyze the drawing with GPT-4 Vision (including therapeutic content check)
-      console.log("[Generate Coloring] 📸 Analyzing drawing with GPT-4 Vision (ACEs framework)...");
+      logger.info("[Generate Coloring] 📸 Analyzing drawing with GPT-4 Vision (ACEs framework)...");
 
       const analysisPrompt = isTurkish
         ? `Bu çocuk çizimini analiz et.
@@ -191,7 +192,7 @@ Respond in JSON format:
       });
 
       const responseContent = analysisResponse.choices[0]?.message?.content || "{}";
-      console.log("[Generate Coloring] 📝 Raw analysis:", responseContent);
+      logger.info("[Generate Coloring] 📝 Raw analysis:", responseContent);
 
       // Parse the JSON response
       let parsedAnalysis: { mainSubject: string; contentAnalysis: ContentAnalysis };
@@ -209,16 +210,16 @@ Respond in JSON format:
       const drawingAnalysis = parsedAnalysis.mainSubject || "simple drawing";
       const contentAnalysis = parsedAnalysis.contentAnalysis || { hasConcerningContent: false, concernType: null };
 
-      console.log("[Generate Coloring] ✅ Analysis:", drawingAnalysis);
+      logger.info("[Generate Coloring] ✅ Analysis:", drawingAnalysis);
 
       // Log therapeutic content if detected
       if (contentAnalysis.hasConcerningContent) {
-        console.log("[Generate Coloring] ⚠️ CONCERNING CONTENT DETECTED:", contentAnalysis.concernType);
-        console.log("[Generate Coloring] 💜 Applying therapeutic coloring approach...");
+        logger.info("[Generate Coloring] ⚠️ CONCERNING CONTENT DETECTED:", contentAnalysis.concernType);
+        logger.info("[Generate Coloring] 💜 Applying therapeutic coloring approach...");
       }
 
       // Step 2: Generate colorful illustration with Flux 2.0
-      console.log("[Generate Coloring] 🚀 Generating colorful image with Flux 2.0...");
+      logger.info("[Generate Coloring] 🚀 Generating colorful image with Flux 2.0...");
 
       // Keep the subject but make it ULTRA SIMPLE
       const styleDescriptions = {
@@ -239,8 +240,8 @@ Respond in JSON format:
           therapeuticColoringTheme = therapeuticTheme.theme;
           // Transform the subject into a therapeutic version
           subjectForColoring = `${therapeuticTheme.theme} with ${therapeuticTheme.elements.slice(0, 2).join(' and ')}`;
-          console.log("[Generate Coloring] 💜 Therapeutic coloring theme:", therapeuticColoringTheme);
-          console.log("[Generate Coloring] 💜 Modified subject:", subjectForColoring);
+          logger.info("[Generate Coloring] 💜 Therapeutic coloring theme:", therapeuticColoringTheme);
+          logger.info("[Generate Coloring] 💜 Modified subject:", subjectForColoring);
         }
       }
 
@@ -267,7 +268,7 @@ If animal: basic oval body + circle head, minimal features
 
 Think: Baby board book illustration, NOT realistic drawing`;
 
-      console.log("[Generate Coloring] 📝 Flux 2.0 prompt:", flux2Prompt.substring(0, 100) + "...");
+      logger.info("[Generate Coloring] 📝 Flux 2.0 prompt:", flux2Prompt.substring(0, 100) + "...");
 
       // NEGATIVE PROMPT - Forbid details, not the main subject
       const negativePrompt = `detailed background, scenery, landscape, sky with clouds, grass, ground texture,
@@ -295,10 +296,10 @@ realistic proportions, anatomically correct, professional illustration, adult co
       }
 
       const colorfulImageUrl = result.images[0].url;
-      console.log("[Generate Coloring] ✅ Flux 2.0 generated:", colorfulImageUrl);
+      logger.info("[Generate Coloring] ✅ Flux 2.0 generated:", colorfulImageUrl);
 
       // Step 3: Fetch the image for Sharp processing
-      console.log("[Generate Coloring] 📥 Fetching image for line art conversion...");
+      logger.info("[Generate Coloring] 📥 Fetching image for line art conversion...");
       const imageResponse = await fetch(colorfulImageUrl);
       if (!imageResponse.ok) {
         throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
@@ -307,11 +308,11 @@ realistic proportions, anatomically correct, professional illustration, adult co
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
       // Step 4: Convert to black & white line art
-      console.log("[Generate Coloring] 🎨 Converting to black & white line art...");
+      logger.info("[Generate Coloring] 🎨 Converting to black & white line art...");
       const lineArtBuffer = await toLineArt(imageBuffer);
 
       // Step 5: Upload line art to Supabase
-      console.log("[Generate Coloring] ☁️ Uploading line art to Supabase...");
+      logger.info("[Generate Coloring] ☁️ Uploading line art to Supabase...");
       const lineArtUrl = await uploadBuffer(
         BUCKET,
         `images/line_art_${Date.now()}_${Math.floor(Math.random() * 1e6)}.png`,
@@ -319,8 +320,8 @@ realistic proportions, anatomically correct, professional illustration, adult co
         "image/png"
       );
 
-      console.log("[Generate Coloring] ✅ Line art coloring page ready!");
-      console.log("[Generate Coloring] 📍 Line art URL:", lineArtUrl);
+      logger.info("[Generate Coloring] ✅ Line art coloring page ready!");
+      logger.info("[Generate Coloring] 📍 Line art URL:", lineArtUrl);
 
       return {
         imageUrl: lineArtUrl, // Black & white line art for coloring
@@ -336,7 +337,7 @@ realistic proportions, anatomically correct, professional illustration, adult co
         } : null,
       };
     } catch (error) {
-      console.error("[Generate Coloring] ❌ Error:", error);
+      logger.error("[Generate Coloring] ❌ Error:", error);
       throw new Error(
         `Coloring page generation failed: ${error instanceof Error ? error.message : "Unknown error"}`
       );

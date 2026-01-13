@@ -1,7 +1,7 @@
 import sharp from "sharp";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
-import { escapeHtml } from "./utils.js";
+import { escapeHtml, logger } from "./utils.js";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 
@@ -10,7 +10,7 @@ const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
  * Optimized for children's coloring pages with thick, clear outlines
  */
 async function toLineArt(input: string|Buffer) {
-  console.log("[Coloring] Converting to line art with Sharp");
+  logger.info("[Coloring] Converting to line art with Sharp");
 
   let buf: Buffer;
   if (typeof input === "string") {
@@ -46,22 +46,22 @@ async function toLineArt(input: string|Buffer) {
       .toFormat("png")
       .toBuffer();
 
-    console.log("[Coloring] ✅ MAXIMUM SIMPLICITY: Only major shapes remain");
+    logger.info("[Coloring] ✅ MAXIMUM SIMPLICITY: Only major shapes remain");
     return out;
   } catch (error) {
-    console.error("[Coloring] ❌ Sharp conversion failed:", error);
+    logger.error("[Coloring] ❌ Sharp conversion failed:", error);
     console.warn("[Coloring] Falling back to original image");
     return buf;
   }
 }
 
 export async function makeColoringPDF(pages: string[], title: string, size: "A4"|"A3") {
-  console.log("[Coloring] Starting PDF generation:", title);
+  logger.info("[Coloring] Starting PDF generation:", title);
   
   const lineUrls: string[] = [];
   for (const dataUri of pages) {
     try {
-      console.log("[Coloring] Converting image to line art");
+      logger.info("[Coloring] Converting image to line art");
       const line = await toLineArt(dataUri);
       const url = await uploadBuffer(
         BUCKET, 
@@ -71,12 +71,12 @@ export async function makeColoringPDF(pages: string[], title: string, size: "A4"
       );
       lineUrls.push(url);
     } catch (err) {
-      console.error("[Coloring] Line art conversion failed:", err);
+      logger.error("[Coloring] Line art conversion failed:", err);
       throw err;
     }
   }
   
-  console.log("[Coloring] Generating PDF");
+  logger.info("[Coloring] Generating PDF");
   const html = htmlDoc(title, lineUrls);
   const browser = await puppeteer.launch({ 
     headless: true, 
@@ -98,7 +98,7 @@ export async function makeColoringPDF(pages: string[], title: string, size: "A4"
     "application/pdf"
   );
   
-  console.log("[Coloring] PDF generated:", pdfUrl);
+  logger.info("[Coloring] PDF generated:", pdfUrl);
   return { pdfUrl, pageCount: lineUrls.length };
 }
 

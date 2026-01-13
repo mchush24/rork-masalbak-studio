@@ -1,7 +1,8 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
-import { hashPassword, validatePasswordStrength } from "../../../lib/password";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
+import { hashPassword, validatePasswordStrength } from "../../../lib/password.js";
 import { TRPCError } from "@trpc/server";
 
 const setPasswordInputSchema = z.object({
@@ -18,7 +19,7 @@ export const setPasswordProcedure = protectedProcedure
   .output(setPasswordResponseSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[Auth] 🔐 Setting password for user:", userId);
+    logger.info("[Auth] 🔐 Setting password for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -49,7 +50,7 @@ export const setPasswordProcedure = protectedProcedure
         throw new Error(`Failed to set password: ${error.message}`);
       }
 
-      console.log("[Auth] ✅ Password set successfully");
+      logger.info("[Auth] ✅ Password set successfully");
 
       return {
         success: true,
@@ -58,7 +59,7 @@ export const setPasswordProcedure = protectedProcedure
     } catch (error) {
       if (error instanceof TRPCError) throw error;
 
-      console.error("[Auth] ❌ Set password error:", error);
+      logger.error("[Auth] ❌ Set password error:", error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Şifre oluşturma başarısız oldu',

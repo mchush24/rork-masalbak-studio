@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const deleteStorybookInputSchema = z.object({
   storybookId: z.string().uuid(),
@@ -13,7 +14,7 @@ const deleteColoringInputSchema = z.object({
 export const listStorybooksProcedure = protectedProcedure
   .query(async ({ ctx }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[History] Listing storybooks for user:", userId);
+    logger.info("[History] Listing storybooks for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -24,7 +25,7 @@ export const listStorybooksProcedure = protectedProcedure
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("[History] Error listing storybooks:", error);
+      logger.error("[History] Error listing storybooks:", error);
       throw new Error(error.message);
     }
 
@@ -34,7 +35,7 @@ export const listStorybooksProcedure = protectedProcedure
 export const listColoringsProcedure = protectedProcedure
   .query(async ({ ctx }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[History] Listing colorings for user:", userId);
+    logger.info("[History] Listing colorings for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -45,7 +46,7 @@ export const listColoringsProcedure = protectedProcedure
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("[History] Error listing colorings:", error);
+      logger.error("[History] Error listing colorings:", error);
       throw new Error(error.message);
     }
 
@@ -56,7 +57,7 @@ export const deleteStorybookProcedure = protectedProcedure
   .input(deleteStorybookInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId;
-    console.log("[History] Deleting storybook:", input.storybookId, "for user:", userId);
+    logger.info("[History] Deleting storybook:", input.storybookId, "for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -67,7 +68,7 @@ export const deleteStorybookProcedure = protectedProcedure
       .eq("user_id_fk", userId);
 
     if (error) {
-      console.error("[History] Error deleting storybook:", error);
+      logger.error("[History] Error deleting storybook:", error);
       throw new Error(error.message);
     }
 
@@ -78,7 +79,7 @@ export const deleteColoringProcedure = protectedProcedure
   .input(deleteColoringInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId;
-    console.log("[History] Deleting coloring:", input.coloringId, "for user:", userId);
+    logger.info("[History] Deleting coloring:", input.coloringId, "for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -89,7 +90,7 @@ export const deleteColoringProcedure = protectedProcedure
       .eq("user_id_fk", userId);
 
     if (error) {
-      console.error("[History] Error deleting coloring:", error);
+      logger.error("[History] Error deleting coloring:", error);
       throw new Error(error.message);
     }
 

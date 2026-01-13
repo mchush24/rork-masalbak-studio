@@ -4,7 +4,7 @@
  */
 import "dotenv/config";
 import { serve } from "@hono/node-server";
-import app from "./hono";
+import app from "./hono.js";
 
 const port = parseInt(process.env.PORT || "3000");
 

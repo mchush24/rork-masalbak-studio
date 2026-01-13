@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const getStorybookInputSchema = z.object({
   storybookId: z.string().uuid(),
@@ -10,7 +11,7 @@ export const getStorybookProcedure = protectedProcedure
   .input(getStorybookInputSchema)
   .query(async ({ ctx, input }) => {
     const userId = ctx.userId;
-    console.log("[getStorybook] Fetching storybook:", input.storybookId, "for user:", userId);
+    logger.info("[getStorybook] Fetching storybook:", input.storybookId, "for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -22,15 +23,15 @@ export const getStorybookProcedure = protectedProcedure
       .single();
 
     if (error) {
-      console.error("[getStorybook] Error:", error);
+      logger.error("[getStorybook] Error:", error);
       throw new Error(error.message);
     }
 
     if (!data) {
-      console.error("[getStorybook] Storybook not found or access denied");
+      logger.error("[getStorybook] Storybook not found or access denied");
       throw new Error("Storybook not found or you don't have access");
     }
 
-    console.log("[getStorybook] Storybook found successfully");
+    logger.info("[getStorybook] Storybook found successfully");
     return data;
   });

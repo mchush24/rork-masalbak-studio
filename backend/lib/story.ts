@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import { uploadBuffer } from "./supabase.js";
-import { escapeHtml } from "./utils.js";
+import { escapeHtml, logger } from "./utils.js";
 import { generateImage, generateStorybookSeed, type ImageProvider } from "./image-generation.js";
 import {
   defineCharacterFromContext,
@@ -66,9 +66,9 @@ export async function generateImageForPage(
   // Use provided prompt or fallback to basic prompt
   const finalPrompt = prompt || `Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain background, NO TEXT NO LETTERS, scene: ${text}`;
 
-  console.log(`[Story] Generating image ${pageNumber || '?'}/${totalPages || '?'}`);
-  console.log(`[Story] Provider: ${provider.toUpperCase()}, Seed: ${seed || 'none'}`);
-  console.log("[Story] Prompt:", finalPrompt.substring(0, 150) + "...");
+  logger.info(`[Story] Generating image ${pageNumber || '?'}/${totalPages || '?'}`);
+  logger.info(`[Story] Provider: ${provider.toUpperCase()}, Seed: ${seed || 'none'}`);
+  logger.info("[Story] Prompt:", finalPrompt.substring(0, 150) + "...");
 
   return await generateImage({
     prompt: finalPrompt,
@@ -80,17 +80,17 @@ export async function generateImageForPage(
 }
 
 export async function makeStorybook(opts: MakeOptions) {
-  console.log("[Story] Starting storybook creation:", opts.title);
-  console.log("[Story] Language:", opts.lang || 'tr');
-  console.log("[Story] Number of pages:", opts.pages.length);
-  console.log("[Story] Image provider: FLUX 2.0 🚀 (via FAL.ai) - FASTEST & BEST!");
+  logger.info("[Story] Starting storybook creation:", opts.title);
+  logger.info("[Story] Language:", opts.lang || 'tr');
+  logger.info("[Story] Number of pages:", opts.pages.length);
+  logger.info("[Story] Image provider: FLUX 2.0 🚀 (via FAL.ai) - FASTEST & BEST!");
 
   // Define character for consistency across all pages
   let character: CharacterDefinition;
 
   if (opts.characterInfo) {
     // NEW: Use character from story generation (CORRECT!)
-    console.log("[Story] ✅ Using character from story:", opts.characterInfo.name);
+    logger.info("[Story] ✅ Using character from story:", opts.characterInfo.name);
     character = {
       name: opts.characterInfo.name,
       age: `${opts.characterInfo.age} yaş`,
@@ -98,30 +98,30 @@ export async function makeStorybook(opts: MakeOptions) {
       style: opts.characterInfo.personality.join(', '),
       clothing: opts.characterInfo.speechStyle || "rahat kıyafetler",
     };
-    console.log("[Story] 🎯 Character appearance:", character.appearance.substring(0, 100) + "...");
+    logger.info("[Story] 🎯 Character appearance:", character.appearance.substring(0, 100) + "...");
   } else {
     // FALLBACK: Old method (for backward compatibility)
-    console.log("[Story] ⚠️  Using fallback character (no characterInfo provided)");
+    logger.info("[Story] ⚠️  Using fallback character (no characterInfo provided)");
     character = defineCharacterFromContext(opts.drawingAnalysis, opts.ageGroup);
   }
 
-  console.log("[Story] Character defined:", character.name, character.age);
+  logger.info("[Story] Character defined:", character.name, character.age);
 
   // Define story visual style
   const storyStyle = defineStoryStyle(opts.lang || 'tr');
-  console.log("[Story] Style defined:", storyStyle.artStyle.substring(0, 50) + "...");
+  logger.info("[Story] Style defined:", storyStyle.artStyle.substring(0, 50) + "...");
 
   // Generate consistent seed for this storybook (same character style across all pages)
   const seed = generateStorybookSeed(
     opts.user_id || 'anonymous',
     Date.now()
   );
-  console.log("[Story] Using seed for consistency:", seed);
+  logger.info("[Story] Using seed for consistency:", seed);
 
   const totalPages = opts.pages.length;
 
   // Generate all images in parallel for faster storybook creation
-  console.log(`[Story] 🚀 Generating ${totalPages} images in PARALLEL...`);
+  logger.info(`[Story] 🚀 Generating ${totalPages} images in PARALLEL...`);
 
   const imagePromises = opts.pages.map(async (page, i) => {
     try {
@@ -138,9 +138,9 @@ export async function makeStorybook(opts: MakeOptions) {
         totalPages
       );
 
-      console.log(`[Story] 🎨 Page ${i+1}/${totalPages} Flux 2.0 Prompt:`);
-      console.log(`[Story]   Character: ${character.name}`);
-      console.log(`[Story]   Scene: ${(page.prompt || sceneDesc).substring(0, 80)}...`);
+      logger.info(`[Story] 🎨 Page ${i+1}/${totalPages} Flux 2.0 Prompt:`);
+      logger.info(`[Story]   Character: ${character.name}`);
+      logger.info(`[Story]   Scene: ${(page.prompt || sceneDesc).substring(0, 80)}...`);
 
       const png = await generateImageForPage(
         page.text,
@@ -153,21 +153,21 @@ export async function makeStorybook(opts: MakeOptions) {
 
       // Upload image without text overlay (text will be shown in the app UI)
       const url = await uploadBuffer(BUCKET, `images/story_${Date.now()}_${i+1}.png`, png, "image/png");
-      console.log(`[Story] ✅ Image ${i+1}/${totalPages} generated and uploaded`);
+      logger.info(`[Story] ✅ Image ${i+1}/${totalPages} generated and uploaded`);
       return url;
     } catch (err) {
-      console.error(`[Story] ❌ Image generation failed for page ${i+1}:`, err);
+      logger.error(`[Story] ❌ Image generation failed for page ${i+1}:`, err);
       return "about:blank";
     }
   });
 
   const imgs = await Promise.all(imagePromises);
-  console.log(`[Story] ✅ All ${totalPages} images generated in parallel!`);
+  logger.info(`[Story] ✅ All ${totalPages} images generated in parallel!`);
 
   let pdf_url: string|undefined;
   if (opts.makePdf) {
     try {
-      console.log("[Story] Generating PDF with text overlays");
+      logger.info("[Story] Generating PDF with text overlays");
       const html = htmlDoc(
         opts.pages.map((p,i)=>({ text: p.text, img: imgs[i] })),
         opts.lang || 'tr'
@@ -185,16 +185,16 @@ export async function makeStorybook(opts: MakeOptions) {
       });
       await browser.close();
       pdf_url = await uploadBuffer(BUCKET, `pdf/story_${Date.now()}.pdf`, Buffer.from(pdf), "application/pdf");
-      console.log("[Story] PDF generated:", pdf_url);
+      logger.info("[Story] PDF generated:", pdf_url);
     } catch (err) {
-      console.error("[Story] PDF generation failed:", err);
+      logger.error("[Story] PDF generation failed:", err);
     }
   }
 
   let voice_urls: string[]|undefined;
   if (opts.makeTts) {
     try {
-      console.log("[Story] Generating TTS audio");
+      logger.info("[Story] Generating TTS audio");
       voice_urls = [];
       for (let i=0; i<opts.pages.length; i++){
         const t = opts.pages[i].text;
@@ -207,9 +207,9 @@ export async function makeStorybook(opts: MakeOptions) {
         const vurl = await uploadBuffer(BUCKET, `audio/story_${Date.now()}_${i+1}.mp3`, mp3, "audio/mpeg");
         voice_urls.push(vurl);
       }
-      console.log("[Story] TTS audio generated");
+      logger.info("[Story] TTS audio generated");
     } catch (err) {
-      console.error("[Story] TTS generation failed:", err);
+      logger.error("[Story] TTS generation failed:", err);
     }
   }
 

@@ -1,6 +1,7 @@
-import { publicProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { publicProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase.js";
 
 const checkEmailInputSchema = z.object({
   email: z.string().email(),
@@ -15,7 +16,7 @@ export const checkEmailProcedure = publicProcedure
   .input(checkEmailInputSchema)
   .output(checkEmailResponseSchema)
   .mutation(async ({ input }) => {
-    console.log("[Auth] 🔍 Checking email:", input.email);
+    logger.info("[Auth] 🔍 Checking email:", input.email);
 
     try {
       const { data: user, error } = await supabase
@@ -25,20 +26,20 @@ export const checkEmailProcedure = publicProcedure
         .single();
 
       if (error || !user) {
-        console.log("[Auth] 📧 Email not registered:", input.email);
+        logger.info("[Auth] 📧 Email not registered:", input.email);
         return {
           exists: false,
           hasPassword: false,
         };
       }
 
-      console.log("[Auth] ✅ Email exists:", input.email);
+      logger.info("[Auth] ✅ Email exists:", input.email);
       return {
         exists: true,
         hasPassword: !!user.password_hash,
       };
     } catch (error) {
-      console.error("[Auth] ❌ Check email error:", error);
+      logger.error("[Auth] ❌ Check email error:", error);
       return {
         exists: false,
         hasPassword: false,

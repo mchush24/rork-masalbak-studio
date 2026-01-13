@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 
 
@@ -24,7 +25,7 @@ export const updateProfileProcedure = protectedProcedure
   .input(updateProfileInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[updateProfile] Updating profile:", userId);
+    logger.info("[updateProfile] Updating profile:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -49,10 +50,10 @@ export const updateProfileProcedure = protectedProcedure
       .single();
 
     if (error) {
-      console.error("[updateProfile] Error:", error);
+      logger.error("[updateProfile] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[updateProfile] Profile updated successfully");
+    logger.info("[updateProfile] Profile updated successfully");
     return data;
   });

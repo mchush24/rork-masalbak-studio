@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const listAnalysesInputSchema = z.object({
   limit: z.number().min(1).max(100).default(20),
@@ -16,7 +17,7 @@ export const listAnalysesProcedure = protectedProcedure
   .input(listAnalysesInputSchema)
   .query(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[listAnalyses] Fetching analyses for user:", userId);
+    logger.info("[listAnalyses] Fetching analyses for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -43,11 +44,11 @@ export const listAnalysesProcedure = protectedProcedure
     const { data, error, count } = await query;
 
     if (error) {
-      console.error("[listAnalyses] Error:", error);
+      logger.error("[listAnalyses] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[listAnalyses] Found", count, "analyses");
+    logger.info("[listAnalyses] Found", count, "analyses");
 
     return {
       analyses: data || [],

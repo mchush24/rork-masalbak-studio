@@ -1,8 +1,9 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import { makeStorybook } from "../../../lib/story.js";
 import { saveStorybookRecord } from "../../../lib/persist.js";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 
 const pageSchema = z.object({
   text: z.string(),
@@ -22,7 +23,7 @@ export const createStorybookProcedure = protectedProcedure
   .input(storybookInputSchema)
   .mutation(async ({ ctx, input }: { ctx: any, input: z.infer<typeof storybookInputSchema> }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[Storybook] Creating storybook:", input.title, "for user:", userId);
+    logger.info("[Storybook] Creating storybook:", input.title, "for user:", userId);
 
     const out = await makeStorybook(input);
     const record = await saveStorybookRecord(

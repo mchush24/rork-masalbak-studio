@@ -1,3 +1,4 @@
+import { logger } from "./utils.js";
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -163,14 +164,14 @@ Eğer bu hesabı siz oluşturmadıysanız, bu e-postayı güvenle yok sayabilirs
     });
 
     if (error) {
-      console.error('[Email] Failed to send verification email:', error);
+      logger.error('[Email] Failed to send verification email:', error);
       throw new Error(`Email send failed: ${error.message}`);
     }
 
-    console.log('[Email] ✅ Verification email sent successfully:', data?.id);
+    logger.info('[Email] ✅ Verification email sent successfully:', data?.id);
     return { success: true, emailId: data?.id };
   } catch (error) {
-    console.error('[Email] Error sending email:', error);
+    logger.error('[Email] Error sending email:', error);
     throw error;
   }
 }
@@ -303,10 +304,10 @@ Bu kod 10 dakika geçerlidir.
       throw new Error(`Email send failed: ${error.message}`);
     }
 
-    console.log('[Email] ✅ Password reset email sent:', data?.id);
+    logger.info('[Email] ✅ Password reset email sent:', data?.id);
     return { success: true, emailId: data?.id };
   } catch (error) {
-    console.error('[Email] Error sending password reset email:', error);
+    logger.error('[Email] Error sending password reset email:', error);
     throw error;
   }
 }

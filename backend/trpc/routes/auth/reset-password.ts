@@ -1,7 +1,8 @@
-import { publicProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { publicProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { supabase } from "../../../lib/supabase";
-import { hashPassword, validatePasswordStrength } from "../../../lib/password";
+import { supabase } from "../../../lib/supabase.js";
+import { hashPassword, validatePasswordStrength } from "../../../lib/password.js";
 import { TRPCError } from "@trpc/server";
 
 const resetPasswordInputSchema = z.object({
@@ -20,7 +21,7 @@ export const resetPasswordProcedure = publicProcedure
   .input(resetPasswordInputSchema)
   .output(resetPasswordResponseSchema)
   .mutation(async ({ input }) => {
-    console.log("[Auth] 🔐 Password reset for:", input.email);
+    logger.info("[Auth] 🔐 Password reset for:", input.email);
 
     try {
       // Validate password strength
@@ -84,7 +85,7 @@ export const resetPasswordProcedure = publicProcedure
         .update({ used_at: new Date().toISOString() })
         .eq('id', resetToken.id);
 
-      console.log("[Auth] ✅ Password reset successful for:", input.email);
+      logger.info("[Auth] ✅ Password reset successful for:", input.email);
 
       return {
         success: true,
@@ -94,7 +95,7 @@ export const resetPasswordProcedure = publicProcedure
     } catch (error) {
       if (error instanceof TRPCError) throw error;
 
-      console.error("[Auth] ❌ Password reset error:", error);
+      logger.error("[Auth] ❌ Password reset error:", error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Şifre sıfırlama başarısız oldu',

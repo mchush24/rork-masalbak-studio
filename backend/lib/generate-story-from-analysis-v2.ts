@@ -1,3 +1,4 @@
+import { logger } from "./utils.js";
 /**
  * Multi-Stage AI Story Generation from Drawing Analysis
  *
@@ -300,7 +301,7 @@ async function createStoryOutline(
   ageParams: ReturnType<typeof getAgeParameters>,
   mood: string
 ): Promise<StoryOutline> {
-  console.log("[Stage 1] 🎯 Creating story outline...");
+  logger.info("[Stage 1] 🎯 Creating story outline...");
 
   // Get therapeutic guidance if context exists
   const therapeuticGuidance = input.therapeuticContext
@@ -464,7 +465,7 @@ HER BEAT'TE SPESİFİK BİR OLAY VAR! (antrenman+harita bulma, ormana giriş, ay
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
   const outline = JSON.parse(jsonMatch ? jsonMatch[0] : responseText) as StoryOutline;
 
-  console.log("[Stage 1] ✅ Outline created:", outline.mainCharacter.name, "-", outline.theme);
+  logger.info("[Stage 1] ✅ Outline created:", outline.mainCharacter.name, "-", outline.theme);
   return outline;
 }
 
@@ -481,7 +482,7 @@ async function expandScene(
   mood: string,
   language: 'tr' | 'en'
 ): Promise<DetailedScene> {
-  console.log(`[Stage 2] 📝 Expanding scene ${pageNumber}...`);
+  logger.info(`[Stage 2] 📝 Expanding scene ${pageNumber}...`);
 
   const systemPrompt = `Sen çocuk kitabı sahne yazarısın. ÖZET YAZMA, SAHNE ANLAT!
 
@@ -594,7 +595,7 @@ JSON format:
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
   const scene = JSON.parse(jsonMatch ? jsonMatch[0] : responseText) as Omit<DetailedScene, 'pageNumber'>;
 
-  console.log(`[Stage 2] ✅ Scene ${pageNumber} expanded (${scene.text.split(' ').length} words)`);
+  logger.info(`[Stage 2] ✅ Scene ${pageNumber} expanded (${scene.text.split(' ').length} words)`);
 
   return {
     pageNumber,
@@ -617,7 +618,7 @@ async function enhanceWithDialogue(
     return scene;
   }
 
-  console.log(`[Stage 3] 💬 Enhancing scene ${scene.pageNumber} with dialogue...`);
+  logger.info(`[Stage 3] 💬 Enhancing scene ${scene.pageNumber} with dialogue...`);
 
   const systemPrompt = `Sen diyalog yazarısısın.
 
@@ -669,7 +670,7 @@ JSON format:
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     const enhanced = JSON.parse(jsonMatch ? jsonMatch[0] : responseText);
 
-    console.log(`[Stage 3] ✅ Scene ${scene.pageNumber} enhanced with dialogue`);
+    logger.info(`[Stage 3] ✅ Scene ${scene.pageNumber} enhanced with dialogue`);
 
     return {
       ...scene,
@@ -677,7 +678,7 @@ JSON format:
       dialogue: enhanced.dialogue
     };
   } catch (error) {
-    console.log(`[Stage 3] ⚠️ Dialogue enhancement failed, keeping original`);
+    logger.info(`[Stage 3] ⚠️ Dialogue enhancement failed, keeping original`);
     return scene;
   }
 }
@@ -743,21 +744,21 @@ Technical: Professional children's book illustration, trending on Behance, award
 export async function generateStoryFromAnalysisV2(
   input: StoryGenerationInput
 ): Promise<GeneratedStory> {
-  console.log("=".repeat(60));
-  console.log("[Story Gen V2] 🚀 MULTI-STAGE GENERATION STARTING");
-  console.log("[Story Gen V2] 👶 Child age:", input.childAge);
-  console.log("[Story Gen V2] 🌍 Language:", input.language);
-  console.log("=".repeat(60));
+  logger.info("=".repeat(60));
+  logger.info("[Story Gen V2] 🚀 MULTI-STAGE GENERATION STARTING");
+  logger.info("[Story Gen V2] 👶 Child age:", input.childAge);
+  logger.info("[Story Gen V2] 🌍 Language:", input.language);
+  logger.info("=".repeat(60));
 
   const ageParams = getAgeParameters(input.childAge);
   const mood = determineStoryMood(input.drawingAnalysis);
 
   // STAGE 1: Create Story Outline
   const outline = await createStoryOutline(input, ageParams, mood);
-  console.log("\n" + "=".repeat(60));
+  logger.info("\n" + "=".repeat(60));
 
   // STAGE 2: Expand beats into detailed scenes (PARALLEL)
-  console.log(`[Stage 2] 📝 Expanding ${outline.storyBeats.length} scenes in parallel...`);
+  logger.info(`[Stage 2] 📝 Expanding ${outline.storyBeats.length} scenes in parallel...`);
   const scenePromises = outline.storyBeats.map((beat, i) =>
     expandScene(
       beat,
@@ -769,20 +770,20 @@ export async function generateStoryFromAnalysisV2(
     )
   );
   const scenes = await Promise.all(scenePromises);
-  console.log(`[Stage 2] ✅ All ${scenes.length} scenes expanded in parallel`);
-  console.log("\n" + "=".repeat(60));
+  logger.info(`[Stage 2] ✅ All ${scenes.length} scenes expanded in parallel`);
+  logger.info("\n" + "=".repeat(60));
 
   // STAGE 3: Enhance with dialogue (PARALLEL)
-  console.log(`[Stage 3] 💬 Enhancing ${scenes.length} scenes with dialogue in parallel...`);
+  logger.info(`[Stage 3] 💬 Enhancing ${scenes.length} scenes with dialogue in parallel...`);
   const enhancePromises = scenes.map(scene =>
     enhanceWithDialogue(scene, outline.mainCharacter, ageParams)
   );
   const enhancedScenes = await Promise.all(enhancePromises);
-  console.log(`[Stage 3] ✅ All ${enhancedScenes.length} scenes enhanced in parallel`);
-  console.log("\n" + "=".repeat(60));
+  logger.info(`[Stage 3] ✅ All ${enhancedScenes.length} scenes enhanced in parallel`);
+  logger.info("\n" + "=".repeat(60));
 
   // STAGE 4: Generate visual prompts
-  console.log("[Stage 4] 🎨 Generating visual prompts...");
+  logger.info("[Stage 4] 🎨 Generating visual prompts...");
   const pages: StoryPage[] = enhancedScenes.map(scene => ({
     pageNumber: scene.pageNumber,
     text: scene.text,
@@ -790,20 +791,20 @@ export async function generateStoryFromAnalysisV2(
     visualPrompt: generateVisualPrompt(scene, outline.mainCharacter, scene.pageNumber, scenes.length),
     emotion: scene.emotion,
   }));
-  console.log("[Stage 4] ✅ All visual prompts generated");
+  logger.info("[Stage 4] ✅ All visual prompts generated");
 
   // Generate title
   const title = input.language === 'tr'
     ? `${outline.mainCharacter.name} ve ${outline.theme}`
     : `${outline.mainCharacter.name} and ${outline.theme}`;
 
-  console.log("\n" + "=".repeat(60));
-  console.log("[Story Gen V2] ✅ GENERATION COMPLETE!");
-  console.log("[Story Gen V2] 📖 Title:", title);
-  console.log("[Story Gen V2] 👤 Character:", outline.mainCharacter.name);
-  console.log("[Story Gen V2] 📄 Pages:", pages.length);
-  console.log("[Story Gen V2] 🎯 Theme:", outline.theme);
-  console.log("=".repeat(60));
+  logger.info("\n" + "=".repeat(60));
+  logger.info("[Story Gen V2] ✅ GENERATION COMPLETE!");
+  logger.info("[Story Gen V2] 📖 Title:", title);
+  logger.info("[Story Gen V2] 👤 Character:", outline.mainCharacter.name);
+  logger.info("[Story Gen V2] 📄 Pages:", pages.length);
+  logger.info("[Story Gen V2] 🎯 Theme:", outline.theme);
+  logger.info("=".repeat(60));
 
   return {
     title,

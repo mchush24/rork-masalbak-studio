@@ -40,7 +40,7 @@ jest.mock('bcryptjs', () => ({
 }));
 
 // Import after mocking
-import { appRouter } from '../../app-router';
+import { appRouter } from '../../app-router.js';
 
 describe('User Endpoint Integration Tests', () => {
   beforeEach(() => {

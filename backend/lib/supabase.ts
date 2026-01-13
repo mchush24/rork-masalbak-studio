@@ -1,3 +1,4 @@
+import { logger } from "./utils.js";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 let _supa: SupabaseClient | null = null;
@@ -42,14 +43,14 @@ export const supa = new Proxy({} as SupabaseClient, {
 export const supabase = supa;
 
 export async function uploadBuffer(bucket: string, filePath: string, buf: Buffer, contentType: string) {
-  console.log(`[Supabase Upload] Starting upload to ${bucket}/${filePath} (${buf.length} bytes, ${contentType})`);
+  logger.info(`[Supabase Upload] Starting upload to ${bucket}/${filePath} (${buf.length} bytes, ${contentType})`);
 
   const { error, data: uploadData } = await supa.storage.from(bucket).upload(filePath, buf, {
     contentType, upsert: true
   });
 
   if (error) {
-    console.error(`[Supabase Upload] ❌ Upload failed:`, {
+    logger.error(`[Supabase Upload] ❌ Upload failed:`, {
       bucket,
       filePath,
       errorMessage: error.message,
@@ -60,7 +61,7 @@ export async function uploadBuffer(bucket: string, filePath: string, buf: Buffer
     throw error;
   }
 
-  console.log(`[Supabase Upload] ✅ Upload successful: ${bucket}/${filePath}`);
+  logger.info(`[Supabase Upload] ✅ Upload successful: ${bucket}/${filePath}`);
   const { data } = supa.storage.from(bucket).getPublicUrl(filePath);
   return data.publicUrl;
 }

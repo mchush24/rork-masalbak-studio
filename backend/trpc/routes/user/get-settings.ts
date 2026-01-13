@@ -1,10 +1,11 @@
-import { protectedProcedure } from "../../create-context";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 export const getSettingsProcedure = protectedProcedure
   .query(async ({ ctx }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[getSettings] Fetching settings for user:", userId);
+    logger.info("[getSettings] Fetching settings for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -17,7 +18,7 @@ export const getSettingsProcedure = protectedProcedure
     if (error) {
       // If no settings found, return defaults
       if (error.code === "PGRST116") {
-        console.log("[getSettings] No settings found, returning defaults");
+        logger.info("[getSettings] No settings found, returning defaults");
         return {
           theme: "light",
           language: "tr",
@@ -36,6 +37,6 @@ export const getSettingsProcedure = protectedProcedure
       throw new Error(error.message);
     }
 
-    console.log("[getSettings] Settings found");
+    logger.info("[getSettings] Settings found");
     return data;
   });

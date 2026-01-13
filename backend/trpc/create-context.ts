@@ -1,7 +1,7 @@
 import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { verifyToken } from "../lib/auth/jwt";
+import { verifyToken } from "../lib/auth/jwt.js";
 
 export const createContext = async (opts: FetchCreateContextFnOptions) => {
   // Extract token from Authorization header

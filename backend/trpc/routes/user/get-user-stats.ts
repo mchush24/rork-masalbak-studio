@@ -1,10 +1,11 @@
-import { protectedProcedure } from "../../create-context";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 export const getUserStatsProcedure = protectedProcedure
   .query(async ({ ctx }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[getUserStats] Fetching stats for user:", userId);
+    logger.info("[getUserStats] Fetching stats for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -33,6 +34,6 @@ export const getUserStatsProcedure = protectedProcedure
       memberSince: userResult.data?.created_at,
     };
 
-    console.log("[getUserStats] Stats:", stats);
+    logger.info("[getUserStats] Stats:", stats);
     return stats;
   });

@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 import { TRPCError } from "@trpc/server";
 
 const deleteStorybookInputSchema = z.object({
@@ -11,7 +12,7 @@ export const deleteStorybookProcedure = protectedProcedure
   .input(deleteStorybookInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[deleteStorybook] Deleting storybook:", input.storybookId, "for user:", userId);
+    logger.info("[deleteStorybook] Deleting storybook:", input.storybookId, "for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -22,10 +23,10 @@ export const deleteStorybookProcedure = protectedProcedure
       .eq("user_id_fk", userId); // SECURITY: Verify ownership
 
     if (error) {
-      console.error("[deleteStorybook] Error:", error);
+      logger.error("[deleteStorybook] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[deleteStorybook] Storybook deleted successfully");
+    logger.info("[deleteStorybook] Storybook deleted successfully");
     return { success: true };
   });

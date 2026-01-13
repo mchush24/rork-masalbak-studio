@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const deleteAccountInputSchema = z.object({
   confirmEmail: z.string().email(),
@@ -11,7 +12,7 @@ export const deleteAccountProcedure = protectedProcedure
   .input(deleteAccountInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId;
-    console.log("[deleteAccount] User requesting account deletion:", userId);
+    logger.info("[deleteAccount] User requesting account deletion:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -23,12 +24,12 @@ export const deleteAccountProcedure = protectedProcedure
       .single();
 
     if (userError || !userData) {
-      console.error("[deleteAccount] User not found:", userError);
+      logger.error("[deleteAccount] User not found:", userError);
       throw new Error("User not found");
     }
 
     if (userData.email !== input.confirmEmail) {
-      console.error("[deleteAccount] Email mismatch");
+      logger.error("[deleteAccount] Email mismatch");
       throw new Error("Email does not match");
     }
 
@@ -37,11 +38,11 @@ export const deleteAccountProcedure = protectedProcedure
     const isPasswordValid = await bcrypt.compare(input.confirmPassword, userData.password_hash);
 
     if (!isPasswordValid) {
-      console.error("[deleteAccount] Invalid password");
+      logger.error("[deleteAccount] Invalid password");
       throw new Error("Invalid password");
     }
 
-    console.log("[deleteAccount] Verification successful, proceeding with cascade delete");
+    logger.info("[deleteAccount] Verification successful, proceeding with cascade delete");
 
     // Cascade delete: Delete all user data
     // Order matters: delete child records first, then parent
@@ -53,7 +54,7 @@ export const deleteAccountProcedure = protectedProcedure
       .eq("user_id", userId);
 
     if (analysesError) {
-      console.error("[deleteAccount] Error deleting analyses:", analysesError);
+      logger.error("[deleteAccount] Error deleting analyses:", analysesError);
       // Continue anyway - best effort
     }
 
@@ -64,7 +65,7 @@ export const deleteAccountProcedure = protectedProcedure
       .eq("user_id_fk", userId);
 
     if (storybooksError) {
-      console.error("[deleteAccount] Error deleting storybooks:", storybooksError);
+      logger.error("[deleteAccount] Error deleting storybooks:", storybooksError);
       // Continue anyway
     }
 
@@ -75,7 +76,7 @@ export const deleteAccountProcedure = protectedProcedure
       .eq("user_id_fk", userId);
 
     if (coloringsError) {
-      console.error("[deleteAccount] Error deleting colorings:", coloringsError);
+      logger.error("[deleteAccount] Error deleting colorings:", coloringsError);
       // Continue anyway
     }
 
@@ -86,7 +87,7 @@ export const deleteAccountProcedure = protectedProcedure
       .eq("user_id", userId);
 
     if (verificationError) {
-      console.error("[deleteAccount] Error deleting verification codes:", verificationError);
+      logger.error("[deleteAccount] Error deleting verification codes:", verificationError);
       // Continue anyway
     }
 
@@ -97,7 +98,7 @@ export const deleteAccountProcedure = protectedProcedure
       .eq("user_id", userId);
 
     if (settingsError) {
-      console.error("[deleteAccount] Error deleting settings:", settingsError);
+      logger.error("[deleteAccount] Error deleting settings:", settingsError);
       // Continue anyway
     }
 
@@ -108,11 +109,11 @@ export const deleteAccountProcedure = protectedProcedure
       .eq("id", userId);
 
     if (deleteUserError) {
-      console.error("[deleteAccount] Error deleting user:", deleteUserError);
+      logger.error("[deleteAccount] Error deleting user:", deleteUserError);
       throw new Error("Failed to delete account. Please contact support.");
     }
 
-    console.log("[deleteAccount] ✅ Account deleted successfully:", userId);
+    logger.info("[deleteAccount] ✅ Account deleted successfully:", userId);
 
     return {
       success: true,

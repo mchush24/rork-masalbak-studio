@@ -1,3 +1,4 @@
+import { logger } from "../../../lib/utils.js";
 /**
  * Interactive Story tRPC Router
  *
@@ -5,15 +6,15 @@
  */
 
 import { z } from "zod";
-import { createTRPCRouter } from "../../create-context";
-import { protectedProcedure } from "../../create-context";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+import { createTRPCRouter } from "../../create-context.js";
+import { protectedProcedure } from "../../create-context.js";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 import {
   generateInteractiveStory,
   generateNextSegment,
   getTraitInfo,
   getTherapeuticMapping,
-} from "../../../lib/generate-interactive-story";
+} from "../../../lib/generate-interactive-story.js";
 import {
   InteractiveStory,
   InteractiveStorySession,
@@ -27,8 +28,8 @@ import {
   THERAPEUTIC_TRAIT_MAPPING,
   ConcernType,
   TherapeuticReportSection,
-} from "../../../types/InteractiveStory";
-import { createSupabaseClient } from "../../../lib/supabase";
+} from "../../../types/InteractiveStory.js";
+import { createSupabaseClient } from "../../../lib/supabase.js";
 
 // ============================================
 // Zod Schemas
@@ -73,7 +74,7 @@ export const interactiveStoryRouter = createTRPCRouter({
     .use(authenticatedAiRateLimit)
     .input(generateInteractiveStorySchema)
     .mutation(async ({ ctx, input }) => {
-      console.log("[Interactive Story API] 🚀 Generating new interactive story");
+      logger.info("[Interactive Story API] 🚀 Generating new interactive story");
 
       try {
         // Hikayeyi üret
@@ -109,7 +110,7 @@ export const interactiveStoryRouter = createTRPCRouter({
           .single();
 
         if (storybookError) {
-          console.error("[Interactive Story API] ❌ Storybook save error:", storybookError);
+          logger.error("[Interactive Story API] ❌ Storybook save error:", storybookError);
           throw new Error("Failed to save interactive story");
         }
 
@@ -128,11 +129,11 @@ export const interactiveStoryRouter = createTRPCRouter({
           .single();
 
         if (sessionError) {
-          console.error("[Interactive Story API] ❌ Session save error:", sessionError);
+          logger.error("[Interactive Story API] ❌ Session save error:", sessionError);
           throw new Error("Failed to create session");
         }
 
-        console.log("[Interactive Story API] ✅ Interactive story created:", storybook.id);
+        logger.info("[Interactive Story API] ✅ Interactive story created:", storybook.id);
 
         return {
           storyId: storybook.id,
@@ -152,7 +153,7 @@ export const interactiveStoryRouter = createTRPCRouter({
           },
         };
       } catch (error) {
-        console.error("[Interactive Story API] ❌ Generation failed:", error);
+        logger.error("[Interactive Story API] ❌ Generation failed:", error);
         throw error;
       }
     }),
@@ -164,7 +165,7 @@ export const interactiveStoryRouter = createTRPCRouter({
     .use(authenticatedAiRateLimit)
     .input(makeChoiceSchema)
     .mutation(async ({ ctx, input }) => {
-      console.log("[Interactive Story API] 🎯 Making choice:", input.optionId);
+      logger.info("[Interactive Story API] 🎯 Making choice:", input.optionId);
 
       const supabase = createSupabaseClient();
 
@@ -254,7 +255,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         .eq("id", input.sessionId);
 
       if (updateError) {
-        console.error("[Interactive Story API] ❌ Session update error:", updateError);
+        logger.error("[Interactive Story API] ❌ Session update error:", updateError);
       }
 
       // Analytics kaydet
@@ -279,7 +280,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         .update({ story_graph: updatedStoryGraph })
         .eq("id", session.storybooks.id);
 
-      console.log("[Interactive Story API] ✅ Choice made, segment generated");
+      logger.info("[Interactive Story API] ✅ Choice made, segment generated");
 
       return {
         segment,
@@ -351,7 +352,7 @@ export const interactiveStoryRouter = createTRPCRouter({
   generateParentReport: protectedProcedure
     .input(generateParentReportSchema)
     .mutation(async ({ ctx, input }) => {
-      console.log("[Interactive Story API] 📊 Generating parent report");
+      logger.info("[Interactive Story API] 📊 Generating parent report");
 
       const supabase = createSupabaseClient();
 
@@ -544,7 +545,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         .update({ parent_report_generated: true })
         .eq("id", input.sessionId);
 
-      console.log("[Interactive Story API] ✅ Parent report generated");
+      logger.info("[Interactive Story API] ✅ Parent report generated");
 
       return report;
     }),
@@ -575,7 +576,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("[Interactive Story API] ❌ List error:", error);
+      logger.error("[Interactive Story API] ❌ List error:", error);
       throw new Error("Failed to list interactive stories");
     }
 

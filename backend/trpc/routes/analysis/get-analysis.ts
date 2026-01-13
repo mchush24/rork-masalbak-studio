@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 import { TRPCError } from "@trpc/server";
 
 const getAnalysisInputSchema = z.object({
@@ -11,7 +12,7 @@ export const getAnalysisProcedure = protectedProcedure
   .input(getAnalysisInputSchema)
   .query(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[getAnalysis] Fetching analysis:", input.analysisId);
+    logger.info("[getAnalysis] Fetching analysis:", input.analysisId);
 
     const supabase = getSecureClient(ctx);
 
@@ -29,10 +30,10 @@ export const getAnalysisProcedure = protectedProcedure
           message: "Analiz bulunamadı veya erişim yetkiniz yok",
         });
       }
-      console.error("[getAnalysis] Error:", error);
+      logger.error("[getAnalysis] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[getAnalysis] Analysis found");
+    logger.info("[getAnalysis] Analysis found");
     return data;
   });

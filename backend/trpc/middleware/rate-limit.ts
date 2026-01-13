@@ -4,7 +4,7 @@
  */
 import { TRPCError } from "@trpc/server";
 import { initTRPC } from "@trpc/server";
-import type { Context } from "../create-context";
+import type { Context } from "../create-context.js";
 
 const t = initTRPC.context<Context>().create();
 

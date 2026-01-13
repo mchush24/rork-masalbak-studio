@@ -1,10 +1,11 @@
+import { logger } from "../../../lib/utils.js";
 import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import { generateStoryFromAnalysisV2, type Character } from "../../../lib/generate-story-from-analysis-v2.js";
 import { makeStorybook } from "../../../lib/story.js";
 import { saveStorybookRecord } from "../../../lib/persist.js";
 import type { AnalysisResponse } from "./analyze-drawing.js";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 
 // Therapeutic context schema for trauma-informed storytelling (ACEs Framework + Pediatric Psychology)
 const therapeuticContextSchema = z.object({
@@ -63,20 +64,20 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
   .input(generateStoryInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[Generate Story] 🎨 Starting storybook generation from drawing");
-    console.log("[Generate Story] 👶 Child age:", input.childAge);
-    console.log("[Generate Story] 🌍 Language:", input.language);
+    logger.info("[Generate Story] 🎨 Starting storybook generation from drawing");
+    logger.info("[Generate Story] 👶 Child age:", input.childAge);
+    logger.info("[Generate Story] 🌍 Language:", input.language);
 
     // Log therapeutic context if present
     if (input.therapeuticContext) {
-      console.log("[Generate Story] 💜 THERAPEUTIC MODE ACTIVE");
-      console.log("[Generate Story] 💜 Concern type:", input.therapeuticContext.concernType);
-      console.log("[Generate Story] 💜 Approach:", input.therapeuticContext.therapeuticApproach);
+      logger.info("[Generate Story] 💜 THERAPEUTIC MODE ACTIVE");
+      logger.info("[Generate Story] 💜 Concern type:", input.therapeuticContext.concernType);
+      logger.info("[Generate Story] 💜 Approach:", input.therapeuticContext.therapeuticApproach);
     }
 
     try {
       // Step 1: Generate story using AI (Multi-Stage V2 Generator)
-      console.log("[Generate Story] 📝 Generating story with V2 (Multi-Stage) generator...");
+      logger.info("[Generate Story] 📝 Generating story with V2 (Multi-Stage) generator...");
 
       const generatedStory = await generateStoryFromAnalysisV2({
         drawingAnalysis: input.drawingAnalysis as AnalysisResponse,
@@ -89,10 +90,10 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         therapeuticContext: input.therapeuticContext,
       });
 
-      console.log("[Generate Story] ✅ Story generated!");
-      console.log("[Generate Story] 📖 Title:", generatedStory.title);
-      console.log("[Generate Story] 👤 Character:", generatedStory.mainCharacter.name, "-", generatedStory.mainCharacter.type);
-      console.log("[Generate Story] 📄 Pages:", generatedStory.pages.length);
+      logger.info("[Generate Story] ✅ Story generated!");
+      logger.info("[Generate Story] 📖 Title:", generatedStory.title);
+      logger.info("[Generate Story] 👤 Character:", generatedStory.mainCharacter.name, "-", generatedStory.mainCharacter.type);
+      logger.info("[Generate Story] 📄 Pages:", generatedStory.pages.length);
 
       // Step 2: Prepare pages for visual generation
       const pages = generatedStory.pages.map(page => ({
@@ -111,13 +112,13 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         ...(mainChar.speechStyle && { speechStyle: mainChar.speechStyle }),
       };
 
-      console.log("[Generate Story] 🎨 Character for visual consistency:");
-      console.log(`  Name: ${characterInfo.name}`);
-      console.log(`  Type: ${characterInfo.type}`);
-      console.log(`  Appearance: ${characterInfo.appearance.substring(0, 80)}...`);
+      logger.info("[Generate Story] 🎨 Character for visual consistency:");
+      logger.info(`  Name: ${characterInfo.name}`);
+      logger.info(`  Type: ${characterInfo.type}`);
+      logger.info(`  Appearance: ${characterInfo.appearance.substring(0, 80)}...`);
 
       // Step 4: Generate storybook with images
-      console.log("[Generate Story] 🖼️  Generating images and storybook...");
+      logger.info("[Generate Story] 🖼️  Generating images and storybook...");
       const storybook = await makeStorybook({
         title: generatedStory.title,
         pages: pages,
@@ -129,10 +130,10 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         characterInfo: characterInfo, // ✅ PASS FULL CHARACTER OBJECT!
       });
 
-      console.log("[Generate Story] ✅ Storybook created with images!");
+      logger.info("[Generate Story] ✅ Storybook created with images!");
 
       // Step 5: Save to database
-      console.log("[Generate Story] 💾 Saving to database...");
+      logger.info("[Generate Story] 💾 Saving to database...");
       const savedRecord = await saveStorybookRecord(
         userId,
         generatedStory.title,
@@ -140,7 +141,7 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         storybook.pdf_url,
         storybook.voice_urls
       );
-      console.log("[Generate Story] ✅ Saved to database with ID:", savedRecord.id);
+      logger.info("[Generate Story] ✅ Saved to database with ID:", savedRecord.id);
 
       // Return complete storybook data
       return {
@@ -155,7 +156,7 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         },
       };
     } catch (error) {
-      console.error("[Generate Story] ❌ Error:", error);
+      logger.error("[Generate Story] ❌ Error:", error);
       throw new Error(
         `Story generation failed: ${error instanceof Error ? error.message : "Unknown error"}`
       );

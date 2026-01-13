@@ -33,7 +33,7 @@ jest.mock('../../../../lib/supabase', () => ({
 }));
 
 // Import after mocking
-import { appRouter } from '../../app-router';
+import { appRouter } from '../../app-router.js';
 
 describe('Analysis Endpoint Integration Tests', () => {
   beforeEach(() => {

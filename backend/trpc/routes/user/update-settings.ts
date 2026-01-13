@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const updateSettingsInputSchema = z.object({
   theme: z.enum(["light", "dark", "auto"]).optional(),
@@ -21,7 +22,7 @@ export const updateSettingsProcedure = protectedProcedure
   .input(updateSettingsInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[updateSettings] Updating settings for user:", userId);
+    logger.info("[updateSettings] Updating settings for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -79,6 +80,6 @@ export const updateSettingsProcedure = protectedProcedure
       result = data;
     }
 
-    console.log("[updateSettings] Settings updated successfully");
+    logger.info("[updateSettings] Settings updated successfully");
     return result;
   });

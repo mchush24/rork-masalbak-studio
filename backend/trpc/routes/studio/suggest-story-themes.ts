@@ -1,7 +1,8 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import OpenAI from "openai";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit";
+import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -174,8 +175,8 @@ export const suggestStoryThemesProcedure = protectedProcedure
   .use(authenticatedAiRateLimit)
   .input(suggestStoryThemesInputSchema)
   .mutation(async ({ input }: { input: z.infer<typeof suggestStoryThemesInputSchema> }) => {
-    console.log("[Suggest Story Themes] 🎨 Analyzing drawing for theme suggestions");
-    console.log("[Suggest Story Themes] Language:", input.language);
+    logger.info("[Suggest Story Themes] 🎨 Analyzing drawing for theme suggestions");
+    logger.info("[Suggest Story Themes] Language:", input.language);
 
     try {
       const isTurkish = input.language === "tr";
@@ -375,7 +376,7 @@ Only respond with JSON.`;
       });
 
       const content = response.choices[0]?.message?.content || "";
-      console.log("[Suggest Story Themes] ✅ Raw response:", content);
+      logger.info("[Suggest Story Themes] ✅ Raw response:", content);
 
       // Parse JSON response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -387,9 +388,9 @@ Only respond with JSON.`;
 
       // Log visual description first - this helps debug image analysis issues
       if (parsed.visualDescription) {
-        console.log("[Suggest Story Themes] 👁️ Visual Description:", parsed.visualDescription);
+        logger.info("[Suggest Story Themes] 👁️ Visual Description:", parsed.visualDescription);
       } else {
-        console.log("[Suggest Story Themes] ⚠️ No visual description provided by model");
+        logger.info("[Suggest Story Themes] ⚠️ No visual description provided by model");
       }
 
       const suggestions: ThemeSuggestion[] = parsed.suggestions || [];
@@ -406,16 +407,16 @@ Only respond with JSON.`;
 
       // Log warning if concerning content detected
       if (contentAnalysis.hasConcerningContent) {
-        console.log("[Suggest Story Themes] ⚠️ CONCERNING CONTENT DETECTED:", contentAnalysis.concernType);
-        console.log("[Suggest Story Themes] ⚠️ Description:", contentAnalysis.concernDescription);
-        console.log("[Suggest Story Themes] 💜 Therapeutic approach:", contentAnalysis.therapeuticApproach);
+        logger.info("[Suggest Story Themes] ⚠️ CONCERNING CONTENT DETECTED:", contentAnalysis.concernType);
+        logger.info("[Suggest Story Themes] ⚠️ Description:", contentAnalysis.concernDescription);
+        logger.info("[Suggest Story Themes] 💜 Therapeutic approach:", contentAnalysis.therapeuticApproach);
       }
 
-      console.log("[Suggest Story Themes] ✅ Generated", suggestions.length, "theme suggestions");
-      console.log("[Suggest Story Themes] Content analysis:", contentAnalysis);
+      logger.info("[Suggest Story Themes] ✅ Generated", suggestions.length, "theme suggestions");
+      logger.info("[Suggest Story Themes] Content analysis:", contentAnalysis);
       return { suggestions, contentAnalysis };
     } catch (error) {
-      console.error("[Suggest Story Themes] ❌ Error:", error);
+      logger.error("[Suggest Story Themes] ❌ Error:", error);
       throw new Error(
         `Story theme suggestion failed: ${error instanceof Error ? error.message : "Unknown error"}`
       );

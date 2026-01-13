@@ -1,7 +1,8 @@
-import { publicProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { publicProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { supabase } from "../../../lib/supabase";
-import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt";
+import { supabase } from "../../../lib/supabase.js";
+import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt.js";
 
 const verifyEmailInputSchema = z.object({
   email: z.string().email(),
@@ -20,7 +21,7 @@ export const verifyEmailProcedure = publicProcedure
   .input(verifyEmailInputSchema)
   .output(verifyEmailResponseSchema)
   .mutation(async ({ input }) => {
-    console.log("[Auth] 🔐 Verifying email code:", input.email);
+    logger.info("[Auth] 🔐 Verifying email code:", input.email);
 
     try {
       // Get the latest verification code for this email
@@ -33,7 +34,7 @@ export const verifyEmailProcedure = publicProcedure
         .single();
 
       if (fetchError || !verificationRecord) {
-        console.error("[Auth] ❌ No verification code found for:", input.email);
+        logger.error("[Auth] ❌ No verification code found for:", input.email);
         return {
           success: false,
           message: "Doğrulama kodu bulunamadı. Lütfen tekrar kayıt olun.",
@@ -45,7 +46,7 @@ export const verifyEmailProcedure = publicProcedure
       const now = new Date();
 
       if (now > expiresAt) {
-        console.error("[Auth] ❌ Verification code expired for:", input.email);
+        logger.error("[Auth] ❌ Verification code expired for:", input.email);
         return {
           success: false,
           message: "Doğrulama kodunun süresi dolmuş. Lütfen tekrar kayıt olun.",
@@ -53,13 +54,13 @@ export const verifyEmailProcedure = publicProcedure
       }
 
       // Check if code matches
-      console.log("[Auth] 🔍 Comparing codes - Database:", verificationRecord.code, "| Input:", input.code);
-      console.log("[Auth] 🔍 Code types - Database:", typeof verificationRecord.code, "| Input:", typeof input.code);
-      console.log("[Auth] 🔍 Trimmed comparison - Database:", verificationRecord.code.trim(), "| Input:", input.code.trim());
+      logger.info("[Auth] 🔍 Comparing codes - Database:", verificationRecord.code, "| Input:", input.code);
+      logger.info("[Auth] 🔍 Code types - Database:", typeof verificationRecord.code, "| Input:", typeof input.code);
+      logger.info("[Auth] 🔍 Trimmed comparison - Database:", verificationRecord.code.trim(), "| Input:", input.code.trim());
 
       if (verificationRecord.code.trim() !== input.code.trim()) {
-        console.error("[Auth] ❌ Invalid verification code for:", input.email);
-        console.error("[Auth] ❌ Expected:", verificationRecord.code, "| Got:", input.code);
+        logger.error("[Auth] ❌ Invalid verification code for:", input.email);
+        logger.error("[Auth] ❌ Expected:", verificationRecord.code, "| Got:", input.code);
         return {
           success: false,
           message: "Doğrulama kodu hatalı. Lütfen tekrar deneyin.",
@@ -72,7 +73,7 @@ export const verifyEmailProcedure = publicProcedure
         .delete()
         .eq('email', input.email);
 
-      console.log("[Auth] ✅ Email verified successfully:", input.email);
+      logger.info("[Auth] ✅ Email verified successfully:", input.email);
 
       // Get user for token generation
       const { data: user } = await supabase
@@ -90,7 +91,7 @@ export const verifyEmailProcedure = publicProcedure
       const accessToken = generateAccessToken(tokenPayload);
       const refreshToken = generateRefreshToken(tokenPayload);
 
-      console.log("[Auth] 🔑 Generated JWT tokens for user:", user.id);
+      logger.info("[Auth] 🔑 Generated JWT tokens for user:", user.id);
 
       return {
         success: true,
@@ -100,7 +101,7 @@ export const verifyEmailProcedure = publicProcedure
         refreshToken,
       };
     } catch (error) {
-      console.error("[Auth] ❌ Verification error:", error);
+      logger.error("[Auth] ❌ Verification error:", error);
       return {
         success: false,
         message: "Doğrulama sırasında bir hata oluştu. Lütfen tekrar deneyin.",

@@ -1,10 +1,11 @@
-import { publicProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { publicProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { supabase } from "../../../lib/supabase";
-import { verifyPassword } from "../../../lib/password";
-import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt";
+import { supabase } from "../../../lib/supabase.js";
+import { verifyPassword } from "../../../lib/password.js";
+import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt.js";
 import { TRPCError } from "@trpc/server";
-import { authRateLimit } from "../../middleware/rate-limit";
+import { authRateLimit } from "../../middleware/rate-limit.js";
 
 const loginInputSchema = z.object({
   email: z.string().email(),
@@ -28,11 +29,11 @@ export const loginWithPasswordProcedure = publicProcedure
   .input(loginInputSchema)
   .output(loginResponseSchema)
   .mutation(async ({ input }) => {
-    console.log("[Auth] 🔐 Login attempt:", input.email);
+    logger.info("[Auth] 🔐 Login attempt:", input.email);
 
     try {
       // Debug: Check Supabase client
-      console.log("[Auth] 🔍 Supabase client status:", supabase ? 'OK' : 'NULL');
+      logger.info("[Auth] 🔍 Supabase client status:", supabase ? 'OK' : 'NULL');
 
       // Get user from database
       const { data: user, error } = await supabase
@@ -42,10 +43,10 @@ export const loginWithPasswordProcedure = publicProcedure
         .single();
 
       // Debug: Log query result
-      console.log("[Auth] 🔍 Query result - error:", error?.message, "user:", user ? 'found' : 'null');
+      logger.info("[Auth] 🔍 Query result - error:", error?.message, "user:", user ? 'found' : 'null');
 
       if (error || !user) {
-        console.error("[Auth] ❌ User not found:", input.email, "Error:", error?.message);
+        logger.error("[Auth] ❌ User not found:", input.email, "Error:", error?.message);
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Email veya şifre hatalı',
@@ -54,7 +55,7 @@ export const loginWithPasswordProcedure = publicProcedure
 
       // Check if user needs to set password (migration case)
       if (!user.password_hash || user.password_reset_required) {
-        console.log("[Auth] ⚠️ User needs password setup:", input.email);
+        logger.info("[Auth] ⚠️ User needs password setup:", input.email);
         return {
           success: false,
           userId: user.id,
@@ -70,7 +71,7 @@ export const loginWithPasswordProcedure = publicProcedure
       );
 
       if (!isValidPassword) {
-        console.error("[Auth] ❌ Invalid password for:", input.email);
+        logger.error("[Auth] ❌ Invalid password for:", input.email);
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Email veya şifre hatalı',
@@ -94,7 +95,7 @@ export const loginWithPasswordProcedure = publicProcedure
         email: user.email,
       });
 
-      console.log("[Auth] ✅ Login successful:", user.email);
+      logger.info("[Auth] ✅ Login successful:", user.email);
 
       return {
         success: true,
@@ -108,7 +109,7 @@ export const loginWithPasswordProcedure = publicProcedure
     } catch (error) {
       if (error instanceof TRPCError) throw error;
 
-      console.error("[Auth] ❌ Login error:", error);
+      logger.error("[Auth] ❌ Login error:", error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Giriş sırasında bir hata oluştu',

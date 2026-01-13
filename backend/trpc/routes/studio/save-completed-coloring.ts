@@ -1,3 +1,4 @@
+import { logger } from "../../../lib/utils.js";
 /**
  * Save Completed Coloring
  *
@@ -5,8 +6,8 @@
  */
 
 import { z } from "zod";
-import { protectedProcedure } from "../../create-context";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { protectedProcedure } from "../../create-context.js";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 export const saveCompletedColoringProcedure = protectedProcedure
   .input(
@@ -19,7 +20,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
     const userId = ctx.userId; // Get from authenticated context
     const { coloringId, completedImageData } = input;
 
-    console.log(`[SaveCompletedColoring] User ${userId} saving coloring ${coloringId}`);
+    logger.info(`[SaveCompletedColoring] User ${userId} saving coloring ${coloringId}`);
 
     const supabase = getSecureClient(ctx);
 
@@ -32,7 +33,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
       .single();
 
     if (fetchError || !coloring) {
-      console.error("[SaveCompletedColoring] Coloring not found or access denied:", fetchError);
+      logger.error("[SaveCompletedColoring] Coloring not found or access denied:", fetchError);
       throw new Error("Coloring not found or you don't have permission to update it");
     }
 
@@ -56,7 +57,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
         });
 
       if (uploadError) {
-        console.error("[SaveCompletedColoring] Upload error:", uploadError);
+        logger.error("[SaveCompletedColoring] Upload error:", uploadError);
         throw new Error("Failed to upload completed image");
       }
 
@@ -68,7 +69,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
 
       const completedImageUrl = urlData.publicUrl;
 
-      console.log("[SaveCompletedColoring] Image uploaded:", completedImageUrl);
+      logger.info("[SaveCompletedColoring] Image uploaded:", completedImageUrl);
 
       // 3. Update the coloring record
       const { data: updatedColoring, error: updateError } = await supabase
@@ -84,11 +85,11 @@ export const saveCompletedColoringProcedure = protectedProcedure
         .single();
 
       if (updateError) {
-        console.error("[SaveCompletedColoring] Update error:", updateError);
+        logger.error("[SaveCompletedColoring] Update error:", updateError);
         throw new Error("Failed to update coloring record");
       }
 
-      console.log("[SaveCompletedColoring] ✅ Successfully saved completed coloring");
+      logger.info("[SaveCompletedColoring] ✅ Successfully saved completed coloring");
 
       return {
         success: true,
@@ -96,7 +97,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
         completedImageUrl,
       };
     } catch (error) {
-      console.error("[SaveCompletedColoring] Error:", error);
+      logger.error("[SaveCompletedColoring] Error:", error);
       throw new Error("Failed to save completed coloring");
     }
   });

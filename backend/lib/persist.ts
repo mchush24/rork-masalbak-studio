@@ -1,3 +1,4 @@
+import { logger } from "./utils.js";
 import { supa } from "./supabase.js";
 
 export async function saveStorybookRecord(
@@ -7,7 +8,7 @@ export async function saveStorybookRecord(
   pdf_url?: string|null,
   voice_urls?: string[]|null
 ) {
-  console.log("[Persist] Saving storybook record:", title);
+  logger.info("[Persist] Saving storybook record:", title);
 
   const { data, error } = await supa
     .from("storybooks")
@@ -22,11 +23,11 @@ export async function saveStorybookRecord(
     .single();
 
   if (error) {
-    console.error("[Persist] Storybook save failed:", error);
+    logger.error("[Persist] Storybook save failed:", error);
     throw error;
   }
 
-  console.log("[Persist] Storybook saved:", data.id);
+  logger.info("[Persist] Storybook saved:", data.id);
   return data;
 }
 
@@ -36,7 +37,7 @@ export async function saveColoringRecord(
   pdf_url: string,
   page_count: number
 ) {
-  console.log("[Persist] Saving coloring record:", title);
+  logger.info("[Persist] Saving coloring record:", title);
 
   const { data, error } = await supa
     .from("colorings")
@@ -50,11 +51,11 @@ export async function saveColoringRecord(
     .single();
 
   if (error) {
-    console.error("[Persist] Coloring save failed:", error);
+    logger.error("[Persist] Coloring save failed:", error);
     throw error;
   }
 
-  console.log("[Persist] Coloring saved:", data.id);
+  logger.info("[Persist] Coloring saved:", data.id);
   return data;
 }
 
@@ -69,7 +70,7 @@ export async function listStorybooks(user_id: string | null, limit = 20) {
   const { data, error } = user_id ? await q.eq("user_id_fk", user_id) : await q;
 
   if (error) {
-    console.error("[Persist] List storybooks failed:", error);
+    logger.error("[Persist] List storybooks failed:", error);
     throw error;
   }
 
@@ -86,7 +87,7 @@ export async function listColorings(user_id: string | null, limit = 20) {
   const { data, error } = user_id ? await q.eq("user_id_fk", user_id) : await q;
 
   if (error) {
-    console.error("[Persist] List colorings failed:", error);
+    logger.error("[Persist] List colorings failed:", error);
     throw error;
   }
 
@@ -94,7 +95,7 @@ export async function listColorings(user_id: string | null, limit = 20) {
 }
 
 export async function deleteStorybook(storybookId: string) {
-  console.log("[Persist] Deleting storybook:", storybookId);
+  logger.info("[Persist] Deleting storybook:", storybookId);
 
   const { error } = await supa
     .from("storybooks")
@@ -102,16 +103,16 @@ export async function deleteStorybook(storybookId: string) {
     .eq("id", storybookId);
 
   if (error) {
-    console.error("[Persist] Delete storybook failed:", error);
+    logger.error("[Persist] Delete storybook failed:", error);
     throw error;
   }
 
-  console.log("[Persist] Storybook deleted successfully");
+  logger.info("[Persist] Storybook deleted successfully");
   return { success: true };
 }
 
 export async function deleteColoring(coloringId: string) {
-  console.log("[Persist] Deleting coloring:", coloringId);
+  logger.info("[Persist] Deleting coloring:", coloringId);
 
   const { error } = await supa
     .from("colorings")
@@ -119,10 +120,10 @@ export async function deleteColoring(coloringId: string) {
     .eq("id", coloringId);
 
   if (error) {
-    console.error("[Persist] Delete coloring failed:", error);
+    logger.error("[Persist] Delete coloring failed:", error);
     throw error;
   }
 
-  console.log("[Persist] Coloring deleted successfully");
+  logger.info("[Persist] Coloring deleted successfully");
   return { success: true };
 }

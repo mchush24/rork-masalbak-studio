@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 import { TRPCError } from "@trpc/server";
 
 const updateAnalysisInputSchema = z.object({
@@ -15,7 +16,7 @@ export const updateAnalysisProcedure = protectedProcedure
   .input(updateAnalysisInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[updateAnalysis] Updating analysis:", input.analysisId);
+    logger.info("[updateAnalysis] Updating analysis:", input.analysisId);
 
     const supabase = getSecureClient(ctx);
 
@@ -46,10 +47,10 @@ export const updateAnalysisProcedure = protectedProcedure
           message: "Analiz bulunamadı veya güncelleme yetkiniz yok",
         });
       }
-      console.error("[updateAnalysis] Error:", error);
+      logger.error("[updateAnalysis] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[updateAnalysis] Analysis updated successfully");
+    logger.info("[updateAnalysis] Analysis updated successfully");
     return data;
   });

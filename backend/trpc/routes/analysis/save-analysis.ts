@@ -1,6 +1,7 @@
-import { protectedProcedure } from "../../create-context";
+import { logger } from "../../../lib/utils.js";
+import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure";
+import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const saveAnalysisInputSchema = z.object({
   taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
@@ -21,7 +22,7 @@ export const saveAnalysisProcedure = protectedProcedure
   .input(saveAnalysisInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    console.log("[saveAnalysis] Saving analysis for user:", userId);
+    logger.info("[saveAnalysis] Saving analysis for user:", userId);
 
     const supabase = getSecureClient(ctx);
 
@@ -46,10 +47,10 @@ export const saveAnalysisProcedure = protectedProcedure
       .single();
 
     if (error) {
-      console.error("[saveAnalysis] Error:", error);
+      logger.error("[saveAnalysis] Error:", error);
       throw new Error(error.message);
     }
 
-    console.log("[saveAnalysis] Analysis saved successfully:", data.id);
+    logger.info("[saveAnalysis] Analysis saved successfully:", data.id);
     return data;
   });
