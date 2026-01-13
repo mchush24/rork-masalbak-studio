@@ -11,6 +11,7 @@ const openai = new OpenAI({
 const analysisInputSchema = z.object({
   taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
   childAge: z.number().optional(),
+  childGender: z.enum(["male", "female"]).optional(), // Child's gender for developmental context
   imageBase64: z.string().optional(),
   language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
   userRole: z.enum(["parent", "teacher"]).optional().default("parent"),
@@ -123,6 +124,7 @@ export async function analyzeDrawing(input: AnalysisInput, openaiClient = openai
   logger.info("[Drawing Analysis] 🎯 Starting analysis");
   logger.info("[Drawing Analysis] 📝 Task type:", input.taskType);
   logger.info("[Drawing Analysis] 👶 Child age:", input.childAge);
+  logger.info("[Drawing Analysis] 👶 Child gender:", input.childGender);
   logger.info("[Drawing Analysis] 🖼️  Has image:", !!input.imageBase64);
 
   try {
@@ -267,8 +269,10 @@ Yerelleştirme:
 Şema zorunludur; fazladan alan ekleme.`;
 
     // USER prompt - input data
+    const childGenderText = input.childGender === 'male' ? 'Erkek' : input.childGender === 'female' ? 'Kız' : 'bilinmiyor';
     const userPrompt = `language: ${language}
 child_age: ${input.childAge || "bilinmiyor"}
+child_gender: ${childGenderText}
 test_type: ${input.taskType}
 context: {
   "role": "${userRole}",

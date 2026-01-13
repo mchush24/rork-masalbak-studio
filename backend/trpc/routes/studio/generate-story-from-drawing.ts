@@ -30,7 +30,7 @@ const generateStoryInputSchema = z.object({
 
   // Child info
   childAge: z.number().min(2).max(12),
-  childName: z.string().optional(), // NEW: Personalization
+  childGender: z.enum(["male", "female"]).optional(), // For character gender matching
 
   // Story preferences
   language: z.enum(["tr", "en"]).default("tr"),
@@ -82,7 +82,7 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
       const generatedStory = await generateStoryFromAnalysisV2({
         drawingAnalysis: input.drawingAnalysis as AnalysisResponse,
         childAge: input.childAge,
-        childName: input.childName,
+        childGender: input.childGender,
         language: input.language,
         drawingTitle: input.drawingTitle,
         drawingDescription: input.drawingDescription,

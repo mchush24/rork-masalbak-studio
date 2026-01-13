@@ -49,7 +49,7 @@ export interface Child {
   name: string;
   age: number;
   birthDate?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: 'male' | 'female';
   avatarId?: string; // Avatar ID from constants/avatars.ts
 }
 

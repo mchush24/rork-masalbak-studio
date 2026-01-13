@@ -42,8 +42,8 @@ export interface StoryGenerationInput {
   drawingTitle?: string;
   drawingDescription?: string;
   themes?: string[];
-  childName?: string; // NEW: Personalization
-  therapeuticContext?: TherapeuticContext; // NEW: For trauma-informed storytelling
+  childGender?: 'male' | 'female'; // For character gender matching
+  therapeuticContext?: TherapeuticContext; // For trauma-informed storytelling
 }
 
 export interface CharacterArc {
@@ -347,11 +347,11 @@ HİKAYE BEAT'LERİ (${ageParams.pageCount} sayfa, ${ageParams.pageCount} SOMUT O
 SORUN: Bunlar ÖZET! Ne olduğu belli değil!
 
 ✅ İYİ BEAT'LER (SOMUT OLAYLAR):
-1. "${input.childAge} yaşındaki ${input.childName || 'karakter'} bahçede kelebek kovalıyor, altın bir taş buluyor"
+1. "${input.childAge} yaşındaki karakter bahçede kelebek kovalıyor, altın bir taş buluyor"
 2. "Taş parlayınca, konuşan bir sincap beliyor ve yardım istiyor"
 3. "Birlikte ormana gidiyorlar, kayıp sincap ailesini arıyorlar"
 4. "Karanlık ağaçlar arasında korku duyuyorlar ama birbirlerine cesaret veriyorlar"
-5. "Sincap ailesini buluyorlar, taş ödül olarak ${input.childName || 'karaktere'} kalıyor"
+5. "Sincap ailesini buluyorlar, taş ödül olarak karaktere kalıyor"
 
 FARK: Her beat'te BİR SOMUT OLAY var (taş bulma, sincap beliyor, ormana gidiş, korku anı, bulma)
 
@@ -396,8 +396,11 @@ ${therapeuticGuidance.avoidance}
 - UMUT: Hikaye MUTLAKA pozitif bir dönüşümle bitsin
 ` : '';
 
+  // Determine gender text for prompt
+  const genderText = input.childGender === 'male' ? 'Erkek' : input.childGender === 'female' ? 'Kız' : '';
+
   const userPrompt = `Çocuk Yaşı: ${input.childAge}
-${input.childName ? `Çocuğun Adı: ${input.childName}` : ''}
+${genderText ? `Çocuğun Cinsiyeti: ${genderText} (ana karakter bu cinsiyete uygun olsun - erkekse erkek hayvan, kızsa kız hayvan)` : ''}
 Çizim Analizi Bulguları:
 ${insightsSummary}
 
@@ -426,7 +429,7 @@ JSON format:
     }
   },
   "storyBeats": [
-    "Beat 1 (SOMUT): ${input.childName || 'Karakter'} [nerede], [ne yapıyor], [ne buluyor/görüyor]",
+    "Beat 1 (SOMUT): Karakter [nerede], [ne yapıyor], [ne buluyor/görüyor]",
     "Beat 2 (SOMUT): [Spesifik olay], [kim beliyor], [ne oluyor]",
     "Beat 3 (SOMUT): [Nereye gidiyorlar], [ne arıyorlar], [ne ile karşılaşıyorlar]",
     ...${ageParams.pageCount} beat - HER BİRİ BİR SOMUT OLAY!

@@ -32,6 +32,7 @@ import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useChild } from "@/lib/contexts/ChildContext";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -51,6 +52,11 @@ export default function StoriesScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { user } = useAuth();
+  const { selectedChild, setSelectedChild, children: userChildren, hasChildren } = useChild();
+
+  // Get child info with defaults
+  const childAge = selectedChild?.age || 5;
+  const childGender = selectedChild?.gender; // 'male' | 'female'
   const [refreshing, setRefreshing] = useState(false);
 
   // Create storybook states
@@ -610,7 +616,8 @@ export default function StoriesScreen() {
         // Analyze the drawing (using "Family" as taskType for story generation context)
         const analysisResult = await analyzeDrawingMutation.mutateAsync({
           taskType: "Family", // Use Family drawing analysis for story context
-          childAge: 5, // Default age, can be made configurable
+          childAge: childAge, // Use selected child's age
+          childGender: childGender, // Use selected child's gender for developmental context
           imageBase64: imageBase64,
           language: userLang,
           userRole: "parent",
@@ -633,7 +640,8 @@ export default function StoriesScreen() {
 
         const storyResult = await generateStoryMutation.mutateAsync({
           drawingAnalysis: analysisResult,
-          childAge: 5, // Default age
+          childAge: childAge, // Use selected child's age
+          childGender: childGender, // Use selected child's gender for character
           language: userLang,
           drawingTitle: title,
           makePdf: true,
