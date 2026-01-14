@@ -27,8 +27,10 @@ export default function InteractiveStoryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     id: string;
-    sessionId?: string;
   }>();
+
+  // Route [id] parametresi session ID olarak kullanilir
+  const sessionId = params.id;
 
   const [screenState, setScreenState] = useState<ScreenState>("reading");
   const [currentSegment, setCurrentSegment] = useState<StorySegment | null>(null);
@@ -44,10 +46,10 @@ export default function InteractiveStoryScreen() {
     character: InteractiveCharacter;
   } | null>(null);
 
-  // Session bilgisini getir (varsa)
+  // Session bilgisini getir
   const sessionQuery = trpc.interactiveStory.getSession.useQuery(
-    { sessionId: params.sessionId || "" },
-    { enabled: !!params.sessionId }
+    { sessionId: sessionId || "" },
+    { enabled: !!sessionId }
   );
 
   // Secim mutation
@@ -99,10 +101,10 @@ export default function InteractiveStoryScreen() {
 
   // Secim yapildiginda
   const handleChoiceMade = (optionId: string) => {
-    if (!params.sessionId || !currentChoicePoint) return;
+    if (!sessionId || !currentChoicePoint) return;
 
     makeChoiceMutation.mutate({
-      sessionId: params.sessionId,
+      sessionId: sessionId,
       choicePointId: currentChoicePoint.id,
       optionId,
     });
@@ -115,8 +117,8 @@ export default function InteractiveStoryScreen() {
 
   // Rapor gorme
   const handleViewReport = () => {
-    if (!params.sessionId) return;
-    generateReportMutation.mutate({ sessionId: params.sessionId });
+    if (!sessionId) return;
+    generateReportMutation.mutate({ sessionId: sessionId });
   };
 
   // Ana sayfaya don

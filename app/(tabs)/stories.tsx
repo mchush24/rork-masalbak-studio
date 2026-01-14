@@ -14,7 +14,7 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2, Trash2, AlertTriangle, Heart } from "lucide-react-native";
+import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2, Trash2, AlertTriangle, Heart, Gamepad2, ChevronRight, Star, Users, Brain } from "lucide-react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -129,10 +129,16 @@ export default function StoriesScreen() {
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [contentWarning, setContentWarning] = useState<ContentAnalysis | null>(null);
   const [showContentWarningModal, setShowContentWarningModal] = useState(false);
+  // V2: Store visual description from theme suggestions - CRITICAL for story-drawing connection
+  const [visualDescription, setVisualDescription] = useState<string | null>(null);
 
   // Image analysis loading state - show nice animation while analyzing
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [analysisStep, setAnalysisStep] = useState<'uploading' | 'analyzing' | 'generating' | 'done'>('uploading');
+
+  // Story mode: normal or interactive
+  type StoryMode = 'normal' | 'interactive';
+  const [storyMode, setStoryMode] = useState<StoryMode>('normal');
 
   // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
   useEffect(() => {
@@ -190,6 +196,15 @@ export default function StoriesScreen() {
 
       console.log('[Stories] ✅ Got', result.suggestions.length, 'theme suggestions');
 
+      // V2: Store visual description for story-drawing connection
+      if (result.visualDescription) {
+        console.log('[Stories] 🎨 Visual description:', result.visualDescription);
+        setVisualDescription(result.visualDescription);
+      } else {
+        console.log('[Stories] ⚠️ No visual description received');
+        setVisualDescription(null);
+      }
+
       // Check for concerning content
       if (result.contentAnalysis?.hasConcerningContent) {
         console.log('[Stories] ⚠️ Concerning content detected:', result.contentAnalysis);
@@ -246,6 +261,14 @@ export default function StoriesScreen() {
 
       console.log('[Stories] ✅ Got', result.suggestions.length, 'theme suggestions from blob');
 
+      // V2: Store visual description for story-drawing connection
+      if (result.visualDescription) {
+        console.log('[Stories] 🎨 Visual description from blob:', result.visualDescription);
+        setVisualDescription(result.visualDescription);
+      } else {
+        setVisualDescription(null);
+      }
+
       // Check for concerning content
       if (result.contentAnalysis?.hasConcerningContent) {
         console.log('[Stories] ⚠️ Concerning content detected:', result.contentAnalysis);
@@ -260,6 +283,7 @@ export default function StoriesScreen() {
       console.error('[Stories] ❌ Error fetching theme suggestions from blob:', error);
       // Don't show alert, just continue without suggestions
       setThemeSuggestions([]);
+      setVisualDescription(null);
     } finally {
       setLoadingSuggestions(false);
     }
@@ -273,12 +297,21 @@ export default function StoriesScreen() {
     percentage: 0,
   });
 
-  const steps = [
+  const normalSteps = [
     { name: 'analyze', message: 'Çizim analiz ediliyor...', icon: '🔍', duration: 5 },
     { name: 'story', message: 'Hikaye yazılıyor...', icon: '✍️', duration: 15 },
     { name: 'images', message: 'Görseller oluşturuluyor...', icon: '🎨', duration: 20 },
     { name: 'finalize', message: 'PDF hazırlanıyor...', icon: '📄', duration: 5 },
   ];
+
+  const interactiveSteps = [
+    { name: 'analyze', message: 'Çizim analiz ediliyor...', icon: '🔍', duration: 5 },
+    { name: 'branches', message: 'Hikaye dalları oluşturuluyor...', icon: '🎮', duration: 20 },
+    { name: 'finalize', message: 'Seçenekler hazırlanıyor...', icon: '✨', duration: 10 },
+  ];
+
+  // Use the appropriate steps based on story mode
+  const steps = storyMode === 'interactive' ? interactiveSteps : normalSteps;
 
   const createStorybookMutation = trpc.studio.createStorybook.useMutation({
     onSuccess: () => {
@@ -299,6 +332,7 @@ export default function StoriesScreen() {
   const analyzeDrawingMutation = trpc.studio.analyzeDrawing.useMutation();
   const generateStoryMutation = trpc.studio.generateStoryFromDrawing.useMutation();
   const suggestThemesMutation = trpc.studio.suggestStoryThemes.useMutation();
+  const generateInteractiveStoryMutation = trpc.interactiveStory.generate.useMutation();
 
   // Fetch storybooks from backend
   const {
@@ -374,6 +408,14 @@ export default function StoriesScreen() {
 
       console.log('[Stories] ✅ Got', result.suggestions.length, 'theme suggestions');
 
+      // V2: Store visual description for story-drawing connection
+      if (result.visualDescription) {
+        console.log('[Stories] 🎨 Visual description:', result.visualDescription);
+        setVisualDescription(result.visualDescription);
+      } else {
+        setVisualDescription(null);
+      }
+
       // Check for concerning content
       if (result.contentAnalysis?.hasConcerningContent) {
         console.log('[Stories] ⚠️ Concerning content detected:', result.contentAnalysis);
@@ -388,6 +430,7 @@ export default function StoriesScreen() {
       console.error('[Stories] ❌ Error fetching theme suggestions:', error);
       Alert.alert("Hata", "Tema önerileri alınamadı. Lütfen başlığı kendiniz yazın.");
       setThemeSuggestions([]);
+      setVisualDescription(null);
     } finally {
       setLoadingSuggestions(false);
     }
@@ -407,6 +450,12 @@ export default function StoriesScreen() {
       finalTitle = storyTitle.trim();
     } else {
       finalTitle = `Benim Masalım ${new Date().toLocaleDateString('tr-TR')}`;
+    }
+
+    // If interactive mode is selected, proceed directly to interactive story creation
+    if (storyMode === 'interactive') {
+      proceedWithInteractiveStory(finalTitle);
+      return;
     }
 
     // Check for sensitive content in title
@@ -455,6 +504,110 @@ export default function StoriesScreen() {
     }
 
     proceedWithStorybook(false, finalTitle);
+  }
+
+  // Handle interactive story creation
+  async function proceedWithInteractiveStory(title: string) {
+    try {
+      setLoadingStory(true);
+      setProgress({
+        step: 1,
+        total: 3,
+        message: 'İnteraktif hikaye oluşturuluyor...',
+        percentage: 33,
+      });
+
+      console.log('[Stories] 🎮 Creating interactive story...');
+
+      // Convert image to base64
+      let imageBase64 = "";
+      if (storyImage!.startsWith("blob:")) {
+        const response = await fetch(storyImage!);
+        const blob = await response.blob();
+        imageBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            const base64String = result.split(',')[1];
+            resolve(base64String);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        let cleanUri = storyImage!.replace(/^file:\/\//, "");
+        let fileUri = cleanUri;
+        if (!fileUri.startsWith("file://") && !fileUri.startsWith("content://")) {
+          fileUri = `file://${fileUri}`;
+        }
+        imageBase64 = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: "base64",
+        });
+      }
+
+      setProgress({
+        step: 2,
+        total: 3,
+        message: 'Hikaye dalları oluşturuluyor...',
+        percentage: 66,
+      });
+
+      const userLang = (user?.language || 'tr') as 'tr' | 'en';
+
+      // Prepare therapeutic context if content warning exists
+      const therapeuticContext = contentWarning?.hasConcerningContent && contentWarning?.concernType
+        ? {
+            concernType: contentWarning.concernType,
+            therapeuticApproach: contentWarning.therapeuticApproach || 'Genel terapötik yaklaşım',
+          }
+        : undefined;
+
+      // Call interactive story generation
+      const result = await generateInteractiveStoryMutation.mutateAsync({
+        imageBase64,
+        childAge: childAge,
+        childName: selectedChild?.name,
+        language: userLang,
+        selectedTheme: selectedThemeIndex !== null && themeSuggestions[selectedThemeIndex]
+          ? themeSuggestions[selectedThemeIndex].theme
+          : title,
+        therapeuticContext,
+      });
+
+      setProgress({
+        step: 3,
+        total: 3,
+        message: 'Tamamlandı!',
+        percentage: 100,
+      });
+
+      console.log('[Stories] ✅ Interactive story created:', result.sessionId);
+
+      // Reset form state
+      setShowCreateForm(false);
+      setStoryTitle("");
+      setStoryImage(null);
+      setThemeSuggestions([]);
+      setSelectedThemeIndex(null);
+      setVisualDescription(null);
+      setStoryMode('normal');
+      await refetch();
+
+      // Navigate to interactive story screen
+      router.push({
+        pathname: "/interactive-story/[id]",
+        params: { id: result.sessionId },
+      });
+
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";
+      Alert.alert("Hata", errorMessage, [
+        { text: "Vazgeç", style: "cancel" },
+        { text: "Tekrar Dene", onPress: () => proceedWithInteractiveStory(title) },
+      ]);
+    } finally {
+      setLoadingStory(false);
+    }
   }
 
   async function proceedWithStorybook(therapeuticMode: boolean = false, title: string) {
@@ -578,6 +731,7 @@ export default function StoriesScreen() {
         setStoryImage(null);
         setThemeSuggestions([]);
         setSelectedThemeIndex(null);
+        setVisualDescription(null); // V2: Reset visual description
         await refetch();
 
         // Navigate to the new storybook
@@ -660,6 +814,9 @@ export default function StoriesScreen() {
             }
           : undefined;
 
+        // V2: Log visual description - this connects story to drawing
+        console.log('[Stories] 🎨 Visual description for story:', visualDescription?.substring(0, 100) || 'NONE');
+
         const storyResult = await generateStoryMutation.mutateAsync({
           drawingAnalysis: analysisResult,
           childAge: childAge, // Use selected child's age
@@ -669,6 +826,8 @@ export default function StoriesScreen() {
           makePdf: true,
           makeTts: false, // ❌ TTS kapalı (maliyet + süre)
           therapeuticContext, // Pass therapeutic context for trauma-informed storytelling
+          // V2: Pass visual description for story-drawing connection
+          visualDescription: visualDescription || undefined, // What AI sees in the drawing
         });
 
         console.log('[Stories] ✅ AI story generated!', {
@@ -692,6 +851,7 @@ export default function StoriesScreen() {
         setStoryImage(null);
         setThemeSuggestions([]);
         setSelectedThemeIndex(null);
+        setVisualDescription(null); // V2: Reset visual description
 
         // Navigate to the new storybook
         router.push({
@@ -921,8 +1081,14 @@ export default function StoriesScreen() {
             >
               {/* Progress Header */}
               <View style={styles.storyLoadingHeader}>
-                <Sparkles size={48} color="#FFD700" />
-                <Text style={styles.storyLoadingTitle}>Masal Hazırlanıyor</Text>
+                {storyMode === 'interactive' ? (
+                  <Gamepad2 size={48} color="#FFD700" />
+                ) : (
+                  <Sparkles size={48} color="#FFD700" />
+                )}
+                <Text style={styles.storyLoadingTitle}>
+                  {storyMode === 'interactive' ? 'İnteraktif Masal Hazırlanıyor' : 'Masal Hazırlanıyor'}
+                </Text>
               </View>
 
               {/* Progress Bar */}
@@ -975,7 +1141,9 @@ export default function StoriesScreen() {
               {/* Fun Tip */}
               <View style={styles.funTipContainer}>
                 <Text style={styles.funTipText}>
-                  💡 AI, çiziminizdeki detaylardan ilham alarak benzersiz bir masal yazıyor!
+                  {storyMode === 'interactive'
+                    ? '💡 AI, çocuğunuzun seçimlerini analiz edebilecek interaktif bir macera oluşturuyor!'
+                    : '💡 AI, çiziminizdeki detaylardan ilham alarak benzersiz bir masal yazıyor!'}
                 </Text>
               </View>
             </LinearGradient>
@@ -1062,6 +1230,118 @@ export default function StoriesScreen() {
               <Text style={styles.createFormDescription}>
                 Çocuğunuzun çizimlerinden ilham alan özel bir masal kitabı oluşturun
               </Text>
+
+              {/* Story Mode Toggle - Normal vs Interactive */}
+              <View style={styles.storyModeSection}>
+                <Text style={styles.storyModeSectionTitle}>Masal Türü Seçin</Text>
+                <View style={styles.storyModeToggle}>
+                  {/* Normal Story Option */}
+                  <Pressable
+                    style={[
+                      styles.storyModeOption,
+                      storyMode === 'normal' && styles.storyModeOptionSelected,
+                    ]}
+                    onPress={() => setStoryMode('normal')}
+                  >
+                    <LinearGradient
+                      colors={storyMode === 'normal'
+                        ? [Colors.secondary.sunshine, Colors.cards.story.border]
+                        : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']}
+                      style={styles.storyModeOptionGradient}
+                    >
+                      <BookOpen
+                        size={28}
+                        color={storyMode === 'normal' ? Colors.neutral.white : Colors.neutral.medium}
+                      />
+                      <Text style={[
+                        styles.storyModeOptionTitle,
+                        storyMode === 'normal' && styles.storyModeOptionTitleSelected
+                      ]}>
+                        Klasik Masal
+                      </Text>
+                      <Text style={[
+                        styles.storyModeOptionDesc,
+                        storyMode === 'normal' && styles.storyModeOptionDescSelected
+                      ]}>
+                        Görsellerle hikaye
+                      </Text>
+                    </LinearGradient>
+                  </Pressable>
+
+                  {/* Interactive Story Option */}
+                  <Pressable
+                    style={[
+                      styles.storyModeOption,
+                      storyMode === 'interactive' && styles.storyModeOptionSelected,
+                    ]}
+                    onPress={() => setStoryMode('interactive')}
+                  >
+                    <LinearGradient
+                      colors={storyMode === 'interactive'
+                        ? ['#9333EA', '#7C3AED']
+                        : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']}
+                      style={styles.storyModeOptionGradient}
+                    >
+                      <View style={styles.interactiveBadgeContainer}>
+                        <Gamepad2
+                          size={28}
+                          color={storyMode === 'interactive' ? Colors.neutral.white : Colors.neutral.medium}
+                        />
+                        <View style={styles.newBadge}>
+                          <Text style={styles.newBadgeText}>YENİ</Text>
+                        </View>
+                      </View>
+                      <Text style={[
+                        styles.storyModeOptionTitle,
+                        storyMode === 'interactive' && styles.storyModeOptionTitleSelected
+                      ]}>
+                        İnteraktif Masal
+                      </Text>
+                      <Text style={[
+                        styles.storyModeOptionDesc,
+                        storyMode === 'interactive' && styles.storyModeOptionDescSelected
+                      ]}>
+                        Seçimli macera
+                      </Text>
+                    </LinearGradient>
+                  </Pressable>
+                </View>
+
+                {/* Interactive Story Info Card - Show when interactive mode selected */}
+                {storyMode === 'interactive' && (
+                  <View style={styles.interactiveInfoCard}>
+                    <LinearGradient
+                      colors={['rgba(147, 51, 234, 0.1)', 'rgba(124, 58, 237, 0.05)']}
+                      style={styles.interactiveInfoGradient}
+                    >
+                      <View style={styles.interactiveInfoHeader}>
+                        <Star size={20} color="#9333EA" />
+                        <Text style={styles.interactiveInfoTitle}>İnteraktif Masal Nedir?</Text>
+                      </View>
+                      <View style={styles.interactiveInfoFeatures}>
+                        <View style={styles.interactiveInfoFeature}>
+                          <View style={styles.featureIconCircle}>
+                            <ChevronRight size={14} color="#9333EA" />
+                          </View>
+                          <Text style={styles.featureText}>Çocuğunuz hikayede seçimler yapar</Text>
+                        </View>
+                        <View style={styles.interactiveInfoFeature}>
+                          <View style={styles.featureIconCircle}>
+                            <Brain size={14} color="#9333EA" />
+                          </View>
+                          <Text style={styles.featureText}>Seçimler kişilik özelliklerini yansıtır</Text>
+                        </View>
+                        <View style={styles.interactiveInfoFeature}>
+                          <View style={styles.featureIconCircle}>
+                            <Users size={14} color="#9333EA" />
+                          </View>
+                          <Text style={styles.featureText}>Ebeveynler için detaylı analiz raporu</Text>
+                        </View>
+                      </View>
+                    </LinearGradient>
+                  </View>
+                )}
+              </View>
 
               {/* Child Selector - Show which child the story is for */}
               <View style={styles.childSelectorSection}>
@@ -1213,6 +1493,7 @@ export default function StoriesScreen() {
                 console.log('[Stories] storyTitle:', storyTitle);
                 console.log('[Stories] loadingStory:', loadingStory);
                 console.log('[Stories] selectedThemeIndex:', selectedThemeIndex);
+                console.log('[Stories] storyMode:', storyMode);
 
                 if (!storyImage) {
                   console.log('[Stories] ❌ No storyImage - button should be disabled!');
@@ -1231,16 +1512,26 @@ export default function StoriesScreen() {
               <LinearGradient
                 colors={(!storyImage || loadingStory)
                   ? [Colors.neutral.light, Colors.neutral.medium]
-                  : [Colors.secondary.sunshine, Colors.cards.story.border]}
+                  : storyMode === 'interactive'
+                    ? ['#9333EA', '#7C3AED']
+                    : [Colors.secondary.sunshine, Colors.cards.story.border]}
                 style={styles.buttonGradientLarge}
               >
                 {loadingStory ? (
                   <ActivityIndicator size="small" color={Colors.neutral.white} />
+                ) : storyMode === 'interactive' ? (
+                  <Gamepad2 size={24} color={Colors.neutral.white} />
                 ) : (
                   <Sparkles size={24} color={Colors.neutral.white} />
                 )}
                 <Text style={styles.buttonTextLarge}>
-                  {loadingStory ? "Masal Oluşturuluyor..." : "✨ Masal Oluştur"}
+                  {loadingStory
+                    ? storyMode === 'interactive'
+                      ? "İnteraktif Masal Oluşturuluyor..."
+                      : "Masal Oluşturuluyor..."
+                    : storyMode === 'interactive'
+                      ? "🎮 İnteraktif Masal Oluştur"
+                      : "✨ Masal Oluştur"}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -2272,5 +2563,114 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
     lineHeight: 18,
     textAlign: 'center',
+  },
+  // Story Mode Toggle Styles
+  storyModeSection: {
+    marginBottom: spacing["4"],
+  },
+  storyModeSectionTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
+    marginBottom: spacing["3"],
+  },
+  storyModeToggle: {
+    flexDirection: 'row',
+    gap: spacing["3"],
+  },
+  storyModeOption: {
+    flex: 1,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  storyModeOptionSelected: {
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    ...shadows.md,
+  },
+  storyModeOptionGradient: {
+    paddingVertical: spacing["4"],
+    paddingHorizontal: spacing["3"],
+    alignItems: 'center',
+    gap: spacing["2"],
+  },
+  storyModeOptionTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.dark,
+    textAlign: 'center',
+  },
+  storyModeOptionTitleSelected: {
+    color: Colors.neutral.white,
+  },
+  storyModeOptionDesc: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    textAlign: 'center',
+  },
+  storyModeOptionDescSelected: {
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  interactiveBadgeContainer: {
+    position: 'relative',
+  },
+  newBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -16,
+    backgroundColor: '#EF4444',
+    paddingHorizontal: spacing["2"],
+    paddingVertical: 2,
+    borderRadius: radius.full,
+  },
+  newBadgeText: {
+    fontSize: 8,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
+  },
+  // Interactive Info Card
+  interactiveInfoCard: {
+    marginTop: spacing["4"],
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+  },
+  interactiveInfoGradient: {
+    padding: spacing["4"],
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(147, 51, 234, 0.2)',
+  },
+  interactiveInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing["2"],
+    marginBottom: spacing["3"],
+  },
+  interactiveInfoTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: '#9333EA',
+  },
+  interactiveInfoFeatures: {
+    gap: spacing["2"],
+  },
+  interactiveInfoFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing["3"],
+  },
+  featureIconCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(147, 51, 234, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  featureText: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.dark,
+    flex: 1,
   },
 });
