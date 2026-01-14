@@ -6,6 +6,7 @@ import { makeStorybook } from "../../../lib/story.js";
 import { saveStorybookRecord } from "../../../lib/persist.js";
 import type { AnalysisResponse } from "./analyze-drawing.js";
 import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
+import { BadgeService } from "../../../lib/badge-service.js";
 
 // Therapeutic context schema for trauma-informed storytelling (ACEs Framework + Pediatric Psychology)
 const therapeuticContextSchema = z.object({
@@ -96,9 +97,10 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
       logger.info("[Generate Story] 📄 Pages:", generatedStory.pages.length);
 
       // Step 2: Prepare pages for visual generation
+      // CRITICAL: Use visualPrompt (detailed) instead of sceneDescription (too simple)
       const pages = generatedStory.pages.map(page => ({
         text: page.text,
-        prompt: page.sceneDescription, // We'll enhance this with character consistency
+        prompt: page.visualPrompt, // Use detailed visual prompt for unique images per page
       }));
 
       // Step 3: Prepare character info for visual consistency
@@ -142,6 +144,11 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         storybook.voice_urls
       );
       logger.info("[Generate Story] ✅ Saved to database with ID:", savedRecord.id);
+
+      // Record activity and check badges (don't block on this)
+      BadgeService.recordActivity(userId, 'story')
+        .then(() => BadgeService.checkAndAwardBadges(userId))
+        .catch(err => logger.error('[generateStoryFromDrawing] Badge check error:', err));
 
       // Return complete storybook data
       return {

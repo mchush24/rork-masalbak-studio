@@ -432,6 +432,7 @@ export function useAuth() {
     completeOnboarding,
     refreshUserFromBackend,
     setUserSession,
-    isAuthenticated: !!user && !!session,
+    // User is authenticated if we have a user object (either via Supabase session OR manual session)
+    isAuthenticated: !!user,
   };
 }

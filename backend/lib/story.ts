@@ -138,8 +138,13 @@ export async function makeStorybook(opts: MakeOptions) {
         totalPages
       );
 
+      // Use page-specific seed: base seed + page number offset
+      // This ensures character similarity while allowing scene variation
+      const pageSeed = seed + (i * 1000);
+
       logger.info(`[Story] 🎨 Page ${i+1}/${totalPages} Flux 2.0 Prompt:`);
       logger.info(`[Story]   Character: ${character.name}`);
+      logger.info(`[Story]   Seed: ${pageSeed} (base: ${seed}, offset: ${i * 1000})`);
       logger.info(`[Story]   Scene: ${(page.prompt || sceneDesc).substring(0, 80)}...`);
 
       const png = await generateImageForPage(
@@ -148,7 +153,7 @@ export async function makeStorybook(opts: MakeOptions) {
         i + 1,
         totalPages,
         'flux2',
-        seed
+        pageSeed  // Use page-specific seed instead of same seed for all
       );
 
       // Upload image without text overlay (text will be shown in the app UI)

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch, Dimensions } from "react-native";
-import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2 } from "lucide-react-native";
+import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -9,6 +9,8 @@ import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { AvatarPicker, AvatarDisplay } from "@/components/AvatarPicker";
+import { BadgeGrid, BadgeUnlockModal } from "@/components/badges";
+import { type BadgeRarity } from "@/constants/badges";
 import {
   layout,
   typography,
@@ -57,6 +59,14 @@ export default function ProfileScreen() {
   const [childName, setChildName] = useState('');
   const [childAge, setChildAge] = useState('');
   const [selectedChildAvatarId, setSelectedChildAvatarId] = useState<string | undefined>();
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    rarity: BadgeRarity;
+  } | null>(null);
 
   // Fetch user stats from backend
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = trpc.user.getUserStats.useQuery(
@@ -66,6 +76,18 @@ export default function ProfileScreen() {
 
   // Fetch user settings
   const { data: userSettings, refetch: refetchSettings } = trpc.user.getSettings.useQuery(
+    undefined,
+    { enabled: !!user?.userId }
+  );
+
+  // Fetch user badges
+  const { data: badgesData, isLoading: badgesLoading, refetch: refetchBadges } = trpc.badges.getUserBadges.useQuery(
+    undefined,
+    { enabled: !!user?.userId }
+  );
+
+  // Fetch badge progress
+  const { data: badgeProgress, refetch: refetchBadgeProgress } = trpc.badges.getBadgeProgress.useQuery(
     undefined,
     { enabled: !!user?.userId }
   );
@@ -84,7 +106,7 @@ export default function ProfileScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refetchStats(), refetchSettings()]);
+    await Promise.all([refetchStats(), refetchSettings(), refetchBadges(), refetchBadgeProgress()]);
     setRefreshing(false);
   };
 
@@ -419,6 +441,34 @@ export default function ProfileScreen() {
                 </View>
               </View>
             </Pressable>
+          </View>
+
+          {/* Rozetler (Badges) Section */}
+          <View style={styles.section}>
+            <View style={styles.badgesSectionHeader}>
+              <Text style={styles.sectionTitle}>🏆 Rozetler</Text>
+            </View>
+            <View style={styles.badgesContainer}>
+              <BadgeGrid
+                userBadges={badgesData?.badges || []}
+                progress={badgeProgress?.progress || []}
+                isLoading={badgesLoading}
+                showProgress={true}
+                onBadgePress={(badgeId) => {
+                  const badge = badgesData?.badges.find((b: any) => b.id === badgeId);
+                  if (badge) {
+                    setSelectedBadge({
+                      id: badge.id,
+                      name: badge.name,
+                      description: badge.description,
+                      icon: badge.icon,
+                      rarity: badge.rarity as BadgeRarity,
+                    });
+                    setShowBadgeModal(true);
+                  }
+                }}
+              />
+            </View>
           </View>
 
           <View style={styles.section}>
@@ -1034,6 +1084,16 @@ export default function ProfileScreen() {
           }}
           onClose={() => setShowChildAvatarPicker(false)}
         />
+
+        {/* Badge Unlock Modal */}
+        <BadgeUnlockModal
+          visible={showBadgeModal}
+          onClose={() => {
+            setShowBadgeModal(false);
+            setSelectedBadge(null);
+          }}
+          badge={selectedBadge}
+        />
       </LinearGradient>
     </View>
   );
@@ -1509,5 +1569,20 @@ const styles = StyleSheet.create({
     fontSize: typography.size.md,
     color: Colors.neutral.dark,
     fontWeight: typography.weight.semibold,
+  },
+  // Badges Section Styles
+  badgesSectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing["2"],
+  },
+  badgesContainer: {
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius.xl,
+    padding: isSmallDevice ? spacing["3"] : spacing["4"],
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    ...shadows.md,
   },
 });

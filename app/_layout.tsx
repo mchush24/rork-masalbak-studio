@@ -58,6 +58,15 @@ function RootLayoutNav() {
   // Show floating child selector only when authenticated and in tabs
   const showFloatingSelector = isAuthenticated && hasCompletedOnboarding && segments[0] === '(tabs)';
 
+  // Debug: Log all conditions for FloatingChildSelector visibility
+  console.log('[_layout] FloatingChildSelector visibility:',
+    'show=' + showFloatingSelector,
+    'auth=' + isAuthenticated,
+    'onboarded=' + hasCompletedOnboarding,
+    'segment=' + segments[0],
+    'children=' + (userChildren?.length || 0)
+  );
+
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-purple-600">

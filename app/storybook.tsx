@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
   Animated,
+  ScrollView,
 } from "react-native";
 import { Colors } from "@/constants/colors";
 import { useState, useRef, useEffect } from "react";
@@ -343,19 +344,26 @@ export default function StorybookScreen() {
                     <Star size={16} color="#FFD700" fill="#FFD700" />
                   </View>
 
-                  {/* Story Text with Drop Cap */}
-                  <View style={styles.storyTextWrapper}>
-                    {story.pages[currentPage]?.text && (
-                      <>
-                        <Text style={styles.dropCap}>
-                          {story.pages[currentPage].text.charAt(0)}
-                        </Text>
-                        <Text style={styles.pageText}>
-                          {story.pages[currentPage].text.slice(1)}
-                        </Text>
-                      </>
-                    )}
-                  </View>
+                  {/* Story Text with Drop Cap - Scrollable */}
+                  <ScrollView
+                    style={styles.textScrollView}
+                    contentContainerStyle={styles.textScrollContent}
+                    showsVerticalScrollIndicator={true}
+                    nestedScrollEnabled={true}
+                  >
+                    <View style={styles.storyTextWrapper}>
+                      {story.pages[currentPage]?.text && (
+                        <>
+                          <Text style={styles.dropCap}>
+                            {story.pages[currentPage].text.charAt(0)}
+                          </Text>
+                          <Text style={styles.pageText}>
+                            {story.pages[currentPage].text.slice(1)}
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                  </ScrollView>
 
                   {/* Decorative Divider */}
                   <View style={styles.decorativeDivider}>
@@ -570,10 +578,18 @@ const styles = StyleSheet.create({
     paddingTop: 28,
     paddingBottom: 20,
     minHeight: 180,
-    justifyContent: "center",
+    maxHeight: 280,
     position: "relative",
     borderTopWidth: 3,
     borderTopColor: "rgba(147, 51, 234, 0.15)",
+  },
+  textScrollView: {
+    flex: 1,
+    maxHeight: 180,
+  },
+  textScrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
   },
   storyTextWrapper: {
     flexDirection: "row",

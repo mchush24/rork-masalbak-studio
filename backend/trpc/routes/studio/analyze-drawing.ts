@@ -3,6 +3,7 @@ import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import OpenAI from "openai";
 import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
+import { BadgeService } from "../../../lib/badge-service.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -476,6 +477,14 @@ export const analyzeDrawingProcedure = protectedProcedure
   .use(authenticatedAiRateLimit)
   .input(analysisInputSchema)
   .output(analysisResponseSchema)
-  .mutation(async ({ input }) => {
-    return analyzeDrawing(input);
+  .mutation(async ({ ctx, input }) => {
+    const result = await analyzeDrawing(input);
+
+    // Record activity and check badges (don't block on this)
+    const userId = ctx.userId;
+    BadgeService.recordActivity(userId, 'analysis')
+      .then(() => BadgeService.checkAndAwardBadges(userId))
+      .catch(err => logger.error('[analyzeDrawing] Badge check error:', err));
+
+    return result;
   });

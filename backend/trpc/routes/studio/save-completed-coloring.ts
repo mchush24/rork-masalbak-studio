@@ -8,6 +8,7 @@ import { logger } from "../../../lib/utils.js";
 import { z } from "zod";
 import { protectedProcedure } from "../../create-context.js";
 import { getSecureClient } from "../../../lib/supabase-secure.js";
+import { BadgeService } from "../../../lib/badge-service.js";
 
 export const saveCompletedColoringProcedure = protectedProcedure
   .input(
@@ -90,6 +91,11 @@ export const saveCompletedColoringProcedure = protectedProcedure
       }
 
       logger.info("[SaveCompletedColoring] ✅ Successfully saved completed coloring");
+
+      // Record activity and check badges (don't block on this)
+      BadgeService.recordActivity(userId, 'coloring')
+        .then(() => BadgeService.checkAndAwardBadges(userId))
+        .catch(err => logger.error('[saveCompletedColoring] Badge check error:', err));
 
       return {
         success: true,

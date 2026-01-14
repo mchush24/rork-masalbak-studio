@@ -160,7 +160,7 @@ export function defineStoryStyle(language: 'tr' | 'en' = 'tr'): StoryStyle {
 
 /**
  * Generate ULTRA-SPECIFIC consistent prompt for each page
- * Key: Extreme detail on character to force consistency with SEED
+ * Key: Balance character consistency with scene uniqueness
  */
 export function generateConsistentPrompt(
   character: CharacterDefinition,
@@ -170,41 +170,109 @@ export function generateConsistentPrompt(
   pageNumber: number,
   totalPages: number
 ): string {
-  // CRITICAL: Character FIRST (seed will lock this in)
+  // CRITICAL: Character definition (same for all pages)
   const characterBlock = `
-MAIN CHARACTER (IDENTICAL IN ALL ${totalPages} IMAGES):
+MAIN CHARACTER (CONSISTENT ACROSS STORY):
 ${character.appearance}
 Age: ${character.age}
 Clothing: ${character.clothing}
-Style: ${character.style}
 `.trim();
 
-  // Scene (changes per page, but character stays same)
+  // UNIQUE SCENE ELEMENTS (THIS MUST BE DIFFERENT FOR EACH PAGE!)
+  // Extract unique action words from page text for variety
+  const actionWords = extractActionFromText(pageText);
+
   const sceneBlock = `
-SCENE ${pageNumber}/${totalPages}:
+PAGE ${pageNumber} OF ${totalPages} - UNIQUE SCENE:
 ${sceneDescription}
+
+ACTION IN THIS SCENE: ${actionWords}
+PAGE POSITION: ${pageNumber === 1 ? 'STORY OPENING - introduce character' : pageNumber === totalPages ? 'STORY ENDING - happy resolution' : 'STORY MIDDLE - adventure continues'}
 `.trim();
 
-  // Art style and critical rules
+  // Art style
   const styleBlock = `
-ART STYLE:
-${style.artStyle}
-Colors: ${style.colorPalette}
-Mood: ${style.mood}
+ART STYLE: ${style.artStyle}, ${style.colorPalette}
+MOOD: ${style.mood}
 `.trim();
 
-  // ULTRA-CRITICAL RULES (for Flux 2.0)
+  // Rules
   const rules = `
-🚨 CRITICAL RULES:
-1. CHARACTER: Must be IDENTICAL to description above - same appearance, clothing, colors in ALL pages
-2. NO TEXT: Absolutely NO letters, words, or text anywhere in image
-3. FOCUS: Character is main focus, background is simple and minimal
-4. CONSISTENCY: Using same SEED across all pages ensures character looks identical
-5. QUALITY: Professional children's book illustration style
+RULES:
+- NO TEXT/LETTERS in image
+- Character is main focus
+- Simple background
+- Professional children's book illustration
 `.trim();
 
-  // Flux 2.0 specific: Character first for seed consistency!
   return `${characterBlock}\n\n${sceneBlock}\n\n${styleBlock}\n\n${rules}`;
+}
+
+/**
+ * Extract action verbs and key elements from text for scene uniqueness
+ */
+function extractActionFromText(text: string): string {
+  const lowerText = text.toLowerCase();
+  const actions: string[] = [];
+
+  // Turkish action verbs
+  const actionMap: Record<string, string> = {
+    'koştu': 'running',
+    'koşuyor': 'running',
+    'zıpladı': 'jumping',
+    'zıplıyor': 'jumping',
+    'uçtu': 'flying',
+    'uçuyor': 'flying',
+    'yürüdü': 'walking',
+    'yürüyor': 'walking',
+    'oturdu': 'sitting',
+    'oturuyor': 'sitting',
+    'uyudu': 'sleeping',
+    'uyuyor': 'sleeping',
+    'güldü': 'laughing',
+    'gülüyor': 'laughing',
+    'ağladı': 'crying',
+    'ağlıyor': 'crying',
+    'baktı': 'looking',
+    'bakıyor': 'looking',
+    'buldu': 'finding something',
+    'buluyor': 'finding something',
+    'aldı': 'taking/holding',
+    'alıyor': 'taking/holding',
+    'verdi': 'giving',
+    'veriyor': 'giving',
+    'oynadı': 'playing',
+    'oynuyor': 'playing',
+    'yedi': 'eating',
+    'yiyor': 'eating',
+    'içti': 'drinking',
+    'içiyor': 'drinking',
+    'sarıldı': 'hugging',
+    'sarılıyor': 'hugging',
+    'el salladı': 'waving',
+    'gizlendi': 'hiding',
+    'gizleniyor': 'hiding',
+    'tırmandı': 'climbing',
+    'tırmanıyor': 'climbing',
+    'yüzdü': 'swimming',
+    'yüzüyor': 'swimming',
+    'dans etti': 'dancing',
+    'dans ediyor': 'dancing',
+    'şarkı söyledi': 'singing',
+    'şarkı söylüyor': 'singing',
+  };
+
+  for (const [turkish, english] of Object.entries(actionMap)) {
+    if (lowerText.includes(turkish)) {
+      actions.push(english);
+    }
+  }
+
+  // Return unique actions or default
+  const uniqueActions = [...new Set(actions)];
+  return uniqueActions.length > 0
+    ? uniqueActions.slice(0, 3).join(', ')
+    : 'character in scene';
 }
 
 /**

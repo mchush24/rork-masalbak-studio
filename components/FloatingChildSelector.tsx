@@ -24,6 +24,7 @@ import {
   Dimensions,
   Animated,
   PanResponder,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -37,7 +38,6 @@ import { Colors } from "@/constants/colors";
 import { spacing, radius, shadows, typography } from "@/constants/design-system";
 import { AvatarDisplay } from "@/components/AvatarPicker";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const BUTTON_SIZE = 60;
@@ -90,16 +90,28 @@ export function FloatingChildSelector({
   visible = true,
 }: FloatingChildSelectorProps) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [showSheet, setShowSheet] = useState(false);
 
   // Animation values
   const pan = useRef(new Animated.ValueXY()).current;
   const scale = useRef(new Animated.Value(1)).current;
-  const [position, setPosition] = useState({
-    x: SCREEN_WIDTH - BUTTON_SIZE - 20,
-    y: SCREEN_HEIGHT - BUTTON_SIZE - 150,
-  });
+
+  // Safe initial position
+  const getInitialPosition = () => {
+    const safeWidth = SCREEN_WIDTH > 0 ? SCREEN_WIDTH : 400;
+    const safeHeight = SCREEN_HEIGHT > 0 ? SCREEN_HEIGHT : 800;
+    return {
+      x: safeWidth - BUTTON_SIZE - 20,
+      y: safeHeight - BUTTON_SIZE - 150,
+    };
+  };
+
+  const [position, setPosition] = useState(getInitialPosition);
+
+  // Debug log
+  useEffect(() => {
+    console.log("[FloatingChildSelector] Mounted, visible:", visible, "position:", position, "screen:", { SCREEN_WIDTH, SCREEN_HEIGHT });
+  }, [visible, position]);
 
   // Load saved position
   useEffect(() => {
@@ -130,6 +142,9 @@ export function FloatingChildSelector({
   // Snap to nearest edge
   const snapToEdge = (x: number, y: number) => {
     const padding = 10;
+    const topPadding = Platform.OS === "ios" ? 50 : 30; // Safe area approximation
+    const bottomPadding = Platform.OS === "ios" ? 100 : 80;
+
     const snapLeft = padding;
     const snapRight = SCREEN_WIDTH - BUTTON_SIZE - padding;
 
@@ -137,8 +152,8 @@ export function FloatingChildSelector({
     const newX = x < SCREEN_WIDTH / 2 ? snapLeft : snapRight;
 
     // Keep within vertical bounds
-    const minY = insets.top + padding;
-    const maxY = SCREEN_HEIGHT - BUTTON_SIZE - insets.bottom - 100;
+    const minY = topPadding;
+    const maxY = SCREEN_HEIGHT - BUTTON_SIZE - bottomPadding;
     const newY = Math.max(minY, Math.min(maxY, y));
 
     return { x: newX, y: newY };
@@ -209,21 +224,28 @@ export function FloatingChildSelector({
     router.push("/(tabs)/profile");
   }, [router]);
 
-  if (!visible) return null;
+  if (!visible) {
+    console.log("[FloatingChildSelector] Not visible, returning null");
+    return null;
+  }
 
   const gradientColors = getGenderColors(selectedChild?.gender);
   const hasChildren = children && children.length > 0;
 
+  console.log("[FloatingChildSelector] Rendering with position:", position);
+
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - positioned directly without full-screen container */}
       <Animated.View
         style={[
           styles.floatingButton,
           {
+            left: position.x,
+            top: position.y,
             transform: [
-              { translateX: Animated.add(pan.x, position.x) },
-              { translateY: Animated.add(pan.y, position.y) },
+              { translateX: pan.x },
+              { translateY: pan.y },
               { scale },
             ],
           },
@@ -251,6 +273,15 @@ export function FloatingChildSelector({
         {selectedChild && (
           <View style={styles.ageBadge}>
             <Text style={styles.ageBadgeText}>{selectedChild.age}</Text>
+          </View>
+        )}
+
+        {/* Child name label */}
+        {selectedChild && (
+          <View style={styles.nameLabel}>
+            <Text style={styles.nameLabelText} numberOfLines={1}>
+              {selectedChild.name}
+            </Text>
           </View>
         )}
       </Animated.View>
@@ -400,13 +431,14 @@ export function FloatingChildSelector({
 }
 
 const styles = StyleSheet.create({
-  // Floating Button
+  // Floating Button - positioned directly via left/top props
   floatingButton: {
     position: "absolute",
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     zIndex: 9999,
     ...shadows.xl,
+    elevation: 9999, // Android z-index - must come after shadows.xl
   },
   floatingGradient: {
     width: BUTTON_SIZE,
@@ -434,6 +466,25 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
     color: Colors.neutral.white,
+  },
+  nameLabel: {
+    position: "absolute",
+    bottom: -18,
+    left: -20,
+    right: -20,
+    alignItems: "center",
+  },
+  nameLabelText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: Colors.neutral.dark,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    overflow: "hidden",
+    maxWidth: 100,
+    textAlign: "center",
   },
 
   // Modal Styles

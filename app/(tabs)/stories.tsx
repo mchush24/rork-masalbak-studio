@@ -30,7 +30,7 @@ import { trpc } from "@/lib/trpc";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useChild } from "@/lib/contexts/ChildContext";
 import { ChildSelectorChip } from "@/components/ChildSelectorChip";
@@ -339,10 +339,31 @@ export default function StoriesScreen() {
       setLoadingSuggestions(true);
       console.log('[Stories] 🎨 Fetching theme suggestions...');
 
-      // Convert image to base64
-      const base64 = await FileSystem.readAsStringAsync(imageUri, {
-        encoding: 'base64',
-      });
+      let base64: string;
+
+      // Web: Use fetch + FileReader for blob/http URLs
+      if (Platform.OS === 'web' || imageUri.startsWith('blob:') || imageUri.startsWith('http')) {
+        console.log('[Stories] 🌐 Using web-compatible base64 conversion...');
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+
+        base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            const base64String = result.split(',')[1];
+            resolve(base64String);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        // Native: Use FileSystem for file:// URLs
+        console.log('[Stories] 📱 Using native FileSystem...');
+        base64 = await FileSystem.readAsStringAsync(imageUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
 
       const userLang = (user?.language || 'tr') as 'tr' | 'en';
 

@@ -34,6 +34,7 @@ import { getAnalysisProcedure } from "./routes/analysis/get-analysis.js";
 import { updateAnalysisProcedure } from "./routes/analysis/update-analysis.js";
 import { deleteAnalysisProcedure } from "./routes/analysis/delete-analysis.js";
 import { interactiveStoryRouter } from "./routes/interactive-story/index.js";
+import { badgesRouter } from "./routes/badges/index.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -84,6 +85,7 @@ export const appRouter = createTRPCRouter({
     suggestStoryThemes: suggestStoryThemesProcedure,
   }),
   interactiveStory: interactiveStoryRouter,
+  badges: badgesRouter,
 });
 
 export type AppRouter = typeof appRouter;
