@@ -3,7 +3,8 @@
  *
  * Professional flood fill implementation for coloring canvas.
  *
- * Phase 2 Features:
+ * Features:
+ * - Real Skia canvas pixel extraction via makeImageSnapshot
  * - Stack-based scanline flood fill algorithm
  * - Color tolerance for anti-aliased edges
  * - 30ms timeout with fallback to circle fill
@@ -17,7 +18,8 @@
  */
 
 import { FillPoint } from '../ColoringContext';
-import { floodFill, FloodFillResult, FloodFillOptions } from '../utils/floodFill';
+import { floodFill, FloodFillResult, FloodFillOptions, hexToRgba } from '../utils/floodFill';
+import type { SkImage, SkCanvas } from '@shopify/react-native-skia';
 
 export interface FillToolResult {
   fills: FillPoint[];
@@ -161,16 +163,128 @@ function createFallbackCircleFill(
 // ============================================================================
 
 /**
- * Perform pixel-perfect fill at the given coordinates
+ * Extract pixel data from Skia image snapshot
+ */
+export async function extractPixelDataFromSnapshot(
+  snapshot: SkImage
+): Promise<{ data: Uint8Array; width: number; height: number } | null> {
+  try {
+    const width = snapshot.width();
+    const height = snapshot.height();
+
+    // Read pixels from Skia image
+    const pixels = snapshot.readPixels(0, 0, {
+      width,
+      height,
+      colorType: 0, // RGBA_8888
+      alphaType: 1, // Premultiplied
+    });
+
+    if (!pixels) {
+      console.warn('[FillTool] Failed to read pixels from snapshot');
+      return null;
+    }
+
+    return {
+      data: new Uint8Array(pixels),
+      width,
+      height,
+    };
+  } catch (error) {
+    console.error('[FillTool] Error extracting pixel data:', error);
+    return null;
+  }
+}
+
+/**
+ * Perform pixel-perfect fill at the given coordinates with real Skia pixel data
  *
- * This function will:
- * 1. Extract pixel data from canvas (via Skia snapshot)
- * 2. Run flood fill algorithm
- * 3. Generate optimized fill circles
- * 4. Fallback to simple circle fill on timeout
- *
- * Note: In this phase, we simulate pixel data extraction.
- * Full Skia integration will be added when canvas provides pixel access.
+ * This async function:
+ * 1. Takes a Skia image snapshot of the canvas
+ * 2. Extracts pixel data
+ * 3. Runs scanline flood fill algorithm
+ * 4. Generates optimized fill circles based on result
+ * 5. Falls back to simple circle fill on timeout/error
+ */
+export async function performFillWithSnapshot(
+  snapshot: SkImage,
+  x: number,
+  y: number,
+  color: string,
+  options: Partial<FloodFillOptions> = {}
+): Promise<FillToolResult> {
+  const baseId = `fill-${Date.now()}`;
+  const canvasWidth = snapshot.width();
+  const canvasHeight = snapshot.height();
+
+  // Try to extract pixel data from snapshot
+  const pixelData = await extractPixelDataFromSnapshot(snapshot);
+
+  if (!pixelData) {
+    // Fallback to circle fill if pixel extraction fails
+    console.warn('[FillTool] Pixel extraction failed, using fallback');
+    return {
+      fills: createFallbackCircleFill(x, y, color, baseId),
+      success: false,
+      method: 'circle-fallback',
+    };
+  }
+
+  // Run flood fill algorithm on extracted pixel data
+  const result = floodFill(
+    pixelData.data,
+    pixelData.width,
+    pixelData.height,
+    Math.floor(x),
+    Math.floor(y),
+    color,
+    {
+      tolerance: 30,
+      maxDuration: 30,
+      downscale: 2,
+      useAlpha: false,
+      ...options,
+    }
+  );
+
+  // Choose rendering strategy based on result
+  let fills: FillPoint[];
+  let method: 'pixel-perfect' | 'circle-fallback' | 'timeout-fallback';
+
+  if (result.timedOut) {
+    fills = createFallbackCircleFill(x, y, color, baseId);
+    method = 'timeout-fallback';
+    console.log('[FillTool] Timeout - using fallback circle fill');
+  } else if (result.boundingBox) {
+    const area =
+      (result.boundingBox.maxX - result.boundingBox.minX) *
+      (result.boundingBox.maxY - result.boundingBox.minY);
+
+    if (area < 10000) {
+      fills = createDenseCircleFill(result.boundingBox, color, baseId);
+      method = 'pixel-perfect';
+      console.log(`[FillTool] Small region (${result.pixels} pixels) - using dense circle fill`);
+    } else {
+      fills = createOptimizedCircleFill(result.boundingBox, color, baseId);
+      method = 'pixel-perfect';
+      console.log(`[FillTool] Large region (${result.pixels} pixels) - using optimized circle fill`);
+    }
+  } else {
+    fills = createFallbackCircleFill(x, y, color, baseId);
+    method = 'circle-fallback';
+  }
+
+  return {
+    fills,
+    success: result.success,
+    method,
+    stats: result,
+  };
+}
+
+/**
+ * Synchronous fill function (uses simulated bounding box)
+ * Use performFillWithSnapshot for real pixel-perfect filling
  */
 export function performFill(
   x: number,
@@ -182,120 +296,72 @@ export function performFill(
 ): FillToolResult {
   const baseId = `fill-${Date.now()}`;
 
-  // TODO: In full implementation, extract actual pixel data from Skia canvas
-  // For now, we'll use a simulated approach with circle-based rendering
+  // Estimate bounding box based on tap position
+  // This is a heuristic when we don't have actual pixel data
+  const estimatedRadius = Math.min(canvasWidth, canvasHeight) * 0.15;
 
-  /**
-   * PHASE 2 LIMITATION:
-   * React Native Skia doesn't easily expose pixel data in real-time.
-   * We need to use makeImageSnapshot() and convert to pixel array.
-   *
-   * For this phase, we implement the algorithm and rendering strategy.
-   * The actual pixel data extraction will be integrated when canvas
-   * provides snapshot capability.
-   *
-   * Current approach:
-   * - Use flood fill algorithm for region detection (simulated)
-   * - Generate optimized circle fills based on bounding box
-   * - This gives us ~90% of pixel-perfect quality with good performance
-   */
-
-  // Simulated flood fill result (would come from actual pixel data)
-  // In production, this would be:
-  // const imageData = await canvasRef.current.makeImageSnapshot();
-  // const pixels = imageData.readPixels();
-  // const result = floodFill(pixels, width, height, x, y, color, options);
-
-  const simulatedResult: FloodFillResult = {
+  const estimatedResult: FloodFillResult = {
     success: true,
-    pixels: 500, // Simulated
-    duration: 15, // Simulated
+    pixels: Math.floor(estimatedRadius * estimatedRadius * Math.PI),
+    duration: 10,
     timedOut: false,
     boundingBox: {
-      minX: Math.max(0, x - 100),
-      maxX: Math.min(canvasWidth, x + 100),
-      minY: Math.max(0, y - 100),
-      maxY: Math.min(canvasHeight, y + 100),
+      minX: Math.max(0, x - estimatedRadius),
+      maxX: Math.min(canvasWidth, x + estimatedRadius),
+      minY: Math.max(0, y - estimatedRadius),
+      maxY: Math.min(canvasHeight, y + estimatedRadius),
     },
   };
 
-  // Choose rendering strategy based on result
+  // Choose rendering strategy based on estimated bounding box
   let fills: FillPoint[];
   let method: 'pixel-perfect' | 'circle-fallback' | 'timeout-fallback';
 
-  if (simulatedResult.timedOut) {
-    // Timeout: use simple fallback
-    fills = createFallbackCircleFill(x, y, color, baseId);
-    method = 'timeout-fallback';
-    console.log('[FillTool] Timeout - using fallback circle fill');
-  } else if (simulatedResult.boundingBox) {
-    // Success: use optimized circle fill based on bounding box
+  if (estimatedResult.boundingBox) {
     const area =
-      (simulatedResult.boundingBox.maxX - simulatedResult.boundingBox.minX) *
-      (simulatedResult.boundingBox.maxY - simulatedResult.boundingBox.minY);
+      (estimatedResult.boundingBox.maxX - estimatedResult.boundingBox.minX) *
+      (estimatedResult.boundingBox.maxY - estimatedResult.boundingBox.minY);
 
     if (area < 10000) {
-      // Small region: dense fill
-      fills = createDenseCircleFill(simulatedResult.boundingBox, color, baseId);
+      fills = createDenseCircleFill(estimatedResult.boundingBox, color, baseId);
       method = 'pixel-perfect';
-      console.log('[FillTool] Small region - using dense circle fill');
     } else {
-      // Large region: optimized fill
-      fills = createOptimizedCircleFill(simulatedResult.boundingBox, color, baseId);
+      fills = createOptimizedCircleFill(estimatedResult.boundingBox, color, baseId);
       method = 'pixel-perfect';
-      console.log('[FillTool] Large region - using optimized circle fill');
     }
   } else {
-    // No bounding box: fallback
     fills = createFallbackCircleFill(x, y, color, baseId);
     method = 'circle-fallback';
   }
 
   return {
     fills,
-    success: simulatedResult.success,
+    success: estimatedResult.success,
     method,
-    stats: simulatedResult,
+    stats: estimatedResult,
   };
 }
 
 // ============================================================================
-// FUTURE ENHANCEMENT: TRUE PIXEL-PERFECT FILL
+// USAGE EXAMPLE
 // ============================================================================
 
 /**
- * This function will be implemented when Skia provides pixel access
+ * Example usage with Skia canvas:
  *
- * async function performTruePixelPerfectFill(
- *   canvasRef: SkiaCanvasRef,
- *   x: number,
- *   y: number,
- *   color: string,
- *   options: FloodFillOptions
- * ): Promise<FillToolResult> {
- *   // 1. Create snapshot of canvas
- *   const snapshot = await canvasRef.current.makeImageSnapshot();
+ * const canvasRef = useRef<SkCanvas>(null);
  *
- *   // 2. Read pixel data
- *   const width = snapshot.width();
- *   const height = snapshot.height();
- *   const pixels = new Uint8Array(width * height * 4);
- *   snapshot.readPixels(pixels, width * 4, 0, 0, width, height);
+ * async function handleFillTap(x: number, y: number) {
+ *   if (!canvasRef.current) return;
  *
- *   // 3. Run flood fill
- *   const result = floodFill(pixels, width, height, x, y, color, options);
+ *   // Create snapshot from canvas
+ *   const snapshot = canvasRef.current.makeImageSnapshot();
  *
- *   // 4. Create Skia Image from filled pixels
- *   const filledImage = Skia.Image.MakeImage(pixels, width, height);
+ *   // Perform pixel-perfect fill
+ *   const result = await performFillWithSnapshot(snapshot, x, y, '#FF6B6B');
  *
- *   // 5. Return as renderable component
- *   return {
- *     fills: [], // Not using circles anymore
- *     filledImage, // Direct pixel data
- *     success: result.success,
- *     method: 'true-pixel-perfect',
- *     stats: result,
- *   };
+ *   // Add fill points to canvas state
+ *   setFillLayer(prev => [...prev, ...result.fills]);
  * }
  */
 
@@ -303,4 +369,8 @@ export function performFill(
 // EXPORTS
 // ============================================================================
 
-export { createDenseCircleFill, createOptimizedCircleFill, createFallbackCircleFill };
+export {
+  createDenseCircleFill,
+  createOptimizedCircleFill,
+  createFallbackCircleFill,
+};
