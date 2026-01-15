@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ChildProvider } from '@/lib/contexts/ChildContext';
 import { FloatingChildSelector } from '@/components/FloatingChildSelector';
+import { ChatBot } from '@/components/ChatBot';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import * as SplashScreen from 'expo-splash-screen';
@@ -91,6 +92,9 @@ function RootLayoutNav() {
         onSelectChild={setSelectedChild}
         visible={showFloatingSelector}
       />
+
+      {/* ChatBot - visible on all tab screens */}
+      {showFloatingSelector && <ChatBot />}
     </View>
   );
 }

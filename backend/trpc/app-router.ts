@@ -10,6 +10,7 @@ import { analyzeDrawingProcedure } from "./routes/studio/analyze-drawing.js";
 import { generateStoryFromDrawingProcedure } from "./routes/studio/generate-story-from-drawing.js";
 import { suggestStoryThemesProcedure } from "./routes/studio/suggest-story-themes.js";
 import { saveCompletedColoringProcedure } from "./routes/studio/save-completed-coloring.js";
+import { suggestColorsProcedure } from "./routes/studio/suggest-colors.js";
 import { registerProcedure } from "./routes/auth/register.js";
 import { verifyEmailProcedure } from "./routes/auth/verify-email.js";
 import { completeOnboardingProcedure } from "./routes/auth/complete-onboarding.js";
@@ -35,6 +36,8 @@ import { updateAnalysisProcedure } from "./routes/analysis/update-analysis.js";
 import { deleteAnalysisProcedure } from "./routes/analysis/delete-analysis.js";
 import { interactiveStoryRouter } from "./routes/interactive-story/index.js";
 import { badgesRouter } from "./routes/badges/index.js";
+import { recordColoringActivityProcedure, getColoringStatsProcedure } from "./routes/coloring/record-activity.js";
+import { chatbotRouter } from "./routes/chatbot.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -83,9 +86,15 @@ export const appRouter = createTRPCRouter({
     saveCompletedColoring: saveCompletedColoringProcedure,
     analyzeDrawing: analyzeDrawingProcedure,
     suggestStoryThemes: suggestStoryThemesProcedure,
+    suggestColors: suggestColorsProcedure,
   }),
   interactiveStory: interactiveStoryRouter,
   badges: badgesRouter,
+  coloring: createTRPCRouter({
+    recordActivity: recordColoringActivityProcedure,
+    getStats: getColoringStatsProcedure,
+  }),
+  chatbot: chatbotRouter,
 });
 
 export type AppRouter = typeof appRouter;
