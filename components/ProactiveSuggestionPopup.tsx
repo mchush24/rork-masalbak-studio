@@ -243,7 +243,7 @@ export function ProactiveSuggestionPopup({
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.iconContainer}>
-            <Lightbulb size={16} color="#9333EA" />
+            <Lightbulb size={16} color="#0D9488" />
           </View>
           <Text style={styles.headerTitle}>Yardım mı lazım?</Text>
         </View>
@@ -269,7 +269,7 @@ export function ProactiveSuggestionPopup({
             <Text style={styles.questionText} numberOfLines={1}>
               {question}
             </Text>
-            <ChevronRight size={14} color="#9333EA" />
+            <ChevronRight size={14} color="#0D9488" />
           </Pressable>
         ))}
       </View>
@@ -283,7 +283,7 @@ export function ProactiveSuggestionPopup({
         onPress={handleOpenChat}
       >
         <LinearGradient
-          colors={['#9333EA', '#7C3AED']}
+          colors={['#0D9488', '#14B8A6']}
           style={styles.openChatGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+    backgroundColor: 'rgba(13, 148, 136, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -392,13 +392,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing['2'],
     paddingHorizontal: spacing['3'],
-    backgroundColor: 'rgba(147, 51, 234, 0.05)',
+    backgroundColor: 'rgba(13, 148, 136, 0.05)',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(147, 51, 234, 0.1)',
+    borderColor: 'rgba(13, 148, 136, 0.1)',
   },
   questionButtonPressed: {
-    backgroundColor: 'rgba(147, 51, 234, 0.12)',
+    backgroundColor: 'rgba(13, 148, 136, 0.12)',
   },
   questionText: {
     flex: 1,

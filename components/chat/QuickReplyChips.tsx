@@ -192,6 +192,7 @@ function QuickReplyChip({
 
 // Pre-defined quick reply sets for common scenarios
 export const QUICK_REPLIES = {
+  // Default welcome - general options
   welcome: [
     { id: 'create-story', label: 'Masal Oluştur', emoji: '📖', action: 'navigate' as const, target: '/(tabs)/stories' },
     { id: 'analyze', label: 'Çizim Analiz Et', emoji: '🎨', action: 'navigate' as const, target: '/(tabs)/analysis' },
@@ -222,6 +223,74 @@ export const QUICK_REPLIES = {
     { id: 'retry', label: 'Tekrar Dene', emoji: '🔄', action: 'custom' as const },
     { id: 'contact', label: 'Destek', emoji: '📧', action: 'send' as const },
   ],
+
+  // Screen-specific welcome messages
+  welcomeStories: [
+    { id: 'how-story', label: 'Nasıl masal oluşturabilirim?', emoji: '📖', action: 'send' as const },
+    { id: 'upload-drawing', label: 'Çizim Yükle', emoji: '📸', action: 'navigate' as const, target: '/(tabs)/stories' },
+    { id: 'theme-ideas', label: 'Tema Önerileri', emoji: '✨', action: 'send' as const },
+    { id: 'other-help', label: 'Başka Yardım', emoji: '❓', action: 'send' as const },
+  ],
+  welcomeAnalysis: [
+    { id: 'what-analysis', label: 'Analiz ne işe yarar?', emoji: '🔍', action: 'send' as const },
+    { id: 'how-interpret', label: 'Sonuçları nasıl yorumlayım?', emoji: '📊', action: 'send' as const },
+    { id: 'start-analysis', label: 'Analiz Başlat', emoji: '🎨', action: 'navigate' as const, target: '/(tabs)/analysis' },
+    { id: 'other-help', label: 'Başka Yardım', emoji: '❓', action: 'send' as const },
+  ],
+  welcomeColoring: [
+    { id: 'color-tips', label: 'Renk önerileri', emoji: '🎨', action: 'send' as const },
+    { id: 'how-save', label: 'Nasıl kaydederim?', emoji: '💾', action: 'send' as const },
+    { id: 'how-print', label: 'Yazdırma', emoji: '🖨️', action: 'send' as const },
+    { id: 'other-help', label: 'Başka Yardım', emoji: '❓', action: 'send' as const },
+  ],
+  welcomeProfile: [
+    { id: 'add-child', label: 'Çocuk Ekle', emoji: '👶', action: 'send' as const },
+    { id: 'account-settings', label: 'Hesap Ayarları', emoji: '⚙️', action: 'send' as const },
+    { id: 'subscription', label: 'Abonelik', emoji: '💳', action: 'send' as const },
+    { id: 'other-help', label: 'Başka Yardım', emoji: '❓', action: 'send' as const },
+  ],
+  welcomeHome: [
+    { id: 'what-can-do', label: 'Neler yapabilirim?', emoji: '🤔', action: 'send' as const },
+    { id: 'create-story', label: 'Masal Oluştur', emoji: '📖', action: 'navigate' as const, target: '/(tabs)/stories' },
+    { id: 'try-coloring', label: 'Boyama Yap', emoji: '🖍️', action: 'navigate' as const, target: '/(tabs)/coloring' },
+    { id: 'analyze', label: 'Çizim Analiz Et', emoji: '🎨', action: 'navigate' as const, target: '/(tabs)/analysis' },
+  ],
+};
+
+// Get screen-specific welcome quick replies
+export const getWelcomeQuickReplies = (screen: string): QuickReply[] => {
+  switch (screen) {
+    case 'stories':
+      return QUICK_REPLIES.welcomeStories;
+    case 'analysis':
+      return QUICK_REPLIES.welcomeAnalysis;
+    case 'coloring':
+      return QUICK_REPLIES.welcomeColoring;
+    case 'profile':
+      return QUICK_REPLIES.welcomeProfile;
+    case 'home':
+      return QUICK_REPLIES.welcomeHome;
+    default:
+      return QUICK_REPLIES.welcome;
+  }
+};
+
+// Get screen-specific welcome message
+export const getWelcomeMessage = (screen: string): string => {
+  switch (screen) {
+    case 'stories':
+      return 'Merhaba! 📖 Masal oluşturmak mı istiyorsun?';
+    case 'analysis':
+      return 'Merhaba! 🔍 Çizim analizi hakkında yardımcı olayım mı?';
+    case 'coloring':
+      return 'Merhaba! 🎨 Boyama yaparken yardımcı olayım mı?';
+    case 'profile':
+      return 'Merhaba! 👋 Profil ayarlarında yardımcı olayım mı?';
+    case 'home':
+      return 'Merhaba! 👋 Bugün ne yapmak istersin?';
+    default:
+      return 'Merhaba! 👋 Ne yapmak istersin?';
+  }
 };
 
 const styles = StyleSheet.create({

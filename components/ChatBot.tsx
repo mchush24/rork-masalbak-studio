@@ -38,8 +38,10 @@ import type { Child } from '@/lib/hooks/useAuth';
 import { useRouter, usePathname } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
-import { QuickReplyChips, QUICK_REPLIES, QuickReply } from './chat/QuickReplyChips';
+import { QuickReplyChips, QUICK_REPLIES, QuickReply, getWelcomeQuickReplies, getWelcomeMessage } from './chat/QuickReplyChips';
 import { TypingBubble } from './chat/TypingIndicator';
+import { AnimatedMessage } from './chat/AnimatedMessage';
+import { InlineFeedback } from './chat/FeedbackButtons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -157,21 +159,22 @@ export function ChatBot() {
   }, [isOpen]);
 
   // Welcome message - short and action-oriented (UX best practice)
+  // Uses screen-specific messages and quick replies for better context
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([
         {
           id: 'welcome',
           role: 'assistant',
-          content: 'Merhaba! 👋 Ne yapmak istersin?',
+          content: getWelcomeMessage(currentScreen),
           source: 'faq',
           timestamp: new Date(),
-          quickReplies: QUICK_REPLIES.welcome,
+          quickReplies: getWelcomeQuickReplies(currentScreen),
         },
       ]);
       setShowFAQ(false); // Hide FAQ initially, show quick replies instead
     }
-  }, [isOpen]);
+  }, [isOpen, currentScreen]);
 
   // Handle pending question from proactive suggestion
   useEffect(() => {
@@ -216,14 +219,14 @@ export function ChatBot() {
 
     if (reply.action === 'custom') {
       if (reply.id === 'main-menu') {
-        // Reset to welcome state
+        // Reset to welcome state with screen-specific content
         setMessages([{
           id: 'welcome-' + Date.now(),
           role: 'assistant',
-          content: 'Merhaba! 👋 Ne yapmak istersin?',
+          content: getWelcomeMessage(currentScreen),
           source: 'faq',
           timestamp: new Date(),
-          quickReplies: QUICK_REPLIES.welcome,
+          quickReplies: getWelcomeQuickReplies(currentScreen),
         }]);
         setShowFAQ(false);
         return;
@@ -255,7 +258,7 @@ export function ChatBot() {
       })
       .then(response => {
         // Determine which quick replies to show based on response
-        let quickReplies = QUICK_REPLIES.afterAnswer;
+        let quickReplies: QuickReply[] = QUICK_REPLIES.afterAnswer;
         if (response.detectedTopic === 'story_creation') {
           quickReplies = QUICK_REPLIES.storyHelp;
         } else if (response.detectedTopic === 'coloring') {
@@ -601,9 +604,11 @@ export function ChatBot() {
               contentContainerStyle={styles.messagesContent}
               showsVerticalScrollIndicator={false}
             >
-              {messages.map(message => (
-                <View
+              {messages.map((message, index) => (
+                <AnimatedMessage
                   key={message.id}
+                  type={message.role}
+                  delay={index * 50}
                   style={[
                     styles.messageBubble,
                     message.role === 'user'
@@ -636,6 +641,18 @@ export function ChatBot() {
                       <View style={styles.aiIndicator}>
                         <Sparkles size={10} color="#0D9488" />
                         <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
+                      </View>
+                    )}
+                    {/* Feedback Buttons for assistant messages */}
+                    {message.role === 'assistant' && message.id !== 'welcome' && !message.id.startsWith('welcome-') && (
+                      <View style={styles.feedbackContainer}>
+                        <InlineFeedback
+                          messageId={message.id}
+                          onFeedback={(id, feedback) => {
+                            console.log(`[ChatBot] Feedback for ${id}: ${feedback}`);
+                            // TODO: Send feedback to backend analytics
+                          }}
+                        />
                       </View>
                     )}
                     {/* Action Buttons */}
@@ -674,7 +691,7 @@ export function ChatBot() {
                       />
                     </View>
                   )}
-                </View>
+                </AnimatedMessage>
               ))}
 
               {/* Animated Typing Indicator */}
@@ -931,6 +948,14 @@ const styles = StyleSheet.create({
   aiIndicatorText: {
     fontSize: 10,
     color: '#0D9488',
+  },
+
+  // Feedback Buttons
+  feedbackContainer: {
+    marginTop: spacing["2"],
+    paddingTop: spacing["1"],
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
 
   // Quick Replies
