@@ -314,7 +314,7 @@ export function ChatBot() {
 
   return (
     <>
-      {/* Floating Chat Button - Minimalist Design */}
+      {/* Floating Chat Button with Child Indicator */}
       <Animated.View
         style={[
           styles.floatingButton,
@@ -341,8 +341,25 @@ export function ChatBot() {
           </LinearGradient>
         </Pressable>
 
-        {/* Subtle indicator dot */}
-        <View style={styles.indicatorDot} />
+        {/* Child Avatar Badge */}
+        {selectedChild ? (
+          <View style={styles.childBadge}>
+            <LinearGradient
+              colors={selectedChild.gender === 'female'
+                ? ['#F472B6', '#EC4899']
+                : selectedChild.gender === 'male'
+                ? ['#60A5FA', '#3B82F6']
+                : ['#FB923C', '#F97316']}
+              style={styles.childBadgeGradient}
+            >
+              <Text style={styles.childBadgeText}>
+                {selectedChild.name?.[0]?.toUpperCase() || '?'}
+              </Text>
+            </LinearGradient>
+          </View>
+        ) : (
+          <View style={styles.indicatorDot} />
+        )}
       </Animated.View>
 
       {/* Proactive Suggestion Popup */}
@@ -668,6 +685,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
     borderWidth: 2,
     borderColor: '#FFF',
+  },
+  childBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#FFF',
+    overflow: 'hidden',
+    ...shadows.sm,
+  },
+  childBadgeGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  childBadgeText: {
+    fontSize: 11,
+    fontWeight: '700' as const,
+    color: '#FFF',
   },
 
   // Modal
