@@ -36,10 +36,20 @@ import { typography, spacing, radius, shadows } from '@/constants/design-system'
 import { trpc } from '@/lib/trpc';
 import { useChild } from '@/lib/contexts/ChildContext';
 import type { Child } from '@/lib/hooks/useAuth';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 import * as Linking from 'expo-linking';
+import { ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Map route paths to screen names for proactive suggestions
+const getScreenName = (pathname: string): string => {
+  if (pathname.includes('/stories')) return 'stories';
+  if (pathname.includes('/analysis')) return 'analysis';
+  if (pathname.includes('/coloring')) return 'coloring';
+  if (pathname.includes('/profile')) return 'profile';
+  return 'home';
+};
 
 // ============================================
 // TYPES
@@ -68,16 +78,21 @@ interface Message {
 export function ChatBot() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showFAQ, setShowFAQ] = useState(true);
   const [showChildSelector, setShowChildSelector] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Child context
   const { selectedChild, setSelectedChild, children: userChildren } = useChild();
+
+  // Current screen for proactive suggestions
+  const currentScreen = getScreenName(pathname);
 
   // Handle action button press
   const handleActionPress = (action: ChatAction) => {
@@ -152,6 +167,24 @@ export function ChatBot() {
       ]);
     }
   }, [isOpen]);
+
+  // Handle pending question from proactive suggestion
+  useEffect(() => {
+    if (isOpen && pendingQuestion && messages.length > 0) {
+      handleFAQClick(pendingQuestion);
+      setPendingQuestion(null);
+    }
+  }, [isOpen, pendingQuestion, messages.length]);
+
+  // Proactive suggestion handlers
+  const handleProactiveQuestionPress = (question: string) => {
+    setPendingQuestion(question);
+    setIsOpen(true);
+  };
+
+  const handleProactiveOpenChat = () => {
+    setIsOpen(true);
+  };
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -311,6 +344,18 @@ export function ChatBot() {
           <Text style={styles.notificationText}>?</Text>
         </View>
       </Animated.View>
+
+      {/* Proactive Suggestion Popup */}
+      {!isOpen && (
+        <ProactiveSuggestionPopup
+          screen={currentScreen}
+          onQuestionPress={handleProactiveQuestionPress}
+          onOpenChat={handleProactiveOpenChat}
+          position="bottom-left"
+          delay={2000}
+          idleTimeout={45000}
+        />
+      )}
 
       {/* Chat Modal */}
       <Modal
