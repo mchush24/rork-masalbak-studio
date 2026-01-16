@@ -38,10 +38,16 @@ import type { Child } from '@/lib/hooks/useAuth';
 import { useRouter, usePathname } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
-import { QuickReplyChips, QUICK_REPLIES, QuickReply, getWelcomeQuickReplies, getWelcomeMessage } from './chat/QuickReplyChips';
+import { QuickReplyChips, QUICK_REPLIES, QuickReply } from './chat/QuickReplyChips';
 import { TypingBubble } from './chat/TypingIndicator';
 import { AnimatedMessage } from './chat/AnimatedMessage';
 import { InlineFeedback } from './chat/FeedbackButtons';
+import {
+  getContextEngine,
+  getResponseGenerator,
+  SmartQuickReply,
+} from './chat/SmartContextEngine';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -91,6 +97,7 @@ export function ChatBot() {
   const [showFAQ, setShowFAQ] = useState(true);
   const [showChildSelector, setShowChildSelector] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Child context
@@ -98,6 +105,10 @@ export function ChatBot() {
 
   // Current screen for proactive suggestions
   const currentScreen = getScreenName(pathname);
+
+  // Smart Context Engine
+  const contextEngine = getContextEngine();
+  const responseGenerator = getResponseGenerator();
 
   // Handle action button press
   const handleActionPress = (action: ChatAction) => {
@@ -158,23 +169,76 @@ export function ChatBot() {
     }
   }, [isOpen]);
 
-  // Welcome message - short and action-oriented (UX best practice)
-  // Uses screen-specific messages and quick replies for better context
+  // Check first visit on mount
+  useEffect(() => {
+    const checkFirstVisit = async () => {
+      try {
+        const visited = await AsyncStorage.getItem('renkioo_app_visited');
+        setIsFirstVisit(!visited);
+        if (!visited) {
+          await AsyncStorage.setItem('renkioo_app_visited', 'true');
+        }
+      } catch {
+        setIsFirstVisit(false);
+      }
+    };
+    checkFirstVisit();
+  }, []);
+
+  // Smart welcome message - uses context engine for intelligent responses
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content: getWelcomeMessage(currentScreen),
-          source: 'faq',
-          timestamp: new Date(),
-          quickReplies: getWelcomeQuickReplies(currentScreen),
-        },
-      ]);
-      setShowFAQ(false); // Hide FAQ initially, show quick replies instead
+      const generateSmartWelcome = async () => {
+        try {
+          const smartResponse = await responseGenerator.generateWelcome({
+            screen: currentScreen,
+            child: selectedChild,
+            isFirstVisit,
+          });
+
+          // Convert SmartQuickReply to QuickReply
+          const quickReplies: QuickReply[] = smartResponse.quickReplies.map(sr => ({
+            id: sr.id,
+            label: sr.label,
+            emoji: sr.emoji,
+            action: sr.action,
+            target: sr.target,
+          }));
+
+          setMessages([
+            {
+              id: 'welcome',
+              role: 'assistant',
+              content: smartResponse.message,
+              source: 'faq',
+              timestamp: new Date(),
+              quickReplies,
+            },
+          ]);
+          setShowFAQ(false);
+
+          // Update context engine
+          contextEngine.updateScreen(currentScreen);
+        } catch (error) {
+          console.error('[ChatBot] Smart welcome error:', error);
+          // Fallback to simple welcome
+          setMessages([
+            {
+              id: 'welcome',
+              role: 'assistant',
+              content: 'Merhaba! 👋 Ne yapmak istersin?',
+              source: 'faq',
+              timestamp: new Date(),
+              quickReplies: QUICK_REPLIES.welcome,
+            },
+          ]);
+          setShowFAQ(false);
+        }
+      };
+
+      generateSmartWelcome();
     }
-  }, [isOpen, currentScreen]);
+  }, [isOpen, currentScreen, selectedChild, isFirstVisit]);
 
   // Handle pending question from proactive suggestion
   useEffect(() => {
@@ -202,7 +266,10 @@ export function ChatBot() {
   }, [messages]);
 
   // Handle quick reply selection
-  const handleQuickReply = (reply: QuickReply) => {
+  const handleQuickReply = async (reply: QuickReply) => {
+    // Record click in context engine
+    contextEngine.recordClickedReply(reply.id);
+
     // Hide quick replies from the message that was clicked
     setMessages(prev => prev.map(msg => ({
       ...msg,
@@ -218,19 +285,86 @@ export function ChatBot() {
     }
 
     if (reply.action === 'custom') {
+      // Main menu - regenerate smart welcome
       if (reply.id === 'main-menu') {
-        // Reset to welcome state with screen-specific content
+        const smartResponse = await responseGenerator.generateWelcome({
+          screen: currentScreen,
+          child: selectedChild,
+          isFirstVisit: false,
+        });
+        const quickReplies: QuickReply[] = smartResponse.quickReplies.map(sr => ({
+          id: sr.id,
+          label: sr.label,
+          emoji: sr.emoji,
+          action: sr.action,
+          target: sr.target,
+        }));
         setMessages([{
           id: 'welcome-' + Date.now(),
           role: 'assistant',
-          content: getWelcomeMessage(currentScreen),
+          content: smartResponse.message,
           source: 'faq',
           timestamp: new Date(),
-          quickReplies: getWelcomeQuickReplies(currentScreen),
+          quickReplies,
         }]);
         setShowFAQ(false);
         return;
       }
+
+      // Select child - open child selector
+      if (reply.id === 'select-child') {
+        setShowChildSelector(true);
+        return;
+      }
+
+      // Continue work - navigate to last activity
+      if (reply.id === 'continue-work') {
+        const unfinished = await contextEngine.checkUnfinishedWork();
+        if (unfinished.has && unfinished.type) {
+          const routes: Record<string, string> = {
+            coloring: '/(tabs)/coloring',
+            story: '/(tabs)/stories',
+            analysis: '/(tabs)/analysis',
+          };
+          setIsOpen(false);
+          setTimeout(() => {
+            router.push(routes[unfinished.type!] as any);
+          }, 300);
+        }
+        return;
+      }
+
+      // New work - clear unfinished and show options
+      if (reply.id === 'new-work') {
+        await contextEngine.clearUnfinishedWork();
+        // Continue to send as message
+      }
+
+      // Skip tour
+      if (reply.id === 'skip-tour') {
+        const smartResponse = await responseGenerator.generateWelcome({
+          screen: currentScreen,
+          child: selectedChild,
+          isFirstVisit: false,
+        });
+        const quickReplies: QuickReply[] = smartResponse.quickReplies.map(sr => ({
+          id: sr.id,
+          label: sr.label,
+          emoji: sr.emoji,
+          action: sr.action,
+          target: sr.target,
+        }));
+        setMessages([{
+          id: 'welcome-' + Date.now(),
+          role: 'assistant',
+          content: smartResponse.message,
+          source: 'faq',
+          timestamp: new Date(),
+          quickReplies,
+        }]);
+        return;
+      }
+
       if (reply.id === 'retry') {
         // Retry last message logic could go here
         return;
@@ -605,85 +739,87 @@ export function ChatBot() {
               showsVerticalScrollIndicator={false}
             >
               {messages.map((message, index) => (
-                <AnimatedMessage
-                  key={message.id}
-                  type={message.role}
-                  delay={index * 50}
-                  style={[
-                    styles.messageBubble,
-                    message.role === 'user'
-                      ? styles.userBubble
-                      : styles.assistantBubble,
-                  ]}
-                >
-                  {message.role === 'assistant' && (
-                    <View style={styles.assistantIcon}>
-                      <Bot size={16} color="#0D9488" />
-                    </View>
-                  )}
-                  <View
+                <View key={message.id} style={styles.messageWrapper}>
+                  {/* Message Row: Icon + Bubble */}
+                  <AnimatedMessage
+                    type={message.role}
+                    delay={index * 50}
                     style={[
-                      styles.messageContent,
+                      styles.messageBubble,
                       message.role === 'user'
-                        ? styles.userContent
-                        : styles.assistantContent,
+                        ? styles.userBubble
+                        : styles.assistantBubble,
                     ]}
                   >
-                    <Text
+                    {message.role === 'assistant' && (
+                      <View style={styles.assistantIcon}>
+                        <Bot size={16} color="#0D9488" />
+                      </View>
+                    )}
+                    <View
                       style={[
-                        styles.messageText,
-                        message.role === 'user' && styles.userText,
+                        styles.messageContent,
+                        message.role === 'user'
+                          ? styles.userContent
+                          : styles.assistantContent,
                       ]}
                     >
-                      {message.content}
-                    </Text>
-                    {message.source === 'ai' && message.role === 'assistant' && (
-                      <View style={styles.aiIndicator}>
-                        <Sparkles size={10} color="#0D9488" />
-                        <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
-                      </View>
-                    )}
-                    {/* Feedback Buttons for assistant messages */}
-                    {message.role === 'assistant' && message.id !== 'welcome' && !message.id.startsWith('welcome-') && (
-                      <View style={styles.feedbackContainer}>
-                        <InlineFeedback
-                          messageId={message.id}
-                          onFeedback={(id, feedback) => {
-                            console.log(`[ChatBot] Feedback for ${id}: ${feedback}`);
-                            // TODO: Send feedback to backend analytics
-                          }}
-                        />
-                      </View>
-                    )}
-                    {/* Action Buttons */}
-                    {message.actions && message.actions.length > 0 && (
-                      <View style={styles.actionsContainer}>
-                        {message.actions.map((action, idx) => (
-                          <Pressable
-                            key={idx}
-                            style={({ pressed }) => [
-                              styles.actionButton,
-                              pressed && styles.actionButtonPressed,
-                            ]}
-                            onPress={() => handleActionPress(action)}
-                          >
-                            {action.icon && (
-                              <Text style={styles.actionIcon}>{action.icon}</Text>
-                            )}
-                            <Text style={styles.actionLabel}>{action.label}</Text>
-                            <ChevronRight size={14} color="#0D9488" />
-                          </Pressable>
-                        ))}
-                      </View>
-                    )}
-                  </View>
+                      <Text
+                        style={[
+                          styles.messageText,
+                          message.role === 'user' && styles.userText,
+                        ]}
+                      >
+                        {message.content}
+                      </Text>
+                      {message.source === 'ai' && message.role === 'assistant' && (
+                        <View style={styles.aiIndicator}>
+                          <Sparkles size={10} color="#0D9488" />
+                          <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
+                        </View>
+                      )}
+                      {/* Feedback Buttons for assistant messages */}
+                      {message.role === 'assistant' && message.id !== 'welcome' && !message.id.startsWith('welcome-') && (
+                        <View style={styles.feedbackContainer}>
+                          <InlineFeedback
+                            messageId={message.id}
+                            onFeedback={(id, feedback) => {
+                              console.log(`[ChatBot] Feedback for ${id}: ${feedback}`);
+                              contextEngine.recordFeedback(id, feedback as 'positive' | 'negative');
+                            }}
+                          />
+                        </View>
+                      )}
+                      {/* Action Buttons */}
+                      {message.actions && message.actions.length > 0 && (
+                        <View style={styles.actionsContainer}>
+                          {message.actions.map((action, idx) => (
+                            <Pressable
+                              key={idx}
+                              style={({ pressed }) => [
+                                styles.actionButton,
+                                pressed && styles.actionButtonPressed,
+                              ]}
+                              onPress={() => handleActionPress(action)}
+                            >
+                              {action.icon && (
+                                <Text style={styles.actionIcon}>{action.icon}</Text>
+                              )}
+                              <Text style={styles.actionLabel}>{action.label}</Text>
+                              <ChevronRight size={14} color="#0D9488" />
+                            </Pressable>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  </AnimatedMessage>
 
-                  {/* Quick Reply Chips - shown below message */}
+                  {/* Quick Reply Chips - BELOW the message in separate row */}
                   {message.role === 'assistant' &&
                    message.quickReplies &&
                    message.quickReplies.length > 0 &&
                    !message.hideQuickReplies && (
-                    <View style={styles.quickRepliesWrapper}>
+                    <View style={styles.quickRepliesContainer}>
                       <QuickReplyChips
                         replies={message.quickReplies}
                         onSelect={handleQuickReply}
@@ -691,7 +827,7 @@ export function ChatBot() {
                       />
                     </View>
                   )}
-                </AnimatedMessage>
+                </View>
               ))}
 
               {/* Animated Typing Indicator */}
@@ -897,6 +1033,12 @@ const styles = StyleSheet.create({
     padding: spacing["4"],
     gap: spacing["3"],
   },
+  // Outer wrapper for message + quick replies (column layout)
+  messageWrapper: {
+    flexDirection: 'column',
+    gap: spacing["2"],
+  },
+  // Inner row for icon + bubble
   messageBubble: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -958,10 +1100,11 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
 
-  // Quick Replies
-  quickRepliesWrapper: {
-    marginTop: spacing["2"],
+  // Quick Replies - positioned below message
+  quickRepliesContainer: {
+    marginTop: spacing["1"],
     marginLeft: 36, // Align with message content (after avatar)
+    paddingRight: spacing["2"],
   },
 
   // Action Buttons
