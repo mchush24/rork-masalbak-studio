@@ -119,7 +119,7 @@ export function ChatBot() {
         {
           id: 'welcome',
           role: 'assistant',
-          content: 'Merhaba! 👋 Ben MasalBak asistanıyım. Size nasıl yardımcı olabilirim?\n\nAşağıdaki sık sorulan sorulara göz atabilir veya doğrudan sorununuzu yazabilirsiniz.',
+          content: 'Merhaba! 👋 Ben Renkioo asistanıyım. Size nasıl yardımcı olabilirim?\n\nAşağıdaki sık sorulan sorulara göz atabilir veya doğrudan sorununuzu yazabilirsiniz.',
           source: 'faq',
           timestamp: new Date(),
         },
@@ -323,7 +323,7 @@ export function ChatBot() {
                     <Bot size={24} color="#9333EA" />
                   </View>
                   <View>
-                    <Text style={styles.headerTitle}>MasalBak Asistan</Text>
+                    <Text style={styles.headerTitle}>Renkioo Asistan</Text>
                     <Text style={styles.headerSubtitle}>Size yardımcı olmak için buradayım</Text>
                   </View>
                 </View>

@@ -1,12 +1,22 @@
 /**
- * 🤖 MasalBak Chatbot - Yardım Asistanı
+ * 🤖 Renkioo Chatbot - Yardım Asistanı
  *
  * Hibrit yaklaşım:
  * 1. FAQ eşleştirme (ücretsiz)
- * 2. AI fallback - Claude Haiku (düşük maliyet, ~$0.25/1M input token)
+ * 2. AI fallback - Claude Haiku veya GPT-4o-mini (düşük maliyet)
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
+
+// Check which AI provider is available (at runtime)
+function hasAnthropicKey(): boolean {
+  return !!process.env.ANTHROPIC_API_KEY;
+}
+
+function hasOpenAIKey(): boolean {
+  return !!process.env.OPENAI_API_KEY;
+}
 
 // ============================================
 // TYPES
@@ -112,7 +122,7 @@ AI, çocuğunuzun çizimlerini çocuk psikolojisi prensipleri doğrultusunda de�
     question: 'Hangi yaş grubu için uygun?',
     answer: `👶 **Yaş Uygunluğu:**
 
-MasalBak Studio 2-12 yaş arası çocuklar için tasarlanmıştır.
+Renkioo Studio 2-12 yaş arası çocuklar için tasarlanmıştır.
 
 **Yaşa Göre Özellikler:**
 - **2-4 yaş:** Basit hikayeler, büyük görseller
@@ -238,9 +248,9 @@ function findFAQMatch(userMessage: string): FAQItem | null {
 // AI FALLBACK (Claude Haiku)
 // ============================================
 
-const SYSTEM_PROMPT = `Sen MasalBak Studio uygulamasının yardımcı asistanısın. Türkçe konuşuyorsun.
+const SYSTEM_PROMPT = `Sen Renkioo Studio uygulamasının yardımcı asistanısın. Türkçe konuşuyorsun.
 
-MasalBak Studio, çocukların çizimlerinden AI ile kişiselleştirilmiş masallar oluşturan bir uygulamadır.
+Renkioo Studio, çocukların çizimlerinden AI ile kişiselleştirilmiş masallar oluşturan bir uygulamadır.
 
 Temel özellikler:
 - Çizim yükleme ve AI analizi
@@ -264,29 +274,59 @@ async function getAIResponse(
   userMessage: string,
   conversationHistory: { role: 'user' | 'assistant'; content: string }[]
 ): Promise<string> {
-  const client = new Anthropic();
-
   // Build messages array with history (last 6 messages for context)
   const recentHistory = conversationHistory.slice(-6);
-  const messages: Anthropic.MessageParam[] = [
-    ...recentHistory.map(msg => ({
-      role: msg.role as 'user' | 'assistant',
-      content: msg.content,
-    })),
-    { role: 'user', content: userMessage },
-  ];
 
-  const response = await client.messages.create({
-    model: 'claude-3-haiku-20240307',
-    max_tokens: 300,
-    system: SYSTEM_PROMPT,
-    messages,
-  });
+  // Try Anthropic first if available, otherwise use OpenAI
+  if (hasAnthropicKey()) {
+    console.log('[Chatbot] Using Claude Haiku');
+    const client = new Anthropic();
 
-  const textBlock = response.content.find(
-    (block): block is Anthropic.TextBlock => block.type === 'text'
-  );
-  return textBlock?.text || 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.';
+    const messages: Anthropic.MessageParam[] = [
+      ...recentHistory.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })),
+      { role: 'user', content: userMessage },
+    ];
+
+    const response = await client.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 300,
+      system: SYSTEM_PROMPT,
+      messages,
+    });
+
+    const textBlock = response.content.find(
+      (block): block is Anthropic.TextBlock => block.type === 'text'
+    );
+    return textBlock?.text || 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.';
+  }
+
+  if (hasOpenAIKey()) {
+    console.log('[Chatbot] Using GPT-4o-mini');
+    const client = new OpenAI();
+
+    const messages: OpenAI.ChatCompletionMessageParam[] = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...recentHistory.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })),
+      { role: 'user', content: userMessage },
+    ];
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 300,
+      messages,
+      temperature: 0.7,
+    });
+
+    return response.choices[0]?.message?.content || 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.';
+  }
+
+  throw new Error('No AI provider available. Please set ANTHROPIC_API_KEY or OPENAI_API_KEY.');
 }
 
 // ============================================
