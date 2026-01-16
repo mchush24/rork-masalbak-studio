@@ -22,14 +22,13 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  MessageCircle,
   X,
   Send,
   Bot,
-  User,
   Sparkles,
   HelpCircle,
   ChevronRight,
+  MessageSquare,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
@@ -119,18 +118,18 @@ export function ChatBot() {
     enabled: isOpen,
   });
 
-  // Pulse animation for floating button
+  // Gentle pulse animation for floating button
   useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 1000,
+          toValue: 1.05,
+          duration: 2000,
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 1000,
+          duration: 2000,
           useNativeDriver: true,
         }),
       ])
@@ -315,7 +314,7 @@ export function ChatBot() {
 
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* Floating Chat Button - Minimalist Design */}
       <Animated.View
         style={[
           styles.floatingButton,
@@ -329,20 +328,21 @@ export function ChatBot() {
           onPress={() => setIsOpen(true)}
           style={({ pressed }) => [
             styles.floatingButtonInner,
-            pressed && { opacity: 0.8 },
+            pressed && styles.floatingButtonPressed,
           ]}
         >
           <LinearGradient
-            colors={['#9333EA', '#7C3AED']}
+            colors={['#0D9488', '#14B8A6', '#2DD4BF']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.floatingButtonGradient}
           >
-            <MessageCircle size={28} color="#FFF" />
+            <MessageSquare size={26} color="#FFF" strokeWidth={2} />
           </LinearGradient>
         </Pressable>
-        {/* Notification dot */}
-        <View style={styles.notificationDot}>
-          <Text style={styles.notificationText}>?</Text>
-        </View>
+
+        {/* Subtle indicator dot */}
+        <View style={styles.indicatorDot} />
       </Animated.View>
 
       {/* Proactive Suggestion Popup */}
@@ -387,13 +387,13 @@ export function ChatBot() {
           >
             {/* Header */}
             <LinearGradient
-              colors={['#9333EA', '#7C3AED']}
+              colors={['#0D9488', '#14B8A6']}
               style={styles.header}
             >
               <View style={styles.headerContent}>
                 <View style={styles.headerLeft}>
                   <View style={styles.botAvatar}>
-                    <Bot size={24} color="#9333EA" />
+                    <Bot size={24} color="#0D9488" />
                   </View>
                   <View>
                     <Text style={styles.headerTitle}>Renkioo Asistan</Text>
@@ -493,7 +493,7 @@ export function ChatBot() {
                 >
                   {message.role === 'assistant' && (
                     <View style={styles.assistantIcon}>
-                      <Bot size={16} color="#9333EA" />
+                      <Bot size={16} color="#0D9488" />
                     </View>
                   )}
                   <View
@@ -514,7 +514,7 @@ export function ChatBot() {
                     </Text>
                     {message.source === 'ai' && message.role === 'assistant' && (
                       <View style={styles.aiIndicator}>
-                        <Sparkles size={10} color="#9333EA" />
+                        <Sparkles size={10} color="#0D9488" />
                         <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
                       </View>
                     )}
@@ -534,7 +534,7 @@ export function ChatBot() {
                               <Text style={styles.actionIcon}>{action.icon}</Text>
                             )}
                             <Text style={styles.actionLabel}>{action.label}</Text>
-                            <ChevronRight size={14} color="#9333EA" />
+                            <ChevronRight size={14} color="#0D9488" />
                           </Pressable>
                         ))}
                       </View>
@@ -547,11 +547,11 @@ export function ChatBot() {
               {isLoading && (
                 <View style={[styles.messageBubble, styles.assistantBubble]}>
                   <View style={styles.assistantIcon}>
-                    <Bot size={16} color="#9333EA" />
+                    <Bot size={16} color="#0D9488" />
                   </View>
                   <View style={[styles.messageContent, styles.assistantContent]}>
                     <View style={styles.typingIndicator}>
-                      <ActivityIndicator size="small" color="#9333EA" />
+                      <ActivityIndicator size="small" color="#0D9488" />
                       <Text style={styles.typingText}>Yazıyor...</Text>
                     </View>
                   </View>
@@ -562,7 +562,7 @@ export function ChatBot() {
               {showFAQ && faqQuery.data && (
                 <View style={styles.faqSection}>
                   <View style={styles.faqHeader}>
-                    <HelpCircle size={18} color="#9333EA" />
+                    <HelpCircle size={18} color="#0D9488" />
                     <Text style={styles.faqTitle}>Sık Sorulan Sorular</Text>
                   </View>
                   {faqQuery.data.categories.slice(0, 3).map(category => (
@@ -580,7 +580,7 @@ export function ChatBot() {
                           onPress={() => handleFAQClick(faqItem.question)}
                         >
                           <Text style={styles.faqQuestion}>{faqItem.question}</Text>
-                          <ChevronRight size={16} color="#9333EA" />
+                          <ChevronRight size={16} color="#0D9488" />
                         </Pressable>
                       ))}
                     </View>
@@ -614,7 +614,7 @@ export function ChatBot() {
                 <LinearGradient
                   colors={
                     inputText.trim() && !isLoading
-                      ? ['#9333EA', '#7C3AED']
+                      ? ['#0D9488', '#14B8A6']
                       : [Colors.neutral.light, Colors.neutral.medium]
                   }
                   style={styles.sendButtonGradient}
@@ -635,40 +635,39 @@ export function ChatBot() {
 // ============================================
 
 const styles = StyleSheet.create({
-  // Floating Button - LEFT side (child selector is on RIGHT)
+  // Floating Button - Minimalist Design
   floatingButton: {
     position: 'absolute',
     left: 20,
     zIndex: 1000,
   },
   floatingButtonInner: {
-    borderRadius: 30,
+    borderRadius: 28,
     ...shadows.lg,
   },
-  floatingButtonGradient: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+  floatingButtonPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.95 }],
   },
-  notificationDot: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#EF4444',
+  floatingButtonGradient: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  notificationText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: 'bold',
+  indicatorDot: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#10B981',
+    borderWidth: 2,
+    borderColor: '#FFF',
   },
 
   // Modal
@@ -749,7 +748,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+    backgroundColor: 'rgba(13, 148, 136, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -759,7 +758,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
   },
   userContent: {
-    backgroundColor: '#9333EA',
+    backgroundColor: '#0D9488',
     borderBottomRightRadius: 4,
   },
   assistantContent: {
@@ -784,7 +783,7 @@ const styles = StyleSheet.create({
   },
   aiIndicatorText: {
     fontSize: 10,
-    color: '#9333EA',
+    color: '#0D9488',
   },
 
   // Action Buttons
@@ -798,13 +797,13 @@ const styles = StyleSheet.create({
     gap: spacing["2"],
     paddingVertical: spacing["2"],
     paddingHorizontal: spacing["3"],
-    backgroundColor: 'rgba(147, 51, 234, 0.08)',
+    backgroundColor: 'rgba(13, 148, 136, 0.08)',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(147, 51, 234, 0.2)',
+    borderColor: 'rgba(13, 148, 136, 0.2)',
   },
   actionButtonPressed: {
-    backgroundColor: 'rgba(147, 51, 234, 0.15)',
+    backgroundColor: 'rgba(13, 148, 136, 0.15)',
     transform: [{ scale: 0.98 }],
   },
   actionIcon: {
@@ -814,7 +813,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
-    color: '#9333EA',
+    color: '#0D9488',
   },
 
   // Typing indicator
@@ -862,7 +861,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing["2"],
     paddingHorizontal: spacing["3"],
-    backgroundColor: 'rgba(147, 51, 234, 0.05)',
+    backgroundColor: 'rgba(13, 148, 136, 0.05)',
     borderRadius: radius.lg,
     marginBottom: spacing["2"],
   },
@@ -934,7 +933,7 @@ const styles = StyleSheet.create({
   childAvatarText: {
     fontSize: 14,
     fontWeight: '700' as const,
-    color: '#9333EA',
+    color: '#0D9488',
   },
   childName: {
     flex: 1,
@@ -958,7 +957,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.neutral.lightest,
   },
   childOptionSelected: {
-    backgroundColor: 'rgba(147, 51, 234, 0.08)',
+    backgroundColor: 'rgba(13, 148, 136, 0.08)',
   },
   childOptionAvatar: {
     width: 40,
@@ -969,7 +968,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   childOptionAvatarSelected: {
-    backgroundColor: '#9333EA',
+    backgroundColor: '#0D9488',
   },
   childOptionAvatarText: {
     fontSize: 16,
@@ -985,7 +984,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
   },
   childOptionNameSelected: {
-    color: '#9333EA',
+    color: '#0D9488',
   },
   childOptionAge: {
     fontSize: typography.size.xs,
@@ -995,7 +994,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#9333EA',
+    backgroundColor: '#0D9488',
     justifyContent: 'center',
     alignItems: 'center',
   },
