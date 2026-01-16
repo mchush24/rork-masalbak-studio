@@ -1,14 +1,36 @@
 /**
- * Renkioo Chatbot - Yardim Asistani v2.0
+ * Renkioo Chatbot - Yardim Asistani v3.0
  *
  * Hibrit yaklasim:
- * 1. Gelistirilmis FAQ eslestirme (ucretsiz) - 55+ FAQ
- * 2. Turkce synonym ve normalizasyon destegi
- * 3. AI fallback - Claude Haiku veya GPT-4o-mini (dusuk maliyet)
+ * 1. Intent & Duygu algılama (ebeveyn endişeleri öncelikli)
+ * 2. Ebeveyn rehberliği FAQ'ları (30+ soru)
+ * 3. Genel FAQ eslestirme (55+ soru)
+ * 4. Turkce synonym ve normalizasyon destegi
+ * 5. AI fallback - Claude Haiku veya GPT-4o-mini
  */
 
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
+
+// New modules for parenting support
+import {
+  detectUserIntent,
+  isParentingConcern,
+  detectEmotion,
+  detectSeverity,
+  UserIntent,
+} from './chatbot-intent';
+import {
+  findParentingFAQ,
+  getParentingFollowUps,
+  ParentingFAQItem,
+} from './chatbot-parenting';
+import {
+  buildEmpatheticResponse,
+  wrapWithEmpathy,
+  getParentingQuickReplies,
+  getSuggestedQuestions as getEmpathySuggestions,
+} from './chatbot-empathy';
 
 // Check which AI provider is available (at runtime)
 function hasAnthropicKey(): boolean {
@@ -1353,7 +1375,56 @@ export async function processChat(
   const startTime = Date.now();
   const { useEmbeddings = process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true' } = options;
 
-  // 1. Try keyword-based FAQ match first (free, fast)
+  // 0. DETECT USER INTENT & EMOTION (NEW!)
+  const userIntent = detectUserIntent(userMessage);
+  console.log('[Chatbot] Intent detected:', {
+    type: userIntent.type,
+    emotion: userIntent.emotion,
+    severity: userIntent.severity,
+    needsEmpathy: userIntent.needsEmpathy,
+    confidence: userIntent.confidence.toFixed(2)
+  });
+
+  // 0.1 Check for PARENTING CONCERN first (highest priority)
+  if (userIntent.type === 'parenting_concern' ||
+      userIntent.type === 'child_development' ||
+      userIntent.type === 'emotional_support') {
+
+    const parentingFAQ = findParentingFAQ(userMessage);
+
+    if (parentingFAQ) {
+      console.log('[Chatbot] Parenting FAQ match:', parentingFAQ.question);
+
+      // Build empathetic response
+      const empatheticResponse = buildEmpatheticResponse({
+        emotion: userIntent.emotion,
+        severity: userIntent.severity,
+        topic: parentingFAQ.category,
+        faq: parentingFAQ,
+        includeValidation: userIntent.needsEmpathy,
+        includeReassurance: true,
+        includeProfessionalReferral: parentingFAQ.suggestProfessional || userIntent.needsProfessionalReferral
+      });
+
+      // Log interaction
+      logInteraction(options, userMessage, empatheticResponse.fullResponse, 'faq', parentingFAQ.id, 95, startTime);
+
+      // Get parenting-specific follow-ups
+      const suggestedQuestions = getParentingFollowUps(parentingFAQ.category);
+
+      return {
+        message: empatheticResponse.fullResponse,
+        source: 'faq',
+        suggestedQuestions,
+        matchedFAQ: parentingFAQ.id,
+        confidence: 95,
+        actions: [], // Parenting FAQs don't need action buttons
+        detectedTopic: `parenting_${parentingFAQ.category}`,
+      };
+    }
+  }
+
+  // 1. Try keyword-based FAQ match (free, fast)
   const faqMatch = findFAQMatch(userMessage);
 
   if (faqMatch && faqMatch.confidence >= 40) {
