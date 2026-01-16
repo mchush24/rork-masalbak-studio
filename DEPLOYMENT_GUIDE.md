@@ -1,4 +1,4 @@
-# 🚀 Localhost'tan Çıkma Rehberi - Masalbak Studio
+# 🚀 Localhost'tan Çıkma Rehberi - Renkioo Studio
 
 Backend'in zaten Railway'de! Şimdi mobil uygulamayı gerçek cihazlarda çalıştırmanın 3 yolu var.
 
@@ -150,8 +150,8 @@ Otomatik oluşacak, ama manuel de ekleyebilirsin:
 ```javascript
 export default {
   expo: {
-    name: "Masalbak Studio",
-    slug: "masalbak-studio",
+    name: "Renkioo Studio",
+    slug: "renkioo-studio",
     version: "1.0.0",
 
     // Production için önemli:
@@ -163,14 +163,14 @@ export default {
 
     // iOS
     ios: {
-      bundleIdentifier: "com.masalbak.studio",
+      bundleIdentifier: "com.renkioo.app",
       buildNumber: "1",
       supportsTablet: true
     },
 
     // Android
     android: {
-      package: "com.masalbak.studio",
+      package: "com.renkioo.app",
       versionCode: 1,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
@@ -227,7 +227,7 @@ Production'da environment variables'ı EAS Secrets ile yönet:
 
 ```bash
 # Secret ekle:
-eas secret:create --scope project --name EXPO_PUBLIC_API --value https://rork-masalbak-studio-production.up.railway.app
+eas secret:create --scope project --name EXPO_PUBLIC_API --value https://rork-renkioo-studio-production.up.railway.app
 
 eas secret:create --scope project --name EXPO_PUBLIC_SUPABASE_URL --value YOUR_SUPABASE_URL
 

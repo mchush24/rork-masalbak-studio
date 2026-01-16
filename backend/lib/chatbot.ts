@@ -1,9 +1,10 @@
 /**
- * 🤖 Renkioo Chatbot - Yardım Asistanı
+ * Renkioo Chatbot - Yardim Asistani v2.0
  *
- * Hibrit yaklaşım:
- * 1. FAQ eşleştirme (ücretsiz)
- * 2. AI fallback - Claude Haiku veya GPT-4o-mini (düşük maliyet)
+ * Hibrit yaklasim:
+ * 1. Gelistirilmis FAQ eslestirme (ucretsiz) - 55+ FAQ
+ * 2. Turkce synonym ve normalizasyon destegi
+ * 3. AI fallback - Claude Haiku veya GPT-4o-mini (dusuk maliyet)
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -34,241 +35,1212 @@ export interface ChatResponse {
   message: string;
   source: 'faq' | 'ai';
   suggestedQuestions?: string[];
+  matchedFAQ?: string;
+  confidence?: number;
 }
 
 interface FAQItem {
+  id: string;
   keywords: string[];
+  synonyms?: string[][];
   question: string;
   answer: string;
-  category: 'story' | 'drawing' | 'analysis' | 'interactive' | 'account' | 'general';
+  category: FAQCategory;
+  priority?: number;
 }
 
+type FAQCategory = 'story' | 'drawing' | 'analysis' | 'interactive' | 'account' | 'general' | 'coloring' | 'technical';
+
 // ============================================
-// FAQ DATABASE (Ücretsiz Cevaplar)
+// TURKCE SYNONYM VERITABANI
+// ============================================
+
+const TURKISH_SYNONYMS: Record<string, string[]> = {
+  // Fiiller
+  'olustur': ['yap', 'yarat', 'hazirla', 'uret', 'meydana getir'],
+  'indir': ['yukle', 'kaydet', 'al', 'download'],
+  'yukle': ['upload', 'ekle', 'gonderi', 'at'],
+  'sil': ['kaldir', 'cikar', 'temizle', 'yoket'],
+  'degistir': ['duzenle', 'edit', 'guncelle', 'ayarla'],
+  'paylas': ['gonder', 'ilet', 'share'],
+  'bak': ['gor', 'incele', 'kontrol et', 'gozden gecir'],
+
+  // Isimler
+  'masal': ['hikaye', 'oyku', 'story', 'tale'],
+  'cizim': ['resim', 'sekil', 'gorsel', 'drawing', 'picture'],
+  'cocuk': ['yavru', 'evlat', 'kid', 'child', 'bebek', 'minnik'],
+  'analiz': ['degerlendirme', 'inceleme', 'rapor', 'analysis'],
+  'hesap': ['profil', 'kullanici', 'account', 'uyelik'],
+  'fiyat': ['ucret', 'maliyet', 'para', 'price', 'cost'],
+  'sorun': ['problem', 'hata', 'bug', 'sikinti', 'error', 'issue'],
+  'yardim': ['destek', 'support', 'help', 'asistan'],
+
+  // Sifatlar
+  'ucretsiz': ['bedava', 'free', 'parasiz', 'gratuit'],
+  'guvenli': ['emniyetli', 'safe', 'secure', 'korunakli'],
+  'hizli': ['cabuk', 'seri', 'fast', 'quick'],
+  'kolay': ['basit', 'simple', 'easy', 'zahmetsiz'],
+
+  // Sorular
+  'nasil': ['ne sekilde', 'ne yapmaliyim', 'how', 'hangi yolla'],
+  'neden': ['nicin', 'sebep', 'why', 'ne icin'],
+  'ne zaman': ['nezaman', 'when', 'hangi tarih'],
+  'nerede': ['where', 'hangi yer', 'nerden'],
+};
+
+// ============================================
+// FAQ DATABASE (55+ Soru)
 // ============================================
 
 const FAQ_DATABASE: FAQItem[] = [
-  // === HİKAYE OLUŞTURMA ===
+  // ============================================
+  // MASAL OLUSTURMA (12 FAQ)
+  // ============================================
   {
-    keywords: ['hikaye', 'masal', 'oluştur', 'nasıl', 'yap'],
-    question: 'Nasıl hikaye/masal oluşturabilirim?',
-    answer: `📖 **Masal Oluşturma Adımları:**
+    id: 'story_001',
+    keywords: ['hikaye', 'masal', 'olustur', 'nasil', 'yap', 'baslat'],
+    question: 'Nasil hikaye/masal olusturabilirim?',
+    answer: `**Masal Olusturma Adimlari:**
 
-1. Alt menüden "Masallar" sekmesine gidin
-2. Sağ üstteki + butonuna tıklayın
-3. Çocuğunuzun çizimini yükleyin
-4. AI size tema önerileri sunacak
-5. Bir tema seçin veya kendi başlığınızı yazın
-6. "Masal Oluştur" butonuna tıklayın
+1. Alt menuден "Masallar" sekmesine gidin
+2. Sag ustteki + butonuna tiklayin
+3. Cocugunuzun cizimini yukleyin
+4. AI size tema onerileri sunacak
+5. Bir tema secin veya kendi basliginizi yazin
+6. "Masal Olustur" butonuna tiklayin
 
-✨ Yaklaşık 1-2 dakika içinde görsellerle birlikte kişiselleştirilmiş bir masal hazır olacak!`,
+Yaklasik 1-2 dakika icinde gorsellerle birlikte kisisellestirilmis bir masal hazir olacak!`,
     category: 'story',
+    priority: 10,
   },
   {
-    keywords: ['interaktif', 'seçim', 'macera', 'interactive'],
-    question: 'İnteraktif masal nedir?',
-    answer: `🎮 **İnteraktif Masal:**
+    id: 'story_002',
+    keywords: ['pdf', 'indir', 'kaydet', 'paylas', 'yazdir', 'cikti', 'nasil', 'download'],
+    question: 'Masali PDF olarak nasil indirebilirim?',
+    answer: `**PDF Indirme:**
 
-Çocuğunuzun hikayede aktif rol aldığı özel bir masal türüdür!
+1. Masallar sekmesinden masalinizi acin
+2. Sag ustteki paylas/indir ikonuna tiklayin
+3. "PDF Indir" secenegini secin
 
-**Nasıl Çalışır:**
-- Hikaye ilerlerken çocuğunuz seçimler yapar
-- Her seçim hikayenin gidişatını değiştirir
-- Seçimler kişilik özelliklerini yansıtır
+PDF dosyasi cihaziniza kaydedilecek ve istediginiz zaman yazdirabilir veya paylasabilirsiniz!
 
-**Ebeveyn Raporu:**
-- Çocuğunuzun seçimlerinin analizi
-- Empati, cesaret, merak gibi özelliklerin değerlendirmesi
-- Aktivite önerileri
-
-Masal oluştururken "İnteraktif Masal" seçeneğini seçerek deneyebilirsiniz!`,
-    category: 'interactive',
-  },
-  {
-    keywords: ['pdf', 'indir', 'kaydet', 'paylaş'],
-    question: 'Masalı PDF olarak nasıl indirebilirim?',
-    answer: `📄 **PDF İndirme:**
-
-1. Masallar sekmesinden masalınızı açın
-2. Sağ üstteki paylaş/indir ikonuna tıklayın
-3. "PDF İndir" seçeneğini seçin
-
-PDF dosyası cihazınıza kaydedilecek ve istediğiniz zaman yazdırabilir veya paylaşabilirsiniz!
-
-💡 İpucu: PDF'ler otomatik olarak oluşturulur, ekstra bir işlem gerekmez.`,
+Ipucu: PDF'ler otomatik olarak olusturulur, ekstra bir islem gerekmez.`,
     category: 'story',
+    priority: 8,
+  },
+  {
+    id: 'story_003',
+    keywords: ['sure', 'zaman', 'dakika', 'ne kadar', 'bekle', 'hazir'],
+    question: 'Masal ne kadar surede hazir olur?',
+    answer: `**Masal Olusturma Suresi:**
+
+- **Standart masal:** 1-2 dakika
+- **Interaktif masal:** 2-3 dakika
+- **Uzun/detayli masal:** 3-4 dakika
+
+Sure, internet hiziniza ve sectiginiz masal turune gore degisebilir. Olusturma sirasinda ilerleme cubugunu gorebilirsiniz.`,
+    category: 'story',
+    priority: 7,
+  },
+  {
+    id: 'story_004',
+    keywords: ['tema', 'konu', 'baslik', 'oner', 'sec', 'fikir'],
+    question: 'Masal temalari nasil belirleniyor?',
+    answer: `**Tema Secimi:**
+
+AI, cocugunuzun cizimini analiz ederek uygun temalar onerir:
+- Cizimdeki karakterler ve nesneler
+- Renk paleti ve duygu tonu
+- Cocugunuzun yasi
+
+**Secenekler:**
+- Onerilen temalardan birini secebilirsiniz
+- Kendi ozel basliginizi yazabilirsiniz
+- "Surpriz" secenegiyle AI'in secmesine izin verebilirsiniz`,
+    category: 'story',
+    priority: 6,
+  },
+  {
+    id: 'story_005',
+    keywords: ['uzunluk', 'sayfa', 'kisa', 'uzun', 'kelime'],
+    question: 'Masal uzunlugunu ayarlayabilir miyim?',
+    answer: `**Masal Uzunlugu:**
+
+Masal olusturmadan once uzunluk secebilirsiniz:
+- **Kisa (2-3 sayfa):** 2-4 yas icin ideal
+- **Orta (4-6 sayfa):** 5-7 yas icin
+- **Uzun (7-10 sayfa):** 8+ yas icin
+
+Cocugunuzun profilindeki yas bilgisine gore varsayilan uzunluk otomatik ayarlanir.`,
+    category: 'story',
+    priority: 5,
+  },
+  {
+    id: 'story_006',
+    keywords: ['gorsel', 'resim', 'illustrasyon', 'cizim', 'masal icindeki'],
+    question: 'Masallardaki gorseller nasil olusturuluyor?',
+    answer: `**Masal Gorselleri:**
+
+Her masal icin ozel gorseller AI tarafindan olusturulur:
+- Cocugunuzun cizim stiline uygun
+- Hikayeyle uyumlu sahneler
+- Cocuk dostu ve guvenli icerik
+
+Her sayfada ortalama 1 gorsel bulunur. Gorseller otomatik olusturulur, ekstra bir islem gerekmez.`,
+    category: 'story',
+    priority: 5,
+  },
+  {
+    id: 'story_007',
+    keywords: ['duzenle', 'degistir', 'edit', 'guncelle', 'metin'],
+    question: 'Olusturulan masali duzenleyebilir miyim?',
+    answer: `**Masal Duzenleme:**
+
+Su an icin olusturulan masallar dogrudan duzenlenemiyor. Ancak:
+- Yeni bir masal olusturabilirsiniz
+- Farkli tema secebilirsiniz
+- Baska bir cizim kullanabilirsiniz
+
+Gelecek guncellemelerde duzenleme ozelligi eklenecektir.`,
+    category: 'story',
+    priority: 4,
+  },
+  {
+    id: 'story_008',
+    keywords: ['kaydet', 'arsiv', 'gecmis', 'eski', 'bul', 'nerede'],
+    question: 'Eski masallarimi nerede bulabilirim?',
+    answer: `**Masal Arsivi:**
+
+Tum masallariniz otomatik olarak kaydedilir:
+1. "Masallar" sekmesine gidin
+2. Cocuk profilini secin
+3. Kronolojik sirada tum masallari gorun
+
+Masallari tarihe, temaya veya cocuga gore filtreleyebilirsiniz.`,
+    category: 'story',
+    priority: 6,
+  },
+  {
+    id: 'story_009',
+    keywords: ['sesli', 'oku', 'dinle', 'ses', 'audio', 'anlatim'],
+    question: 'Masallari sesli dinleyebilir miyim?',
+    answer: `**Sesli Masal:**
+
+Evet! Masallari sesli dinleyebilirsiniz:
+1. Masali acin
+2. Play/Oynat butonuna basin
+3. AI sesiyle masal okunur
+
+Sesi duraklatabilir, ileri/geri sarabilirsiniz. Uyku zamanlayicisi ozelligi de mevcuttur.`,
+    category: 'story',
+    priority: 7,
+  },
+  {
+    id: 'story_010',
+    keywords: ['sil', 'kaldir', 'cikar', 'yok et', 'temizle'],
+    question: 'Bir masali nasil silebilirim?',
+    answer: `**Masal Silme:**
+
+1. Silmek istediginiz masali acin
+2. Sag ust kosedeki menu ikonuna tiklayin
+3. "Masali Sil" secenegini secin
+4. Onay verin
+
+Dikkat: Silinen masallar geri getirilemez!`,
+    category: 'story',
+    priority: 4,
+  },
+  {
+    id: 'story_011',
+    keywords: ['limit', 'sinir', 'kac', 'tane', 'gunluk', 'aylik'],
+    question: 'Gunluk kac masal olusturabilirim?',
+    answer: `**Masal Limitleri:**
+
+- **Ucretsiz plan:** Gunluk 3 masal
+- **Premium plan:** Sinirsiz masal
+
+Limit her gun gece yarisi sifirlanir. Premium'a gecis icin Ayarlar > Abonelik bolumune bakin.`,
+    category: 'story',
+    priority: 6,
+  },
+  {
+    id: 'story_012',
+    keywords: ['dil', 'ingilizce', 'language', 'turkce', 'cevir'],
+    question: 'Masallar hangi dilde olusturuluyor?',
+    answer: `**Masal Dili:**
+
+Su an masallar yalnizca Turkce olarak olusturuluyor. Gelecekte Ingilizce ve diger diller eklenecektir.
+
+Ayarlar > Tercihler bolumunden varsayilan dili secebilirsiniz.`,
+    category: 'story',
+    priority: 3,
   },
 
-  // === ÇİZİM ANALİZİ ===
+  // ============================================
+  // CIZIM ANALIZI (10 FAQ)
+  // ============================================
   {
-    keywords: ['analiz', 'çizim', 'değerlendirme', 'psikoloji', 'ne anlama'],
-    question: 'Çizim analizi ne anlama geliyor?',
-    answer: `🎨 **Çizim Analizi:**
+    id: 'analysis_001',
+    keywords: ['analiz', 'cizim', 'degerlendirme', 'psikoloji', 'ne anlama', 'anlam', 'nedir', 'ne', 'resim'],
+    question: 'Cizim analizi ne anlama geliyor?',
+    answer: `**Cizim Analizi:**
 
-AI, çocuğunuzun çizimlerini çocuk psikolojisi prensipleri doğrultusunda değerlendirir.
+AI, cocugunuzun cizimlerini cocuk psikolojisi prensipleri dogrultusunda degerlendirir.
 
-**Nelere Bakılır:**
-- Renk kullanımı ve tercihleri
-- Figürlerin boyutu ve konumu
+**Nelere Bakilir:**
+- Renk kullanimi ve tercihleri
+- Figurlerin boyutu ve konumu
 - Detay seviyesi
 - Genel kompozisyon
 
-**Önemli Not:**
-⚠️ Bu analiz profesyonel psikolojik değerlendirme yerine geçmez. Eğlenceli bir içgörü aracı olarak tasarlanmıştır. Endişeleriniz varsa bir uzmana danışmanızı öneririz.`,
+**Onemli Not:**
+Bu analiz profesyonel psikolojik degerlendirme yerine gecmez. Eglenceli bir icgoru araci olarak tasarlanmistir.`,
     category: 'analysis',
+    priority: 10,
   },
   {
-    keywords: ['gelişim', 'yaş', 'uygun', 'seviye'],
-    question: 'Hangi yaş grubu için uygun?',
-    answer: `👶 **Yaş Uygunluğu:**
+    id: 'analysis_002',
+    keywords: ['guvenilir', 'dogru', 'isabetli', 'gercek', 'bilimsel'],
+    question: 'Cizim analizi ne kadar guvenilir?',
+    answer: `**Analiz Guvenirligi:**
 
-Renkioo Studio 2-12 yaş arası çocuklar için tasarlanmıştır.
+Analizlerimiz:
+- Cocuk psikolojisi literaturune dayanir
+- Genel egilimler ve gozlemler sunar
+- Eglenceli ve egitici amaclidir
 
-**Yaşa Göre Özellikler:**
-- **2-4 yaş:** Basit hikayeler, büyük görseller
-- **5-7 yaş:** Orta uzunlukta masallar, interaktif seçenekler
-- **8-12 yaş:** Daha detaylı hikayeler, karmaşık temalar
+**Unutmayin:**
+- Her cocuk benzersizdir
+- Tek bir cizim tum resmi vermez
+- Endiseniz varsa uzmana danisin`,
+    category: 'analysis',
+    priority: 8,
+  },
+  {
+    id: 'analysis_003',
+    keywords: ['renk', 'anlam', 'kirmizi', 'mavi', 'siyah', 'tercih'],
+    question: 'Renk tercihleri ne anlama geliyor?',
+    answer: `**Renk Anlamlari:**
 
-Profil ayarlarından çocuğunuzun yaşını girerek içeriklerin ona göre uyarlanmasını sağlayabilirsiniz.`,
-    category: 'general',
+- **Kirmizi:** Enerji, heyecan, bazen ofke
+- **Mavi:** Sakinlik, huzur, dusuncelilik
+- **Yesil:** Doga sevgisi, denge
+- **Sari:** Mutluluk, iyimserlik
+- **Siyah:** Guc, bazen kaygı (ama normal!)
+- **Pembe/Mor:** Yaraticilik, hayal gucu
+
+Renk tercihleri yasla degisir ve her zaman derin bir anlam tasimayabilir.`,
+    category: 'analysis',
+    priority: 7,
+  },
+  {
+    id: 'analysis_004',
+    keywords: ['endise', 'kaygi', 'korku', 'normal', 'mi', 'uzman'],
+    question: 'Cizimde endiselenmem gereken bir sey var mi?',
+    answer: `**Endise Isareti mi?**
+
+Cogu cizim ozelligi tamamen normaldir. Ancak sunlar dikkat cekici olabilir:
+- Surekli karanlik temalar
+- Aile uyelerinin olmamasi/cok kucuk cizilmesi
+- Siddet iceren sahneler
+
+**Onemli:** Tek bir cizime bakmak yerine zamana yayilan kaliplara bakin. Ciddi endiseniz varsa bir cocuk psikoloğuna danisin.`,
+    category: 'analysis',
+    priority: 9,
+  },
+  {
+    id: 'analysis_005',
+    keywords: ['yas', 'gelisim', 'normal', 'seviye', 'beklenen'],
+    question: 'Cocugumun cizimleri yasina uygun mu?',
+    answer: `**Yasa Gore Cizim Gelisimi:**
+
+- **2-3 yas:** Karalamalar, daireler
+- **3-4 yas:** Basit figurler, "bas-bacak" insanlar
+- **4-5 yas:** Daha detayli figurler, ev/gunes
+- **5-7 yas:** Sahneler, hikaye anlatimi
+- **7+ yas:** Perspektif, detay, gercekcilik
+
+Her cocuk kendi hizinda gelisir. Karsilastirma yerine ilerlemeye odaklanin.`,
+    category: 'analysis',
+    priority: 7,
+  },
+  {
+    id: 'analysis_006',
+    keywords: ['rapor', 'sonuc', 'nerede', 'gor', 'bul'],
+    question: 'Analiz raporunu nerede gorebilirim?',
+    answer: `**Analiz Raporu:**
+
+1. Cizim yukledikten sonra "Analiz Et" butonuna basin
+2. Sonuclar birkaç saniye icinde gorunur
+3. "Detayli Rapor" ile daha fazla bilgi alin
+
+Raporlar "Analizler" sekmesinde de arsivlenir.`,
+    category: 'analysis',
+    priority: 6,
+  },
+  {
+    id: 'analysis_007',
+    keywords: ['karsilastir', 'onceki', 'ilerleme', 'gelisim', 'degisim'],
+    question: 'Onceki cizimlerle karsilastirabilir miyim?',
+    answer: `**Gelisim Takibi:**
+
+Evet! "Analizler" sekmesinde:
+- Zamana gore cizimleri goruntuleyin
+- Gelisim grafiklerini inceleyin
+- Degisen temaları karsilastirin
+
+Bu ozellik cocugunuzun sanatsal ve duygusal gelisimini takip etmenize yardimci olur.`,
+    category: 'analysis',
+    priority: 5,
+  },
+  {
+    id: 'analysis_008',
+    keywords: ['aile', 'resmi', 'anne', 'baba', 'kardes'],
+    question: 'Aile resmi ne anlatiyor?',
+    answer: `**Aile Resmi Analizi:**
+
+Cocuklarin aile resimleri genellikle:
+- Aile ici iliskileri yansitir
+- Kendini konumlandirmayi gosterir
+- Duygusal baglari ifade eder
+
+**Dikkat:**
+- Buyuk cizilen = onemli/etkili
+- Yakin cizilen = duygusal yakinlik
+- Eksik bireyler her zaman olumsuz degil
+
+Tek resme dayanarak yorum yapmaktan kacinin.`,
+    category: 'analysis',
+    priority: 6,
+  },
+  {
+    id: 'analysis_009',
+    keywords: ['canavar', 'korkunc', 'karanlik', 'siddet', 'kavga'],
+    question: 'Cocugum korkunc seyler ciziyor, normal mi?',
+    answer: `**Korkunc Temalar:**
+
+Canavarlar ve karanlik temalar genellikle NORMALDIR:
+- Korkulari isleme yontemi
+- Hayal gucunun bir parcasi
+- Medyadan etkilenme
+
+**Ne zaman dikkat etmeli:**
+- Surekli ve yogun siddet
+- Kendine zarar temalari
+- Ani ve dramatik degisimler
+
+Bu durumlarda bir uzmanla konusmanizi oneririz.`,
+    category: 'analysis',
+    priority: 8,
+  },
+  {
+    id: 'analysis_010',
+    keywords: ['aktivite', 'oneri', 'etkinlik', 'ne yapabilirim'],
+    question: 'Analize gore ne yapabilirim?',
+    answer: `**Aktivite Onerileri:**
+
+Her analizden sonra kisisellestirilmis oneriler sunuyoruz:
+- Sanat aktiviteleri
+- Oyun onerileri
+- Konusma baslangic noktalari
+- Kitap/film onerileri
+
+Oneriler cocugunuzun yasina ve cizimdeki temalara gore uyarlanir.`,
+    category: 'analysis',
+    priority: 5,
   },
 
-  // === HESAP & AYARLAR ===
+  // ============================================
+  // INTERAKTIF MASAL (8 FAQ)
+  // ============================================
   {
-    keywords: ['çocuk', 'ekle', 'profil', 'kayıt'],
-    question: 'Çocuk profili nasıl eklerim?',
-    answer: `👧 **Çocuk Profili Ekleme:**
+    id: 'interactive_001',
+    keywords: ['interaktif', 'secim', 'macera', 'interactive', 'secimli', 'nedir', 'ne'],
+    question: 'Interaktif masal nedir?',
+    answer: `**Interaktif Masal:**
 
-1. Alt menüden "Profil" sekmesine gidin
-2. "Çocuk Ekle" butonuna tıklayın
-3. Çocuğunuzun adını ve yaşını girin
-4. İsteğe bağlı olarak cinsiyet seçin
+Cocugunuzun hikayede aktif rol aldigi ozel bir masal turudur!
 
-Birden fazla çocuk ekleyebilirsiniz! Her çocuk için ayrı hikayeler ve analizler tutulur.`,
+**Nasil Calisir:**
+- Hikaye ilerlerken cocugunuz secimler yapar
+- Her secim hikayenin gidisatini degistirir
+- Secimler kisilik ozelliklerini yansitir
+
+**Ebeveyn Raporu:**
+- Cocugunuzun secimlerinin analizi
+- Empati, cesaret, merak gibi ozelliklerin degerlendirmesi
+
+Masal olusturuken "Interaktif Masal" secenegini secerek deneyebilirsiniz!`,
+    category: 'interactive',
+    priority: 10,
+  },
+  {
+    id: 'interactive_002',
+    keywords: ['ebeveyn', 'rapor', 'secim', 'analiz', 'sonuc'],
+    question: 'Ebeveyn raporu ne ise yarar?',
+    answer: `**Ebeveyn Raporu:**
+
+Interaktif masaldan sonra sunulan detayli analiz:
+
+**Icerir:**
+- Yapilan secimlerin ozeti
+- Kisilik egilimlerinin degerlendirmesi
+- Empati, cesaret, merak skorlari
+- Onerilen aktiviteler
+
+Rapor, cocugunuzu daha iyi anlamaniza yardimci olur.`,
+    category: 'interactive',
+    priority: 8,
+  },
+  {
+    id: 'interactive_003',
+    keywords: ['secim', 'kac', 'tane', 'nokta', 'karar'],
+    question: 'Interaktif masalda kac secim noktasi var?',
+    answer: `**Secim Noktalari:**
+
+Her interaktif masalda ortalama:
+- 4-6 secim noktasi
+- Her noktada 2-3 secenek
+- Farkli sonlara ulasan yollar
+
+Masalin uzunluguna gore secim sayisi degisebilir.`,
+    category: 'interactive',
+    priority: 5,
+  },
+  {
+    id: 'interactive_004',
+    keywords: ['tekrar', 'farkli', 'son', 'yeniden', 'baska'],
+    question: 'Farkli secimlerle tekrar oynayabilir miyim?',
+    answer: `**Tekrar Oynama:**
+
+Evet! Ayni masali farkli secimlerle tekrar oynayabilirsiniz:
+1. Masali acin
+2. "Yeniden Baslat" butonuna basin
+3. Farkli secimler yapin
+
+Her farkli kombinasyon kaydedilir ve karsilastirabilirsiniz.`,
+    category: 'interactive',
+    priority: 6,
+  },
+  {
+    id: 'interactive_005',
+    keywords: ['yas', 'kucuk', 'buyuk', 'uygun', 'zor'],
+    question: 'Interaktif masal kac yas icin uygun?',
+    answer: `**Yas Uygunlugu:**
+
+- **3-4 yas:** Basit secimler, ebeveyn yardimi ile
+- **5-7 yas:** Bagimsiz oynayabilir
+- **8+ yas:** Karmasik secimler, derin hikayeler
+
+Secim zorluğu cocugunuzun yasina gore otomatik ayarlanir.`,
+    category: 'interactive',
+    priority: 7,
+  },
+  {
+    id: 'interactive_006',
+    keywords: ['birlikte', 'beraber', 'aile', 'oyna'],
+    question: 'Cocugumla birlikte oynayabilir miyim?',
+    answer: `**Birlikte Oynama:**
+
+Kesinlikle! Interaktif masallar aile aktivitesi olarak harika:
+- Birlikte secimleri tartisin
+- Cocugunuzun dusuncelerini dinleyin
+- Alternatif sonuclari kesfedin
+
+Bu, kaliteli vakit gecirmenin guzel bir yolu!`,
+    category: 'interactive',
+    priority: 6,
+  },
+  {
+    id: 'interactive_007',
+    keywords: ['kaydet', 'ilerleme', 'devam', 'birak', 'sonra'],
+    question: 'Interaktif masali yarim birakabilir miyim?',
+    answer: `**Ilerleme Kaydetme:**
+
+Evet, ilerlemeniz otomatik kaydedilir:
+- Istediginiz zaman cikin
+- "Devam Et" ile kaldiginiz yerden baslayin
+- Tum secimler hatirlanir
+
+Masal 7 gun icinde tamamlanmazsa bastan baslar.`,
+    category: 'interactive',
+    priority: 5,
+  },
+  {
+    id: 'interactive_008',
+    keywords: ['premium', 'ucretsiz', 'sinir', 'limit'],
+    question: 'Interaktif masallar premium mi?',
+    answer: `**Interaktif Masal Erisimi:**
+
+- **Ucretsiz plan:** Ayda 2 interaktif masal
+- **Premium plan:** Sinirsiz interaktif masal
+
+Premium'a gecis icin Ayarlar > Abonelik bolumune bakin.`,
+    category: 'interactive',
+    priority: 6,
+  },
+
+  // ============================================
+  // BOYAMA (8 FAQ)
+  // ============================================
+  {
+    id: 'coloring_001',
+    keywords: ['boyama', 'boya', 'renklendirme', 'coloring', 'nasil', 'yapilir', 'calisir', 'color'],
+    question: 'Boyama ozelligi nasil calisir?',
+    answer: `**Boyama Ozelligi:**
+
+Cocugunuzun cizimlerinden boyama sayfalari olusturabilirsiniz:
+1. "Boyama" sekmesine gidin
+2. Bir cizim secin veya yukleyin
+3. AI siyah-beyaz boyama sayfasi olusturur
+4. Dijital olarak boyayin veya yazdirup kagit uzerinde boyayin
+
+Renkli kalemler, fircalar ve efektler mevcuttur!`,
+    category: 'coloring',
+    priority: 10,
+  },
+  {
+    id: 'coloring_002',
+    keywords: ['yazdir', 'kagit', 'cikti', 'print'],
+    question: 'Boyama sayfasini yazdirabilirim miyim?',
+    answer: `**Yazdirma:**
+
+1. Boyama sayfasini acin
+2. Sag ustteki yazdir ikonuna tiklayin
+3. A4 boyutunda PDF olusturulur
+4. Yazicidan cikti alin
+
+Ipucu: 120+ gr kagit kullanmak daha iyi sonuc verir.`,
+    category: 'coloring',
+    priority: 7,
+  },
+  {
+    id: 'coloring_003',
+    keywords: ['kalem', 'firca', 'arac', 'tool', 'secenek'],
+    question: 'Hangi boyama araclari var?',
+    answer: `**Boyama Araclari:**
+
+- **Renkli kalemler:** Klasik boyama
+- **Sulu boya:** Akmali efekt
+- **Pastel:** Yumusak dokular
+- **Firca:** Farkli kalinliklar
+- **Doldurma:** Tek tikla bolge boyama
+- **Silgi:** Hatalari duzeltme
+
+Renk paleti sinirsiz ve ozellestirilsbilir!`,
+    category: 'coloring',
+    priority: 6,
+  },
+  {
+    id: 'coloring_004',
+    keywords: ['kaydet', 'galeri', 'bitir', 'tamamla'],
+    question: 'Boyadigim resmi nasil kaydederim?',
+    answer: `**Kaydetme:**
+
+- **Otomatik kayit:** Her darbede kaydedilir
+- **Galeri:** Tum boyamalar "Galerilerim"de
+- **Paylasim:** Sosyal medyada paylasin
+- **Indirme:** PNG veya PDF olarak indirin
+
+Yarim kalan boyamalara istediginiz zaman devam edebilirsiniz.`,
+    category: 'coloring',
+    priority: 6,
+  },
+  {
+    id: 'coloring_005',
+    keywords: ['hazir', 'sablon', 'template', 'ornek'],
+    question: 'Hazir boyama sablonlari var mi?',
+    answer: `**Hazir Sablonlar:**
+
+Evet! 100+ hazir boyama sayfasi:
+- Hayvanlar
+- Masallar
+- Dogа
+- Araclar
+- Mevsimler
+
+Her hafta yeni sablonlar ekleniyor. "Boyama > Kesfet" bolumunden ulasabilirsiniz.`,
+    category: 'coloring',
+    priority: 5,
+  },
+  {
+    id: 'coloring_006',
+    keywords: ['zorluk', 'kolay', 'zor', 'detay', 'seviye'],
+    question: 'Boyama zorluk seviyesi ayarlanabilir mi?',
+    answer: `**Zorluk Seviyeleri:**
+
+- **Kolay:** Buyuk alanlar, az detay (2-4 yas)
+- **Orta:** Daha fazla bolum (5-7 yas)
+- **Zor:** Ince detaylar (8+ yas)
+
+Cizimden boyama sayfasi olustururken zorluk secebilirsiniz.`,
+    category: 'coloring',
+    priority: 5,
+  },
+  {
+    id: 'coloring_007',
+    keywords: ['ses', 'muzik', 'efekt', 'sound'],
+    question: 'Boyama sirasinda ses efektleri var mi?',
+    answer: `**Ses Efektleri:**
+
+Evet! Boyama deneyimini zenginlestiren sesler:
+- Kalem cizikirkenki ses
+- Boya akisi efekti
+- Tamamlama kutlama sesi
+- Arka plan muzigi
+
+Ayarlar > Ses bolumunden acip kapatabilirsiniz.`,
+    category: 'coloring',
+    priority: 3,
+  },
+  {
+    id: 'coloring_008',
+    keywords: ['coklu', 'oyuncu', 'birlikte', 'isbirlikli'],
+    question: 'Birden fazla kisi ayni anda boyayabilir mi?',
+    answer: `**Coklu Oyuncu:**
+
+Su an bu ozellik mevcut degil, ancak gelecek guncellemelerde eklenecek:
+- Aile boyama oturumu
+- Gercek zamanli isbirligi
+- Uzaktan birlikte boyama
+
+Gelismeler icin bizi takip edin!`,
+    category: 'coloring',
+    priority: 2,
+  },
+
+  // ============================================
+  // HESAP & AYARLAR (10 FAQ)
+  // ============================================
+  {
+    id: 'account_001',
+    keywords: ['cocuk', 'ekle', 'profil', 'kayit', 'yeni'],
+    question: 'Cocuk profili nasil eklerim?',
+    answer: `**Cocuk Profili Ekleme:**
+
+1. Alt menuден "Profil" sekmesine gidin
+2. "Cocuk Ekle" butonuna tiklayin
+3. Cocugunuzun adini ve yasini girin
+4. Istege bagli olarak cinsiyet secin
+
+Birden fazla cocuk ekleyebilirsiniz! Her cocuk icin ayri hikayeler ve analizler tutulur.`,
     category: 'account',
+    priority: 10,
   },
   {
-    keywords: ['ücretsiz', 'ücret', 'fiyat', 'maliyet', 'premium'],
-    question: 'Uygulama ücretsiz mi?',
-    answer: `💰 **Fiyatlandırma:**
+    id: 'account_002',
+    keywords: ['ucretsiz', 'ucret', 'fiyat', 'maliyet', 'premium', 'abonelik', 'bedava', 'free', 'parasiz', 'para'],
+    question: 'Uygulama ucretsiz mi?',
+    answer: `**Fiyatlandirma:**
 
-Temel özellikler ücretsizdir:
-- Çizim yükleme
-- Masal oluşturma (günlük limit)
-- Basit analizler
+**Ucretsiz Plan:**
+- Gunluk 3 masal
+- Sinirli analiz
+- Temel boyama araclari
 
-Premium özellikler için abonelik gerekebilir. Detaylı bilgi için uygulama içi ayarlara bakabilirsiniz.`,
+**Premium Plan:**
+- Sinirsiz masal
+- Tum analiz ozellikleri
+- Tum boyama araclari
+- Reklamsiz deneyim
+
+Detayli bilgi icin Ayarlar > Abonelik bolumune bakin.`,
     category: 'account',
+    priority: 9,
+  },
+  {
+    id: 'account_003',
+    keywords: ['sifre', 'degistir', 'password', 'unutum', 'reset'],
+    question: 'Sifremi nasil degistirebilirim?',
+    answer: `**Sifre Degistirme:**
+
+1. Profil > Ayarlar > Guvenlik
+2. "Sifre Degistir" butonuna tiklayin
+3. Mevcut sifrenizi girin
+4. Yeni sifrenizi iki kez girin
+5. Kaydedin
+
+Sifrenizi unuttuysaniz "Sifremi Unuttum" secenegini kullanin.`,
+    category: 'account',
+    priority: 6,
+  },
+  {
+    id: 'account_004',
+    keywords: ['hesap', 'sil', 'kaldir', 'kapat', 'iptal'],
+    question: 'Hesabimi nasil silebilirim?',
+    answer: `**Hesap Silme:**
+
+1. Profil > Ayarlar > Hesap
+2. "Hesabi Sil" secenegine tiklayin
+3. Sebebi belirtin (istege bagli)
+4. Onay verin
+
+**Dikkat:** Bu islem geri alinamaz! Tum verileriniz silinir.`,
+    category: 'account',
+    priority: 5,
+  },
+  {
+    id: 'account_005',
+    keywords: ['bildirim', 'notification', 'uyari', 'mesaj'],
+    question: 'Bildirimleri nasil yonetebilirim?',
+    answer: `**Bildirim Ayarlari:**
+
+Profil > Ayarlar > Bildirimler:
+- **Gunluk hatirlatici:** Masal okuma zamani
+- **Yeni ozellikler:** Guncelleme duyurulari
+- **Ipuclari:** Kullanim onerileri
+
+Her bildirim turunu ayri ayri acip kapatabilirsiniz.`,
+    category: 'account',
+    priority: 4,
+  },
+  {
+    id: 'account_006',
+    keywords: ['veri', 'indir', 'export', 'yedek', 'backup'],
+    question: 'Verilerimi indirebilir miyim?',
+    answer: `**Veri Indirme:**
+
+Evet! KVKK kapsaminda tum verilerinizi indirebilirsiniz:
+1. Profil > Ayarlar > Gizlilik
+2. "Verilerimi Indir" butonuna tiklayin
+3. ZIP dosyasi olusturulur
+
+Icerdikleri: Masallar, cizsimler, analizler, profil bilgileri.`,
+    category: 'account',
+    priority: 5,
+  },
+  {
+    id: 'account_007',
+    keywords: ['cihaz', 'telefon', 'tablet', 'senkron', 'sync'],
+    question: 'Birden fazla cihazda kullanabilir miyim?',
+    answer: `**Coklu Cihaz:**
+
+Evet! Hesabinizla istediginiz cihazda giris yapin:
+- Telefon
+- Tablet
+- Bilgisayar (yaklnda)
+
+Tum verileriniz otomatik senkronize olur.`,
+    category: 'account',
+    priority: 6,
+  },
+  {
+    id: 'account_008',
+    keywords: ['iptal', 'abonelik', 'premium', 'vazgec'],
+    question: 'Premium aboneligimi nasil iptal ederim?',
+    answer: `**Abonelik Iptali:**
+
+1. Profil > Ayarlar > Abonelik
+2. "Aboneligi Iptal Et" tiklayin
+3. Iptal sebebini belirtin
+4. Onaylayin
+
+Donem sonuna kadar premium ozellikler aktif kalir. Istediginiz zaman yeniden abone olabilirsiniz.`,
+    category: 'account',
+    priority: 7,
+  },
+  {
+    id: 'account_009',
+    keywords: ['guvenli', 'veri', 'gizlilik', 'privacy', 'kvkk'],
+    question: 'Verilerim guvende mi?',
+    answer: `**Gizlilik & Guvenlik:**
+
+Cocugunuzun guvenligi bizim icin en onemli onceliktir.
+
+**Guvenlik Onlemleri:**
+- Tum veriler sifreli olarak saklanir
+- Cizimler ve hikayeler sadece size ozeldir
+- Ucuncu taraflarla paylasilmaz
+- KVKK uyumlu veri isleme
+
+Gizlilik politikamizi Ayarlar > Gizlilik bolumunden inceleyebilirsiniz.`,
+    category: 'account',
+    priority: 9,
+  },
+  {
+    id: 'account_010',
+    keywords: ['destek', 'iletisim', 'contact', 'email', 'yardim'],
+    question: 'Destekle nasil iletisime gecerim?',
+    answer: `**Destek Iletisimi:**
+
+Birkaс yol var:
+1. **Uygulama ici:** Profil > Destek > Mesaj Gonder
+2. **E-posta:** destek@renkioo.com
+3. **SSS:** Bu chatbot ile cogu soruya cevap bulabilirsiniz
+
+Genellikle 24 saat icinde yanit veriyoruz.`,
+    category: 'account',
+    priority: 8,
   },
 
-  // === TEKNİK ===
+  // ============================================
+  // TEKNIK & SORUN GIDERME (7 FAQ)
+  // ============================================
   {
-    keywords: ['hata', 'çalışmıyor', 'sorun', 'bug', 'problem'],
-    question: 'Bir sorun yaşıyorum, ne yapmalıyım?',
-    answer: `🔧 **Sorun Giderme:**
+    id: 'technical_001',
+    keywords: ['hata', 'calismıyor', 'sorun', 'bug', 'problem', 'error'],
+    question: 'Bir sorun yasiyorum, ne yapmaliyim?',
+    answer: `**Sorun Giderme:**
 
-1. **Uygulamayı yeniden başlatın**
-2. **İnternet bağlantınızı kontrol edin**
-3. **Uygulamayı güncelleyin**
+1. **Uygulamayi yeniden baslatin**
+2. **Internet baglantinizi kontrol edin**
+3. **Uygulamayi guncelleyin**
 
 Sorun devam ederse:
-- Profil > Ayarlar > Destek bölümünden bize ulaşın
-- Hatanın ekran görüntüsünü paylaşın
+- Profil > Ayarlar > Destek bolumunden bize ulasin
+- Hatanin ekran goruntusunu paylasin
 
-Yardımcı olmaktan mutluluk duyarız! 💜`,
-    category: 'general',
+Yardimci olmaktan mutluluk duyariz!`,
+    category: 'technical',
+    priority: 10,
   },
   {
-    keywords: ['güvenli', 'veri', 'gizlilik', 'privacy'],
-    question: 'Verilerim güvende mi?',
-    answer: `🔒 **Gizlilik & Güvenlik:**
+    id: 'technical_002',
+    keywords: ['yavas', 'slow', 'donuyor', 'takiliyor', 'kasıyor'],
+    question: 'Uygulama yavas calisiyor, ne yapabilirim?',
+    answer: `**Performans Iyilestirme:**
 
-Çocuğunuzun güvenliği bizim için en önemli önceliktir.
+1. **Onbellek temizleyin:** Ayarlar > Depolama > Onbellek Temizle
+2. **Arka plan uygulamalarini kapatin**
+3. **Cihazinizi yeniden baslatin**
+4. **Uygulamayi guncelleyin**
 
-**Güvenlik Önlemleri:**
-- Tüm veriler şifreli olarak saklanır
-- Çizimler ve hikayeler sadece size özeldir
-- Üçüncü taraflarla paylaşılmaz
-- KVKK uyumlu veri işleme
+Eski cihazlarda performans dusuk olabilir.`,
+    category: 'technical',
+    priority: 7,
+  },
+  {
+    id: 'technical_003',
+    keywords: ['guncelle', 'update', 'versiyon', 'yeni', 'surum'],
+    question: 'Uygulamayi nasil guncellerim?',
+    answer: `**Guncelleme:**
 
-Gizlilik politikamızı Ayarlar > Gizlilik bölümünden inceleyebilirsiniz.`,
-    category: 'account',
+- **iOS:** App Store > Guncellemeler > Renkioo
+- **Android:** Play Store > Uygulamalarim > Guncelle
+
+Otomatik guncelleme icin cihaz ayarlarinizi kontrol edin. En son surumu kullanmanizi oneririz.`,
+    category: 'technical',
+    priority: 6,
+  },
+  {
+    id: 'technical_004',
+    keywords: ['internet', 'baglanti', 'offline', 'cevrimdisi'],
+    question: 'Internet olmadan kullanabilir miyim?',
+    answer: `**Cevrimdisi Kullanim:**
+
+Sinirli ozellikler cevrimdisi calisir:
+- Onceden indirilen masallari okuma
+- Kaydedilmis boyama sayfalari
+- Galeri görüntüleme
+
+Masal olusturma ve analiz icin internet gereklidir.`,
+    category: 'technical',
+    priority: 5,
+  },
+  {
+    id: 'technical_005',
+    keywords: ['alan', 'depolama', 'yer', 'storage', 'dolu'],
+    question: 'Uygulama ne kadar depolama kullaniyor?',
+    answer: `**Depolama Kullanimi:**
+
+- **Uygulama:** ~100-150 MB
+- **Icerikler:** Kullanima gore degisir
+
+Yer acmak icin:
+1. Ayarlar > Depolama
+2. Onbellek temizle
+3. Eski masallari silin
+
+Ortalama kullanim: 200-500 MB arasi.`,
+    category: 'technical',
+    priority: 4,
+  },
+  {
+    id: 'technical_006',
+    keywords: ['cihaz', 'uyumluluk', 'telefon', 'tablet', 'gereksinim'],
+    question: 'Hangi cihazlarda calisir?',
+    answer: `**Cihaz Uyumlulugu:**
+
+- **iOS:** iPhone 8+, iPad (5. nesil+), iOS 14+
+- **Android:** Android 8.0+, 3GB+ RAM
+
+Daha eski cihazlarda bazi ozellikler kisitli olabilir.`,
+    category: 'technical',
+    priority: 5,
+  },
+  {
+    id: 'technical_007',
+    keywords: ['giris', 'login', 'acilamiyor', 'giremiyorum'],
+    question: 'Giris yapamiyorum, ne yapmaliyim?',
+    answer: `**Giris Sorunlari:**
+
+1. E-posta adresinizi kontrol edin
+2. "Sifremi Unuttum" ile sifre sifirlayin
+3. Sosyal giris kullandiysan ayni yontemi secin
+4. Internet baglantinizi kontrol edin
+
+Hala sorun varsa destek@renkioo.com adresine yazin.`,
+    category: 'technical',
+    priority: 8,
+  },
+
+  // ============================================
+  // GENEL (5 FAQ)
+  // ============================================
+  {
+    id: 'general_001',
+    keywords: ['gelisim', 'yas', 'uygun', 'seviye', 'kac', 'grubu'],
+    question: 'Hangi yas grubu icin uygun?',
+    answer: `**Yas Uygunlugu:**
+
+Renkioo Studio 2-12 yas arasi cocuklar icin tasarlanmistir.
+
+**Yasa Gore Ozellikler:**
+- **2-4 yas:** Basit hikayeler, buyuk gorseller
+- **5-7 yas:** Orta uzunlukta masallar, interaktif secenekler
+- **8-12 yas:** Daha detayli hikayeler, karmasik temalar
+
+Profil ayarlarindan cocugunuzun yasini girerek iceriklerin ona gore uyarlanmasini saglayabilirsiniz.`,
+    category: 'general',
+    priority: 9,
+  },
+  {
+    id: 'general_002',
+    keywords: ['ne', 'renkioo', 'uygulama', 'nedir', 'hakkinda'],
+    question: 'Renkioo Studio nedir?',
+    answer: `**Renkioo Studio:**
+
+Cocuklarin cizimlerinden AI ile kisisellestirilmis masallar olusturan bir uygulamadir.
+
+**Temel Ozellikler:**
+- Cizimden masal olusturma
+- Cizim psikolojik analizi
+- Interaktif secimli hikayeler
+- Dijital boyama
+- PDF indirme ve paylasim
+
+Ebeveynler icin tasarlanan bu uygulama, cocuklarin yaraticiligini destekler.`,
+    category: 'general',
+    priority: 10,
+  },
+  {
+    id: 'general_003',
+    keywords: ['guvenlik', 'cocuk', 'icerik', 'uygun', 'filtre'],
+    question: 'Icerikler cocuklar icin guvenli mi?',
+    answer: `**Icerik Guvenligi:**
+
+Tum icerikler cocuk guvenliggi goz onunde bulundurularak olusturulur:
+- Yasa uygun temalar
+- Siddet icermeyen hikayeler
+- Olumlu mesajlar
+- Ebeveyn kontrolleri
+
+AI modelleri cocuk dostu ciktilar uretmek icin ozel olarak ayarlanmistir.`,
+    category: 'general',
+    priority: 9,
+  },
+  {
+    id: 'general_004',
+    keywords: ['oneri', 'fikir', 'feedback', 'geri', 'bildirim'],
+    question: 'Onerilerimi nasil iletebilirim?',
+    answer: `**Geri Bildirim:**
+
+Fikirleriniz bizim icin degerli!
+
+1. Profil > Ayarlar > Geri Bildirim
+2. Onerinizi yazin
+3. Istege bagli olarak ekran goruntusu ekleyin
+4. Gonderin
+
+Her oneriyi dikkatle degerlendiriyoruz.`,
+    category: 'general',
+    priority: 5,
+  },
+  {
+    id: 'general_005',
+    keywords: ['merhaba', 'selam', 'hey', 'nasilsin', 'iyi', 'gunler'],
+    question: 'Selamlama',
+    answer: `Merhaba! Ben Renkioo'nun yardimci asistaniyim. Size nasil yardimci olabilirim?
+
+Sik sorulan konular:
+- Masal olusturma
+- Cizim analizi
+- Hesap ayarlari
+- Teknik destek
+
+Bir soru sormaktan cekinmeyin!`,
+    category: 'general',
+    priority: 1,
   },
 ];
 
 // ============================================
-// FAQ MATCHING (Keyword-based)
+// TURKCE NORMALIZASYON (Gelistirilmis)
 // ============================================
 
 function normalizeText(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[?!.,]/g, '')
+    .replace(/[?!.,;:'"()[\]{}]/g, '')
     .replace(/ı/g, 'i')
     .replace(/ğ/g, 'g')
     .replace(/ü/g, 'u')
     .replace(/ş/g, 's')
     .replace(/ö/g, 'o')
-    .replace(/ç/g, 'c');
+    .replace(/ç/g, 'c')
+    .replace(/İ/g, 'i')
+    .replace(/Ğ/g, 'g')
+    .replace(/Ü/g, 'u')
+    .replace(/Ş/g, 's')
+    .replace(/Ö/g, 'o')
+    .replace(/Ç/g, 'c')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-function findFAQMatch(userMessage: string): FAQItem | null {
-  const normalized = normalizeText(userMessage);
-  const words = normalized.split(/\s+/);
+function expandWithSynonyms(words: string[]): string[] {
+  const expanded = new Set<string>(words);
 
-  let bestMatch: FAQItem | null = null;
-  let bestScore = 0;
-
-  for (const faq of FAQ_DATABASE) {
-    let score = 0;
-    const normalizedKeywords = faq.keywords.map(normalizeText);
-
-    for (const keyword of normalizedKeywords) {
-      // Exact word match
-      if (words.includes(keyword)) {
-        score += 2;
-      }
-      // Partial match (keyword in message)
-      else if (normalized.includes(keyword)) {
-        score += 1;
-      }
+  for (const word of words) {
+    // Dogrudan synonym eslesmesi
+    if (TURKISH_SYNONYMS[word]) {
+      TURKISH_SYNONYMS[word].forEach(syn => expanded.add(normalizeText(syn)));
     }
 
-    // Require at least 2 keyword matches
-    if (score > bestScore && score >= 2) {
-      bestScore = score;
-      bestMatch = faq;
+    // Ters arama (synonym listesinde mi?)
+    for (const [key, synonyms] of Object.entries(TURKISH_SYNONYMS)) {
+      if (synonyms.map(s => normalizeText(s)).includes(word)) {
+        expanded.add(normalizeText(key));
+        synonyms.forEach(syn => expanded.add(normalizeText(syn)));
+      }
     }
   }
 
-  return bestMatch;
+  return Array.from(expanded);
+}
+
+// ============================================
+// FAQ MATCHING (Gelistirilmis)
+// ============================================
+
+interface FAQMatchResult {
+  faq: FAQItem;
+  score: number;
+  confidence: number;
+}
+
+function findFAQMatch(userMessage: string): FAQMatchResult | null {
+  const normalized = normalizeText(userMessage);
+  const words = normalized.split(/\s+/);
+  const expandedWords = expandWithSynonyms(words);
+
+  const results: FAQMatchResult[] = [];
+
+  for (const faq of FAQ_DATABASE) {
+    let score = 0;
+    let matchedKeywords = 0;
+    const normalizedKeywords = faq.keywords.map(normalizeText);
+
+    // Keyword eslesmesi
+    for (const keyword of normalizedKeywords) {
+      // Tam kelime eslesmesi (orijinal)
+      if (words.includes(keyword)) {
+        score += 3;
+        matchedKeywords++;
+      }
+      // Synonym eslesmesi
+      else if (expandedWords.includes(keyword)) {
+        score += 2;
+        matchedKeywords++;
+      }
+      // Kismi eslesme (sadece 3+ karakter keywordler icin)
+      else if (keyword.length >= 3 && normalized.includes(keyword)) {
+        score += 1;
+        matchedKeywords += 0.5;
+      }
+    }
+
+    // Priority bonusu (daha etkili)
+    score += (faq.priority || 0) * 0.2;
+
+    // Kategori-spesifik keyword bonusu
+    // Eger soru icinde kategoriyle ilgili onemli kelimeler varsa bonus ver
+    const categoryBonus = getCategoryBonus(normalized, faq.category);
+    score += categoryBonus;
+
+    // Dinamik minimum esik: kisa sorular icin daha dusuk
+    const minThreshold = words.length <= 3 ? 1.5 : 2;
+
+    if (score >= minThreshold && matchedKeywords >= 1) {
+      const maxPossibleScore = normalizedKeywords.length * 3 + (faq.priority || 0) * 0.2 + 2;
+      const confidence = Math.min((score / maxPossibleScore) * 100, 100);
+
+      results.push({ faq, score, confidence });
+    }
+  }
+
+  if (results.length === 0) {
+    return null;
+  }
+
+  // En yuksek skora gore sirala
+  results.sort((a, b) => b.score - a.score);
+
+  return results[0];
+}
+
+// Kategori-spesifik bonus fonksiyonu
+function getCategoryBonus(normalizedMessage: string, category: FAQCategory): number {
+  const categoryKeywords: Record<FAQCategory, string[]> = {
+    story: ['masal', 'hikaye', 'oyku', 'olustur', 'pdf'],
+    analysis: ['analiz', 'cizim', 'resim', 'degerlendirme', 'psikoloji'],
+    interactive: ['interaktif', 'secim', 'secimli', 'macera'],
+    coloring: ['boyama', 'boya', 'renk'],
+    account: ['hesap', 'profil', 'ucretsiz', 'premium', 'abonelik', 'fiyat', 'bedava'],
+    technical: ['sorun', 'hata', 'problem', 'calısmiyor', 'yavas'],
+    drawing: ['cizim', 'resim', 'gorsel'],
+    general: ['renkioo', 'uygulama', 'yas'],
+  };
+
+  const keywords = categoryKeywords[category] || [];
+  let bonus = 0;
+
+  for (const keyword of keywords) {
+    if (normalizedMessage.includes(keyword)) {
+      bonus += 1;
+    }
+  }
+
+  return Math.min(bonus, 2); // Maximum 2 bonus
 }
 
 // ============================================
 // AI FALLBACK (Claude Haiku)
 // ============================================
 
-const SYSTEM_PROMPT = `Sen Renkioo Studio uygulamasının yardımcı asistanısın. Türkçe konuşuyorsun.
+const SYSTEM_PROMPT = `Sen Renkioo Studio uygulamasinin yardimci asistanisin. Turkce konusuyorsun.
 
-Renkioo Studio, çocukların çizimlerinden AI ile kişiselleştirilmiş masallar oluşturan bir uygulamadır.
+Renkioo Studio, cocuklarin cizimlerinden AI ile kisisellestirilmis masallar olusturan bir uygulamadir.
 
-Temel özellikler:
-- Çizim yükleme ve AI analizi
-- Çizimden masal oluşturma
-- İnteraktif masallar (seçimli hikayeler)
-- Çizim psikolojik analizi
+Temel ozellikler:
+- Cizim yukleme ve AI analizi
+- Cizimden masal olusturma
+- Interaktif masallar (secimli hikayeler)
+- Cizim psikolojik analizi
+- Dijital boyama
 - PDF indirme
-- Çoklu çocuk profili desteği
+- Coklu cocuk profili destegi
 
-Kuralların:
-1. Kısa ve öz cevaplar ver (max 3-4 cümle)
-2. Samimi ve yardımsever ol
+Kurallarin:
+1. Kisa ve oz cevaplar ver (max 3-4 cumle)
+2. Samimi ve yardimsever ol
 3. Emoji kullan ama abartma
-4. Uygulama dışı konularda kibarca yönlendir
+4. Uygulama disi konularda kibarca yonlendir
 5. Teknik detaylara girme, basit tut
 6. Ebeveynlere hitap ediyorsun
 
-Cevaplarında doğrudan konuya gir, "Tabii ki!" veya "Elbette!" gibi gereksiz girişler yapma.`;
+Cevaplarinda dogrudan konuya gir, "Tabii ki!" veya "Elbette!" gibi gereksiz girisler yapma.`;
 
 async function getAIResponse(
   userMessage: string,
@@ -300,7 +1272,7 @@ async function getAIResponse(
     const textBlock = response.content.find(
       (block): block is Anthropic.TextBlock => block.type === 'text'
     );
-    return textBlock?.text || 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.';
+    return textBlock?.text || 'Uzgunum, su an yanit veremedim. Lutfen tekrar deneyin.';
   }
 
   if (hasOpenAIKey()) {
@@ -323,10 +1295,28 @@ async function getAIResponse(
       temperature: 0.7,
     });
 
-    return response.choices[0]?.message?.content || 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.';
+    return response.choices[0]?.message?.content || 'Uzgunum, su an yanit veremedim. Lutfen tekrar deneyin.';
   }
 
   throw new Error('No AI provider available. Please set ANTHROPIC_API_KEY or OPENAI_API_KEY.');
+}
+
+// ============================================
+// EMBEDDING SEARCH (Lazy Import)
+// ============================================
+
+// Embedding modulu lazy load edilir - sadece gerektiginde yukler
+let embeddingsModule: typeof import('./chatbot-embeddings.js') | null = null;
+
+async function getEmbeddingsModule() {
+  if (!embeddingsModule && process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true') {
+    try {
+      embeddingsModule = await import('./chatbot-embeddings.js');
+    } catch (error) {
+      console.warn('[Chatbot] Embeddings module could not be loaded:', error);
+    }
+  }
+  return embeddingsModule;
 }
 
 // ============================================
@@ -335,24 +1325,91 @@ async function getAIResponse(
 
 export async function processChat(
   userMessage: string,
-  conversationHistory: { role: 'user' | 'assistant'; content: string }[] = []
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[] = [],
+  options: { useEmbeddings?: boolean; sessionId?: string; userId?: string } = {}
 ): Promise<ChatResponse> {
-  // 1. Try FAQ match first (free)
+  const startTime = Date.now();
+  const { useEmbeddings = process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true' } = options;
+
+  // 1. Try keyword-based FAQ match first (free, fast)
   const faqMatch = findFAQMatch(userMessage);
 
-  if (faqMatch) {
-    console.log('[Chatbot] FAQ match found:', faqMatch.question);
+  if (faqMatch && faqMatch.confidence >= 40) {
+    console.log('[Chatbot] FAQ match found:', faqMatch.faq.question, 'Confidence:', faqMatch.confidence.toFixed(1) + '%');
+
+    // Log interaction (async, non-blocking)
+    logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
+
     return {
-      message: faqMatch.answer,
+      message: faqMatch.faq.answer,
       source: 'faq',
-      suggestedQuestions: getSuggestedQuestions(faqMatch.category),
+      suggestedQuestions: getSuggestedQuestions(faqMatch.faq.category),
+      matchedFAQ: faqMatch.faq.id,
+      confidence: faqMatch.confidence,
     };
   }
 
-  // 2. Fallback to AI (low cost)
+  // 2. Try semantic search with embeddings (if enabled)
+  if (useEmbeddings) {
+    try {
+      const embeddings = await getEmbeddingsModule();
+      if (embeddings) {
+        const normalized = normalizeText(userMessage);
+        const words = normalized.split(/\s+/);
+
+        // Hibrit arama: embedding + keyword
+        const results = await embeddings.hybridSearch(userMessage, words, {
+          embeddingWeight: 0.7,
+          keywordWeight: 0.3,
+          matchThreshold: 0.4,
+          matchCount: 3,
+        });
+
+        if (results.length > 0 && results[0].combinedScore >= 0.5) {
+          const bestMatch = results[0];
+          const confidence = bestMatch.combinedScore * 100;
+
+          console.log('[Chatbot] Embedding match found:', bestMatch.question, 'Score:', bestMatch.combinedScore.toFixed(3));
+
+          // Log interaction
+          logInteraction(options, userMessage, bestMatch.answer, 'embedding', bestMatch.id, confidence, startTime);
+
+          return {
+            message: bestMatch.answer,
+            source: 'faq', // UI icin 'faq' olarak goster
+            suggestedQuestions: getSuggestedQuestions(bestMatch.category as FAQCategory),
+            matchedFAQ: bestMatch.id,
+            confidence,
+          };
+        }
+      }
+    } catch (error) {
+      console.warn('[Chatbot] Embedding search failed, falling back to AI:', error);
+    }
+  }
+
+  // 3. Try lower confidence FAQ match
+  if (faqMatch && faqMatch.confidence >= 30) {
+    console.log('[Chatbot] Low confidence FAQ match:', faqMatch.faq.question, 'Confidence:', faqMatch.confidence.toFixed(1) + '%');
+
+    logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
+
+    return {
+      message: faqMatch.faq.answer,
+      source: 'faq',
+      suggestedQuestions: getSuggestedQuestions(faqMatch.faq.category),
+      matchedFAQ: faqMatch.faq.id,
+      confidence: faqMatch.confidence,
+    };
+  }
+
+  // 4. Fallback to AI (low cost)
   console.log('[Chatbot] No FAQ match, using AI...');
   try {
     const aiResponse = await getAIResponse(userMessage, conversationHistory);
+
+    logInteraction(options, userMessage, aiResponse, 'ai', undefined, undefined, startTime);
+
     return {
       message: aiResponse,
       source: 'ai',
@@ -360,11 +1417,41 @@ export async function processChat(
     };
   } catch (error) {
     console.error('[Chatbot] AI error:', error);
+
+    const errorResponse = 'Uzgunum, su an teknik bir sorun yasiyorum. Lutfen biraz sonra tekrar deneyin veya sik sorulan sorulara goz atin.';
+    logInteraction(options, userMessage, errorResponse, 'ai', undefined, undefined, startTime);
+
     return {
-      message: 'Üzgünüm, şu an teknik bir sorun yaşıyorum. Lütfen biraz sonra tekrar deneyin veya sık sorulan sorulara göz atın. 🙏',
+      message: errorResponse,
       source: 'ai',
       suggestedQuestions: getGeneralSuggestions(),
     };
+  }
+}
+
+// Log interaction helper (non-blocking)
+async function logInteraction(
+  options: { sessionId?: string; userId?: string },
+  message: string,
+  response: string,
+  source: 'faq' | 'embedding' | 'ai',
+  matchedFaqId?: string,
+  confidence?: number,
+  startTime?: number
+) {
+  // Sadece embedding modulu yukluyse logla
+  const embeddings = await getEmbeddingsModule();
+  if (embeddings) {
+    embeddings.logChatbotInteraction({
+      sessionId: options.sessionId,
+      userId: options.userId,
+      message,
+      response: response.substring(0, 500), // Truncate for storage
+      source,
+      matchedFaqId,
+      confidence,
+      responseTimeMs: startTime ? Date.now() - startTime : undefined,
+    }).catch(() => {}); // Ignore logging errors
   }
 }
 
@@ -372,32 +1459,47 @@ export async function processChat(
 // SUGGESTED QUESTIONS
 // ============================================
 
-function getSuggestedQuestions(category: string): string[] {
-  const suggestions: Record<string, string[]> = {
+function getSuggestedQuestions(category: FAQCategory): string[] {
+  const suggestions: Record<FAQCategory, string[]> = {
     story: [
-      'İnteraktif masal nedir?',
-      'PDF nasıl indirilir?',
-      'Masal ne kadar sürede hazır olur?',
+      'Interaktif masal nedir?',
+      'PDF nasil indirilir?',
+      'Masal ne kadar surede hazir olur?',
     ],
     interactive: [
-      'Nasıl masal oluşturabilirim?',
-      'Ebeveyn raporu ne işe yarar?',
-      'Hangi yaş grubu için uygun?',
+      'Nasil masal olusturabilirim?',
+      'Ebeveyn raporu ne ise yarar?',
+      'Hangi yas grubu icin uygun?',
     ],
     analysis: [
-      'Çizimler güvende mi?',
-      'Sonuçlar ne kadar güvenilir?',
-      'Profesyonel destek almalı mıyım?',
+      'Cizimler guvende mi?',
+      'Sonuclar ne kadar guvenilir?',
+      'Renk tercihleri ne anlama geliyor?',
+    ],
+    drawing: [
+      'Cizim analizi ne demek?',
+      'Nasil cizim yuklerim?',
+      'Cizim formatlari neler?',
     ],
     account: [
-      'Nasıl çocuk profili eklerim?',
-      'Verilerim güvende mi?',
-      'Uygulama ücretsiz mi?',
+      'Nasil cocuk profili eklerim?',
+      'Verilerim guvende mi?',
+      'Uygulama ucretsiz mi?',
+    ],
+    coloring: [
+      'Boyama araclari neler?',
+      'Yazdirabilirim miyim?',
+      'Hazir sablonlar var mi?',
+    ],
+    technical: [
+      'Uygulama yavas calisiyor',
+      'Giris yapamiyorum',
+      'Nasil guncellerim?',
     ],
     general: [
-      'Nasıl masal oluşturabilirim?',
-      'Çizim analizi ne demek?',
-      'İnteraktif masal nedir?',
+      'Nasil masal olusturabilirim?',
+      'Cizim analizi ne demek?',
+      'Interaktif masal nedir?',
     ],
   };
 
@@ -406,9 +1508,9 @@ function getSuggestedQuestions(category: string): string[] {
 
 function getGeneralSuggestions(): string[] {
   return [
-    'Nasıl masal oluşturabilirim?',
-    'Çizim analizi ne anlama geliyor?',
-    'İnteraktif masal nedir?',
+    'Nasil masal olusturabilirim?',
+    'Cizim analizi ne anlama geliyor?',
+    'Interaktif masal nedir?',
   ];
 }
 
@@ -416,9 +1518,61 @@ function getGeneralSuggestions(): string[] {
 // GET ALL FAQ QUESTIONS (for UI)
 // ============================================
 
-export function getAllFAQQuestions(): { question: string; category: string }[] {
+export function getAllFAQQuestions(): { question: string; category: string; id: string }[] {
   return FAQ_DATABASE.map(faq => ({
+    id: faq.id,
     question: faq.question,
     category: faq.category,
   }));
+}
+
+// ============================================
+// GET FAQ BY ID
+// ============================================
+
+export function getFAQById(id: string): FAQItem | undefined {
+  return FAQ_DATABASE.find(faq => faq.id === id);
+}
+
+// ============================================
+// GET FAQ COUNT
+// ============================================
+
+export function getFAQCount(): { total: number; byCategory: Record<string, number> } {
+  const byCategory: Record<string, number> = {};
+
+  for (const faq of FAQ_DATABASE) {
+    byCategory[faq.category] = (byCategory[faq.category] || 0) + 1;
+  }
+
+  return {
+    total: FAQ_DATABASE.length,
+    byCategory,
+  };
+}
+
+// ============================================
+// SEARCH FAQ (for admin/debug)
+// ============================================
+
+export function searchFAQ(query: string): FAQItem[] {
+  const normalized = normalizeText(query);
+
+  return FAQ_DATABASE.filter(faq => {
+    const questionNorm = normalizeText(faq.question);
+    const answerNorm = normalizeText(faq.answer);
+    const keywordsNorm = faq.keywords.map(normalizeText).join(' ');
+
+    return questionNorm.includes(normalized) ||
+           answerNorm.includes(normalized) ||
+           keywordsNorm.includes(normalized);
+  });
+}
+
+// ============================================
+// GET FAQ DATABASE (for embeddings sync)
+// ============================================
+
+export function getFAQDatabase(): FAQItem[] {
+  return FAQ_DATABASE;
 }

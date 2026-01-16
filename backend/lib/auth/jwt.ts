@@ -22,8 +22,8 @@ export interface TokenPayload {
 export function generateAccessToken(payload: TokenPayload): string {
   return jwt.sign(payload, getJwtSecret(), {
     expiresIn: JWT_EXPIRES_IN,
-    issuer: 'masalbak-studio',
-    audience: 'masalbak-app',
+    issuer: 'renkioo-studio',
+    audience: 'renkioo-app',
   });
 }
 
@@ -33,8 +33,8 @@ export function generateAccessToken(payload: TokenPayload): string {
 export function generateRefreshToken(payload: TokenPayload): string {
   return jwt.sign(payload, getJwtSecret(), {
     expiresIn: REFRESH_TOKEN_EXPIRES_IN,
-    issuer: 'masalbak-studio',
-    audience: 'masalbak-app',
+    issuer: 'renkioo-studio',
+    audience: 'renkioo-app',
   });
 }
 
@@ -45,8 +45,8 @@ export function generateRefreshToken(payload: TokenPayload): string {
 export function verifyToken(token: string): TokenPayload {
   try {
     const decoded = jwt.verify(token, getJwtSecret(), {
-      issuer: 'masalbak-studio',
-      audience: 'masalbak-app',
+      issuer: 'renkioo-studio',
+      audience: 'renkioo-app',
     }) as TokenPayload;
 
     return decoded;

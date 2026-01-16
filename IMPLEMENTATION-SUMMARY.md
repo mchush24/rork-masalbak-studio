@@ -1,4 +1,4 @@
-# MasalBak - Sorun Çözümü ve Güncellemeler
+# Renkioo - Sorun Çözümü ve Güncellemeler
 
 ## ✅ Çözülen Sorunlar
 

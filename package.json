@@ -1,5 +1,5 @@
 {
-  "name": "expo-app",
+  "name": "renkioo",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -94,7 +94,9 @@
     "sharp": "^0.34.5",
     "superjson": "^2.2.5",
     "zod": "^4.1.12",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.2",
+    "@hono/node-server": "^1.19.6",
+    "tsx": "^4.20.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -103,7 +105,6 @@
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
     "@babel/plugin-transform-optional-chaining": "^7.28.5",
     "@expo/ngrok": "^4.1.0",
-    "@hono/node-server": "^1.19.6",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^30.0.0",
     "@types/react": "~19.1.10",
@@ -112,7 +113,6 @@
     "eslint-config-expo": "~10.0.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
-    "tsx": "^4.20.6",
     "typescript": "~5.9.2"
   },
   "engines": {

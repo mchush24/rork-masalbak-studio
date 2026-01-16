@@ -1,4 +1,4 @@
-# MasalBak - Supabase Setup Rehberi
+# Renkioo - Supabase Setup Rehberi
 
 ## 📋 Gerekli Adımlar
 

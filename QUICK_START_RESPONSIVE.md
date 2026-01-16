@@ -2,7 +2,7 @@
 
 ## 🚀 Get Started in 5 Minutes
 
-This guide shows you how to make your components responsive using the MasalBak design system.
+This guide shows you how to make your components responsive using the Renkioo design system.
 
 ---
 

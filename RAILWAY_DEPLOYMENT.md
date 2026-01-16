@@ -1,6 +1,6 @@
 # Railway Deployment Guide
 
-This document outlines what needs to be configured in Railway for deploying the MasalBak Studio application.
+This document outlines what needs to be configured in Railway for deploying the Renkioo Studio application.
 
 ---
 
@@ -191,7 +191,7 @@ Example Password Reset Template:
 ```html
 <h2>Şifre Sıfırlama</h2>
 <p>Merhaba,</p>
-<p>MasalBak hesabınızın şifresini sıfırlamak için aşağıdaki bağlantıya tıklayın:</p>
+<p>Renkioo hesabınızın şifresini sıfırlamak için aşağıdaki bağlantıya tıklayın:</p>
 <p><a href="{{ .ConfirmationURL }}">Şifremi Sıfırla</a></p>
 <p>Bu bağlantı 1 saat geçerlidir.</p>
 <p>Eğer şifre sıfırlama talebinde bulunmadıysanız, bu e-postayı görmezden gelebilirsiniz.</p>

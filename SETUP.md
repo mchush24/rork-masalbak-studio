@@ -1,4 +1,4 @@
-# MasalBak Studio - Backend Setup Guide
+# Renkioo Studio - Backend Setup Guide
 
 ## 🚀 Quick Start
 

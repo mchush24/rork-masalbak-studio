@@ -553,7 +553,7 @@ function EmailStepNew({
           textShadowRadius: 10,
         }}
       >
-        {isLoginMode ? 'Tekrar Hoş Geldiniz!' : 'Masalbak\'a Hoş Geldiniz!'}
+        {isLoginMode ? 'Tekrar Hoş Geldiniz!' : 'Renkioo\'ya Hoş Geldiniz!'}
       </Text>
       <Text
         style={{

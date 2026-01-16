@@ -94,14 +94,14 @@ export interface TokenPayload {
 export function generateAccessToken(payload: TokenPayload): string {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
-    issuer: 'masalbak-studio',
+    issuer: 'renkioo-studio',
   });
 }
 
 export function generateRefreshToken(payload: TokenPayload): string {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: REFRESH_TOKEN_EXPIRES_IN,
-    issuer: 'masalbak-studio',
+    issuer: 'renkioo-studio',
   });
 }
 

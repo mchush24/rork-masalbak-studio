@@ -1,5 +1,5 @@
 /**
- * Design Tokens - MasalBak Design System
+ * Design Tokens - Renkioo Design System
  * Tüm uygulama boyunca tutarlı tasarım için merkezi token tanımları
  */
 

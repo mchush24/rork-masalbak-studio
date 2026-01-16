@@ -1,6 +1,6 @@
-# MasalBak Design System Guide
+# Renkioo Design System Guide
 
-Complete guide for using the MasalBak design system utilities.
+Complete guide for using the Renkioo design system utilities.
 
 ## Table of Contents
 

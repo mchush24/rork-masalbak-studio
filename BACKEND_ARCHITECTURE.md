@@ -1,8 +1,8 @@
-# MasalBak Backend Architecture - Comprehensive Design
+# Renkioo Backend Architecture - Comprehensive Design
 
 ## 📋 Executive Summary
 
-Bu belge, MasalBak Studio uygulamasının tam backend entegrasyonu için gerekli mimariyi tanımlar.
+Bu belge, Renkioo Studio uygulamasının tam backend entegrasyonu için gerekli mimariyi tanımlar.
 
 ### Mevcut Durum Analizi
 

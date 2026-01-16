@@ -1,4 +1,4 @@
-# 🚀 MasalBak - Hızlı Başlangıç
+# 🚀 Renkioo - Hızlı Başlangıç
 
 ## Ne Yapacağız?
 

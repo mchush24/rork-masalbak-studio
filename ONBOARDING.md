@@ -2,7 +2,7 @@
 
 ## Genel Bakış
 
-Masalbak Studio için kullanıcı karşılama (onboarding) ve e-posta tabanlı kayıt sistemi kuruldu.
+Renkioo Studio için kullanıcı karşılama (onboarding) ve e-posta tabanlı kayıt sistemi kuruldu.
 
 ## Özellikler
 

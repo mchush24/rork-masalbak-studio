@@ -1,5 +1,5 @@
 /**
- * MasalBak Design System Utilities
+ * Renkioo Design System Utilities
  *
  * Helper functions and utilities for working with the design system
  */

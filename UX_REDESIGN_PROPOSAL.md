@@ -1,4 +1,4 @@
-# UX/UI Redesign Proposal - MasalBak
+# UX/UI Redesign Proposal - Renkioo
 
 ## 🎯 Executive Summary
 

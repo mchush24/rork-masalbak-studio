@@ -1,4 +1,4 @@
-# MasalBak Kurulum Talimatları
+# Renkioo Kurulum Talimatları
 
 ## 📋 Kurulum Adımları
 
@@ -200,7 +200,7 @@ Oluşturulan boyama PDF'lerini listeler
 
 ## 🎉 Başarılı!
 
-Artık MasalBak Studio'yu kullanabilirsiniz:
+Artık Renkioo Studio'yu kullanabilirsiniz:
 - ✨ AI destekli masal kitapları oluşturun
 - 🎨 Çizimlerden boyama PDF'leri yapın
 - 📚 Geçmiş çalışmalarınızı görüntüleyin

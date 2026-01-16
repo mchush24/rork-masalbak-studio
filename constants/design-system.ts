@@ -1,5 +1,5 @@
 /**
- * MasalBak Design System 2.0
+ * Renkioo Design System 2.0
  *
  * Şahane bir çocuk uygulaması için profesyonel tasarım sistemi
  * İlham: Apple HIG, Material Design, Duolingo, Khan Academy Kids

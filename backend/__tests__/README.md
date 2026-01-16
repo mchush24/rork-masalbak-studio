@@ -1,6 +1,6 @@
 # Backend Integration Tests
 
-This directory contains integration tests for the RenkiOO (Masalbak Studio) backend API endpoints.
+This directory contains integration tests for the RenkiOO (Renkioo Studio) backend API endpoints.
 
 ## Test Structure
 

@@ -92,7 +92,7 @@ export const exportDataProcedure = protectedProcedure
       },
       metadata: {
         exportVersion: "1.0",
-        note: "This is a complete export of your personal data as stored in RenkiOO (Masalbak Studio). This export was generated in compliance with GDPR Article 20 (Right to data portability).",
+        note: "This is a complete export of your personal data as stored in Renkioo. This export was generated in compliance with GDPR Article 20 (Right to data portability).",
       },
     };
 
