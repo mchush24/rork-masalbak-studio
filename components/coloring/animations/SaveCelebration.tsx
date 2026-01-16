@@ -154,28 +154,37 @@ export function SaveCelebration({
 
 /**
  * Confetti particles animation
- * Falls back to Skia if Lottie file not available
+ * Uses Lottie animation with Skia fallback
  */
 function ConfettiAnimation() {
-  // TODO: Use Lottie when confetti.json is available
-  // const lottieRef = useRef<LottieView>(null);
-  //
-  // useEffect(() => {
-  //   lottieRef.current?.play();
-  // }, []);
-  //
-  // return (
-  //   <LottieView
-  //     ref={lottieRef}
-  //     source={require('@/assets/animations/confetti.json')}
-  //     style={styles.lottie}
-  //     loop={false}
-  //     autoPlay
-  //   />
-  // );
+  const lottieRef = useRef<LottieView>(null);
+  const [useFallback, setUseFallback] = useState(false);
 
-  // Fallback: Skia confetti
-  return <SkiaConfetti />;
+  useEffect(() => {
+    // Try to play Lottie animation
+    try {
+      lottieRef.current?.play();
+    } catch (error) {
+      console.log('[SaveCelebration] Lottie error, using fallback:', error);
+      setUseFallback(true);
+    }
+  }, []);
+
+  // Use Skia fallback if Lottie fails
+  if (useFallback) {
+    return <SkiaConfetti />;
+  }
+
+  return (
+    <LottieView
+      ref={lottieRef}
+      source={require('@/assets/animations/confetti.json')}
+      style={styles.lottie}
+      loop={false}
+      autoPlay
+      onAnimationFailure={() => setUseFallback(true)}
+    />
+  );
 }
 
 /**

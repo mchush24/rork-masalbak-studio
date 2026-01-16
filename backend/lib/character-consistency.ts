@@ -1,9 +1,24 @@
 /**
  * Character Consistency System
+ * V2 - Prompt Guru Edition
  *
  * Ensures all story pages have consistent character appearance
  * by defining character traits upfront and using them in all prompts.
+ *
+ * Prompt Guru Principles:
+ * - First 20 tokens: Format declaration (CRITICAL for Flux)
+ * - Positive language only (no negatives)
+ * - Weight syntax for emphasis (keyword:1.3)
+ * - Clean, contradiction-free prompts
  */
+
+import {
+  buildFluxStoryPromptV2,
+  getStoryStyleForAge,
+  type CharacterV2,
+  type SceneV2,
+  type StoryStyleV2
+} from "./story-prompt-builder-v2.js";
 
 export interface CharacterDefinition {
   name: string;
@@ -160,7 +175,13 @@ export function defineStoryStyle(language: 'tr' | 'en' = 'tr'): StoryStyle {
 
 /**
  * Generate ULTRA-SPECIFIC consistent prompt for each page
- * Key: Balance character consistency with scene uniqueness
+ * V2 - Prompt Guru Edition
+ *
+ * Key Principles:
+ * - First 20 tokens: Format declaration (CRITICAL)
+ * - No negative language
+ * - Weight syntax for emphasis
+ * - Balance character consistency with scene uniqueness
  */
 export function generateConsistentPrompt(
   character: CharacterDefinition,
@@ -170,96 +191,154 @@ export function generateConsistentPrompt(
   pageNumber: number,
   totalPages: number
 ): string {
-  // CRITICAL: Character definition (same for all pages)
-  const characterBlock = `
-MAIN CHARACTER (CONSISTENT ACROSS STORY):
-${character.appearance}
-Age: ${character.age}
-Clothing: ${character.clothing}
-`.trim();
+  // Extract age as number
+  const ageMatch = character.age.match(/\d+/);
+  const ageNumber = ageMatch ? parseInt(ageMatch[0]) : 5;
 
-  // UNIQUE SCENE ELEMENTS (THIS MUST BE DIFFERENT FOR EACH PAGE!)
-  // Extract unique action words from page text for variety
+  // Extract visual elements from scene description
+  const visualElements = sceneDescription.split(/[,.-]/).map(s => s.trim()).filter(Boolean);
   const actionWords = extractActionFromText(pageText);
+  if (actionWords && actionWords !== 'character in scene') {
+    visualElements.push(actionWords);
+  }
 
-  const sceneBlock = `
-PAGE ${pageNumber} OF ${totalPages} - UNIQUE SCENE:
-${sceneDescription}
+  // Detect emotion from action words and page position
+  let emotion = 'happy';
+  if (pageNumber === 1) emotion = 'curious';
+  else if (pageNumber === totalPages) emotion = 'proud';
+  else if (pageText.toLowerCase().includes('korku') || pageText.toLowerCase().includes('endişe')) emotion = 'worried';
+  else if (pageText.toLowerCase().includes('heyecan')) emotion = 'excited';
 
-ACTION IN THIS SCENE: ${actionWords}
-PAGE POSITION: ${pageNumber === 1 ? 'STORY OPENING - introduce character' : pageNumber === totalPages ? 'STORY ENDING - happy resolution' : 'STORY MIDDLE - adventure continues'}
-`.trim();
+  // Convert to V2 format
+  const characterV2: CharacterV2 = {
+    name: character.name,
+    type: character.appearance.split(':')[0]?.trim() || 'animal',
+    gender: 'female', // Default
+    age: ageNumber,
+    appearance: character.appearance,
+    personality: character.style.split(',').map(s => s.trim()),
+    speechStyle: 'friendly'
+  };
 
-  // Art style
-  const styleBlock = `
-ART STYLE: ${style.artStyle}, ${style.colorPalette}
-MOOD: ${style.mood}
-`.trim();
+  const sceneV2: SceneV2 = {
+    pageNumber,
+    totalPages,
+    beat: sceneDescription,
+    emotion,
+    visualElements
+  };
 
-  // Rules
-  const rules = `
-RULES:
-- NO TEXT/LETTERS in image
-- Character is main focus
-- Simple background
-- Professional children's book illustration
-`.trim();
+  // Use V2 Flux-optimized prompt builder
+  const styleV2: StoryStyleV2 = {
+    artStyle: style.artStyle,
+    colorPalette: style.colorPalette.split(',').map(s => s.trim()),
+    mood: style.mood
+  };
 
-  return `${characterBlock}\n\n${sceneBlock}\n\n${styleBlock}\n\n${rules}`;
+  return buildFluxStoryPromptV2(characterV2, sceneV2, styleV2);
 }
 
 /**
  * Extract action verbs and key elements from text for scene uniqueness
+ * Comprehensive Turkish verb mapping for accurate scene description
  */
 function extractActionFromText(text: string): string {
   const lowerText = text.toLowerCase();
   const actions: string[] = [];
 
-  // Turkish action verbs
+  // Comprehensive Turkish action verbs (past tense, present continuous, infinitive)
   const actionMap: Record<string, string> = {
-    'koştu': 'running',
-    'koşuyor': 'running',
-    'zıpladı': 'jumping',
-    'zıplıyor': 'jumping',
-    'uçtu': 'flying',
-    'uçuyor': 'flying',
-    'yürüdü': 'walking',
-    'yürüyor': 'walking',
-    'oturdu': 'sitting',
-    'oturuyor': 'sitting',
-    'uyudu': 'sleeping',
-    'uyuyor': 'sleeping',
-    'güldü': 'laughing',
-    'gülüyor': 'laughing',
-    'ağladı': 'crying',
-    'ağlıyor': 'crying',
-    'baktı': 'looking',
-    'bakıyor': 'looking',
-    'buldu': 'finding something',
-    'buluyor': 'finding something',
-    'aldı': 'taking/holding',
-    'alıyor': 'taking/holding',
-    'verdi': 'giving',
-    'veriyor': 'giving',
-    'oynadı': 'playing',
-    'oynuyor': 'playing',
-    'yedi': 'eating',
-    'yiyor': 'eating',
-    'içti': 'drinking',
-    'içiyor': 'drinking',
-    'sarıldı': 'hugging',
-    'sarılıyor': 'hugging',
-    'el salladı': 'waving',
-    'gizlendi': 'hiding',
-    'gizleniyor': 'hiding',
-    'tırmandı': 'climbing',
-    'tırmanıyor': 'climbing',
-    'yüzdü': 'swimming',
-    'yüzüyor': 'swimming',
-    'dans etti': 'dancing',
-    'dans ediyor': 'dancing',
-    'şarkı söyledi': 'singing',
-    'şarkı söylüyor': 'singing',
+    // Movement verbs
+    'koştu': 'running', 'koşuyor': 'running', 'koşmak': 'running', 'koşarak': 'running',
+    'zıpladı': 'jumping', 'zıplıyor': 'jumping', 'zıplamak': 'jumping', 'zıplayarak': 'jumping',
+    'uçtu': 'flying', 'uçuyor': 'flying', 'uçmak': 'flying', 'uçarak': 'flying',
+    'yürüdü': 'walking', 'yürüyor': 'walking', 'yürümek': 'walking', 'yürüyerek': 'walking',
+    'tırmandı': 'climbing', 'tırmanıyor': 'climbing', 'tırmanmak': 'climbing',
+    'yüzdü': 'swimming', 'yüzüyor': 'swimming', 'yüzmek': 'swimming',
+    'kaydı': 'sliding', 'kayıyor': 'sliding', 'kaymak': 'sliding',
+    'atladı': 'jumping over', 'atlıyor': 'jumping over', 'atlamak': 'jumping over',
+    'düştü': 'falling', 'düşüyor': 'falling', 'düşmek': 'falling',
+    'kalktı': 'standing up', 'kalkıyor': 'standing up', 'kalkmak': 'standing up',
+    'döndü': 'turning', 'dönüyor': 'turning', 'dönmek': 'turning',
+
+    // Posture verbs
+    'oturdu': 'sitting', 'oturuyor': 'sitting', 'oturmak': 'sitting',
+    'uyudu': 'sleeping', 'uyuyor': 'sleeping', 'uyumak': 'sleeping',
+    'yattı': 'lying down', 'yatıyor': 'lying down', 'yatmak': 'lying down',
+    'durdu': 'standing', 'duruyor': 'standing', 'durmak': 'standing',
+    'eğildi': 'bending', 'eğiliyor': 'bending', 'eğilmek': 'bending',
+    'uzandı': 'stretching', 'uzanıyor': 'stretching', 'uzanmak': 'stretching',
+
+    // Emotional expressions
+    'güldü': 'laughing', 'gülüyor': 'laughing', 'gülmek': 'laughing', 'gülerek': 'laughing',
+    'ağladı': 'crying', 'ağlıyor': 'crying', 'ağlamak': 'crying',
+    'şaşırdı': 'surprised', 'şaşırıyor': 'surprised', 'şaşırmak': 'surprised',
+    'korktu': 'scared', 'korkuyor': 'scared', 'korkmak': 'scared',
+    'sevindi': 'happy', 'seviniyor': 'happy', 'sevinmek': 'happy',
+    'üzüldü': 'sad', 'üzülüyor': 'sad', 'üzülmek': 'sad',
+    'kızdı': 'angry', 'kızıyor': 'angry', 'kızmak': 'angry',
+    'meraklandı': 'curious', 'meraklanıyor': 'curious',
+    'heyecanlandı': 'excited', 'heyecanlanıyor': 'excited',
+
+    // Interaction verbs
+    'baktı': 'looking', 'bakıyor': 'looking', 'bakmak': 'looking', 'bakarak': 'looking',
+    'gördü': 'seeing', 'görüyor': 'seeing', 'görmek': 'seeing',
+    'dinledi': 'listening', 'dinliyor': 'listening', 'dinlemek': 'listening',
+    'duydu': 'hearing', 'duyuyor': 'hearing', 'duymak': 'hearing',
+    'konuştu': 'talking', 'konuşuyor': 'talking', 'konuşmak': 'talking',
+    'söyledi': 'saying', 'söylüyor': 'saying', 'söylemek': 'saying',
+    'sordu': 'asking', 'soruyor': 'asking', 'sormak': 'asking',
+    'cevapladı': 'answering', 'cevaplıyor': 'answering',
+
+    // Physical interaction
+    'sarıldı': 'hugging', 'sarılıyor': 'hugging', 'sarılmak': 'hugging',
+    'öptü': 'kissing', 'öpüyor': 'kissing', 'öpmek': 'kissing',
+    'tuttu': 'holding', 'tutuyor': 'holding', 'tutmak': 'holding',
+    'bıraktı': 'releasing', 'bırakıyor': 'releasing', 'bırakmak': 'releasing',
+    'itti': 'pushing', 'itiyor': 'pushing', 'itmek': 'pushing',
+    'çekti': 'pulling', 'çekiyor': 'pulling', 'çekmek': 'pulling',
+    'vurdu': 'hitting', 'vuruyor': 'hitting', 'vurmak': 'hitting',
+    'dokundu': 'touching', 'dokunuyor': 'touching', 'dokunmak': 'touching',
+    'okşadı': 'petting', 'okşuyor': 'petting', 'okşamak': 'petting',
+    'el salladı': 'waving', 'el sallıyor': 'waving',
+
+    // Object interaction
+    'aldı': 'taking', 'alıyor': 'taking', 'almak': 'taking',
+    'verdi': 'giving', 'veriyor': 'giving', 'vermek': 'giving',
+    'buldu': 'finding', 'buluyor': 'finding', 'bulmak': 'finding',
+    'kaybetti': 'losing', 'kaybediyor': 'losing', 'kaybetmek': 'losing',
+    'açtı': 'opening', 'açıyor': 'opening', 'açmak': 'opening',
+    'kapattı': 'closing', 'kapatıyor': 'closing', 'kapatmak': 'closing',
+    'kırdı': 'breaking', 'kırıyor': 'breaking', 'kırmak': 'breaking',
+    'yaptı': 'making', 'yapıyor': 'making', 'yapmak': 'making',
+    'çizdi': 'drawing', 'çiziyor': 'drawing', 'çizmek': 'drawing',
+    'boyadı': 'painting', 'boyuyor': 'painting', 'boyamak': 'painting',
+    'yazdı': 'writing', 'yazıyor': 'writing', 'yazmak': 'writing',
+    'okudu': 'reading', 'okuyor': 'reading', 'okumak': 'reading',
+
+    // Activity verbs
+    'oynadı': 'playing', 'oynuyor': 'playing', 'oynamak': 'playing',
+    'yedi': 'eating', 'yiyor': 'eating', 'yemek': 'eating',
+    'içti': 'drinking', 'içiyor': 'drinking', 'içmek': 'drinking',
+    'dans etti': 'dancing', 'dans ediyor': 'dancing', 'dans etmek': 'dancing',
+    'şarkı söyledi': 'singing', 'şarkı söylüyor': 'singing',
+    'gizlendi': 'hiding', 'gizleniyor': 'hiding', 'gizlenmek': 'hiding',
+    'aradı': 'searching', 'arıyor': 'searching', 'aramak': 'searching',
+    'bekledi': 'waiting', 'bekliyor': 'waiting', 'beklemek': 'waiting',
+    'yardım etti': 'helping', 'yardım ediyor': 'helping',
+    'paylaştı': 'sharing', 'paylaşıyor': 'sharing', 'paylaşmak': 'sharing',
+
+    // Nature/outdoor activities
+    'topladı': 'collecting', 'topluyor': 'collecting', 'toplamak': 'collecting',
+    'dikti': 'planting', 'dikiyor': 'planting', 'dikmek': 'planting',
+    'suladı': 'watering', 'suluyor': 'watering', 'sulamak': 'watering',
+    'kokladı': 'smelling', 'kokluyor': 'smelling', 'koklamak': 'smelling',
+    'keşfetti': 'exploring', 'keşfediyor': 'exploring', 'keşfetmek': 'exploring',
+
+    // Dream/imagination
+    'hayal etti': 'imagining', 'hayal ediyor': 'imagining',
+    'düşündü': 'thinking', 'düşünüyor': 'thinking', 'düşünmek': 'thinking',
+    'rüya gördü': 'dreaming', 'rüya görüyor': 'dreaming',
   };
 
   for (const [turkish, english] of Object.entries(actionMap)) {
@@ -268,11 +347,49 @@ function extractActionFromText(text: string): string {
     }
   }
 
-  // Return unique actions or default
+  // Extract scene elements (locations/objects)
+  const sceneElements: string[] = [];
+  const sceneMap: Record<string, string> = {
+    'orman': 'in forest', 'ormanda': 'in forest',
+    'bahçe': 'in garden', 'bahçede': 'in garden',
+    'ev': 'at home', 'evde': 'at home',
+    'okul': 'at school', 'okulda': 'at school',
+    'park': 'in park', 'parkta': 'in park',
+    'deniz': 'by the sea', 'denizde': 'by the sea',
+    'göl': 'by the lake', 'gölde': 'by the lake',
+    'dağ': 'on mountain', 'dağda': 'on mountain',
+    'gökyüzü': 'in sky', 'gökyüzünde': 'in sky',
+    'kale': 'in castle', 'kalede': 'in castle',
+    'mağara': 'in cave', 'mağarada': 'in cave',
+    'köprü': 'on bridge', 'köprüde': 'on bridge',
+    'nehir': 'by river', 'nehirde': 'by river',
+    'çiçek': 'with flowers', 'çiçekler': 'with flowers',
+    'ağaç': 'by tree', 'ağaçta': 'in tree',
+    'bulut': 'in clouds', 'bulutlar': 'in clouds',
+    'yıldız': 'under stars', 'yıldızlar': 'under stars',
+    'ay': 'under moon', 'ayın': 'under moon',
+    'güneş': 'in sunshine', 'güneşin': 'in sunshine',
+  };
+
+  for (const [turkish, english] of Object.entries(sceneMap)) {
+    if (lowerText.includes(turkish)) {
+      sceneElements.push(english);
+    }
+  }
+
+  // Combine unique actions and scene elements
   const uniqueActions = [...new Set(actions)];
-  return uniqueActions.length > 0
-    ? uniqueActions.slice(0, 3).join(', ')
-    : 'character in scene';
+  const uniqueScenes = [...new Set(sceneElements)];
+
+  const result: string[] = [];
+  if (uniqueActions.length > 0) {
+    result.push(uniqueActions.slice(0, 3).join(', '));
+  }
+  if (uniqueScenes.length > 0) {
+    result.push(uniqueScenes.slice(0, 2).join(', '));
+  }
+
+  return result.length > 0 ? result.join(' - ') : 'character in scene';
 }
 
 /**

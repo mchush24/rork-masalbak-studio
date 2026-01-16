@@ -9,6 +9,7 @@ import {
   Share,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,6 +24,8 @@ import {
   Frown,
   Meh,
 } from 'lucide-react-native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import { spacing, borderRadius, typography, shadows } from '@/lib/design-tokens';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import { AnalysisShareCard } from '@/components/AnalysisShareCard';
@@ -84,9 +87,259 @@ export default function AnalysisResultScreen() {
     }
   };
 
-  const handleDownload = () => {
-    Alert.alert('İndir', 'PDF olarak indirme özelliği yakında!');
-    // TODO: PDF generation and download
+  const handleDownload = async () => {
+    if (!analysisData) return;
+
+    try {
+      const analysisResult = analysisData.analysis_result || {};
+      const insights = analysisResult.insights || [];
+      const homeTips = analysisResult.homeTips || [];
+      const formattedDate = new Date(analysisData.created_at).toLocaleDateString('tr-TR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      // Generate HTML for PDF
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              background: linear-gradient(135deg, #1A2332, #2E3F5C);
+              color: #333;
+              padding: 40px;
+              min-height: 100vh;
+            }
+            .container {
+              max-width: 800px;
+              margin: 0 auto;
+              background: white;
+              border-radius: 24px;
+              padding: 40px;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 32px;
+              padding-bottom: 24px;
+              border-bottom: 2px solid #E2E8F0;
+            }
+            .logo {
+              font-size: 28px;
+              font-weight: 800;
+              color: #2E3F5C;
+              margin-bottom: 8px;
+            }
+            .logo span { color: #FFD56B; }
+            .title {
+              font-size: 24px;
+              font-weight: 700;
+              color: #1E293B;
+              margin-bottom: 8px;
+            }
+            .date {
+              font-size: 14px;
+              color: #64748B;
+            }
+            .test-type {
+              display: inline-block;
+              background: linear-gradient(135deg, #6366F1, #8B5CF6);
+              color: white;
+              padding: 6px 16px;
+              border-radius: 20px;
+              font-size: 12px;
+              font-weight: 600;
+              margin-top: 12px;
+            }
+            .summary-card {
+              background: linear-gradient(135deg, #F0F4FF, #E8EFFF);
+              border-radius: 16px;
+              padding: 24px;
+              margin-bottom: 24px;
+              border-left: 4px solid #6366F1;
+            }
+            .summary-text {
+              font-size: 16px;
+              color: #1E293B;
+              line-height: 1.6;
+              font-weight: 500;
+            }
+            .section {
+              margin-bottom: 28px;
+            }
+            .section-title {
+              font-size: 18px;
+              font-weight: 700;
+              color: #1E293B;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+            .section-title::before {
+              content: '';
+              width: 4px;
+              height: 20px;
+              background: #6366F1;
+              border-radius: 2px;
+            }
+            .insight-item {
+              background: #F8FAFC;
+              border-radius: 12px;
+              padding: 16px;
+              margin-bottom: 12px;
+              border-left: 3px solid #A78BFA;
+            }
+            .insight-title {
+              font-size: 14px;
+              font-weight: 600;
+              color: #1E293B;
+              margin-bottom: 8px;
+            }
+            .insight-text {
+              font-size: 13px;
+              color: #475569;
+              line-height: 1.5;
+            }
+            .tip-item {
+              background: #F0FDF4;
+              border-radius: 12px;
+              padding: 16px;
+              margin-bottom: 12px;
+              border-left: 3px solid #7ED99C;
+            }
+            .tip-title {
+              font-size: 14px;
+              font-weight: 600;
+              color: #166534;
+              margin-bottom: 8px;
+            }
+            .tip-steps {
+              font-size: 12px;
+              color: #16A34A;
+              line-height: 1.6;
+              padding-left: 16px;
+            }
+            .footer {
+              margin-top: 32px;
+              padding-top: 24px;
+              border-top: 2px solid #E2E8F0;
+              text-align: center;
+            }
+            .disclaimer {
+              background: #FFFBEB;
+              border-radius: 12px;
+              padding: 16px;
+              margin-bottom: 16px;
+              border: 1px solid #FEF3C7;
+            }
+            .disclaimer-title {
+              font-size: 14px;
+              font-weight: 700;
+              color: #92400E;
+              margin-bottom: 8px;
+            }
+            .disclaimer-text {
+              font-size: 12px;
+              color: #A16207;
+              line-height: 1.5;
+            }
+            .footer-text {
+              font-size: 12px;
+              color: #64748B;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="logo">RENK<span>İOO</span></div>
+              <div class="title">Analiz Raporu</div>
+              <div class="date">${formattedDate}</div>
+              <div class="test-type">${analysisData.task_type} Testi</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-text">${insights[0]?.summary || 'Analiz tamamlandı'}</div>
+            </div>
+
+            ${insights.length > 0 ? `
+              <div class="section">
+                <div class="section-title">Gözlemler</div>
+                ${insights.map((insight: any) => `
+                  <div class="insight-item">
+                    <div class="insight-title">${insight.title || 'İçgörü'}</div>
+                    <div class="insight-text">${insight.summary || ''}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            ${homeTips.length > 0 ? `
+              <div class="section">
+                <div class="section-title">Öneriler</div>
+                ${homeTips.map((tip: any) => `
+                  <div class="tip-item">
+                    <div class="tip-title">${tip.title || 'Öneri'}</div>
+                    ${tip.steps?.length > 0 ? `
+                      <div class="tip-steps">
+                        ${tip.steps.map((step: string) => `• ${step}`).join('<br>')}
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <div class="footer">
+              <div class="disclaimer">
+                <div class="disclaimer-title">⚠️ Önemli Uyarı</div>
+                <div class="disclaimer-text">
+                  Bu rapor yapay zeka destekli bir ön değerlendirmedir ve profesyonel psikolojik tanı yerine geçmez.
+                  Endişeleriniz varsa lütfen bir çocuk psikoloğuna danışın.
+                </div>
+              </div>
+              <div class="footer-text">
+                RenkiOO © ${new Date().getFullYear()} - Yapay Zeka Destekli Çocuk Gelişim Analizi
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Generate PDF
+      const { uri } = await Print.printToFileAsync({
+        html,
+        base64: false,
+      });
+
+      // Share or save the PDF
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Analiz Raporunu Kaydet',
+            UTI: 'com.adobe.pdf',
+          });
+        } else {
+          Alert.alert('Başarılı', 'PDF oluşturuldu: ' + uri);
+        }
+      } else {
+        // Web: Print directly
+        await Print.printAsync({ uri });
+      }
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      Alert.alert('Hata', 'PDF oluşturulurken bir hata oluştu');
+    }
   };
 
   const handleSave = () => {

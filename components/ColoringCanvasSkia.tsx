@@ -41,6 +41,26 @@
  * - ✅ Encouraging messages and rewards
  * - ✅ Large touch targets validated (80x80px minimum)
  *
+ * Phase 6 Features (AI-Powered Coloring):
+ * - ✅ AI color suggestions with GPT-4 Vision analysis
+ * - ✅ Mood-based color palettes (8 moods: happy, calm, nature, etc.)
+ * - ✅ Region-specific color recommendations
+ * - ✅ Age-appropriate color adjustments
+ * - ✅ Color harmony tips
+ * - ✅ Magic wand button with sparkle animation
+ * - ✅ Slide-out AI assistant panel
+ * - ✅ Reference image color picker (tap to pick, palette extraction)
+ * - ✅ Dominant color extraction from reference images
+ * - ✅ Color harmony engine (complementary, analogous, triadic, etc.)
+ * - ✅ Warm/cool color temperature detection
+ * - ✅ Quick color suggestions (lighter, darker, vivid, pastel)
+ * - ✅ Premium brushes (watercolor, marker, spray, crayon, highlighter)
+ * - ✅ Brush-specific rendering characteristics
+ * - ✅ Premium/free brush separation with PRO badges
+ * - ✅ ASMR sound system (brush-specific: watercolor swish, marker squeak, etc.)
+ * - ✅ Ambient sounds (nature, rain) for relaxing experience
+ * - ✅ ASMR-optimized volume levels per sound type
+ *
  * Core Features:
  * - 60 FPS GPU-accelerated rendering
  * - Layer-based drawing (Background + Fill + Stroke)
@@ -60,6 +80,7 @@ import { ColoringProvider, useColoring } from './coloring/ColoringContext';
 import { detectDeviceCapabilities } from './coloring/utils/deviceCapability';
 import { BrushPathBuilder } from './coloring/tools/BrushTool';
 import { BrushStroke } from './coloring/tools/BrushTool';
+import { PremiumBrushes, PremiumBrushesCompact, BRUSH_CONFIGS, BrushType as PremiumBrushType, BrushConfig } from './coloring/tools/PremiumBrushes';
 import { ToolSettings } from './coloring/tools/ToolSettings';
 import { performFill } from './coloring/tools/FillTool';
 import { AdaptiveFillAnimation } from './coloring/animations/FillSpreadAnimation';
@@ -67,6 +88,8 @@ import { ColorWheel } from './coloring/color/ColorWheel';
 import { OpacitySlider } from './coloring/color/OpacitySlider';
 import { GradientPicker, GradientConfig } from './coloring/color/GradientPicker';
 import { FavoriteColors } from './coloring/color/FavoriteColors';
+import { ReferenceImagePicker } from './coloring/color/ReferenceImagePicker';
+import { ColorHarmony, ColorHarmonyCompact } from './coloring/color/ColorHarmony';
 import { AdaptiveColorSplash } from './coloring/color/ColorSplashAnimation';
 import { SoundManager } from './coloring/sound/SoundManager';
 import { ToolChangeAnimation, ToolGlowAnimation } from './coloring/animations/ToolChangeAnimation';
@@ -75,6 +98,7 @@ import { SaveCelebration } from './coloring/animations/SaveCelebration';
 import { Tooltip, TOOLTIPS, useTooltip } from './coloring/tutorial/TooltipSystem';
 import { ProgressCelebration, useProgressTracker, MilestoneType } from './coloring/tutorial/ProgressCelebration';
 import { FirstUseGuide, shouldShowFirstUseGuide } from './coloring/tutorial/FirstUseGuide';
+import { AISuggestions } from './coloring/ai/AISuggestions';
 import {
   View,
   StyleSheet,
@@ -256,6 +280,13 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
   // Phase 5: Tutorial & UX state
   const [showFirstUseGuide, setShowFirstUseGuide] = useState(false);
+
+  // Phase 6: AI Suggestions state
+  const [imageBase64ForAI, setImageBase64ForAI] = useState<string | null>(null);
+
+  // Phase 6: Premium Brushes state
+  const [selectedPremiumBrush, setSelectedPremiumBrush] = useState<PremiumBrushType>('standard');
+  const [currentBrushConfig, setCurrentBrushConfig] = useState<BrushConfig>(BRUSH_CONFIGS.standard);
   const { tracker, currentMilestone, showCelebration: showProgress, hideCelebration } = useProgressTracker();
   const firstBrushTooltip = useTooltip(TOOLTIPS.FIRST_BRUSH.id);
   const firstFillTooltip = useTooltip(TOOLTIPS.FIRST_FILL.id);
@@ -312,11 +343,36 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       }
     });
 
+    // Phase 6: Convert background image to base64 for AI suggestions
+    async function loadImageBase64() {
+      try {
+        if (backgroundImage.startsWith('data:')) {
+          // Already base64
+          const base64Data = backgroundImage.split(',')[1];
+          setImageBase64ForAI(base64Data);
+        } else {
+          // Fetch and convert to base64
+          const response = await fetch(backgroundImage);
+          const blob = await response.blob();
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            const base64Data = result.split(',')[1];
+            setImageBase64ForAI(base64Data);
+          };
+          reader.readAsDataURL(blob);
+        }
+      } catch (error) {
+        console.warn('[ColoringCanvas] Failed to load image for AI:', error);
+      }
+    }
+    loadImageBase64();
+
     // Cleanup on unmount
     return () => {
       // SoundManager cleanup is optional (singleton persists)
     };
-  }, []);
+  }, [backgroundImage]);
 
   // Gesture-based touch handler for canvas interactions (Phase 1: Advanced Brush)
   const drawingGesture = Gesture.Pan()
@@ -861,6 +917,19 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
               </Pressable>
             )}
 
+            {/* Premium Brushes Selector (Phase 6) */}
+            {selectedTool === 'brush' && (
+              <PremiumBrushes
+                selectedBrush={selectedPremiumBrush}
+                onBrushSelect={(brushType, config) => {
+                  setSelectedPremiumBrush(brushType);
+                  setCurrentBrushConfig(config);
+                  SoundManager.playToolChange();
+                }}
+                isPremiumUser={deviceCapabilities.tier === 'premium'}
+              />
+            )}
+
             {/* Phase 3: Advanced Color Picker Button */}
             <Pressable
               onPress={() => {
@@ -939,6 +1008,19 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
         onClose={() => setShowToolSettings(false)}
       />
 
+      {/* Phase 6: AI Color Suggestions */}
+      {imageBase64ForAI && (
+        <AISuggestions
+          imageBase64={imageBase64ForAI}
+          ageGroup={5}
+          onColorSelect={(color) => {
+            setCustomColor(color);
+            setUseGradient(false);
+            SoundManager.playColorSelect();
+          }}
+        />
+      )}
+
       {/* Phase 3: Advanced Color Picker Modal */}
       {showAdvancedColorPicker && (
         <View style={styles.colorPickerOverlay}>
@@ -963,6 +1045,21 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
               style={styles.colorPickerContent}
               showsVerticalScrollIndicator={false}
             >
+              {/* Reference Image Picker */}
+              <View style={styles.colorPickerSection}>
+                <Text style={styles.sectionLabel}>📸 Referans Görsel</Text>
+                <ReferenceImagePicker
+                  onColorSelect={(color) => {
+                    setCustomColor(color);
+                    setUseGradient(false);
+                    SoundManager.playColorSelect();
+                  }}
+                  onPaletteExtract={(colors) => {
+                    console.log('[ColorPicker] Extracted palette:', colors);
+                  }}
+                />
+              </View>
+
               {/* Favorite Colors */}
               <View style={styles.colorPickerSection}>
                 <FavoriteColors
@@ -988,6 +1085,18 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                   color={customColor}
                   onChange={setColorOpacity}
                   height={200}
+                />
+              </View>
+
+              {/* Color Harmony Engine */}
+              <View style={styles.colorPickerSection}>
+                <ColorHarmony
+                  baseColor={customColor}
+                  onColorSelect={(color) => {
+                    setCustomColor(color);
+                    setUseGradient(false);
+                    SoundManager.playColorSelect();
+                  }}
                 />
               </View>
 
@@ -1302,6 +1411,13 @@ const styles = StyleSheet.create({
   colorPickerContent: {
     flex: 1,
     paddingVertical: spacing['3'],
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: spacing['2'],
+    paddingHorizontal: spacing['4'],
   },
   colorPickerSection: {
     marginBottom: spacing['4'],

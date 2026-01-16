@@ -1,12 +1,19 @@
 import { logger } from "./utils.js";
 /**
  * Multi-Stage AI Story Generation from Drawing Analysis
+ * V2 - Prompt Guru Edition
  *
  * NEW APPROACH: Break story generation into 4 specialized stages for higher quality
  * 1. Story Outline (character, theme, beats)
  * 2. Scene Expansion (detailed scenes from beats)
  * 3. Dialogue Enhancement (natural conversations)
  * 4. Visual Prompt Generation (consistent, detailed prompts)
+ *
+ * Prompt Guru Principles Applied:
+ * - Token prioritization (first 20 tokens critical)
+ * - Positive language only (no negatives)
+ * - Concrete examples over abstract instructions
+ * - Weight syntax for emphasis (keyword:1.3)
  *
  * Based on research of best AI storybook generators:
  * - Childbook.ai, MyStoryBot, StoryBee, Bedtimestory.ai
@@ -16,6 +23,16 @@ import { logger } from "./utils.js";
 
 import OpenAI from "openai";
 import type { AnalysisResponse } from "../trpc/routes/studio/analyze-drawing.js";
+import {
+  buildFluxStoryPromptV2,
+  getStoryStyleForAge,
+  generateCharacterDNA,
+  getPageSeed,
+  type CharacterV2,
+  type SceneV2,
+  type StoryStyleV2,
+  type CharacterDNA
+} from "./story-prompt-builder-v2.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -44,6 +61,8 @@ export interface StoryGenerationInput {
   themes?: string[];
   childGender?: 'male' | 'female'; // For character gender matching
   therapeuticContext?: TherapeuticContext; // For trauma-informed storytelling
+  // V2: Visual description from drawing analysis - CRITICAL for character/story connection
+  visualDescription?: string; // What the AI actually sees in the drawing (e.g., "A white cat with blue eyes playing with a ball")
 }
 
 export interface CharacterArc {
@@ -92,6 +111,8 @@ export interface GeneratedStory {
   mainCharacter: Character;
   educationalTheme: string;
   mood: 'happy' | 'adventure' | 'calm' | 'magical' | 'therapeutic';
+  // V2: Character DNA for consistent image generation
+  characterDNA?: CharacterDNA;
 }
 
 /**
@@ -399,8 +420,26 @@ ${therapeuticGuidance.avoidance}
   // Determine gender text for prompt
   const genderText = input.childGender === 'male' ? 'Erkek' : input.childGender === 'female' ? 'Kız' : '';
 
+  // V2: Build visual description section - THIS IS CRITICAL for character connection to drawing
+  const visualDescriptionSection = input.visualDescription ? `
+🎨 ÇOK ÖNEMLİ - ÇİZİMDEKİ GÖRSEL (ANA KARAKTER BURADAN TÜRETİLMELİ!):
+"${input.visualDescription}"
+
+ZORUNLU KURALLAR:
+1. Ana karakter ÇİZİMDEKİ VARLIK olmalı! (kedi çizdiyse kedi, tavşan çizdiyse tavşan)
+2. Çizimdeki RENKLER ve ÖZELLİKLER karaktere aktarılmalı
+3. Çizimdeki OBJELER/MEKAN hikayede kullanılmalı
+4. Çocuğun çizdiği şey hikayenin KAHRAMANI olmalı
+
+Örnek: Çizimde "mavi gözlü beyaz kedi top oynuyor" varsa:
+- Ana karakter: Beyaz kedi (mavi gözlü)
+- Hikaye: Top ile ilgili bir macera
+- YANLIŞ: Başka bir hayvan seçmek!
+` : '';
+
   const userPrompt = `Çocuk Yaşı: ${input.childAge}
 ${genderText ? `Çocuğun Cinsiyeti: ${genderText} (ana karakter bu cinsiyete uygun olsun - erkekse erkek hayvan, kızsa kız hayvan)` : ''}
+${visualDescriptionSection}
 Çizim Analizi Bulguları:
 ${insightsSummary}
 
@@ -408,7 +447,7 @@ Tema Önerileri: ${input.themes?.join(', ') || ageParams.themes.join(', ')}
 Hedef Sayfa: ${ageParams.pageCount}
 Ruh Hali: ${mood}
 ${therapeuticSection}
-GÖREV: ${ageParams.pageCount} sayfalık bir hikaye için karakter ve yapı oluştur.${therapeuticGuidance ? ' TERAPÖTİK prensiplere DİKKAT ET!' : ''}
+GÖREV: ${ageParams.pageCount} sayfalık bir hikaye için karakter ve yapı oluştur.${input.visualDescription ? ' ÇİZİMDEKİ VARLIK ana karakter olmalı!' : ''}${therapeuticGuidance ? ' TERAPÖTİK prensiplere DİKKAT ET!' : ''}
 
 JSON format:
 {
@@ -688,57 +727,63 @@ JSON format:
 
 /**
  * STAGE 4: Generate Visual Prompts
+ * V2 - Prompt Guru Edition with Character DNA
  *
- * Create detailed, consistent Flux 2.0 prompts
+ * Create detailed, consistent Flux 2.0 prompts using V2 builder
+ *
+ * Principles Applied:
+ * - CHARACTER FIRST: Anchor tags in highest priority position
+ * - CHARACTER DNA: Same tags in EVERY page
+ * - No negative prompts
+ * - Weight syntax for emphasis
+ * - Consistent seed strategy
  */
 function generateVisualPrompt(
   scene: DetailedScene,
   character: Character,
   pageNumber: number,
-  totalPages: number
+  totalPages: number,
+  characterDNA?: CharacterDNA
 ): string {
-  // Character consistency tags (same for all pages)
-  const characterTags = `${character.type}, ${character.appearance}`;
-
-  // Scene-specific elements
-  const sceneElements = scene.visualElements.join(', ');
-
-  // Emotion-based atmosphere
-  const atmosphereMap: Record<string, string> = {
-    excited: "energetic, bright colors, dynamic composition",
-    worried: "soft muted tones, gentle shadows, concerned expression",
-    happy: "warm bright colors, cheerful atmosphere, smiling",
-    curious: "wonder-filled, exploring, attentive eyes",
-    sad: "gentle pastels, comforting atmosphere, empathetic",
-    proud: "confident posture, warm glowing light, accomplished"
+  // Convert to V2 format
+  const characterV2: CharacterV2 = {
+    name: character.name,
+    type: character.type,
+    gender: 'female', // Default, will be overridden if available
+    age: character.age,
+    appearance: character.appearance,
+    personality: character.personality,
+    speechStyle: character.speechStyle
   };
-  const atmosphere = atmosphereMap[scene.emotion] || "warm, friendly atmosphere";
 
-  // Page position (intro, middle, ending)
-  let composition = "";
-  if (pageNumber === 1) {
-    composition = "character introduction, establishing shot";
-  } else if (pageNumber === totalPages) {
-    composition = "happy ending, satisfied resolution, hopeful";
-  } else {
-    composition = "story progression, narrative flow";
-  }
+  const sceneV2: SceneV2 = {
+    pageNumber,
+    totalPages,
+    beat: scene.visualElements.join(', '),
+    emotion: scene.emotion,
+    visualElements: scene.visualElements
+  };
 
-  const visualPrompt = `Children's storybook watercolor illustration, soft pastel colors, gentle brush strokes.
+  const styleV2: StoryStyleV2 = getStoryStyleForAge(character.age);
 
-CHARACTER (consistent across all pages): ${characterTags}
+  // Use V2 Flux-optimized prompt builder with Character DNA
+  // DNA ensures EXACT same character description in every page
+  return buildFluxStoryPromptV2(characterV2, sceneV2, styleV2, characterDNA);
+}
 
-SCENE: ${sceneElements}, ${atmosphere}
-
-COMPOSITION: ${composition}, simple rounded shapes, child-friendly art style
-
-MOOD: ${scene.emotion}, warm and inviting, age-appropriate for ${character.age} year old
-
-STYLE: Soft watercolor painting, storybook illustration, no text or letters, plain background, focus on character and main scene elements
-
-Technical: Professional children's book illustration, trending on Behance, award-winning children's book art`;
-
-  return visualPrompt;
+/**
+ * Convert Character to CharacterV2 format
+ */
+function characterToV2(character: Character, gender?: 'male' | 'female'): CharacterV2 {
+  return {
+    name: character.name,
+    type: character.type,
+    gender: gender || 'female',
+    age: character.age,
+    appearance: character.appearance,
+    personality: character.personality,
+    speechStyle: character.speechStyle
+  };
 }
 
 /**
@@ -785,16 +830,30 @@ export async function generateStoryFromAnalysisV2(
   logger.info(`[Stage 3] ✅ All ${enhancedScenes.length} scenes enhanced in parallel`);
   logger.info("\n" + "=".repeat(60));
 
-  // STAGE 4: Generate visual prompts
-  logger.info("[Stage 4] 🎨 Generating visual prompts...");
+  // STAGE 4: Generate visual prompts WITH CHARACTER DNA
+  logger.info("[Stage 4] 🎨 Generating visual prompts with Character DNA...");
+
+  // Generate Character DNA ONCE - this ensures EXACT same character in ALL pages
+  const characterV2 = characterToV2(outline.mainCharacter, input.childGender);
+  const characterDNA = generateCharacterDNA(characterV2);
+
+  logger.info("[Stage 4] 🧬 Character DNA generated:", {
+    hash: characterDNA.hash.substring(0, 8),
+    seed: characterDNA.consistencySeed,
+    anchorTags: characterDNA.anchorTags.substring(0, 60) + '...',
+    colorSignature: characterDNA.colorSignature,
+    uniqueFeatures: characterDNA.uniqueFeatures
+  });
+
   const pages: StoryPage[] = enhancedScenes.map(scene => ({
     pageNumber: scene.pageNumber,
     text: scene.text,
     sceneDescription: `${outline.mainCharacter.name} - ${scene.visualElements.join(', ')} - ${scene.emotion}`,
-    visualPrompt: generateVisualPrompt(scene, outline.mainCharacter, scene.pageNumber, scenes.length),
+    // Pass CHARACTER DNA to ensure consistency
+    visualPrompt: generateVisualPrompt(scene, outline.mainCharacter, scene.pageNumber, scenes.length, characterDNA),
     emotion: scene.emotion,
   }));
-  logger.info("[Stage 4] ✅ All visual prompts generated");
+  logger.info("[Stage 4] ✅ All visual prompts generated with same Character DNA");
 
   // Generate title
   const title = input.language === 'tr'
@@ -815,5 +874,7 @@ export async function generateStoryFromAnalysisV2(
     mainCharacter: outline.mainCharacter,
     educationalTheme: outline.educationalValue,
     mood: outline.mood,
+    // V2: Include Character DNA for consistent image generation
+    characterDNA,
   };
 }

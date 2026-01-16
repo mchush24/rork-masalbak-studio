@@ -414,7 +414,8 @@ Only respond with JSON.`;
 
       logger.info("[Suggest Story Themes] ✅ Generated", suggestions.length, "theme suggestions");
       logger.info("[Suggest Story Themes] Content analysis:", contentAnalysis);
-      return { suggestions, contentAnalysis };
+      // V2: Return visual description for story-drawing connection
+      return { suggestions, contentAnalysis, visualDescription: parsed.visualDescription || null };
     } catch (error) {
       logger.error("[Suggest Story Themes] ❌ Error:", error);
       throw new Error(

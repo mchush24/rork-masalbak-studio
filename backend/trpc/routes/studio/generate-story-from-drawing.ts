@@ -41,6 +41,9 @@ const generateStoryInputSchema = z.object({
   drawingDescription: z.string().optional(),
   themes: z.array(z.string()).optional(),
 
+  // V2: Visual description from drawing - CRITICAL for story-drawing connection
+  visualDescription: z.string().optional(), // What AI sees in the drawing (e.g., "A white cat with blue eyes playing with a ball")
+
   // Therapeutic context for trauma-informed storytelling
   therapeuticContext: therapeuticContextSchema,
 
@@ -76,6 +79,14 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
       logger.info("[Generate Story] 💜 Approach:", input.therapeuticContext.therapeuticApproach);
     }
 
+    // V2: Log visual description - this connects story to drawing
+    if (input.visualDescription) {
+      logger.info("[Generate Story] 🎨 VISUAL DESCRIPTION (for character connection):");
+      logger.info("[Generate Story] 🎨", input.visualDescription.substring(0, 200));
+    } else {
+      logger.info("[Generate Story] ⚠️ No visual description provided - character may not match drawing");
+    }
+
     try {
       // Step 1: Generate story using AI (Multi-Stage V2 Generator)
       logger.info("[Generate Story] 📝 Generating story with V2 (Multi-Stage) generator...");
@@ -89,6 +100,8 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         drawingDescription: input.drawingDescription,
         themes: input.themes,
         therapeuticContext: input.therapeuticContext,
+        // V2: Pass visual description for character-drawing connection
+        visualDescription: input.visualDescription,
       });
 
       logger.info("[Generate Story] ✅ Story generated!");

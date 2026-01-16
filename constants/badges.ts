@@ -11,12 +11,21 @@
 export type BadgeRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export type BadgeCategory =
-  | 'first_steps'    // İlk Adımlar
-  | 'creativity'     // Yaratıcılık
-  | 'explorer'       // Kaşif
-  | 'consistency'    // Düzenlilik
-  | 'special'        // Özel Günler
-  | 'secret';        // Gizli
+  | 'first_steps'       // İlk Adımlar
+  | 'creativity'        // Yaratıcılık
+  | 'explorer'          // Kaşif
+  | 'consistency'       // Düzenlilik
+  | 'special'           // Özel Günler
+  | 'secret'            // Gizli
+  // Phase 2: Coloring-specific categories
+  | 'coloring_master'   // Boyama Ustası
+  | 'color_explorer'    // Renk Kaşifi
+  | 'brush_master'      // Fırça Ustası
+  | 'smart_artist'      // Akıllı Sanatçı
+  | 'coloring_streak'   // Boyama Serisi
+  | 'dedication'        // Özveri
+  | 'session'           // Oturum
+  | 'persistence';      // Azim
 
 export type BadgeRequirementType =
   | 'total_analyses'
@@ -28,7 +37,22 @@ export type BadgeRequirementType =
   | 'time_of_day'
   | 'profile_complete'
   | 'first_child'
-  | 'multiple_children';
+  | 'multiple_children'
+  // Phase 2: Coloring-specific requirements
+  | 'completed_colorings'
+  | 'colors_used_total'
+  | 'colors_used_single'
+  | 'brush_types_used'
+  | 'premium_brushes_used'
+  | 'ai_suggestions_used'
+  | 'harmony_colors_used'
+  | 'reference_images_used'
+  | 'coloring_streak'
+  | 'coloring_time_total'
+  | 'quick_coloring'
+  | 'marathon_coloring'
+  | 'undo_and_continue'
+  | 'coloring_time_of_day';
 
 export interface BadgeRequirement {
   type: BadgeRequirementType;
@@ -64,6 +88,15 @@ export const BADGE_CATEGORY_LABELS: Record<BadgeCategory, string> = {
   consistency: 'Düzenlilik',
   special: 'Özel Günler',
   secret: 'Gizli Rozetler',
+  // Phase 2: Coloring categories
+  coloring_master: 'Boyama Ustası',
+  color_explorer: 'Renk Kaşifi',
+  brush_master: 'Fırça Ustası',
+  smart_artist: 'Akıllı Sanatçı',
+  coloring_streak: 'Boyama Serisi',
+  dedication: 'Özveri',
+  session: 'Oturum Başarıları',
+  persistence: 'Azim',
 };
 
 export const BADGE_CATEGORY_ICONS: Record<BadgeCategory, string> = {
@@ -73,6 +106,15 @@ export const BADGE_CATEGORY_ICONS: Record<BadgeCategory, string> = {
   consistency: '🔥',
   special: '🎉',
   secret: '❓',
+  // Phase 2: Coloring category icons
+  coloring_master: '🖼️',
+  color_explorer: '🌈',
+  brush_master: '🖌️',
+  smart_artist: '🤖',
+  coloring_streak: '🔥',
+  dedication: '⏱️',
+  session: '⚡',
+  persistence: '💪',
 };
 
 // ============================================
@@ -283,6 +325,444 @@ export const BADGES: Badge[] = [
     category: 'creativity',
     rarity: 'rare',
     requirement: { type: 'total_colorings', value: 25 },
+  },
+  {
+    id: 'coloring_50',
+    name: 'Renk Şampiyonu',
+    description: '50 boyama sayfası oluştur',
+    icon: '🏆',
+    category: 'creativity',
+    rarity: 'epic',
+    requirement: { type: 'total_colorings', value: 50 },
+  },
+  {
+    id: 'coloring_100',
+    name: 'Renk Efsanesi',
+    description: '100 boyama sayfası oluştur',
+    icon: '💎',
+    category: 'creativity',
+    rarity: 'legendary',
+    requirement: { type: 'total_colorings', value: 100 },
+  },
+
+  // =========================================
+  // PHASE 2: COLORING ACHIEVEMENTS (20+ new)
+  // =========================================
+
+  // Masterpiece Collection - Completed Colorings
+  {
+    id: 'first_masterpiece',
+    name: 'İlk Şaheser',
+    description: 'İlk boyamanı tamamla',
+    icon: '🖼️',
+    category: 'coloring_master',
+    rarity: 'common',
+    requirement: { type: 'completed_colorings', value: 1 },
+  },
+  {
+    id: 'gallery_starter',
+    name: 'Galeri Başlangıcı',
+    description: '5 boyama tamamla',
+    icon: '🎭',
+    category: 'coloring_master',
+    rarity: 'common',
+    requirement: { type: 'completed_colorings', value: 5 },
+  },
+  {
+    id: 'art_collector',
+    name: 'Sanat Koleksiyoncusu',
+    description: '10 boyama tamamla',
+    icon: '🏛️',
+    category: 'coloring_master',
+    rarity: 'rare',
+    requirement: { type: 'completed_colorings', value: 10 },
+  },
+  {
+    id: 'gallery_curator',
+    name: 'Galeri Küratörü',
+    description: '25 boyama tamamla',
+    icon: '👨‍🎨',
+    category: 'coloring_master',
+    rarity: 'epic',
+    requirement: { type: 'completed_colorings', value: 25 },
+  },
+  {
+    id: 'museum_worthy',
+    name: 'Müze Değerinde',
+    description: '50 boyama tamamla',
+    icon: '🏆',
+    category: 'coloring_master',
+    rarity: 'legendary',
+    requirement: { type: 'completed_colorings', value: 50 },
+  },
+
+  // Color Explorer - Variety of Colors
+  {
+    id: 'color_curious',
+    name: 'Renk Meraklısı',
+    description: '10 farklı renk kullan',
+    icon: '🔴',
+    category: 'color_explorer',
+    rarity: 'common',
+    requirement: { type: 'colors_used_total', value: 10 },
+  },
+  {
+    id: 'rainbow_chaser',
+    name: 'Gökkuşağı Avcısı',
+    description: '25 farklı renk kullan',
+    icon: '🌈',
+    category: 'color_explorer',
+    rarity: 'common',
+    requirement: { type: 'colors_used_total', value: 25 },
+  },
+  {
+    id: 'color_connoisseur',
+    name: 'Renk Uzmanı',
+    description: '50 farklı renk kullan',
+    icon: '🎨',
+    category: 'color_explorer',
+    rarity: 'rare',
+    requirement: { type: 'colors_used_total', value: 50 },
+  },
+  {
+    id: 'palette_master',
+    name: 'Palet Ustası',
+    description: '100 farklı renk kullan',
+    icon: '🎭',
+    category: 'color_explorer',
+    rarity: 'epic',
+    requirement: { type: 'colors_used_total', value: 100 },
+  },
+  {
+    id: 'chromatic_legend',
+    name: 'Kromatik Efsane',
+    description: '200 farklı renk kullan',
+    icon: '💎',
+    category: 'color_explorer',
+    rarity: 'legendary',
+    requirement: { type: 'colors_used_total', value: 200 },
+  },
+
+  // Single Artwork Excellence
+  {
+    id: 'colorful_creation',
+    name: 'Renkli Yaratım',
+    description: 'Tek eserde 5+ renk kullan',
+    icon: '🖌️',
+    category: 'color_explorer',
+    rarity: 'common',
+    requirement: { type: 'colors_used_single', value: 5 },
+  },
+  {
+    id: 'rainbow_artwork',
+    name: 'Gökkuşağı Eseri',
+    description: 'Tek eserde 10+ renk kullan',
+    icon: '🌟',
+    category: 'color_explorer',
+    rarity: 'rare',
+    requirement: { type: 'colors_used_single', value: 10 },
+  },
+  {
+    id: 'chromatic_masterpiece',
+    name: 'Kromatik Şaheser',
+    description: 'Tek eserde 15+ renk kullan',
+    icon: '✨',
+    category: 'color_explorer',
+    rarity: 'epic',
+    requirement: { type: 'colors_used_single', value: 15 },
+  },
+
+  // Brush Master - Tool Usage
+  {
+    id: 'brush_beginner',
+    name: 'Fırça Çırağı',
+    description: '3 farklı fırça türü dene',
+    icon: '🖌️',
+    category: 'brush_master',
+    rarity: 'common',
+    requirement: { type: 'brush_types_used', value: 3 },
+  },
+  {
+    id: 'brush_explorer',
+    name: 'Fırça Kaşifi',
+    description: '5 farklı fırça türü dene',
+    icon: '🎨',
+    category: 'brush_master',
+    rarity: 'rare',
+    requirement: { type: 'brush_types_used', value: 5 },
+  },
+  {
+    id: 'brush_virtuoso',
+    name: 'Fırça Virtüözü',
+    description: 'Tüm 7 fırça türünü dene',
+    icon: '🏆',
+    category: 'brush_master',
+    rarity: 'epic',
+    requirement: { type: 'brush_types_used', value: 7 },
+  },
+
+  // Premium Artist
+  {
+    id: 'premium_curious',
+    name: 'Premium Meraklısı',
+    description: 'İlk premium fırçayı kullan',
+    icon: '💫',
+    category: 'brush_master',
+    rarity: 'rare',
+    requirement: { type: 'premium_brushes_used', value: 1 },
+  },
+  {
+    id: 'premium_collector',
+    name: 'Premium Koleksiyoncu',
+    description: '3 farklı premium fırça kullan',
+    icon: '💎',
+    category: 'brush_master',
+    rarity: 'epic',
+    requirement: { type: 'premium_brushes_used', value: 3 },
+  },
+  {
+    id: 'premium_master',
+    name: 'Premium Ustası',
+    description: 'Tüm premium fırçaları kullan',
+    icon: '👑',
+    category: 'brush_master',
+    rarity: 'legendary',
+    requirement: { type: 'premium_brushes_used', value: 5 },
+  },
+
+  // AI & Smart Features
+  {
+    id: 'ai_curious',
+    name: 'Yapay Zeka Meraklısı',
+    description: 'İlk AI renk önerisini kullan',
+    icon: '🤖',
+    category: 'smart_artist',
+    rarity: 'common',
+    requirement: { type: 'ai_suggestions_used', value: 1 },
+  },
+  {
+    id: 'ai_collaborator',
+    name: 'AI İşbirlikçisi',
+    description: '10 kez AI öneri kullan',
+    icon: '🧠',
+    category: 'smart_artist',
+    rarity: 'rare',
+    requirement: { type: 'ai_suggestions_used', value: 10 },
+  },
+  {
+    id: 'ai_partner',
+    name: 'AI Ortağı',
+    description: '25 kez AI öneri kullan',
+    icon: '🌟',
+    category: 'smart_artist',
+    rarity: 'epic',
+    requirement: { type: 'ai_suggestions_used', value: 25 },
+  },
+
+  // Color Harmony
+  {
+    id: 'harmony_seeker',
+    name: 'Uyum Arayıcısı',
+    description: 'İlk renk harmonisi kullan',
+    icon: '🎵',
+    category: 'smart_artist',
+    rarity: 'common',
+    requirement: { type: 'harmony_colors_used', value: 1 },
+  },
+  {
+    id: 'harmony_artist',
+    name: 'Uyum Sanatçısı',
+    description: '10 kez renk harmonisi kullan',
+    icon: '🎶',
+    category: 'smart_artist',
+    rarity: 'rare',
+    requirement: { type: 'harmony_colors_used', value: 10 },
+  },
+  {
+    id: 'harmony_master',
+    name: 'Uyum Ustası',
+    description: '25 kez renk harmonisi kullan',
+    icon: '🎼',
+    category: 'smart_artist',
+    rarity: 'epic',
+    requirement: { type: 'harmony_colors_used', value: 25 },
+  },
+
+  // Reference Image
+  {
+    id: 'reference_starter',
+    name: 'Referans Başlangıcı',
+    description: 'İlk referans görsel kullan',
+    icon: '📷',
+    category: 'smart_artist',
+    rarity: 'common',
+    requirement: { type: 'reference_images_used', value: 1 },
+  },
+  {
+    id: 'reference_pro',
+    name: 'Referans Profesyoneli',
+    description: '10 kez referans görsel kullan',
+    icon: '📸',
+    category: 'smart_artist',
+    rarity: 'rare',
+    requirement: { type: 'reference_images_used', value: 10 },
+  },
+
+  // Coloring Streaks
+  {
+    id: 'coloring_streak_3',
+    name: 'Boyama Çırağı',
+    description: '3 gün üst üste boya',
+    icon: '🔥',
+    category: 'coloring_streak',
+    rarity: 'common',
+    requirement: { type: 'coloring_streak', value: 3 },
+  },
+  {
+    id: 'coloring_streak_7',
+    name: 'Haftalık Sanatçı',
+    description: '7 gün üst üste boya',
+    icon: '⭐',
+    category: 'coloring_streak',
+    rarity: 'rare',
+    requirement: { type: 'coloring_streak', value: 7 },
+  },
+  {
+    id: 'coloring_streak_14',
+    name: 'İki Haftalık Usta',
+    description: '14 gün üst üste boya',
+    icon: '💪',
+    category: 'coloring_streak',
+    rarity: 'epic',
+    requirement: { type: 'coloring_streak', value: 14 },
+  },
+  {
+    id: 'coloring_streak_30',
+    name: 'Aylık Efsane',
+    description: '30 gün üst üste boya',
+    icon: '👑',
+    category: 'coloring_streak',
+    rarity: 'legendary',
+    requirement: { type: 'coloring_streak', value: 30 },
+  },
+
+  // Time Spent - Dedication
+  {
+    id: 'time_spent_30',
+    name: 'Sanat Zamanı',
+    description: 'Toplam 30 dakika boyama yap',
+    icon: '⏱️',
+    category: 'dedication',
+    rarity: 'common',
+    requirement: { type: 'coloring_time_total', value: 30 },
+  },
+  {
+    id: 'time_spent_60',
+    name: 'Sanat Saati',
+    description: 'Toplam 1 saat boyama yap',
+    icon: '🕐',
+    category: 'dedication',
+    rarity: 'common',
+    requirement: { type: 'coloring_time_total', value: 60 },
+  },
+  {
+    id: 'time_spent_300',
+    name: 'Sanat Günü',
+    description: 'Toplam 5 saat boyama yap',
+    icon: '🌅',
+    category: 'dedication',
+    rarity: 'rare',
+    requirement: { type: 'coloring_time_total', value: 300 },
+  },
+  {
+    id: 'time_spent_600',
+    name: 'Sanat Haftası',
+    description: 'Toplam 10 saat boyama yap',
+    icon: '🌙',
+    category: 'dedication',
+    rarity: 'epic',
+    requirement: { type: 'coloring_time_total', value: 600 },
+  },
+  {
+    id: 'time_spent_1800',
+    name: 'Sanat Yaşamı',
+    description: 'Toplam 30 saat boyama yap',
+    icon: '🌟',
+    category: 'dedication',
+    rarity: 'legendary',
+    requirement: { type: 'coloring_time_total', value: 1800 },
+  },
+
+  // Session Achievements
+  {
+    id: 'speed_artist',
+    name: 'Hızlı Sanatçı',
+    description: '5 dakikadan kısa sürede tamamla',
+    icon: '⚡',
+    category: 'session',
+    rarity: 'rare',
+    requirement: { type: 'quick_coloring', value: 1 },
+  },
+  {
+    id: 'marathon_artist',
+    name: 'Maraton Sanatçısı',
+    description: '30 dakikadan uzun tek oturum',
+    icon: '🏃',
+    category: 'session',
+    rarity: 'rare',
+    requirement: { type: 'marathon_coloring', value: 1 },
+  },
+
+  // Persistence
+  {
+    id: 'never_give_up',
+    name: 'Asla Pes Etme',
+    description: 'Geri al\'ı kullan ve devam et',
+    icon: '💪',
+    category: 'persistence',
+    rarity: 'common',
+    requirement: { type: 'undo_and_continue', value: 1 },
+  },
+  {
+    id: 'persistent_artist',
+    name: 'Azimli Sanatçı',
+    description: '10 kez geri al\'ı kullan ve devam et',
+    icon: '🔄',
+    category: 'persistence',
+    rarity: 'rare',
+    requirement: { type: 'undo_and_continue', value: 10 },
+  },
+
+  // Secret Coloring Badges
+  {
+    id: 'secret_midnight_artist',
+    name: 'Gece Yarısı Sanatçısı',
+    description: 'Gece yarısından sonra boya',
+    icon: '🌙',
+    category: 'secret',
+    rarity: 'rare',
+    requirement: { type: 'coloring_time_of_day', value: 'midnight' },
+    isSecret: true,
+  },
+  {
+    id: 'secret_sunrise_creator',
+    name: 'Şafak Yaratıcısı',
+    description: 'Gün doğumunda boya',
+    icon: '🌅',
+    category: 'secret',
+    rarity: 'rare',
+    requirement: { type: 'coloring_time_of_day', value: 'sunrise' },
+    isSecret: true,
+  },
+  {
+    id: 'secret_golden_hour',
+    name: 'Altın Saat',
+    description: 'Gün batımında boya',
+    icon: '🌇',
+    category: 'secret',
+    rarity: 'epic',
+    requirement: { type: 'coloring_time_of_day', value: 'golden_hour' },
+    isSecret: true,
   },
 
   // ==========================================

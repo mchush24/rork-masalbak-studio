@@ -9,11 +9,19 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Çoklu görsel için schema
+const imageItemSchema = z.object({
+  id: z.string(), // örn: "house", "tree", "person", "copy", "recall"
+  label: z.string(), // örn: "Ev Çizimi", "Ağaç Çizimi"
+  base64: z.string(),
+});
+
 const analysisInputSchema = z.object({
   taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
   childAge: z.number().optional(),
   childGender: z.enum(["male", "female"]).optional(), // Child's gender for developmental context
-  imageBase64: z.string().optional(),
+  imageBase64: z.string().optional(), // Geriye uyumluluk için - tek görsel
+  images: z.array(imageItemSchema).optional(), // Çoklu görsel desteği
   language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
   userRole: z.enum(["parent", "teacher"]).optional().default("parent"),
   culturalContext: z.string().optional(),
@@ -126,12 +134,20 @@ export async function analyzeDrawing(input: AnalysisInput, openaiClient = openai
   logger.info("[Drawing Analysis] 📝 Task type:", input.taskType);
   logger.info("[Drawing Analysis] 👶 Child age:", input.childAge);
   logger.info("[Drawing Analysis] 👶 Child gender:", input.childGender);
-  logger.info("[Drawing Analysis] 🖼️  Has image:", !!input.imageBase64);
+  logger.info("[Drawing Analysis] 🖼️  Has single image:", !!input.imageBase64);
+  logger.info("[Drawing Analysis] 🖼️  Has multiple images:", input.images?.length || 0);
 
   try {
     const language = input.language || "tr";
     const userRole = input.userRole || "parent";
     const culturalContext = input.culturalContext || "";
+
+    // Görsel listesini oluştur (çoklu veya tekli)
+    const imageList = input.images && input.images.length > 0
+      ? input.images
+      : input.imageBase64
+        ? [{ id: "main", label: "Ana Çizim", base64: input.imageBase64 }]
+        : [];
 
     // SYSTEM prompt - role definition
     const systemPrompt = `Rolün: Çocuk çizimleri için projektif tarama asistanısın. Klinik tanı koymazsın.
@@ -280,9 +296,18 @@ context: {
   "cultural_context": "${culturalContext}"
 }
 
-${input.imageBase64 ? `
+${imageList.length > 0 ? `
 GÖRSEL ANALİZ TALİMATLARI:
-Aşağıdaki görseli analiz ederken:
+${imageList.length > 1 ? `
+⚠️ ÖNEMLİ: Bu analiz ${imageList.length} AYRI görsel içeriyor. Her görseli AYRI AYRI analiz et ve BİRLİKTE yorumla.
+
+Gönderilen Görseller:
+${imageList.map((img, idx) => `${idx + 1}. ${img.label} (ID: ${img.id})`).join('\n')}
+
+Her görseli ayrı değerlendir, sonra tüm görselleri BİRLİKTE yorumlayarak bütünsel bir analiz sun.
+` : ''}
+
+Her görsel için:
 1. İlk olarak görselde GERÇEKTEN ne gördüğünü tanımla
 2. Renkleri değerlendir: Hangi renkler dominant? Koyu mu açık mı? Sıcak mı soğuk mu?
 3. Figürleri incele: Yüz ifadeleri var mı? (gülümseme, kaşları çatık, nötr, üzgün)
@@ -292,7 +317,14 @@ Aşağıdaki görseli analiz ederken:
 7. Semboller: Güneş, bulut, yağmur, kalp, yıldız, vb. var mı?
 8. Genel duygu: Resmin atmosferi neşeli/hüzünlü/endişeli/sakin/hareketli?
 
-BU GÖRSELDEKİ SPESIFIK DETAYLARI kullanarak içgörü üret.
+${imageList.length > 1 ? `
+ÇOKLU GÖRSEL ANALİZİ İÇİN:
+- HTP (Ev-Ağaç-İnsan): Ev=aile/güvenlik, Ağaç=benlik/enerji, İnsan=sosyal kimlik. Üçünü birlikte yorumla.
+- Bender/Rey: Kopya=motor beceri, Hatırlama=görsel bellek. Her iki aşamayı karşılaştır.
+- Her görseldeki ortak temaları ve farklılıkları belirle.
+` : ''}
+
+BU GÖRSELLERDEKİ SPESIFIK DETAYLARI kullanarak içgörü üret.
 ` : ''}
 
 features_json:
@@ -386,15 +418,28 @@ JSON Şeması:
       { type: "text", text: userPrompt }
     ];
 
-    // Add image if provided
-    if (input.imageBase64) {
-      logger.info("[Drawing Analysis] 🖼️ Adding image to request...");
-      messageContent.push({
-        type: "image_url",
-        image_url: {
-          url: `data:image/jpeg;base64,${input.imageBase64}`,
-        },
-      });
+    // Add images (çoklu veya tekli)
+    if (imageList.length > 0) {
+      logger.info(`[Drawing Analysis] 🖼️ Adding ${imageList.length} image(s) to request...`);
+
+      for (const img of imageList) {
+        // Her görsel için etiket ekle (çoklu görsel varsa)
+        if (imageList.length > 1) {
+          messageContent.push({
+            type: "text",
+            text: `\n--- ${img.label} (${img.id}) ---`
+          });
+        }
+
+        messageContent.push({
+          type: "image_url",
+          image_url: {
+            url: `data:image/jpeg;base64,${img.base64}`,
+          },
+        });
+
+        logger.info(`[Drawing Analysis] 📸 Added image: ${img.label} (${img.id})`);
+      }
     }
 
     logger.info("[Drawing Analysis] 🤖 Calling OpenAI API...");
