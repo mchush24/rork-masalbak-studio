@@ -37,6 +37,28 @@ export interface ChatResponse {
   suggestedQuestions?: string[];
   matchedFAQ?: string;
   confidence?: number;
+  // Faz 3E: Akıllı Yönlendirme
+  actions?: ChatAction[];
+  // Faz 3A: Konuşma Bağlamı
+  detectedTopic?: string;
+}
+
+// Faz 3E: Akıllı Yönlendirme - Aksiyon tipleri
+export interface ChatAction {
+  type: 'navigate' | 'create' | 'open' | 'link';
+  label: string;
+  target: string; // route veya URL
+  icon?: string;
+}
+
+// Faz 3B: Proaktif Öneriler - Ekran bazlı öneriler
+export interface ProactiveSuggestion {
+  id: string;
+  screen: string;
+  trigger: 'enter' | 'idle' | 'error' | 'first_visit';
+  message: string;
+  questions: string[];
+  priority: number;
 }
 
 interface FAQItem {
@@ -1340,12 +1362,28 @@ export async function processChat(
     // Log interaction (async, non-blocking)
     logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
 
+    // Faz 3A: Konu tespiti
+    const detectedTopic = detectConversationTopic([
+      ...conversationHistory,
+      { role: 'user', content: userMessage },
+    ]);
+
+    // Faz 3E: Aksiyon butonları
+    const actions = getActionsForCategory(faqMatch.faq.category, faqMatch.faq.id);
+
+    // Faz 3A: Konuya göre takip soruları veya standart öneriler
+    const suggestedQuestions = detectedTopic
+      ? getContextualFollowUps(detectedTopic)
+      : getSuggestedQuestions(faqMatch.faq.category);
+
     return {
       message: faqMatch.faq.answer,
       source: 'faq',
-      suggestedQuestions: getSuggestedQuestions(faqMatch.faq.category),
+      suggestedQuestions,
       matchedFAQ: faqMatch.faq.id,
       confidence: faqMatch.confidence,
+      actions,
+      detectedTopic,
     };
   }
 
@@ -1374,12 +1412,28 @@ export async function processChat(
           // Log interaction
           logInteraction(options, userMessage, bestMatch.answer, 'embedding', bestMatch.id, confidence, startTime);
 
+          // Faz 3A: Konu tespiti
+          const detectedTopic = detectConversationTopic([
+            ...conversationHistory,
+            { role: 'user', content: userMessage },
+          ]);
+
+          // Faz 3E: Aksiyon butonları
+          const actions = getActionsForCategory(bestMatch.category as FAQCategory, bestMatch.id);
+
+          // Faz 3A: Konuya göre takip soruları
+          const suggestedQuestions = detectedTopic
+            ? getContextualFollowUps(detectedTopic)
+            : getSuggestedQuestions(bestMatch.category as FAQCategory);
+
           return {
             message: bestMatch.answer,
             source: 'faq', // UI icin 'faq' olarak goster
-            suggestedQuestions: getSuggestedQuestions(bestMatch.category as FAQCategory),
+            suggestedQuestions,
             matchedFAQ: bestMatch.id,
             confidence,
+            actions,
+            detectedTopic,
           };
         }
       }
@@ -1394,12 +1448,25 @@ export async function processChat(
 
     logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
 
+    // Faz 3A: Konu tespiti
+    const detectedTopic = detectConversationTopic([
+      ...conversationHistory,
+      { role: 'user', content: userMessage },
+    ]);
+
+    // Faz 3E: Aksiyon butonları
+    const actions = getActionsForCategory(faqMatch.faq.category, faqMatch.faq.id);
+
     return {
       message: faqMatch.faq.answer,
       source: 'faq',
-      suggestedQuestions: getSuggestedQuestions(faqMatch.faq.category),
+      suggestedQuestions: detectedTopic
+        ? getContextualFollowUps(detectedTopic)
+        : getSuggestedQuestions(faqMatch.faq.category),
       matchedFAQ: faqMatch.faq.id,
       confidence: faqMatch.confidence,
+      actions,
+      detectedTopic,
     };
   }
 
@@ -1410,10 +1477,23 @@ export async function processChat(
 
     logInteraction(options, userMessage, aiResponse, 'ai', undefined, undefined, startTime);
 
+    // Faz 3A: Konu tespiti
+    const detectedTopic = detectConversationTopic([
+      ...conversationHistory,
+      { role: 'user', content: userMessage },
+    ]);
+
+    // Faz 3E: Mesajdan aksiyon tespit et
+    const actions = detectActionsFromMessage(userMessage);
+
     return {
       message: aiResponse,
       source: 'ai',
-      suggestedQuestions: getGeneralSuggestions(),
+      suggestedQuestions: detectedTopic
+        ? getContextualFollowUps(detectedTopic)
+        : getGeneralSuggestions(),
+      actions: actions.length > 0 ? actions : undefined,
+      detectedTopic,
     };
   } catch (error) {
     console.error('[Chatbot] AI error:', error);
@@ -1575,4 +1655,301 @@ export function searchFAQ(query: string): FAQItem[] {
 
 export function getFAQDatabase(): FAQItem[] {
   return FAQ_DATABASE;
+}
+
+// ============================================
+// FAZ 3A: KONUŞMA BAĞLAMI (Context Management)
+// ============================================
+
+/**
+ * Konuşma geçmişinden mevcut konuyu tespit et
+ */
+export function detectConversationTopic(
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[]
+): string | undefined {
+  if (conversationHistory.length === 0) return undefined;
+
+  // Son 4 mesajı analiz et
+  const recentMessages = conversationHistory.slice(-4);
+  const allText = recentMessages.map(m => normalizeText(m.content)).join(' ');
+
+  // Konu tespiti için keyword grupları
+  const topicKeywords: Record<string, string[]> = {
+    'story_creation': ['masal', 'hikaye', 'olustur', 'yarat', 'tema', 'baslik'],
+    'drawing_analysis': ['analiz', 'cizim', 'resim', 'degerlendirme', 'renk', 'psikoloji'],
+    'interactive_story': ['interaktif', 'secim', 'macera', 'ebeveyn raporu'],
+    'coloring': ['boyama', 'boya', 'renk', 'firca', 'kalem'],
+    'account_settings': ['hesap', 'profil', 'ayar', 'sifre', 'abonelik'],
+    'technical_support': ['hata', 'sorun', 'calısmiyor', 'yavas', 'giris'],
+  };
+
+  let bestTopic: string | undefined;
+  let bestScore = 0;
+
+  for (const [topic, keywords] of Object.entries(topicKeywords)) {
+    let score = 0;
+    for (const keyword of keywords) {
+      if (allText.includes(keyword)) {
+        score++;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestTopic = topic;
+    }
+  }
+
+  return bestScore >= 2 ? bestTopic : undefined;
+}
+
+/**
+ * Konuya göre takip soruları öner
+ */
+export function getContextualFollowUps(topic: string): string[] {
+  const followUps: Record<string, string[]> = {
+    'story_creation': [
+      'PDF olarak nasıl indirebilirim?',
+      'Masal uzunluğunu ayarlayabilir miyim?',
+      'Sesli dinleyebilir miyim?',
+    ],
+    'drawing_analysis': [
+      'Sonuçlar ne kadar güvenilir?',
+      'Renk tercihleri ne anlama geliyor?',
+      'Endişelenmem gereken bir şey var mı?',
+    ],
+    'interactive_story': [
+      'Ebeveyn raporu ne işe yarar?',
+      'Farklı seçimlerle tekrar oynayabilir miyim?',
+      'Kaç yaş için uygun?',
+    ],
+    'coloring': [
+      'Yazdırabilir miyim?',
+      'Hangi araçlar var?',
+      'Hazır şablonlar var mı?',
+    ],
+    'account_settings': [
+      'Verilerim güvende mi?',
+      'Birden fazla cihazda kullanabilir miyim?',
+      'Premium özellikleri neler?',
+    ],
+    'technical_support': [
+      'Uygulamayı nasıl güncellerim?',
+      'İnternet olmadan kullanabilir miyim?',
+      'Destek ile nasıl iletişime geçerim?',
+    ],
+  };
+
+  return followUps[topic] || getGeneralSuggestions();
+}
+
+// ============================================
+// FAZ 3E: AKILLI YÖNLENDİRME (Smart Routing)
+// ============================================
+
+/**
+ * FAQ kategorisine göre aksiyon butonları oluştur
+ */
+export function getActionsForCategory(category: FAQCategory, faqId?: string): ChatAction[] {
+  const actionMap: Record<FAQCategory, ChatAction[]> = {
+    story: [
+      { type: 'navigate', label: 'Masal Oluştur', target: '/(tabs)/stories', icon: '📖' },
+      { type: 'navigate', label: 'Masallarım', target: '/(tabs)/stories', icon: '📚' },
+    ],
+    analysis: [
+      { type: 'navigate', label: 'Çizim Analiz Et', target: '/(tabs)/analysis', icon: '🎨' },
+      { type: 'navigate', label: 'Analizlerim', target: '/(tabs)/analysis', icon: '📊' },
+    ],
+    interactive: [
+      { type: 'navigate', label: 'İnteraktif Masal Başlat', target: '/(tabs)/stories', icon: '🎮' },
+    ],
+    coloring: [
+      { type: 'navigate', label: 'Boyama Sayfası Aç', target: '/(tabs)/coloring', icon: '🖍️' },
+      { type: 'navigate', label: 'Boyamalarım', target: '/(tabs)/coloring', icon: '🎨' },
+    ],
+    account: [
+      { type: 'navigate', label: 'Hesap Ayarları', target: '/(tabs)/profile', icon: '⚙️' },
+      { type: 'navigate', label: 'Çocuk Profili Ekle', target: '/(tabs)/profile', icon: '👶' },
+    ],
+    technical: [
+      { type: 'navigate', label: 'Destek', target: '/(tabs)/profile', icon: '🔧' },
+      { type: 'link', label: 'E-posta Gönder', target: 'mailto:destek@renkioo.com', icon: '✉️' },
+    ],
+    drawing: [
+      { type: 'navigate', label: 'Çizim Yükle', target: '/(tabs)/analysis', icon: '📷' },
+    ],
+    general: [
+      { type: 'navigate', label: 'Ana Sayfa', target: '/(tabs)', icon: '🏠' },
+    ],
+  };
+
+  // Bazı özel FAQ'lar için spesifik aksiyonlar
+  const specificActions: Record<string, ChatAction[]> = {
+    'story_002': [{ type: 'navigate', label: 'PDF İndir', target: '/(tabs)/stories', icon: '📄' }],
+    'story_009': [{ type: 'navigate', label: 'Sesli Masal Dinle', target: '/(tabs)/stories', icon: '🔊' }],
+    'coloring_002': [{ type: 'navigate', label: 'Yazdır', target: '/(tabs)/coloring', icon: '🖨️' }],
+    'account_001': [{ type: 'navigate', label: 'Çocuk Ekle', target: '/(tabs)/profile', icon: '➕' }],
+  };
+
+  if (faqId && specificActions[faqId]) {
+    return specificActions[faqId];
+  }
+
+  return actionMap[category] || [];
+}
+
+/**
+ * Mesaj içeriğine göre aksiyon tespit et
+ */
+export function detectActionsFromMessage(message: string): ChatAction[] {
+  const normalized = normalizeText(message);
+  const actions: ChatAction[] = [];
+
+  // Masal oluşturma niyeti
+  if (normalized.includes('masal olustur') || normalized.includes('hikaye yap')) {
+    actions.push({ type: 'create', label: 'Şimdi Masal Oluştur', target: '/(tabs)/stories', icon: '✨' });
+  }
+
+  // Analiz niyeti
+  if (normalized.includes('analiz') && (normalized.includes('yap') || normalized.includes('et'))) {
+    actions.push({ type: 'create', label: 'Çizim Analiz Et', target: '/(tabs)/analysis', icon: '🔍' });
+  }
+
+  // Boyama niyeti
+  if (normalized.includes('boyama') && (normalized.includes('baslat') || normalized.includes('ac'))) {
+    actions.push({ type: 'navigate', label: 'Boyamaya Başla', target: '/(tabs)/coloring', icon: '🎨' });
+  }
+
+  return actions;
+}
+
+// ============================================
+// FAZ 3B: PROAKTİF ÖNERİLER
+// ============================================
+
+const PROACTIVE_SUGGESTIONS: ProactiveSuggestion[] = [
+  // Ana Sayfa
+  {
+    id: 'home_welcome',
+    screen: 'home',
+    trigger: 'first_visit',
+    message: 'Renkioo\'ya hoş geldiniz! Size nasıl yardımcı olabilirim?',
+    questions: ['Nasıl masal oluştururum?', 'Çizim analizi ne demek?', 'Uygulama ücretsiz mi?'],
+    priority: 10,
+  },
+  {
+    id: 'home_idle',
+    screen: 'home',
+    trigger: 'idle',
+    message: 'Bir şey mi arıyorsunuz? Yardımcı olabilirim!',
+    questions: ['Ne yapabilirim?', 'Öne çıkan özellikler neler?'],
+    priority: 5,
+  },
+
+  // Masal Sayfası
+  {
+    id: 'stories_enter',
+    screen: 'stories',
+    trigger: 'enter',
+    message: 'Masal oluşturmaya hazır mısınız?',
+    questions: ['Nasıl masal oluşturabilirim?', 'Masal ne kadar sürede hazır olur?', 'PDF indirebilir miyim?'],
+    priority: 8,
+  },
+  {
+    id: 'stories_first',
+    screen: 'stories',
+    trigger: 'first_visit',
+    message: 'İlk masalınızı oluşturmaya hazır mısınız? Çocuğunuzun çiziminden kişiselleştirilmiş bir masal yaratabiliriz!',
+    questions: ['Nasıl başlarım?', 'Tema nasıl seçilir?', 'İnteraktif masal nedir?'],
+    priority: 10,
+  },
+  {
+    id: 'stories_error',
+    screen: 'stories',
+    trigger: 'error',
+    message: 'Bir sorun mu yaşıyorsunuz? Size yardımcı olabilirim.',
+    questions: ['Masal oluşturulamıyor', 'Çok uzun sürüyor', 'Hata alıyorum'],
+    priority: 10,
+  },
+
+  // Analiz Sayfası
+  {
+    id: 'analysis_enter',
+    screen: 'analysis',
+    trigger: 'enter',
+    message: 'Çocuğunuzun çizimini analiz etmek ister misiniz?',
+    questions: ['Çizim analizi ne demek?', 'Sonuçlar güvenilir mi?', 'Renk tercihleri ne anlama geliyor?'],
+    priority: 8,
+  },
+  {
+    id: 'analysis_first',
+    screen: 'analysis',
+    trigger: 'first_visit',
+    message: 'Çizim analizi, çocuğunuzun duygusal dünyasını anlamanıza yardımcı olur. Merak ettiğiniz bir şey var mı?',
+    questions: ['Bu ne işe yarıyor?', 'Endişelenmeli miyim?', 'Sonuçları nasıl yorumlamalıyım?'],
+    priority: 10,
+  },
+
+  // Boyama Sayfası
+  {
+    id: 'coloring_enter',
+    screen: 'coloring',
+    trigger: 'enter',
+    message: 'Boyama zamanı! 🎨',
+    questions: ['Hangi araçlar var?', 'Yazdırabilir miyim?', 'Hazır şablonlar var mı?'],
+    priority: 7,
+  },
+  {
+    id: 'coloring_first',
+    screen: 'coloring',
+    trigger: 'first_visit',
+    message: 'Çocuğunuzun çiziminden boyama sayfası oluşturabilir veya hazır şablonları kullanabilirsiniz!',
+    questions: ['Nasıl çalışır?', 'Çizimimden boyama sayfası yapabilir miyim?', 'Kaydetme nasıl çalışır?'],
+    priority: 10,
+  },
+
+  // Profil Sayfası
+  {
+    id: 'profile_enter',
+    screen: 'profile',
+    trigger: 'enter',
+    message: 'Hesap ayarlarınızla ilgili yardıma ihtiyacınız var mı?',
+    questions: ['Çocuk profili nasıl eklerim?', 'Şifremi nasıl değiştiririm?', 'Verilerim güvende mi?'],
+    priority: 6,
+  },
+  {
+    id: 'profile_first',
+    screen: 'profile',
+    trigger: 'first_visit',
+    message: 'Profilinizi tamamlayın ve çocuğunuzu ekleyin. Böylece içerikler yaşına göre uyarlanır!',
+    questions: ['Çocuk profili ekle', 'Neden çocuk yaşı önemli?', 'Premium özellikleri neler?'],
+    priority: 10,
+  },
+];
+
+/**
+ * Ekran ve tetikleyiciye göre proaktif öneri getir
+ */
+export function getProactiveSuggestion(
+  screen: string,
+  trigger: 'enter' | 'idle' | 'error' | 'first_visit'
+): ProactiveSuggestion | null {
+  const suggestions = PROACTIVE_SUGGESTIONS
+    .filter(s => s.screen === screen && s.trigger === trigger)
+    .sort((a, b) => b.priority - a.priority);
+
+  return suggestions[0] || null;
+}
+
+/**
+ * Tüm ekranlar için proaktif önerileri getir
+ */
+export function getAllProactiveSuggestions(): ProactiveSuggestion[] {
+  return PROACTIVE_SUGGESTIONS;
+}
+
+/**
+ * Belirli bir ekran için tüm önerileri getir
+ */
+export function getSuggestionsForScreen(screen: string): ProactiveSuggestion[] {
+  return PROACTIVE_SUGGESTIONS.filter(s => s.screen === screen);
 }

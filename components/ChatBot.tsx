@@ -476,16 +476,16 @@ export function ChatBot() {
                       <Text style={styles.faqCategoryTitle}>
                         {category.emoji} {category.name}
                       </Text>
-                      {category.questions.slice(0, 2).map((question, idx) => (
+                      {category.questions.slice(0, 2).map((faqItem, idx) => (
                         <Pressable
-                          key={idx}
+                          key={faqItem.id || idx}
                           style={({ pressed }) => [
                             styles.faqItem,
                             pressed && { opacity: 0.7 },
                           ]}
-                          onPress={() => handleFAQClick(question)}
+                          onPress={() => handleFAQClick(faqItem.question)}
                         >
-                          <Text style={styles.faqQuestion}>{question}</Text>
+                          <Text style={styles.faqQuestion}>{faqItem.question}</Text>
                           <ChevronRight size={16} color="#9333EA" />
                         </Pressable>
                       ))}

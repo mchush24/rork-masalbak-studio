@@ -1,5 +1,5 @@
 /**
- * Chatbot tRPC Router v2.1
+ * Chatbot tRPC Router v3.0 (Faz 3)
  *
  * Yardim asistani API endpoint'leri
  * - 60+ FAQ destegi
@@ -7,11 +7,25 @@
  * - FAQ arama ve istatistikler
  * - Embedding istatistikleri
  * - Chatbot kullanim analitikleri
+ * - Faz 3A: Konuşma bağlamı ve konu tespiti
+ * - Faz 3B: Proaktif öneriler (ekran bazlı)
+ * - Faz 3E: Akıllı yönlendirme (aksiyon butonları)
  */
 
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../create-context.js";
-import { processChat, getAllFAQQuestions, getFAQById, getFAQCount, searchFAQ } from "../../lib/chatbot.js";
+import {
+  processChat,
+  getAllFAQQuestions,
+  getFAQById,
+  getFAQCount,
+  searchFAQ,
+  getProactiveSuggestion,
+  getAllProactiveSuggestions,
+  getSuggestionsForScreen,
+  type ChatAction,
+  type ProactiveSuggestion,
+} from "../../lib/chatbot.js";
 
 // Lazy import for embeddings (optional feature)
 async function getEmbeddingsModule() {
@@ -38,6 +52,16 @@ const sendMessageSchema = z.object({
   message: z.string().min(1).max(500),
   conversationHistory: z.array(chatMessageSchema).optional(),
   sessionId: z.string().optional(),
+  // Faz 3B: Hangi ekrandan mesaj gönderildiği (proaktif öneriler için)
+  currentScreen: z.string().optional(),
+});
+
+// Faz 3E: Aksiyon şeması
+const chatActionSchema = z.object({
+  type: z.enum(['navigate', 'create', 'open', 'link']),
+  label: z.string(),
+  target: z.string(),
+  icon: z.string().optional(),
 });
 
 // ============================================
@@ -62,7 +86,7 @@ export const chatbotRouter = createTRPCRouter({
         }
       );
 
-      console.log('[Chatbot API] Response source:', response.source, 'FAQ:', response.matchedFAQ || 'N/A');
+      console.log('[Chatbot API] Response source:', response.source, 'FAQ:', response.matchedFAQ || 'N/A', 'Topic:', response.detectedTopic || 'N/A');
 
       return {
         message: response.message,
@@ -70,6 +94,10 @@ export const chatbotRouter = createTRPCRouter({
         suggestedQuestions: response.suggestedQuestions,
         matchedFAQ: response.matchedFAQ,
         confidence: response.confidence,
+        // Faz 3E: Aksiyon butonları
+        actions: response.actions,
+        // Faz 3A: Tespit edilen konu
+        detectedTopic: response.detectedTopic,
       };
     }),
 
@@ -485,5 +513,96 @@ export const chatbotRouter = createTRPCRouter({
         error: 'Failed to fetch complete statistics',
       };
     }
+  }),
+
+  // ============================================
+  // FAZ 3B: PROAKTİF ÖNERİLER
+  // ============================================
+
+  /**
+   * Belirli bir ekran ve tetikleyici için proaktif öneri getir
+   */
+  getProactiveSuggestion: publicProcedure
+    .input(z.object({
+      screen: z.string(),
+      trigger: z.enum(['enter', 'idle', 'error', 'first_visit']),
+    }))
+    .query(async ({ input }) => {
+      const suggestion = getProactiveSuggestion(input.screen, input.trigger);
+
+      if (!suggestion) {
+        return {
+          found: false,
+          suggestion: null,
+        };
+      }
+
+      return {
+        found: true,
+        suggestion: {
+          id: suggestion.id,
+          message: suggestion.message,
+          questions: suggestion.questions,
+          screen: suggestion.screen,
+          trigger: suggestion.trigger,
+        },
+      };
+    }),
+
+  /**
+   * Belirli bir ekran için tüm proaktif önerileri getir
+   */
+  getScreenSuggestions: publicProcedure
+    .input(z.object({
+      screen: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const suggestions = getSuggestionsForScreen(input.screen);
+
+      return {
+        screen: input.screen,
+        suggestions: suggestions.map(s => ({
+          id: s.id,
+          trigger: s.trigger,
+          message: s.message,
+          questions: s.questions,
+          priority: s.priority,
+        })),
+      };
+    }),
+
+  /**
+   * Tüm proaktif önerileri getir (admin/debug için)
+   */
+  getAllProactiveSuggestions: publicProcedure.query(async () => {
+    const suggestions = getAllProactiveSuggestions();
+
+    // Ekrana göre grupla
+    const byScreen: Record<string, Array<{
+      id: string;
+      trigger: string;
+      message: string;
+      questions: string[];
+      priority: number;
+    }>> = {};
+
+    for (const s of suggestions) {
+      if (!byScreen[s.screen]) {
+        byScreen[s.screen] = [];
+      }
+      byScreen[s.screen].push({
+        id: s.id,
+        trigger: s.trigger,
+        message: s.message,
+        questions: s.questions,
+        priority: s.priority,
+      });
+    }
+
+    return {
+      total: suggestions.length,
+      screens: Object.keys(byScreen),
+      byScreen,
+    };
   }),
 });
