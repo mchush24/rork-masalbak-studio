@@ -38,6 +38,8 @@ import type { Child } from '@/lib/hooks/useAuth';
 import { useRouter, usePathname } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
+import { QuickReplyChips, QUICK_REPLIES, QuickReply } from './chat/QuickReplyChips';
+import { TypingBubble } from './chat/TypingIndicator';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -68,6 +70,8 @@ interface Message {
   source?: 'faq' | 'ai';
   timestamp: Date;
   actions?: ChatAction[];
+  quickReplies?: QuickReply[];
+  hideQuickReplies?: boolean;
 }
 
 // ============================================
@@ -152,18 +156,20 @@ export function ChatBot() {
     }
   }, [isOpen]);
 
-  // Welcome message
+  // Welcome message - short and action-oriented (UX best practice)
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([
         {
           id: 'welcome',
           role: 'assistant',
-          content: 'Merhaba! 👋 Ben Renkioo asistanıyım. Size nasıl yardımcı olabilirim?\n\nAşağıdaki sık sorulan sorulara göz atabilir veya doğrudan sorununuzu yazabilirsiniz.',
+          content: 'Merhaba! 👋 Ne yapmak istersin?',
           source: 'faq',
           timestamp: new Date(),
+          quickReplies: QUICK_REPLIES.welcome,
         },
       ]);
+      setShowFAQ(false); // Hide FAQ initially, show quick replies instead
     }
   }, [isOpen]);
 
@@ -191,6 +197,103 @@ export function ChatBot() {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
   }, [messages]);
+
+  // Handle quick reply selection
+  const handleQuickReply = (reply: QuickReply) => {
+    // Hide quick replies from the message that was clicked
+    setMessages(prev => prev.map(msg => ({
+      ...msg,
+      hideQuickReplies: true,
+    })));
+
+    if (reply.action === 'navigate' && reply.target) {
+      setIsOpen(false);
+      setTimeout(() => {
+        router.push(reply.target as any);
+      }, 300);
+      return;
+    }
+
+    if (reply.action === 'custom') {
+      if (reply.id === 'main-menu') {
+        // Reset to welcome state
+        setMessages([{
+          id: 'welcome-' + Date.now(),
+          role: 'assistant',
+          content: 'Merhaba! 👋 Ne yapmak istersin?',
+          source: 'faq',
+          timestamp: new Date(),
+          quickReplies: QUICK_REPLIES.welcome,
+        }]);
+        setShowFAQ(false);
+        return;
+      }
+      if (reply.id === 'retry') {
+        // Retry last message logic could go here
+        return;
+      }
+    }
+
+    // For 'send' action, treat as a regular message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: reply.emoji ? `${reply.emoji} ${reply.label}` : reply.label,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    // Send to backend
+    sendMessageMutation
+      .mutateAsync({
+        message: reply.label,
+        conversationHistory: messages
+          .filter(m => m.id !== 'welcome')
+          .map(m => ({ role: m.role, content: m.content })),
+      })
+      .then(response => {
+        // Determine which quick replies to show based on response
+        let quickReplies = QUICK_REPLIES.afterAnswer;
+        if (response.detectedTopic === 'story_creation') {
+          quickReplies = QUICK_REPLIES.storyHelp;
+        } else if (response.detectedTopic === 'coloring') {
+          quickReplies = QUICK_REPLIES.coloringHelp;
+        } else if (response.detectedTopic === 'analysis') {
+          quickReplies = QUICK_REPLIES.analysisHelp;
+        }
+
+        setMessages(prev => [
+          ...prev,
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: response.message,
+            source: response.source,
+            timestamp: new Date(),
+            actions: response.actions as ChatAction[] | undefined,
+            quickReplies,
+          },
+        ]);
+      })
+      .catch(() => {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: 'Üzgünüm, bir hata oluştu. 🙏',
+            source: 'ai',
+            timestamp: new Date(),
+            quickReplies: QUICK_REPLIES.error,
+          },
+        ]);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   // Send message
   const handleSend = async () => {
@@ -557,23 +660,28 @@ export function ChatBot() {
                       </View>
                     )}
                   </View>
+
+                  {/* Quick Reply Chips - shown below message */}
+                  {message.role === 'assistant' &&
+                   message.quickReplies &&
+                   message.quickReplies.length > 0 &&
+                   !message.hideQuickReplies && (
+                    <View style={styles.quickRepliesWrapper}>
+                      <QuickReplyChips
+                        replies={message.quickReplies}
+                        onSelect={handleQuickReply}
+                        visible={!isLoading}
+                      />
+                    </View>
+                  )}
                 </View>
               ))}
 
-              {/* Loading indicator */}
-              {isLoading && (
-                <View style={[styles.messageBubble, styles.assistantBubble]}>
-                  <View style={styles.assistantIcon}>
-                    <Bot size={16} color="#0D9488" />
-                  </View>
-                  <View style={[styles.messageContent, styles.assistantContent]}>
-                    <View style={styles.typingIndicator}>
-                      <ActivityIndicator size="small" color="#0D9488" />
-                      <Text style={styles.typingText}>Yazıyor...</Text>
-                    </View>
-                  </View>
-                </View>
-              )}
+              {/* Animated Typing Indicator */}
+              <TypingBubble
+                visible={isLoading}
+                avatarComponent={<Bot size={16} color="#0D9488" />}
+              />
 
               {/* FAQ Section */}
               {showFAQ && faqQuery.data && (
@@ -823,6 +931,12 @@ const styles = StyleSheet.create({
   aiIndicatorText: {
     fontSize: 10,
     color: '#0D9488',
+  },
+
+  // Quick Replies
+  quickRepliesWrapper: {
+    marginTop: spacing["2"],
+    marginLeft: 36, // Align with message content (after avatar)
   },
 
   // Action Buttons
