@@ -36,6 +36,8 @@ import { typography, spacing, radius, shadows } from '@/constants/design-system'
 import { trpc } from '@/lib/trpc';
 import { useChild } from '@/lib/contexts/ChildContext';
 import type { Child } from '@/lib/hooks/useAuth';
+import { useRouter } from 'expo-router';
+import * as Linking from 'expo-linking';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -43,12 +45,20 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 // TYPES
 // ============================================
 
+interface ChatAction {
+  type: 'navigate' | 'create' | 'open' | 'link';
+  label: string;
+  target: string;
+  icon?: string;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   source?: 'faq' | 'ai';
   timestamp: Date;
+  actions?: ChatAction[];
 }
 
 // ============================================
@@ -57,6 +67,7 @@ interface Message {
 
 export function ChatBot() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -67,6 +78,21 @@ export function ChatBot() {
 
   // Child context
   const { selectedChild, setSelectedChild, children: userChildren } = useChild();
+
+  // Handle action button press
+  const handleActionPress = (action: ChatAction) => {
+    if (action.type === 'link' && action.target.startsWith('mailto:')) {
+      Linking.openURL(action.target);
+    } else if (action.type === 'link') {
+      Linking.openURL(action.target);
+    } else {
+      // Close chat and navigate
+      setIsOpen(false);
+      setTimeout(() => {
+        router.push(action.target as any);
+      }, 300);
+    }
+  };
 
   // Animation for floating button
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -167,6 +193,7 @@ export function ChatBot() {
         content: response.message,
         source: response.source,
         timestamp: new Date(),
+        actions: response.actions as ChatAction[] | undefined,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -217,6 +244,7 @@ export function ChatBot() {
               content: response.message,
               source: response.source,
               timestamp: new Date(),
+              actions: response.actions as ChatAction[] | undefined,
             },
           ]);
         })
@@ -443,6 +471,27 @@ export function ChatBot() {
                       <View style={styles.aiIndicator}>
                         <Sparkles size={10} color="#9333EA" />
                         <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
+                      </View>
+                    )}
+                    {/* Action Buttons */}
+                    {message.actions && message.actions.length > 0 && (
+                      <View style={styles.actionsContainer}>
+                        {message.actions.map((action, idx) => (
+                          <Pressable
+                            key={idx}
+                            style={({ pressed }) => [
+                              styles.actionButton,
+                              pressed && styles.actionButtonPressed,
+                            ]}
+                            onPress={() => handleActionPress(action)}
+                          >
+                            {action.icon && (
+                              <Text style={styles.actionIcon}>{action.icon}</Text>
+                            )}
+                            <Text style={styles.actionLabel}>{action.label}</Text>
+                            <ChevronRight size={14} color="#9333EA" />
+                          </Pressable>
+                        ))}
                       </View>
                     )}
                   </View>
@@ -690,6 +739,36 @@ const styles = StyleSheet.create({
   },
   aiIndicatorText: {
     fontSize: 10,
+    color: '#9333EA',
+  },
+
+  // Action Buttons
+  actionsContainer: {
+    marginTop: spacing["3"],
+    gap: spacing["2"],
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing["2"],
+    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing["3"],
+    backgroundColor: 'rgba(147, 51, 234, 0.08)',
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(147, 51, 234, 0.2)',
+  },
+  actionButtonPressed: {
+    backgroundColor: 'rgba(147, 51, 234, 0.15)',
+    transform: [{ scale: 0.98 }],
+  },
+  actionIcon: {
+    fontSize: 16,
+  },
+  actionLabel: {
+    flex: 1,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
     color: '#9333EA',
   },
 
