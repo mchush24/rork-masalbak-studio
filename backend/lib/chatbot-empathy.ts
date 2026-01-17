@@ -133,6 +133,9 @@ export interface EmpatheticResponseOptions {
   includeValidation?: boolean;
   includeReassurance?: boolean;
   includeProfessionalReferral?: boolean;
+  // Faz 4: Yaşa göre özelleştirme
+  childAge?: number;
+  childName?: string;
 }
 
 export interface EmpatheticResponse {
@@ -189,6 +192,53 @@ export function getProfessionalReferral(severity: SeverityLevel): string {
 }
 
 /**
+ * Get age-specific tips based on child's age and topic
+ */
+function getAgeSpecificTips(childAge: number, topic?: string): string | undefined {
+  // Define age groups
+  const ageGroup = childAge <= 2 ? 'toddler' : childAge <= 5 ? 'preschool' : childAge <= 8 ? 'school' : 'preteen';
+
+  const tips: Record<string, Record<string, string>> = {
+    behavioral: {
+      toddler: '👶 **0-2 yaş için:** Bu yaşta çocuklar henüz duygularını kontrol edemezler. Kısa ve basit yönlendirmeler yapın, sabırlı olun.',
+      preschool: '🧒 **3-5 yaş için:** Bu dönemde çocuklar bağımsızlık kazanmaya çalışır. Seçenek sunarak kontrol hissi verin.',
+      school: '📚 **6-8 yaş için:** Artık kuralları anlayabilirler. Beklentileri net açıklayın ve tutarlı olun.',
+      preteen: '🎯 **9+ yaş için:** Çocuğunuzla birlikte kuralları belirleyin. Sorumluluklarını artırın.',
+    },
+    emotional: {
+      toddler: '👶 **0-2 yaş için:** Duygularını isimlendirin ("Üzgün görünüyorsun"). Fiziksel rahatlık önemli.',
+      preschool: '🧒 **3-5 yaş için:** Duyguları resimle veya oyunla ifade etmesine izin verin.',
+      school: '📚 **6-8 yaş için:** Duygu günlüğü tutabilir. Konuşarak rahatlama pratiği yapın.',
+      preteen: '🎯 **9+ yaş için:** Özel alanına saygı gösterin ama her zaman konuşmaya hazır olduğunuzu belirtin.',
+    },
+    developmental: {
+      toddler: '👶 **0-2 yaş için:** Her çocuk farklı hızda gelişir. Kıyaslama yapmayın, sadece destekleyin.',
+      preschool: '🧒 **3-5 yaş için:** Oyun üzerinden öğrenme bu yaşta en etkilidir.',
+      school: '📚 **6-8 yaş için:** Akademik beklentiler artabilir ama her çocuğun güçlü yanları farklıdır.',
+      preteen: '🎯 **9+ yaş için:** Ergenliğe hazırlık dönemi. Bedensel ve duygusal değişimlere hazır olun.',
+    },
+    social: {
+      toddler: '👶 **0-2 yaş için:** Paralel oyun normaldir. Gerçek paylaşım 3 yaş civarı başlar.',
+      preschool: '🧒 **3-5 yaş için:** Küçük gruplarla sosyalleşme fırsatları yaratın.',
+      school: '📚 **6-8 yaş için:** Arkadaşlık becerileri öğretilebilir. Rol yapma oyunları yardımcı olabilir.',
+      preteen: '🎯 **9+ yaş için:** Akran baskısı başlayabilir. Değerlerini pekiştirin ama bağımsızlığına saygı gösterin.',
+    },
+    physical: {
+      toddler: '👶 **0-2 yaş için:** Düzenli rutin çok önemli. Uyku ve yemek saatleri tutarlı olmalı.',
+      preschool: '🧒 **3-5 yaş için:** Hareket ihtiyacı yüksek. Günde en az 1 saat aktif oyun hedefleyin.',
+      school: '📚 **6-8 yaş için:** Ekran süresi sınırları koyun. Spor veya fiziksel aktivite önemli.',
+      preteen: '🎯 **9+ yaş için:** Vücut değişimleri başlıyor. Sağlıklı alışkanlıkları pekiştirin.',
+    },
+  };
+
+  const categoryTips = tips[topic || 'behavioral'];
+  if (categoryTips) {
+    return categoryTips[ageGroup];
+  }
+  return undefined;
+}
+
+/**
  * Build complete empathetic response
  */
 export function buildEmpatheticResponse(options: EmpatheticResponseOptions): EmpatheticResponse {
@@ -199,7 +249,9 @@ export function buildEmpatheticResponse(options: EmpatheticResponseOptions): Emp
     faq,
     includeValidation = true,
     includeReassurance = true,
-    includeProfessionalReferral = false
+    includeProfessionalReferral = false,
+    childAge,
+    childName,
   } = options;
 
   // Get empathy acknowledgment
@@ -209,10 +261,19 @@ export function buildEmpatheticResponse(options: EmpatheticResponseOptions): Emp
   const validation = includeValidation ? getValidation() : undefined;
 
   // Get main content from FAQ
-  const content = faq?.answer || '';
+  let content = faq?.answer || '';
+
+  // Personalize with child name if provided
+  if (childName && content) {
+    content = content.replace(/çocuğunuz/gi, childName);
+    content = content.replace(/çocuğunuzun/gi, `${childName}'in`);
+  }
 
   // Get reassurance (optional)
   const reassurance = includeReassurance ? getReassurance(topic) : undefined;
+
+  // Get age-specific tips (Faz 4)
+  const ageSpecificTip = childAge !== undefined ? getAgeSpecificTips(childAge, topic) : undefined;
 
   // Get professional referral (if needed)
   const professionalReferral = includeProfessionalReferral || severity === 'high' || severity === 'urgent'
@@ -240,6 +301,12 @@ export function buildEmpatheticResponse(options: EmpatheticResponseOptions): Emp
   // Add main content
   if (content) {
     parts.push(content);
+  }
+
+  // Add age-specific tips (Faz 4)
+  if (ageSpecificTip) {
+    parts.push('');
+    parts.push(ageSpecificTip);
   }
 
   // Add reassurance

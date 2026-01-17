@@ -32,6 +32,13 @@ import {
   getSuggestedQuestions as getEmpathySuggestions,
 } from './chatbot-empathy';
 
+// Faz 6: Analytics for unanswered queries
+import {
+  logUnansweredQuery,
+  normalizeTextForAnalytics,
+  UnansweredReason,
+} from './chatbot-analytics';
+
 // Check which AI provider is available (at runtime)
 function hasAnthropicKey(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
@@ -1370,10 +1377,11 @@ async function getEmbeddingsModule() {
 export async function processChat(
   userMessage: string,
   conversationHistory: { role: 'user' | 'assistant'; content: string }[] = [],
-  options: { useEmbeddings?: boolean; sessionId?: string; userId?: string } = {}
+  options: { useEmbeddings?: boolean; sessionId?: string; userId?: string; childAge?: number; childName?: string; currentScreen?: string } = {}
 ): Promise<ChatResponse> {
   const startTime = Date.now();
-  const { useEmbeddings = process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true' } = options;
+  const { useEmbeddings = process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true', childAge, childName, currentScreen } = options;
+  const normalizedMessage = normalizeTextForAnalytics(userMessage);
 
   // 0. DETECT USER INTENT & EMOTION (NEW!)
   const userIntent = detectUserIntent(userMessage);
@@ -1393,9 +1401,9 @@ export async function processChat(
     const parentingFAQ = findParentingFAQ(userMessage);
 
     if (parentingFAQ) {
-      console.log('[Chatbot] Parenting FAQ match:', parentingFAQ.question);
+      console.log('[Chatbot] Parenting FAQ match:', parentingFAQ.question, 'childAge:', childAge);
 
-      // Build empathetic response
+      // Build empathetic response with age-specific content
       const empatheticResponse = buildEmpatheticResponse({
         emotion: userIntent.emotion,
         severity: userIntent.severity,
@@ -1403,7 +1411,9 @@ export async function processChat(
         faq: parentingFAQ,
         includeValidation: userIntent.needsEmpathy,
         includeReassurance: true,
-        includeProfessionalReferral: parentingFAQ.suggestProfessional || userIntent.needsProfessionalReferral
+        includeProfessionalReferral: parentingFAQ.suggestProfessional || userIntent.needsProfessionalReferral,
+        childAge,
+        childName,
       });
 
       // Log interaction
@@ -1519,6 +1529,24 @@ export async function processChat(
 
     logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
 
+    // Faz 6: Log low confidence match for review
+    if (faqMatch.confidence < 40) {
+      logUnansweredQuery({
+        userId: options.userId,
+        sessionId: options.sessionId,
+        query: userMessage,
+        normalizedQuery: normalizedMessage,
+        detectedIntent: userIntent.type,
+        detectedEmotion: userIntent.emotion,
+        reason: 'low_confidence',
+        confidence: faqMatch.confidence,
+        attemptedFaqId: faqMatch.faq.id,
+        currentScreen,
+        childAge,
+        conversationLength: conversationHistory.length,
+      }).catch(() => {}); // Non-blocking
+    }
+
     // Faz 3A: Konu tespiti
     const detectedTopic = detectConversationTopic([
       ...conversationHistory,
@@ -1548,6 +1576,23 @@ export async function processChat(
 
     logInteraction(options, userMessage, aiResponse, 'ai', undefined, undefined, startTime);
 
+    // Faz 6: Log unanswered query (AI fallback)
+    logUnansweredQuery({
+      userId: options.userId,
+      sessionId: options.sessionId,
+      query: userMessage,
+      normalizedQuery: normalizedMessage,
+      detectedIntent: userIntent.type,
+      detectedEmotion: userIntent.emotion,
+      reason: 'ai_fallback',
+      confidence: faqMatch?.confidence,
+      attemptedFaqId: faqMatch?.faq.id,
+      currentScreen,
+      childAge,
+      conversationLength: conversationHistory.length,
+      aiResponse,
+    }).catch(() => {}); // Non-blocking
+
     // Faz 3A: Konu tespiti
     const detectedTopic = detectConversationTopic([
       ...conversationHistory,
@@ -1571,6 +1616,20 @@ export async function processChat(
 
     const errorResponse = 'Uzgunum, su an teknik bir sorun yasiyorum. Lutfen biraz sonra tekrar deneyin veya sik sorulan sorulara goz atin.';
     logInteraction(options, userMessage, errorResponse, 'ai', undefined, undefined, startTime);
+
+    // Faz 6: Log error case
+    logUnansweredQuery({
+      userId: options.userId,
+      sessionId: options.sessionId,
+      query: userMessage,
+      normalizedQuery: normalizedMessage,
+      detectedIntent: userIntent.type,
+      detectedEmotion: userIntent.emotion,
+      reason: 'error',
+      currentScreen,
+      childAge,
+      conversationLength: conversationHistory.length,
+    }).catch(() => {}); // Non-blocking
 
     return {
       message: errorResponse,

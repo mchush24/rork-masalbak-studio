@@ -27,6 +27,14 @@ import {
   type ProactiveSuggestion,
 } from "../../lib/chatbot.js";
 
+// Faz 6: Analytics module
+import {
+  getTopUnansweredQueries,
+  getUnansweredStats,
+  getRecentUnansweredQueries,
+  getUnansweredByIntent,
+} from "../../lib/chatbot-analytics.js";
+
 // Lazy import for embeddings (optional feature)
 async function getEmbeddingsModule() {
   if (process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true') {
@@ -54,6 +62,9 @@ const sendMessageSchema = z.object({
   sessionId: z.string().optional(),
   // Faz 3B: Hangi ekrandan mesaj gönderildiği (proaktif öneriler için)
   currentScreen: z.string().optional(),
+  // Faz 4: Yaşa göre özelleştirilmiş yanıtlar
+  childAge: z.number().min(0).max(18).optional(),
+  childName: z.string().optional(),
 });
 
 // Faz 3E: Aksiyon şeması
@@ -75,7 +86,7 @@ export const chatbotRouter = createTRPCRouter({
   sendMessage: publicProcedure
     .input(sendMessageSchema)
     .mutation(async ({ input, ctx }) => {
-      console.log('[Chatbot API] Message received:', input.message.substring(0, 50));
+      console.log('[Chatbot API] Message received:', input.message.substring(0, 50), 'childAge:', input.childAge);
 
       const response = await processChat(
         input.message,
@@ -83,6 +94,10 @@ export const chatbotRouter = createTRPCRouter({
         {
           sessionId: input.sessionId,
           userId: (ctx as any)?.user?.id,
+          childAge: input.childAge,
+          childName: input.childName,
+          // Faz 6: Analytics için ekran bilgisi
+          currentScreen: input.currentScreen,
         }
       );
 
@@ -605,4 +620,175 @@ export const chatbotRouter = createTRPCRouter({
       byScreen,
     };
   }),
+
+  // ============================================
+  // FAZ 6: UNANSWERED QUERY ANALYTICS
+  // ============================================
+
+  /**
+   * En sık cevaplanamayan sorular (Faz 6)
+   * FAQ geliştirme için kullanılır
+   */
+  getTopUnansweredAnalytics: publicProcedure
+    .input(z.object({
+      days: z.number().min(1).max(90).default(30),
+      limit: z.number().min(1).max(50).default(20),
+    }).optional())
+    .query(async ({ input }) => {
+      const days = input?.days || 30;
+      const limit = input?.limit || 20;
+
+      try {
+        const queries = await getTopUnansweredQueries(days, limit);
+
+        return {
+          enabled: true,
+          period: `${days} gün`,
+          totalUnique: queries.length,
+          queries: queries.map(q => ({
+            query: q.normalizedQuery,
+            intent: q.detectedIntent,
+            count: q.occurrenceCount,
+            lastSeen: q.lastSeen,
+            reasons: q.reasons,
+          })),
+          actionable: queries.filter(q => q.occurrenceCount >= 3).length,
+          suggestion: queries.length > 5
+            ? 'Bu sorular için yeni FAQ eklemek önerilir'
+            : null,
+        };
+      } catch (error) {
+        console.error('[Chatbot API] Error getting unanswered analytics:', error);
+        return {
+          enabled: false,
+          error: 'Failed to fetch unanswered analytics',
+          queries: [],
+        };
+      }
+    }),
+
+  /**
+   * Cevaplanamayan sorular istatistikleri (Faz 6)
+   */
+  getUnansweredAnalyticsStats: publicProcedure
+    .input(z.object({
+      days: z.number().min(1).max(90).default(30),
+    }).optional())
+    .query(async ({ input }) => {
+      const days = input?.days || 30;
+
+      try {
+        const stats = await getUnansweredStats(days);
+
+        if (!stats) {
+          return {
+            enabled: false,
+            stats: null,
+          };
+        }
+
+        return {
+          enabled: true,
+          period: `${days} gün`,
+          stats: {
+            total: stats.totalUnanswered,
+            byReason: stats.byReason,
+            byIntent: stats.byIntent,
+            byScreen: stats.byScreen,
+            avgConfidence: Math.round(stats.avgConfidence * 100) / 100,
+          },
+          insights: {
+            lowConfidenceRate: stats.byReason['low_confidence']
+              ? Math.round((stats.byReason['low_confidence'] / stats.totalUnanswered) * 100)
+              : 0,
+            aiFallbackRate: stats.byReason['ai_fallback']
+              ? Math.round((stats.byReason['ai_fallback'] / stats.totalUnanswered) * 100)
+              : 0,
+            errorRate: stats.byReason['error']
+              ? Math.round((stats.byReason['error'] / stats.totalUnanswered) * 100)
+              : 0,
+          },
+        };
+      } catch (error) {
+        console.error('[Chatbot API] Error getting unanswered stats:', error);
+        return {
+          enabled: false,
+          error: 'Failed to fetch statistics',
+          stats: null,
+        };
+      }
+    }),
+
+  /**
+   * Son cevaplanamayan sorular (Faz 6)
+   */
+  getRecentUnansweredAnalytics: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(50),
+      offset: z.number().min(0).default(0),
+    }).optional())
+    .query(async ({ input }) => {
+      const limit = input?.limit || 50;
+      const offset = input?.offset || 0;
+
+      try {
+        const queries = await getRecentUnansweredQueries(limit, offset);
+
+        return {
+          enabled: true,
+          count: queries.length,
+          offset,
+          queries: queries.map(q => ({
+            query: q.query,
+            intent: q.detectedIntent,
+            emotion: q.detectedEmotion,
+            reason: q.reason,
+            confidence: q.confidence,
+            screen: q.currentScreen,
+            childAge: q.childAge,
+            aiResponse: q.aiResponse?.substring(0, 100),
+          })),
+        };
+      } catch (error) {
+        console.error('[Chatbot API] Error getting recent unanswered:', error);
+        return {
+          enabled: false,
+          error: 'Failed to fetch recent queries',
+          queries: [],
+        };
+      }
+    }),
+
+  /**
+   * Intent bazlı cevaplanamayan sorular (Faz 6)
+   */
+  getUnansweredByIntentAnalytics: publicProcedure
+    .input(z.object({
+      intent: z.string(),
+      limit: z.number().min(1).max(50).default(20),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const queries = await getUnansweredByIntent(input.intent, input.limit);
+
+        return {
+          enabled: true,
+          intent: input.intent,
+          count: queries.length,
+          queries: queries.map(q => ({
+            query: q.query,
+            reason: q.reason,
+            confidence: q.confidence,
+            screen: q.currentScreen,
+          })),
+        };
+      } catch (error) {
+        console.error('[Chatbot API] Error getting by intent:', error);
+        return {
+          enabled: false,
+          error: 'Failed to fetch queries by intent',
+          queries: [],
+        };
+      }
+    }),
 });

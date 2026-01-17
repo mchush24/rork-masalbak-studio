@@ -389,6 +389,10 @@ export function ChatBot() {
         conversationHistory: messages
           .filter(m => m.id !== 'welcome')
           .map(m => ({ role: m.role, content: m.content })),
+        childAge: selectedChild?.age,
+        childName: selectedChild?.name,
+        // Faz 6: Analytics için ekran bilgisi
+        currentScreen,
       })
       .then(response => {
         // Determine which quick replies to show based on response
@@ -399,6 +403,29 @@ export function ChatBot() {
           quickReplies = QUICK_REPLIES.coloringHelp;
         } else if (response.detectedTopic === 'analysis') {
           quickReplies = QUICK_REPLIES.analysisHelp;
+        }
+        // Faz 5: Ebeveyn sorularına özel quick replies
+        else if (response.detectedTopic?.startsWith('parenting_')) {
+          const parentingType = response.detectedTopic.replace('parenting_', '');
+          switch (parentingType) {
+            case 'behavioral':
+              quickReplies = QUICK_REPLIES.parentingBehavioral;
+              break;
+            case 'emotional':
+              quickReplies = QUICK_REPLIES.parentingEmotional;
+              break;
+            case 'developmental':
+              quickReplies = QUICK_REPLIES.parentingDevelopmental;
+              break;
+            case 'social':
+              quickReplies = QUICK_REPLIES.parentingSocial;
+              break;
+            case 'physical':
+              quickReplies = QUICK_REPLIES.parentingPhysical;
+              break;
+            default:
+              quickReplies = QUICK_REPLIES.parentingConcern;
+          }
         }
 
         setMessages(prev => [
@@ -457,7 +484,43 @@ export function ChatBot() {
       const response = await sendMessageMutation.mutateAsync({
         message: userMessage.content,
         conversationHistory: history,
+        // Faz 4: Yaşa göre özelleştirilmiş yanıtlar
+        childAge: selectedChild?.age,
+        childName: selectedChild?.name,
+        // Faz 6: Analytics için ekran bilgisi
+        currentScreen,
       });
+
+      // Faz 5: Determine quick replies based on detected topic
+      let quickReplies: QuickReply[] = QUICK_REPLIES.afterAnswer;
+      if (response.detectedTopic === 'story_creation') {
+        quickReplies = QUICK_REPLIES.storyHelp;
+      } else if (response.detectedTopic === 'coloring') {
+        quickReplies = QUICK_REPLIES.coloringHelp;
+      } else if (response.detectedTopic === 'analysis') {
+        quickReplies = QUICK_REPLIES.analysisHelp;
+      } else if (response.detectedTopic?.startsWith('parenting_')) {
+        const parentingType = response.detectedTopic.replace('parenting_', '');
+        switch (parentingType) {
+          case 'behavioral':
+            quickReplies = QUICK_REPLIES.parentingBehavioral;
+            break;
+          case 'emotional':
+            quickReplies = QUICK_REPLIES.parentingEmotional;
+            break;
+          case 'developmental':
+            quickReplies = QUICK_REPLIES.parentingDevelopmental;
+            break;
+          case 'social':
+            quickReplies = QUICK_REPLIES.parentingSocial;
+            break;
+          case 'physical':
+            quickReplies = QUICK_REPLIES.parentingPhysical;
+            break;
+          default:
+            quickReplies = QUICK_REPLIES.parentingConcern;
+        }
+      }
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -466,6 +529,7 @@ export function ChatBot() {
         source: response.source,
         timestamp: new Date(),
         actions: response.actions as ChatAction[] | undefined,
+        quickReplies,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -506,8 +570,43 @@ export function ChatBot() {
         .mutateAsync({
           message: question,
           conversationHistory: [],
+          childAge: selectedChild?.age,
+          childName: selectedChild?.name,
+          // Faz 6: Analytics için ekran bilgisi
+          currentScreen,
         })
         .then(response => {
+          // Faz 5: Determine quick replies based on detected topic
+          let quickReplies: QuickReply[] = QUICK_REPLIES.afterAnswer;
+          if (response.detectedTopic === 'story_creation') {
+            quickReplies = QUICK_REPLIES.storyHelp;
+          } else if (response.detectedTopic === 'coloring') {
+            quickReplies = QUICK_REPLIES.coloringHelp;
+          } else if (response.detectedTopic === 'analysis') {
+            quickReplies = QUICK_REPLIES.analysisHelp;
+          } else if (response.detectedTopic?.startsWith('parenting_')) {
+            const parentingType = response.detectedTopic.replace('parenting_', '');
+            switch (parentingType) {
+              case 'behavioral':
+                quickReplies = QUICK_REPLIES.parentingBehavioral;
+                break;
+              case 'emotional':
+                quickReplies = QUICK_REPLIES.parentingEmotional;
+                break;
+              case 'developmental':
+                quickReplies = QUICK_REPLIES.parentingDevelopmental;
+                break;
+              case 'social':
+                quickReplies = QUICK_REPLIES.parentingSocial;
+                break;
+              case 'physical':
+                quickReplies = QUICK_REPLIES.parentingPhysical;
+                break;
+              default:
+                quickReplies = QUICK_REPLIES.parentingConcern;
+            }
+          }
+
           setMessages(prev => [
             ...prev,
             {
@@ -517,6 +616,7 @@ export function ChatBot() {
               source: response.source,
               timestamp: new Date(),
               actions: response.actions as ChatAction[] | undefined,
+              quickReplies,
             },
           ]);
         })

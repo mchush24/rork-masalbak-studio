@@ -224,6 +224,39 @@ export const QUICK_REPLIES = {
     { id: 'contact', label: 'Destek', emoji: '📧', action: 'send' as const },
   ],
 
+  // Faz 5: Parenting-specific quick replies
+  parentingConcern: [
+    { id: 'more-tips', label: 'Daha fazla öneri', emoji: '💡', action: 'send' as const },
+    { id: 'age-specific', label: 'Yaşa göre bilgi', emoji: '📅', action: 'send' as const },
+    { id: 'professional', label: 'Uzman önerisi', emoji: '👨‍⚕️', action: 'send' as const },
+    { id: 'helpful', label: 'Yardımcı oldu', emoji: '✅', action: 'custom' as const },
+  ],
+  parentingBehavioral: [
+    { id: 'behavior-tips', label: 'Davranış önerileri', emoji: '🎯', action: 'send' as const },
+    { id: 'consistency', label: 'Tutarlılık ipuçları', emoji: '📋', action: 'send' as const },
+    { id: 'when-worry', label: 'Ne zaman endişelenmeliyim?', emoji: '⚠️', action: 'send' as const },
+  ],
+  parentingEmotional: [
+    { id: 'emotion-support', label: 'Duygusal destek', emoji: '💙', action: 'send' as const },
+    { id: 'talk-child', label: 'Nasıl konuşmalıyım?', emoji: '💬', action: 'send' as const },
+    { id: 'activities', label: 'Aktivite önerileri', emoji: '🎨', action: 'send' as const },
+  ],
+  parentingDevelopmental: [
+    { id: 'dev-milestones', label: 'Gelişim aşamaları', emoji: '📈', action: 'send' as const },
+    { id: 'support-dev', label: 'Nasıl desteklerim?', emoji: '🤝', action: 'send' as const },
+    { id: 'see-specialist', label: 'Uzman görüşü', emoji: '👨‍⚕️', action: 'send' as const },
+  ],
+  parentingSocial: [
+    { id: 'friendship-tips', label: 'Arkadaşlık ipuçları', emoji: '👫', action: 'send' as const },
+    { id: 'social-skills', label: 'Sosyal beceriler', emoji: '🗣️', action: 'send' as const },
+    { id: 'group-activities', label: 'Grup aktiviteleri', emoji: '🎪', action: 'send' as const },
+  ],
+  parentingPhysical: [
+    { id: 'routine-tips', label: 'Rutin önerileri', emoji: '⏰', action: 'send' as const },
+    { id: 'healthy-habits', label: 'Sağlıklı alışkanlıklar', emoji: '🥗', action: 'send' as const },
+    { id: 'when-doctor', label: 'Doktora ne zaman?', emoji: '🏥', action: 'send' as const },
+  ],
+
   // Screen-specific welcome messages
   welcomeStories: [
     { id: 'how-story', label: 'Nasıl masal oluşturabilirim?', emoji: '📖', action: 'send' as const },
