@@ -19,11 +19,13 @@ import * as Haptics from 'expo-haptics';
 // TYPES & INTERFACES
 // ============================================================================
 
-export type ToolType = 'brush' | 'fill' | 'eraser';
+export type ToolType = 'brush' | 'fill' | 'eraser' | 'sticker';
 
 export type PerformanceTier = 'basic' | 'advanced' | 'premium';
 
 export type ColorType = 'solid' | 'gradient';
+
+export type TextureType = 'solid' | 'glitter' | 'scale' | 'dots';
 
 export interface ColorPalette {
   id: string;
@@ -54,6 +56,18 @@ export interface FillPoint {
   y: number;
   color: string;
   radius: number;
+  texture?: TextureType;
+  intensity?: number;
+}
+
+export interface PlacedSticker {
+  id: string;
+  stickerId: string;
+  emoji: string;
+  x: number;
+  y: number;
+  size: number;
+  rotation: number;
 }
 
 export interface BrushStroke {
@@ -68,6 +82,7 @@ export interface BrushStroke {
 export interface HistoryState {
   fills: FillPoint[];
   strokes: BrushStroke[];
+  stickers: PlacedSticker[];
 }
 
 export interface DeviceCapabilities {
@@ -150,6 +165,15 @@ interface ColoringContextType {
   setFillLayer: (fills: FillPoint[]) => void;
   strokeLayer: BrushStroke[];
   setStrokeLayer: (strokes: BrushStroke[]) => void;
+  stickerLayer: PlacedSticker[];
+  setStickerLayer: (stickers: PlacedSticker[]) => void;
+  addSticker: (sticker: PlacedSticker) => void;
+  removeSticker: (id: string) => void;
+  updateSticker: (id: string, updates: Partial<PlacedSticker>) => void;
+
+  // Texture state
+  selectedTexture: TextureType;
+  setSelectedTexture: (texture: TextureType) => void;
 
   // History
   history: HistoryState[];
@@ -200,9 +224,13 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
   // Layer state
   const [fillLayer, setFillLayer] = useState<FillPoint[]>([]);
   const [strokeLayer, setStrokeLayer] = useState<BrushStroke[]>([]);
+  const [stickerLayer, setStickerLayer] = useState<PlacedSticker[]>([]);
+
+  // Texture state
+  const [selectedTexture, setSelectedTexture] = useState<TextureType>('solid');
 
   // History state
-  const [history, setHistory] = useState<HistoryState[]>([{ fills: [], strokes: [] }]);
+  const [history, setHistory] = useState<HistoryState[]>([{ fills: [], strokes: [], stickers: [] }]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
   // Device capabilities (will be detected on mount)
@@ -308,10 +336,33 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
   // HISTORY MANAGEMENT
   // ============================================================================
 
+  // ============================================================================
+  // STICKER MANAGEMENT
+  // ============================================================================
+
+  const addSticker = useCallback((sticker: PlacedSticker) => {
+    setStickerLayer(prev => [...prev, sticker]);
+  }, []);
+
+  const removeSticker = useCallback((id: string) => {
+    setStickerLayer(prev => prev.filter(s => s.id !== id));
+  }, []);
+
+  const updateSticker = useCallback((id: string, updates: Partial<PlacedSticker>) => {
+    setStickerLayer(prev =>
+      prev.map(s => (s.id === id ? { ...s, ...updates } : s))
+    );
+  }, []);
+
+  // ============================================================================
+  // HISTORY MANAGEMENT
+  // ============================================================================
+
   const saveToHistory = useCallback(() => {
     const newState: HistoryState = {
       fills: [...fillLayer],
       strokes: [...strokeLayer],
+      stickers: [...stickerLayer],
     };
 
     // Truncate future history if we're not at the end
@@ -327,7 +378,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
     }
 
     setHistory(newHistory);
-  }, [fillLayer, strokeLayer, history, historyIndex, deviceCapabilities.maxHistorySteps]);
+  }, [fillLayer, strokeLayer, stickerLayer, history, historyIndex, deviceCapabilities.maxHistorySteps]);
 
   const undo = useCallback(() => {
     if (historyIndex > 0) {
@@ -335,6 +386,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
       const state = history[newIndex];
       setFillLayer(state.fills);
       setStrokeLayer(state.strokes);
+      setStickerLayer(state.stickers || []);
       setHistoryIndex(newIndex);
       triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -346,16 +398,18 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
       const state = history[newIndex];
       setFillLayer(state.fills);
       setStrokeLayer(state.strokes);
+      setStickerLayer(state.stickers || []);
       setHistoryIndex(newIndex);
       triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     }
   }, [historyIndex, history]);
 
   const clearHistory = useCallback(() => {
-    setHistory([{ fills: [], strokes: [] }]);
+    setHistory([{ fills: [], strokes: [], stickers: [] }]);
     setHistoryIndex(0);
     setFillLayer([]);
     setStrokeLayer([]);
+    setStickerLayer([]);
   }, []);
 
   const canUndo = historyIndex > 0;
@@ -398,6 +452,13 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
     setFillLayer,
     strokeLayer,
     setStrokeLayer,
+    stickerLayer,
+    setStickerLayer,
+    addSticker,
+    removeSticker,
+    updateSticker,
+    selectedTexture,
+    setSelectedTexture,
     history,
     historyIndex,
     canUndo,

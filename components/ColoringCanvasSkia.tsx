@@ -99,6 +99,12 @@ import { Tooltip, TOOLTIPS, useTooltip } from './coloring/tutorial/TooltipSystem
 import { ProgressCelebration, useProgressTracker, MilestoneType } from './coloring/tutorial/ProgressCelebration';
 import { FirstUseGuide, shouldShowFirstUseGuide } from './coloring/tutorial/FirstUseGuide';
 import { AISuggestions } from './coloring/ai/AISuggestions';
+// New Phase 7 imports: Paint Tube UI, Texture Effects, Sticker Tool
+import { TexturedFillLayer, TEXTURE_OPTIONS } from './coloring/effects/TexturedFill';
+import { TextureType } from './coloring/effects/TextureShaders';
+import { PaintTubeRow, CompactPaintTubeSelector, PaintTubeColor, DEFAULT_PAINT_COLORS } from './coloring/ui/PaintTubeRow';
+import { TextureSelector, GlitterToggle } from './coloring/ui/TextureSelector';
+import { StickerPicker, StickerPreview, PlacedStickerComponent, StickerSizeSlider, StickerConfig, PlacedSticker as PlacedStickerType, STICKER_LIBRARY } from './coloring/tools/StickerTool';
 import {
   View,
   StyleSheet,
@@ -134,6 +140,8 @@ import {
   Eraser,
   ZoomIn,
   ZoomOut,
+  Sticker,
+  Sparkles,
 } from "lucide-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
@@ -173,7 +181,7 @@ type ColorPalette = {
   emoji?: string;
 };
 
-type ToolType = "brush" | "fill" | "eraser";
+type ToolType = "brush" | "fill" | "eraser" | "sticker";
 
 // Enhanced Color Palettes - Expanded selection for better creativity
 const COLOR_PALETTES: ColorPalette[] = [
@@ -233,6 +241,13 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     setFillLayer,
     strokeLayer,
     setStrokeLayer,
+    stickerLayer,
+    setStickerLayer,
+    addSticker,
+    removeSticker,
+    updateSticker,
+    selectedTexture,
+    setSelectedTexture,
     history,
     historyIndex,
     canUndo,
@@ -250,6 +265,18 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
   const [showToolSettings, setShowToolSettings] = useState(false);
   const [showAdvancedColorPicker, setShowAdvancedColorPicker] = useState(false);
   const selectedPalette = colorState.selectedPalette;
+
+  // Sticker tool state
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
+  const [selectedSticker, setSelectedSticker] = useState<StickerConfig | null>(null);
+  const [stickerSize, setStickerSize] = useState(40);
+  const [selectedStickerOnCanvas, setSelectedStickerOnCanvas] = useState<string | null>(null);
+
+  // Texture state for fill
+  const [showTextureSelector, setShowTextureSelector] = useState(false);
+
+  // Selected color from paint tube
+  const [selectedPaintColor, setSelectedPaintColor] = useState<PaintTubeColor | null>(null);
 
   // Phase 3: Advanced color state
   const [customColor, setCustomColor] = useState('#FF6B6B');
@@ -374,11 +401,80 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     };
   }, [backgroundImage]);
 
-  // Gesture-based touch handler for canvas interactions (Phase 1: Advanced Brush)
-  const drawingGesture = Gesture.Pan()
+  // ============================================================================
+  // GESTURE SYSTEM - Properly Separated for Fill, Brush, and Navigation
+  // ============================================================================
+
+  /**
+   * 1. FILL TOOL - TAP Gesture (single touch, quick tap)
+   * Uses Tap gesture instead of Pan for precise single-touch fill
+   */
+  const fillTapGesture = Gesture.Tap()
+    .numberOfTaps(1)
+    .maxDuration(250)
+    .enabled(selectedTool === 'fill')
+    .onEnd((event, success) => {
+      if (!success) return;
+
+      const { x, y } = event;
+      console.log(`[Gesture] Fill TAP at (${x.toFixed(0)}, ${y.toFixed(0)})`);
+
+      // Haptic feedback
+      triggerHaptic();
+
+      // Perform flood fill
+      handleFloodFill(x, y);
+    })
+    .runOnJS(true);
+
+  /**
+   * 1.5. STICKER TOOL - TAP Gesture (place sticker on canvas)
+   * Places selected sticker at tap location
+   */
+  const stickerTapGesture = Gesture.Tap()
+    .numberOfTaps(1)
+    .maxDuration(300)
+    .enabled(selectedTool === 'sticker' && selectedSticker !== null)
+    .onEnd((event, success) => {
+      if (!success || !selectedSticker) return;
+
+      const { x, y } = event;
+      console.log(`[Gesture] Sticker TAP at (${x.toFixed(0)}, ${y.toFixed(0)})`);
+
+      // Haptic feedback
+      triggerHaptic();
+
+      // Place sticker at tap location
+      const newSticker: PlacedStickerType = {
+        id: `sticker-${Date.now()}`,
+        stickerId: selectedSticker.id,
+        emoji: selectedSticker.emoji,
+        x,
+        y,
+        size: stickerSize,
+        rotation: 0,
+      };
+
+      addSticker(newSticker);
+      saveToHistory();
+
+      // Play sound
+      SoundManager.playColorSelect();
+    })
+    .runOnJS(true);
+
+  /**
+   * 2. DRAWING TOOL - PAN Gesture (brush & eraser)
+   * Uses minDistance to prevent accidental strokes
+   * Only enabled for brush/eraser tools
+   */
+  const drawingPanGesture = Gesture.Pan()
+    .minDistance(5) // Prevent accidental micro-strokes
+    .maxPointers(1) // Single finger only for drawing
+    .enabled(selectedTool === 'brush' || selectedTool === 'eraser')
     .onBegin((event) => {
       const { x, y } = event;
-      console.log(`[Gesture] Touch START at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
+      console.log(`[Gesture] Drawing START at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
 
       // Haptic feedback from context
       triggerHaptic();
@@ -389,28 +485,24 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       if (selectedTool === "brush") {
         // Start new brush stroke with advanced path builder
         brushBuilder.start(x, y, event);
-      } else if (selectedTool === "fill") {
-        // Flood fill at touch point
-        handleFloodFill(x, y);
       } else if (selectedTool === "eraser") {
         // Start eraser stroke
         brushBuilder.start(x, y);
       }
     })
-    .onChange((event) => {
+    .onUpdate((event) => {
       const { x, y } = event;
 
-      if (!isDrawing || !lastPoint.current) return;
+      if (!lastPoint.current) return;
 
-      // Only handle continuous drawing for brush and eraser
+      // Add point with smooth interpolation and pressure
       if (selectedTool === "brush" || selectedTool === "eraser") {
-        // Add point with smooth interpolation and pressure
         brushBuilder.addPoint(x, y, event);
         lastPoint.current = { x, y };
       }
     })
     .onEnd((event) => {
-      console.log(`[Gesture] Touch END - Tool: ${selectedTool}`);
+      console.log(`[Gesture] Drawing END - Tool: ${selectedTool}`);
 
       const { x, y } = event;
 
@@ -451,6 +543,11 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
         brushBuilder.reset();
       }
 
+      setIsDrawing(false);
+      lastPoint.current = null;
+    })
+    .onFinalize(() => {
+      // Ensure state is reset even on gesture cancel
       setIsDrawing(false);
       lastPoint.current = null;
     })
@@ -611,11 +708,18 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     );
 
     console.log(
-      `[Fill Tool] Method: ${fillResult.method}, Fills: ${fillResult.fills.length}, Success: ${fillResult.success}`
+      `[Fill Tool] Method: ${fillResult.method}, Fills: ${fillResult.fills.length}, Success: ${fillResult.success}, Texture: ${selectedTexture}`
     );
 
+    // Add texture to each fill point
+    const fillsWithTexture = fillResult.fills.map((fill) => ({
+      ...fill,
+      texture: selectedTexture,
+      intensity: selectedTexture === 'glitter' ? 0.8 : 0.5,
+    }));
+
     // Add fills to layer
-    setFillLayer([...fillLayer, ...fillResult.fills]);
+    setFillLayer([...fillLayer, ...fillsWithTexture]);
     saveToHistory();
 
     // Phase 4: Play fill sound
@@ -651,21 +755,35 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     }
   };
 
-  // Pinch-to-zoom gesture
-  const pinchGesture = Gesture.Pinch()
+  /**
+   * 3. NAVIGATION - Pinch Gesture (zoom)
+   * 2-finger pinch for zooming
+   */
+  const navigationPinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
       scale.setValue(Math.max(1, Math.min(e.scale, 3)));
     });
 
-  // Pan gesture
-  const panGesture = Gesture.Pan()
+  /**
+   * 4. NAVIGATION - Pan Gesture (2-finger pan for navigation)
+   * Requires 2 fingers to prevent conflict with drawing
+   */
+  const navigationPanGesture = Gesture.Pan()
+    .minPointers(2) // Require 2 fingers for navigation pan
     .onUpdate((e) => {
       translateX.setValue(e.translationX);
       translateY.setValue(e.translationY);
     });
 
-  // Compose gestures: drawing (1 finger) + pinch/pan (2 fingers)
-  const composed = Gesture.Simultaneous(drawingGesture, pinchGesture, panGesture);
+  /**
+   * GESTURE COMPOSITION:
+   * - Navigation gestures (pinch + 2-finger pan) run simultaneously
+   * - Drawing gestures (tap for fill, pan for brush/eraser) compete exclusively
+   * - Exclusive composition gives priority to navigation, then drawing
+   */
+  const navigationGestures = Gesture.Simultaneous(navigationPinchGesture, navigationPanGesture);
+  const drawingGestures = Gesture.Race(fillTapGesture, stickerTapGesture, drawingPanGesture);
+  const composed = Gesture.Exclusive(navigationGestures, drawingGestures);
 
   const handleSave = async () => {
     try {
@@ -848,6 +966,27 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                     />
                   ))}
                 </Canvas>
+
+                {/* Phase 7: Sticker Layer (rendered as View overlay) */}
+                <View style={styles.stickerOverlay} pointerEvents="none">
+                  {stickerLayer.map((sticker) => (
+                    <View
+                      key={sticker.id}
+                      style={[
+                        styles.placedSticker,
+                        {
+                          left: sticker.x - sticker.size / 2,
+                          top: sticker.y - sticker.size / 2,
+                          transform: [{ rotate: `${sticker.rotation}deg` }],
+                        },
+                      ]}
+                    >
+                      <Text style={{ fontSize: sticker.size * 0.8 }}>
+                        {sticker.emoji}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
               </Animated.View>
             </GestureDetector>
           </View>
@@ -905,7 +1044,50 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                   {selectedTool === "eraser" && <ToolGlowAnimation isActive={true} />}
                 </Pressable>
               </ToolChangeAnimation>
+
+              {/* Sticker Tool Button */}
+              <ToolChangeAnimation isActive={selectedTool === "sticker"} animationType="bounce">
+                <Pressable
+                  onPress={() => handleToolChange("sticker")}
+                  style={[
+                    styles.toolButton,
+                    selectedTool === "sticker" && styles.toolButtonActive,
+                  ]}
+                >
+                  <Sticker size={20} color={Colors.neutral.white} />
+                  {selectedTool === "sticker" && <ToolGlowAnimation isActive={true} />}
+                </Pressable>
+              </ToolChangeAnimation>
             </Animated.View>
+
+            {/* Texture Selector (when fill tool is selected) */}
+            {selectedTool === 'fill' && (
+              <View style={styles.textureSelector}>
+                <GlitterToggle
+                  isGlitterEnabled={selectedTexture === 'glitter'}
+                  onToggle={(enabled) => setSelectedTexture(enabled ? 'glitter' : 'solid')}
+                />
+              </View>
+            )}
+
+            {/* Sticker Selector (when sticker tool is selected) */}
+            {selectedTool === 'sticker' && (
+              <View style={styles.stickerControls}>
+                <StickerPreview
+                  sticker={selectedSticker}
+                  onPress={() => setShowStickerPicker(true)}
+                  size={60}
+                />
+                {selectedSticker && (
+                  <StickerSizeSlider
+                    value={stickerSize}
+                    onChange={setStickerSize}
+                    min={20}
+                    max={80}
+                  />
+                )}
+              </View>
+            )}
 
             {/* Brush Settings Button (Phase 1 Feature) */}
             {selectedTool === 'brush' && (
@@ -1204,6 +1386,17 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
           onSkip={() => setShowFirstUseGuide(false)}
         />
       )}
+
+      {/* Phase 7: Sticker Picker Modal */}
+      <StickerPicker
+        visible={showStickerPicker}
+        onClose={() => setShowStickerPicker(false)}
+        onStickerSelect={(sticker) => {
+          setSelectedSticker(sticker);
+          SoundManager.playColorSelect();
+        }}
+        selectedStickerId={selectedSticker?.id}
+      />
     </View>
   );
 }
@@ -1473,5 +1666,26 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: Colors.neutral.white,
+  },
+  // Phase 7: Sticker and Texture UI Styles
+  textureSelector: {
+    marginVertical: spacing['2'],
+  },
+  stickerControls: {
+    alignItems: 'center',
+    gap: spacing['2'],
+    marginVertical: spacing['2'],
+  },
+  stickerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  placedSticker: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
