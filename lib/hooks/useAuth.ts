@@ -138,7 +138,42 @@ export function useAuth() {
         if (manualSessionData) {
           console.log('[useAuth] 📱 Restoring manual session from AsyncStorage');
           const manualUser = JSON.parse(manualSessionData) as UserSession;
-          setUser(manualUser);
+
+          // Validate token by making an API call
+          const accessToken = await secureStorage.getItem(ACCESS_TOKEN_KEY);
+          if (accessToken) {
+            try {
+              // Try to fetch profile to validate token
+              const profile = await trpcClient.user.getProfile.query();
+              if (profile) {
+                // Token is valid - update user with fresh data
+                const updatedUser: UserSession = {
+                  userId: profile.id,
+                  email: profile.email,
+                  name: profile.name || undefined,
+                  children: profile.children as Child[] | undefined,
+                  avatarUrl: profile.avatar_url || undefined,
+                  language: profile.language || undefined,
+                  preferences: profile.preferences as Record<string, any> | undefined,
+                };
+                setUser(updatedUser);
+                await AsyncStorage.setItem(MANUAL_SESSION_KEY, JSON.stringify(updatedUser));
+                console.log('[useAuth] ✅ Token validated, session restored:', updatedUser.email);
+              }
+            } catch (tokenError: any) {
+              console.error('[useAuth] ❌ Token validation failed:', tokenError.message);
+              // Token is invalid/expired - clear all session data
+              await AsyncStorage.removeItem(MANUAL_SESSION_KEY);
+              await secureStorage.deleteItem(ACCESS_TOKEN_KEY);
+              await secureStorage.deleteItem(REFRESH_TOKEN_KEY);
+              console.log('[useAuth] 🗑️ Invalid session cleared - user must re-login');
+              // Don't set user - they need to re-login
+            }
+          } else {
+            // No token stored - just use cached user data but warn
+            console.warn('[useAuth] ⚠️ No access token found, using cached session');
+            setUser(manualUser);
+          }
         }
       }
 

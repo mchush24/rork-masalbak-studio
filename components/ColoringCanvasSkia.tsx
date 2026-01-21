@@ -331,6 +331,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
   // Current drawing state
   const [isDrawing, setIsDrawing] = useState(false);
+  const [pathUpdateKey, setPathUpdateKey] = useState(0); // Forces re-render during drawing on web
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
 
   // Canvas ref for snapshot
@@ -411,9 +412,13 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
    */
   const fillTapGesture = Gesture.Tap()
     .numberOfTaps(1)
-    .maxDuration(250)
+    .maxDuration(300)
     .enabled(selectedTool === 'fill')
+    .onStart((event) => {
+      console.log(`[Gesture] Fill TAP START at (${event.x.toFixed(0)}, ${event.y.toFixed(0)})`);
+    })
     .onEnd((event, success) => {
+      console.log(`[Gesture] Fill TAP END - success: ${success}`);
       if (!success) return;
 
       const { x, y } = event;
@@ -499,6 +504,10 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       if (selectedTool === "brush" || selectedTool === "eraser") {
         brushBuilder.addPoint(x, y, event);
         lastPoint.current = { x, y };
+
+        // CRITICAL: Force re-render to show live drawing preview
+        // Without this, React doesn't know the path changed
+        setPathUpdateKey((k) => k + 1);
       }
     })
     .onEnd((event) => {
@@ -756,6 +765,170 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
   };
 
   /**
+   * Web-specific touch handler (fallback for gesture handler issues on web)
+   * Handles fill and sticker placement on web platform
+   */
+  const handleWebCanvasClick = useCallback((e: any) => {
+    if (Platform.OS !== 'web') return;
+
+    // Get position from the event
+    const rect = e.currentTarget?.getBoundingClientRect?.();
+    if (!rect) {
+      console.log('[Web Click] No rect found');
+      return;
+    }
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    console.log(`[Web Click] Tool: ${selectedTool}, Position: (${x.toFixed(0)}, ${y.toFixed(0)})`);
+
+    if (selectedTool === 'fill') {
+      triggerHaptic();
+      handleFloodFill(x, y);
+    } else if (selectedTool === 'sticker' && selectedSticker) {
+      triggerHaptic();
+      const newSticker: PlacedStickerType = {
+        id: `sticker-${Date.now()}`,
+        stickerId: selectedSticker.id,
+        emoji: selectedSticker.emoji,
+        x,
+        y,
+        size: stickerSize,
+        rotation: 0,
+      };
+      addSticker(newSticker);
+      saveToHistory();
+      SoundManager.playColorSelect();
+    }
+  }, [selectedTool, selectedSticker, stickerSize, triggerHaptic, addSticker, saveToHistory]);
+
+  /**
+   * Web-specific pointer event handlers for brush/eraser drawing
+   * Provides full drawing support on web platform
+   */
+  const handleWebPointerDown = useCallback((e: any) => {
+    if (Platform.OS !== 'web') return;
+    if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
+
+    const rect = e.currentTarget?.getBoundingClientRect?.();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    console.log(`[Web Pointer] DOWN at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
+
+    triggerHaptic();
+    setIsDrawing(true);
+    lastPoint.current = { x, y };
+
+    if (selectedTool === 'brush') {
+      brushBuilder.start(x, y);
+    } else if (selectedTool === 'eraser') {
+      brushBuilder.start(x, y);
+    }
+  }, [selectedTool, triggerHaptic]);
+
+  const handleWebPointerMove = useCallback((e: any) => {
+    if (Platform.OS !== 'web') return;
+    if (!isDrawing) return;
+    if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
+
+    const rect = e.currentTarget?.getBoundingClientRect?.();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (!lastPoint.current) return;
+
+    brushBuilder.addPoint(x, y);
+    lastPoint.current = { x, y };
+
+    // Force re-render for live preview (increment key to trigger re-render)
+    setPathUpdateKey((k) => k + 1);
+  }, [isDrawing, selectedTool]);
+
+  const handleWebPointerUp = useCallback((e: any) => {
+    if (Platform.OS !== 'web') return;
+    if (!isDrawing) return;
+    if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
+
+    const rect = e.currentTarget?.getBoundingClientRect?.();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    console.log(`[Web Pointer] UP at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
+
+    // Helper to apply opacity inline (to avoid dependency issues)
+    const applyOpacityInline = (hexColor: string, opacity: number): string => {
+      if (opacity === 1) return hexColor;
+      const alpha = Math.round(opacity * 255);
+      const alphaHex = alpha.toString(16).padStart(2, '0');
+      return hexColor + alphaHex;
+    };
+
+    // Calculate current color at the time of pointer up
+    const currentColor = (() => {
+      if (useGradient && selectedGradient) {
+        const color = selectedGradient.colors[0];
+        return applyOpacityInline(color, colorOpacity);
+      }
+      const baseColor = customColor || getCurrentColor();
+      return applyOpacityInline(baseColor, colorOpacity);
+    })();
+
+    if (selectedTool === 'brush') {
+      brushBuilder.end(x, y);
+
+      const newStroke = {
+        id: `stroke-${Date.now()}`,
+        path: brushBuilder.copyPath(),
+        color: currentColor,
+        width: brushSettings.size,
+        opacity: brushSettings.opacity,
+        isEraser: false,
+      };
+
+      setStrokeLayer([...strokeLayer, newStroke]);
+      saveToHistory();
+      brushBuilder.reset();
+
+      // Phase 5: Track stroke for progress
+      tracker.recordStroke(currentColor);
+    } else if (selectedTool === 'eraser') {
+      brushBuilder.end(x, y);
+
+      const eraserStroke = {
+        id: `eraser-${Date.now()}`,
+        path: brushBuilder.copyPath(),
+        color: 'white',
+        width: brushSettings.size * 1.5,
+        opacity: 1,
+        isEraser: true,
+      };
+
+      setStrokeLayer([...strokeLayer, eraserStroke]);
+      saveToHistory();
+      brushBuilder.reset();
+    }
+
+    setIsDrawing(false);
+    lastPoint.current = null;
+  }, [isDrawing, selectedTool, brushSettings, saveToHistory, tracker, useGradient, selectedGradient, customColor, colorOpacity, getCurrentColor, strokeLayer, setStrokeLayer]);
+
+  const handleWebPointerLeave = useCallback((e: any) => {
+    if (Platform.OS !== 'web') return;
+    if (!isDrawing) return;
+
+    // Treat leaving canvas as pointer up
+    handleWebPointerUp(e);
+  }, [isDrawing, handleWebPointerUp]);
+
+  /**
    * 3. NAVIGATION - Pinch Gesture (zoom)
    * 2-finger pinch for zooming
    */
@@ -777,13 +950,21 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
   /**
    * GESTURE COMPOSITION:
-   * - Navigation gestures (pinch + 2-finger pan) run simultaneously
-   * - Drawing gestures (tap for fill, pan for brush/eraser) compete exclusively
-   * - Exclusive composition gives priority to navigation, then drawing
+   * - All gestures run simultaneously
+   * - Each gesture has its own enabled() condition to prevent conflicts
+   * - fillTapGesture: only when fill tool selected
+   * - stickerTapGesture: only when sticker tool selected + sticker chosen
+   * - drawingPanGesture: only when brush/eraser selected, single finger
+   * - navigationPinchGesture: always active for zoom
+   * - navigationPanGesture: requires 2 fingers
    */
-  const navigationGestures = Gesture.Simultaneous(navigationPinchGesture, navigationPanGesture);
-  const drawingGestures = Gesture.Race(fillTapGesture, stickerTapGesture, drawingPanGesture);
-  const composed = Gesture.Exclusive(navigationGestures, drawingGestures);
+  const composed = Gesture.Simultaneous(
+    fillTapGesture,
+    stickerTapGesture,
+    drawingPanGesture,
+    navigationPinchGesture,
+    navigationPanGesture
+  );
 
   const handleSave = async () => {
     try {
@@ -855,6 +1036,12 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                     ],
                   },
                 ]}
+                // @ts-ignore - Web-specific pointer event handlers
+                onClick={Platform.OS === 'web' ? handleWebCanvasClick : undefined}
+                onPointerDown={Platform.OS === 'web' ? handleWebPointerDown : undefined}
+                onPointerMove={Platform.OS === 'web' ? handleWebPointerMove : undefined}
+                onPointerUp={Platform.OS === 'web' ? handleWebPointerUp : undefined}
+                onPointerLeave={Platform.OS === 'web' ? handleWebPointerLeave : undefined}
               >
                 <Canvas style={styles.canvas}>
                   {/*

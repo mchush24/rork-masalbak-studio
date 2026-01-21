@@ -23,28 +23,29 @@ export function AnimatedMessage({
   delay = 0,
   style,
 }: AnimatedMessageProps) {
-  const slideAnim = useRef(new Animated.Value(type === 'user' ? 50 : -50)).current;
+  // Daha kısa mesafe ve hızlı animasyon = daha responsive
+  const slideAnim = useRef(new Animated.Value(type === 'user' ? 20 : -20)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const scaleAnim = useRef(new Animated.Value(0.98)).current;
 
   useEffect(() => {
     const timer = setTimeout(() => {
       Animated.parallel([
         Animated.spring(slideAnim, {
           toValue: 0,
-          friction: 8,
-          tension: 40,
+          friction: 10,
+          tension: 100, // Daha hızlı spring
           useNativeDriver: true,
         }),
         Animated.timing(opacityAnim, {
           toValue: 1,
-          duration: 200,
+          duration: 100, // 200ms -> 100ms
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {
           toValue: 1,
-          friction: 8,
-          tension: 40,
+          friction: 10,
+          tension: 100,
           useNativeDriver: true,
         }),
       ]).start();
@@ -127,7 +128,7 @@ export function MessageReceiveAnimation({
   children: React.ReactNode;
   delay?: number;
 }) {
-  const slideAnim = useRef(new Animated.Value(-30)).current;
+  const slideAnim = useRef(new Animated.Value(-15)).current; // Daha kısa mesafe
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -135,13 +136,13 @@ export function MessageReceiveAnimation({
       Animated.parallel([
         Animated.spring(slideAnim, {
           toValue: 0,
-          friction: 7,
-          tension: 40,
+          friction: 10,
+          tension: 100, // Daha hızlı
           useNativeDriver: true,
         }),
         Animated.timing(opacityAnim, {
           toValue: 1,
-          duration: 250,
+          duration: 120, // 250ms -> 120ms
           useNativeDriver: true,
         }),
       ]).start();

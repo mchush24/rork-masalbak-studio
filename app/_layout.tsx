@@ -20,45 +20,30 @@ function RootLayoutNav() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('[_layout] 🔄 Navigation check:', {
-      isLoading,
-      isAuthenticated,
-      hasCompletedOnboarding,
-      currentSegment: segments[0],
-    });
-
     if (isLoading) return;
 
     const inOnboarding = segments[0] === '(onboarding)';
     const inTabs = segments[0] === '(tabs)';
 
-    // Only redirect if user is definitely not authenticated
     if (!isAuthenticated) {
-      console.log('[_layout] ❌ Not authenticated - redirecting to onboarding');
-      // User not registered, show onboarding
       if (!inOnboarding) {
-        console.log('[_layout] 🚀 Navigating to welcome screen');
         router.replace('/(onboarding)/welcome');
       }
     } else if (isAuthenticated && hasCompletedOnboarding) {
-      console.log('[_layout] ✅ Authenticated and onboarded - redirecting to tabs');
-      // User registered and completed onboarding, show main app
       if (!inTabs) {
-        console.log('[_layout] 🚀 Navigating to tabs');
         router.replace('/(tabs)');
       }
-    } else {
-      console.log('[_layout] ⏸️ Authenticated but onboarding not complete');
     }
-    // If isAuthenticated but !hasCompletedOnboarding, let the register flow handle navigation
   }, [isAuthenticated, hasCompletedOnboarding, isLoading]);
 
-  // Show ChatBot only when authenticated and in tabs
-  const showChatBot = isAuthenticated && hasCompletedOnboarding && segments[0] === '(tabs)';
+  // ChatBot: show when authenticated and in tabs (onboarding check removed for now)
+  const showChatBot = isAuthenticated && segments[0] === '(tabs)';
+
+  console.log('[_layout] ChatBot visibility:', { showChatBot, isAuthenticated, segment: segments[0] });
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-purple-600">
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#7C3AED' }}>
         <ActivityIndicator size="large" color="white" />
       </View>
     );
@@ -67,13 +52,12 @@ function RootLayoutNav() {
   return (
     <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(onboarding)" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="storybook" options={{ headerShown: false }} />
+        <Stack.Screen name="storybook" />
       </Stack>
 
-      {/* ChatBot with integrated child selector - visible on all tab screens */}
       {showChatBot && <ChatBot />}
     </View>
   );

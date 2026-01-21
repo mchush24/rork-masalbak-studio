@@ -133,6 +133,8 @@ export function ChatBot() {
   const sendMessageMutation = trpc.chatbot.sendMessage.useMutation();
   const faqQuery = trpc.chatbot.getFAQs.useQuery(undefined, {
     enabled: isOpen,
+    staleTime: 1000 * 60 * 30, // 30 dakika cache - her açılışta yeniden yükleme
+    gcTime: 1000 * 60 * 60, // 1 saat garbage collection
   });
 
   // Gentle pulse animation for floating button
@@ -258,11 +260,11 @@ export function ChatBot() {
     setIsOpen(true);
   };
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom - requestAnimationFrame ile daha responsive
   useEffect(() => {
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    });
   }, [messages]);
 
   // Handle quick reply selection
@@ -843,7 +845,7 @@ export function ChatBot() {
                   {/* Message Row: Icon + Bubble */}
                   <AnimatedMessage
                     type={message.role}
-                    delay={index * 50}
+                    delay={0}
                     style={[
                       styles.messageBubble,
                       message.role === 'user'

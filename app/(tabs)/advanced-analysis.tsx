@@ -24,9 +24,6 @@ import {
   Sparkles,
   Award,
   CheckCircle,
-  Clock,
-  Users,
-  Target,
   ChevronRight,
   Info,
   X,
@@ -440,35 +437,35 @@ export default function AdvancedAnalysisScreen() {
               </View>
             </View>
 
-            {/* Quick Stats */}
+            {/* Process Highlights */}
             <View style={styles.quickStats}>
               <View style={styles.statItem}>
                 <LinearGradient colors={["#6366F1", "#8B5CF6"]} style={styles.statIconBg}>
-                  <Target size={18} color="#FFF" />
+                  <Brain size={18} color="#FFF" />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
-                  <Text style={styles.statValue}>95%</Text>
-                  <Text style={styles.statLabel}>Doğruluk</Text>
+                  <Text style={styles.statValueSmall}>Bilimsel</Text>
+                  <Text style={styles.statLabel}>Temelli</Text>
                 </View>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <LinearGradient colors={["#EC4899", "#F472B6"]} style={styles.statIconBg}>
-                  <Users size={18} color="#FFF" />
+                  <FileText size={18} color="#FFF" />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
-                  <Text style={styles.statValue}>50K+</Text>
-                  <Text style={styles.statLabel}>Analiz</Text>
+                  <Text style={styles.statValueSmall}>Kapsamlı</Text>
+                  <Text style={styles.statLabel}>Rapor</Text>
                 </View>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <LinearGradient colors={["#10B981", "#34D399"]} style={styles.statIconBg}>
-                  <Clock size={18} color="#FFF" />
+                  <Shield size={18} color="#FFF" />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
-                  <Text style={styles.statValue}>~30s</Text>
-                  <Text style={styles.statLabel}>Hız</Text>
+                  <Text style={styles.statValueSmall}>Gizlilik</Text>
+                  <Text style={styles.statLabel}>Öncelikli</Text>
                 </View>
               </View>
             </View>
@@ -1066,6 +1063,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: "800",
+    color: "#1E293B",
+  },
+  statValueSmall: {
+    fontSize: 13,
+    fontWeight: "700",
     color: "#1E293B",
   },
   statLabel: {

@@ -48,20 +48,20 @@ export function QuickReplyChips({
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 300,
+          duration: 150, // 300ms -> 150ms
           useNativeDriver: true,
         }),
         Animated.spring(slideAnim, {
           toValue: 0,
-          friction: 8,
-          tension: 40,
+          friction: 10,
+          tension: 100, // Daha hızlı spring
           useNativeDriver: true,
         }),
       ]).start();
     } else if (!visible) {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 200,
+        duration: 100, // 200ms -> 100ms
         useNativeDriver: true,
       }).start();
     }
@@ -91,7 +91,7 @@ export function QuickReplyChips({
             key={reply.id}
             reply={reply}
             onPress={() => onSelect(reply)}
-            delay={index * 50}
+            delay={0} // Tüm chip'ler aynı anda görünsün
             animated={animated}
           />
         ))}
@@ -113,7 +113,7 @@ function QuickReplyChip({
   delay = 0,
   animated = true,
 }: QuickReplyChipProps) {
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current; // 0.8 -> 0.9 daha az dramatik
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -122,13 +122,13 @@ function QuickReplyChip({
         Animated.parallel([
           Animated.spring(scaleAnim, {
             toValue: 1,
-            friction: 6,
-            tension: 40,
+            friction: 10,
+            tension: 100, // Daha hızlı
             useNativeDriver: true,
           }),
           Animated.timing(opacityAnim, {
             toValue: 1,
-            duration: 200,
+            duration: 100, // 200ms -> 100ms
             useNativeDriver: true,
           }),
         ]).start();

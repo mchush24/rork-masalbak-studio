@@ -27,211 +27,211 @@ export interface Protocol {
 
 export const PROTOCOLS: Record<string, Protocol> = {
   DAP: {
-    title: "Bir Insan Ciz (DAP - Koppitz)",
-    ageRange: "5-12 yas",
+    title: "Bir İnsan Çiz (DAP - Koppitz)",
+    ageRange: "5-12 yaş",
     duration: "10-15 dakika",
     materials: [
-      "A4 beyaz kagit (cizgisiz)",
+      "A4 beyaz kağıt (çizgisiz)",
       "HB kurşun kalem (silgisiz)",
-      "Silgi (ayri, istenirse verilir)",
+      "Silgi (ayrı, istenirse verilir)",
       "Kronometre"
     ],
     phases: [
       {
-        name: "Hazirlik",
-        instruction: "Kagidi dikey olarak cocugun onune koy. Kalemi kagit yanina birak.",
+        name: "Hazırlık",
+        instruction: "Kağıdı dikey olarak çocuğun önüne koy. Kalemi kağıt yanına bırak.",
         notes: [
-          "Sessiz, dikkat dagitici olmayan ortam sagla",
-          "Cocuk rahat oturmali, masa yuksekligi uygun olmali"
+          "Sessiz, dikkat dağıtıcı olmayan ortam sağla",
+          "Çocuk rahat oturmalı, masa yüksekliği uygun olmalı"
         ]
       },
       {
-        name: "Yonerge",
-        instruction: "Bu kagida bir insan ciz. Istedigin gibi cizebilirsin. Bitirdiginde bana haber ver.",
+        name: "Yönerge",
+        instruction: "Bu kağıda bir insan çiz. İstediğin gibi çizebilirsin. Bitirdiğinde bana haber ver.",
         notes: [
-          "Eger 'Nasil?' diye sorarsa: 'Istedigin gibi cizebilirsin' de",
-          "Eger 'Kiz mi erkek mi?' diye sorarsa: 'Hangisini istersen' de",
-          "Eger sadece yuz/bas cizerse: 'Simdi tum vucudu ciz' de"
+          "Eğer 'Nasıl?' diye sorarsa: 'İstediğin gibi çizebilirsin' de",
+          "Eğer 'Kız mı erkek mi?' diye sorarsa: 'Hangisini istersen' de",
+          "Eğer sadece yüz/baş çizerse: 'Şimdi tüm vücudu çiz' de"
         ]
       },
       {
-        name: "Gozlem",
-        instruction: "Cizim sirasinda sessizce gozlem yap ve not al.",
-        duration: "Cocuk bitirene kadar",
+        name: "Gözlem",
+        instruction: "Çizim sırasında sessizce gözlem yap ve not al.",
+        duration: "Çocuk bitirene kadar",
         notes: [
-          "Baslangic ve bitis saatini kaydet",
-          "Hangi vucut parcasindan basladigini not et",
-          "Silgi kullanimi varsa kac kez ve nerede",
-          "Tereddut ettigi yerleri not et",
-          "Kagidi dondurme davranisi"
+          "Başlangıç ve bitiş saatini kaydet",
+          "Hangi vücut parçasından başladığını not et",
+          "Silgi kullanımı varsa kaç kez ve nerede",
+          "Tereddüt ettiği yerleri not et",
+          "Kağıdı döndürme davranışı"
         ]
       },
       {
         name: "Sorgulama (Opsiyonel)",
-        instruction: "Cizim bittikten sonra sorular sor.",
+        instruction: "Çizim bittikten sonra sorular sor.",
         notes: [
-          "Bu kim? (Kendisi mi, baskasi mi?)",
-          "Kac yasinda?",
-          "Ne yapiyor?",
-          "Nasil hissediyor?"
+          "Bu kim? (Kendisi mi, başkası mı?)",
+          "Kaç yaşında?",
+          "Ne yapıyor?",
+          "Nasıl hissediyor?"
         ]
       }
     ],
     observations: [
-      "Cizim suresi (dk:sn)",
-      "Baslangic noktasi (bas/govde/ayak)",
-      "Cizim sirasi",
-      "Silgi kullanimi (sayi ve bolge)",
-      "Kalem basinci (hafif/normal/sert)",
-      "Cizgi kalitesi (akici/kesik/titrek)",
-      "Kagit dondurme",
-      "Soz ifadeleri (varsa)"
+      "Çizim süresi (dk:sn)",
+      "Başlangıç noktası (baş/gövde/ayak)",
+      "Çizim sırası",
+      "Silgi kullanımı (sayı ve bölge)",
+      "Kalem basıncı (hafif/normal/sert)",
+      "Çizgi kalitesi (akıcı/kesik/titrek)",
+      "Kağıt döndürme",
+      "Söz ifadeleri (varsa)"
     ],
     donts: [
-      "Yonlendirme yapma (elleri de ciz, gozleri unutma vb.)",
-      "Guzel/cirkin yorumu yapma",
-      "Acele ettirme, sure kisitlamasi soyleme",
-      "Cizim sirasinda sorular sorma",
-      "Baska cocuklarin cizimlerini gosterme"
+      "Yönlendirme yapma (elleri de çiz, gözleri unutma vb.)",
+      "Güzel/çirkin yorumu yapma",
+      "Acele ettirme, süre kısıtlaması söyleme",
+      "Çizim sırasında sorular sorma",
+      "Başka çocukların çizimlerini gösterme"
     ],
     captureHints: [
-      "Sayfa duz, golgesiz fotografla",
-      "Tum kagit alani kadraja girmeli",
-      "Cizimin her detayi gorunmeli",
-      "Dogal isik tercih edilmeli"
+      "Sayfa düz, gölgesiz fotoğrafla",
+      "Tüm kağıt alanı kadraja girmeli",
+      "Çizimin her detayı görünmeli",
+      "Doğal ışık tercih edilmeli"
     ],
     scoringNotes: [
-      "Koppitz-2 sistemine gore degerlendirilir",
-      "30 gelisimsel gosterge kontrol edilir",
-      "Yas normlarına gore yorumlanir"
+      "Koppitz-2 sistemine göre değerlendirilir",
+      "30 gelişimsel gösterge kontrol edilir",
+      "Yaş normlarına göre yorumlanır"
     ],
     requiredImages: [
-      { id: "human", label: "Insan Cizimi", description: "Cocugun cizdigi insan figuru" }
+      { id: "human", label: "İnsan Çizimi", description: "Çocuğun çizdiği insan figürü" }
     ]
   },
 
   HTP: {
-    title: "Ev-Agac-Insan (HTP - Buck)",
-    ageRange: "5+ yas",
+    title: "Ev-Ağaç-İnsan (HTP - Buck)",
+    ageRange: "5+ yaş",
     duration: "30-45 dakika",
     materials: [
-      "3 adet A4 beyaz kagit (her cizim icin ayri)",
+      "3 adet A4 beyaz kağıt (her çizim için ayrı)",
       "HB kurşun kalem",
-      "Silgi (ayri, istenirse verilir)",
+      "Silgi (ayrı, istenirse verilir)",
       "Kronometre",
       "Renkli kalemler (opsiyonel ikinci aşama)"
     ],
     phases: [
       {
-        name: "1. Ev Cizimi",
-        instruction: "Bu kagida bir ev ciz. Istedigin turde bir ev olabilir. Bitirdiginde haber ver.",
+        name: "1. Ev Çizimi",
+        instruction: "Bu kağıda bir ev çiz. İstediğin türde bir ev olabilir. Bitirdiğinde haber ver.",
         duration: "~10 dakika",
         notes: [
-          "Kagidi yatay olarak ver",
-          "Eger 'Nasil bir ev?' diye sorarsa: 'Istedigin turde' de",
-          "Cizim sirasinda mudahale etme"
+          "Kağıdı yatay olarak ver",
+          "Eğer 'Nasıl bir ev?' diye sorarsa: 'İstediğin türde' de",
+          "Çizim sırasında müdahale etme"
         ]
       },
       {
         name: "Ev Sorgulama (PDI)",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
-          "Bu ev kac katli?",
-          "Bu ev neden yapilmis? (tugla, ahsap vb.)",
+          "Bu ev kaç katlı?",
+          "Bu ev neden yapılmış? (tuğla, ahşap vb.)",
           "Bu senin evin mi? Kimin evi?",
-          "Bu evde kimler yasiyor?",
+          "Bu evde kimler yaşıyor?",
           "Bu ev nerede?",
-          "Hangi odayi en cok seviyorsun?",
-          "Bu ev mutlu mu, uzgun mu?"
+          "Hangi odayı en çok seviyorsun?",
+          "Bu ev mutlu mu, üzgün mü?"
         ]
       },
       {
-        name: "2. Agac Cizimi",
-        instruction: "Simdi bu kagida bir agac ciz. Bitirdiginde haber ver.",
+        name: "2. Ağaç Çizimi",
+        instruction: "Şimdi bu kağıda bir ağaç çiz. Bitirdiğinde haber ver.",
         duration: "~10 dakika",
         notes: [
-          "Yeni kagit ver (dikey)",
-          "Eger 'Ne tur agac?' diye sorarsa: 'Istedigin tur' de"
+          "Yeni kağıt ver (dikey)",
+          "Eğer 'Ne tür ağaç?' diye sorarsa: 'İstediğin tür' de"
         ]
       },
       {
-        name: "Agac Sorgulama (PDI)",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        name: "Ağaç Sorgulama (PDI)",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
-          "Bu ne tur bir agac?",
-          "Bu agac kac yasinda?",
-          "Bu agac canli mi?",
-          "Bu agac nerede?",
-          "Bu agaca en cok benzeyen kisi kim?",
-          "Agacin neye ihtiyaci var?",
-          "Agac yalniz mi, baska agaclar var mi?"
+          "Bu ne tür bir ağaç?",
+          "Bu ağaç kaç yaşında?",
+          "Bu ağaç canlı mı?",
+          "Bu ağaç nerede?",
+          "Bu ağaca en çok benzeyen kişi kim?",
+          "Ağacın neye ihtiyacı var?",
+          "Ağaç yalnız mı, başka ağaçlar var mı?"
         ]
       },
       {
-        name: "3. Insan Cizimi",
-        instruction: "Simdi bu kagida bir insan ciz. Tam bir insan, sadece yuz degil. Bitirdiginde haber ver.",
+        name: "3. İnsan Çizimi",
+        instruction: "Şimdi bu kağıda bir insan çiz. Tam bir insan, sadece yüz değil. Bitirdiğinde haber ver.",
         duration: "~10 dakika",
         notes: [
-          "Yeni kagit ver (dikey)",
-          "Eger 'Kiz mi erkek mi?' diye sorarsa: 'Hangisini istersen' de"
+          "Yeni kağıt ver (dikey)",
+          "Eğer 'Kız mı erkek mi?' diye sorarsa: 'Hangisini istersen' de"
         ]
       },
       {
-        name: "Insan Sorgulama (PDI)",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        name: "İnsan Sorgulama (PDI)",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
           "Bu kim?",
-          "Kac yasinda?",
-          "Ne is yapiyor / Ne yapiyor simdi?",
-          "Nasil hissediyor?",
-          "Neyi en cok seviyor?",
-          "Neden hoslanmiyor?",
-          "Bu kisi icin en onemli sey ne?",
-          "Bu kisinin bir dilegi olsa ne olurdu?"
+          "Kaç yaşında?",
+          "Ne iş yapıyor / Ne yapıyor şimdi?",
+          "Nasıl hissediyor?",
+          "Neyi en çok seviyor?",
+          "Neden hoşlanmıyor?",
+          "Bu kişi için en önemli şey ne?",
+          "Bu kişinin bir dileği olsa ne olurdu?"
         ]
       }
     ],
     observations: [
-      "Her cizim icin ayri sure",
-      "Cizim sirasi (ev: temel, cati, pencere vb.)",
-      "Ogeler arasi oranlar",
-      "Detay duzeyi",
-      "Silme davranisi",
+      "Her çizim için ayrı süre",
+      "Çizim sırası (ev: temel, çatı, pencere vb.)",
+      "Öğeler arası oranlar",
+      "Detay düzeyi",
+      "Silme davranışı",
       "Spontan yorumlar",
       "Duygusal tepkiler"
     ],
     donts: [
-      "Kapi/pencere/baca eklemesini isteme",
-      "Uc cizimi tek sayfaya yaptirma",
-      "Sira degisikligi yapma (Ev -> Agac -> Insan)",
-      "Ornekler gosterme",
-      "Cizim sirasinda sorular sorma",
+      "Kapı/pencere/baca eklemesini isteme",
+      "Üç çizimi tek sayfaya yaptırma",
+      "Sıra değişikliği yapma (Ev -> Ağaç -> İnsan)",
+      "Örnekler gösterme",
+      "Çizim sırasında sorular sorma",
       "Acele ettirme"
     ],
     captureHints: [
-      "Her cizimi ayri fotografla",
-      "Kagit tamamen kadraja girmeli",
-      "Golge ve yansima olmamali",
-      "Cizim sirasini not et"
+      "Her çizimi ayrı fotoğrafla",
+      "Kağıt tamamen kadraja girmeli",
+      "Gölge ve yansıma olmamalı",
+      "Çizim sırasını not et"
     ],
     scoringNotes: [
-      "Buck'in kalitatif analiz sistemi kullanilir",
-      "Her oge icin standart yorumlar mevcuttur",
-      "PDI cevaplari onemli bilgi saglar"
+      "Buck'ın kalitatif analiz sistemi kullanılır",
+      "Her öğe için standart yorumlar mevcuttur",
+      "PDI cevapları önemli bilgi sağlar"
     ],
     requiredImages: [
-      { id: "house", label: "Ev Cizimi", description: "Ilk cizilen ev figuru" },
-      { id: "tree", label: "Agac Cizimi", description: "Ikinci cizilen agac figuru" },
-      { id: "person", label: "Insan Cizimi", description: "Ucuncu cizilen insan figuru" }
+      { id: "house", label: "Ev Çizimi", description: "İlk çizilen ev figürü" },
+      { id: "tree", label: "Ağaç Çizimi", description: "İkinci çizilen ağaç figürü" },
+      { id: "person", label: "İnsan Çizimi", description: "Üçüncü çizilen insan figürü" }
     ]
   },
 
   Aile: {
-    title: "Kinetik Aile Cizimi (KFD - Burns & Kaufman)",
-    ageRange: "5-12 yas",
+    title: "Kinetik Aile Çizimi (KFD - Burns & Kaufman)",
+    ageRange: "5-12 yaş",
     duration: "15-30 dakika",
     materials: [
-      "A4 beyaz kagit (yatay)",
+      "A4 beyaz kağıt (yatay)",
       "HB kurşun kalem",
       "Silgi",
       "Renkli kalemler (opsiyonel)",
@@ -239,596 +239,596 @@ export const PROTOCOLS: Record<string, Protocol> = {
     ],
     phases: [
       {
-        name: "Yonerge",
-        instruction: "Ailendeki herkesi, kendini de dahil ederek ciz. Herkes bir seyler yapiyor olsun. Carton figur degil, gercek insanlar ciz. Bitirdiginde haber ver.",
+        name: "Yönerge",
+        instruction: "Ailendeki herkesi, kendini de dahil ederek çiz. Herkes bir şeyler yapıyor olsun. Çöp adam değil, gerçek insanlar çiz. Bitirdiğinde haber ver.",
         notes: [
-          "Kagidi yatay ver",
-          "'Kinetik' onemli - hareket/aktivite olmali",
-          "Eger 'Butun ailemi mi?' derse: 'Evet, seninle birlikte yasayanlari' de"
+          "Kağıdı yatay ver",
+          "'Kinetik' önemli - hareket/aktivite olmalı",
+          "Eğer 'Bütün ailemi mi?' derse: 'Evet, seninle birlikte yaşayanları' de"
         ]
       },
       {
-        name: "Gozlem",
-        instruction: "Cizim sirasinda sessizce gozlem yap.",
+        name: "Gözlem",
+        instruction: "Çizim sırasında sessizce gözlem yap.",
         notes: [
-          "Hangi aile uyesinden basladigini not et",
-          "Cizim sirasini kaydet (cok onemli!)",
-          "Kim buyuk, kim kucuk cizildi",
-          "Kisiler arasi mesafeler",
-          "Silinen/degistirilen figurler",
-          "Tereddut edilen kisiler"
+          "Hangi aile üyesinden başladığını not et",
+          "Çizim sırasını kaydet (çok önemli!)",
+          "Kim büyük, kim küçük çizildi",
+          "Kişiler arası mesafeler",
+          "Silinen/değiştirilen figürler",
+          "Tereddüt edilen kişiler"
         ]
       },
       {
         name: "Sorgulama",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
-          "Butun resmi anlatir misin?",
-          "Bu kim? (her figur icin)",
-          "Ne yapiyor? (her figur icin)",
-          "Bu aile nasil hissediyor?",
+          "Bütün resmi anlatır mısın?",
+          "Bu kim? (her figür için)",
+          "Ne yapıyor? (her figür için)",
+          "Bu aile nasıl hissediyor?",
           "En mutlu olan kim?",
-          "En uzgun olan kim?",
-          "Bu aile birlikte ne yapmaktan hoslanir?",
-          "Sen bu resimde neredesin? Ne yapiyorsun?"
+          "En üzgün olan kim?",
+          "Bu aile birlikte ne yapmaktan hoşlanır?",
+          "Sen bu resimde neredesin? Ne yapıyorsun?"
         ]
       }
     ],
     observations: [
-      "Cizim sirasi (ilk cizilen genelde en onemli)",
-      "Figurlerin buyukluk oranlari",
-      "Figurler arasi mesafe (yakinlik/uzaklik)",
-      "Figurlerin yonu (birbirine bakiyor mu?)",
-      "Kim kimle gruplanmis",
-      "Aktiviteler (birlikte mi, ayri mi?)",
-      "Eksik aile uyeleri",
-      "Eklenen uyeler (evcil hayvan, vefat etmis kisi)",
-      "Bariyerler (figurler arasi cizgiler, nesneler)",
-      "Kendini cizmediyse neden"
+      "Çizim sırası (ilk çizilen genelde en önemli)",
+      "Figürlerin büyüklük oranları",
+      "Figürler arası mesafe (yakınlık/uzaklık)",
+      "Figürlerin yönü (birbirine bakıyor mu?)",
+      "Kim kimle gruplanmış",
+      "Aktiviteler (birlikte mi, ayrı mı?)",
+      "Eksik aile üyeleri",
+      "Eklenen üyeler (evcil hayvan, vefat etmiş kişi)",
+      "Bariyerler (figürler arası çizgiler, nesneler)",
+      "Kendini çizmediyse neden"
     ],
     donts: [
-      "Rolleri dikte etme (anne yemek yapiyor olsun vb.)",
-      "Eksik kisi hatirlatma (babani cizemdin mi?)",
-      "Aktivite onerme",
-      "Kim oldugunu tahmin etme, sor",
-      "Buyukluk/kucukluk hakkinda yorum yapma"
+      "Rolleri dikte etme (anne yemek yapıyor olsun vb.)",
+      "Eksik kişi hatırlatma (babanı çizemedim mi?)",
+      "Aktivite önerme",
+      "Kim olduğunu tahmin etme, sor",
+      "Büyüklük/küçüklük hakkında yorum yapma"
     ],
     captureHints: [
-      "Tum kagit kadraja girmeli",
-      "Figurler arasi mesafeler gorunmeli",
-      "Cizim sirasini not olarak ekle"
+      "Tüm kağıt kadraja girmeli",
+      "Figürler arası mesafeler görünmeli",
+      "Çizim sırasını not olarak ekle"
     ],
     scoringNotes: [
-      "Burns & Kaufman sistemi kullanilir",
-      "Aksiyonlar arasi iliski analizi",
-      "Figur stilleri ve semboller degerlendirilir"
+      "Burns & Kaufman sistemi kullanılır",
+      "Aksiyonlar arası ilişki analizi",
+      "Figür stilleri ve semboller değerlendirilir"
     ],
     requiredImages: [
-      { id: "family", label: "Aile Cizimi", description: "Tum aile uyelerinin yer aldigi cizim" }
+      { id: "family", label: "Aile Çizimi", description: "Tüm aile üyelerinin yer aldığı çizim" }
     ]
   },
 
   Kaktus: {
-    title: "Kaktus Testi (Panfilova)",
-    ageRange: "4-12 yas",
+    title: "Kaktüs Testi (Panfilova)",
+    ageRange: "4-12 yaş",
     duration: "10-15 dakika",
     materials: [
-      "A4 beyaz kagit",
+      "A4 beyaz kağıt",
       "HB kurşun kalem",
       "Renkli kalemler/boya kalemleri (opsiyonel)",
       "Silgi"
     ],
     phases: [
       {
-        name: "Yonerge",
-        instruction: "Bu kagida bir kaktus ciz. Istedigin gibi cizebilirsin. Bitirdiginde haber ver.",
+        name: "Yönerge",
+        instruction: "Bu kağıda bir kaktüs çiz. İstediğin gibi çizebilirsin. Bitirdiğinde haber ver.",
         notes: [
-          "Kagidi dikey ver",
-          "Hic bir yonlendirme yapma",
-          "Saksi, cicek, col gibi eklentiler isteme"
+          "Kağıdı dikey ver",
+          "Hiçbir yönlendirme yapma",
+          "Saksı, çiçek, çöl gibi eklentiler isteme"
         ]
       },
       {
-        name: "Gozlem",
-        instruction: "Cizim sirasinda sessizce gozlem yap.",
+        name: "Gözlem",
+        instruction: "Çizim sırasında sessizce gözlem yap.",
         notes: [
-          "Nereden cizmeye basladigini not et",
-          "Diken cizerken davranisi gozle",
-          "Silgi kullanimi",
-          "Renk secimi (renkli yapiliyorsa)"
+          "Nereden çizmeye başladığını not et",
+          "Diken çizerken davranışı gözle",
+          "Silgi kullanımı",
+          "Renk seçimi (renkli yapılıyorsa)"
         ]
       },
       {
         name: "Sorgulama",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
-          "Bu kaktus nasil hissediyor?",
-          "Bu kaktus mutlu mu, uzgun mu?",
-          "Bu kaktus yalniz mi?",
-          "Bu kaktusun yaninda baska bitkiler var mi?",
-          "Bu kaktuse dokunsan ne olur?",
-          "Bu kaktus ev mi yoksa dis mi? (saksi/toprak)",
-          "Bu kaktusun neye ihtiyaci var?",
-          "Bu kaktus buyuduğunde nasil olacak?"
+          "Bu kaktüs nasıl hissediyor?",
+          "Bu kaktüs mutlu mu, üzgün mü?",
+          "Bu kaktüs yalnız mı?",
+          "Bu kaktüsün yanında başka bitkiler var mı?",
+          "Bu kaktüse dokunsan ne olur?",
+          "Bu kaktüs evde mi yoksa dışarıda mı? (saksı/toprak)",
+          "Bu kaktüsün neye ihtiyacı var?",
+          "Bu kaktüs büyüdüğünde nasıl olacak?"
         ]
       }
     ],
     observations: [
-      "Kaktus boyutu (sayfaya orani)",
-      "Diken sayisi ve yogunlugu",
-      "Dikenlerin boyutu (uzun/kisa)",
-      "Dikenlerin yonu (her yone/yukariya/asagiya)",
-      "Cicek varligı",
-      "Saksi var mi yok mu",
-      "Kok gorünuyor mu",
-      "Cevre ogeleri (diger bitkiler, gunes, toprak)",
-      "Renk kullanimi",
-      "Cizginin karakteri (sert/yumusak)"
+      "Kaktüs boyutu (sayfaya oranı)",
+      "Diken sayısı ve yoğunluğu",
+      "Dikenlerin boyutu (uzun/kısa)",
+      "Dikenlerin yönü (her yöne/yukarıya/aşağıya)",
+      "Çiçek varlığı",
+      "Saksı var mı yok mu",
+      "Kök görünüyor mu",
+      "Çevre öğeleri (diğer bitkiler, güneş, toprak)",
+      "Renk kullanımı",
+      "Çizginin karakteri (sert/yumuşak)"
     ],
     donts: [
-      "Saksi/col/cicek/gunes eklemeyi isteme",
-      "Dikenleri hatirlatma",
-      "Ornek gosterme",
-      "Renkli yapmasi gerektigi soyleme",
-      "Cizim hakkinda yorum yapma"
+      "Saksı/çöl/çiçek/güneş eklemeyi isteme",
+      "Dikenleri hatırlatma",
+      "Örnek gösterme",
+      "Renkli yapması gerektiğini söyleme",
+      "Çizim hakkında yorum yapma"
     ],
     captureHints: [
-      "Tum kagit gorunmeli",
-      "Dikenlerin detayi secilmeli",
-      "Renk kullanildiysa dogru renkleri yansitmali"
+      "Tüm kağıt görünmeli",
+      "Dikenlerin detayı seçilmeli",
+      "Renk kullanıldıysa doğru renkleri yansıtmalı"
     ],
     scoringNotes: [
-      "Panfilova degerlendirme kriterleri kullanilir",
-      "Saldirganlik gostergeleri: buyuk diken, cok diken, sert cizgiler",
-      "Kaygı gostergeleri: kucuk cizim, ic cizgiler, koyu renkler",
-      "Icine kapanikilk: saksi, yalin cizim, cevre yok"
+      "Panfilova değerlendirme kriterleri kullanılır",
+      "Saldırganlık göstergeleri: büyük diken, çok diken, sert çizgiler",
+      "Kaygı göstergeleri: küçük çizim, iç çizgiler, koyu renkler",
+      "İçine kapanıklık: saksı, yalın çizim, çevre yok"
     ],
     requiredImages: [
-      { id: "cactus", label: "Kaktus Cizimi", description: "Cocugun cizdigi kaktus" }
+      { id: "cactus", label: "Kaktüs Çizimi", description: "Çocuğun çizdiği kaktüs" }
     ]
   },
 
   Agac: {
-    title: "Agac Testi (Koch)",
-    ageRange: "4+ yas",
+    title: "Ağaç Testi (Koch)",
+    ageRange: "4+ yaş",
     duration: "10-20 dakika",
     materials: [
-      "A4 beyaz kagit",
+      "A4 beyaz kağıt",
       "HB kurşun kalem",
       "Silgi"
     ],
     phases: [
       {
-        name: "Yonerge",
-        instruction: "Bu kagida bir agac ciz. Meyve agaci disinda, istedigin turde bir agac. Bitirdiginde haber ver.",
+        name: "Yönerge",
+        instruction: "Bu kağıda bir ağaç çiz. Meyve ağacı dışında, istediğin türde bir ağaç. Bitirdiğinde haber ver.",
         notes: [
-          "Kagidi dikey ver",
-          "'Meyve agaci disinda' onemli - stereotype onlenir",
-          "Eger 'Ne tur?' derse: 'Meyve agaci haric istedigin tur' de"
+          "Kağıdı dikey ver",
+          "'Meyve ağacı dışında' önemli - stereotype önlenir",
+          "Eğer 'Ne tür?' derse: 'Meyve ağacı hariç istediğin tür' de"
         ]
       },
       {
-        name: "Gozlem",
-        instruction: "Cizim sirasinda sessizce gozlem yap.",
+        name: "Gözlem",
+        instruction: "Çizim sırasında sessizce gözlem yap.",
         notes: [
-          "Cizim sirasi (govde/dallar/kok/tac)",
-          "Kalem basinci",
-          "Silgi kullanimi",
-          "Toplam sure"
+          "Çizim sırası (gövde/dallar/kök/taç)",
+          "Kalem basıncı",
+          "Silgi kullanımı",
+          "Toplam süre"
         ]
       },
       {
         name: "Sorgulama",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
-          "Bu ne tur bir agac?",
-          "Bu agac kac yasinda?",
-          "Bu agac canli mi?",
-          "Bu agac saglikli mi?",
-          "Bu agac nerede yetisiyor?",
-          "Bu agacin bir hikayesi olsa nasil olurdu?",
-          "Bu agac nasil hissediyor?",
-          "Bu agacin neye ihtiyaci var?"
+          "Bu ne tür bir ağaç?",
+          "Bu ağaç kaç yaşında?",
+          "Bu ağaç canlı mı?",
+          "Bu ağaç sağlıklı mı?",
+          "Bu ağaç nerede yetişiyor?",
+          "Bu ağacın bir hikayesi olsa nasıl olurdu?",
+          "Bu ağaç nasıl hissediyor?",
+          "Bu ağacın neye ihtiyacı var?"
         ]
       }
     ],
     observations: [
-      "Agacin sayfadaki konumu (orta/sag/sol/yukari/asagi)",
-      "Agacin boyutu",
-      "Govde: kalinlik, yaralar, kovuklar, kabuk detayi",
-      "Dallar: sayisi, yonu, kirik dallar, olukluk",
-      "Kok: gorunuyor mu, buyuklugu, sekli",
-      "Tac/yapraklar: yogunluk, sekil, mevsim",
-      "Ek ogeler: meyve, kus, yuva, cicek, gunes",
-      "Cizgi kalitesi: akici/kesik/titrek",
-      "Genel izlenim: saglikli/hasta/cansiz"
+      "Ağacın sayfadaki konumu (orta/sağ/sol/yukarı/aşağı)",
+      "Ağacın boyutu",
+      "Gövde: kalınlık, yaralar, kovuklar, kabuk detayı",
+      "Dallar: sayısı, yönü, kırık dallar, oluk",
+      "Kök: görünüyor mu, büyüklüğü, şekli",
+      "Taç/yapraklar: yoğunluk, şekil, mevsim",
+      "Ek öğeler: meyve, kuş, yuva, çiçek, güneş",
+      "Çizgi kalitesi: akıcı/kesik/titrek",
+      "Genel izlenim: sağlıklı/hasta/cansız"
     ],
     donts: [
-      "Kok cizdirmeyi isteme",
+      "Kök çizdirmeyi isteme",
       "Yaprak eklemeyi isteme",
       "Mevsim belirtme",
-      "'Gercek bir agac' deme",
-      "Ornek gosterme"
+      "'Gerçek bir ağaç' deme",
+      "Örnek gösterme"
     ],
     captureHints: [
-      "Tum kagit gorunmeli",
-      "Agacin her detayi (kok, tac) net olmali",
-      "Cizgi kalitesi anlasilabilmeli"
+      "Tüm kağıt görünmeli",
+      "Ağacın her detayı (kök, taç) net olmalı",
+      "Çizgi kalitesi anlaşılabilmeli"
     ],
     scoringNotes: [
-      "Koch'un 59 ozellik listesi referans alinir",
-      "Govde = ego gucu, benlik",
-      "Dallar = cevre ile iliski",
-      "Kok = icguduler, bilincdisi",
-      "Tac = fantezi, dusunce"
+      "Koch'un 59 özellik listesi referans alınır",
+      "Gövde = ego gücü, benlik",
+      "Dallar = çevre ile ilişki",
+      "Kök = içgüdüler, bilinçdışı",
+      "Taç = fantezi, düşünce"
     ],
     requiredImages: [
-      { id: "tree", label: "Agac Cizimi", description: "Cocugun cizdigi agac" }
+      { id: "tree", label: "Ağaç Çizimi", description: "Çocuğun çizdiği ağaç" }
     ]
   },
 
   Bahce: {
-    title: "Bahce Testi",
-    ageRange: "4+ yas",
+    title: "Bahçe Testi",
+    ageRange: "4+ yaş",
     duration: "15-20 dakika",
     materials: [
-      "A4 beyaz kagit",
+      "A4 beyaz kağıt",
       "Renkli kalemler/boya kalemleri",
-      "Kurşun kalem (taslak icin opsiyonel)",
+      "Kurşun kalem (taslak için opsiyonel)",
       "Silgi"
     ],
     phases: [
       {
-        name: "Yonerge",
-        instruction: "Bu kagida bir bahce ciz. Istedigin turde bir bahce olabilir. Bitirdiginde haber ver.",
+        name: "Yönerge",
+        instruction: "Bu kağıda bir bahçe çiz. İstediğin türde bir bahçe olabilir. Bitirdiğinde haber ver.",
         notes: [
-          "Kagit yatay veya dikey verilebilir (cocuk secsin)",
-          "Renkli kalem kullanmasi tesvik edilir",
-          "Ne tur bahce oldugu sorulursa: 'Istedigin turde' de"
+          "Kağıt yatay veya dikey verilebilir (çocuk seçsin)",
+          "Renkli kalem kullanması teşvik edilir",
+          "Ne tür bahçe olduğu sorulursa: 'İstediğin türde' de"
         ]
       },
       {
-        name: "Gozlem",
-        instruction: "Cizim sirasinda sessizce gozlem yap.",
+        name: "Gözlem",
+        instruction: "Çizim sırasında sessizce gözlem yap.",
         notes: [
-          "Ilk cizilen oge",
-          "Renk secimleri",
-          "Bahcenin organizasyonu (duzenli/dagınik)",
-          "Cit/duvar var mi"
+          "İlk çizilen öğe",
+          "Renk seçimleri",
+          "Bahçenin organizasyonu (düzenli/dağınık)",
+          "Çit/duvar var mı"
         ]
       },
       {
         name: "Sorgulama",
-        instruction: "Cizim bittikten sonra asagidaki sorulari sor:",
+        instruction: "Çizim bittikten sonra aşağıdaki soruları sor:",
         notes: [
-          "Bu bahce nerede?",
-          "Bu bahceye kim bakiyor?",
-          "Bu bahceye kimler geliyor?",
-          "Bu bahcede ne yapmak istersin?",
-          "Bu bahce nasil hissediyor?",
-          "Bu bahcede en sevdiğin yer neresi?",
-          "Bu bahcede olmamasini istediğin bir sey var mi?"
+          "Bu bahçe nerede?",
+          "Bu bahçeye kim bakıyor?",
+          "Bu bahçeye kimler geliyor?",
+          "Bu bahçede ne yapmak istersin?",
+          "Bu bahçe nasıl hissediyor?",
+          "Bu bahçede en sevdiğin yer neresi?",
+          "Bu bahçede olmamasını istediğin bir şey var mı?"
         ]
       }
     ],
     observations: [
-      "Bahce sinirları (cit, duvar, yol)",
-      "Bitki cesitliligi",
-      "Renkler ve yogunluk",
-      "Insan/hayvan figuru var mi",
-      "Ev veya yapi var mi",
-      "Su ogesi (havuz, ceşme)",
+      "Bahçe sınırları (çit, duvar, yol)",
+      "Bitki çeşitliliği",
+      "Renkler ve yoğunluk",
+      "İnsan/hayvan figürü var mı",
+      "Ev veya yapı var mı",
+      "Su öğesi (havuz, çeşme)",
       "Yollar ve giriş",
       "Mevsim/hava durumu",
-      "Bos alanlar"
+      "Boş alanlar"
     ],
     donts: [
-      "Belirli cicek/agac isteme",
-      "Cit/duvar eklemeyi isteme",
-      "Renk onermede bulunma",
-      "Ornekler gosterme"
+      "Belirli çiçek/ağaç isteme",
+      "Çit/duvar eklemeyi isteme",
+      "Renk önermede bulunma",
+      "Örnekler gösterme"
     ],
     captureHints: [
-      "Renklerin dogru yansidığindan emin ol",
-      "Tum kagit gorunmeli",
-      "Detaylar secilmeli"
+      "Renklerin doğru yansıdığından emin ol",
+      "Tüm kağıt görünmeli",
+      "Detaylar seçilmeli"
     ],
     requiredImages: [
-      { id: "garden", label: "Bahce Cizimi", description: "Cocugun cizdigi bahce" }
+      { id: "garden", label: "Bahçe Çizimi", description: "Çocuğun çizdiği bahçe" }
     ]
   },
 
   Bender: {
     title: "Bender-Gestalt II",
-    ageRange: "4-85+ yas",
+    ageRange: "4-85+ yaş",
     duration: "Kopya: 5-10 dk, Hatırlama: 5 dk, Motor/Algı: 4-6 dk",
     materials: [
-      "Bender-Gestalt II stimulus kartlari (16 kart)",
-      "Cizgisiz beyaz kagit (birden fazla)",
+      "Bender-Gestalt II stimulus kartları (16 kart)",
+      "Çizgisiz beyaz kağıt (birden fazla)",
       "2 adet HB kurşun kalem",
       "Silgi (istenirse)",
       "Kronometre",
-      "Sert zemin/altlik"
+      "Sert zemin/altlık"
     ],
     phases: [
       {
-        name: "Hazirlik",
-        instruction: "Masayi temizle, dikkat dagitici sey olmasin. Kagidi ve kalemi cocugun onune koy.",
+        name: "Hazırlık",
+        instruction: "Masayı temizle, dikkat dağıtıcı şey olmasın. Kağıdı ve kalemi çocuğun önüne koy.",
         notes: [
-          "Kagit dikey konumda",
-          "Aydinlatma yeterli olmali",
-          "Cocugun rahat oturduğundan emin ol"
+          "Kağıt dikey konumda",
+          "Aydınlatma yeterli olmalı",
+          "Çocuğun rahat oturduğundan emin ol"
         ]
       },
       {
-        name: "Kopya Asamasi",
-        instruction: "Sana bazi kartlar gosterecegim. Her kartta bir sekil var. Sekli bu kagida, gordugune en yakin sekilde ciz. Hazir misin?",
+        name: "Kopya Aşaması",
+        instruction: "Sana bazı kartlar göstereceğim. Her kartta bir şekil var. Şekli bu kağıda, gördüğüne en yakın şekilde çiz. Hazır mısın?",
         duration: "5-10 dakika (16 kart)",
         notes: [
-          "Karti cocugun tam onune, kagitın ustune koy",
-          "Kart cizim BITENE kadar kaldirilmaz",
-          "Her seklin suresini ayri kaydet (opsiyonel ama onerilen)",
-          "Kagit dolunca yeni kagit ver (istenirse veya yer kalmayinca)",
-          "Davranislari not et: sayma, kagit dondurme, karti dondurme istegi"
+          "Kartı çocuğun tam önüne, kağıdın üstüne koy",
+          "Kart çizim BİTENE kadar kaldırılmaz",
+          "Her şeklin süresini ayrı kaydet (opsiyonel ama önerilen)",
+          "Kağıt dolunca yeni kağıt ver (istenirse veya yer kalmayınca)",
+          "Davranışları not et: sayma, kağıt döndürme, kartı döndürme isteği"
         ]
       },
       {
-        name: "Hatırlama Asamasi",
-        instruction: "Simdi, sana gosterdigim sekilleri hatirladigın kadar ciz. Kartlarda gordugune benzer sekilde cizmeye calis. Istedigin kadar zaman alabilirsin.",
+        name: "Hatırlama Aşaması",
+        instruction: "Şimdi, sana gösterdiğim şekilleri hatırladığın kadar çiz. Kartlarda gördüğüne benzer şekilde çizmeye çalış. İstediğin kadar zaman alabilirsin.",
         duration: "~5 dakika",
         notes: [
-          "Kopya asamasindan HEMEN sonra yapilir",
-          "Yeni, bos kagit ver",
-          "Stimulus kartlar GOSTERILMEZ",
-          "Yaklasik 2 dakika hatırlayamiyorsa dur",
-          "Hatirladigi sekileri say"
+          "Kopya aşamasından HEMEN sonra yapılır",
+          "Yeni, boş kağıt ver",
+          "Stimulus kartlar GÖSTERİLMEZ",
+          "Yaklaşık 2 dakika hatırlayamıyorsa dur",
+          "Hatırladığı şekilleri say"
         ]
       },
       {
         name: "Motor Test (Opsiyonel)",
-        instruction: "Simdi sana baska kartlar gosterecegim. Her kartta uc sekil var. Ortadaki sekle en cok benzeyeni bul ve goster.",
+        instruction: "Şimdi sana başka kartlar göstereceğim. Her kartta üç şekil var. Ortadaki şekle en çok benzeyeni bul ve göster.",
         duration: "2-4 dakika",
         notes: [
           "4 maddelik motor test",
-          "Her maddede 3 secenekli eslesme",
+          "Her maddede 3 seçenekli eşleşme",
           "4 dakika sonra durdur"
         ]
       },
       {
-        name: "Algi Testi (Opsiyonel)",
-        instruction: "Simdi bu sekillere bak. Hangisi farkli goster.",
+        name: "Algı Testi (Opsiyonel)",
+        instruction: "Şimdi bu şekillere bak. Hangisi farklı göster.",
         duration: "2-4 dakika",
         notes: [
-          "Algisal ayirt etme kapasitesini olcer",
-          "Dusuk kopya performansinin nedenini anlamaya yarar"
+          "Algısal ayırt etme kapasitesini ölçer",
+          "Düşük kopya performansının nedenini anlamaya yarar"
         ]
       }
     ],
     observations: [
-      "Her sekil icin sure",
-      "Toplam kopya suresi",
-      "Toplam hatırlama suresi",
-      "Hatırlanan sekil sayisi",
-      "Kagit dondurme davranisi",
-      "Kart dondurme istegi",
-      "Noktalari/dalgalari sayma",
-      "Silgi kullanimi",
-      "Cizime yeniden baslama",
-      "Motor koordinasyon guçluğu",
-      "Frustrasyon/kaygi belirtileri"
+      "Her şekil için süre",
+      "Toplam kopya süresi",
+      "Toplam hatırlama süresi",
+      "Hatırlanan şekil sayısı",
+      "Kağıt döndürme davranışı",
+      "Kart döndürme isteği",
+      "Noktaları/dalgaları sayma",
+      "Silgi kullanımı",
+      "Çizime yeniden başlama",
+      "Motor koordinasyon güçlüğü",
+      "Frustrasyon/kaygı belirtileri"
     ],
     donts: [
-      "Kart sirasini ASLA atlama/degistirme",
-      "Karti cizim bitmeden kaldirma",
-      "Hiz/yavas ile ilgili yorum yapma",
-      "Dogru/yanlis geri bildirim verme",
-      "Sekli tarif etme/adlandirma",
-      "Hatırlama oncesi ipucu verme",
-      "Sure kisitlamasi soyleme"
+      "Kart sırasını ASLA atlama/değiştirme",
+      "Kartı çizim bitmeden kaldırma",
+      "Hız/yavaş ile ilgili yorum yapma",
+      "Doğru/yanlış geri bildirim verme",
+      "Şekli tarif etme/adlandırma",
+      "Hatırlama öncesi ipucu verme",
+      "Süre kısıtlaması söyleme"
     ],
     captureHints: [
-      "Her sayfayi ayri fotografla",
-      "Kopya ve Hatırlama kagitlarini ayir",
-      "Sekillerin tamami net gorunmeli",
-      "Sayfa duz, golgeler yok"
+      "Her sayfayı ayrı fotoğrafla",
+      "Kopya ve Hatırlama kağıtlarını ayır",
+      "Şekillerin tamamı net görünmeli",
+      "Sayfa düz, gölgeler yok"
     ],
     scoringNotes: [
-      "Global Skorlama Sistemi kullanilir",
-      "Her sekil 0-4 arasi puanlanir",
+      "Global Skorlama Sistemi kullanılır",
+      "Her şekil 0-4 arası puanlanır",
       "Kopya Ham Puan + Hatırlama Ham Puan",
-      "Yas normlarına gore standart puan",
-      "Gorus-motor entegrasyon, motor beceri, algi ayri degerlendirilir"
+      "Yaş normlarına göre standart puan",
+      "Görüş-motor entegrasyon, motor beceri, algı ayrı değerlendirilir"
     ],
     requiredImages: [
-      { id: "copy", label: "Kopya Sayfasi", description: "Stimulus kartlara bakarak cizilen sayfa(lar)" },
-      { id: "recall", label: "Hatırlama Sayfasi", description: "Bellekten cizilen sayfa", optional: true }
+      { id: "copy", label: "Kopya Sayfası", description: "Stimulus kartlara bakarak çizilen sayfa(lar)" },
+      { id: "recall", label: "Hatırlama Sayfası", description: "Bellekten çizilen sayfa", optional: true }
     ]
   },
 
   Rey: {
-    title: "Rey-Osterrieth Karmasik Figur Testi (ROCF)",
-    ageRange: "6-89 yas",
+    title: "Rey-Osterrieth Karmaşık Figür Testi (ROCF)",
+    ageRange: "6-89 yaş",
     duration: "30-45 dakika (gecikmeli hatırlama dahil)",
     materials: [
-      "ROCF stimulus karti",
-      "Bos beyaz kagitlar (en az 3)",
-      "Renkli kalemler (6-8 farkli renk - cizim sirasi icin)",
+      "ROCF stimulus kartı",
+      "Boş beyaz kağıtlar (en az 3)",
+      "Renkli kalemler (6-8 farklı renk - çizim sırası için)",
       "Kronometre",
-      "Not kagidi"
+      "Not kağıdı"
     ],
     phases: [
       {
-        name: "Kopya Asamasi",
-        instruction: "Bu sekle bak. Ayni sekli bu kagida olabildiğince dogru bir sekilde ciz. Acelemiz yok, istedigin kadar zaman alabilirsin.",
-        duration: "Sinir yok, ortalama 5-10 dk",
+        name: "Kopya Aşaması",
+        instruction: "Bu şekle bak. Aynı şekli bu kağıda olabildiğince doğru bir şekilde çiz. Acelemiz yok, istediğin kadar zaman alabilirsin.",
+        duration: "Sınır yok, ortalama 5-10 dk",
         notes: [
-          "Stimulus karti sabit tutulur, dondurulemez",
-          "Renkli kalem yontemi: Her 30-60 sn'de renk degistir (cizim stratejisini anlamak icin)",
-          "Alternatif: Cizim sirasini numaralandir",
-          "Silgi kullanımı izin verilir",
-          "Surenin kaydedilmeli",
-          "ONEMLI: Hatırlama asamasi hakkinda ONCEDEN BILGI VERME"
+          "Stimulus kartı sabit tutulur, döndürülemez",
+          "Renkli kalem yöntemi: Her 30-60 sn'de renk değiştir (çizim stratejisini anlamak için)",
+          "Alternatif: Çizim sırasını numaralandır",
+          "Silgi kullanımına izin verilir",
+          "Süre kaydedilmeli",
+          "ÖNEMLİ: Hatırlama aşaması hakkında ÖNCEDEN BİLGİ VERME"
         ]
       },
       {
         name: "Ani Hatırlama (Immediate Recall)",
-        instruction: "Simdi az once cizdigin sekli hatirladigın kadar yeniden ciz. Bakmadan, sadece hatırladigın kadariyla ciz.",
-        duration: "~3 dakika bekleme sonrasi",
+        instruction: "Şimdi az önce çizdiğin şekli hatırladığın kadar yeniden çiz. Bakmadan, sadece hatırladığın kadarıyla çiz.",
+        duration: "~3 dakika bekleme sonrası",
         notes: [
           "Kopya bittikten 3 dakika sonra",
-          "Stimulus ve kopya kaldirilir (cocuk gormez)",
-          "Yeni bos kagit verilir",
-          "Hatırlama istendigi ONCEDEN soylenmemisti - incidental memory",
-          "Surenin kaydedilmeli"
+          "Stimulus ve kopya kaldırılır (çocuk görmez)",
+          "Yeni boş kağıt verilir",
+          "Hatırlama istendiği ÖNCEDEN söylenmemişti - incidental memory",
+          "Süre kaydedilmeli"
         ]
       },
       {
         name: "Gecikmeli Hatırlama (Delayed Recall)",
-        instruction: "Simdi en bastaki sekli tekrar hatırlayarak ciz. Bakmadan, hatırladigın kadariyla.",
+        instruction: "Şimdi en baştaki şekli tekrar hatırlayarak çiz. Bakmadan, hatırladığın kadarıyla.",
         duration: "20-30 dakika sonra",
         notes: [
           "Ani hatırlamadan 20-30 dakika sonra",
-          "Bu arada baska aktiviteler yapilabilir (ilgisiz gorevler)",
-          "Yeni bos kagit",
-          "Uzun sureli gorsel belleği olcer",
-          "Surenin kaydedilmeli"
+          "Bu arada başka aktiviteler yapılabilir (ilgisiz görevler)",
+          "Yeni boş kağıt",
+          "Uzun süreli görsel belleği ölçer",
+          "Süre kaydedilmeli"
         ]
       },
       {
         name: "Tanıma (Recognition - Opsiyonel)",
-        instruction: "Simdi sana bazi sekiller gosterecegim. Bunlardan hangileri en basta gordugün buyuk seklin parcasiydi?",
+        instruction: "Şimdi sana bazı şekiller göstereceğim. Bunlardan hangileri en başta gördüğün büyük şeklin parçasıydı?",
         notes: [
           "24 maddeli tanıma testi",
-          "12 doğru, 12 yanlis (distractor)",
-          "Kodlama vs. geriye getirme farkini anlama"
+          "12 doğru, 12 yanlış (distractor)",
+          "Kodlama vs. geri getirme farkını anlama"
         ]
       }
     ],
     observations: [
-      "Kopya suresi",
-      "Ani hatırlama suresi",
-      "Gecikmeli hatırlama suresi",
-      "Cizim stratejisi (butuncu/parcaci/dagınık)",
-      "Baslangic noktasi",
+      "Kopya süresi",
+      "Ani hatırlama süresi",
+      "Gecikmeli hatırlama süresi",
+      "Çizim stratejisi (bütüncü/parçacı/dağınık)",
+      "Başlangıç noktası",
       "Organizasyon kalitesi",
-      "Detay dogruluğu",
-      "Yerlesim dogruluğu",
-      "Silgi kullanimi",
+      "Detay doğruluğu",
+      "Yerleşim doğruluğu",
+      "Silgi kullanımı",
       "Motor kontrol kalitesi"
     ],
     donts: [
-      "Hatırlama asamasi oldugunu onceden soyleme (incidental memory!)",
-      "Sure kisitlamasi soyleme",
-      "Cizim sirasinda 'guzel, dogru' gibi geri bildirim verme",
-      "Stimulus karti dondurmeye izin verme",
-      "Hatırlama asamasinda ipucu verme",
-      "Kopya ve hatırlama arasinda sekil hakkinda konusma"
+      "Hatırlama aşaması olduğunu önceden söyleme (incidental memory!)",
+      "Süre kısıtlaması söyleme",
+      "Çizim sırasında 'güzel, doğru' gibi geri bildirim verme",
+      "Stimulus kartı döndürmeye izin verme",
+      "Hatırlama aşamasında ipucu verme",
+      "Kopya ve hatırlama arasında şekil hakkında konuşma"
     ],
     captureHints: [
-      "Her asama icin ayri fotograf (Kopya, Ani, Gecikmeli)",
-      "Renkli kalem kullanildiysa renk sirasi gorunmeli",
-      "18 parcadan her biri gorunmeli",
-      "Detaylar net olmali"
+      "Her aşama için ayrı fotoğraf (Kopya, Ani, Gecikmeli)",
+      "Renkli kalem kullanıldıysa renk sırası görünmeli",
+      "18 parçadan her biri görünmeli",
+      "Detaylar net olmalı"
     ],
     scoringNotes: [
       "18 element, her biri 2 puan (max 36)",
-      "Dogruluk (0, 0.5, 1) + Yerlesim (0, 0.5, 1)",
-      "Kopya, Ani Hatırlama, Gecikmeli Hatırlama ayri puanlanir",
-      "Yas normlarına gore percentil ve standart puan",
-      "Organizasyon stratejisi ayrica degerlendirilir"
+      "Doğruluk (0, 0.5, 1) + Yerleşim (0, 0.5, 1)",
+      "Kopya, Ani Hatırlama, Gecikmeli Hatırlama ayrı puanlanır",
+      "Yaş normlarına göre persentil ve standart puan",
+      "Organizasyon stratejisi ayrıca değerlendirilir"
     ],
     requiredImages: [
-      { id: "copy", label: "Kopya Cizimi", description: "Stimulus karta bakarak cizilen sekil" },
-      { id: "immediate", label: "Ani Hatırlama", description: "3 dk sonra bellekten cizilen sekil" },
-      { id: "delayed", label: "Gecikmeli Hatırlama", description: "20-30 dk sonra bellekten cizilen sekil", optional: true }
+      { id: "copy", label: "Kopya Çizimi", description: "Stimulus karta bakarak çizilen şekil" },
+      { id: "immediate", label: "Ani Hatırlama", description: "3 dk sonra bellekten çizilen şekil" },
+      { id: "delayed", label: "Gecikmeli Hatırlama", description: "20-30 dk sonra bellekten çizilen şekil", optional: true }
     ]
   },
 
   Luscher: {
-    title: "Luscher Renk Testi (8 Renkli Kisa Form)",
-    ageRange: "5+ yas",
+    title: "Lüscher Renk Testi (8 Renkli Kısa Form)",
+    ageRange: "5+ yaş",
     duration: "5-10 dakika",
     materials: [
-      "8 adet standart Luscher renk karti",
-      "Not kagidi ve kalem",
-      "Notr gri zemin/masa ortusu (ideal)",
-      "Dogal veya notr isik"
+      "8 adet standart Lüscher renk kartı",
+      "Not kağıdı ve kalem",
+      "Nötr gri zemin/masa örtüsü (ideal)",
+      "Doğal veya nötr ışık"
     ],
     phases: [
       {
-        name: "Hazirlik",
-        instruction: "8 renk kartini rasgele sirala ve cocugun onune yay.",
+        name: "Hazırlık",
+        instruction: "8 renk kartını rastgele sırala ve çocuğun önüne yay.",
         notes: [
-          "Isik notr olmali (sari/mavi tonlu olmasin)",
-          "Kartlar birbirine yakin, hepsi gorunur",
-          "Ideal: gri zemin uzerine kartlar",
-          "Renkler: Mavi, Yesil, Kirmizi, Sari, Mor, Kahverengi, Siyah, Gri"
+          "Işık nötr olmalı (sarı/mavi tonlu olmasın)",
+          "Kartlar birbirine yakın, hepsi görünür",
+          "İdeal: gri zemin üzerine kartlar",
+          "Renkler: Mavi, Yeşil, Kırmızı, Sarı, Mor, Kahverengi, Siyah, Gri"
         ]
       },
       {
-        name: "Birinci Secim Turu",
-        instruction: "Bu renklere bak. Simdi en cok hosuna gideni sec. Hic dusunme, icinden geldigi gibi sec.",
+        name: "Birinci Seçim Turu",
+        instruction: "Bu renklere bak. Şimdi en çok hoşuna gideni seç. Hiç düşünme, içinden geldiği gibi seç.",
         notes: [
-          "Secilen karti kaldir ve numarasini not et",
-          "Kalan 7 renk icin ayni soruyu tekrarla",
-          "En begenileneden en az begenilene sira olusur",
-          "8 rengin tamamı siralanana kadar devam",
-          "Sira: 1. 2. 3. 4. 5. 6. 7. 8."
+          "Seçilen kartı kaldır ve numarasını not et",
+          "Kalan 7 renk için aynı soruyu tekrarla",
+          "En beğenilenden en az beğenilene sıra oluşur",
+          "8 rengin tamamı sıralanana kadar devam",
+          "Sıra: 1. 2. 3. 4. 5. 6. 7. 8."
         ]
       },
       {
         name: "Ara",
-        instruction: "2-3 dakika bekle. Farkli bir konu hakkinda kisa sohbet edilebilir.",
+        instruction: "2-3 dakika bekle. Farklı bir konu hakkında kısa sohbet edilebilir.",
         duration: "2-3 dakika",
         notes: [
-          "Renkler tekrar rasgele siralanir",
-          "Onceki secimi hatirlamamasi icin kisa ara"
+          "Renkler tekrar rastgele sıralanır",
+          "Önceki seçimi hatırlamaması için kısa ara"
         ]
       },
       {
-        name: "Ikinci Secim Turu",
-        instruction: "Simdi tekrar ayni seyi yapacagiz. Onceki secimini hatirlamaya calisma. Simdi en cok hosuna giden rengi sec.",
+        name: "İkinci Seçim Turu",
+        instruction: "Şimdi tekrar aynı şeyi yapacağız. Önceki seçimini hatırlamaya çalışma. Şimdi en çok hoşuna giden rengi seç.",
         notes: [
-          "Birinci turla AYNI prosedur",
-          "Ikinci secim sirasi not edilir",
-          "Iki tur arasindaki tutarlilik/farklılık onemli"
+          "Birinci turla AYNI prosedür",
+          "İkinci seçim sırası not edilir",
+          "İki tur arasındaki tutarlılık/farklılık önemli"
         ]
       }
     ],
     observations: [
-      "1. tur tam sira",
-      "2. tur tam sira",
-      "Iki tur arasindaki farkliliklar",
-      "Karar verme hizi",
-      "Tereddut edilen renkler",
+      "1. tur tam sıra",
+      "2. tur tam sıra",
+      "İki tur arasındaki farklılıklar",
+      "Karar verme hızı",
+      "Tereddüt edilen renkler",
       "Spontan yorumlar (bu rengi sevmiyorum vb.)",
       "Fiziksel/duygusal tepkiler"
     ],
     donts: [
-      "Renklerin anlamını aciklama",
-      "Dogru/yanlis yorum yapma",
-      "Neden bu rengi sectin diye sorma",
-      "Secimi yonlendirme",
-      "Onceki secimi hatirlatma",
-      "Renk korlugu varsa testi uygulama"
+      "Renklerin anlamını açıklama",
+      "Doğru/yanlış yorum yapma",
+      "Neden bu rengi seçtin diye sorma",
+      "Seçimi yönlendirme",
+      "Önceki seçimi hatırlatma",
+      "Renk körlüğü varsa testi uygulama"
     ],
     captureHints: [
-      "Secim sirasini net bir sekilde not et",
-      "Renk kartlarinin fotografı gerekli degil",
-      "Iki tur secim sirasi yazili olarak kaydet"
+      "Seçim sırasını net bir şekilde not et",
+      "Renk kartlarının fotoğrafı gerekli değil",
+      "İki tur seçim sırası yazılı olarak kaydet"
     ],
     scoringNotes: [
       "Renk pozisyonları analiz edilir",
-      "+/x/=/- kategorileri (istenen, beklenen, kayitsiz, reddedilen)",
-      "Renk ciftleri yorumlanir",
-      "1. ve 2. tur kiyaslanir (tutarlilik = duygusal istikrar)",
-      "Luscher'in standart yorum tablolari kullanilir"
+      "+/x/=/- kategorileri (istenen, beklenen, kayıtsız, reddedilen)",
+      "Renk çiftleri yorumlanır",
+      "1. ve 2. tur kıyaslanır (tutarlılık = duygusal istikrar)",
+      "Lüscher'in standart yorum tabloları kullanılır"
     ],
-    requiredImages: [] // Luscher renk testi gorsel gerektirmez, sadece secim sirasi notu
+    requiredImages: [] // Lüscher renk testi görsel gerektirmez, sadece seçim sırası notu
   }
 };
 
-// Eski format ile geriye uyumluluk icin helper
+// Eski format ile geriye uyumluluk için helper
 export const getSimpleProtocol = (key: string) => {
   const protocol = PROTOCOLS[key];
   if (!protocol) return null;
