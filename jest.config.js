@@ -18,7 +18,6 @@ module.exports = {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        isolatedModules: true,
         diagnostics: {
           ignoreCodes: [2571, 2339, 18046, 2345],
         },
