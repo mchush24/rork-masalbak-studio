@@ -12,6 +12,15 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 
+// Circuit breaker for AI provider resilience
+import {
+  CircuitBreaker,
+  CircuitOpenError,
+  withRetry,
+  isRetryableError,
+  isRateLimitError,
+} from "./circuit-breaker.js";
+
 // New modules for parenting support
 import {
   detectUserIntent,
@@ -39,6 +48,10 @@ import {
   UnansweredReason,
 } from './chatbot-analytics';
 
+// Standardized logger
+import { createLogger } from './logger';
+const log = createLogger('Chatbot');
+
 // Check which AI provider is available (at runtime)
 function hasAnthropicKey(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
@@ -47,6 +60,19 @@ function hasAnthropicKey(): boolean {
 function hasOpenAIKey(): boolean {
   return !!process.env.OPENAI_API_KEY;
 }
+
+// Circuit breakers for AI providers
+const anthropicCircuit = new CircuitBreaker({
+  name: "anthropic-chatbot",
+  failureThreshold: 3,
+  resetTimeout: 60000, // 1 minute
+});
+
+const openaiCircuit = new CircuitBreaker({
+  name: "openai-chatbot",
+  failureThreshold: 3,
+  resetTimeout: 60000,
+});
 
 // ============================================
 // TYPES
@@ -1300,11 +1326,11 @@ async function getAIResponse(
   // Build messages array with history (last 6 messages for context)
   const recentHistory = conversationHistory.slice(-6);
 
-  // Try Anthropic first if available, otherwise use OpenAI
-  if (hasAnthropicKey()) {
-    console.log('[Chatbot] Using Claude Haiku');
-    const client = new Anthropic();
+  const errors: Error[] = [];
 
+  // Helper: Call Anthropic with circuit breaker and retry
+  async function callAnthropic(): Promise<string> {
+    const client = new Anthropic();
     const messages: Anthropic.MessageParam[] = [
       ...recentHistory.map(msg => ({
         role: msg.role as 'user' | 'assistant',
@@ -1326,10 +1352,9 @@ async function getAIResponse(
     return textBlock?.text || 'Uzgunum, su an yanit veremedim. Lutfen tekrar deneyin.';
   }
 
-  if (hasOpenAIKey()) {
-    console.log('[Chatbot] Using GPT-4o-mini');
+  // Helper: Call OpenAI with circuit breaker and retry
+  async function callOpenAI(): Promise<string> {
     const client = new OpenAI();
-
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       { role: 'system', content: SYSTEM_PROMPT },
       ...recentHistory.map(msg => ({
@@ -1349,6 +1374,60 @@ async function getAIResponse(
     return response.choices[0]?.message?.content || 'Uzgunum, su an yanit veremedim. Lutfen tekrar deneyin.';
   }
 
+  // Try Anthropic first (primary provider)
+  if (hasAnthropicKey() && !anthropicCircuit.isOpen()) {
+    try {
+      log.debug('Trying Claude Haiku (primary)');
+      const result = await anthropicCircuit.call(() =>
+        withRetry(callAnthropic, {
+          maxRetries: 2,
+          baseDelayMs: 500,
+          shouldRetry: isRetryableError,
+        })
+      );
+      return result;
+    } catch (error) {
+      errors.push(error as Error);
+      if (error instanceof CircuitOpenError) {
+        log.warn('Anthropic circuit is open, trying fallback');
+      } else if (isRateLimitError(error)) {
+        log.warn('Anthropic rate limited, trying fallback');
+      } else {
+        log.warn('Anthropic failed', { error: (error as Error).message });
+      }
+    }
+  }
+
+  // Fallback to OpenAI
+  if (hasOpenAIKey() && !openaiCircuit.isOpen()) {
+    try {
+      log.debug('Trying GPT-4o-mini (fallback)');
+      const result = await openaiCircuit.call(() =>
+        withRetry(callOpenAI, {
+          maxRetries: 2,
+          baseDelayMs: 500,
+          shouldRetry: isRetryableError,
+        })
+      );
+      return result;
+    } catch (error) {
+      errors.push(error as Error);
+      if (error instanceof CircuitOpenError) {
+        log.warn('OpenAI circuit is open');
+      } else if (isRateLimitError(error)) {
+        log.warn('OpenAI rate limited');
+      } else {
+        log.warn('OpenAI failed', { error: (error as Error).message });
+      }
+    }
+  }
+
+  // Both providers failed or unavailable
+  if (errors.length > 0) {
+    log.error('All AI providers failed', undefined, { errors: errors.map(e => e.message) });
+    throw new Error(`All AI providers failed. Last error: ${errors[errors.length - 1].message}`);
+  }
+
   throw new Error('No AI provider available. Please set ANTHROPIC_API_KEY or OPENAI_API_KEY.');
 }
 
@@ -1364,7 +1443,7 @@ async function getEmbeddingsModule() {
     try {
       embeddingsModule = await import('./chatbot-embeddings.js');
     } catch (error) {
-      console.warn('[Chatbot] Embeddings module could not be loaded:', error);
+      log.warn('Embeddings module could not be loaded', { error: String(error) });
     }
   }
   return embeddingsModule;
@@ -1385,7 +1464,7 @@ export async function processChat(
 
   // 0. DETECT USER INTENT & EMOTION (NEW!)
   const userIntent = detectUserIntent(userMessage);
-  console.log('[Chatbot] Intent detected:', {
+  log.debug('Intent detected', {
     type: userIntent.type,
     emotion: userIntent.emotion,
     severity: userIntent.severity,
@@ -1401,7 +1480,7 @@ export async function processChat(
     const parentingFAQ = findParentingFAQ(userMessage);
 
     if (parentingFAQ) {
-      console.log('[Chatbot] Parenting FAQ match:', parentingFAQ.question, 'childAge:', childAge);
+      log.info('Parenting FAQ match', { question: parentingFAQ.question, childAge });
 
       // Build empathetic response with age-specific content
       const empatheticResponse = buildEmpatheticResponse({
@@ -1438,7 +1517,7 @@ export async function processChat(
   const faqMatch = findFAQMatch(userMessage);
 
   if (faqMatch && faqMatch.confidence >= 40) {
-    console.log('[Chatbot] FAQ match found:', faqMatch.faq.question, 'Confidence:', faqMatch.confidence.toFixed(1) + '%');
+    log.info('FAQ match found', { question: faqMatch.faq.question, confidence: faqMatch.confidence.toFixed(1) + '%' });
 
     // Log interaction (async, non-blocking)
     logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
@@ -1725,6 +1804,15 @@ function getGeneralSuggestions(): string[] {
 }
 
 // ============================================
+// FAQ INDEX MAP (O(1) lookup optimization)
+// ============================================
+
+// Pre-computed FAQ map for O(1) lookups instead of O(n) array.find()
+const FAQ_MAP: Map<string, FAQItem> = new Map(
+  FAQ_DATABASE.map(faq => [faq.id, faq])
+);
+
+// ============================================
 // GET ALL FAQ QUESTIONS (for UI)
 // ============================================
 
@@ -1737,11 +1825,26 @@ export function getAllFAQQuestions(): { question: string; category: string; id: 
 }
 
 // ============================================
-// GET FAQ BY ID
+// GET FAQ BY ID (O(1) with Map lookup)
 // ============================================
 
 export function getFAQById(id: string): FAQItem | undefined {
-  return FAQ_DATABASE.find(faq => faq.id === id);
+  return FAQ_MAP.get(id);
+}
+
+// ============================================
+// GET MULTIPLE FAQs BY IDs (batch lookup)
+// ============================================
+
+export function getFAQsByIds(ids: string[]): Map<string, FAQItem> {
+  const result = new Map<string, FAQItem>();
+  for (const id of ids) {
+    const faq = FAQ_MAP.get(id);
+    if (faq) {
+      result.set(id, faq);
+    }
+  }
+  return result;
 }
 
 // ============================================
@@ -2082,4 +2185,41 @@ export function getAllProactiveSuggestions(): ProactiveSuggestion[] {
  */
 export function getSuggestionsForScreen(screen: string): ProactiveSuggestion[] {
   return PROACTIVE_SUGGESTIONS.filter(s => s.screen === screen);
+}
+
+// ============================================
+// AI PROVIDER HEALTH CHECK
+// ============================================
+
+/**
+ * Get AI provider circuit breaker stats for monitoring
+ */
+export function getAIProviderStats(): {
+  anthropic: { state: string; failures: number; available: boolean };
+  openai: { state: string; failures: number; available: boolean };
+} {
+  const anthropicStats = anthropicCircuit.getStats();
+  const openaiStats = openaiCircuit.getStats();
+
+  return {
+    anthropic: {
+      state: anthropicStats.state,
+      failures: anthropicStats.failures,
+      available: hasAnthropicKey() && !anthropicCircuit.isOpen(),
+    },
+    openai: {
+      state: openaiStats.state,
+      failures: openaiStats.failures,
+      available: hasOpenAIKey() && !openaiCircuit.isOpen(),
+    },
+  };
+}
+
+/**
+ * Reset AI provider circuit breakers (for admin/testing)
+ */
+export function resetAIProviderCircuits(): void {
+  anthropicCircuit.reset();
+  openaiCircuit.reset();
+  console.log('[Chatbot] AI provider circuits reset');
 }

@@ -4,7 +4,7 @@
  * Floating yardım asistanı butonu ve chat modal'ı
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -48,8 +48,19 @@ import {
   SmartQuickReply,
 } from './chat/SmartContextEngine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getKeyboardBehavior, getKeyboardVerticalOffset } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Conversation limits
+const MAX_MESSAGES = 50; // Keep last 50 messages in memory
+const MAX_HISTORY_FOR_API = 20; // Send last 20 to API (matches backend schema)
+
+// Helper to limit messages array
+const limitMessages = (messages: Message[]): Message[] => {
+  if (messages.length <= MAX_MESSAGES) return messages;
+  return messages.slice(-MAX_MESSAGES);
+};
 
 // Map route paths to screen names for proactive suggestions
 const getScreenName = (pathname: string): string => {
@@ -248,6 +259,7 @@ export function ChatBot() {
       handleFAQClick(pendingQuestion);
       setPendingQuestion(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, pendingQuestion, messages.length]);
 
   // Proactive suggestion handlers
@@ -381,7 +393,7 @@ export function ChatBot() {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => limitMessages([...prev, userMessage]));
     setIsLoading(true);
 
     // Send to backend
@@ -390,6 +402,7 @@ export function ChatBot() {
         message: reply.label,
         conversationHistory: messages
           .filter(m => m.id !== 'welcome')
+          .slice(-MAX_HISTORY_FOR_API)
           .map(m => ({ role: m.role, content: m.content })),
         childAge: selectedChild?.age,
         childName: selectedChild?.name,
@@ -472,7 +485,7 @@ export function ChatBot() {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => limitMessages([...prev, userMessage]));
     setInputText('');
     setIsLoading(true);
     setShowFAQ(false);
@@ -481,6 +494,7 @@ export function ChatBot() {
       // Build conversation history for context
       const history = messages
         .filter(m => m.id !== 'welcome')
+        .slice(-MAX_HISTORY_FOR_API)
         .map(m => ({ role: m.role, content: m.content }));
 
       const response = await sendMessageMutation.mutateAsync({
@@ -534,7 +548,7 @@ export function ChatBot() {
         quickReplies,
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => limitMessages([...prev, assistantMessage]));
     } catch (error) {
       console.error('[ChatBot] Error:', error);
       setMessages(prev => [
@@ -553,7 +567,7 @@ export function ChatBot() {
   };
 
   // Handle FAQ question click
-  const handleFAQClick = (question: string) => {
+  const handleFAQClick = useCallback((question: string) => {
     setInputText(question);
     // Auto-send after a brief delay
     setTimeout(() => {
@@ -564,7 +578,7 @@ export function ChatBot() {
         content: question,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, userMessage]);
+      setMessages(prev => limitMessages([...prev, userMessage]));
       setShowFAQ(false);
       setIsLoading(true);
 
@@ -638,7 +652,7 @@ export function ChatBot() {
           setIsLoading(false);
         });
     }, 100);
-  };
+  }, [selectedChild, currentScreen, sendMessageMutation]);
 
   // Close and reset
   const handleClose = () => {
@@ -672,6 +686,9 @@ export function ChatBot() {
             styles.floatingButtonInner,
             pressed && styles.floatingButtonPressed,
           ]}
+          accessibilityRole="button"
+          accessibilityLabel="Yardım asistanını aç"
+          accessibilityHint="Sorularınız için chatbot'u açar"
         >
           <LinearGradient
             colors={['#0D9488', '#14B8A6', '#2DD4BF']}
@@ -724,7 +741,8 @@ export function ChatBot() {
         onRequestClose={handleClose}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={getKeyboardBehavior()}
+          keyboardVerticalOffset={getKeyboardVerticalOffset(64)}
           style={styles.modalContainer}
         >
           <Animated.View
@@ -759,7 +777,12 @@ export function ChatBot() {
                     <Text style={styles.headerSubtitle}>Size yardımcı olmak için buradayım</Text>
                   </View>
                 </View>
-                <Pressable onPress={handleClose} style={styles.closeButton}>
+                <Pressable
+                  onPress={handleClose}
+                  style={styles.closeButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Chatbot'u kapat"
+                >
                   <X size={24} color="#FFF" />
                 </Pressable>
               </View>
@@ -981,6 +1004,8 @@ export function ChatBot() {
                 returnKeyType="send"
                 multiline
                 maxLength={500}
+                accessibilityLabel="Soru giriş alanı"
+                accessibilityHint="Chatbot'a sormak istediğiniz soruyu yazın"
               />
               <Pressable
                 onPress={handleSend}
@@ -990,6 +1015,9 @@ export function ChatBot() {
                   (!inputText.trim() || isLoading) && styles.sendButtonDisabled,
                   pressed && { opacity: 0.8 },
                 ]}
+                accessibilityRole="button"
+                accessibilityLabel="Mesaj gönder"
+                accessibilityState={{ disabled: !inputText.trim() || isLoading }}
               >
                 <LinearGradient
                   colors={

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import {
   View,
   StyleSheet,
@@ -72,6 +72,17 @@ const FILL_RADIUS = 70;    // Large radius for fill tool
 const BRUSH_RADIUS = 20;   // Small radius for detailed brush strokes
 const ERASER_RADIUS = 35;  // Medium radius for precise erasing
 
+// Memoized Circle component to prevent unnecessary re-renders
+const MemoizedCircle = memo(({ fill }: { fill: PathData }) => (
+  <Circle
+    cx={fill.x}
+    cy={fill.y}
+    r={fill.radius}
+    fill={fill.color}
+    opacity={0.6}
+  />
+));
+
 export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCanvasProps) {
   // History management for undo/redo
   const [history, setHistory] = useState<PathData[][]>([[]]);
@@ -86,6 +97,16 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
   const [canvasLayout, setCanvasLayout] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
   const fills = history[currentIndex] || [];
+
+  // Combined fills for rendering (includes pending brush strokes)
+  const [renderKey, setRenderKey] = useState(0);
+  // Accumulate brush strokes during drawing to batch them
+  const pendingFillsRef = useRef<PathData[]>([]);
+
+  // Memoized fills for rendering - only recalculates when fills or renderKey changes
+  const allFillsForRender = useMemo(() => {
+    return [...fills, ...pendingFillsRef.current];
+  }, [fills, renderKey]);
 
   // Add new fill with history tracking
   const addFill = (newFill: PathData) => {
@@ -129,6 +150,19 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
   // Touch state for brush painting
   const [isDrawing, setIsDrawing] = useState(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+  const canvasElementRef = useRef<HTMLElement | null>(null);
+
+  // Refs to avoid stale closure issues in DOM event handlers
+  const selectedToolRef = useRef(selectedTool);
+  const selectedPaletteRef = useRef(selectedPalette);
+  const fillsRef = useRef(fills);
+  const currentIndexRef = useRef(currentIndex);
+
+  // Keep refs in sync with state
+  useEffect(() => { selectedToolRef.current = selectedTool; }, [selectedTool]);
+  useEffect(() => { selectedPaletteRef.current = selectedPalette; }, [selectedPalette]);
+  useEffect(() => { fillsRef.current = fills; }, [fills]);
+  useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
 
   // Universal touch handler for single taps
   const handlePressablePress = (evt: any) => {
@@ -139,7 +173,6 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
       if (touch.offsetX !== undefined && touch.offsetY !== undefined) {
         handleTap(touch.offsetX, touch.offsetY);
       } else {
-        console.warn('[ColoringCanvas] Web: offsetX/offsetY undefined, falling back to pageX/pageY');
         // Fallback: Use pageX/pageY if offsetX/offsetY are not available
         if (canvasLayout && touch.pageX !== undefined && touch.pageY !== undefined) {
           const x = touch.pageX - canvasLayout.x;
@@ -199,10 +232,10 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
         const t = i / steps;
         const interpX = lastPointRef.current.x + dx * t;
         const interpY = lastPointRef.current.y + dy * t;
-        handleTap(interpX, interpY);
+        handleTap(interpX, interpY, true); // Mark as brush stroke
       }
     } else {
-      handleTap(x, y);
+      handleTap(x, y, true); // Mark as brush stroke
     }
 
     lastPointRef.current = { x, y };
@@ -214,46 +247,65 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
     handlePressablePress(evt);
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     setIsDrawing(false);
     lastPointRef.current = null;
-  };
 
-  const handleTap = (x: number, y: number) => {
-    console.log(`[ColoringCanvas] 🎨 ${selectedTool} at (${Math.round(x)}, ${Math.round(y)}) - Palette: ${selectedPalette.name}`);
+    // Commit pending brush strokes to history
+    // Use refs to avoid stale closure issues
+    if (pendingFillsRef.current.length > 0) {
+      const newFills = [...fillsRef.current, ...pendingFillsRef.current];
+      setHistory(prev => {
+        const newHistory = prev.slice(0, currentIndexRef.current + 1);
+        newHistory.push(newFills);
+        return newHistory;
+      });
+      setCurrentIndex(prev => prev + 1);
+      pendingFillsRef.current = [];
+    }
+  }, []); // Empty deps - uses refs for latest values
 
-    if (selectedTool === "eraser") {
-      // Eraser: Remove fills near the tap location
+  // Web: Use native DOM events for accurate coordinate calculation
+  const pressableRef = useRef<View>(null);
+
+  // Create a stable handler for web events that uses refs
+  const handleWebTap = useCallback((x: number, y: number, isBrushStroke: boolean) => {
+    const tool = selectedToolRef.current;
+    const palette = selectedPaletteRef.current;
+
+
+    if (tool === "eraser") {
       const eraserRadius = ERASER_RADIUS;
-      const newFills = fills.filter((fill) => {
+      const currentFills = [...fillsRef.current, ...pendingFillsRef.current];
+      const newFills = currentFills.filter((fill) => {
         const distance = Math.sqrt(
           Math.pow(fill.x - x, 2) + Math.pow(fill.y - y, 2)
         );
-        // Remove fill if it's within eraser radius
         return distance > eraserRadius;
       });
 
-      if (newFills.length !== fills.length) {
-        const newHistory = history.slice(0, currentIndex + 1);
-        newHistory.push(newFills);
-        setHistory(newHistory);
-        setCurrentIndex(currentIndex + 1);
+      if (newFills.length !== currentFills.length) {
+        pendingFillsRef.current = [];
+        setHistory(prev => {
+          const newHistory = prev.slice(0, currentIndexRef.current + 1);
+          newHistory.push(newFills);
+          return newHistory;
+        });
+        setCurrentIndex(prev => prev + 1);
       }
       return;
     }
 
     // For brush and fill tools, add color
     let fillColor: string;
-    if (selectedPalette.type === "solid") {
-      fillColor = selectedPalette.colors[0];
+    if (palette.type === "solid") {
+      fillColor = palette.colors[0];
     } else {
-      // For gradients, pick a random color from the gradient
-      const randomIndex = Math.floor(Math.random() * selectedPalette.colors.length);
-      fillColor = selectedPalette.colors[randomIndex];
+      const randomIndex = Math.floor(Math.random() * palette.colors.length);
+      fillColor = palette.colors[randomIndex];
     }
 
-    // Determine radius based on tool
-    const radius = selectedTool === "brush" ? BRUSH_RADIUS : FILL_RADIUS;
+    const radius = tool === "brush" ? BRUSH_RADIUS : FILL_RADIUS;
 
     const newFill: PathData = {
       id: `fill-${Date.now()}-${Math.random()}`,
@@ -263,8 +315,184 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
       radius,
     };
 
-    addFill(newFill);
-  };
+    if (tool === "brush" && isBrushStroke) {
+      pendingFillsRef.current.push(newFill);
+      setRenderKey(k => k + 1);
+    } else {
+      // For fill tool or first brush tap, add to history
+      const newFills = [...fillsRef.current, newFill];
+      setHistory(prev => {
+        const newHistory = prev.slice(0, currentIndexRef.current + 1);
+        newHistory.push(newFills);
+        return newHistory;
+      });
+      setCurrentIndex(prev => prev + 1);
+    }
+  }, []);
+
+  const commitPendingFills = useCallback(() => {
+    if (pendingFillsRef.current.length > 0) {
+      const newFills = [...fillsRef.current, ...pendingFillsRef.current];
+      setHistory(prev => {
+        const newHistory = prev.slice(0, currentIndexRef.current + 1);
+        newHistory.push(newFills);
+        return newHistory;
+      });
+      setCurrentIndex(prev => prev + 1);
+      pendingFillsRef.current = [];
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !pressableRef.current) return;
+
+    // Get the DOM element from the ref
+    const element = pressableRef.current as unknown as HTMLElement;
+    if (!element || !element.addEventListener) return;
+
+    let isMouseDown = false;
+    let lastPoint: { x: number; y: number } | null = null;
+
+    const getCoordinates = (e: MouseEvent): { x: number; y: number } => {
+      const rect = element.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      isMouseDown = true;
+      lastPoint = null;
+      const coords = getCoordinates(e);
+      handleWebTap(coords.x, coords.y, false);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isMouseDown) return;
+      const tool = selectedToolRef.current;
+      if (tool !== "brush" && tool !== "eraser") return;
+
+      const coords = getCoordinates(e);
+
+      // Interpolate points for smooth strokes
+      if (lastPoint) {
+        const dx = coords.x - lastPoint.x;
+        const dy = coords.y - lastPoint.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const steps = Math.ceil(distance / 10);
+
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const interpX = lastPoint.x + dx * t;
+          const interpY = lastPoint.y + dy * t;
+          handleWebTap(interpX, interpY, true);
+        }
+      } else {
+        handleWebTap(coords.x, coords.y, true);
+      }
+
+      lastPoint = coords;
+    };
+
+    const handleMouseUp = () => {
+      if (isMouseDown) {
+        isMouseDown = false;
+        lastPoint = null;
+        commitPendingFills();
+      }
+    };
+
+    const handleMouseLeave = () => {
+      if (isMouseDown) {
+        isMouseDown = false;
+        lastPoint = null;
+        commitPendingFills();
+      }
+    };
+
+    element.addEventListener('mousedown', handleMouseDown);
+    element.addEventListener('mousemove', handleMouseMove);
+    element.addEventListener('mouseup', handleMouseUp);
+    element.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      element.removeEventListener('mousedown', handleMouseDown);
+      element.removeEventListener('mousemove', handleMouseMove);
+      element.removeEventListener('mouseup', handleMouseUp);
+      element.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [handleWebTap, commitPendingFills]);
+
+  // Use useCallback with refs to avoid stale closure issues
+  const handleTap = useCallback((x: number, y: number, isBrushStroke: boolean = false) => {
+    const tool = selectedToolRef.current;
+    const palette = selectedPaletteRef.current;
+
+
+    if (tool === "eraser") {
+      // Eraser: Remove fills near the tap location
+      const eraserRadius = ERASER_RADIUS;
+      const currentFills = [...fillsRef.current, ...pendingFillsRef.current];
+      const newFills = currentFills.filter((fill) => {
+        const distance = Math.sqrt(
+          Math.pow(fill.x - x, 2) + Math.pow(fill.y - y, 2)
+        );
+        // Remove fill if it's within eraser radius
+        return distance > eraserRadius;
+      });
+
+      if (newFills.length !== currentFills.length) {
+        // Clear pending fills and update history
+        pendingFillsRef.current = [];
+        setHistory(prev => {
+          const newHistory = prev.slice(0, currentIndexRef.current + 1);
+          newHistory.push(newFills);
+          return newHistory;
+        });
+        setCurrentIndex(prev => prev + 1);
+      }
+      return;
+    }
+
+    // For brush and fill tools, add color
+    let fillColor: string;
+    if (palette.type === "solid") {
+      fillColor = palette.colors[0];
+    } else {
+      // For gradients, pick a random color from the gradient
+      const randomIndex = Math.floor(Math.random() * palette.colors.length);
+      fillColor = palette.colors[randomIndex];
+    }
+
+    // Determine radius based on tool
+    const radius = tool === "brush" ? BRUSH_RADIUS : FILL_RADIUS;
+
+    const newFill: PathData = {
+      id: `fill-${Date.now()}-${Math.random()}`,
+      x,
+      y,
+      color: fillColor,
+      radius,
+    };
+
+    // For brush strokes during active drawing, accumulate without creating history entries
+    if (tool === "brush" && isBrushStroke) {
+      pendingFillsRef.current.push(newFill);
+      // Force re-render to show the pending fills
+      setRenderKey(k => k + 1);
+    } else {
+      // Add to history using refs for latest values
+      const newFills = [...fillsRef.current, newFill];
+      setHistory(prev => {
+        const newHistory = prev.slice(0, currentIndexRef.current + 1);
+        newHistory.push(newFills);
+        return newHistory;
+      });
+      setCurrentIndex(prev => prev + 1);
+    }
+  }, []); // Empty deps - uses refs for latest values
 
   const handleSaveImage = async () => {
     try {
@@ -350,7 +578,6 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
         onSave(fills);
       }
     } catch (error) {
-      console.error("Save error:", error);
       Alert.alert("Hata", "Kaydetme sırasında bir hata oluştu: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setIsSaving(false);
@@ -376,33 +603,24 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
                 resizeMode="contain"
               />
               <Pressable
+                ref={pressableRef}
                 style={styles.canvas}
                 onLayout={(event) => {
                   const { x, y, width, height } = event.nativeEvent.layout;
-                  // For web, measure absolute position
-                  if (Platform.OS === 'web' && event.currentTarget) {
-                    event.currentTarget.measure?.((_fx, _fy, w, h, px, py) => {
-                      setCanvasLayout({ x: px, y: py, width: w, height: h });
-                    });
-                  } else {
-                    setCanvasLayout({ x, y, width, height });
-                  }
+                  setCanvasLayout({ x, y, width, height });
                 }}
-                onPressIn={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onPressOut={handleTouchEnd}
-                onTouchEnd={handleTouchEnd}
+                // On web, use native DOM events (attached via useEffect) for accurate coordinates
+                // On native, use React Native touch events
+                {...(Platform.OS !== 'web' ? {
+                  onPressIn: handleTouchStart,
+                  onTouchMove: handleTouchMove,
+                  onPressOut: handleTouchEnd,
+                  onTouchEnd: handleTouchEnd,
+                } : {})}
               >
                 <Svg height={CANVAS_SIZE} width={CANVAS_SIZE} pointerEvents="none">
-                  {fills.map((fill) => (
-                    <Circle
-                      key={fill.id}
-                      cx={fill.x}
-                      cy={fill.y}
-                      r={fill.radius}
-                      fill={fill.color}
-                      opacity={0.6}
-                    />
+                  {allFillsForRender.map((fill) => (
+                    <MemoizedCircle key={fill.id} fill={fill} />
                   ))}
                 </Svg>
               </Pressable>

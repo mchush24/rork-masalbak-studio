@@ -3,14 +3,55 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { trpc, queryClient, trpcClient } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ChildProvider } from '@/lib/contexts/ChildContext';
 import { ChatBot } from '@/components/ChatBot';
+import { AppErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import * as SplashScreen from 'expo-splash-screen';
+
+// Web responsive container
+const WebContainer = ({ children }: { children: React.ReactNode }) => {
+  if (Platform.OS !== 'web') {
+    return <>{children}</>;
+  }
+
+  return (
+    <View style={webStyles.container}>
+      <View style={webStyles.phoneFrame}>
+        {children}
+      </View>
+    </View>
+  );
+};
+
+const webStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#1a1a2e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100%',
+  },
+  phoneFrame: {
+    width: '100%',
+    maxWidth: 430,
+    height: '100%',
+    maxHeight: 932,
+    backgroundColor: '#FFFFFF',
+    borderRadius: Platform.OS === 'web' ? 40 : 0,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 30,
+    // @ts-ignore - web only
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+  },
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,11 +63,14 @@ function RootLayoutNav() {
   useEffect(() => {
     if (isLoading) return;
 
-    const inOnboarding = segments[0] === '(onboarding)';
-    const inTabs = segments[0] === '(tabs)';
+    const currentSegment = segments[0] as string | undefined;
+    const inOnboarding = currentSegment === '(onboarding)';
+    const inTabs = currentSegment === '(tabs)';
+    const isAtRoot = !currentSegment || currentSegment === 'index';
 
     if (!isAuthenticated) {
-      if (!inOnboarding) {
+      // Allow root index (RENKİOO home) or onboarding screens
+      if (!inOnboarding && !isAtRoot) {
         router.replace('/(onboarding)/welcome');
       }
     } else if (isAuthenticated && hasCompletedOnboarding) {
@@ -52,13 +96,18 @@ function RootLayoutNav() {
   return (
     <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="storybook" />
       </Stack>
 
-      {showChatBot && <ChatBot />}
+      {showChatBot && (
+        <ComponentErrorBoundary fallback={null}>
+          <ChatBot />
+        </ComponentErrorBoundary>
+      )}
     </View>
   );
 }
@@ -88,15 +137,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <LanguageProvider>
-        <trpc.Provider client={trpcClient} queryClient={queryClient}>
-          <QueryClientProvider client={queryClient}>
-            <ChildProvider>
-              <RootLayoutNav />
-            </ChildProvider>
-          </QueryClientProvider>
-        </trpc.Provider>
-      </LanguageProvider>
+      <AppErrorBoundary>
+        <WebContainer>
+          <LanguageProvider>
+            <trpc.Provider client={trpcClient} queryClient={queryClient}>
+              <QueryClientProvider client={queryClient}>
+                <ChildProvider>
+                  <RootLayoutNav />
+                </ChildProvider>
+              </QueryClientProvider>
+            </trpc.Provider>
+          </LanguageProvider>
+        </WebContainer>
+      </AppErrorBoundary>
     </GestureHandlerRootView>
   );
 }

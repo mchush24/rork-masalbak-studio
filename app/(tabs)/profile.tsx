@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch, Dimensions } from "react-native";
-import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award } from "lucide-react-native";
+import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch, Dimensions, Platform } from "react-native";
+import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award, RefreshCw } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -11,6 +11,7 @@ import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { AvatarPicker, AvatarDisplay } from "@/components/AvatarPicker";
 import { BadgeGrid, BadgeUnlockModal } from "@/components/badges";
 import { type BadgeRarity } from "@/constants/badges";
+import { showConfirmDialog, showAlert, isWeb } from "@/lib/platform";
 import {
   layout,
   typography,
@@ -66,6 +67,12 @@ export default function ProfileScreen() {
     description: string;
     icon: string;
     rarity: BadgeRarity;
+    isUnlocked?: boolean;
+    progress?: {
+      current: number;
+      target: number;
+      percentage: number;
+    };
   } | null>(null);
 
   // Fetch user stats from backend
@@ -121,31 +128,27 @@ export default function ProfileScreen() {
       });
       await refetchSettings();
       setShowLanguageModal(false);
-      Alert.alert(t.common.success, t.settings.language + ' ' + t.common.save.toLowerCase());
+      showAlert(t.common.success, t.settings.language + ' ' + t.common.save.toLowerCase());
     } catch (error) {
       console.error('[Profile] Language change error:', error);
-      Alert.alert(t.common.error, t.settings.language + ' ' + t.common.error.toLowerCase());
+      showAlert(t.common.error, t.settings.language + ' ' + t.common.error.toLowerCase());
     }
   };
 
-  const handleLogout = () => {
-    Alert.alert(
+  const handleLogout = async () => {
+    showConfirmDialog(
       t.profile.logout,
       t.profile.logoutConfirm,
-      [
-        {
-          text: t.common.cancel,
-          style: 'cancel',
-        },
-        {
-          text: t.profile.logout,
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            router.replace('/(onboarding)/welcome');
-          },
-        },
-      ]
+      async () => {
+        await logout();
+        router.replace('/');
+      },
+      undefined,
+      {
+        confirmText: t.profile.logout,
+        cancelText: t.common.cancel,
+        destructive: true,
+      }
     );
   };
 
@@ -159,10 +162,10 @@ export default function ProfileScreen() {
         avatarUrl: avatarId, // Using avatarUrl field to store avatarId for now
       });
       await refreshUserFromBackend();
-      Alert.alert(t.common.success, 'Avatar güncellendi!');
+      showAlert(t.common.success, 'Avatar güncellendi!');
     } catch (error) {
       console.error('[Profile] Avatar change error:', error);
-      Alert.alert(t.common.error, 'Avatar güncellenemedi. Lütfen tekrar deneyin.');
+      showAlert(t.common.error, 'Avatar güncellenemedi. Lütfen tekrar deneyin.');
     }
   };
 
@@ -173,7 +176,7 @@ export default function ProfileScreen() {
 
   const handleProfileSave = async () => {
     if (!editName.trim()) {
-      Alert.alert(t.common.error, t.profile.name);
+      showAlert(t.common.error, t.profile.name);
       return;
     }
 
@@ -182,11 +185,11 @@ export default function ProfileScreen() {
         name: editName.trim(),
       });
       setShowProfileModal(false);
-      Alert.alert(t.common.success, t.profile.editProfile + ' ' + t.common.success.toLowerCase());
+      showAlert(t.common.success, t.profile.editProfile + ' ' + t.common.success.toLowerCase());
       await refreshUserFromBackend();
     } catch (error) {
       console.error('[Profile] Profile save error:', error);
-      Alert.alert(t.common.error, t.profile.editProfile + ' ' + t.common.error.toLowerCase());
+      showAlert(t.common.error, t.profile.editProfile + ' ' + t.common.error.toLowerCase());
     }
   };
 
@@ -198,19 +201,19 @@ export default function ProfileScreen() {
       await refetchSettings();
     } catch (error) {
       console.error('[Profile] Setting toggle error:', error);
-      Alert.alert('Hata', 'Ayar güncellenemedi. Lütfen tekrar deneyin.');
+      showAlert('Hata', 'Ayar güncellenemedi. Lütfen tekrar deneyin.');
     }
   };
 
   const handleAddChild = async () => {
     if (!childName.trim() || !childAge.trim()) {
-      Alert.alert('Uyarı', 'Lütfen isim ve yaş bilgilerini girin.');
+      showAlert('Uyarı', 'Lütfen isim ve yaş bilgilerini girin.');
       return;
     }
 
     const age = parseInt(childAge);
     if (isNaN(age) || age < 0 || age > 18) {
-      Alert.alert('Uyarı', 'Lütfen geçerli bir yaş girin (0-18).');
+      showAlert('Uyarı', 'Lütfen geçerli bir yaş girin (0-18).');
       return;
     }
 
@@ -230,11 +233,11 @@ export default function ProfileScreen() {
       setChildAge('');
       setSelectedChildAvatarId(undefined);
       setShowChildrenModal(false);
-      Alert.alert('Başarılı', 'Çocuk profili eklendi!');
+      showAlert('Başarılı', 'Çocuk profili eklendi!');
       await refreshUserFromBackend();
     } catch (error) {
       console.error('[Profile] Add child error:', error);
-      Alert.alert('Hata', 'Çocuk profili eklenemedi. Lütfen tekrar deneyin.');
+      showAlert('Hata', 'Çocuk profili eklenemedi. Lütfen tekrar deneyin.');
     }
   };
 
@@ -247,11 +250,11 @@ export default function ProfileScreen() {
         children: newChildren,
       });
 
-      Alert.alert('Başarılı', 'Çocuk profili silindi!');
+      showAlert('Başarılı', 'Çocuk profili silindi!');
       await refreshUserFromBackend();
     } catch (error) {
       console.error('[Profile] Remove child error:', error);
-      Alert.alert('Hata', 'Çocuk profili silinemedi. Lütfen tekrar deneyin.');
+      showAlert('Hata', 'Çocuk profili silinemedi. Lütfen tekrar deneyin.');
     }
   };
 
@@ -269,9 +272,28 @@ export default function ProfileScreen() {
           ]}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            !isWeb ? (
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            ) : undefined
           }
         >
+          {/* Web Refresh Button */}
+          {isWeb && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.webRefreshButton,
+                pressed && { opacity: 0.7 },
+                refreshing && { opacity: 0.5 },
+              ]}
+              onPress={handleRefresh}
+              disabled={refreshing}
+            >
+              <RefreshCw size={20} color={Colors.secondary.grass} />
+              <Text style={styles.webRefreshText}>
+                {refreshing ? 'Yenileniyor...' : 'Yenile'}
+              </Text>
+            </Pressable>
+          )}
           <View style={styles.header}>
             <View style={styles.avatarContainer}>
               <Pressable onPress={handleEditProfile}>
@@ -325,13 +347,12 @@ export default function ProfileScreen() {
                           pressed && { opacity: 0.7 },
                         ]}
                         onPress={() => {
-                          Alert.alert(
+                          showConfirmDialog(
                             'Çocuk Profilini Sil',
                             `${child.name} adlı çocuk profilini silmek istediğinize emin misiniz?`,
-                            [
-                              { text: 'İptal', style: 'cancel' },
-                              { text: 'Sil', style: 'destructive', onPress: () => handleRemoveChild(index) },
-                            ]
+                            () => handleRemoveChild(index),
+                            undefined,
+                            { confirmText: 'Sil', cancelText: 'İptal', destructive: true }
                           );
                         }}
                       >
@@ -446,7 +467,17 @@ export default function ProfileScreen() {
           {/* Rozetler (Badges) Section */}
           <View style={styles.section}>
             <View style={styles.badgesSectionHeader}>
-              <Text style={styles.sectionTitle}>🏆 Rozetler</Text>
+              <View style={styles.badgesTitleRow}>
+                <Award size={20} color={Colors.primary.sunset} />
+                <Text style={styles.sectionTitle}>Rozetlerim</Text>
+              </View>
+              {badgesData?.badges && (
+                <View style={styles.badgesCountBadge}>
+                  <Text style={styles.badgesCountText}>
+                    {badgesData.badges.length} kazanıldı
+                  </Text>
+                </View>
+              )}
             </View>
             <View style={styles.badgesContainer}>
               <BadgeGrid
@@ -454,18 +485,38 @@ export default function ProfileScreen() {
                 progress={badgeProgress?.progress || []}
                 isLoading={badgesLoading}
                 showProgress={true}
-                onBadgePress={(badgeId) => {
-                  const badge = badgesData?.badges.find((b: any) => b.id === badgeId);
-                  if (badge) {
+                onBadgePress={(badgeId, isUnlocked, badgeInfo) => {
+                  // badgeInfo tüm rozet verilerini constants'dan alınabilir
+                  const unlockedBadge = badgesData?.badges.find((b: any) => b.id === badgeId);
+                  const progressInfo = badgeProgress?.progress?.find((p: any) => p.id === badgeId);
+
+                  if (unlockedBadge) {
+                    // Açık rozet
                     setSelectedBadge({
-                      id: badge.id,
-                      name: badge.name,
-                      description: badge.description,
-                      icon: badge.icon,
-                      rarity: badge.rarity as BadgeRarity,
+                      id: unlockedBadge.id,
+                      name: unlockedBadge.name,
+                      description: unlockedBadge.description,
+                      icon: unlockedBadge.icon,
+                      rarity: unlockedBadge.rarity as BadgeRarity,
+                      isUnlocked: true,
                     });
-                    setShowBadgeModal(true);
+                  } else if (badgeInfo) {
+                    // Kilitli rozet - badgeInfo from constants
+                    setSelectedBadge({
+                      id: badgeInfo.id,
+                      name: badgeInfo.name,
+                      description: badgeInfo.description,
+                      icon: badgeInfo.icon,
+                      rarity: badgeInfo.rarity as BadgeRarity,
+                      isUnlocked: false,
+                      progress: progressInfo ? {
+                        current: progressInfo.current,
+                        target: progressInfo.target,
+                        percentage: progressInfo.percentage,
+                      } : undefined,
+                    });
                   }
+                  setShowBadgeModal(true);
                 }}
               />
             </View>
@@ -608,13 +659,12 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
-              onPress={() => Alert.alert(
+              onPress={() => showAlert(
                 '💡 ' + t.settings.help,
                 '📧 E-posta: destek@renkioo.com\n\n' +
                 '📱 Uygulama Versiyonu: 1.0.0\n\n' +
                 '🌐 Web: www.renkioo.com\n\n' +
-                'Sorularınız için bize ulaşın!',
-                [{ text: 'Tamam' }]
+                'Sorularınız için bize ulaşın!'
               )}
             >
               <LinearGradient
@@ -1570,12 +1620,48 @@ const styles = StyleSheet.create({
     color: Colors.neutral.dark,
     fontWeight: typography.weight.semibold,
   },
+  // Web Refresh Button
+  webRefreshButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing["2"],
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius.lg,
+    paddingVertical: spacing["3"],
+    paddingHorizontal: spacing["4"],
+    marginBottom: spacing["4"],
+    borderWidth: 2,
+    borderColor: Colors.secondary.grassLight,
+    ...shadows.sm,
+  },
+  webRefreshText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.secondary.grass,
+  },
   // Badges Section Styles
   badgesSectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: spacing["2"],
+    marginBottom: spacing["3"],
+  },
+  badgesTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["2"],
+  },
+  badgesCountBadge: {
+    backgroundColor: "rgba(255, 155, 122, 0.15)",
+    paddingHorizontal: spacing["3"],
+    paddingVertical: spacing["1"],
+    borderRadius: radius.full,
+  },
+  badgesCountText: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: Colors.primary.sunset,
   },
   badgesContainer: {
     backgroundColor: Colors.neutral.white,

@@ -18,6 +18,7 @@ import {
   processChat,
   getAllFAQQuestions,
   getFAQById,
+  getFAQsByIds,
   getFAQCount,
   searchFAQ,
   getProactiveSuggestion,
@@ -53,18 +54,18 @@ async function getEmbeddingsModule() {
 
 const chatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  content: z.string(),
+  content: z.string().max(5000), // Max 5000 chars per message
 });
 
 const sendMessageSchema = z.object({
   message: z.string().min(1).max(500),
-  conversationHistory: z.array(chatMessageSchema).optional(),
-  sessionId: z.string().optional(),
+  conversationHistory: z.array(chatMessageSchema).max(20).optional(), // Max 20 messages
+  sessionId: z.string().max(100).optional(),
   // Faz 3B: Hangi ekrandan mesaj gönderildiği (proaktif öneriler için)
-  currentScreen: z.string().optional(),
+  currentScreen: z.string().max(50).optional(),
   // Faz 4: Yaşa göre özelleştirilmiş yanıtlar
   childAge: z.number().min(0).max(18).optional(),
-  childName: z.string().optional(),
+  childName: z.string().max(50).optional(),
 });
 
 // Faz 3E: Aksiyon şeması
@@ -365,9 +366,13 @@ export const chatbotRouter = createTRPCRouter({
           .sort((a, b) => b[1] - a[1])
           .slice(0, limit);
 
+        // Batch FAQ lookup (O(n) instead of n * O(1) calls)
+        const faqIds = sortedFAQs.map(([id]) => id);
+        const faqMap = getFAQsByIds(faqIds);
+
         // FAQ detaylarini ekle
         const topFAQs = sortedFAQs.map(([id, count]) => {
-          const faq = getFAQById(id);
+          const faq = faqMap.get(id);
           return {
             id,
             question: faq?.question || 'Unknown',
