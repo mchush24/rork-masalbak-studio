@@ -24,7 +24,7 @@ import {
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors, RenkooColors } from "@/constants/colors";
@@ -48,6 +48,15 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 
 type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
+
+// Analysis type for recent analyses list
+interface RecentAnalysis {
+  id: string;
+  task_type: TaskType;
+  created_at: string;
+  child_age?: number;
+  is_favorite?: boolean;
+}
 
 const TASK_TYPE_LABELS: Record<TaskType, string> = {
   DAP: "İnsan Çizimi",
@@ -161,7 +170,7 @@ export default function HomeScreen() {
                     showGlow
                     showSparkles
                     mood="happy"
-                    onPress={() => router.push("/chatbot" as any)}
+                    onPress={() => router.push("/chatbot" as Href)}
                   />
                   <View style={styles.chatHint}>
                     <MessageCircle size={12} color={RenkooColors.brand.jellyPurple} />
@@ -187,7 +196,7 @@ export default function HomeScreen() {
           <View style={styles.ctaSection}>
             <JellyButton
               title="Dokun ve Hisset: Yeni Analiz"
-              onPress={() => router.push("/quick-analysis" as any)}
+              onPress={() => router.push("/quick-analysis" as Href)}
               size="large"
               gradientColors={RenkooColors.gradients.jellyPrimary}
             />
@@ -208,7 +217,7 @@ export default function HomeScreen() {
                 subtitle="Çocuk gelişimi, boyama önerileri ve sorularınız"
                 icon={<MessageCircle size={26} color={RenkooColors.featureCards.chat.icon} />}
                 type="chat"
-                onPress={() => router.push("/chatbot" as any)}
+                onPress={() => router.push("/chatbot" as Href)}
                 size="medium"
               />
 
@@ -217,7 +226,7 @@ export default function HomeScreen() {
                 subtitle="Çizimlerinden duygusal analiz"
                 icon={<Sparkles size={26} color={RenkooColors.featureCards.emotion.icon} />}
                 type="emotion"
-                onPress={() => router.push("/advanced-analysis" as any)}
+                onPress={() => router.push("/advanced-analysis" as Href)}
                 size="medium"
                 style={{ marginTop: spacing["3"] }}
               />
@@ -238,19 +247,19 @@ export default function HomeScreen() {
                 title="Masal"
                 icon={<BookOpen size={22} color={RenkooColors.featureCards.story.icon} />}
                 type="story"
-                onPress={() => router.push("/hayal-atolyesi" as any)}
+                onPress={() => router.push("/hayal-atolyesi" as Href)}
               />
               <FeatureCardCompact
                 title="Boyama"
                 icon={<Palette size={22} color={RenkooColors.featureCards.coloring.icon} />}
                 type="coloring"
-                onPress={() => router.push("/hayal-atolyesi" as any)}
+                onPress={() => router.push("/hayal-atolyesi" as Href)}
               />
               <FeatureCardCompact
                 title="Ödüller"
                 icon={<Gift size={22} color={RenkooColors.featureCards.reward.icon} />}
                 type="reward"
-                onPress={() => router.push("/profile" as any)}
+                onPress={() => router.push("/profile" as Href)}
               />
             </View>
           </View>
@@ -265,7 +274,7 @@ export default function HomeScreen() {
                 <Text style={styles.sectionTitle}>Hayal Atölyesi</Text>
               </View>
               <Pressable
-                onPress={() => router.push("/hayal-atolyesi" as any)}
+                onPress={() => router.push("/hayal-atolyesi" as Href)}
                 style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
                 <Text style={styles.seeAllText}>{t.home.viewAll} →</Text>
@@ -277,7 +286,7 @@ export default function HomeScreen() {
                 styles.atolyeCard,
                 pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
               ]}
-              onPress={() => router.push("/hayal-atolyesi" as any)}
+              onPress={() => router.push("/hayal-atolyesi" as Href)}
             >
               <LinearGradient
                 colors={['#E8D5FF', '#FFCBA4', '#FFD6E0']}
@@ -309,7 +318,7 @@ export default function HomeScreen() {
                 <Text style={styles.sectionTitle}>Son Analizler</Text>
               </View>
               <Pressable
-                onPress={() => router.push("/history" as any)}
+                onPress={() => router.push("/history" as Href)}
                 style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
                 <Text style={styles.seeAllText}>{t.home.viewAll} →</Text>
@@ -346,7 +355,7 @@ export default function HomeScreen() {
                       styles.emptyCtaButton,
                       pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
                     ]}
-                    onPress={() => router.push("/quick-analysis" as any)}
+                    onPress={() => router.push("/quick-analysis" as Href)}
                   >
                     <Text style={styles.emptyCtaText}>İlk Analizi Yap</Text>
                     <ChevronRight size={16} color={RenkooColors.brand.jellyPurple} />
@@ -355,7 +364,7 @@ export default function HomeScreen() {
               </OrganicContainer>
             ) : (
               <View style={styles.recentCardsContainer}>
-                {recentAnalyses.map((analysis: any) => (
+                {recentAnalyses.map((analysis: RecentAnalysis) => (
                   <OrganicContainer key={analysis.id} style={styles.recentCard} shape="rounded">
                     <Pressable
                       style={styles.recentCardContent}

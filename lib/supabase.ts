@@ -19,7 +19,7 @@ const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'u
 
 // App URL scheme - must match app.config.js scheme
 // Used for deep linking (e.g., password reset redirect)
-const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || 'rork-app';
+const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || 'renkioo';
 
 // Backend Supabase Client (Service Role - Admin Access)
 // Only initialize in Node.js environment (backend)

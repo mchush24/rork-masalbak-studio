@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { trpc, trpcClient } from '@/lib/trpc';
 import { getSupabaseFrontend, signIn as supabaseSignIn, signUp as supabaseSignUp, signOut as supabaseSignOut } from '@/lib/supabase';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import type { Subscription } from '@supabase/auth-js';
 
 const ONBOARDING_KEY = '@renkioo_onboarding_completed';
 const MANUAL_SESSION_KEY = '@renkioo_manual_session';
@@ -79,6 +80,9 @@ export function useAuth() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
 
+  // Ref to store auth subscription for cleanup
+  const authSubscriptionRef = useRef<Subscription | null>(null);
+
   /**
    * Migrate data from legacy MasalBak keys to new Renkioo keys
    */
@@ -108,6 +112,14 @@ export function useAuth() {
   // Load user and listen to auth changes
   useEffect(() => {
     initAuth();
+
+    // Cleanup: unsubscribe from auth changes on unmount
+    return () => {
+      if (authSubscriptionRef.current) {
+        authSubscriptionRef.current.unsubscribe();
+        authSubscriptionRef.current = null;
+      }
+    };
   }, []);
 
   const initAuth = async () => {
@@ -197,13 +209,11 @@ export function useAuth() {
         }
       });
 
+      // Store subscription in ref for cleanup
+      authSubscriptionRef.current = subscription;
+
       setIsLoading(false);
       console.log('[useAuth] ✅ Auth initialized');
-
-      // Cleanup subscription on unmount
-      return () => {
-        subscription.unsubscribe();
-      };
     } catch (error) {
       console.error('[useAuth] ❌ Error initializing auth:', error);
       setIsLoading(false);
