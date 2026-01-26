@@ -5,7 +5,7 @@ module.exports = {
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
-    scheme: "rork-app",
+    scheme: "renkioo",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
@@ -42,12 +42,7 @@ module.exports = {
       favicon: "./assets/images/favicon.png"
     },
     plugins: [
-      [
-        "expo-router",
-        {
-          origin: "https://rork.com/"
-        }
-      ],
+      "expo-router",
       "expo-font",
       "expo-web-browser",
       [
@@ -73,7 +68,6 @@ module.exports = {
     extra: {
       // These are loaded from .env file and available via expo-constants
       EXPO_PUBLIC_API: process.env.EXPO_PUBLIC_API || "http://localhost:3000",
-      EXPO_PUBLIC_RORK_API_BASE_URL: process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "http://localhost:3000",
       EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
       EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
     }

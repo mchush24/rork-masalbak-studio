@@ -17,15 +17,13 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API": "https://rork-masalbak-studio-production.up.railway.app",
-        "EXPO_PUBLIC_RORK_API_BASE_URL": "https://rork-masalbak-studio-production.up.railway.app"
+        "EXPO_PUBLIC_API": "https://rork-masalbak-studio-production.up.railway.app"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API": "https://rork-masalbak-studio-production.up.railway.app",
-        "EXPO_PUBLIC_RORK_API_BASE_URL": "https://rork-masalbak-studio-production.up.railway.app"
+        "EXPO_PUBLIC_API": "https://rork-masalbak-studio-production.up.railway.app"
       }
     }
   },
