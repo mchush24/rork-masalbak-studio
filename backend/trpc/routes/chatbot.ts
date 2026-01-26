@@ -13,6 +13,9 @@
  */
 
 import { z } from "zod";
+import { createLogger } from "../../lib/logger.js";
+
+const log = createLogger('ChatbotAPI');
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../create-context.js";
 import {
   processChat,
@@ -87,7 +90,7 @@ export const chatbotRouter = createTRPCRouter({
   sendMessage: publicProcedure
     .input(sendMessageSchema)
     .mutation(async ({ input, ctx }) => {
-      console.log('[Chatbot API] Message received:', input.message.substring(0, 50), 'childAge:', input.childAge);
+      log.debug('Message received', { message: input.message.substring(0, 50), childAge: input.childAge });
 
       const response = await processChat(
         input.message,
@@ -102,7 +105,7 @@ export const chatbotRouter = createTRPCRouter({
         }
       );
 
-      console.log('[Chatbot API] Response source:', response.source, 'FAQ:', response.matchedFAQ || 'N/A', 'Topic:', response.detectedTopic || 'N/A');
+      log.debug('Response generated', { source: response.source, faq: response.matchedFAQ || 'N/A', topic: response.detectedTopic || 'N/A' });
 
       return {
         message: response.message,
@@ -265,7 +268,7 @@ export const chatbotRouter = createTRPCRouter({
           },
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting usage stats:', error);
+        log.error('Error getting usage stats', error);
         return {
           enabled: true,
           error: 'Failed to fetch statistics',
@@ -307,7 +310,7 @@ export const chatbotRouter = createTRPCRouter({
         lastCheck: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('[Chatbot API] Error checking embedding status:', error);
+      log.error('Error checking embedding status', error);
       return {
         enabled: true,
         error: 'Failed to check embedding status',
@@ -387,7 +390,7 @@ export const chatbotRouter = createTRPCRouter({
           topFAQs,
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting top FAQs:', error);
+        log.error('Error getting top FAQs', error);
         return {
           enabled: true,
           error: 'Failed to fetch top FAQs',
@@ -462,7 +465,7 @@ export const chatbotRouter = createTRPCRouter({
             : null,
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting unanswered queries:', error);
+        log.error('Error getting unanswered queries', error);
         return {
           enabled: true,
           error: 'Failed to fetch unanswered queries',
@@ -527,7 +530,7 @@ export const chatbotRouter = createTRPCRouter({
         lastUpdated: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('[Chatbot API] Error getting dashboard stats:', error);
+      log.error('Error getting dashboard stats', error);
       return {
         ...baseStats,
         error: 'Failed to fetch complete statistics',
@@ -663,7 +666,7 @@ export const chatbotRouter = createTRPCRouter({
             : null,
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting unanswered analytics:', error);
+        log.error('Error getting unanswered analytics', error);
         return {
           enabled: false,
           error: 'Failed to fetch unanswered analytics',
@@ -715,7 +718,7 @@ export const chatbotRouter = createTRPCRouter({
           },
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting unanswered stats:', error);
+        log.error('Error getting unanswered stats', error);
         return {
           enabled: false,
           error: 'Failed to fetch statistics',
@@ -755,7 +758,7 @@ export const chatbotRouter = createTRPCRouter({
           })),
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting recent unanswered:', error);
+        log.error('Error getting recent unanswered', error);
         return {
           enabled: false,
           error: 'Failed to fetch recent queries',
@@ -788,7 +791,7 @@ export const chatbotRouter = createTRPCRouter({
           })),
         };
       } catch (error) {
-        console.error('[Chatbot API] Error getting by intent:', error);
+        log.error('Error getting by intent', error);
         return {
           enabled: false,
           error: 'Failed to fetch queries by intent',

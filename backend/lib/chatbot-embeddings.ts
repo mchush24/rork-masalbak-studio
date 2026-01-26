@@ -7,6 +7,9 @@
 
 import OpenAI from 'openai';
 import { supa } from './supabase.js';
+import { createLogger } from './logger.js';
+
+const log = createLogger('Embeddings');
 
 // ============================================
 // TYPES
@@ -108,13 +111,13 @@ export async function createEmbeddings(texts: string[]): Promise<number[][]> {
  * FAQ'lari Supabase'e kaydet (embedding ile birlikte)
  */
 export async function upsertFAQEmbeddings(faqs: FAQEmbedding[]): Promise<void> {
-  console.log(`[Embeddings] Upserting ${faqs.length} FAQs...`);
+  log.info('Upserting FAQs', { count: faqs.length });
 
   // Embedding'leri olustur
   const texts = faqs.map(faq => `${faq.question}\n${faq.answer}`);
   const embeddings = await createEmbeddings(texts);
 
-  console.log(`[Embeddings] Created ${embeddings.length} embeddings`);
+  log.info('Created embeddings', { count: embeddings.length });
 
   // Batch upsert
   for (let i = 0; i < faqs.length; i++) {
@@ -137,12 +140,12 @@ export async function upsertFAQEmbeddings(faqs: FAQEmbedding[]): Promise<void> {
       });
 
     if (error) {
-      console.error(`[Embeddings] Error upserting FAQ ${faq.id}:`, error);
+      log.error('Error upserting FAQ', error, { faqId: faq.id });
       throw error;
     }
   }
 
-  console.log(`[Embeddings] Successfully upserted ${faqs.length} FAQs`);
+  log.info('Successfully upserted FAQs', { count: faqs.length });
 }
 
 /**
@@ -218,7 +221,7 @@ export async function semanticSearch(
   });
 
   if (error) {
-    console.error('[Embeddings] Semantic search error:', error);
+    log.error('Semantic search error', error);
     throw error;
   }
 
@@ -266,7 +269,7 @@ export async function hybridSearch(
   });
 
   if (error) {
-    console.error('[Embeddings] Hybrid search error:', error);
+    log.error('Hybrid search error', error);
     throw error;
   }
 
@@ -369,7 +372,7 @@ export async function logChatbotInteraction(entry: ChatbotLogEntry): Promise<voi
 
   if (error) {
     // Loglama hatasi kritik degil, sadece uyari ver
-    console.warn('[Chatbot] Failed to log interaction:', error.message);
+    log.warn('Failed to log interaction', { error: error.message });
   }
 }
 

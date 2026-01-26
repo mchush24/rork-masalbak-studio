@@ -8,6 +8,9 @@
  */
 
 import { supa as supabase } from './supabase';
+import { createLogger } from './logger.js';
+
+const log = createLogger('ChatbotAnalytics');
 
 // ============================================
 // TYPES
@@ -80,9 +83,9 @@ export async function logUnansweredQuery(data: UnansweredQueryData): Promise<voi
       });
 
     if (error) {
-      console.warn('[ChatbotAnalytics] Failed to log unanswered query:', error.message);
+      log.warn('Failed to log unanswered query', { error: error.message });
     } else {
-      console.log('[ChatbotAnalytics] Logged unanswered query:', {
+      log.debug('Logged unanswered query', {
         reason: data.reason,
         intent: data.detectedIntent,
         confidence: data.confidence?.toFixed(2),
@@ -90,7 +93,7 @@ export async function logUnansweredQuery(data: UnansweredQueryData): Promise<voi
     }
   } catch (err) {
     // Silently fail - analytics shouldn't break the chatbot
-    console.warn('[ChatbotAnalytics] Error logging unanswered query:', err);
+    log.warn('Error logging unanswered query', { error: String(err) });
   }
 }
 
@@ -122,10 +125,10 @@ export async function logUnansweredQueriesBatch(queries: UnansweredQueryData[]):
       );
 
     if (error) {
-      console.warn('[ChatbotAnalytics] Failed to batch log queries:', error.message);
+      log.warn('Failed to batch log queries', { error: error.message });
     }
   } catch (err) {
-    console.warn('[ChatbotAnalytics] Error batch logging queries:', err);
+    log.warn('Error batch logging queries', { error: String(err) });
   }
 }
 
@@ -147,7 +150,7 @@ export async function getTopUnansweredQueries(
     });
 
     if (error) {
-      console.error('[ChatbotAnalytics] Failed to get top unanswered:', error);
+      log.error('Failed to get top unanswered', error);
       return [];
     }
 
@@ -159,7 +162,7 @@ export async function getTopUnansweredQueries(
       reasons: row.reasons,
     }));
   } catch (err) {
-    console.error('[ChatbotAnalytics] Error getting top unanswered:', err);
+    log.error('Error getting top unanswered', err);
     return [];
   }
 }
@@ -174,7 +177,7 @@ export async function getUnansweredStats(daysBack: number = 30): Promise<Unanswe
     });
 
     if (error) {
-      console.error('[ChatbotAnalytics] Failed to get stats:', error);
+      log.error('Failed to get stats', error);
       return null;
     }
 
@@ -189,7 +192,7 @@ export async function getUnansweredStats(daysBack: number = 30): Promise<Unanswe
       avgConfidence: row.avg_confidence || 0,
     };
   } catch (err) {
-    console.error('[ChatbotAnalytics] Error getting stats:', err);
+    log.error('Error getting stats', err);
     return null;
   }
 }
@@ -209,7 +212,7 @@ export async function getRecentUnansweredQueries(
       .range(offset, offset + limit - 1);
 
     if (error) {
-      console.error('[ChatbotAnalytics] Failed to get recent queries:', error);
+      log.error('Failed to get recent queries', error);
       return [];
     }
 
@@ -229,7 +232,7 @@ export async function getRecentUnansweredQueries(
       aiResponse: row.ai_response,
     }));
   } catch (err) {
-    console.error('[ChatbotAnalytics] Error getting recent queries:', err);
+    log.error('Error getting recent queries', err);
     return [];
   }
 }
@@ -250,7 +253,7 @@ export async function getUnansweredByIntent(
       .limit(limit);
 
     if (error) {
-      console.error('[ChatbotAnalytics] Failed to get by intent:', error);
+      log.error('Failed to get by intent', error);
       return [];
     }
 
@@ -270,7 +273,7 @@ export async function getUnansweredByIntent(
       aiResponse: row.ai_response,
     }));
   } catch (err) {
-    console.error('[ChatbotAnalytics] Error getting by intent:', err);
+    log.error('Error getting by intent', err);
     return [];
   }
 }
@@ -289,13 +292,13 @@ export async function updateQueryFeedback(
       .eq('id', queryId);
 
     if (error) {
-      console.error('[ChatbotAnalytics] Failed to update feedback:', error);
+      log.error('Failed to update feedback', error);
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('[ChatbotAnalytics] Error updating feedback:', err);
+    log.error('Error updating feedback', err);
     return false;
   }
 }

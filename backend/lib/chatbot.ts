@@ -48,8 +48,7 @@ import {
   UnansweredReason,
 } from './chatbot-analytics';
 
-// Standardized logger
-import { createLogger } from './logger';
+import { createLogger } from './logger.js';
 const log = createLogger('Chatbot');
 
 // Check which AI provider is available (at runtime)
@@ -1567,7 +1566,7 @@ export async function processChat(
           const bestMatch = results[0];
           const confidence = bestMatch.combinedScore * 100;
 
-          console.log('[Chatbot] Embedding match found:', bestMatch.question, 'Score:', bestMatch.combinedScore.toFixed(3));
+          log.debug('Embedding match found', { question: bestMatch.question, score: bestMatch.combinedScore.toFixed(3) });
 
           // Log interaction
           logInteraction(options, userMessage, bestMatch.answer, 'embedding', bestMatch.id, confidence, startTime);
@@ -1598,13 +1597,13 @@ export async function processChat(
         }
       }
     } catch (error) {
-      console.warn('[Chatbot] Embedding search failed, falling back to AI:', error);
+      log.warn('Embedding search failed, falling back to AI', { error: String(error) });
     }
   }
 
   // 3. Try lower confidence FAQ match
   if (faqMatch && faqMatch.confidence >= 30) {
-    console.log('[Chatbot] Low confidence FAQ match:', faqMatch.faq.question, 'Confidence:', faqMatch.confidence.toFixed(1) + '%');
+    log.debug('Low confidence FAQ match', { question: faqMatch.faq.question, confidence: faqMatch.confidence.toFixed(1) + '%' });
 
     logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
 
@@ -1649,7 +1648,7 @@ export async function processChat(
   }
 
   // 4. Fallback to AI (low cost)
-  console.log('[Chatbot] No FAQ match, using AI...');
+  log.debug('No FAQ match, using AI');
   try {
     const aiResponse = await getAIResponse(userMessage, conversationHistory);
 
@@ -1691,7 +1690,7 @@ export async function processChat(
       detectedTopic,
     };
   } catch (error) {
-    console.error('[Chatbot] AI error:', error);
+    log.error('AI error', error);
 
     const errorResponse = 'Uzgunum, su an teknik bir sorun yasiyorum. Lutfen biraz sonra tekrar deneyin veya sik sorulan sorulara goz atin.';
     logInteraction(options, userMessage, errorResponse, 'ai', undefined, undefined, startTime);
@@ -2221,5 +2220,5 @@ export function getAIProviderStats(): {
 export function resetAIProviderCircuits(): void {
   anthropicCircuit.reset();
   openaiCircuit.reset();
-  console.log('[Chatbot] AI provider circuits reset');
+  log.info('AI provider circuits reset');
 }

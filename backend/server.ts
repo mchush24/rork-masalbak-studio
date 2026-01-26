@@ -17,9 +17,11 @@ const port = parseInt(process.env.PORT || "3000");
 // Startup logging
 log.info('Starting Hono backend server', { port });
 if (isDevelopment()) {
-  console.log(`🔑 OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? 'SET' : 'MISSING'}`);
-  console.log(`🔑 ANTHROPIC_API_KEY: ${process.env.ANTHROPIC_API_KEY ? 'SET' : 'MISSING'}`);
-  console.log(`🗄️ SUPABASE_URL: ${process.env.SUPABASE_URL ? 'SET' : 'MISSING'}`);
+  log.debug('Environment check', {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY ? 'SET' : 'MISSING',
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ? 'SET' : 'MISSING',
+    SUPABASE_URL: process.env.SUPABASE_URL ? 'SET' : 'MISSING',
+  });
 }
 
 // Start server
