@@ -23,6 +23,7 @@ export interface BadgeCardProps {
   icon: string;
   rarity: BadgeRarity;
   isUnlocked: boolean;
+  isSecret?: boolean;
   unlockedAt?: string;
   progress?: {
     current: number;
@@ -41,6 +42,7 @@ export function BadgeCard({
   icon,
   rarity,
   isUnlocked,
+  isSecret = false,
   unlockedAt,
   progress,
   onPress,
@@ -113,7 +115,7 @@ export function BadgeCard({
             ]}
             numberOfLines={1}
           >
-            {isUnlocked ? name : "???"}
+            {isUnlocked ? name : (isSecret ? "???" : name)}
           </Text>
 
           {/* Progress bar for locked badges */}

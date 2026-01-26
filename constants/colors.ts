@@ -8,6 +8,167 @@
  * - Sulu boya geçişleri
  */
 
+/**
+ * RENKİOO Color System - "2035 Organic Biomimicry"
+ * High-end Glassmorphism with Fluid Gradients
+ * Dream Guardian Mascot: Ioo (I + oo = Star + Eyes)
+ */
+export const RenkooColors = {
+  // Brand Gradients - Dream Palette
+  brand: {
+    // Primary dream colors
+    dreamLavender: '#E8D5FF',
+    dreamPeach: '#FFCBA4',
+    dreamRose: '#FFD6E0',
+    dreamMint: '#B8F4E8',
+    dreamCream: '#FFF8F0',
+    // Accent colors
+    jellyPurple: '#B98EFF',
+    jellyPink: '#FF9EBF',
+    starGold: '#FFD93D',
+    // Legacy support
+    jellyCyan: '#00F5FF',
+    jellyMint: '#70FFD6',
+    jellyPeach: '#FFCBA4',
+    jellyLavender: '#E8D5FF',
+  },
+
+  // Rainbow Accents
+  accents: {
+    solarYellow: '#FFD93D',
+    coral: '#FF6B6B',
+    teal: '#4ECDC4',
+    sky: '#45B7D1',
+    sage: '#96CEB4',
+  },
+
+  // Holographic / Iridescent Colors
+  holographic: {
+    primary: ['#FF6B6B', '#FFE66D', '#4ECDC4', '#45B7D1', '#B98EFF'] as const,
+    secondary: ['#FFB6C1', '#FFDAB9', '#E0FFFF', '#DDA0DD', '#F0E68C'] as const,
+    shimmer: ['rgba(255,255,255,0.8)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0.4)'] as const,
+    rainbow: ['#FF6B6B', '#FFE66D', '#70FFD6', '#00F5FF', '#B98EFF', '#FF9EBF'] as const,
+  },
+
+  // Backgrounds
+  backgrounds: {
+    light: '#F7F9FC',
+    dark: '#1E2235',
+    dreamy: '#F0F7FF',
+    warmGlow: '#FFF8F0',
+  },
+
+  // Glass System (RGBA strings for CSS-like usage)
+  glass: {
+    surface: 'rgba(255, 255, 255, 0.65)',
+    surfaceLight: 'rgba(255, 255, 255, 0.85)',
+    surfaceDark: 'rgba(255, 255, 255, 0.45)',
+    border: 'rgba(255, 255, 255, 0.40)',
+    borderStrong: 'rgba(255, 255, 255, 0.60)',
+    shadow: 'rgba(30, 34, 53, 0.15)',
+    shadowSoft: 'rgba(30, 34, 53, 0.08)',
+  },
+
+  // Gradient Presets for LinearGradient
+  gradients: {
+    // Primary dream gradient (Lavender → Peach)
+    jellyPrimary: ['#B98EFF', '#FFCBA4'] as const,
+    // Secondary dream gradient (Rose → Mint)
+    jellySecondary: ['#FFD6E0', '#B8F4E8'] as const,
+    // Background gradient (Cream → Lavender → Rose)
+    background: ['#FFF8F0', '#F5E8FF', '#FFE8F0'] as const,
+    // Full aurora sunset
+    sunset: ['#FFD93D', '#FFCBA4', '#FFD6E0', '#B98EFF'] as const,
+    // Immersive home screen gradient - Dream sky
+    homeScreen: ['#FFF8F0', '#F5E8FF', '#FFE8F5', '#E8FFF5'] as const,
+    // Dreamy aurora pastel
+    dreamy: ['#FFF8F0', '#E8D5FF', '#FFD6E0', '#B8F4E8'] as const,
+    // Holographic card backgrounds
+    holoCard: ['#FFFFFF', '#FFF8F5', '#F8F0FF', '#F5FFFA'] as const,
+    // Emotion analysis gradient
+    emotion: ['#B8F4E8', '#E8D5FF', '#FFD6E0', '#FFCBA4'] as const,
+    // Chat/dialogue gradient - Ioo's conversation
+    chat: ['#FFF8F0', '#F5E8FF', '#FFE8F5'] as const,
+    // Reward/achievement gradient - Star celebration
+    reward: ['#FFD93D', '#FFCBA4', '#FFD6E0', '#B98EFF'] as const,
+    // Journey/progress gradient
+    journey: ['#B8F4E8', '#E8D5FF', '#FFCBA4', '#FFD93D'] as const,
+    // Ioo special gradients
+    iooGlow: ['#E8D5FF', '#FFCBA4', '#FFD6E0'] as const,
+    iooStar: ['#FFD93D', '#FFF5CC', '#FFEB99'] as const,
+  },
+
+  // Text Colors
+  text: {
+    primary: '#1E2235',
+    secondary: '#5A5F7A',
+    tertiary: '#8A8FA5',
+    light: '#FFFFFF',
+    muted: 'rgba(30, 34, 53, 0.6)',
+    accent: '#B98EFF',
+  },
+
+  // Mascot Colors (Ioo - Dream Guardian)
+  mascot: {
+    // Body - Soft cream/marshmallow cloud
+    body: ['#FFF8F0', '#FFE8D6', '#F5DFD0', '#E8CFC0'] as const,
+    bodyGlow: '#FFCBA4',
+    highlight: '#FFFFFF',
+    shadow: 'rgba(232, 207, 192, 0.4)',
+    shadowStrong: 'rgba(232, 207, 192, 0.6)',
+    // Eye colors - dual tone (lavender + coral)
+    eyeLeft: '#9B7FFF',
+    eyeRight: '#FF9B8A',
+    // Star crown
+    star: '#FFD93D',
+    starGlow: 'rgba(255, 217, 61, 0.5)',
+    // Cheeks
+    cheeks: '#FFB5C5',
+    // Glow aura colors
+    glow: ['#E8D5FF', '#FFCBA4', '#B8F4E8', '#FFD6E0'] as const,
+  },
+
+  // Feature Card Colors (new style)
+  featureCards: {
+    analysis: {
+      gradient: ['#E8FFF5', '#E0FFFF'] as const,
+      border: '#70FFD6',
+      icon: '#4ECDC4',
+    },
+    chat: {
+      gradient: ['#F0F7FF', '#E8F4FF'] as const,
+      border: '#45B7D1',
+      icon: '#00C8E8',
+    },
+    story: {
+      gradient: ['#FFF5E6', '#FFFAF0'] as const,
+      border: '#FFD93D',
+      icon: '#FFB347',
+    },
+    emotion: {
+      gradient: ['#F5E8FF', '#FFE8F5'] as const,
+      border: '#B98EFF',
+      icon: '#9B6DFF',
+    },
+    reward: {
+      gradient: ['#FFF0F5', '#FFFACD'] as const,
+      border: '#FFB6C1',
+      icon: '#FF69B4',
+    },
+    coloring: {
+      gradient: ['#E8FFF5', '#F0FFFF'] as const,
+      border: '#70FFD6',
+      icon: '#00CED1',
+    },
+  },
+} as const;
+
+// Type exports for RenkooColors
+export type RenkooColorKeys = keyof typeof RenkooColors;
+export type RenkooBrandColors = typeof RenkooColors.brand;
+export type RenkooGlassColors = typeof RenkooColors.glass;
+export type RenkooGradientPresets = typeof RenkooColors.gradients;
+
 export const Colors = {
   // Ana Marka Renkleri - "Gün Batımı" teması
   primary: {

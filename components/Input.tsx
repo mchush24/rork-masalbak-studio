@@ -124,6 +124,11 @@ export function Input({
             setIsFocused(false);
             textInputProps.onBlur?.(e);
           }}
+          accessibilityLabel={textInputProps.accessibilityLabel || label || textInputProps.placeholder}
+          accessibilityHint={error ? `Hata: ${error}` : textInputProps.accessibilityHint}
+          accessibilityState={{
+            disabled: textInputProps.editable === false,
+          }}
         />
 
         {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}

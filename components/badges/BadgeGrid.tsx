@@ -50,7 +50,7 @@ interface BadgeGridProps {
   progress?: BadgeProgress[];
   isLoading?: boolean;
   showProgress?: boolean;
-  onBadgePress?: (badgeId: string) => void;
+  onBadgePress?: (badgeId: string, isUnlocked: boolean, badgeInfo?: Badge) => void;
 }
 
 export function BadgeGrid({
@@ -125,24 +125,28 @@ export function BadgeGrid({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalScroll}
           >
-            {progress.slice(0, 5).map(badge => (
-              <BadgeCard
-                key={badge.id}
-                id={badge.id}
-                name={badge.name}
-                description={badge.description}
-                icon={badge.icon}
-                rarity={badge.rarity as any}
-                isUnlocked={false}
-                progress={{
-                  current: badge.current,
-                  target: badge.target,
-                  percentage: badge.percentage,
-                }}
-                size="medium"
-                onPress={() => onBadgePress?.(badge.id)}
-              />
-            ))}
+            {progress.slice(0, 5).map(progressBadge => {
+              const fullBadge = BADGES.find(b => b.id === progressBadge.id);
+              return (
+                <BadgeCard
+                  key={progressBadge.id}
+                  id={progressBadge.id}
+                  name={progressBadge.name}
+                  description={progressBadge.description}
+                  icon={progressBadge.icon}
+                  rarity={progressBadge.rarity as any}
+                  isUnlocked={false}
+                  isSecret={fullBadge?.isSecret}
+                  progress={{
+                    current: progressBadge.current,
+                    target: progressBadge.target,
+                    percentage: progressBadge.percentage,
+                  }}
+                  size="medium"
+                  onPress={() => onBadgePress?.(progressBadge.id, false, fullBadge)}
+                />
+              );
+            })}
           </ScrollView>
         </View>
       )}
@@ -188,13 +192,14 @@ export function BadgeGrid({
                     icon={badge.icon}
                     rarity={badge.rarity as any}
                     isUnlocked={isUnlocked}
+                    isSecret={badge.isSecret}
                     progress={badgeProgress ? {
                       current: badgeProgress.current,
                       target: badgeProgress.target,
                       percentage: badgeProgress.percentage,
                     } : undefined}
                     size="small"
-                    onPress={() => onBadgePress?.(badge.id)}
+                    onPress={() => onBadgePress?.(badge.id, isUnlocked, badge)}
                   />
                 );
               })}

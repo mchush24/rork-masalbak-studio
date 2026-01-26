@@ -1,9 +1,10 @@
 /**
- * BadgeUnlockModal - Rozet Kazanma Animasyonu
+ * BadgeUnlockModal - Rozet Detay ve Kazanma Modalı
  *
  * Özellikleri:
- * - Konfeti efekti
- * - Parlama animasyonu
+ * - Açık rozetler için konfeti efekti
+ * - Kilitli rozetler için nasıl açılacağı bilgisi
+ * - İlerleme göstergesi
  * - Rozet detayları
  */
 
@@ -18,8 +19,8 @@ import {
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { X, Sparkles } from "lucide-react-native";
-import { Colors } from "@/constants/colors";
+import { X, Sparkles, Lock, Target, TrendingUp } from "lucide-react-native";
+import { Colors, RenkooColors } from "@/constants/colors";
 import { spacing, radius, shadows, typography } from "@/constants/design-system";
 import { BADGE_RARITY_CONFIG, type BadgeRarity } from "@/constants/badges";
 
@@ -34,17 +35,26 @@ interface BadgeUnlockModalProps {
     description: string;
     icon: string;
     rarity: BadgeRarity;
+    isUnlocked?: boolean;
+    progress?: {
+      current: number;
+      target: number;
+      percentage: number;
+    };
   } | null;
+  onAction?: () => void;
 }
 
 export function BadgeUnlockModal({
   visible,
   onClose,
   badge,
+  onAction,
 }: BadgeUnlockModalProps) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
   const confettiAnims = useRef(
     Array.from({ length: 20 }, () => ({
       translateX: new Animated.Value(0),
@@ -54,12 +64,15 @@ export function BadgeUnlockModal({
     }))
   ).current;
 
+  const isUnlocked = badge?.isUnlocked ?? true;
+
   useEffect(() => {
     if (visible && badge) {
       // Reset animations
       scaleAnim.setValue(0);
       rotateAnim.setValue(0);
       glowAnim.setValue(0);
+      progressAnim.setValue(0);
 
       // Badge entrance animation
       Animated.sequence([
@@ -106,50 +119,61 @@ export function BadgeUnlockModal({
         ]),
       ]).start();
 
-      // Confetti animation
-      confettiAnims.forEach((anim, index) => {
-        const angle = (Math.PI * 2 * index) / confettiAnims.length;
-        const distance = 150 + Math.random() * 100;
-        const delay = Math.random() * 300;
+      // Progress bar animation for locked badges
+      if (!isUnlocked && badge.progress) {
+        Animated.timing(progressAnim, {
+          toValue: badge.progress.percentage,
+          duration: 800,
+          useNativeDriver: false,
+        }).start();
+      }
 
-        anim.translateX.setValue(0);
-        anim.translateY.setValue(0);
-        anim.rotate.setValue(0);
-        anim.opacity.setValue(0);
+      // Confetti animation only for unlocked badges
+      if (isUnlocked) {
+        confettiAnims.forEach((anim, index) => {
+          const angle = (Math.PI * 2 * index) / confettiAnims.length;
+          const distance = 150 + Math.random() * 100;
+          const delay = Math.random() * 300;
 
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.parallel([
+          anim.translateX.setValue(0);
+          anim.translateY.setValue(0);
+          anim.rotate.setValue(0);
+          anim.opacity.setValue(0);
+
+          Animated.sequence([
+            Animated.delay(delay),
+            Animated.parallel([
+              Animated.timing(anim.opacity, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+              }),
+              Animated.timing(anim.translateX, {
+                toValue: Math.cos(angle) * distance,
+                duration: 1000,
+                useNativeDriver: true,
+              }),
+              Animated.timing(anim.translateY, {
+                toValue: Math.sin(angle) * distance + 100,
+                duration: 1000,
+                useNativeDriver: true,
+              }),
+              Animated.timing(anim.rotate, {
+                toValue: Math.random() * 4 - 2,
+                duration: 1000,
+                useNativeDriver: true,
+              }),
+            ]),
             Animated.timing(anim.opacity, {
-              toValue: 1,
-              duration: 200,
+              toValue: 0,
+              duration: 500,
               useNativeDriver: true,
             }),
-            Animated.timing(anim.translateX, {
-              toValue: Math.cos(angle) * distance,
-              duration: 1000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(anim.translateY, {
-              toValue: Math.sin(angle) * distance + 100,
-              duration: 1000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(anim.rotate, {
-              toValue: Math.random() * 4 - 2,
-              duration: 1000,
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.timing(anim.opacity, {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ]).start();
-      });
+          ]).start();
+        });
+      }
     }
-  }, [visible, badge]);
+  }, [visible, badge, isUnlocked]);
 
   if (!badge) return null;
 
@@ -159,6 +183,11 @@ export function BadgeUnlockModal({
   const rotate = rotateAnim.interpolate({
     inputRange: [-1, 0, 1],
     outputRange: ["-5deg", "0deg", "5deg"],
+  });
+
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 100],
+    outputRange: ["0%", "100%"],
   });
 
   return (
@@ -171,8 +200,8 @@ export function BadgeUnlockModal({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 
-        {/* Confetti */}
-        {confettiAnims.map((anim, index) => (
+        {/* Confetti - only for unlocked */}
+        {isUnlocked && confettiAnims.map((anim, index) => (
           <Animated.View
             key={index}
             style={[
@@ -211,8 +240,17 @@ export function BadgeUnlockModal({
 
           {/* Header */}
           <View style={styles.header}>
-            <Sparkles size={24} color={Colors.primary.sunset} />
-            <Text style={styles.headerText}>Yeni Rozet!</Text>
+            {isUnlocked ? (
+              <>
+                <Sparkles size={24} color={Colors.primary.sunset} />
+                <Text style={styles.headerText}>Rozet Kazandın!</Text>
+              </>
+            ) : (
+              <>
+                <Target size={24} color={RenkooColors.brand.jellyPurple} />
+                <Text style={styles.headerText}>Rozet Hedefi</Text>
+              </>
+            )}
           </View>
 
           {/* Badge Icon with Glow */}
@@ -221,10 +259,10 @@ export function BadgeUnlockModal({
               style={[
                 styles.glow,
                 {
-                  backgroundColor: rarityConfig.color,
+                  backgroundColor: isUnlocked ? rarityConfig.color : "#D1D5DB",
                   opacity: glowAnim.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.2, 0.5],
+                    outputRange: [0.2, isUnlocked ? 0.5 : 0.3],
                   }),
                   transform: [
                     {
@@ -238,10 +276,20 @@ export function BadgeUnlockModal({
               ]}
             />
             <LinearGradient
-              colors={[rarityConfig.bgColor, "#FFFFFF"]}
-              style={styles.badgeIconContainer}
+              colors={isUnlocked ? [rarityConfig.bgColor, "#FFFFFF"] : ["#F3F4F6", "#E5E7EB"]}
+              style={[
+                styles.badgeIconContainer,
+                !isUnlocked && styles.badgeIconLocked,
+              ]}
             >
-              <Text style={styles.badgeIcon}>{badge.icon}</Text>
+              <Text style={[styles.badgeIcon, !isUnlocked && styles.badgeIconLockedText]}>
+                {badge.icon}
+              </Text>
+              {!isUnlocked && (
+                <View style={styles.lockOverlay}>
+                  <Lock size={32} color="#9CA3AF" />
+                </View>
+              )}
             </LinearGradient>
           </View>
 
@@ -256,19 +304,57 @@ export function BadgeUnlockModal({
             </Text>
           </View>
 
+          {/* Progress Section for locked badges */}
+          {!isUnlocked && badge.progress && (
+            <View style={styles.progressSection}>
+              <View style={styles.progressHeader}>
+                <TrendingUp size={16} color={RenkooColors.brand.jellyPurple} />
+                <Text style={styles.progressTitle}>İlerleme Durumu</Text>
+              </View>
+
+              <View style={styles.progressBarContainer}>
+                <View style={styles.progressBarBg}>
+                  <Animated.View
+                    style={[
+                      styles.progressBarFill,
+                      { width: progressWidth },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressText}>
+                  {badge.progress.current} / {badge.progress.target}
+                </Text>
+              </View>
+
+              <Text style={styles.progressHint}>
+                {badge.progress.target - badge.progress.current} tane daha!
+              </Text>
+            </View>
+          )}
+
           {/* Action Button */}
           <Pressable
             style={({ pressed }) => [
               styles.actionButton,
               pressed && { opacity: 0.8 },
             ]}
-            onPress={onClose}
+            onPress={() => {
+              if (onAction && !isUnlocked) {
+                onAction();
+              }
+              onClose();
+            }}
           >
             <LinearGradient
-              colors={[Colors.primary.sunset, Colors.primary.peach]}
+              colors={isUnlocked
+                ? [Colors.primary.sunset, Colors.primary.peach]
+                : [RenkooColors.brand.jellyPurple, RenkooColors.brand.dreamLavender]
+              }
               style={styles.actionButtonGradient}
             >
-              <Text style={styles.actionButtonText}>Harika!</Text>
+              <Text style={styles.actionButtonText}>
+                {isUnlocked ? "Harika!" : "Hemen Başla!"}
+              </Text>
             </LinearGradient>
           </Pressable>
         </Animated.View>
@@ -345,8 +431,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.white,
     ...shadows.lg,
   },
+  badgeIconLocked: {
+    borderColor: "#E5E7EB",
+  },
   badgeIcon: {
     fontSize: 56,
+  },
+  badgeIconLockedText: {
+    opacity: 0.4,
+  },
+  lockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderRadius: 60,
   },
   badgeName: {
     fontSize: typography.size["2xl"],
@@ -365,11 +464,60 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing["4"],
     paddingVertical: spacing["2"],
     borderRadius: radius.full,
-    marginBottom: spacing["6"],
+    marginBottom: spacing["4"],
   },
   rarityText: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
+  },
+  // Progress section
+  progressSection: {
+    width: "100%",
+    backgroundColor: "rgba(185, 142, 255, 0.08)",
+    borderRadius: radius.xl,
+    padding: spacing["4"],
+    marginBottom: spacing["4"],
+  },
+  progressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["2"],
+    marginBottom: spacing["3"],
+  },
+  progressTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: RenkooColors.brand.jellyPurple,
+  },
+  progressBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["3"],
+  },
+  progressBarBg: {
+    flex: 1,
+    height: 12,
+    backgroundColor: "rgba(185, 142, 255, 0.2)",
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: RenkooColors.brand.jellyPurple,
+    borderRadius: 6,
+  },
+  progressText: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: RenkooColors.brand.jellyPurple,
+    minWidth: 50,
+    textAlign: "right",
+  },
+  progressHint: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    textAlign: "center",
+    marginTop: spacing["2"],
   },
   actionButton: {
     width: "100%",

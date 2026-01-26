@@ -45,6 +45,12 @@ interface ButtonProps {
 
   /** Custom text style override */
   textStyle?: TextStyle;
+
+  /** Custom accessibility label (defaults to children) */
+  accessibilityLabel?: string;
+
+  /** Accessibility hint for screen readers */
+  accessibilityHint?: string;
 }
 
 export function Button({
@@ -58,6 +64,8 @@ export function Button({
   icon,
   style,
   textStyle,
+  accessibilityLabel,
+  accessibilityHint,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -103,6 +111,8 @@ export function Button({
       disabled={isDisabled}
       style={getButtonStyle}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || children}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
     >
       <View style={styles.content}>
