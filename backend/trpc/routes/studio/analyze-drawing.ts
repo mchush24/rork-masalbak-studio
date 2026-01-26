@@ -4,6 +4,7 @@ import { z } from "zod";
 import OpenAI from "openai";
 import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
 import { BadgeService } from "../../../lib/badge-service.js";
+import { extractJSON } from "../../../lib/json-extractor.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,21 +12,21 @@ const openai = new OpenAI({
 
 // Çoklu görsel için schema
 const imageItemSchema = z.object({
-  id: z.string(), // örn: "house", "tree", "person", "copy", "recall"
-  label: z.string(), // örn: "Ev Çizimi", "Ağaç Çizimi"
-  base64: z.string(),
+  id: z.string().max(50), // örn: "house", "tree", "person", "copy", "recall"
+  label: z.string().max(100), // örn: "Ev Çizimi", "Ağaç Çizimi"
+  base64: z.string().max(5_000_000), // ~3.75MB max per image
 });
 
 const analysisInputSchema = z.object({
   taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
-  childAge: z.number().optional(),
+  childAge: z.number().min(0).max(18).optional(),
   childGender: z.enum(["male", "female"]).optional(), // Child's gender for developmental context
-  imageBase64: z.string().optional(), // Geriye uyumluluk için - tek görsel
-  images: z.array(imageItemSchema).optional(), // Çoklu görsel desteği
+  imageBase64: z.string().max(5_000_000).optional(), // Geriye uyumluluk için - tek görsel (~3.75MB)
+  images: z.array(imageItemSchema).max(10).optional(), // Çoklu görsel desteği (max 10)
   language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
   userRole: z.enum(["parent", "teacher"]).optional().default("parent"),
-  culturalContext: z.string().optional(),
-  featuresJson: z.record(z.string(), z.any()).optional(),
+  culturalContext: z.string().max(500).optional(),
+  featuresJson: z.record(z.string().max(100), z.unknown()).optional(), // Stricter typing
 });
 
 const analysisResponseSchema = z.object({
@@ -464,46 +465,44 @@ JSON Şeması:
 
     logger.info("[Drawing Analysis] 📝 Response received, length:", responseText.length);
 
-    let parsedResponse;
-    try {
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      const jsonString = jsonMatch ? jsonMatch[0] : responseText;
-      parsedResponse = JSON.parse(jsonString);
-      logger.info("[Drawing Analysis] 🔍 Parsed response keys:", Object.keys(parsedResponse));
-      logger.info("[Drawing Analysis] 📦 Parsed response:", JSON.stringify(parsedResponse, null, 2));
-    } catch (parseErr) {
-      logger.error("[Drawing Analysis] ⚠️ JSON parse error:", parseErr);
-      logger.error("[Drawing Analysis] 📄 Raw response:", responseText);
-
-      // Fallback response matching new schema
-      parsedResponse = {
-        meta: {
-          testType: input.taskType,
-          age: input.childAge,
-          language: language,
-          confidence: 0.3,
-          uncertaintyLevel: "high",
-          dataQualityNotes: ["Yanıt beklenmeyen formatta geldi"],
+    // Extract JSON using robust extractor
+    const fallbackResponse = {
+      meta: {
+        testType: input.taskType,
+        age: input.childAge,
+        language: language,
+        confidence: 0.3,
+        uncertaintyLevel: "high" as const,
+        dataQualityNotes: ["Yanıt beklenmeyen formatta geldi"],
+      },
+      insights: [
+        {
+          title: "Analiz tamamlanamadı",
+          summary: responseText || "Yanıt işlenemedi. Lütfen tekrar deneyin.",
+          evidence: ["parse_error"],
+          strength: "weak" as const,
         },
-        insights: [
-          {
-            title: "Analiz tamamlanamadı",
-            summary: responseText || "Yanıt işlenemedi. Lütfen tekrar deneyin.",
-            evidence: ["parse_error"],
-            strength: "weak",
-          },
-        ],
-        homeTips: [
-          {
-            title: "Tekrar deneyin",
-            steps: ["Analizi tekrar çalıştırın", "Sorun devam ederse destek ekibiyle iletişime geçin"],
-            why: "Yanıt beklenmeyen bir formatta geldi",
-          },
-        ],
-        riskFlags: [],
-        trendNote: "",
-        disclaimer: getDisclaimer(language),
-      };
+      ],
+      homeTips: [
+        {
+          title: "Tekrar deneyin",
+          steps: ["Analizi tekrar çalıştırın", "Sorun devam ederse destek ekibiyle iletişime geçin"],
+          why: "Yanıt beklenmeyen bir formatta geldi",
+        },
+      ],
+      riskFlags: [],
+      trendNote: "",
+      disclaimer: getDisclaimer(language),
+    };
+
+    const extraction = extractJSON(responseText, { fallback: fallbackResponse });
+    const parsedResponse = extraction.success ? extraction.data : fallbackResponse;
+
+    if (extraction.success) {
+      logger.info("[Drawing Analysis] 🔍 Parsed response keys:", Object.keys(parsedResponse as object));
+    } else {
+      logger.error("[Drawing Analysis] ⚠️ JSON extraction failed:", extraction.error);
+      logger.error("[Drawing Analysis] 📄 Raw response:", responseText.substring(0, 500));
     }
 
     const result = analysisResponseSchema.parse(parsedResponse);
@@ -525,11 +524,16 @@ export const analyzeDrawingProcedure = protectedProcedure
   .mutation(async ({ ctx, input }) => {
     const result = await analyzeDrawing(input);
 
-    // Record activity and check badges (don't block on this)
+    // Record activity and check badges in background
+    // Use Promise.race with timeout to prevent blocking response indefinitely
     const userId = ctx.userId;
-    BadgeService.recordActivity(userId, 'analysis')
+    const badgePromise = BadgeService.recordActivity(userId, 'analysis')
       .then(() => BadgeService.checkAndAwardBadges(userId))
       .catch(err => logger.error('[analyzeDrawing] Badge check error:', err));
+
+    // Wait for badge with timeout (don't block response for more than 2s)
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2000));
+    await Promise.race([badgePromise, timeoutPromise]);
 
     return result;
   });

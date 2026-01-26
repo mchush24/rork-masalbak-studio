@@ -15,7 +15,7 @@ const updateSettingsInputSchema = z.object({
   autoSave: z.boolean().optional(),
   showTips: z.boolean().optional(),
   childLockEnabled: z.boolean().optional(),
-  customSettings: z.record(z.string(), z.any()).optional(),
+  customSettings: z.record(z.string().max(50), z.unknown()).optional(),
 });
 
 export const updateSettingsProcedure = protectedProcedure

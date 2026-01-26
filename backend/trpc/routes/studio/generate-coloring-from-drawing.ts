@@ -26,7 +26,7 @@ fal.config({
 });
 
 const generateColoringInputSchema = z.object({
-  imageBase64: z.string(),
+  imageBase64: z.string().max(5_000_000),
   drawingDescription: z.string().optional(),
   style: z.enum(["simple", "detailed", "educational"]).default("simple"),
   ageGroup: z.number().min(2).max(12).default(5),

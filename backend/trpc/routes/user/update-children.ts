@@ -4,15 +4,15 @@ import { z } from "zod";
 import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 const childSchema = z.object({
-  name: z.string().min(1, "İsim gereklidir"),
+  name: z.string().min(1, "İsim gereklidir").max(50, "İsim çok uzun"),
   age: z.number().min(0, "Yaş 0'dan büyük olmalı").max(18, "Yaş 18'den küçük olmalı"),
-  birthDate: z.string().optional(),
+  birthDate: z.string().max(20).optional(), // ISO date format
   gender: z.enum(["male", "female", "other"]).optional(),
-  avatarId: z.string().optional(),
+  avatarId: z.string().max(50).optional(),
 });
 
 const updateChildrenInputSchema = z.object({
-  children: z.array(childSchema),
+  children: z.array(childSchema).max(10, "En fazla 10 çocuk eklenebilir"),
 });
 
 export const updateChildrenProcedure = protectedProcedure

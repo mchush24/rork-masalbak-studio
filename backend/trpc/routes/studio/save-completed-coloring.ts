@@ -14,7 +14,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
   .input(
     z.object({
       coloringId: z.string().uuid(),
-      completedImageData: z.string(), // Base64 image data with data:image/png;base64, prefix
+      completedImageData: z.string().max(10_000_000), // Base64 image data with data:image/png;base64, prefix
     })
   )
   .mutation(async ({ ctx, input }) => {
@@ -92,10 +92,14 @@ export const saveCompletedColoringProcedure = protectedProcedure
 
       logger.info("[SaveCompletedColoring] ✅ Successfully saved completed coloring");
 
-      // Record activity and check badges (don't block on this)
-      BadgeService.recordActivity(userId, 'coloring')
+      // Record activity and check badges in background
+      const badgePromise = BadgeService.recordActivity(userId, 'coloring')
         .then(() => BadgeService.checkAndAwardBadges(userId))
         .catch(err => logger.error('[saveCompletedColoring] Badge check error:', err));
+
+      // Wait for badge with timeout (don't block response for more than 2s)
+      const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2000));
+      await Promise.race([badgePromise, timeoutPromise]);
 
       return {
         success: true,

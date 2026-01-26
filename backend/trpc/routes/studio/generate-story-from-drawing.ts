@@ -158,10 +158,14 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
       );
       logger.info("[Generate Story] ✅ Saved to database with ID:", savedRecord.id);
 
-      // Record activity and check badges (don't block on this)
-      BadgeService.recordActivity(userId, 'story')
+      // Record activity and check badges in background
+      const badgePromise = BadgeService.recordActivity(userId, 'story')
         .then(() => BadgeService.checkAndAwardBadges(userId))
         .catch(err => logger.error('[generateStoryFromDrawing] Badge check error:', err));
+
+      // Wait for badge with timeout (don't block response for more than 2s)
+      const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2000));
+      await Promise.race([badgePromise, timeoutPromise]);
 
       // Return complete storybook data
       return {

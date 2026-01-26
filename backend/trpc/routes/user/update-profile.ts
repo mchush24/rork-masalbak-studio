@@ -6,19 +6,19 @@ import { getSecureClient } from "../../../lib/supabase-secure.js";
 
 
 const childSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1).max(50),
   age: z.number().min(0).max(18),
-  birthDate: z.string().optional(),
+  birthDate: z.string().max(20).optional(), // ISO date format
   gender: z.enum(["male", "female", "other"]).optional(),
-  avatarId: z.string().optional(),
+  avatarId: z.string().max(50).optional(),
 });
 
 const updateProfileInputSchema = z.object({
-  name: z.string().optional(),
-  avatarUrl: z.string().optional(), // Can be avatar ID or URL
+  name: z.string().min(1).max(100).optional(),
+  avatarUrl: z.string().max(500).optional(), // Can be avatar ID or URL
   language: z.enum(["tr", "en", "de", "ru"]).optional(),
-  children: z.array(childSchema).optional(),
-  preferences: z.record(z.string(), z.any()).optional(),
+  children: z.array(childSchema).max(10).optional(), // Max 10 children
+  preferences: z.record(z.string().max(50), z.unknown()).optional(),
 });
 
 export const updateProfileProcedure = protectedProcedure

@@ -3,6 +3,26 @@ import jwt from 'jsonwebtoken';
 const JWT_EXPIRES_IN = '7d'; // 7 days
 const REFRESH_TOKEN_EXPIRES_IN = '30d'; // 30 days
 
+// =============================================================================
+// Custom Error Classes for Better Error Handling
+// =============================================================================
+
+export class TokenExpiredError extends Error {
+  constructor(message: string = 'Token süresi dolmuş') {
+    super(message);
+    this.name = 'TokenExpiredError';
+  }
+}
+
+export class InvalidTokenError extends Error {
+  constructor(message: string = 'Geçersiz token') {
+    super(message);
+    this.name = 'InvalidTokenError';
+  }
+}
+
+// =============================================================================
+
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -40,7 +60,8 @@ export function generateRefreshToken(payload: TokenPayload): string {
 
 /**
  * Verify and decode token
- * @throws Error if token is invalid or expired
+ * @throws TokenExpiredError if token has expired
+ * @throws InvalidTokenError if token is malformed or invalid
  */
 export function verifyToken(token: string): TokenPayload {
   try {
@@ -52,11 +73,11 @@ export function verifyToken(token: string): TokenPayload {
     return decoded;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      throw new Error('Token süresi dolmuş. Lütfen tekrar giriş yapın.');
+      throw new TokenExpiredError('Token süresi dolmuş. Lütfen tekrar giriş yapın.');
     } else if (error instanceof jwt.JsonWebTokenError) {
-      throw new Error('Geçersiz token. Lütfen tekrar giriş yapın.');
+      throw new InvalidTokenError('Geçersiz token. Lütfen tekrar giriş yapın.');
     } else {
-      throw new Error('Token doğrulama hatası.');
+      throw new InvalidTokenError('Token doğrulama hatası.');
     }
   }
 }

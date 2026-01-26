@@ -9,7 +9,7 @@ const openai = new OpenAI({
 });
 
 const suggestStoryThemesInputSchema = z.object({
-  imageBase64: z.string(),
+  imageBase64: z.string().max(5_000_000),
   language: z.enum(["tr", "en"]).default("tr"),
 });
 

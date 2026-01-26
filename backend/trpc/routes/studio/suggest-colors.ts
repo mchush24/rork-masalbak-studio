@@ -174,7 +174,7 @@ function saturateColor(hex: string, factor: number): string {
 // ============================================================================
 
 const suggestColorsInputSchema = z.object({
-  imageBase64: z.string().describe("Base64 encoded line art image"),
+  imageBase64: z.string().max(5_000_000).describe("Base64 encoded line art image"),
   ageGroup: z.number().min(2).max(12).default(5),
   preferredMood: z.enum(['happy', 'calm', 'nature', 'fantasy', 'ocean', 'sunset', 'forest', 'rainbow', 'auto']).default('auto'),
   language: z.enum(['tr', 'en']).default('tr'),
