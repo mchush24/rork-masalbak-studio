@@ -14,10 +14,13 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system/legacy";
+import { preprocessImage } from "@/utils/imagePreprocess";
 import { Palette, ImagePlus, Sparkles, Download, X, Wand2, AlertTriangle, Heart } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { Colors } from "@/constants/colors";
+import { SymbiosisTheme, EmotionalZones } from "@/constants/SymbiosisTheme";
 import { layout, typography, spacing, radius, shadows, cardVariants, badgeStyles } from "@/constants/design-system";
 import { useGenerateColoringPage } from "@/lib/hooks/useGenerateColoringPage";
 import * as Linking from "expo-linking";
@@ -115,13 +118,16 @@ export default function StudioScreen() {
     }
 
     try {
+      // Preprocess image (handles HEIC conversion)
+      const processedUri = await preprocessImage(aiDrawingImage);
+
       // Convert image to base64
       let imageBase64: string;
       if (Platform.OS === "web") {
-        if (aiDrawingImage.startsWith("data:")) {
-          imageBase64 = aiDrawingImage.split(",")[1];
+        if (processedUri.startsWith("data:")) {
+          imageBase64 = processedUri.split(",")[1];
         } else {
-          const response = await fetch(aiDrawingImage);
+          const response = await fetch(processedUri);
           const blob = await response.blob();
           imageBase64 = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
@@ -135,7 +141,7 @@ export default function StudioScreen() {
           });
         }
       } else {
-        let uri = aiDrawingImage;
+        let uri = processedUri;
         if (!uri.startsWith("file://") && !uri.startsWith("content://")) {
           uri = `file://${uri}`;
         }
@@ -416,13 +422,14 @@ export default function StudioScreen() {
           <LoadingAnimation type="painting" message={t.studio.creating} />
         ) : (
           <View style={styles.modalOverlay}>
-            <LinearGradient
-              colors={Colors.background.studio}
-              style={[
-                styles.modalContent,
-                { padding: isSmallScreen ? spacing["4"] : spacing["6"] },
-              ]}
-            >
+            <BlurView intensity={Platform.OS === 'web' ? 0 : 80} tint="light" style={styles.modalBlurContainer}>
+              <LinearGradient
+                colors={EmotionalZones.creative.gradient}
+                style={[
+                  styles.modalContent,
+                  { padding: isSmallScreen ? spacing["4"] : spacing["6"] },
+                ]}
+              >
               {/* Modal Header */}
               <View style={styles.modalHeader}>
                 <Text style={[
@@ -557,7 +564,8 @@ export default function StudioScreen() {
                 </View>
               )}
               </ScrollView>
-            </LinearGradient>
+              </LinearGradient>
+            </BlurView>
           </View>
         )}
       </Modal>
@@ -1056,18 +1064,26 @@ const styles = StyleSheet.create({
     color: Colors.secondary.lavender,
   },
 
-  // Modal Styles
+  // Modal Styles - Glassmorphism
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
     justifyContent: "flex-end",
   },
-  modalContent: {
+  modalBlurContainer: {
     height: "90%",
     borderTopLeftRadius: radius["2xl"],
     borderTopRightRadius: radius["2xl"],
-    // padding is now applied dynamically based on screen size
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
     ...shadows.xl,
+  },
+  modalContent: {
+    flex: 1,
+    borderTopLeftRadius: radius["2xl"],
+    borderTopRightRadius: radius["2xl"],
+    // padding is now applied dynamically based on screen size
   },
   modalHeader: {
     flexDirection: "row",

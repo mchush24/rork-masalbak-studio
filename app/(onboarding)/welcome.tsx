@@ -1,26 +1,71 @@
-import { View, Text, Pressable, Animated, StyleSheet, Platform, Dimensions, Image } from 'react-native';
+/**
+ * Welcome Screen - Value-First Onboarding
+ *
+ * Shows immediate value proposition with:
+ * - Emotional hook
+ * - Interactive preview
+ * - Social proof
+ */
+
+import {
+  View,
+  Text,
+  Pressable,
+  Animated,
+  StyleSheet,
+  Platform,
+  Dimensions,
+  Image,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Haptics from 'expo-haptics';
-import { Brain, FileText, TrendingUp, Sparkles } from 'lucide-react-native';
-import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
+import {
+  Heart,
+  Sparkles,
+  Star,
+  Users,
+  ChevronRight,
+  Play,
+} from 'lucide-react-native';
+import {
+  spacing,
+  borderRadius,
+  shadows,
+  typography,
+  colors,
+} from '@/lib/design-tokens';
+import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 const isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 
+// Sample emotional insights to show value
+const SAMPLE_INSIGHTS = [
+  { emotion: 'Mutluluk', level: 85, color: '#FFD93D', icon: '😊' },
+  { emotion: 'Güvenlik', level: 72, color: '#6BCB77', icon: '🛡️' },
+  { emotion: 'Yaratıcılık', level: 91, color: '#A78BFA', icon: '✨' },
+];
+
 export default function WelcomeScreen() {
   const router = useRouter();
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Animation refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideUpAnim = useRef(new Animated.Value(50)).current;
   const logoScaleAnim = useRef(new Animated.Value(0.8)).current;
-  const logoRotateAnim = useRef(new Animated.Value(0)).current;
+  const previewAnim = useRef(new Animated.Value(0)).current;
+  const insightAnims = useRef(
+    SAMPLE_INSIGHTS.map(() => new Animated.Value(0))
+  ).current;
 
   useEffect(() => {
+    // Initial animations
     Animated.parallel([
-      // Content fade and slide
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 800,
@@ -32,35 +77,71 @@ export default function WelcomeScreen() {
         friction: 7,
         useNativeDriver: Platform.OS !== 'web',
       }),
-      // Logo scale animation
       Animated.spring(logoScaleAnim, {
         toValue: 1,
         tension: 30,
         friction: 5,
         useNativeDriver: Platform.OS !== 'web',
       }),
-      // Subtle logo rotation
-      Animated.timing(logoRotateAnim, {
-        toValue: 1,
-        duration: 1200,
-        useNativeDriver: Platform.OS !== 'web',
-      }),
     ]).start();
+
+    // Auto-trigger preview after delay
+    const timer = setTimeout(() => {
+      triggerPreview();
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const logoRotate = logoRotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-3deg', '0deg'],
-  });
+  const triggerPreview = () => {
+    setShowPreview(true);
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
 
-  const handleStart = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/(onboarding)/tour');
+    // Animate preview card
+    Animated.timing(previewAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+
+    // Animate insights one by one
+    insightAnims.forEach((anim, index) => {
+      Animated.timing(anim, {
+        toValue: 1,
+        duration: 400,
+        delay: 200 + index * 150,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start();
+    });
+  };
+
+  const handleStartJourney = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    router.push('/(onboarding)/tour' as Href);
+  };
+
+  const handleTryNow = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
+    // Skip to main app for try-before-signup
+    router.push('/(tabs)' as Href);
+  };
+
+  const handleLogin = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push('/(onboarding)/login' as Href);
   };
 
   return (
     <LinearGradient
-      colors={colors.gradients.professional}
+      colors={['#FFF8F0', '#F5E8FF', '#FFE8F5']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -69,108 +150,182 @@ export default function WelcomeScreen() {
         <Animated.View
           style={[
             styles.content,
-            { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] }
+            { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] },
           ]}
         >
-          {/* Hero Section with Logo */}
+          {/* Hero Section */}
           <View style={styles.heroSection}>
-            {/* Animated Logo */}
+            {/* Mascot */}
             <Animated.View
               style={[
-                styles.logoContainer,
-                {
-                  transform: [
-                    { scale: logoScaleAnim },
-                    { rotate: logoRotate },
-                  ],
-                },
+                styles.mascotContainer,
+                { transform: [{ scale: logoScaleAnim }] },
               ]}
             >
-              <Image
-                source={require('@/assets/images/app-logo.png')}
-                style={styles.logo}
-                resizeMode="contain"
+              <IooMascot
+                size={isSmallDevice ? 'medium' : 'large'}
+                animated
+                showGlow
+                showSparkles
+                mood="happy"
               />
             </Animated.View>
 
-            {/* Brand Name with Modern Typography */}
-            <View style={styles.brandContainer}>
-              <Text style={styles.brandName}>Renkioo</Text>
-              <View style={styles.sparkleContainer}>
-                <Sparkles size={isSmallDevice ? 16 : 20} color="#FBBF24" fill="#FBBF24" />
-              </View>
+            {/* Emotional Hook - Turkish */}
+            <View style={styles.emotionalHook}>
+              <Text style={styles.hookTitle}>
+                Çocuğunuzun çizimleri{'\n'}
+                <Text style={styles.hookHighlight}>sırlarını fısıldıyor</Text>
+              </Text>
+              <Text style={styles.hookSubtitle}>
+                Her renk bir duygu, her çizgi bir mesaj taşır
+              </Text>
             </View>
 
-            {/* Modern Tagline with Emoji */}
-            <Text style={styles.tagline}>
-              Her çizim bir hikaye ✨
-            </Text>
+            {/* Value Preview Card */}
+            {showPreview && (
+              <Animated.View
+                style={[
+                  styles.previewCard,
+                  {
+                    opacity: previewAnim,
+                    transform: [
+                      {
+                        translateY: previewAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [20, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View style={styles.previewHeader}>
+                  <Sparkles size={16} color="#A78BFA" />
+                  <Text style={styles.previewHeaderText}>
+                    Örnek Çizim Analizi
+                  </Text>
+                </View>
 
-            {/* Feature Pills - Horizontal */}
-            <View style={styles.pillsContainer}>
-              <View style={styles.pill}>
-                <Text style={styles.pillText}>🎨 Çizim Analizi</Text>
-              </View>
-              <View style={styles.pill}>
-                <Text style={styles.pillText}>📖 Hikaye Yarat</Text>
-              </View>
-              <View style={styles.pill}>
-                <Text style={styles.pillText}>🖍️ Boyama</Text>
-              </View>
-            </View>
+                {/* Sample Insights */}
+                <View style={styles.insightsContainer}>
+                  {SAMPLE_INSIGHTS.map((insight, index) => (
+                    <Animated.View
+                      key={insight.emotion}
+                      style={[
+                        styles.insightItem,
+                        {
+                          opacity: insightAnims[index],
+                          transform: [
+                            {
+                              translateX: insightAnims[index].interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [-20, 0],
+                              }),
+                            },
+                          ],
+                        },
+                      ]}
+                    >
+                      <Text style={styles.insightIcon}>{insight.icon}</Text>
+                      <View style={styles.insightInfo}>
+                        <Text style={styles.insightLabel}>{insight.emotion}</Text>
+                        <View style={styles.insightBarBg}>
+                          <Animated.View
+                            style={[
+                              styles.insightBarFill,
+                              {
+                                backgroundColor: insight.color,
+                                width: insightAnims[index].interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: ['0%', `${insight.level}%`],
+                                }),
+                              },
+                            ]}
+                          />
+                        </View>
+                      </View>
+                      <Text style={[styles.insightPercent, { color: insight.color }]}>
+                        {insight.level}%
+                      </Text>
+                    </Animated.View>
+                  ))}
+                </View>
+              </Animated.View>
+            )}
           </View>
 
-          {/* Modern Feature Highlights - Icon Grid */}
-          <View style={styles.featuresGrid}>
-            <View style={styles.featureItem}>
-              <View style={[styles.featureIconBubble, { backgroundColor: 'rgba(139, 92, 246, 0.3)' }]}>
-                <Brain size={isSmallDevice ? 28 : 36} color="white" strokeWidth={2.5} />
-              </View>
-              <Text style={styles.featureLabel}>Akıllı Analiz</Text>
+          {/* Social Proof */}
+          <View style={styles.socialProof}>
+            <View style={styles.socialProofItem}>
+              <Users size={14} color="#6366F1" />
+              <Text style={styles.socialProofText}>10,000+ aile</Text>
             </View>
-
-            <View style={styles.featureItem}>
-              <View style={[styles.featureIconBubble, { backgroundColor: 'rgba(236, 72, 153, 0.3)' }]}>
-                <FileText size={isSmallDevice ? 28 : 36} color="white" strokeWidth={2.5} />
-              </View>
-              <Text style={styles.featureLabel}>Özel Raporlar</Text>
+            <View style={styles.socialProofDot} />
+            <View style={styles.socialProofItem}>
+              <Star size={14} color="#F59E0B" fill="#F59E0B" />
+              <Text style={styles.socialProofText}>4.9 puan</Text>
             </View>
-
-            <View style={styles.featureItem}>
-              <View style={[styles.featureIconBubble, { backgroundColor: 'rgba(34, 197, 94, 0.3)' }]}>
-                <TrendingUp size={isSmallDevice ? 28 : 36} color="white" strokeWidth={2.5} />
-              </View>
-              <Text style={styles.featureLabel}>Gelişim İzle</Text>
+            <View style={styles.socialProofDot} />
+            <View style={styles.socialProofItem}>
+              <Heart size={14} color="#EC4899" fill="#EC4899" />
+              <Text style={styles.socialProofText}>Psikolog onaylı</Text>
             </View>
           </View>
 
           {/* CTA Section */}
           <View style={styles.ctaSection}>
+            {/* Primary CTA - Try Now (Value First) */}
             <Pressable
-              onPress={handleStart}
+              onPress={handleTryNow}
               style={({ pressed }) => [
-                styles.startButton,
-                shadows.xl,
-                pressed && styles.startButtonPressed
+                styles.primaryButton,
+                pressed && styles.buttonPressed,
               ]}
             >
-              <Text style={styles.startButtonText}>Keşfetmeye Başlayın</Text>
+              <LinearGradient
+                colors={['#A78BFA', '#818CF8', '#6366F1']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.primaryButtonGradient}
+              >
+                <Play size={20} color="#FFF" fill="#FFF" />
+                <Text style={styles.primaryButtonText}>
+                  Hemen Deneyin - Ücretsiz
+                </Text>
+                <ChevronRight size={20} color="#FFF" />
+              </LinearGradient>
             </Pressable>
 
+            {/* Secondary CTA - Learn More */}
             <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push('/(onboarding)/login');
-              }}
-              style={{ marginTop: spacing.md }}
+              onPress={handleStartJourney}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                pressed && { opacity: 0.7 },
+              ]}
             >
-              <Text style={[styles.disclaimerText, { textDecorationLine: 'underline' }]}>
-                Zaten hesabınız var mı? Giriş yapın
+              <Text style={styles.secondaryButtonText}>
+                Nasıl Çalışır? Keşfedin
               </Text>
             </Pressable>
 
-            <Text style={styles.disclaimerText}>
-              Ücretsiz deneme • KVKK uyumlu veri güvenliği
+            {/* Login Link */}
+            <Pressable
+              onPress={handleLogin}
+              style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+            >
+              <Text style={styles.loginText}>
+                Zaten hesabınız var mı?{' '}
+                <Text style={styles.loginLink}>Giriş Yapın</Text>
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Trust Badge */}
+          <View style={styles.trustBadge}>
+            <Text style={styles.trustText}>
+              🔒 KVKK uyumlu • Verileriniz güvende
             </Text>
           </View>
         </Animated.View>
@@ -190,157 +345,184 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: isSmallDevice ? spacing.sm : spacing.md,
-    paddingBottom: spacing.lg,
-  },
-
-  // Hero Section - flex: 2.5
-  heroSection: {
-    flex: isSmallDevice ? 2 : 2.5,
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingBottom: spacing.md,
   },
 
-  // Logo Styles
-  logoContainer: {
+  // Hero Section
+  heroSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mascotContainer: {
     marginBottom: isSmallDevice ? spacing.md : spacing.lg,
   },
-  logo: {
-    width: isSmallDevice ? 100 : isMediumDevice ? 120 : 140,
-    height: isSmallDevice ? 100 : isMediumDevice ? 120 : 140,
-  },
 
-  // Brand Name
-  brandContainer: {
-    flexDirection: 'row',
+  // Emotional Hook
+  emotionalHook: {
     alignItems: 'center',
+    marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+  },
+  hookTitle: {
+    fontSize: isSmallDevice ? 24 : 28,
+    fontWeight: '800',
+    color: '#1F2937',
+    textAlign: 'center',
+    lineHeight: isSmallDevice ? 32 : 38,
     marginBottom: spacing.sm,
   },
-  brandName: {
-    fontSize: isSmallDevice ? 42 : isMediumDevice ? 52 : 64,
-    fontFamily: 'Fredoka_700Bold',
-    color: 'white',
-    letterSpacing: -1.5,
-    textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: { width: 0, height: 3 },
-    textShadowRadius: 12,
+  hookHighlight: {
+    color: '#7C3AED',
   },
-  sparkleContainer: {
-    marginLeft: spacing.xs,
-    marginTop: -spacing.md,
-  },
-
-  // Tagline
-  tagline: {
-    fontSize: isSmallDevice ? typography.fontSize.lg : typography.fontSize.xl,
-    fontFamily: 'Poppins_600SemiBold',
-    color: 'rgba(255, 255, 255, 0.98)',
+  hookSubtitle: {
+    fontSize: isSmallDevice ? 14 : 16,
+    color: '#6B7280',
     textAlign: 'center',
-    letterSpacing: -0.5,
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.md,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    fontWeight: '500',
   },
 
-  // Feature Pills
-  pillsContainer: {
+  // Preview Card
+  previewCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: spacing.md,
+    width: '100%',
+    maxWidth: 320,
+    ...shadows.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(167, 139, 250, 0.2)',
+  },
+  previewHeader: {
     flexDirection: 'row',
-    gap: spacing.xs,
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    paddingHorizontal: spacing.md,
-    marginTop: spacing.xs,
-  },
-  pill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderRadius: borderRadius.xxxl,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  pillText: {
-    fontSize: isSmallDevice ? typography.fontSize.xs : typography.fontSize.sm,
-    fontFamily: 'Poppins_600SemiBold',
-    color: 'white',
-    letterSpacing: 0.3,
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-
-  // Features Grid - Modern Icon Bubbles
-  featuresGrid: {
-    flex: isSmallDevice ? 3 : 3,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
     alignItems: 'center',
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(167, 139, 250, 0.15)',
   },
-  featureItem: {
+  previewHeaderText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#A78BFA',
+  },
+  insightsContainer: {
+    gap: spacing.sm,
+  },
+  insightItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  insightIcon: {
+    fontSize: 20,
+  },
+  insightInfo: {
+    flex: 1,
+  },
+  insightLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 4,
+  },
+  insightBarBg: {
+    height: 6,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  insightBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  insightPercent: {
+    fontSize: 12,
+    fontWeight: '700',
+    width: 36,
+    textAlign: 'right',
+  },
+
+  // Social Proof
+  socialProof: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    flex: 1,
+    marginBottom: spacing.lg,
+    flexWrap: 'wrap',
   },
-  featureIconBubble: {
-    width: isSmallDevice ? 70 : 85,
-    height: isSmallDevice ? 70 : 85,
-    borderRadius: isSmallDevice ? 35 : 42.5,
-    justifyContent: 'center',
+  socialProofItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    gap: 4,
   },
-  featureLabel: {
-    fontSize: isSmallDevice ? typography.fontSize.xs : typography.fontSize.sm,
-    fontFamily: 'Poppins_600SemiBold',
-    color: 'white',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-    paddingHorizontal: spacing.xs,
+  socialProofText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4B5563',
+  },
+  socialProofDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#D1D5DB',
   },
 
-  // CTA Section - flex: 1.5
+  // CTA Section
   ctaSection: {
-    flex: isSmallDevice ? 1.5 : 1.5,
-    justifyContent: 'flex-end',
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
-  startButton: {
-    backgroundColor: 'white',
-    borderRadius: borderRadius.xxxl,
-    paddingVertical: isSmallDevice ? spacing.md : spacing.lg,
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.sm,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+  primaryButton: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    ...shadows.lg,
   },
-  startButtonPressed: {
-    transform: [{ scale: 0.97 }],
-    opacity: 0.85,
+  primaryButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: isSmallDevice ? 14 : 18,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.sm,
   },
-  startButtonText: {
-    fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
-    fontFamily: 'Poppins_700Bold',
-    color: '#2E5266',
+  primaryButtonText: {
+    fontSize: isSmallDevice ? 15 : 17,
+    fontWeight: '700',
+    color: '#FFF',
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
+  },
+  secondaryButton: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  secondaryButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6366F1',
+  },
+  loginText: {
+    fontSize: 13,
+    color: '#6B7280',
     textAlign: 'center',
-    letterSpacing: 0.3,
   },
-  disclaimerText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: 'Poppins_500Medium',
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    marginBottom: spacing.xs,
+  loginLink: {
+    color: '#7C3AED',
+    fontWeight: '600',
+  },
+
+  // Trust Badge
+  trustBadge: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  trustText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
 });

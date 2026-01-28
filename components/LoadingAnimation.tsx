@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Animated, StyleSheet, Dimensions, Platform } from 'react-native';
+
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { spacing, typography, colors } from '@/lib/design-tokens';
@@ -28,7 +30,7 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
       Animated.timing(rotation, {
         toValue: 1,
         duration: 3000,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       })
     ).start();
 
@@ -38,12 +40,12 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
         Animated.timing(scale, {
           toValue: 1.1,
           duration: 1000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(scale, {
           toValue: 1,
           duration: 1000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     ).start();
@@ -55,36 +57,36 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
           Animated.timing(opacity1, {
             toValue: 1,
             duration: 400,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           Animated.timing(opacity1, {
             toValue: 0.3,
             duration: 400,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ]),
         Animated.sequence([
           Animated.timing(opacity2, {
             toValue: 1,
             duration: 400,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           Animated.timing(opacity2, {
             toValue: 0.6,
             duration: 400,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ]),
         Animated.sequence([
           Animated.timing(opacity3, {
             toValue: 1,
             duration: 400,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           Animated.timing(opacity3, {
             toValue: 0.3,
             duration: 400,
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ]),
       ])

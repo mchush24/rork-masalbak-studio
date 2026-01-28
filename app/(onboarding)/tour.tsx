@@ -1,44 +1,88 @@
-import { View, Text, Pressable, Animated, StyleSheet, Platform, Dimensions } from 'react-native';
+/**
+ * Tour Screen - Emotion-Driven Onboarding
+ *
+ * 3-step simplified tour focusing on:
+ * - Parent emotions and concerns
+ * - Clear value propositions
+ * - Beautiful, engaging animations
+ */
+
+import {
+  View,
+  Text,
+  Pressable,
+  Animated,
+  StyleSheet,
+  Platform,
+  Dimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { Brain, FileCheck, Shield, CheckCircle } from 'lucide-react-native';
-import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
+import {
+  Heart,
+  Shield,
+  Sparkles,
+  Eye,
+  MessageCircle,
+  TrendingUp,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react-native';
+import {
+  spacing,
+  borderRadius,
+  shadows,
+  typography,
+  colors,
+} from '@/lib/design-tokens';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 const isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 
+// Emotion-driven tour steps
 const tourSteps = [
   {
-    icon: Brain,
-    title: 'Çocuğunuzun İç Dünyasını Anlayın',
-    description: 'Bilimsel çizim analizleri ile duygusal ve psikolojik gelişimi destekleyin',
-    benefits: ['Uzman onaylı değerlendirmeler', 'DAP, HTP, Aile Çizimi testleri', 'Kişiselleştirilmiş raporlar'],
-    gradient: colors.gradients.professional,
+    id: 'understand',
+    icon: Eye,
+    emoji: '👁️',
+    title: 'İç Dünyasını Görün',
+    subtitle: 'Çocuğunuz size söyleyemediği şeyleri çiziyor',
+    description:
+      'Çizimler, çocukların duygusal dünyasının penceresidir. Renkioo ile bu pencereden içeri bakın.',
+    highlight: 'Her çizim bir hikaye anlatır',
+    gradient: ['#FFF5F5', '#FFE4E6', '#FDF2F8'] as const,
+    iconBg: '#FDA4AF',
+    iconColor: '#BE123C',
   },
   {
-    icon: FileCheck,
-    title: 'Profesyonel Değerlendirme Araçları',
-    description: 'Her çizim yapay zeka ve bilimsel yöntemlerle derinlemesine analiz edilir',
-    benefits: ['Otomatik analiz sistemi', 'Gelişim izleme ve raporlama', 'Ebeveyn-öğretmen işbirliği'],
-    gradient: colors.gradients.scientific,
+    id: 'support',
+    icon: Heart,
+    emoji: '💗',
+    title: 'Doğru Destek Verin',
+    subtitle: 'Ne hissettiklerini anladığınızda daha iyi yardım edebilirsiniz',
+    description:
+      'Analiz sonuçları size çocuğunuzun ihtiyaçlarını gösterir. Böylece tam zamanında, doğru desteği verebilirsiniz.',
+    highlight: 'Uzman önerileri ile yol gösterin',
+    gradient: ['#F5F3FF', '#EDE9FE', '#E9D5FF'] as const,
+    iconBg: '#C4B5FD',
+    iconColor: '#7C3AED',
   },
   {
-    icon: Shield,
-    title: 'Güvenli ve Hızlı',
-    description: 'KVKK uyumlu veri güvenliği ile dakikalar içinde sonuç alın',
-    benefits: ['Güvenli veri saklama', 'Gizlilik garantisi', 'Anında sonuç bildirimi'],
-    gradient: colors.gradients.expertise,
-  },
-  {
-    icon: CheckCircle,
-    title: 'Hemen Başlayın',
-    description: 'Ücretsiz deneme ile çocuğunuzun gelişimini takip etmeye başlayın',
-    benefits: ['Kolay kurulum', 'Ücretsiz ilk analiz', 'İptal garantisi'],
-    gradient: colors.gradients.accessible,
+    id: 'grow',
+    icon: TrendingUp,
+    emoji: '🌱',
+    title: 'Birlikte Büyüyün',
+    subtitle: 'Gelişimini izleyin, zamanla değişimi görün',
+    description:
+      'Haftalık raporlar ve gelişim grafikleri ile çocuğunuzun duygusal yolculuğunu takip edin.',
+    highlight: 'Her adımda yanınızda',
+    gradient: ['#F0FDF4', '#DCFCE7', '#D1FAE5'] as const,
+    iconBg: '#86EFAC',
+    iconColor: '#15803D',
   },
 ];
 
@@ -48,46 +92,76 @@ export default function TourScreen() {
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
+  const iconScaleAnim = useRef(new Animated.Value(0.8)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   const isLastStep = currentStep === tourSteps.length - 1;
   const currentStepData = tourSteps[currentStep];
 
   useEffect(() => {
-    // Animate in when step changes
+    // Reset animations
     fadeAnim.setValue(0);
     slideAnim.setValue(30);
+    iconScaleAnim.setValue(0.8);
 
+    // Animate in when step changes
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: animations.slow,
+        duration: 400,
         useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.spring(slideAnim, {
         toValue: 0,
-        ...animations.easing.gentle,
+        tension: 50,
+        friction: 8,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.spring(iconScaleAnim, {
+        toValue: 1,
+        tension: 40,
+        friction: 5,
         useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
+
+    // Update progress bar
+    Animated.timing(progressAnim, {
+      toValue: (currentStep + 1) / tourSteps.length,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
   }, [currentStep]);
 
   const handleNext = () => {
-    console.log('[Tour] handleNext called, currentStep:', currentStep, 'isLastStep:', isLastStep);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
 
     if (isLastStep) {
-      console.log('[Tour] Navigating to register screen...');
-      router.push('/(onboarding)/register');
+      router.push('/(onboarding)/register' as Href);
     } else {
-      console.log('[Tour] Moving to next step...');
       setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleSkip = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/(onboarding)/register');
+  const handleBack = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
+
+  const handleSkip = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push('/(onboarding)/register' as Href);
+  };
+
+  const IconComponent = currentStepData.icon;
 
   return (
     <LinearGradient
@@ -99,12 +173,39 @@ export default function TourScreen() {
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.stepCounter}>
-            {currentStep + 1} / {tourSteps.length}
-          </Text>
+          {currentStep > 0 ? (
+            <Pressable onPress={handleBack} style={styles.backButton}>
+              <ChevronLeft size={20} color="#6B7280" />
+              <Text style={styles.backText}>Geri</Text>
+            </Pressable>
+          ) : (
+            <View style={styles.backButton} />
+          )}
+
           <Pressable onPress={handleSkip} style={styles.skipButton}>
             <Text style={styles.skipText}>Atla</Text>
           </Pressable>
+        </View>
+
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBg}>
+            <Animated.View
+              style={[
+                styles.progressFill,
+                {
+                  width: progressAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0%', '100%'],
+                  }),
+                  backgroundColor: currentStepData.iconColor,
+                },
+              ]}
+            />
+          </View>
+          <Text style={styles.stepCounter}>
+            {currentStep + 1} / {tourSteps.length}
+          </Text>
         </View>
 
         {/* Content */}
@@ -118,46 +219,73 @@ export default function TourScreen() {
           ]}
         >
           {/* Icon */}
-          {!isSmallDevice && (
-            <View style={[styles.iconContainer, shadows.xl]}>
-              <currentStepData.icon
-                size={isMediumDevice ? 56 : 64}
-                color="white"
-                strokeWidth={1.5}
-              />
-            </View>
-          )}
+          <Animated.View
+            style={[
+              styles.iconWrapper,
+              {
+                backgroundColor: currentStepData.iconBg,
+                transform: [{ scale: iconScaleAnim }],
+              },
+            ]}
+          >
+            <IconComponent
+              size={isSmallDevice ? 40 : 52}
+              color={currentStepData.iconColor}
+              strokeWidth={2}
+            />
+          </Animated.View>
+
+          {/* Emoji Badge */}
+          <View style={styles.emojiBadge}>
+            <Text style={styles.emoji}>{currentStepData.emoji}</Text>
+          </View>
 
           {/* Title */}
-          <Text style={styles.title}>
+          <Text style={[styles.title, { color: currentStepData.iconColor }]}>
             {currentStepData.title}
           </Text>
 
-          {/* Description */}
-          <Text style={styles.description}>{currentStepData.description}</Text>
+          {/* Subtitle */}
+          <Text style={styles.subtitle}>{currentStepData.subtitle}</Text>
 
-          {/* Benefits */}
-          <View style={[styles.benefitsCard, shadows.lg]}>
-            {currentStepData.benefits.slice(0, isSmallDevice ? 2 : 3).map((benefit, idx) => (
-              <View key={idx} style={styles.benefitItem}>
-                <View style={styles.bulletPoint} />
-                <Text style={styles.benefitText}>{benefit}</Text>
-              </View>
-            ))}
+          {/* Description Card */}
+          <View style={styles.descriptionCard}>
+            <Text style={styles.description}>{currentStepData.description}</Text>
+
+            {/* Highlight */}
+            <View
+              style={[
+                styles.highlightContainer,
+                { backgroundColor: `${currentStepData.iconBg}40` },
+              ]}
+            >
+              <Sparkles size={14} color={currentStepData.iconColor} />
+              <Text
+                style={[styles.highlightText, { color: currentStepData.iconColor }]}
+              >
+                {currentStepData.highlight}
+              </Text>
+            </View>
           </View>
         </Animated.View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          {/* Progress Dots */}
-          <View style={styles.progressContainer}>
-            {tourSteps.map((_, index) => (
-              <View
-                key={index}
+          {/* Step Indicators */}
+          <View style={styles.dotsContainer}>
+            {tourSteps.map((step, index) => (
+              <Pressable
+                key={step.id}
+                onPress={() => setCurrentStep(index)}
                 style={[
-                  styles.progressDot,
-                  index === currentStep && styles.progressDotActive,
-                  index < currentStep && styles.progressDotPassed,
+                  styles.dot,
+                  index === currentStep && {
+                    backgroundColor: currentStepData.iconColor,
+                    width: 24,
+                  },
+                  index < currentStep && {
+                    backgroundColor: `${currentStepData.iconColor}60`,
+                  },
                 ]}
               />
             ))}
@@ -165,18 +293,29 @@ export default function TourScreen() {
 
           {/* CTA Button */}
           <Pressable
-            onPress={() => {
-              console.log('[Tour] Button pressed!');
-              handleNext();
-            }}
+            onPress={handleNext}
             style={({ pressed }) => [
-              styles.nextButton,
-              shadows.lg,
-              pressed && styles.nextButtonPressed,
+              styles.ctaButton,
+              { backgroundColor: currentStepData.iconColor },
+              pressed && styles.ctaButtonPressed,
             ]}
           >
-            <Text style={styles.nextButtonText}>
-              {isLastStep ? 'Hesap Oluştur' : 'Devam Et →'}
+            <Text style={styles.ctaText}>
+              {isLastStep ? 'Hesap Oluştur' : 'Devam Et'}
+            </Text>
+            <ChevronRight size={20} color="#FFF" />
+          </Pressable>
+
+          {/* Login Link */}
+          <Pressable
+            onPress={() => router.push('/(onboarding)/login' as Href)}
+            style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+          >
+            <Text style={styles.loginText}>
+              Zaten hesabınız var mı?{' '}
+              <Text style={[styles.loginLink, { color: currentStepData.iconColor }]}>
+                Giriş Yapın
+              </Text>
             </Text>
           </Pressable>
         </View>
@@ -199,151 +338,177 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: isSmallDevice ? spacing.sm : spacing.md,
-    minHeight: isSmallDevice ? 50 : 60,
+    paddingVertical: spacing.sm,
+    minHeight: 44,
   },
-  stepCounter: {
-    fontSize: typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.85)',
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.xs,
+    paddingRight: spacing.sm,
+    minWidth: 60,
+  },
+  backText: {
+    fontSize: 14,
     fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    color: '#6B7280',
   },
   skipButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   skipText: {
-    fontSize: typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: 14,
     fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    color: '#9CA3AF',
+  },
+
+  // Progress
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  progressBg: {
+    flex: 1,
+    height: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  stepCounter: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9CA3AF',
+    minWidth: 32,
+    textAlign: 'right',
   },
 
   // Content
   content: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: isSmallDevice ? spacing.md : spacing.xl,
+    justifyContent: 'center',
+    paddingVertical: spacing.lg,
   },
-  iconContainer: {
-    width: isMediumDevice ? 100 : 120,
-    height: isMediumDevice ? 100 : 120,
-    borderRadius: isMediumDevice ? 50 : 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    justifyContent: 'center',
+  iconWrapper: {
+    width: isSmallDevice ? 90 : 110,
+    height: isSmallDevice ? 90 : 110,
+    borderRadius: isSmallDevice ? 45 : 55,
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+    ...shadows.lg,
+  },
+  emojiBadge: {
+    position: 'absolute',
+    top: isSmallDevice ? 60 : 80,
+    right: SCREEN_WIDTH / 2 - (isSmallDevice ? 65 : 75),
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.md,
+  },
+  emoji: {
+    fontSize: 16,
   },
   title: {
-    fontSize: isSmallDevice ? typography.fontSize.lg : isMediumDevice ? typography.fontSize.xl : typography.fontSize.xxl,
-    fontWeight: '700',
-    color: 'white',
+    fontSize: isSmallDevice ? 26 : 32,
+    fontWeight: '800',
     textAlign: 'center',
-    marginBottom: isSmallDevice ? spacing.sm : spacing.md,
-    letterSpacing: -0.3,
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    marginBottom: spacing.xs,
+    marginTop: spacing.md,
+  },
+  subtitle: {
+    fontSize: isSmallDevice ? 14 : 16,
+    fontWeight: '500',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: spacing.lg,
     paddingHorizontal: spacing.md,
+    lineHeight: isSmallDevice ? 20 : 24,
+  },
+  descriptionCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    padding: spacing.lg,
+    width: '100%',
+    maxWidth: 340,
+    ...shadows.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   description: {
-    fontSize: isSmallDevice ? typography.fontSize.sm : typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.92)',
+    fontSize: isSmallDevice ? 14 : 15,
+    color: '#374151',
     textAlign: 'center',
-    lineHeight: isSmallDevice ? typography.fontSize.sm * 1.5 : typography.fontSize.base * 1.5,
-    marginBottom: isSmallDevice ? spacing.md : spacing.lg,
-    paddingHorizontal: spacing.xl,
-    textShadowColor: 'rgba(0, 0, 0, 0.08)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-    fontWeight: '500',
+    lineHeight: isSmallDevice ? 22 : 24,
+    marginBottom: spacing.md,
   },
-
-  // Benefits
-  benefitsCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    borderRadius: borderRadius.lg,
-    padding: isSmallDevice ? spacing.md : spacing.lg,
-    width: '100%',
-    maxWidth: isSmallDevice ? 320 : 380,
-  },
-  benefitItem: {
+  highlightContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: isSmallDevice ? spacing.sm : spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 12,
+    gap: spacing.xs,
   },
-  bulletPoint: {
-    width: isSmallDevice ? 4 : 5,
-    height: isSmallDevice ? 4 : 5,
-    borderRadius: isSmallDevice ? 2 : 2.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    marginRight: spacing.sm,
-    marginTop: isSmallDevice ? 6 : 7,
-  },
-  benefitText: {
-    fontSize: isSmallDevice ? typography.fontSize.sm - 1 : typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.88)',
-    fontWeight: '500',
-    flex: 1,
-    lineHeight: isSmallDevice ? typography.fontSize.sm * 1.4 : typography.fontSize.sm * 1.5,
-    textShadowColor: 'rgba(0, 0, 0, 0.08)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+  highlightText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 
   // Footer
   footer: {
     paddingVertical: spacing.lg,
-    paddingBottom: isSmallDevice ? spacing.lg : spacing.xl,
+    gap: spacing.md,
   },
-  progressContainer: {
+  dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
   },
-  progressDot: {
-    width: isSmallDevice ? 6 : 8,
-    height: isSmallDevice ? 6 : 8,
-    borderRadius: isSmallDevice ? 3 : 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    marginHorizontal: spacing.xs,
+  dot: {
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
   },
-  progressDotActive: {
-    width: isSmallDevice ? 24 : 32,
-    backgroundColor: 'white',
+  ctaButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: isSmallDevice ? 14 : 18,
+    borderRadius: 16,
+    gap: spacing.xs,
+    ...shadows.md,
   },
-  progressDotPassed: {
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+  ctaButtonPressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
-
-  // CTA Button
-  nextButton: {
-    backgroundColor: 'white',
-    borderRadius: borderRadius.xxxl,
-    paddingVertical: isSmallDevice ? spacing.md : spacing.md + spacing.xs,
-    paddingHorizontal: spacing.xl,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+  ctaText: {
+    fontSize: isSmallDevice ? 15 : 17,
+    fontWeight: '700',
+    color: '#FFF',
   },
-  nextButtonPressed: {
-    transform: [{ scale: 0.97 }],
-    opacity: 0.85,
-  },
-  nextButtonText: {
-    fontSize: isSmallDevice ? typography.fontSize.base : typography.fontSize.md,
-    fontWeight: '900',
-    color: colors.brand.primary,
+  loginText: {
+    fontSize: 13,
+    color: '#6B7280',
     textAlign: 'center',
-    letterSpacing: -0.3,
+  },
+  loginLink: {
+    fontWeight: '600',
   },
 });

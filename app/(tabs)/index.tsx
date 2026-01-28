@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -21,6 +21,7 @@ import {
   Sparkles,
   Gift,
   Star,
+  Trophy,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -37,6 +38,8 @@ import {
   shadows,
 } from "@/constants/design-system";
 import { GreetingService } from "@/lib/services/greeting-service";
+import { useGamification } from "@/lib/gamification";
+import { StreakDisplay, XPProgressBar, NewBadgeModal } from "@/components/gamification";
 
 // New Components
 import { IooMascotFinal as IooMascot } from "@/components/IooMascotFinal";
@@ -83,6 +86,19 @@ export default function HomeScreen() {
   const { t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
 
+  // Gamification hook
+  const {
+    isLoading: gamificationLoading,
+    streakData,
+    totalXp,
+    newlyUnlockedBadge,
+    clearNewBadge,
+    getUserLevel,
+    refreshData: refreshGamification,
+  } = useGamification();
+
+  const levelInfo = getUserLevel();
+
   // Fetch recent analyses (last 3)
   const {
     data: recentAnalysesData,
@@ -114,7 +130,7 @@ export default function HomeScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refetchAnalyses(), refetchStats()]);
+    await Promise.all([refetchAnalyses(), refetchStats(), refreshGamification()]);
     setRefreshing(false);
   };
 
@@ -192,13 +208,97 @@ export default function HomeScreen() {
             </OrganicContainer>
           </View>
 
-          {/* Main CTA */}
+          {/* Gamification Section - Streak & XP */}
+          {!gamificationLoading && (
+            <View style={styles.gamificationSection}>
+              <View style={styles.gamificationRow}>
+                {/* Streak Display */}
+                <StreakDisplay
+                  currentStreak={streakData?.currentStreak || 0}
+                  longestStreak={streakData?.longestStreak || 0}
+                  isActiveToday={streakData?.lastActivityDate === new Date().toISOString().split('T')[0]}
+                  streakAtRisk={
+                    !streakData?.lastActivityDate ||
+                    (streakData?.currentStreak > 0 &&
+                      streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
+                      streakData?.lastActivityDate !== (() => {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return yesterday.toISOString().split('T')[0];
+                      })())
+                  }
+                  hasFreezeAvailable={streakData?.streakFreezeAvailable}
+                  size="compact"
+                  onPress={() => router.push("/profile" as Href)}
+                />
+
+                {/* XP Progress */}
+                <View style={styles.xpContainer}>
+                  <XPProgressBar
+                    level={levelInfo.level}
+                    xpProgress={levelInfo.xpProgress}
+                    xpNeeded={levelInfo.xpNeeded}
+                    totalXp={totalXp}
+                    progressPercent={levelInfo.progressPercent}
+                    size="compact"
+                    onPress={() => router.push("/profile" as Href)}
+                  />
+                </View>
+
+                {/* Badges Button */}
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.badgesButton,
+                    pressed && { opacity: 0.8 },
+                  ]}
+                  onPress={() => router.push("/profile" as Href)}
+                >
+                  <Trophy size={18} color="#F59E0B" />
+                </Pressable>
+              </View>
+            </View>
+          )}
+
+          {/* PRIMARY CTA: Duygu Yansıması - Above the fold */}
+          <Pressable
+            onPress={() => router.push("/advanced-analysis" as Href)}
+            style={({ pressed }) => [
+              styles.primaryCtaCard,
+              pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] }
+            ]}
+          >
+            <LinearGradient
+              colors={['#A78BFA', '#818CF8', '#6366F1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.primaryCtaGradient}
+            >
+              <View style={styles.primaryCtaContent}>
+                <View style={styles.primaryCtaIconContainer}>
+                  <Sparkles size={32} color="#FFF" />
+                </View>
+                <View style={styles.primaryCtaTextContainer}>
+                  <View style={styles.primaryCtaBadge}>
+                    <Text style={styles.primaryCtaBadgeText}>ANA ÖZELLİK</Text>
+                  </View>
+                  <Text style={styles.primaryCtaTitle}>Duygu Yansıması</Text>
+                  <Text style={styles.primaryCtaSubtitle}>
+                    Çocuğunuzun çizimlerinden duygusal dünyasını keşfedin
+                  </Text>
+                </View>
+                <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
+              </View>
+              <View style={styles.primaryCtaShine} />
+            </LinearGradient>
+          </Pressable>
+
+          {/* Secondary CTA */}
           <View style={styles.ctaSection}>
             <JellyButton
-              title="Dokun ve Hisset: Yeni Analiz"
+              title="Hızlı Analiz"
               onPress={() => router.push("/quick-analysis" as Href)}
-              size="large"
-              gradientColors={RenkooColors.gradients.jellyPrimary}
+              size="medium"
+              gradientColors={['#FFB5D8', '#FF9EBF']}
             />
           </View>
 
@@ -219,16 +319,6 @@ export default function HomeScreen() {
                 type="chat"
                 onPress={() => router.push("/chatbot" as Href)}
                 size="medium"
-              />
-
-              <FeatureCard
-                title="Duygu Yansıması"
-                subtitle="Çizimlerinden duygusal analiz"
-                icon={<Sparkles size={26} color={RenkooColors.featureCards.emotion.icon} />}
-                type="emotion"
-                onPress={() => router.push("/advanced-analysis" as Href)}
-                size="medium"
-                style={{ marginTop: spacing["3"] }}
               />
             </View>
           </View>
@@ -427,6 +517,13 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
+
+      {/* New Badge Modal */}
+      <NewBadgeModal
+        visible={!!newlyUnlockedBadge}
+        badge={newlyUnlockedBadge}
+        onClose={clearNewBadge}
+      />
     </View>
   );
 }
@@ -509,7 +606,97 @@ const styles = StyleSheet.create({
     color: RenkooColors.brand.jellyPurple,
   },
 
-  // CTA Section
+  // Gamification Section
+  gamificationSection: {
+    marginBottom: spacing["4"],
+  },
+  gamificationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing["3"],
+  },
+  xpContainer: {
+    flex: 1,
+  },
+  badgesButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.2)',
+  },
+
+  // Primary CTA - Duygu Yansıması (Above the fold)
+  primaryCtaCard: {
+    marginBottom: spacing["4"],
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  primaryCtaGradient: {
+    padding: spacing["5"],
+    position: 'relative',
+  },
+  primaryCtaContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing["4"],
+  },
+  primaryCtaIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryCtaTextContainer: {
+    flex: 1,
+  },
+  primaryCtaBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: spacing["2"],
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginBottom: spacing["1"],
+  },
+  primaryCtaBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFF',
+    letterSpacing: 1,
+  },
+  primaryCtaTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  primaryCtaSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.9)',
+    lineHeight: 18,
+  },
+  primaryCtaShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+
+  // CTA Section (Secondary)
   ctaSection: {
     alignItems: 'center',
     marginBottom: spacing["6"],

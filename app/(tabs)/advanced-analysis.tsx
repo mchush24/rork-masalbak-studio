@@ -51,6 +51,9 @@ import { useAuth } from "@/lib/hooks/useAuth";
 const lang = "tr";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
+// Native driver is not supported on web platform
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
+
 // Test type icons and colors
 const TEST_CONFIG: Record<TaskType, { icon: string; gradient: readonly [string, string]; description: string }> = {
   DAP: { icon: "👤", gradient: ["#A78BFA", "#C4B5FD"], description: "Kişi çizimi analizi" },
@@ -101,13 +104,13 @@ export default function AdvancedAnalysisScreen() {
             toValue: 1,
             duration,
             easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
           Animated.timing(anim, {
             toValue: 0,
             duration,
             easing: Easing.inOut(Easing.sin),
-            useNativeDriver: true,
+            useNativeDriver: USE_NATIVE_DRIVER,
           }),
         ])
       );
@@ -124,13 +127,13 @@ export default function AdvancedAnalysisScreen() {
           toValue: 1.03,
           duration: 1500,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
           duration: 1500,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     );
@@ -142,13 +145,13 @@ export default function AdvancedAnalysisScreen() {
           toValue: 1,
           duration: 2000,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(glowAnim, {
           toValue: 0,
           duration: 2000,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     );
@@ -173,7 +176,7 @@ export default function AdvancedAnalysisScreen() {
     setSheetOpen(true);
     Animated.spring(sheetAnim, {
       toValue: 1,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
       tension: 65,
       friction: 11,
     }).start();
@@ -183,7 +186,7 @@ export default function AdvancedAnalysisScreen() {
     Animated.timing(sheetAnim, {
       toValue: 0,
       duration: 250,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
       easing: Easing.out(Easing.cubic),
     }).start(({ finished }) => {
       if (finished) setSheetOpen(false);

@@ -31,6 +31,7 @@ import {
   MessageSquare,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
+import { USE_NATIVE_DRIVER } from '@/utils/animation';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import { useChild } from '@/lib/contexts/ChildContext';
@@ -155,12 +156,12 @@ export function ChatBot() {
         Animated.timing(pulseAnim, {
           toValue: 1.05,
           duration: 2000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
           duration: 2000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     );
@@ -175,7 +176,7 @@ export function ChatBot() {
         toValue: 1,
         friction: 6,
         tension: 40,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }).start();
     } else {
       bounceAnim.setValue(0);

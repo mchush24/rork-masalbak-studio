@@ -1,10 +1,21 @@
-import React, { useEffect } from 'react';
+/**
+ * Symbiosis Home Screen - "Emotional Symbiosis" Landing
+ *
+ * Immersive, bioluminescent experience with:
+ * - Fluid shader background
+ * - Holographic glass cards
+ * - Symbiotic heart button
+ * - Ioo mascot integration
+ */
+
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   Pressable,
+  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,94 +28,185 @@ import Animated, {
   withTiming,
   withSequence,
   withSpring,
+  withDelay,
   Easing,
+  FadeIn,
   FadeInDown,
   FadeInUp,
+  SlideInUp,
 } from 'react-native-reanimated';
-import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
-import { RenkooColors } from '@/constants/colors';
 import { useRouter, Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Platform } from 'react-native';
+
+// Advanced Components
+import { FluidBackground } from '@/components/advanced/FluidBackground';
+import { HolographicCard } from '@/components/advanced/HolographicCard';
+import { SymbioticHeartButton } from '@/components/advanced/SymbioticHeartButton';
+import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
+
+// Theme
+import { SymbiosisTheme } from '@/constants/SymbiosisTheme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
 
-// Platform-safe haptics
+// ============================================
+// ANIMATED COMPONENTS
+// ============================================
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// ============================================
+// PLATFORM UTILITIES
+// ============================================
 const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
   if (Platform.OS !== 'web') {
     Haptics.impactAsync(style).catch(() => {});
   }
 };
-const isSmallDevice = SCREEN_HEIGHT < 700;
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+// ============================================
+// FLOATING ORB COMPONENT
+// ============================================
+interface FloatingOrbProps {
+  colors: readonly string[];
+  size: number;
+  initialX: number;
+  initialY: number;
+  delay: number;
+}
 
-export default function LandingScreen() {
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
-
-  // Button animations
-  const primaryButtonScale = useSharedValue(1);
-  const secondaryButtonScale = useSharedValue(1);
-
-  // Floating particles animation
-  const particle1Y = useSharedValue(0);
-  const particle2Y = useSharedValue(0);
-  const particle3Y = useSharedValue(0);
+const FloatingOrb: React.FC<FloatingOrbProps> = ({
+  colors,
+  size,
+  initialX,
+  initialY,
+  delay,
+}) => {
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(0.4);
 
   useEffect(() => {
-    // Floating particles
-    particle1Y.value = withRepeat(
-      withSequence(
-        withTiming(-20, { duration: 3000, easing: Easing.inOut(Easing.sin) }),
-        withTiming(20, { duration: 3000, easing: Easing.inOut(Easing.sin) })
-      ),
-      -1
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(-25, { duration: 3500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(25, { duration: 3500, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true
+      )
     );
-    particle2Y.value = withRepeat(
-      withSequence(
-        withTiming(15, { duration: 2500, easing: Easing.inOut(Easing.sin) }),
-        withTiming(-15, { duration: 2500, easing: Easing.inOut(Easing.sin) })
-      ),
-      -1
-    );
-    particle3Y.value = withRepeat(
-      withSequence(
-        withTiming(-10, { duration: 4000, easing: Easing.inOut(Easing.sin) }),
-        withTiming(10, { duration: 4000, easing: Easing.inOut(Easing.sin) })
-      ),
-      -1
+
+    opacity.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(0.7, { duration: 2500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0.3, { duration: 2500, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true
+      )
     );
   }, []);
 
-  const particle1Style = useAnimatedStyle(() => ({
-    transform: [{ translateY: particle1Y.value }],
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
   }));
 
-  const particle2Style = useAnimatedStyle(() => ({
-    transform: [{ translateY: particle2Y.value }],
+  return (
+    <Animated.View
+      style={[
+        styles.floatingOrb,
+        {
+          width: size,
+          height: size,
+          left: initialX,
+          top: initialY,
+        },
+        animatedStyle,
+      ]}
+    >
+      <LinearGradient
+        colors={[...colors] as [string, string, ...string[]]}
+        style={styles.orbGradient}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      />
+    </Animated.View>
+  );
+};
+
+// ============================================
+// MAIN SCREEN COMPONENT
+// ============================================
+export default function SymbiosisHomeScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  // Animation values
+  const mascotY = useSharedValue(0);
+  const titleGlow = useSharedValue(0.6);
+  const secondaryButtonScale = useSharedValue(1);
+
+  useEffect(() => {
+    // Mascot floating animation
+    mascotY.value = withRepeat(
+      withSequence(
+        withTiming(-12, { duration: 3000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(12, { duration: 3000, easing: Easing.inOut(Easing.sin) })
+      ),
+      -1,
+      true
+    );
+
+    // Title glow pulse
+    titleGlow.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0.5, { duration: 2000, easing: Easing.inOut(Easing.sin) })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  // Animated styles
+  const mascotAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: mascotY.value }],
   }));
 
-  const particle3Style = useAnimatedStyle(() => ({
-    transform: [{ translateY: particle3Y.value }],
-  }));
-
-  const primaryButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: primaryButtonScale.value }],
-  }));
+  const titleGlowStyle = useAnimatedStyle(() => {
+    if (Platform.OS === 'web') {
+      // Web uses CSS shorthand
+      return {
+        textShadow: `0px 0px ${20 * titleGlow.value}px rgba(0, 245, 255, ${titleGlow.value * 0.8})`,
+      };
+    }
+    // Native uses individual props
+    return {
+      textShadowColor: `rgba(0, 245, 255, ${titleGlow.value * 0.8})`,
+      textShadowOffset: { width: 0, height: 0 },
+      textShadowRadius: 20 * titleGlow.value,
+    };
+  });
 
   const secondaryButtonStyle = useAnimatedStyle(() => ({
     transform: [{ scale: secondaryButtonScale.value }],
   }));
 
-  const handlePrimaryPressIn = () => {
-    primaryButtonScale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-  };
+  // Handlers
+  const handleStartJourney = useCallback(() => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
+    router.push('/(onboarding)/welcome' as Href);
+  }, [router]);
 
-  const handlePrimaryPressOut = () => {
-    primaryButtonScale.value = withSpring(1, { damping: 12, stiffness: 200 });
-  };
+  const handleLogin = useCallback(() => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/(onboarding)/welcome' as Href);
+  }, [router]);
 
   const handleSecondaryPressIn = () => {
     secondaryButtonScale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
@@ -115,335 +217,297 @@ export default function LandingScreen() {
     secondaryButtonScale.value = withSpring(1, { damping: 12, stiffness: 200 });
   };
 
-  const handleStartAnalysis = () => {
-    router.push('/(onboarding)/welcome' as Href);
-  };
-
-  const handleLogin = () => {
-    router.push('/(onboarding)/welcome' as Href);
-  };
-
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" translucent />
+      {/* Immersive Status Bar */}
+      <StatusBar style="light" translucent />
 
-      {/* Background Gradient - Dream Sky */}
-      <LinearGradient
-        colors={['#FFF8F0', '#F5E8FF', '#FFE8F5', '#E8FFF5', '#FFF5E8']}
-        locations={[0, 0.25, 0.5, 0.75, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.background}
+      {/* Layer 1: Fluid Shader Background */}
+      <FluidBackground
+        intensity={1.2}
+        speed={0.8}
+        showOrbs={true}
       />
 
-      {/* Floating Dream Particles */}
-      <Animated.View style={[styles.particle, styles.particle1, particle1Style]}>
-        <LinearGradient
-          colors={['rgba(232,213,255,0.4)', 'rgba(255,203,164,0.4)']}
-          style={styles.particleGradient}
-        />
-      </Animated.View>
-      <Animated.View style={[styles.particle, styles.particle2, particle2Style]}>
-        <LinearGradient
-          colors={['rgba(255,214,224,0.4)', 'rgba(255,217,61,0.35)']}
-          style={styles.particleGradient}
-        />
-      </Animated.View>
-      <Animated.View style={[styles.particle, styles.particle3, particle3Style]}>
-        <LinearGradient
-          colors={['rgba(184,244,232,0.4)', 'rgba(232,213,255,0.4)']}
-          style={styles.particleGradient}
-        />
-      </Animated.View>
+      {/* Layer 2: Additional Floating Orbs */}
+      <FloatingOrb
+        colors={['rgba(185, 142, 255, 0.5)', 'rgba(185, 142, 255, 0.1)', 'transparent']}
+        size={100}
+        initialX={-30}
+        initialY={SCREEN_HEIGHT * 0.2}
+        delay={0}
+      />
+      <FloatingOrb
+        colors={['rgba(255, 158, 191, 0.5)', 'rgba(255, 158, 191, 0.1)', 'transparent']}
+        size={70}
+        initialX={SCREEN_WIDTH - 50}
+        initialY={SCREEN_HEIGHT * 0.35}
+        delay={500}
+      />
+      <FloatingOrb
+        colors={['rgba(112, 255, 214, 0.4)', 'rgba(112, 255, 214, 0.1)', 'transparent']}
+        size={85}
+        initialX={SCREEN_WIDTH * 0.7}
+        initialY={SCREEN_HEIGHT * 0.75}
+        delay={1000}
+      />
 
-      {/* Content */}
-      <View style={[styles.content, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 20 }]}>
+      {/* Content Layer */}
+      <View style={[styles.content, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
 
-        {/* Hero Section */}
+        {/* Header: Brand Badge */}
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(800)}
+          style={styles.headerSection}
+        >
+          <View style={styles.brandBadge}>
+            <BlurView intensity={40} tint="dark" style={styles.brandBadgeBlur}>
+              <Text style={styles.brandBadgeText}>RENKİOO</Text>
+            </BlurView>
+            <View style={styles.brandBadgeBorder} />
+          </View>
+        </Animated.View>
+
+        {/* Hero Section: Mascot + Heart Button */}
         <View style={styles.heroSection}>
-          {/* Brand Badge */}
-          <Animated.View entering={FadeInDown.delay(200).duration(800)}>
-            <View style={styles.brandBadge}>
-              <BlurView intensity={80} tint="light" style={styles.brandBadgeBlur}>
-                <Text style={styles.brandBadgeText}>RENKİOO</Text>
-              </BlurView>
-            </View>
-          </Animated.View>
-
-          {/* Mascot - Ioo Dream Guardian */}
+          {/* Page Title with Glow */}
           <Animated.View
-            entering={FadeInUp.delay(400).duration(1000).springify()}
-            style={styles.mascotWrapper}
+            entering={FadeIn.delay(400).duration(800)}
+            style={styles.titleContainer}
           >
-            <IooMascot size="hero" animated showGlow showSparkles mood="happy" />
+            <Animated.Text style={[styles.pageTitle, titleGlowStyle]}>
+              Ana Sayfa
+            </Animated.Text>
           </Animated.View>
 
-          {/* Mascot Name & Tagline */}
-          <Animated.View entering={FadeInUp.delay(600).duration(800)} style={styles.mascotInfo}>
-            <Text style={styles.mascotName}>Ioo</Text>
-            <View style={styles.taglineContainer}>
-              <LinearGradient
-                colors={['rgba(232,213,255,0.25)', 'rgba(255,203,164,0.25)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.taglineGradient}
-              >
-                <Text style={styles.taglineText}>Birlikte Hayal Kuralım!</Text>
-              </LinearGradient>
-            </View>
+          {/* Mascot floating */}
+          <Animated.View
+            entering={SlideInUp.delay(600).duration(1000).springify()}
+            style={[styles.mascotWrapper, mascotAnimatedStyle]}
+          >
+            <IooMascot
+              size="hero"
+              animated
+              showGlow
+              showSparkles
+              mood="happy"
+            />
+          </Animated.View>
+
+          {/* Heart Button positioned at mascot's "hands" */}
+          <Animated.View
+            entering={FadeInUp.delay(1000).duration(800)}
+            style={styles.heartButtonWrapper}
+          >
+            <SymbioticHeartButton
+              label="Dokun ve Hisset"
+              subLabel="Hayallere Baslayalim"
+              size={isSmallDevice ? SCREEN_WIDTH * 0.4 : SCREEN_WIDTH * 0.45}
+              onPress={handleStartJourney}
+            />
           </Animated.View>
         </View>
 
         {/* Welcome Card */}
-        <Animated.View entering={FadeInUp.delay(800).duration(800)} style={styles.welcomeCard}>
-          <BlurView intensity={70} tint="light" style={styles.welcomeCardBlur}>
-            <View style={styles.welcomeCardContent}>
+        <Animated.View
+          entering={FadeInUp.delay(1200).duration(800)}
+          style={styles.welcomeCardWrapper}
+        >
+          <HolographicCard
+            variant="rainbow"
+            glowIntensity={0.5}
+            pulsing={true}
+            breathing={false}
+            blurIntensity={60}
+            borderRadius={28}
+            style={styles.welcomeCard}
+          >
+            <View style={styles.welcomeContent}>
               <Text style={styles.welcomeTitle}>Merhaba!</Text>
               <Text style={styles.welcomeSubtitle}>
-                Çocuğunuzun renkli dünyasını keşfedin
+                Cocugunuzun renkli dunyasini birlikte kesfedin
               </Text>
             </View>
-          </BlurView>
-          <View style={styles.welcomeCardBorder} />
+          </HolographicCard>
         </Animated.View>
 
-        {/* Action Buttons */}
-        <Animated.View entering={FadeInUp.delay(1000).duration(800)} style={styles.actionsContainer}>
-          {/* Primary Button - Dream Gradient */}
-          <AnimatedPressable
-            style={[styles.primaryButton, primaryButtonStyle]}
-            onPress={handleStartAnalysis}
-            onPressIn={handlePrimaryPressIn}
-            onPressOut={handlePrimaryPressOut}
-            accessibilityRole="button"
-            accessibilityLabel="Hayallere Başla"
-            accessibilityHint="Uygulamaya başlamak için dokunun"
-          >
-            <LinearGradient
-              colors={['#B98EFF', '#FFCBA4', '#FFD6E0', '#B8F4E8']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.primaryButtonGradient}
-            >
-              <View style={styles.primaryButtonInner}>
-                <Text style={styles.primaryButtonEmoji}>⭐</Text>
-                <Text style={styles.primaryButtonText}>Hayallere Başla</Text>
-              </View>
-            </LinearGradient>
-            <View style={styles.primaryButtonShadow} />
-          </AnimatedPressable>
-
-          {/* Secondary Button */}
+        {/* Secondary Action */}
+        <Animated.View
+          entering={FadeInUp.delay(1400).duration(600)}
+          style={styles.secondarySection}
+        >
           <AnimatedPressable
             style={[styles.secondaryButton, secondaryButtonStyle]}
             onPress={handleLogin}
             onPressIn={handleSecondaryPressIn}
             onPressOut={handleSecondaryPressOut}
             accessibilityRole="button"
-            accessibilityLabel="Hesabım Var"
-            accessibilityHint="Mevcut hesabınızla giriş yapmak için dokunun"
+            accessibilityLabel="Hesabim Var"
           >
-            <BlurView intensity={60} tint="light" style={styles.secondaryButtonBlur}>
-              <Text style={styles.secondaryButtonText}>Hesabım Var</Text>
+            <BlurView intensity={30} tint="dark" style={styles.secondaryButtonBlur}>
+              <Text style={styles.secondaryButtonText}>Hesabim Var</Text>
             </BlurView>
             <View style={styles.secondaryButtonBorder} />
           </AnimatedPressable>
         </Animated.View>
 
         {/* Footer */}
-        <Animated.View entering={FadeInUp.delay(1200).duration(600)} style={styles.footer}>
-          <Text style={styles.footerText}>2035 Organic Biomimicry Design</Text>
+        <Animated.View
+          entering={FadeIn.delay(1600).duration(600)}
+          style={styles.footer}
+        >
+          <Text style={styles.footerText}>2035 Emotional Symbiosis</Text>
         </Animated.View>
       </View>
     </View>
   );
 }
 
+// ============================================
+// STYLES
+// ============================================
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  background: {
-    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#0A0E1A',
   },
 
-  // Floating Particles
-  particle: {
+  // Floating Orbs
+  floatingOrb: {
     position: 'absolute',
-    borderRadius: 100,
+    borderRadius: 1000,
     overflow: 'hidden',
   },
-  particleGradient: {
+  orbGradient: {
     width: '100%',
     height: '100%',
-    borderRadius: 100,
-  },
-  particle1: {
-    width: 120,
-    height: 120,
-    top: SCREEN_HEIGHT * 0.15,
-    left: -30,
-  },
-  particle2: {
-    width: 80,
-    height: 80,
-    top: SCREEN_HEIGHT * 0.3,
-    right: -20,
-  },
-  particle3: {
-    width: 100,
-    height: 100,
-    bottom: SCREEN_HEIGHT * 0.25,
-    left: SCREEN_WIDTH * 0.6,
+    borderRadius: 1000,
   },
 
-  // Content
+  // Content Layout
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'space-between',
   },
 
-  // Hero Section
-  heroSection: {
+  // Header
+  headerSection: {
     alignItems: 'center',
-    paddingTop: isSmallDevice ? 10 : 20,
+    marginBottom: isSmallDevice ? 8 : 16,
   },
   brandBadge: {
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
-    marginBottom: isSmallDevice ? 16 : 24,
   },
   brandBadgeBlur: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
   },
   brandBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: RenkooColors.brand.jellyPurple,
-    letterSpacing: 3,
+    color: '#FFFFFF',
+    letterSpacing: 4,
+    ...Platform.select({
+      web: {
+        textShadow: '0px 0px 10px rgba(0, 245, 255, 0.5)',
+      },
+      default: {
+        textShadowColor: 'rgba(0, 245, 255, 0.5)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 10,
+      },
+    }),
   },
-  mascotWrapper: {
+  brandBadgeBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 245, 255, 0.3)',
+  },
+
+  // Hero Section
+  heroSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: SCREEN_HEIGHT * 0.45,
+  },
+  titleContainer: {
     marginBottom: isSmallDevice ? 8 : 16,
   },
-  mascotInfo: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  mascotName: {
-    fontSize: isSmallDevice ? 32 : 40,
+  pageTitle: {
+    fontSize: isSmallDevice ? 28 : 36,
     fontWeight: '800',
-    color: RenkooColors.text.primary,
-    letterSpacing: 4,
+    color: '#FFFFFF',
+    letterSpacing: 2,
   },
-  taglineContainer: {
-    borderRadius: 20,
-    overflow: 'hidden',
+  mascotWrapper: {
+    marginBottom: isSmallDevice ? -60 : -80,
+    zIndex: 10,
   },
-  taglineGradient: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  taglineText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: RenkooColors.text.secondary,
-    letterSpacing: 0.5,
+  heartButtonWrapper: {
+    zIndex: 5,
   },
 
   // Welcome Card
+  welcomeCardWrapper: {
+    marginTop: isSmallDevice ? 16 : 24,
+    marginBottom: isSmallDevice ? 12 : 20,
+  },
   welcomeCard: {
-    borderRadius: 28,
-    overflow: 'hidden',
-    marginVertical: isSmallDevice ? 16 : 24,
+    minHeight: isSmallDevice ? 80 : 100,
   },
-  welcomeCardBlur: {
-    padding: isSmallDevice ? 20 : 28,
-  },
-  welcomeCardContent: {
+  welcomeContent: {
     alignItems: 'center',
-    gap: 8,
-  },
-  welcomeCardBorder: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 28,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    gap: 6,
   },
   welcomeTitle: {
-    fontSize: isSmallDevice ? 26 : 32,
+    fontSize: isSmallDevice ? 24 : 28,
     fontWeight: '800',
-    color: RenkooColors.text.primary,
+    color: '#FFFFFF',
+    ...Platform.select({
+      web: {
+        textShadow: '0px 0px 15px rgba(185, 142, 255, 0.5)',
+      },
+      default: {
+        textShadowColor: 'rgba(185, 142, 255, 0.5)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 15,
+      },
+    }),
   },
   welcomeSubtitle: {
-    fontSize: isSmallDevice ? 15 : 17,
-    color: RenkooColors.text.secondary,
+    fontSize: isSmallDevice ? 14 : 16,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
   },
 
-  // Action Buttons
-  actionsContainer: {
-    gap: 14,
-    marginBottom: isSmallDevice ? 16 : 24,
-  },
-  primaryButton: {
-    borderRadius: 28,
-    overflow: 'visible',
-  },
-  primaryButtonGradient: {
-    borderRadius: 28,
-    padding: 2,
-  },
-  primaryButtonInner: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 26,
-    paddingVertical: isSmallDevice ? 18 : 22,
-    paddingHorizontal: 32,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  primaryButtonEmoji: {
-    fontSize: 22,
-  },
-  primaryButtonText: {
-    fontSize: isSmallDevice ? 17 : 19,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  primaryButtonShadow: {
-    position: 'absolute',
-    bottom: -8,
-    left: 20,
-    right: 20,
-    height: 20,
-    backgroundColor: 'rgba(185, 142, 255, 0.35)',
-    borderRadius: 20,
-    zIndex: -1,
+  // Secondary Section
+  secondarySection: {
+    marginBottom: isSmallDevice ? 12 : 20,
   },
   secondaryButton: {
     borderRadius: 24,
     overflow: 'hidden',
   },
   secondaryButtonBlur: {
-    paddingVertical: isSmallDevice ? 16 : 18,
+    paddingVertical: isSmallDevice ? 14 : 18,
     alignItems: 'center',
+  },
+  secondaryButtonText: {
+    fontSize: isSmallDevice ? 15 : 17,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: 0.5,
   },
   secondaryButtonBorder: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 24,
     borderWidth: 1.5,
     borderColor: 'rgba(185, 142, 255, 0.4)',
-  },
-  secondaryButtonText: {
-    fontSize: isSmallDevice ? 15 : 17,
-    fontWeight: '600',
-    color: RenkooColors.brand.jellyPurple,
   },
 
   // Footer
@@ -453,7 +517,8 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
-    color: RenkooColors.text.muted,
-    letterSpacing: 1,
+    color: 'rgba(255, 255, 255, 0.4)',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
 });
