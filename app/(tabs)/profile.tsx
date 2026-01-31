@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch, Dimensions, Platform } from "react-native";
-import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award, RefreshCw } from "lucide-react-native";
+import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award, RefreshCw, Volume2, Vibrate, Shield } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -19,6 +19,7 @@ import {
   radius,
   shadows,
 } from "@/constants/design-system";
+import { SoundSettings, HapticSettings, AppLockSettings } from "@/components/settings";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -61,6 +62,9 @@ export default function ProfileScreen() {
   const [childAge, setChildAge] = useState('');
   const [selectedChildAvatarId, setSelectedChildAvatarId] = useState<string | undefined>();
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [showSoundModal, setShowSoundModal] = useState(false);
+  const [showHapticModal, setShowHapticModal] = useState(false);
+  const [showAppLockModal, setShowAppLockModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<{
     id: string;
     name: string;
@@ -636,6 +640,63 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
+              onPress={() => setShowSoundModal(true)}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                style={styles.menuIcon}
+              >
+                <Volume2 size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Ses Ayarları</Text>
+                <ChevronRight size={20} color={Colors.neutral.light} />
+              </View>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => setShowHapticModal(true)}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                style={styles.menuIcon}
+              >
+                <Vibrate size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Titreşim Ayarları</Text>
+                <ChevronRight size={20} color={Colors.neutral.light} />
+              </View>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => setShowAppLockModal(true)}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                style={styles.menuIcon}
+              >
+                <Shield size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Uygulama Kilidi</Text>
+                <ChevronRight size={20} color={Colors.neutral.light} />
+              </View>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
               onPress={() => setShowGeneralModal(true)}
             >
               <LinearGradient
@@ -1143,6 +1204,24 @@ export default function ProfileScreen() {
             setSelectedBadge(null);
           }}
           badge={selectedBadge}
+        />
+
+        {/* Sound Settings Modal */}
+        <SoundSettings
+          visible={showSoundModal}
+          onClose={() => setShowSoundModal(false)}
+        />
+
+        {/* Haptic Settings Modal */}
+        <HapticSettings
+          visible={showHapticModal}
+          onClose={() => setShowHapticModal(false)}
+        />
+
+        {/* App Lock Settings Modal */}
+        <AppLockSettings
+          visible={showAppLockModal}
+          onClose={() => setShowAppLockModal(false)}
         />
       </LinearGradient>
     </View>

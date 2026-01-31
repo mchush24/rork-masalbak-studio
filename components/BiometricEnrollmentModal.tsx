@@ -78,7 +78,7 @@ export function BiometricEnrollmentModal({
               ]}
             >
               <Text style={styles.enrollButtonText}>
-                {getBiometricName()}'yi Etkinleştir
+                {getBiometricName()}&apos;yi Etkinleştir
               </Text>
             </Pressable>
 

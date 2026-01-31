@@ -107,17 +107,18 @@ export function TexturedCircle({
     }
   }, [shader, texture, r, g, b, intensity, radius, time]);
 
-  // For solid or shader failure, render simple circle
-  if (texture === 'solid' || !shaderInstance) {
-    return <Circle cx={x} cy={y} r={radius} color={color} />;
-  }
-
-  // Create paint with shader
+  // Create paint with shader (must be called unconditionally to satisfy React hooks rules)
   const paint = useMemo(() => {
+    if (!shaderInstance) return null;
     const p = Skia.Paint();
     p.setShader(shaderInstance);
     return p;
   }, [shaderInstance]);
+
+  // For solid or shader failure, render simple circle
+  if (texture === 'solid' || !shaderInstance) {
+    return <Circle cx={x} cy={y} r={radius} color={color} />;
+  }
 
   return (
     <Circle cx={x} cy={y} r={radius} color={color}>

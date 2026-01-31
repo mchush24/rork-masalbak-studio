@@ -370,24 +370,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   label: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
-    color: '#FFFFFF',
+    fontFamily: 'Poppins_800ExtraBold',
+    color: '#3D1A1A',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
+    ...Platform.select({
+      web: {
+        textShadow: '0px 1px 2px rgba(255, 255, 255, 0.5), 0px -1px 0px rgba(0, 0, 0, 0.1)',
+      },
+      default: {
+        textShadowColor: 'rgba(255, 255, 255, 0.5)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 2,
+      },
+    }),
   },
   subLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.85)',
+    fontFamily: 'Poppins_600SemiBold',
+    color: 'rgba(61, 26, 26, 0.85)',
     textAlign: 'center',
-    marginTop: 4,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    marginTop: 2,
+    ...Platform.select({
+      web: {
+        textShadow: '0px 1px 1px rgba(255, 255, 255, 0.4)',
+      },
+      default: {
+        textShadowColor: 'rgba(255, 255, 255, 0.4)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 1,
+      },
+    }),
   },
   disabledOverlay: {
     ...StyleSheet.absoluteFillObject,

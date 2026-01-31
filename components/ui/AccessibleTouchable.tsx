@@ -13,6 +13,7 @@ import {
   Pressable,
   StyleSheet,
   ViewStyle,
+  StyleProp,
   Platform,
   View,
   Text,
@@ -29,12 +30,12 @@ interface AccessibleTouchableProps {
   onLongPress?: () => void;
   accessibilityLabel: string;
   accessibilityHint?: string;
-  accessibilityRole?: 'button' | 'link' | 'tab' | 'checkbox' | 'radio';
+  accessibilityRole?: 'button' | 'link' | 'tab';
   disabled?: boolean;
   selected?: boolean;
-  style?: ViewStyle;
-  pressedStyle?: ViewStyle;
-  disabledStyle?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
+  pressedStyle?: StyleProp<ViewStyle>;
+  disabledStyle?: StyleProp<ViewStyle>;
   children: React.ReactNode;
   hapticFeedback?: 'light' | 'medium' | 'heavy' | 'none';
   minSize?: 'minimum' | 'comfortable' | 'large' | 'extraLarge';
@@ -127,7 +128,7 @@ interface AccessibleIconButtonProps {
   disabled?: boolean;
   size?: 'small' | 'medium' | 'large';
   backgroundColor?: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function AccessibleIconButton({
@@ -178,7 +179,7 @@ interface AccessibleCardProps {
   accessibilityLabel: string;
   accessibilityHint?: string;
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function AccessibleCard({

@@ -105,3 +105,77 @@ export interface EmotionalIndicator {
   color: string;
   insight: Insight;
 }
+
+// ============================================
+// Analysis Chat Types
+// ============================================
+
+export interface ConversationMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  referencedInsightIndex?: number;
+  metadata?: {
+    suggestedQuestions?: string[];
+    source?: 'faq' | 'ai' | 'context';
+    confidence?: number;
+  };
+}
+
+export interface AnalysisConversation {
+  id: string;
+  analysisId: string;
+  userId: string;
+  messages: ConversationMessage[];
+  promptsCompleted: string[];
+  sessionCount: number;
+  lastMessageAt: string;
+  childAge?: number;
+  childName?: string;
+  language: Language;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NoteType = 'general' | 'observation' | 'question' | 'follow_up' | 'milestone';
+
+export interface AnalysisNote {
+  id: string;
+  analysisId: string;
+  userId: string;
+  content: string;
+  noteType: NoteType;
+  tags: string[];
+  referencedInsightIndex?: number;
+  isSharedWithProfessional: boolean;
+  sharedAt?: string;
+  isPinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReflectionPrompt {
+  id: string;
+  question: string;
+  emoji: string;
+  category: 'observation' | 'emotional' | 'developmental' | 'action';
+}
+
+// Chat response from AI
+export interface AnalysisChatResponse {
+  message: string;
+  suggestedQuestions: string[];
+  referencedInsightIndex?: number;
+  source: 'faq' | 'ai' | 'context';
+  confidence?: number;
+}
+
+// Quick prompt chip for UI
+export interface QuickPrompt {
+  id: string;
+  label: string;
+  emoji?: string;
+  question: string;
+  category?: string;
+}

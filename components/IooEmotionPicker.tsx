@@ -233,7 +233,7 @@ export function IooEmotionPicker({
       <View style={styles.questionSection}>
         <Text style={styles.questionText}>Bugün nasıl hissediyorsun?</Text>
         <Text style={styles.questionSubtext}>
-          Bir duygu seç, Ioo'ya göster
+          Bir duygu seç, Ioo&apos;ya göster
         </Text>
       </View>
 

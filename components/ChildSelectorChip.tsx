@@ -48,7 +48,7 @@ type Child = {
 
 type ChildSelectorChipProps = {
   selectedChild: Child | null;
-  children: Child[];
+  childrenList: Child[];
   onSelectChild: (child: Child) => void;
   compact?: boolean; // For smaller displays
 };
@@ -81,7 +81,7 @@ const GenderIcon = ({ gender, size = 12 }: { gender?: "male" | "female"; size?: 
 
 export function ChildSelectorChip({
   selectedChild,
-  children,
+  childrenList,
   onSelectChild,
   compact = false,
 }: ChildSelectorChipProps) {
@@ -109,7 +109,7 @@ export function ChildSelectorChip({
     router.push("/(tabs)/profile");
   }, [router]);
 
-  const hasChildren = children && children.length > 0;
+  const hasChildren = childrenList && childrenList.length > 0;
   const gradientColors = getGenderColors(selectedChild?.gender);
 
   return (
@@ -213,7 +213,7 @@ export function ChildSelectorChip({
                   contentContainerStyle={styles.childrenListContent}
                   showsVerticalScrollIndicator={false}
                 >
-                  {children.map((child, index) => {
+                  {childrenList.map((child, index) => {
                     const isSelected =
                       selectedChild?.name === child.name &&
                       selectedChild?.age === child.age;

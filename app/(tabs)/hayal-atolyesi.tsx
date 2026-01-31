@@ -239,7 +239,7 @@ export default function HayalAtolyesiScreen() {
                   <View style={styles.optionContent}>
                     <Text style={styles.optionTitle}>🎨 Boyama Sayfası</Text>
                     <Text style={styles.optionDescription}>
-                      Çiziminden basitleştirilmiş boyama PDF'i oluştur
+                      Çiziminden basitleştirilmiş boyama PDF&apos;i oluştur
                     </Text>
                     <View style={styles.optionFeatures}>
                       <View style={styles.optionFeature}>

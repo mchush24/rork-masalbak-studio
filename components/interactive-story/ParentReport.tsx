@@ -71,7 +71,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
         <Award size={40} color="#FCD34D" />
         <Text style={styles.headerTitle}>Ebeveyn Raporu</Text>
         <Text style={styles.headerSubtitle}>
-          {report.childName ? `${report.childName}'in` : "Cocugunuzun"} "{report.storyTitle}" hikayesindeki yolculugu
+          {report.childName ? `${report.childName}'in` : "Cocugunuzun"} &ldquo;{report.storyTitle}&rdquo; hikayesindeki yolculugu
         </Text>
       </LinearGradient>
 

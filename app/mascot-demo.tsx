@@ -116,7 +116,7 @@ export default function MascotDemoScreen() {
 
           {/* Tüm Mood'lar Preview */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tüm Mood'lar</Text>
+            <Text style={styles.sectionTitle}>Tüm Mood&apos;lar</Text>
             <View style={styles.moodsGrid}>
               {MOODS.map((mood) => (
                 <View key={mood} style={styles.moodItem}>

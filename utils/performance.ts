@@ -161,7 +161,7 @@ export function useMemoCompare<T>(
   next: T,
   compare: (prev: T | undefined, next: T) => boolean
 ): T {
-  const previousRef = useRef<T>();
+  const previousRef = useRef<T | undefined>(undefined);
   const previous = previousRef.current;
 
   const isEqual = previous !== undefined && compare(previous, next);

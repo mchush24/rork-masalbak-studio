@@ -175,7 +175,7 @@ export function XPProgressBar({
             <View style={styles.progressLabelRight}>
               <TrendingUp size={12} color="#9E9E9E" />
               <Text style={styles.nextLevelText}>
-                Seviye {level + 1}'e {xpNeeded - xpProgress} XP
+                Seviye {level + 1}&apos;e {xpNeeded - xpProgress} XP
               </Text>
             </View>
           </View>

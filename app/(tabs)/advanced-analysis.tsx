@@ -546,7 +546,7 @@ export default function AdvancedAnalysisScreen() {
                   </Pressable>
                 </View>
                 <Text style={styles.selectedTestInstruction} numberOfLines={2}>
-                  "{PROTOCOLS[task].phases[0]?.instruction}"
+                  &ldquo;{PROTOCOLS[task].phases[0]?.instruction}&rdquo;
                 </Text>
               </LinearGradient>
             </View>
@@ -831,7 +831,7 @@ export default function AdvancedAnalysisScreen() {
                           )}
                         </View>
                       </View>
-                      <Text style={styles.phaseInstruction}>"{phase.instruction}"</Text>
+                      <Text style={styles.phaseInstruction}>&ldquo;{phase.instruction}&rdquo;</Text>
                       {phase.notes && phase.notes.length > 0 && (
                         <View style={styles.phaseNotes}>
                           {phase.notes.map((note: string, j: number) => (

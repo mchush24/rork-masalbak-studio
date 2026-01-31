@@ -210,7 +210,7 @@ export default function ColoringHistoryScreen() {
                   colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
                   style={styles.emptyButtonGradient}
                 >
-                  <Text style={styles.emptyButtonText}>Studio'ya Git</Text>
+                  <Text style={styles.emptyButtonText}>Studio&apos;ya Git</Text>
                 </LinearGradient>
               </Pressable>
             </View>

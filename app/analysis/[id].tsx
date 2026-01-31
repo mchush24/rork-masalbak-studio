@@ -23,12 +23,15 @@ import {
   Smile,
   Frown,
   Meh,
+  MessageCircle,
+  StickyNote,
 } from 'lucide-react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { spacing, borderRadius, typography, shadows } from '@/lib/design-tokens';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import { AnalysisShareCard } from '@/components/AnalysisShareCard';
+import { AnalysisChatSheet } from '@/components/analysis-chat';
 import { trpc } from '@/lib/trpc';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -38,6 +41,7 @@ export default function AnalysisResultScreen() {
   const params = useLocalSearchParams();
   const { isSmallScreen, screenPadding } = useResponsive();
   const [isFavorited, setIsFavorited] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   // Get analysis ID from params
   const analysisId = params.id as string;
@@ -540,11 +544,28 @@ export default function AnalysisResultScreen() {
             <Pressable onPress={handleDownload} style={styles.iconButton}>
               <Download size={24} color="rgba(255, 255, 255, 0.7)" strokeWidth={2} />
             </Pressable>
+            <Pressable
+              onPress={() => setShowChat(true)}
+              style={[styles.iconButton, styles.iconButtonChat]}
+            >
+              <MessageCircle size={24} color="#A78BFA" strokeWidth={2} />
+            </Pressable>
           </View>
-          <Pressable onPress={handleSave} style={[styles.saveButton, shadows.lg]}>
-            <Text style={styles.saveButtonText}>Kaydet</Text>
+          <Pressable onPress={() => setShowChat(true)} style={[styles.chatButton, shadows.lg]}>
+            <MessageCircle size={20} color="#FFFFFF" strokeWidth={2} />
+            <Text style={styles.chatButtonText}>Ioo ile Konuş</Text>
           </Pressable>
         </View>
+
+        {/* Analysis Chat Sheet */}
+        <AnalysisChatSheet
+          analysisId={analysisId}
+          analysisResult={analysisResult}
+          childAge={analysisData.child_age}
+          childName={analysisData.child_name}
+          isVisible={showChat}
+          onClose={() => setShowChat(false)}
+        />
       </SafeAreaView>
     </LinearGradient>
   );
@@ -769,6 +790,26 @@ const styles = StyleSheet.create({
   iconButtonActive: {
     backgroundColor: 'rgba(255, 107, 107, 0.2)',
     borderColor: '#FF6B6B',
+  },
+  iconButtonChat: {
+    backgroundColor: 'rgba(167, 139, 250, 0.2)',
+    borderColor: '#A78BFA',
+  },
+  chatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#A78BFA',
+    borderRadius: borderRadius.xxxl,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    gap: spacing.sm,
+  },
+  chatButtonText: {
+    fontSize: typography.fontSize.base,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: -0.3,
   },
   saveButton: {
     backgroundColor: 'white',

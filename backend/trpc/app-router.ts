@@ -38,6 +38,8 @@ import { interactiveStoryRouter } from "./routes/interactive-story/index.js";
 import { badgesRouter } from "./routes/badges/index.js";
 import { recordColoringActivityProcedure, getColoringStatsProcedure } from "./routes/coloring/record-activity.js";
 import { chatbotRouter } from "./routes/chatbot.js";
+import { analysisChatRouter } from "./routes/analysis-chat.js";
+import { analysisNotesRouter } from "./routes/analysis-notes.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -95,6 +97,8 @@ export const appRouter = createTRPCRouter({
     getStats: getColoringStatsProcedure,
   }),
   chatbot: chatbotRouter,
+  analysisChat: analysisChatRouter,
+  analysisNotes: analysisNotesRouter,
 });
 
 export type AppRouter = typeof appRouter;

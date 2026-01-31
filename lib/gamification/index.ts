@@ -17,3 +17,6 @@ export type { StreakData } from './streaks';
 
 export { useGamification } from './useGamification';
 export type { UserStats } from './useGamification';
+
+// Phase 21: Enhanced gamification with delight milestones
+export { useGamificationWithDelight } from './useGamificationWithDelight';

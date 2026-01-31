@@ -1,0 +1,691 @@
+/**
+ * Value Proposition Screen
+ * Phase 6: Professional Onboarding
+ *
+ * 5-scene professional onboarding:
+ * 1. "Children Speak a Different Language"
+ * 2. "Scientific Approach"
+ * 3. "Your Tools"
+ * 4. "Privacy & Security"
+ * 5. "Let's Start"
+ */
+
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Pressable,
+  ScrollView,
+  Platform,
+} from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withDelay,
+  interpolate,
+  FadeIn,
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft,
+} from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter, Href } from 'expo-router';
+import {
+  Palette,
+  BookOpen,
+  Brain,
+  TrendingUp,
+  Shield,
+  Lock,
+  CheckCircle,
+  ChevronRight,
+  ChevronLeft,
+  Sparkles,
+  Users,
+  Star,
+  ArrowRight,
+} from 'lucide-react-native';
+import { Colors } from '@/constants/colors';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
+import { useHapticFeedback } from '@/lib/haptics';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallDevice = SCREEN_HEIGHT < 700;
+
+// Pre-defined illustration styles (needed before SCENES)
+const illustrationStyles = StyleSheet.create({
+  illustrationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scienceIllustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  brainIconContainer: {
+    backgroundColor: 'rgba(167, 139, 250, 0.1)',
+    borderRadius: 999,
+    padding: 24,
+    zIndex: 2,
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 2,
+    borderColor: 'rgba(167, 139, 250, 0.2)',
+  },
+  pulseRing2: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderColor: 'rgba(167, 139, 250, 0.1)',
+  },
+  toolsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 16,
+    maxWidth: 250,
+  },
+  toolCard: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  privacyIllustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shieldContainer: {
+    position: 'relative',
+    backgroundColor: 'rgba(126, 217, 156, 0.1)',
+    borderRadius: 999,
+    padding: 32,
+  },
+  checkBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: Colors.semantic.success,
+    borderRadius: 999,
+    padding: 4,
+    borderWidth: 3,
+    borderColor: Colors.neutral.white,
+  },
+});
+
+interface Scene {
+  id: string;
+  title: string;
+  subtitle?: string;
+  description: string;
+  features?: { icon: React.ReactNode; text: string }[];
+  gradient: readonly [string, string, ...string[]];
+  illustration: React.ReactNode;
+}
+
+const SCENES: Scene[] = [
+  {
+    id: 'language',
+    title: 'Çocuklar Konuşur,\nFarklı Bir Dilde',
+    description: 'Çocuklar duygularını kelimelerle ifade edemeyebilir.\nAma çizimleri, hikayeleri, renk seçimleri çok şey anlatır.',
+    gradient: ['#FFF8F0', '#F5E8FF', '#FFE8F5'],
+    illustration: (
+      <View style={illustrationStyles.illustrationContainer}>
+        <IooMascot size="large" mood="curious" animated showGlow />
+      </View>
+    ),
+  },
+  {
+    id: 'science',
+    title: 'Bilimsel Yaklaşım',
+    description: 'Yapay zeka destekli çizim analizi,\nçocuk psikolojisi uzmanlarıyla geliştirildi.',
+    features: [
+      { icon: <Brain size={20} color={Colors.secondary.lavender} />, text: 'AI destekli analiz' },
+      { icon: <Users size={20} color={Colors.secondary.sky} />, text: 'Uzman onaylı' },
+      { icon: <Star size={20} color={Colors.secondary.sunshine} />, text: 'Kanıta dayalı' },
+    ],
+    gradient: ['#F0F9FF', '#E8F4FD', '#F5F3FF'],
+    illustration: (
+      <View style={illustrationStyles.scienceIllustration}>
+        <View style={illustrationStyles.brainIconContainer}>
+          <Brain size={64} color={Colors.secondary.lavender} />
+        </View>
+        <View style={illustrationStyles.pulseRing} />
+        <View style={[illustrationStyles.pulseRing, illustrationStyles.pulseRing2]} />
+      </View>
+    ),
+  },
+  {
+    id: 'tools',
+    title: 'Araçlarınız',
+    description: 'Çocuğunuzun duygusal dünyasını anlamak için\nihtiyacınız olan her şey.',
+    features: [
+      { icon: <Brain size={20} color={Colors.secondary.lavender} />, text: 'Çizim Analizi: Duygusal ipuçları' },
+      { icon: <BookOpen size={20} color={Colors.secondary.sunshine} />, text: 'İnteraktif Hikayeler: Karar süreçleri' },
+      { icon: <Palette size={20} color={Colors.secondary.mint} />, text: 'Dijital Boyama: Yaratıcılık' },
+      { icon: <TrendingUp size={20} color={Colors.secondary.grass} />, text: 'Gelişim Takibi: Zaman içi değişim' },
+    ],
+    gradient: ['#FFF5F2', '#E8FFF5', '#FFF9E6'],
+    illustration: (
+      <View style={illustrationStyles.toolsGrid}>
+        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}>
+          <Brain size={32} color={Colors.secondary.lavender} />
+        </View>
+        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}>
+          <BookOpen size={32} color={Colors.secondary.sunshine} />
+        </View>
+        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}>
+          <Palette size={32} color={Colors.secondary.mint} />
+        </View>
+        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}>
+          <TrendingUp size={32} color={Colors.secondary.grass} />
+        </View>
+      </View>
+    ),
+  },
+  {
+    id: 'privacy',
+    title: 'Gizlilik & Güvenlik',
+    description: 'Çocuğunuzun verileri sadece sizin.\nGüvenlik bizim önceliğimiz.',
+    features: [
+      { icon: <Lock size={20} color={Colors.secondary.grass} />, text: 'Uçtan uca şifreleme' },
+      { icon: <Shield size={20} color={Colors.secondary.sky} />, text: 'KVKK ve GDPR uyumlu' },
+      { icon: <CheckCircle size={20} color={Colors.semantic.success} />, text: 'Danışan gizliliği korunur' },
+    ],
+    gradient: ['#F0FDF4', '#E8FFF5', '#F0F9FF'],
+    illustration: (
+      <View style={illustrationStyles.privacyIllustration}>
+        <View style={illustrationStyles.shieldContainer}>
+          <Shield size={72} color={Colors.secondary.grass} />
+          <View style={illustrationStyles.checkBadge}>
+            <CheckCircle size={24} color={Colors.neutral.white} fill={Colors.semantic.success} />
+          </View>
+        </View>
+      </View>
+    ),
+  },
+  {
+    id: 'start',
+    title: 'Başlayalım',
+    subtitle: 'Ioo, bu yolculukta size eşlik edecek',
+    description: 'Çocuğunuzun duygusal dünyasını keşfetmeye hazır mısınız?',
+    gradient: ['#FFF8F0', '#F5E8FF', '#FFE8F5'],
+    illustration: (
+      <View style={illustrationStyles.illustrationContainer}>
+        <IooMascot size="large" mood="happy" animated showGlow showSparkles />
+      </View>
+    ),
+  },
+];
+
+export default function ValuePropositionScreen() {
+  const router = useRouter();
+  const { tapMedium, selection } = useHapticFeedback();
+  const [currentScene, setCurrentScene] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    progress.value = withSpring(currentScene / (SCENES.length - 1));
+  }, [currentScene, progress]);
+
+  const handleNext = () => {
+    selection();
+    if (currentScene < SCENES.length - 1) {
+      setCurrentScene(currentScene + 1);
+      scrollViewRef.current?.scrollTo({ x: SCREEN_WIDTH * (currentScene + 1), animated: true });
+    }
+  };
+
+  const handlePrev = () => {
+    selection();
+    if (currentScene > 0) {
+      setCurrentScene(currentScene - 1);
+      scrollViewRef.current?.scrollTo({ x: SCREEN_WIDTH * (currentScene - 1), animated: true });
+    }
+  };
+
+  const handleSkip = () => {
+    tapMedium();
+    router.push('/(onboarding)/user-profile' as Href);
+  };
+
+  const handleGetStarted = () => {
+    tapMedium();
+    router.push('/(onboarding)/user-profile' as Href);
+  };
+
+  const handleLogin = () => {
+    tapMedium();
+    router.push('/(onboarding)/login' as Href);
+  };
+
+  const handleScroll = (event: any) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newScene = Math.round(offsetX / SCREEN_WIDTH);
+    if (newScene !== currentScene && newScene >= 0 && newScene < SCENES.length) {
+      setCurrentScene(newScene);
+    }
+  };
+
+  const progressStyle = useAnimatedStyle(() => ({
+    width: `${interpolate(progress.value, [0, 1], [20, 100])}%`,
+  }));
+
+  const scene = SCENES[currentScene];
+  const isLastScene = currentScene === SCENES.length - 1;
+
+  return (
+    <LinearGradient
+      colors={scene.gradient}
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header with Skip */}
+        <View style={styles.header}>
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBg}>
+              <Animated.View style={[styles.progressFill, progressStyle]} />
+            </View>
+          </View>
+          {!isLastScene && (
+            <Pressable onPress={handleSkip} style={styles.skipButton}>
+              <Text style={styles.skipText}>Atla</Text>
+            </Pressable>
+          )}
+        </View>
+
+        {/* Content */}
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handleScroll}
+          scrollEventThrottle={16}
+        >
+          {SCENES.map((s, index) => (
+            <View key={s.id} style={styles.sceneContainer}>
+              {/* Illustration */}
+              <View style={styles.illustrationWrapper}>
+                {s.illustration}
+              </View>
+
+              {/* Text Content */}
+              <View style={styles.textContent}>
+                <Text style={styles.title}>{s.title}</Text>
+                {s.subtitle && (
+                  <Text style={styles.subtitle}>{s.subtitle}</Text>
+                )}
+                <Text style={styles.description}>{s.description}</Text>
+
+                {/* Features List */}
+                {s.features && (
+                  <View style={styles.featuresList}>
+                    {s.features.map((feature, fIndex) => (
+                      <View key={fIndex} style={styles.featureItem}>
+                        {feature.icon}
+                        <Text style={styles.featureText}>{feature.text}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          {/* Dots */}
+          <View style={styles.dotsContainer}>
+            {SCENES.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  index === currentScene && styles.dotActive,
+                ]}
+              />
+            ))}
+          </View>
+
+          {/* Buttons */}
+          <View style={styles.buttonsContainer}>
+            {currentScene > 0 && (
+              <Pressable
+                onPress={handlePrev}
+                style={({ pressed }) => [
+                  styles.prevButton,
+                  pressed && { opacity: 0.7 },
+                ]}
+              >
+                <ChevronLeft size={24} color={Colors.neutral.medium} />
+              </Pressable>
+            )}
+
+            {isLastScene ? (
+              <View style={styles.finalButtons}>
+                <Pressable
+                  onPress={handleGetStarted}
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <LinearGradient
+                    colors={[Colors.secondary.lavender, Colors.secondary.sky]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.primaryButtonGradient}
+                  >
+                    <Text style={styles.primaryButtonText}>Hesap Oluştur</Text>
+                    <ArrowRight size={20} color={Colors.neutral.white} />
+                  </LinearGradient>
+                </Pressable>
+
+                <Pressable
+                  onPress={handleLogin}
+                  style={({ pressed }) => [
+                    styles.loginButton,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
+                  <Text style={styles.loginButtonText}>Giriş Yap</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable
+                onPress={handleNext}
+                style={({ pressed }) => [
+                  styles.nextButton,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <Text style={styles.nextButtonText}>Devam</Text>
+                <ChevronRight size={20} color={Colors.neutral.white} />
+              </Pressable>
+            )}
+          </View>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing['5'],
+    paddingVertical: spacing['3'],
+  },
+  progressContainer: {
+    flex: 1,
+    marginRight: spacing['4'],
+  },
+  progressBg: {
+    height: 4,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    borderRadius: radius.full,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: Colors.secondary.lavender,
+    borderRadius: radius.full,
+  },
+  skipButton: {
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
+  },
+  skipText: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.medium,
+    color: Colors.neutral.medium,
+  },
+
+  // Scene
+  sceneContainer: {
+    width: SCREEN_WIDTH,
+    flex: 1,
+    paddingHorizontal: spacing['5'],
+  },
+  illustrationWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    maxHeight: SCREEN_HEIGHT * 0.35,
+  },
+  illustrationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Science illustration
+  scienceIllustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  brainIconContainer: {
+    backgroundColor: 'rgba(167, 139, 250, 0.1)',
+    borderRadius: radius.full,
+    padding: spacing['6'],
+    zIndex: 2,
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 2,
+    borderColor: 'rgba(167, 139, 250, 0.2)',
+  },
+  pulseRing2: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderColor: 'rgba(167, 139, 250, 0.1)',
+  },
+
+  // Tools grid
+  toolsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing['4'],
+    maxWidth: 250,
+  },
+  toolCard: {
+    width: 80,
+    height: 80,
+    borderRadius: radius.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.md,
+  },
+
+  // Privacy illustration
+  privacyIllustration: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shieldContainer: {
+    position: 'relative',
+    backgroundColor: 'rgba(126, 217, 156, 0.1)',
+    borderRadius: radius.full,
+    padding: spacing['8'],
+  },
+  checkBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: Colors.semantic.success,
+    borderRadius: radius.full,
+    padding: spacing['1'],
+    borderWidth: 3,
+    borderColor: Colors.neutral.white,
+  },
+
+  // Text Content
+  textContent: {
+    flex: 1,
+    paddingTop: spacing['4'],
+  },
+  title: {
+    fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
+    fontWeight: typography.weight.extrabold,
+    color: Colors.neutral.darkest,
+    textAlign: 'center',
+    marginBottom: spacing['2'],
+    lineHeight: isSmallDevice ? 32 : 40,
+  },
+  subtitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.medium,
+    color: Colors.secondary.lavender,
+    textAlign: 'center',
+    marginBottom: spacing['2'],
+  },
+  description: {
+    fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
+    color: Colors.neutral.medium,
+    textAlign: 'center',
+    lineHeight: typography.lineHeight.relaxed,
+    marginBottom: spacing['4'],
+  },
+
+  // Features
+  featuresList: {
+    gap: spacing['3'],
+    paddingHorizontal: spacing['4'],
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['3'],
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['4'],
+    borderRadius: radius.lg,
+  },
+  featureText: {
+    fontSize: typography.size.base,
+    color: Colors.neutral.dark,
+    fontWeight: typography.weight.medium,
+    flex: 1,
+  },
+
+  // Bottom Nav
+  bottomNav: {
+    paddingHorizontal: spacing['5'],
+    paddingBottom: spacing['4'],
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing['2'],
+    marginBottom: spacing['4'],
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(167, 139, 250, 0.3)',
+  },
+  dotActive: {
+    backgroundColor: Colors.secondary.lavender,
+    width: 24,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing['3'],
+  },
+  prevButton: {
+    padding: spacing['3'],
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: radius.full,
+  },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.secondary.lavender,
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['6'],
+    borderRadius: radius.full,
+    gap: spacing['2'],
+    ...shadows.md,
+  },
+  nextButtonText: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
+  },
+
+  // Final buttons
+  finalButtons: {
+    flex: 1,
+    gap: spacing['3'],
+  },
+  primaryButton: {
+    borderRadius: radius.full,
+    overflow: 'hidden',
+    ...shadows.lg,
+  },
+  primaryButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['6'],
+    gap: spacing['2'],
+  },
+  primaryButtonText: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
+  },
+  loginButton: {
+    alignItems: 'center',
+    paddingVertical: spacing['3'],
+  },
+  loginButtonText: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: Colors.secondary.lavender,
+  },
+});

@@ -9,6 +9,7 @@ import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ChildProvider } from '@/lib/contexts/ChildContext';
 import { ChatBot } from '@/components/ChatBot';
 import { AppErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
+import { DelightWrapper } from '@/lib/delight';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import * as SplashScreen from 'expo-splash-screen';
@@ -143,7 +144,9 @@ export default function RootLayout() {
             <trpc.Provider client={trpcClient} queryClient={queryClient}>
               <QueryClientProvider client={queryClient}>
                 <ChildProvider>
-                  <RootLayoutNav />
+                  <DelightWrapper>
+                    <RootLayoutNav />
+                  </DelightWrapper>
                 </ChildProvider>
               </QueryClientProvider>
             </trpc.Provider>

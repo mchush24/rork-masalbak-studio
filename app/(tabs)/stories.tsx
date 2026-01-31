@@ -1347,7 +1347,7 @@ export default function StoriesScreen() {
                 <Text style={styles.childSelectorLabel}>Bu masal kimin için?</Text>
                 <ChildSelectorChip
                   selectedChild={selectedChild}
-                  children={userChildren}
+                  childrenList={userChildren}
                   onSelectChild={(child) => setSelectedChild(child)}
                 />
                 {selectedChild && (

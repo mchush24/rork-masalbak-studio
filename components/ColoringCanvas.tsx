@@ -73,15 +73,17 @@ const BRUSH_RADIUS = 20;   // Small radius for detailed brush strokes
 const ERASER_RADIUS = 35;  // Medium radius for precise erasing
 
 // Memoized Circle component to prevent unnecessary re-renders
-const MemoizedCircle = memo(({ fill }: { fill: PathData }) => (
-  <Circle
-    cx={fill.x}
-    cy={fill.y}
-    r={fill.radius}
-    fill={fill.color}
-    opacity={0.6}
-  />
-));
+const MemoizedCircle = memo(function MemoizedCircle({ fill }: { fill: PathData }) {
+  return (
+    <Circle
+      cx={fill.x}
+      cy={fill.y}
+      r={fill.radius}
+      fill={fill.color}
+      opacity={0.6}
+    />
+  );
+});
 
 export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCanvasProps) {
   // History management for undo/redo
