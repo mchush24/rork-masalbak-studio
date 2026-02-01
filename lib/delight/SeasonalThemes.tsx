@@ -1,480 +1,464 @@
 /**
- * Seasonal Themes - Holiday decorations
+ * Seasonal Themes
  * Phase 21: Polish & Delight
  *
- * Automatic seasonal decorations based on date:
- * - New Year (Dec 25 - Jan 5): Snow effect, Ioo with hat
- * - Valentine's (Feb 12 - Feb 16): Heart particles
- * - Summer (Jun 21 - Sep 22): Ioo with sunglasses
- * - Halloween (Oct 25 - Nov 2): Pumpkin Ioo
- * - Children's Day Turkey (Apr 23): Balloons
+ * Holiday and seasonal visual themes
  */
 
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-  useEffect,
-  useState,
-} from 'react';
-import { View, StyleSheet, Dimensions, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withTiming,
   withRepeat,
   withSequence,
-  withTiming,
-  withDelay,
   Easing,
-  cancelAnimation,
+  withDelay,
 } from 'react-native-reanimated';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UIColors as Colors } from '@/constants/color-aliases';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const SEASONAL_ENABLED_KEY = 'seasonal_themes_enabled';
+// Season types
+export type SeasonType = 'none' | 'new_year' | 'valentines' | 'spring' | 'summer' | 'halloween' | 'winter';
 
-type Season = 'newYear' | 'valentines' | 'summer' | 'halloween' | 'childrensDay' | null;
-
-interface SeasonalConfig {
-  id: Season;
-  name: string;
-  iooAccessory: string;
-  particleEmojis: string[];
-  accentColor: string;
-}
-
-const SEASONAL_CONFIGS: Record<NonNullable<Season>, SeasonalConfig> = {
-  newYear: {
-    id: 'newYear',
-    name: 'Yeni Yıl',
-    iooAccessory: '🎅',
-    particleEmojis: ['❄️', '⭐', '✨', '🎄', '🎁'],
-    accentColor: '#E74C3C',
-  },
-  valentines: {
-    id: 'valentines',
-    name: 'Sevgililer Günü',
-    iooAccessory: '💕',
-    particleEmojis: ['❤️', '💖', '💝', '💗', '💓'],
-    accentColor: '#E91E63',
-  },
-  summer: {
-    id: 'summer',
-    name: 'Yaz',
-    iooAccessory: '🕶️',
-    particleEmojis: ['☀️', '🌴', '🍉', '🌊', '🐚'],
-    accentColor: '#FF9800',
-  },
-  halloween: {
-    id: 'halloween',
-    name: 'Cadılar Bayramı',
-    iooAccessory: '🎃',
-    particleEmojis: ['🎃', '👻', '🦇', '🕷️', '🍬'],
-    accentColor: '#FF5722',
-  },
-  childrensDay: {
-    id: 'childrensDay',
-    name: '23 Nisan',
-    iooAccessory: '🎈',
-    particleEmojis: ['🎈', '🎉', '🇹🇷', '🎊', '⭐'],
-    accentColor: '#E53935',
-  },
-};
-
-interface SeasonalContextType {
-  currentSeason: Season;
-  seasonConfig: SeasonalConfig | null;
-  isEnabled: boolean;
-  setEnabled: (enabled: boolean) => void;
-  IooAccessory: React.FC<{ size?: number }>;
-}
-
-const SeasonalContext = createContext<SeasonalContextType | undefined>(undefined);
-
-function detectSeason(): Season {
+/**
+ * Get current season based on date
+ */
+export function getCurrentSeason(): SeasonType {
   const now = new Date();
-  const month = now.getMonth(); // 0-11
+  const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  // New Year: Dec 25 - Jan 5
-  if ((month === 11 && day >= 25) || (month === 0 && day <= 5)) {
-    return 'newYear';
+  // New Year (Dec 25 - Jan 7)
+  if ((month === 12 && day >= 25) || (month === 1 && day <= 7)) {
+    return 'new_year';
   }
 
-  // Valentine's: Feb 12 - Feb 16
-  if (month === 1 && day >= 12 && day <= 16) {
+  // Valentine's (Feb 10-16)
+  if (month === 2 && day >= 10 && day <= 16) {
     return 'valentines';
   }
 
-  // Children's Day Turkey: Apr 23
-  if (month === 3 && day === 23) {
-    return 'childrensDay';
+  // Spring (Mar 20 - May 31)
+  if ((month === 3 && day >= 20) || month === 4 || month === 5) {
+    return 'spring';
   }
 
-  // Summer: Jun 21 - Sep 22
-  if (
-    (month === 5 && day >= 21) ||
-    (month >= 6 && month <= 7) ||
-    (month === 8 && day <= 22)
-  ) {
+  // Summer (Jun 1 - Aug 31)
+  if (month >= 6 && month <= 8) {
     return 'summer';
   }
 
-  // Halloween: Oct 25 - Nov 2
-  if ((month === 9 && day >= 25) || (month === 10 && day <= 2)) {
+  // Halloween (Oct 25 - Nov 1)
+  if ((month === 10 && day >= 25) || (month === 11 && day === 1)) {
     return 'halloween';
   }
 
-  return null;
-}
-
-interface SeasonalProviderProps {
-  children: React.ReactNode;
-}
-
-export function SeasonalProvider({ children }: SeasonalProviderProps) {
-  const [isEnabled, setIsEnabledState] = useState(true);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  const currentSeason = useMemo(() => detectSeason(), []);
-  const seasonConfig = currentSeason ? SEASONAL_CONFIGS[currentSeason] : null;
-
-  // Load preference
-  useEffect(() => {
-    const loadPreference = async () => {
-      try {
-        const saved = await AsyncStorage.getItem(SEASONAL_ENABLED_KEY);
-        if (saved !== null) {
-          setIsEnabledState(saved === 'true');
-        }
-      } catch (error) {
-        console.error('Failed to load seasonal preference:', error);
-      } finally {
-        setIsLoaded(true);
-      }
-    };
-    loadPreference();
-  }, []);
-
-  const setEnabled = async (enabled: boolean) => {
-    setIsEnabledState(enabled);
-    try {
-      await AsyncStorage.setItem(SEASONAL_ENABLED_KEY, enabled.toString());
-    } catch (error) {
-      console.error('Failed to save seasonal preference:', error);
-    }
-  };
-
-  const IooAccessory: React.FC<{ size?: number }> = ({ size = 24 }) => {
-    if (!currentSeason || !isEnabled || !seasonConfig) {
-      return null;
-    }
-    return (
-      <View style={styles.accessoryContainer}>
-        <Animated.Text style={{ fontSize: size }}>
-          {seasonConfig.iooAccessory}
-        </Animated.Text>
-      </View>
-    );
-  };
-
-  if (!isLoaded) {
-    return <>{children}</>;
+  // Winter (Nov 15 - Dec 24)
+  if ((month === 11 && day >= 15) || (month === 12 && day < 25)) {
+    return 'winter';
   }
 
-  return (
-    <SeasonalContext.Provider
-      value={{
-        currentSeason,
-        seasonConfig,
-        isEnabled,
-        setEnabled,
-        IooAccessory,
-      }}
-    >
-      {children}
-      {isEnabled && currentSeason && <SeasonalParticles />}
-    </SeasonalContext.Provider>
-  );
+  return 'none';
 }
 
-export function useSeasonal(): SeasonalContextType {
-  const context = useContext(SeasonalContext);
-  if (!context) {
-    throw new Error('useSeasonal must be used within a SeasonalProvider');
-  }
-  return context;
-}
+/**
+ * Seasonal color palettes
+ */
+export const SEASONAL_COLORS: Record<SeasonType, { primary: string; secondary: string; accent: string; particles: string[] }> = {
+  none: {
+    primary: Colors.primary.purple,
+    secondary: Colors.primary.pink,
+    accent: Colors.primary.turquoise,
+    particles: [],
+  },
+  new_year: {
+    primary: '#FFD700',
+    secondary: '#FF6B6B',
+    accent: '#4ECDC4',
+    particles: ['#FFD700', '#FF6B6B', '#4ECDC4', '#FFFFFF'],
+  },
+  valentines: {
+    primary: '#FF6B9D',
+    secondary: '#C084FC',
+    accent: '#FCA5A5',
+    particles: ['#FF6B9D', '#FCA5A5', '#FECDD3', '#FFFFFF'],
+  },
+  spring: {
+    primary: '#86EFAC',
+    secondary: '#FDE68A',
+    accent: '#A5B4FC',
+    particles: ['#FBBF24', '#34D399', '#A78BFA', '#FFFFFF'],
+  },
+  summer: {
+    primary: '#FCD34D',
+    secondary: '#FB923C',
+    accent: '#38BDF8',
+    particles: ['#FCD34D', '#FB923C', '#38BDF8', '#FFFFFF'],
+  },
+  halloween: {
+    primary: '#F97316',
+    secondary: '#8B5CF6',
+    accent: '#22C55E',
+    particles: ['#F97316', '#8B5CF6', '#000000', '#FFFFFF'],
+  },
+  winter: {
+    primary: '#60A5FA',
+    secondary: '#A5B4FC',
+    accent: '#F0F9FF',
+    particles: ['#FFFFFF', '#E0F2FE', '#BAE6FD', '#A5B4FC'],
+  },
+};
 
-// Seasonal Particles Effect
-function SeasonalParticles() {
-  const { seasonConfig } = useSeasonal();
-
-  if (!seasonConfig) return null;
-
-  // Only render a few particles to not be distracting
-  const particleCount = 5;
-
-  return (
-    <View style={styles.particleOverlay} pointerEvents="none">
-      {Array.from({ length: particleCount }).map((_, index) => (
-        <SeasonalParticle
-          key={index}
-          emoji={seasonConfig.particleEmojis[index % seasonConfig.particleEmojis.length]}
-          delay={index * 2000}
-          startX={Math.random() * SCREEN_WIDTH}
-        />
-      ))}
-    </View>
-  );
-}
-
-interface SeasonalParticleProps {
-  emoji: string;
+/**
+ * Snowflake component for winter theme
+ */
+const Snowflake = memo(function Snowflake({
+  delay,
+  duration,
+  startX,
+  size,
+}: {
   delay: number;
+  duration: number;
   startX: number;
-}
-
-function SeasonalParticle({ emoji, delay, startX }: SeasonalParticleProps) {
+  size: number;
+}) {
   const translateY = useSharedValue(-50);
   const translateX = useSharedValue(startX);
-  const rotation = useSharedValue(0);
   const opacity = useSharedValue(0);
+  const rotation = useSharedValue(0);
 
   useEffect(() => {
-    const startAnimation = () => {
-      translateY.value = -50;
-      translateX.value = startX;
-      opacity.value = 0;
-      rotation.value = 0;
+    opacity.value = withDelay(delay, withTiming(0.8, { duration: 500 }));
 
-      opacity.value = withDelay(delay, withTiming(0.6, { duration: 500 }));
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withTiming(SCREEN_HEIGHT + 50, { duration, easing: Easing.linear }),
+        -1,
+        false
+      )
+    );
 
-      translateY.value = withDelay(
-        delay,
-        withTiming(SCREEN_HEIGHT + 50, {
-          duration: 8000 + Math.random() * 4000,
-          easing: Easing.linear,
-        })
-      );
+    translateX.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(startX + 30, { duration: duration / 4 }),
+          withTiming(startX - 30, { duration: duration / 4 }),
+          withTiming(startX + 20, { duration: duration / 4 }),
+          withTiming(startX, { duration: duration / 4 })
+        ),
+        -1,
+        false
+      )
+    );
 
-      translateX.value = withDelay(
-        delay,
-        withRepeat(
-          withSequence(
-            withTiming(startX + 30, { duration: 1500 }),
-            withTiming(startX - 30, { duration: 1500 })
-          ),
-          -1,
-          true
-        )
-      );
-
-      rotation.value = withDelay(
-        delay,
-        withRepeat(
-          withTiming(360, { duration: 4000, easing: Easing.linear }),
-          -1,
-          false
-        )
-      );
-    };
-
-    startAnimation();
-
-    // Restart animation periodically
-    const interval = setInterval(() => {
-      startAnimation();
-    }, 12000 + delay);
-
-    return () => {
-      clearInterval(interval);
-      cancelAnimation(translateY);
-      cancelAnimation(translateX);
-      cancelAnimation(rotation);
-      cancelAnimation(opacity);
-    };
-  }, [delay, startX]);
+    rotation.value = withDelay(
+      delay,
+      withRepeat(withTiming(360, { duration: duration * 2, easing: Easing.linear }), -1, false)
+    );
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: translateX.value },
       { translateY: translateY.value },
-      { rotate: `${rotation.value}deg` },
+      { translateX: translateX.value },
+      { rotate: rotation.value + 'deg' },
     ],
     opacity: opacity.value,
   }));
 
   return (
-    <Animated.Text style={[styles.seasonalParticle, animatedStyle]}>
-      {emoji}
-    </Animated.Text>
+    <Animated.View style={[styles.snowflake, { width: size, height: size }, animatedStyle]}>
+      <View style={[styles.snowflakeInner, { backgroundColor: '#FFFFFF' }]} />
+    </Animated.View>
   );
-}
+});
 
-// Snow effect for winter
-export function SnowEffect({ intensity = 20 }: { intensity?: number }) {
-  return (
-    <View style={styles.particleOverlay} pointerEvents="none">
-      {Array.from({ length: intensity }).map((_, index) => (
-        <Snowflake key={index} delay={index * 300} />
-      ))}
-    </View>
-  );
-}
-
-function Snowflake({ delay }: { delay: number }) {
-  const startX = Math.random() * SCREEN_WIDTH;
-  const translateY = useSharedValue(-20);
-  const translateX = useSharedValue(startX);
+/**
+ * Heart particle for Valentine's theme
+ */
+const HeartParticle = memo(function HeartParticle({
+  delay,
+  startX,
+  size,
+  color,
+}: {
+  delay: number;
+  startX: number;
+  size: number;
+  color: string;
+}) {
+  const translateY = useSharedValue(SCREEN_HEIGHT + 50);
+  const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.3 + Math.random() * 0.7);
 
   useEffect(() => {
-    const animate = () => {
-      translateY.value = -20;
-      opacity.value = withDelay(delay, withTiming(0.8, { duration: 300 }));
+    opacity.value = withDelay(delay, withTiming(0.7, { duration: 300 }));
+    scale.value = withDelay(delay, withTiming(1, { duration: 500 }));
 
-      translateY.value = withDelay(
-        delay,
-        withTiming(SCREEN_HEIGHT + 20, {
-          duration: 5000 + Math.random() * 5000,
-          easing: Easing.linear,
-        })
-      );
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withTiming(-100, { duration: 8000, easing: Easing.out(Easing.cubic) }),
+        -1,
+        false
+      )
+    );
+  }, []);
 
-      translateX.value = withDelay(
-        delay,
-        withRepeat(
-          withSequence(
-            withTiming(startX + 20, { duration: 1000 }),
-            withTiming(startX - 20, { duration: 1000 })
-          ),
-          -1,
-          true
-        )
-      );
-    };
-
-    animate();
-    const interval = setInterval(animate, 10000 + delay);
-
-    return () => {
-      clearInterval(interval);
-      cancelAnimation(translateY);
-      cancelAnimation(translateX);
-      cancelAnimation(opacity);
-    };
-  }, [delay, startX]);
-
-  const style = useAnimatedStyle(() => ({
+  const animatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: translateX.value },
       { translateY: translateY.value },
       { scale: scale.value },
     ],
     opacity: opacity.value,
   }));
 
-  return <Animated.Text style={[styles.snowflake, style]}>❄️</Animated.Text>;
-}
+  return (
+    <Animated.View
+      style={[
+        styles.heartContainer,
+        { left: startX, width: size, height: size },
+        animatedStyle,
+      ]}
+    >
+      <View style={[styles.heart, { backgroundColor: color }]} />
+    </Animated.View>
+  );
+});
 
-// Heart rain for Valentine's
-export function HeartRain({ intensity = 15 }: { intensity?: number }) {
-  const hearts = ['❤️', '💖', '💕', '💗', '💓'];
+/**
+ * Firework particle for New Year
+ */
+const Firework = memo(function Firework({
+  delay,
+  x,
+  y,
+}: {
+  delay: number;
+  x: number;
+  y: number;
+}) {
+  const scale = useSharedValue(0);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    const animate = () => {
+      scale.value = 0;
+      opacity.value = 0;
+
+      scale.value = withDelay(
+        delay,
+        withSequence(
+          withTiming(1.5, { duration: 300 }),
+          withTiming(2, { duration: 500 }),
+          withTiming(0, { duration: 300 })
+        )
+      );
+
+      opacity.value = withDelay(
+        delay,
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withTiming(0.8, { duration: 500 }),
+          withTiming(0, { duration: 300 })
+        )
+      );
+    };
+
+    animate();
+    const interval = setInterval(animate, 3000 + delay);
+    return () => clearInterval(interval);
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  const colors = SEASONAL_COLORS.new_year.particles;
 
   return (
-    <View style={styles.particleOverlay} pointerEvents="none">
-      {Array.from({ length: intensity }).map((_, index) => (
-        <FallingHeart
-          key={index}
-          emoji={hearts[index % hearts.length]}
-          delay={index * 400}
+    <Animated.View style={[styles.firework, { left: x, top: y }, animatedStyle]}>
+      {colors.map((color, i) => (
+        <View
+          key={i}
+          style={[
+            styles.fireworkParticle,
+            {
+              backgroundColor: color,
+              transform: [
+                { rotate: (i * 90) + 'deg' },
+                { translateY: -15 },
+              ],
+            },
+          ]}
         />
       ))}
-    </View>
+    </Animated.View>
   );
+});
+
+/**
+ * Seasonal Effects Overlay
+ */
+interface SeasonalEffectsProps {
+  season?: SeasonType;
+  intensity?: 'low' | 'medium' | 'high';
+  enabled?: boolean;
 }
 
-function FallingHeart({ emoji, delay }: { emoji: string; delay: number }) {
-  const startX = Math.random() * SCREEN_WIDTH;
-  const translateY = useSharedValue(-30);
-  const translateX = useSharedValue(startX);
-  const scale = useSharedValue(0.5 + Math.random() * 0.5);
-  const opacity = useSharedValue(0);
+export const SeasonalEffects = memo(function SeasonalEffects({
+  season: forcedSeason,
+  intensity = 'medium',
+  enabled = true,
+}: SeasonalEffectsProps) {
+  const season = forcedSeason || getCurrentSeason();
+
+  const particleCount = useMemo(() => {
+    switch (intensity) {
+      case 'low': return 10;
+      case 'medium': return 20;
+      case 'high': return 35;
+      default: return 20;
+    }
+  }, [intensity]);
+
+  if (!enabled || season === 'none') {
+    return null;
+  }
+
+  return (
+    <View style={styles.effectsContainer} pointerEvents="none">
+      {/* Winter - Snowflakes */}
+      {(season === 'winter' || season === 'new_year') &&
+        Array.from({ length: particleCount }).map((_, i) => (
+          <Snowflake
+            key={'snow_' + i}
+            delay={i * 200}
+            duration={5000 + Math.random() * 3000}
+            startX={Math.random() * SCREEN_WIDTH}
+            size={4 + Math.random() * 8}
+          />
+        ))}
+
+      {/* Valentine's - Hearts */}
+      {season === 'valentines' &&
+        Array.from({ length: Math.floor(particleCount / 2) }).map((_, i) => (
+          <HeartParticle
+            key={'heart_' + i}
+            delay={i * 500}
+            startX={Math.random() * SCREEN_WIDTH}
+            size={12 + Math.random() * 12}
+            color={SEASONAL_COLORS.valentines.particles[i % 4]}
+          />
+        ))}
+
+      {/* New Year - Fireworks */}
+      {season === 'new_year' &&
+        Array.from({ length: 5 }).map((_, i) => (
+          <Firework
+            key={'firework_' + i}
+            delay={i * 600}
+            x={SCREEN_WIDTH * 0.2 + Math.random() * SCREEN_WIDTH * 0.6}
+            y={SCREEN_HEIGHT * 0.1 + Math.random() * SCREEN_HEIGHT * 0.3}
+          />
+        ))}
+    </View>
+  );
+});
+
+/**
+ * Hook for seasonal theme colors
+ */
+export function useSeasonalTheme(forcedSeason?: SeasonType) {
+  const [season, setSeason] = useState<SeasonType>(forcedSeason || getCurrentSeason());
 
   useEffect(() => {
-    const animate = () => {
-      translateY.value = -30;
-      opacity.value = withDelay(delay, withTiming(0.7, { duration: 300 }));
+    if (!forcedSeason) {
+      setSeason(getCurrentSeason());
+    }
+  }, [forcedSeason]);
 
-      translateY.value = withDelay(
-        delay,
-        withTiming(SCREEN_HEIGHT + 30, {
-          duration: 4000 + Math.random() * 3000,
-          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-        })
-      );
+  const colors = SEASONAL_COLORS[season];
+  const isSeasonActive = season !== 'none';
 
-      translateX.value = withDelay(
-        delay,
-        withRepeat(
-          withSequence(
-            withTiming(startX + 15, { duration: 800 }),
-            withTiming(startX - 15, { duration: 800 })
-          ),
-          -1,
-          true
-        )
-      );
-    };
+  return {
+    season,
+    colors,
+    isSeasonActive,
+    primaryColor: colors.primary,
+    secondaryColor: colors.secondary,
+    accentColor: colors.accent,
+  };
+}
 
-    animate();
-    const interval = setInterval(animate, 7000 + delay);
+/**
+ * Ioo seasonal accessories
+ */
+export type IooAccessory = 'none' | 'santa_hat' | 'heart_glasses' | 'sunglasses' | 'witch_hat' | 'party_hat' | 'flower_crown';
 
-    return () => {
-      clearInterval(interval);
-      cancelAnimation(translateY);
-      cancelAnimation(translateX);
-      cancelAnimation(opacity);
-    };
-  }, [delay, startX]);
-
-  const style = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-    opacity: opacity.value,
-  }));
-
-  return <Animated.Text style={[styles.fallingHeart, style]}>{emoji}</Animated.Text>;
+export function getSeasonalIooAccessory(season: SeasonType): IooAccessory {
+  switch (season) {
+    case 'new_year': return 'party_hat';
+    case 'winter': return 'santa_hat';
+    case 'valentines': return 'heart_glasses';
+    case 'summer': return 'sunglasses';
+    case 'spring': return 'flower_crown';
+    case 'halloween': return 'witch_hat';
+    default: return 'none';
+  }
 }
 
 const styles = StyleSheet.create({
-  accessoryContainer: {
+  effectsContainer: {
     position: 'absolute',
-    top: -10,
-    right: -5,
-  },
-  particleOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1,
-  },
-  seasonalParticle: {
-    position: 'absolute',
-    fontSize: 20,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: 'hidden',
+    zIndex: 1000,
   },
   snowflake: {
     position: 'absolute',
-    fontSize: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  fallingHeart: {
+  snowflakeInner: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 999,
+  },
+  heartContainer: {
     position: 'absolute',
-    fontSize: 18,
+    bottom: 0,
+  },
+  heart: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 999,
+  },
+  firework: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fireworkParticle: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
 });
-
-export default SeasonalProvider;

@@ -1,21 +1,40 @@
 /**
- * Experiments Module Export
- * Phase 20: A/B Testing
+ * Experiments Module
+ * Phase 20: A/B Test Infrastructure
+ *
+ * Feature flag and A/B testing system
  */
 
+// Service
 export {
-  ABTestingProvider,
-  useABTesting,
-  useExperiment,
-  useFeatureFlag,
-  useFeatureConfig,
-  useConversionTracking,
-} from './ABTestingProvider';
+  ExperimentService,
+  type Experiment,
+  type Variant,
+  type ExperimentType,
+  type VariantId,
+  type ExperimentAssignment,
+  type ExperimentEvent,
+} from './ExperimentService';
 
+// Hooks
 export {
-  ExperimentSwitch,
-  VariantRenderer,
-  FeatureGate,
-  ExperimentDebugPanel,
-  ExperimentDebugFAB,
-} from './ExperimentComponents';
+  useExperiment,
+  useExperiments,
+  useFeatureFlag,
+  useExperimentConfig,
+  useExperimentDashboard,
+} from './useExperiment';
+
+// Components
+export {
+  ExperimentBoundary,
+  Variant,
+  VariantSwitch,
+  FeatureFlag,
+  ExperimentProvider,
+  withExperiment,
+  ExperimentDebugger,
+} from './ExperimentBoundary';
+
+// Dashboard
+export { ExperimentDashboard } from './ExperimentDashboard';

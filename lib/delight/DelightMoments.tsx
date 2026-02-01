@@ -1,382 +1,181 @@
 /**
- * Delight Moments - Special milestone celebrations
+ * Delight Moments
  * Phase 21: Polish & Delight
  *
- * Celebrates special user achievements:
- * - 100th analysis
- * - 1 year anniversary
- * - First analysis
- * - Perfect week (7 day streak)
- * - OG User badge
+ * Special milestone celebrations and "wow" moments
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useEffect,
-} from 'react';
-import { View, Text, StyleSheet, Dimensions, Pressable, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSequence,
   withSpring,
+  withSequence,
   withTiming,
   withDelay,
-  withRepeat,
-  runOnJS,
   Easing,
-  FadeIn,
-  FadeOut,
-  ZoomIn,
+  runOnJS,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
-import { Colors } from '@/constants/colors';
-import { radius, spacing } from '@/constants/design-system';
+import { UIColors as Colors } from '@/constants/color-aliases';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const MILESTONES_KEY = 'delight_milestones';
-const SIGNUP_DATE_KEY = 'user_signup_date';
-
-type MilestoneType =
+// Milestone types
+export type MilestoneType =
   | 'first_analysis'
-  | 'analysis_10'
-  | 'analysis_50'
-  | 'analysis_100'
-  | 'streak_7'
-  | 'streak_30'
-  | 'anniversary_1'
+  | 'tenth_analysis'
+  | 'hundredth_analysis'
+  | 'first_story'
+  | 'first_coloring'
+  | 'week_streak'
+  | 'month_streak'
+  | 'year_anniversary'
   | 'og_user';
 
-interface MilestoneConfig {
-  id: MilestoneType;
+interface Milestone {
+  type: MilestoneType;
   title: string;
   subtitle: string;
   emoji: string;
-  badge?: string;
+  badgeColor: string;
   confettiColors: string[];
 }
 
-const MILESTONE_CONFIGS: Record<MilestoneType, MilestoneConfig> = {
+const MILESTONES: Record<MilestoneType, Milestone> = {
   first_analysis: {
-    id: 'first_analysis',
-    title: 'İlk Adım!',
-    subtitle: 'İlk analizini tamamladın',
-    emoji: '🎉',
-    badge: 'Kaşif',
-    confettiColors: ['#FFD700', '#FF6B9D', '#7C3AED'],
+    type: 'first_analysis',
+    title: 'First Analysis!',
+    subtitle: 'Your journey begins',
+    emoji: '🔍',
+    badgeColor: '#8B5CF6',
+    confettiColors: ['#8B5CF6', '#C084FC', '#DDD6FE', '#FFFFFF'],
   },
-  analysis_10: {
-    id: 'analysis_10',
-    title: '10 Analiz!',
-    subtitle: 'Çocuğunun dünyasını keşfediyorsun',
-    emoji: '🌟',
-    badge: 'Meraklı',
-    confettiColors: ['#FFD700', '#FFA500', '#FF6B9D'],
+  tenth_analysis: {
+    type: 'tenth_analysis',
+    title: '10 Analyses!',
+    subtitle: 'Getting the hang of it',
+    emoji: '📊',
+    badgeColor: '#3B82F6',
+    confettiColors: ['#3B82F6', '#60A5FA', '#93C5FD', '#FFFFFF'],
   },
-  analysis_50: {
-    id: 'analysis_50',
-    title: '50 Analiz!',
-    subtitle: 'Gerçek bir uzman oldun',
+  hundredth_analysis: {
+    type: 'hundredth_analysis',
+    title: '100 Analyses!',
+    subtitle: 'Master Analyst',
     emoji: '🏆',
-    badge: 'Uzman',
-    confettiColors: ['#FFD700', '#C0C0C0', '#CD7F32'],
+    badgeColor: '#F59E0B',
+    confettiColors: ['#F59E0B', '#FBBF24', '#FCD34D', '#FFFFFF'],
   },
-  analysis_100: {
-    id: 'analysis_100',
-    title: '100 Analiz!',
-    subtitle: 'Muhteşem bir başarı!',
-    emoji: '👑',
-    badge: 'Efsane',
-    confettiColors: ['#FFD700', '#7C3AED', '#FF6B9D', '#5EEAD4'],
+  first_story: {
+    type: 'first_story',
+    title: 'First Story!',
+    subtitle: 'The adventure begins',
+    emoji: '📖',
+    badgeColor: '#EC4899',
+    confettiColors: ['#EC4899', '#F472B6', '#FBCFE8', '#FFFFFF'],
   },
-  streak_7: {
-    id: 'streak_7',
-    title: 'Mükemmel Hafta!',
-    subtitle: '7 gün üst üste kullandın',
+  first_coloring: {
+    type: 'first_coloring',
+    title: 'First Coloring!',
+    subtitle: 'Colors of joy',
+    emoji: '🎨',
+    badgeColor: '#10B981',
+    confettiColors: ['#10B981', '#34D399', '#6EE7B7', '#FFFFFF'],
+  },
+  week_streak: {
+    type: 'week_streak',
+    title: '7 Day Streak!',
+    subtitle: 'Consistency is key',
     emoji: '🔥',
-    badge: 'Kararlı',
-    confettiColors: ['#FF6B00', '#FF9500', '#FFD700'],
+    badgeColor: '#EF4444',
+    confettiColors: ['#EF4444', '#F97316', '#FBBF24', '#FFFFFF'],
   },
-  streak_30: {
-    id: 'streak_30',
-    title: 'Efsanevi Seri!',
-    subtitle: '30 gün kesintisiz',
-    emoji: '💎',
-    badge: 'Efsane',
-    confettiColors: ['#00D4FF', '#7C3AED', '#FF6B9D'],
+  month_streak: {
+    type: 'month_streak',
+    title: '30 Day Streak!',
+    subtitle: 'Incredible dedication',
+    emoji: '⚡',
+    badgeColor: '#8B5CF6',
+    confettiColors: ['#8B5CF6', '#A855F7', '#D946EF', '#FFFFFF'],
   },
-  anniversary_1: {
-    id: 'anniversary_1',
-    title: '1 Yıl Birlikte!',
-    subtitle: 'Renkioo ailesinin bir parçasısın',
+  year_anniversary: {
+    type: 'year_anniversary',
+    title: '1 Year Together!',
+    subtitle: 'Thank you for being here',
     emoji: '🎂',
-    badge: 'Sadık',
-    confettiColors: ['#FF6B9D', '#7C3AED', '#5EEAD4', '#FFD700'],
+    badgeColor: '#F59E0B',
+    confettiColors: ['#F59E0B', '#EC4899', '#8B5CF6', '#FFFFFF'],
   },
   og_user: {
-    id: 'og_user',
-    title: 'OG Kullanıcı!',
-    subtitle: 'En başından beri buradasın',
+    type: 'og_user',
+    title: 'OG User!',
+    subtitle: 'One of the originals',
     emoji: '⭐',
-    badge: 'OG',
-    confettiColors: ['#FFD700', '#7C3AED', '#FF6B9D'],
+    badgeColor: '#FFD700',
+    confettiColors: ['#FFD700', '#FCD34D', '#FEF3C7', '#FFFFFF'],
   },
 };
 
-interface DelightContextType {
-  celebrateMilestone: (type: MilestoneType) => void;
-  checkAnalysisCount: (count: number) => void;
-  checkStreak: (streak: number) => void;
-  checkAnniversary: () => void;
-  markAsOG: () => void;
-  earnedMilestones: MilestoneType[];
-  currentCelebration: MilestoneType | null;
-  dismissCelebration: () => void;
-}
+// Storage key for achieved milestones
+const ACHIEVED_MILESTONES_KEY = 'renkioo_achieved_milestones';
 
-const DelightContext = createContext<DelightContextType | undefined>(undefined);
-
-interface DelightProviderProps {
-  children: React.ReactNode;
-}
-
-export function DelightProvider({ children }: DelightProviderProps) {
-  const [earnedMilestones, setEarnedMilestones] = useState<MilestoneType[]>([]);
-  const [currentCelebration, setCurrentCelebration] = useState<MilestoneType | null>(null);
-  const [signupDate, setSignupDate] = useState<Date | null>(null);
-
-  // Load milestones on mount
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const savedMilestones = await AsyncStorage.getItem(MILESTONES_KEY);
-        if (savedMilestones) {
-          setEarnedMilestones(JSON.parse(savedMilestones));
-        }
-
-        const savedSignupDate = await AsyncStorage.getItem(SIGNUP_DATE_KEY);
-        if (savedSignupDate) {
-          setSignupDate(new Date(savedSignupDate));
-        } else {
-          // Set signup date for new users
-          const now = new Date();
-          await AsyncStorage.setItem(SIGNUP_DATE_KEY, now.toISOString());
-          setSignupDate(now);
-        }
-      } catch (error) {
-        console.error('Failed to load delight data:', error);
-      }
-    };
-    loadData();
-  }, []);
-
-  const saveMilestone = useCallback(async (type: MilestoneType) => {
-    const newMilestones = [...earnedMilestones, type];
-    setEarnedMilestones(newMilestones);
-    try {
-      await AsyncStorage.setItem(MILESTONES_KEY, JSON.stringify(newMilestones));
-    } catch (error) {
-      console.error('Failed to save milestone:', error);
+/**
+ * Load achieved milestones
+ */
+async function loadAchievedMilestones(): Promise<Set<MilestoneType>> {
+  try {
+    const stored = await AsyncStorage.getItem(ACHIEVED_MILESTONES_KEY);
+    if (stored) {
+      return new Set(JSON.parse(stored));
     }
-  }, [earnedMilestones]);
-
-  const celebrateMilestone = useCallback((type: MilestoneType) => {
-    if (earnedMilestones.includes(type)) return;
-
-    setCurrentCelebration(type);
-    saveMilestone(type);
-
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-  }, [earnedMilestones, saveMilestone]);
-
-  const checkAnalysisCount = useCallback((count: number) => {
-    if (count === 1 && !earnedMilestones.includes('first_analysis')) {
-      celebrateMilestone('first_analysis');
-    } else if (count === 10 && !earnedMilestones.includes('analysis_10')) {
-      celebrateMilestone('analysis_10');
-    } else if (count === 50 && !earnedMilestones.includes('analysis_50')) {
-      celebrateMilestone('analysis_50');
-    } else if (count === 100 && !earnedMilestones.includes('analysis_100')) {
-      celebrateMilestone('analysis_100');
-    }
-  }, [earnedMilestones, celebrateMilestone]);
-
-  const checkStreak = useCallback((streak: number) => {
-    if (streak === 7 && !earnedMilestones.includes('streak_7')) {
-      celebrateMilestone('streak_7');
-    } else if (streak === 30 && !earnedMilestones.includes('streak_30')) {
-      celebrateMilestone('streak_30');
-    }
-  }, [earnedMilestones, celebrateMilestone]);
-
-  const checkAnniversary = useCallback(() => {
-    if (!signupDate || earnedMilestones.includes('anniversary_1')) return;
-
-    const now = new Date();
-    const oneYearAgo = new Date(now);
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-    if (signupDate <= oneYearAgo) {
-      celebrateMilestone('anniversary_1');
-    }
-  }, [signupDate, earnedMilestones, celebrateMilestone]);
-
-  const markAsOG = useCallback(() => {
-    if (!earnedMilestones.includes('og_user')) {
-      celebrateMilestone('og_user');
-    }
-  }, [earnedMilestones, celebrateMilestone]);
-
-  const dismissCelebration = useCallback(() => {
-    setCurrentCelebration(null);
-  }, []);
-
-  return (
-    <DelightContext.Provider
-      value={{
-        celebrateMilestone,
-        checkAnalysisCount,
-        checkStreak,
-        checkAnniversary,
-        markAsOG,
-        earnedMilestones,
-        currentCelebration,
-        dismissCelebration,
-      }}
-    >
-      {children}
-      {currentCelebration && (
-        <MilestoneCelebration
-          milestone={MILESTONE_CONFIGS[currentCelebration]}
-          onDismiss={dismissCelebration}
-        />
-      )}
-    </DelightContext.Provider>
-  );
-}
-
-export function useDelight(): DelightContextType {
-  const context = useContext(DelightContext);
-  if (!context) {
-    throw new Error('useDelight must be used within a DelightProvider');
+  } catch (error) {
+    console.error('[DelightMoments] Failed to load milestones:', error);
   }
-  return context;
+  return new Set();
 }
 
-// Milestone Celebration Component
-interface MilestoneCelebrationProps {
-  milestone: MilestoneConfig;
-  onDismiss: () => void;
+/**
+ * Save achieved milestone
+ */
+async function saveAchievedMilestone(type: MilestoneType): Promise<void> {
+  try {
+    const achieved = await loadAchievedMilestones();
+    achieved.add(type);
+    await AsyncStorage.setItem(ACHIEVED_MILESTONES_KEY, JSON.stringify(Array.from(achieved)));
+  } catch (error) {
+    console.error('[DelightMoments] Failed to save milestone:', error);
+  }
 }
 
-function MilestoneCelebration({ milestone, onDismiss }: MilestoneCelebrationProps) {
-  const overlayOpacity = useSharedValue(0);
-  const cardScale = useSharedValue(0.5);
-  const emojiScale = useSharedValue(0);
-  const badgeOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    overlayOpacity.value = withTiming(1, { duration: 300 });
-    cardScale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    emojiScale.value = withDelay(
-      200,
-      withSequence(
-        withSpring(1.3, { damping: 8 }),
-        withSpring(1, { damping: 10 })
-      )
-    );
-    badgeOpacity.value = withDelay(500, withTiming(1, { duration: 300 }));
-  }, []);
-
-  const handleDismiss = () => {
-    overlayOpacity.value = withTiming(0, { duration: 200 }, () => {
-      runOnJS(onDismiss)();
-    });
-    cardScale.value = withTiming(0.8, { duration: 200 });
-  };
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-  }));
-
-  const cardStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: cardScale.value }],
-  }));
-
-  const emojiStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: emojiScale.value }],
-  }));
-
-  const badgeStyle = useAnimatedStyle(() => ({
-    opacity: badgeOpacity.value,
-  }));
-
-  return (
-    <Animated.View style={[styles.overlay, overlayStyle]}>
-      <Confetti colors={milestone.confettiColors} />
-
-      <Pressable style={styles.dismissArea} onPress={handleDismiss}>
-        <Animated.View style={[styles.celebrationCard, cardStyle]}>
-          <Animated.Text style={[styles.emoji, emojiStyle]}>
-            {milestone.emoji}
-          </Animated.Text>
-
-          <Text style={styles.title}>{milestone.title}</Text>
-          <Text style={styles.subtitle}>{milestone.subtitle}</Text>
-
-          {milestone.badge && (
-            <Animated.View style={[styles.badgeContainer, badgeStyle]}>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>🏅 {milestone.badge}</Text>
-              </View>
-            </Animated.View>
-          )}
-
-          <Pressable style={styles.continueButton} onPress={handleDismiss}>
-            <Text style={styles.continueText}>Devam Et</Text>
-          </Pressable>
-        </Animated.View>
-      </Pressable>
-    </Animated.View>
-  );
+/**
+ * Check if milestone was already achieved
+ */
+export async function isMilestoneAchieved(type: MilestoneType): Promise<boolean> {
+  const achieved = await loadAchievedMilestones();
+  return achieved.has(type);
 }
 
-// Confetti animation
-function Confetti({ colors }: { colors: string[] }) {
-  const pieces = Array.from({ length: 50 }).map((_, i) => ({
-    id: i,
-    color: colors[i % colors.length],
-    startX: Math.random() * SCREEN_WIDTH,
-    delay: Math.random() * 500,
-    size: 8 + Math.random() * 8,
-    shape: (Math.random() > 0.5 ? 'circle' : 'square') as 'circle' | 'square',
-  }));
-
-  return (
-    <View style={styles.confettiContainer} pointerEvents="none">
-      {pieces.map((piece) => (
-        <ConfettiPiece key={piece.id} {...piece} />
-      ))}
-    </View>
-  );
-}
-
-interface ConfettiPieceProps {
+/**
+ * Confetti Particle Component
+ */
+const ConfettiParticle = memo(function ConfettiParticle({
+  color,
+  delay,
+  startX,
+}: {
   color: string;
-  startX: number;
   delay: number;
-  size: number;
-  shape: 'circle' | 'square';
-}
-
-function ConfettiPiece({ color, startX, delay, size, shape }: ConfettiPieceProps) {
+  startX: number;
+}) {
   const translateY = useSharedValue(-50);
   const translateX = useSharedValue(startX);
   const rotation = useSharedValue(0);
@@ -385,139 +184,307 @@ function ConfettiPiece({ color, startX, delay, size, shape }: ConfettiPieceProps
   useEffect(() => {
     translateY.value = withDelay(
       delay,
-      withTiming(SCREEN_HEIGHT + 50, {
-        duration: 3000 + Math.random() * 2000,
-        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      })
+      withTiming(SCREEN_HEIGHT + 50, { duration: 3000, easing: Easing.out(Easing.cubic) })
     );
 
     translateX.value = withDelay(
       delay,
-      withRepeat(
-        withSequence(
-          withTiming(startX + 50, { duration: 500 }),
-          withTiming(startX - 50, { duration: 500 })
-        ),
-        -1,
-        true
+      withSequence(
+        withTiming(startX + (Math.random() - 0.5) * 100, { duration: 1000 }),
+        withTiming(startX + (Math.random() - 0.5) * 150, { duration: 2000 })
       )
     );
 
     rotation.value = withDelay(
       delay,
-      withRepeat(
-        withTiming(360, { duration: 1000, easing: Easing.linear }),
-        -1,
-        false
-      )
+      withTiming(360 * (Math.random() > 0.5 ? 1 : -1) * 3, { duration: 3000 })
     );
 
-    opacity.value = withDelay(
-      delay + 2000,
-      withTiming(0, { duration: 1000 })
-    );
-  }, [delay, startX]);
+    opacity.value = withDelay(2500 + delay, withTiming(0, { duration: 500 }));
+  }, []);
 
-  const style = useAnimatedStyle(() => ({
+  const animatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: translateX.value },
       { translateY: translateY.value },
-      { rotate: `${rotation.value}deg` },
+      { translateX: translateX.value },
+      { rotate: rotation.value + 'deg' },
     ],
     opacity: opacity.value,
   }));
 
+  const size = 8 + Math.random() * 8;
+  const isSquare = Math.random() > 0.5;
+
   return (
     <Animated.View
       style={[
-        styles.confettiPiece,
+        styles.confettiParticle,
         {
           backgroundColor: color,
           width: size,
-          height: size,
-          borderRadius: shape === 'circle' ? size / 2 : 2,
+          height: isSquare ? size : size * 0.6,
+          borderRadius: isSquare ? 2 : size / 2,
+          left: startX,
         },
-        style,
+        animatedStyle,
       ]}
     />
   );
+});
+
+/**
+ * Milestone Celebration Modal
+ */
+interface MilestoneCelebrationProps {
+  milestone: MilestoneType | null;
+  onDismiss: () => void;
+}
+
+export const MilestoneCelebration = memo(function MilestoneCelebration({
+  milestone,
+  onDismiss,
+}: MilestoneCelebrationProps) {
+  const [showConfetti, setShowConfetti] = useState(false);
+  const badgeScale = useSharedValue(0);
+  const badgeRotation = useSharedValue(-180);
+  const textOpacity = useSharedValue(0);
+  const buttonOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (milestone) {
+      setShowConfetti(true);
+
+      // Badge entrance
+      badgeScale.value = withDelay(
+        300,
+        withSpring(1, { damping: 8, stiffness: 100 })
+      );
+      badgeRotation.value = withDelay(
+        300,
+        withSpring(0, { damping: 12 })
+      );
+
+      // Text fade in
+      textOpacity.value = withDelay(800, withTiming(1, { duration: 400 }));
+
+      // Button fade in
+      buttonOpacity.value = withDelay(1200, withTiming(1, { duration: 400 }));
+
+      // Save milestone
+      saveAchievedMilestone(milestone);
+    } else {
+      setShowConfetti(false);
+      badgeScale.value = 0;
+      badgeRotation.value = -180;
+      textOpacity.value = 0;
+      buttonOpacity.value = 0;
+    }
+  }, [milestone]);
+
+  const badgeStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: badgeScale.value },
+      { rotate: badgeRotation.value + 'deg' },
+    ],
+  }));
+
+  const textStyle = useAnimatedStyle(() => ({
+    opacity: textOpacity.value,
+  }));
+
+  const buttonStyle = useAnimatedStyle(() => ({
+    opacity: buttonOpacity.value,
+  }));
+
+  if (!milestone) return null;
+
+  const data = MILESTONES[milestone];
+  const confettiParticles = Array.from({ length: 50 }).map((_, i) => ({
+    id: i,
+    color: data.confettiColors[i % data.confettiColors.length],
+    delay: Math.random() * 500,
+    startX: Math.random() * SCREEN_WIDTH,
+  }));
+
+  return (
+    <Modal
+      visible={!!milestone}
+      transparent
+      animationType="fade"
+      onRequestClose={onDismiss}
+    >
+      <View style={styles.celebrationOverlay}>
+        {/* Confetti */}
+        {showConfetti && confettiParticles.map((particle) => (
+          <ConfettiParticle
+            key={particle.id}
+            color={particle.color}
+            delay={particle.delay}
+            startX={particle.startX}
+          />
+        ))}
+
+        {/* Content */}
+        <View style={styles.celebrationContent}>
+          {/* Badge */}
+          <Animated.View style={[styles.milestoneBadge, { backgroundColor: data.badgeColor }, badgeStyle]}>
+            <Text style={styles.milestoneEmoji}>{data.emoji}</Text>
+          </Animated.View>
+
+          {/* Text */}
+          <Animated.View style={textStyle}>
+            <Text style={styles.milestoneTitle}>{data.title}</Text>
+            <Text style={styles.milestoneSubtitle}>{data.subtitle}</Text>
+          </Animated.View>
+
+          {/* Button */}
+          <Animated.View style={buttonStyle}>
+            <TouchableOpacity style={styles.celebrationButton} onPress={onDismiss}>
+              <Text style={styles.celebrationButtonText}>Continue</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </View>
+    </Modal>
+  );
+});
+
+/**
+ * Hook for tracking and triggering milestones
+ */
+export function useMilestones() {
+  const [pendingMilestone, setPendingMilestone] = useState<MilestoneType | null>(null);
+
+  const checkMilestone = useCallback(async (
+    type: MilestoneType,
+    condition: boolean
+  ): Promise<boolean> => {
+    if (!condition) return false;
+
+    const achieved = await isMilestoneAchieved(type);
+    if (achieved) return false;
+
+    setPendingMilestone(type);
+    return true;
+  }, []);
+
+  const dismissMilestone = useCallback(() => {
+    setPendingMilestone(null);
+  }, []);
+
+  const triggerMilestone = useCallback((type: MilestoneType) => {
+    setPendingMilestone(type);
+  }, []);
+
+  return {
+    pendingMilestone,
+    checkMilestone,
+    dismissMilestone,
+    triggerMilestone,
+  };
+}
+
+/**
+ * Check analysis count milestones
+ */
+export async function checkAnalysisMilestones(count: number): Promise<MilestoneType | null> {
+  if (count === 1) {
+    const achieved = await isMilestoneAchieved('first_analysis');
+    if (!achieved) return 'first_analysis';
+  }
+  if (count === 10) {
+    const achieved = await isMilestoneAchieved('tenth_analysis');
+    if (!achieved) return 'tenth_analysis';
+  }
+  if (count === 100) {
+    const achieved = await isMilestoneAchieved('hundredth_analysis');
+    if (!achieved) return 'hundredth_analysis';
+  }
+  return null;
+}
+
+/**
+ * Check streak milestones
+ */
+export async function checkStreakMilestones(streakDays: number): Promise<MilestoneType | null> {
+  if (streakDays === 7) {
+    const achieved = await isMilestoneAchieved('week_streak');
+    if (!achieved) return 'week_streak';
+  }
+  if (streakDays === 30) {
+    const achieved = await isMilestoneAchieved('month_streak');
+    if (!achieved) return 'month_streak';
+  }
+  return null;
+}
+
+/**
+ * Check anniversary milestone
+ */
+export async function checkAnniversaryMilestone(registrationDate: Date): Promise<MilestoneType | null> {
+  const now = new Date();
+  const yearsSinceRegistration = (now.getTime() - registrationDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+
+  if (yearsSinceRegistration >= 1) {
+    const achieved = await isMilestoneAchieved('year_anniversary');
+    if (!achieved) return 'year_anniversary';
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999,
-  },
-  dismissArea: {
+  celebrationOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
   },
-  celebrationCard: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: radius['2xl'],
-    padding: spacing['8'],
+  celebrationContent: {
     alignItems: 'center',
-    width: SCREEN_WIDTH * 0.85,
-    maxWidth: 360,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 20,
+    padding: 24,
   },
-  emoji: {
-    fontSize: 80,
-    marginBottom: spacing['4'],
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: Colors.neutral.darkest,
-    textAlign: 'center',
-    marginBottom: spacing['2'],
-  },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.neutral.dark,
-    textAlign: 'center',
-    marginBottom: spacing['6'],
-  },
-  badgeContainer: {
-    marginBottom: spacing['6'],
-  },
-  badge: {
-    backgroundColor: Colors.secondary.lavender,
-    paddingHorizontal: spacing['4'],
-    paddingVertical: spacing['2'],
-    borderRadius: radius.full,
-  },
-  badgeText: {
-    color: Colors.neutral.white,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  continueButton: {
-    backgroundColor: Colors.secondary.lavender,
-    paddingHorizontal: spacing['8'],
-    paddingVertical: spacing['4'],
-    borderRadius: radius.full,
-  },
-  continueText: {
-    color: Colors.neutral.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  confettiContainer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  confettiPiece: {
+  confettiParticle: {
     position: 'absolute',
+    top: -20,
+  },
+  milestoneBadge: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  milestoneEmoji: {
+    fontSize: 56,
+  },
+  milestoneTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  milestoneSubtitle: {
+    fontSize: 18,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  celebrationButton: {
+    backgroundColor: Colors.primary.purple,
+    paddingHorizontal: 48,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  celebrationButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
-
-export default DelightProvider;

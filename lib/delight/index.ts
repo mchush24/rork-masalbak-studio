@@ -1,28 +1,55 @@
 /**
- * Delight Module - Phase 21
+ * Delight Module
+ * Phase 21: Polish & Delight
  *
- * Polish & Delight features:
- * - Easter eggs (hidden surprises)
- * - Seasonal themes (holiday decorations)
- * - Delight moments (milestone celebrations)
+ * Easter eggs, seasonal themes, and special moments
  */
 
+// Easter Eggs
 export {
-  EasterEggProvider,
-  useEasterEggs,
+  IooDanceWrapper,
+  EasterEggBadge,
+  useTapCounter,
+  markEasterEggFound,
+  isEasterEggFound,
+  getTotalEasterEggsFound,
+  type EasterEggType,
 } from './EasterEggs';
 
+// Seasonal Themes
 export {
-  SeasonalProvider,
-  useSeasonal,
-  SnowEffect,
-  HeartRain,
+  SeasonalEffects,
+  useSeasonalTheme,
+  getCurrentSeason,
+  getSeasonalIooAccessory,
+  SEASONAL_COLORS,
+  type SeasonType,
+  type IooAccessory,
 } from './SeasonalThemes';
 
+// Delight Moments
 export {
-  DelightProvider,
-  useDelight,
+  MilestoneCelebration,
+  useMilestones,
+  isMilestoneAchieved,
+  checkAnalysisMilestones,
+  checkStreakMilestones,
+  checkAnniversaryMilestone,
+  type MilestoneType,
 } from './DelightMoments';
 
-// Combined provider for convenience
-export { DelightWrapper } from './DelightWrapper';
+// Visual Polish
+export {
+  SHADOWS,
+  RADIUS,
+  SPACING,
+  TYPOGRAPHY,
+  TIMING,
+  Z_INDEX,
+  LAYOUT,
+  createCardStyle,
+  createButtonStyle,
+  platformSelect,
+  responsive,
+  colorUtils,
+} from './VisualPolish';

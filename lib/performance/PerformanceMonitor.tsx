@@ -1,393 +1,261 @@
 /**
- * PerformanceMonitor - Performance tracking and optimization
+ * Performance Monitor
  * Phase 19: Performance Optimization
  *
- * Provides performance monitoring:
- * - Frame rate tracking
- * - Render time measurement
- * - Memory monitoring
- * - Network request timing
- * - Performance reporting
+ * Monitors and reports performance metrics
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
-import { InteractionManager, Platform } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef, memo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  InteractionManager,
+  Platform,
+} from 'react-native';
+import { UIColors as Colors } from '@/constants/color-aliases';
 
-interface PerformanceMetric {
-  name: string;
-  value: number;
-  unit: string;
-  timestamp: number;
-}
-
-interface RenderMetric {
-  componentName: string;
+interface PerformanceMetrics {
+  fps: number;
+  memoryUsage: number;
+  jsThreadBlocked: boolean;
   renderTime: number;
-  renderCount: number;
+  lastUpdate: number;
 }
 
-interface NetworkMetric {
-  url: string;
-  method: string;
-  duration: number;
-  status: number;
-  timestamp: number;
+// Global metrics store
+let globalMetrics: PerformanceMetrics = {
+  fps: 60,
+  memoryUsage: 0,
+  jsThreadBlocked: false,
+  renderTime: 0,
+  lastUpdate: Date.now(),
+};
+
+// FPS tracking
+let frameCount = 0;
+let lastFpsUpdate = Date.now();
+let fpsHistory: number[] = [];
+
+/**
+ * Track FPS
+ */
+function updateFps() {
+  frameCount++;
+  const now = Date.now();
+  const elapsed = now - lastFpsUpdate;
+
+  if (elapsed >= 1000) {
+    const fps = Math.round((frameCount * 1000) / elapsed);
+    fpsHistory.push(fps);
+    if (fpsHistory.length > 60) fpsHistory.shift();
+    
+    globalMetrics.fps = fps;
+    globalMetrics.lastUpdate = now;
+    
+    frameCount = 0;
+    lastFpsUpdate = now;
+  }
+
+  if (Platform.OS !== 'web') {
+    requestAnimationFrame(updateFps);
+  }
 }
 
-interface PerformanceReport {
-  averageFPS: number;
-  slowFrames: number;
-  averageRenderTime: number;
-  slowRenders: number;
-  networkRequests: number;
-  averageNetworkTime: number;
-  memoryWarnings: number;
+// Start FPS tracking
+if (Platform.OS !== 'web' && __DEV__) {
+  requestAnimationFrame(updateFps);
 }
 
-interface PerformanceContextType {
-  // Metrics
-  metrics: PerformanceMetric[];
-  renderMetrics: Map<string, RenderMetric>;
-  networkMetrics: NetworkMetric[];
+/**
+ * Hook for accessing performance metrics
+ */
+export function usePerformanceMetrics() {
+  const [metrics, setMetrics] = useState<PerformanceMetrics>(globalMetrics);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Tracking methods
-  trackMetric: (name: string, value: number, unit?: string) => void;
-  trackRender: (componentName: string, renderTime: number) => void;
-  trackNetworkRequest: (metric: Omit<NetworkMetric, 'timestamp'>) => void;
-
-  // Optimization helpers
-  scheduleAfterInteraction: (callback: () => void) => void;
-  measureRender: <T>(componentName: string, renderFn: () => T) => T;
-
-  // Reporting
-  generateReport: () => PerformanceReport;
-  clearMetrics: () => void;
-
-  // Settings
-  isMonitoringEnabled: boolean;
-  setMonitoringEnabled: (enabled: boolean) => void;
-}
-
-const PerformanceContext = createContext<PerformanceContextType | undefined>(
-  undefined
-);
-
-interface PerformanceProviderProps {
-  children: React.ReactNode;
-  enabled?: boolean;
-  maxMetrics?: number;
-}
-
-export function PerformanceProvider({
-  children,
-  enabled = __DEV__,
-  maxMetrics = 1000,
-}: PerformanceProviderProps) {
-  const [isMonitoringEnabled, setMonitoringEnabled] = useState(enabled);
-  const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
-  const [renderMetrics, setRenderMetrics] = useState<Map<string, RenderMetric>>(
-    new Map()
-  );
-  const [networkMetrics, setNetworkMetrics] = useState<NetworkMetric[]>([]);
-
-  const frameTimestamps = useRef<number[]>([]);
-  const lastFrameTime = useRef<number>(0);
-
-  // Track FPS
   useEffect(() => {
-    if (!isMonitoringEnabled) return;
+    if (!__DEV__) return;
 
-    let animationFrameId: number;
-    let isRunning = true;
-
-    const measureFPS = (timestamp: number) => {
-      if (!isRunning) return;
-
-      if (lastFrameTime.current > 0) {
-        const delta = timestamp - lastFrameTime.current;
-        frameTimestamps.current.push(delta);
-
-        // Keep only last 60 frames
-        if (frameTimestamps.current.length > 60) {
-          frameTimestamps.current.shift();
-        }
-      }
-
-      lastFrameTime.current = timestamp;
-      animationFrameId = requestAnimationFrame(measureFPS);
-    };
-
-    animationFrameId = requestAnimationFrame(measureFPS);
+    intervalRef.current = setInterval(() => {
+      setMetrics({ ...globalMetrics });
+    }, 1000);
 
     return () => {
-      isRunning = false;
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [isMonitoringEnabled]);
-
-  const trackMetric = useCallback(
-    (name: string, value: number, unit: string = 'ms') => {
-      if (!isMonitoringEnabled) return;
-
-      setMetrics((prev) => {
-        const newMetrics = [
-          ...prev,
-          { name, value, unit, timestamp: Date.now() },
-        ];
-        // Trim to max metrics
-        if (newMetrics.length > maxMetrics) {
-          return newMetrics.slice(-maxMetrics);
-        }
-        return newMetrics;
-      });
-    },
-    [isMonitoringEnabled, maxMetrics]
-  );
-
-  const trackRender = useCallback(
-    (componentName: string, renderTime: number) => {
-      if (!isMonitoringEnabled) return;
-
-      setRenderMetrics((prev) => {
-        const newMap = new Map(prev);
-        const existing = newMap.get(componentName);
-
-        if (existing) {
-          newMap.set(componentName, {
-            componentName,
-            renderTime: (existing.renderTime + renderTime) / 2,
-            renderCount: existing.renderCount + 1,
-          });
-        } else {
-          newMap.set(componentName, {
-            componentName,
-            renderTime,
-            renderCount: 1,
-          });
-        }
-
-        return newMap;
-      });
-
-      // Track slow renders (> 16ms = below 60fps)
-      if (renderTime > 16) {
-        trackMetric(`slow_render_${componentName}`, renderTime);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
-    },
-    [isMonitoringEnabled, trackMetric]
-  );
-
-  const trackNetworkRequest = useCallback(
-    (metric: Omit<NetworkMetric, 'timestamp'>) => {
-      if (!isMonitoringEnabled) return;
-
-      setNetworkMetrics((prev) => {
-        const newMetrics = [...prev, { ...metric, timestamp: Date.now() }];
-        if (newMetrics.length > maxMetrics) {
-          return newMetrics.slice(-maxMetrics);
-        }
-        return newMetrics;
-      });
-    },
-    [isMonitoringEnabled, maxMetrics]
-  );
-
-  const scheduleAfterInteraction = useCallback((callback: () => void) => {
-    InteractionManager.runAfterInteractions(callback);
+    };
   }, []);
 
-  const measureRender = useCallback(
-    <T,>(componentName: string, renderFn: () => T): T => {
-      if (!isMonitoringEnabled) {
-        return renderFn();
+  const measureRender = useCallback((name: string) => {
+    const start = Date.now();
+    return () => {
+      const duration = Date.now() - start;
+      globalMetrics.renderTime = duration;
+      if (__DEV__ && duration > 16) {
+        console.warn('[Performance] Slow render: ' + name + ' took ' + duration + 'ms');
       }
-
-      const startTime = performance.now();
-      const result = renderFn();
-      const endTime = performance.now();
-
-      trackRender(componentName, endTime - startTime);
-
-      return result;
-    },
-    [isMonitoringEnabled, trackRender]
-  );
-
-  const generateReport = useCallback((): PerformanceReport => {
-    // Calculate average FPS
-    const frameTimes = frameTimestamps.current;
-    const avgFrameTime =
-      frameTimes.length > 0
-        ? frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length
-        : 16.67;
-    const averageFPS = Math.round(1000 / avgFrameTime);
-    const slowFrames = frameTimes.filter((t) => t > 16.67).length;
-
-    // Calculate render metrics
-    const renderTimes = Array.from(renderMetrics.values()).map(
-      (m) => m.renderTime
-    );
-    const averageRenderTime =
-      renderTimes.length > 0
-        ? renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length
-        : 0;
-    const slowRenders = renderTimes.filter((t) => t > 16).length;
-
-    // Calculate network metrics
-    const networkTimes = networkMetrics.map((m) => m.duration);
-    const averageNetworkTime =
-      networkTimes.length > 0
-        ? networkTimes.reduce((a, b) => a + b, 0) / networkTimes.length
-        : 0;
-
-    // Count memory warnings
-    const memoryWarnings = metrics.filter(
-      (m) => m.name === 'memory_warning'
-    ).length;
-
-    return {
-      averageFPS,
-      slowFrames,
-      averageRenderTime: Math.round(averageRenderTime * 100) / 100,
-      slowRenders,
-      networkRequests: networkMetrics.length,
-      averageNetworkTime: Math.round(averageNetworkTime),
-      memoryWarnings,
     };
-  }, [metrics, renderMetrics, networkMetrics]);
-
-  const clearMetrics = useCallback(() => {
-    setMetrics([]);
-    setRenderMetrics(new Map());
-    setNetworkMetrics([]);
-    frameTimestamps.current = [];
   }, []);
 
-  const value = useMemo(
-    () => ({
-      metrics,
-      renderMetrics,
-      networkMetrics,
-      trackMetric,
-      trackRender,
-      trackNetworkRequest,
-      scheduleAfterInteraction,
-      measureRender,
-      generateReport,
-      clearMetrics,
-      isMonitoringEnabled,
-      setMonitoringEnabled,
-    }),
-    [
-      metrics,
-      renderMetrics,
-      networkMetrics,
-      trackMetric,
-      trackRender,
-      trackNetworkRequest,
-      scheduleAfterInteraction,
-      measureRender,
-      generateReport,
-      clearMetrics,
-      isMonitoringEnabled,
-    ]
-  );
+  const checkJsThread = useCallback(() => {
+    return new Promise<boolean>((resolve) => {
+      const start = Date.now();
+      InteractionManager.runAfterInteractions(() => {
+        const blocked = Date.now() - start > 100;
+        globalMetrics.jsThreadBlocked = blocked;
+        resolve(blocked);
+      });
+    });
+  }, []);
+
+  const getAverageFps = useCallback((): number => {
+    if (fpsHistory.length === 0) return 60;
+    return Math.round(fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length);
+  }, []);
+
+  return {
+    metrics,
+    measureRender,
+    checkJsThread,
+    getAverageFps,
+    isLowPerformance: metrics.fps < 30,
+  };
+}
+
+interface PerformanceMonitorProps {
+  visible?: boolean;
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+}
+
+/**
+ * Visual performance monitor overlay (development only)
+ */
+export const PerformanceMonitor = memo(function PerformanceMonitor({
+  visible = true,
+  position = 'top-right',
+}: PerformanceMonitorProps) {
+  const { metrics, isLowPerformance, getAverageFps } = usePerformanceMetrics();
+
+  if (!__DEV__ || !visible) {
+    return null;
+  }
+
+  const positionStyle = {
+    'top-left': { top: 50, left: 10 },
+    'top-right': { top: 50, right: 10 },
+    'bottom-left': { bottom: 100, left: 10 },
+    'bottom-right': { bottom: 100, right: 10 },
+  }[position];
+
+  const fpsColor = metrics.fps >= 55 ? '#22C55E' : metrics.fps >= 30 ? '#F59E0B' : '#EF4444';
 
   return (
-    <PerformanceContext.Provider value={value}>
-      {children}
-    </PerformanceContext.Provider>
+    <View style={[styles.container, positionStyle]} pointerEvents="none">
+      <View style={styles.row}>
+        <Text style={styles.label}>FPS</Text>
+        <Text style={[styles.value, { color: fpsColor }]}>{metrics.fps}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>AVG</Text>
+        <Text style={styles.value}>{getAverageFps()}</Text>
+      </View>
+      {metrics.renderTime > 0 && (
+        <View style={styles.row}>
+          <Text style={styles.label}>Render</Text>
+          <Text style={[styles.value, metrics.renderTime > 16 && { color: '#F59E0B' }]}>
+            {metrics.renderTime}ms
+          </Text>
+        </View>
+      )}
+      {isLowPerformance && (
+        <View style={styles.warningBadge}>
+          <Text style={styles.warningText}>SLOW</Text>
+        </View>
+      )}
+    </View>
   );
-}
+});
 
 /**
- * Hook to access performance context
- */
-export function usePerformance(): PerformanceContextType {
-  const context = useContext(PerformanceContext);
-  if (!context) {
-    throw new Error('usePerformance must be used within a PerformanceProvider');
-  }
-  return context;
-}
-
-/**
- * Hook to track component render time
- */
-export function useRenderTracking(componentName: string) {
-  const { trackRender, isMonitoringEnabled } = usePerformance();
-  const renderCount = useRef(0);
-  const lastRenderTime = useRef(performance.now());
-
-  useEffect(() => {
-    if (!isMonitoringEnabled) return;
-
-    const currentTime = performance.now();
-    const renderTime = currentTime - lastRenderTime.current;
-
-    renderCount.current += 1;
-    trackRender(componentName, renderTime);
-
-    lastRenderTime.current = currentTime;
-  });
-}
-
-/**
- * Hook to schedule work after animations
- */
-export function useAfterInteraction() {
-  const { scheduleAfterInteraction } = usePerformance();
-
-  return useCallback(
-    (callback: () => void) => {
-      scheduleAfterInteraction(callback);
-    },
-    [scheduleAfterInteraction]
-  );
-}
-
-/**
- * Hook for lazy initialization
- */
-export function useLazyInit<T>(factory: () => T, delay: number = 0): T | null {
-  const [value, setValue] = useState<T | null>(null);
-  const { scheduleAfterInteraction } = usePerformance();
-
-  useEffect(() => {
-    if (delay > 0) {
-      const timeout = setTimeout(() => {
-        scheduleAfterInteraction(() => {
-          setValue(factory());
-        });
-      }, delay);
-      return () => clearTimeout(timeout);
-    } else {
-      scheduleAfterInteraction(() => {
-        setValue(factory());
-      });
-    }
-  }, []);
-
-  return value;
-}
-
-/**
- * Higher-order component for performance tracking
+ * Higher-order component for measuring render performance
  */
 export function withPerformanceTracking<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   componentName: string
-) {
+): React.ComponentType<P> {
   return function PerformanceTrackedComponent(props: P) {
-    useRenderTracking(componentName);
+    const startTime = useRef(Date.now());
+
+    useEffect(() => {
+      const renderTime = Date.now() - startTime.current;
+      if (__DEV__ && renderTime > 100) {
+        console.warn('[Performance] ' + componentName + ' initial render: ' + renderTime + 'ms');
+      }
+    }, []);
+
     return <WrappedComponent {...props} />;
   };
 }
+
+/**
+ * Profile a function execution time
+ */
+export function profileFunction<T extends (...args: any[]) => any>(
+  fn: T,
+  name: string
+): T {
+  return ((...args: Parameters<T>): ReturnType<T> => {
+    const start = Date.now();
+    const result = fn(...args);
+    const duration = Date.now() - start;
+
+    if (__DEV__ && duration > 10) {
+      console.log('[Profile] ' + name + ': ' + duration + 'ms');
+    }
+
+    return result;
+  }) as T;
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    padding: 8,
+    borderRadius: 8,
+    minWidth: 80,
+    zIndex: 9999,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 2,
+  },
+  label: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    marginRight: 8,
+  },
+  value: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
+  warningBadge: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 4,
+    alignSelf: 'center',
+  },
+  warningText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+});
