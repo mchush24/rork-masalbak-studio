@@ -1,45 +1,50 @@
 /**
- * Design tokens following 8pt grid system
- * Inspired by Apple HIG, Material Design, and modern app best practices
+ * Design Tokens - Compatibility Layer
+ *
+ * Bu dosya geriye dönük uyumluluk için tutulmaktadır.
+ * YENİ KODLARDA @/constants/design-system kullanın.
+ *
+ * @deprecated Bu dosya yerine @/constants/design-system kullanın
  */
 
 import { Platform } from 'react-native';
+import {
+  spacing as dsSpacing,
+  radius,
+  shadows as dsShadows,
+  typography as dsTypography,
+  animation,
+} from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
+// Re-export from design-system with legacy names
+export { radius as borderRadius } from '@/constants/design-system';
+
+// Spacing - legacy format (xs, sm, md, lg, xl)
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
+  xs: dsSpacing['1'],      // 4
+  sm: dsSpacing['2'],      // 8
+  md: dsSpacing['4'],      // 16
+  lg: dsSpacing['6'],      // 24
+  xl: dsSpacing['8'],      // 32
+  xxl: dsSpacing['12'],    // 48
+  xxxl: dsSpacing['16'],   // 64
 } as const;
 
-export const borderRadius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-  full: 9999,
-} as const;
-
+// Animations - legacy format
 export const animations = {
-  // Duration in milliseconds
-  fast: 200,
-  normal: 300,
-  slow: 400,
-  slower: 600,
-
-  // Easing curves
+  fast: animation.duration.fast,
+  normal: animation.duration.normal,
+  slow: animation.duration.slow,
+  slower: animation.duration.slower,
   easing: {
-    standard: { tension: 40, friction: 7 },
-    gentle: { tension: 30, friction: 8 },
-    bouncy: { tension: 50, friction: 7 },
+    standard: animation.spring.snappy,
+    gentle: animation.spring.gentle,
+    bouncy: animation.spring.bouncy,
   },
 } as const;
 
+// Shadows with Platform.select for web support
 export const shadows = Platform.select({
   web: {
     sm: {
@@ -55,68 +60,29 @@ export const shadows = Platform.select({
       boxShadow: '0px 12px 24px rgba(0, 0, 0, 0.25)',
     },
   },
-  default: {
-    sm: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    md: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    lg: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 16,
-      elevation: 8,
-    },
-    xl: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 12 },
-      shadowOpacity: 0.25,
-      shadowRadius: 24,
-      elevation: 12,
-    },
-  },
+  default: dsShadows,
 })!;
 
-// Typography scale - fixed sizes work better across devices
+// Typography - legacy format with fontSize
 export const typography = {
   fontSize: {
-    xs: 12,
-    sm: 14,
-    base: 16,
-    md: 18,
-    lg: 20,
-    xl: 24,
-    xxl: 30,
-    xxxl: 36,
-    hero: 48,
+    xs: dsTypography.size.xs,
+    sm: dsTypography.size.sm,
+    base: dsTypography.size.base,
+    md: dsTypography.size.md,
+    lg: dsTypography.size.lg,
+    xl: dsTypography.size.xl,
+    xxl: dsTypography.size['2xl'],
+    xxxl: dsTypography.size['3xl'],
+    hero: dsTypography.size.hero,
   },
-  lineHeight: {
-    tight: 1.2,
-    normal: 1.5,
-    relaxed: 1.75,
-  },
-  letterSpacing: {
-    tight: -0.5,
-    normal: 0,
-    wide: 0.5,
-  },
+  lineHeight: dsTypography.lineHeight,
+  letterSpacing: dsTypography.letterSpacing,
 } as const;
 
+// Layout - minimal legacy support
 export const layout = {
-  // Minimum touch target (Apple HIG: 44pt minimum)
   minTouchTarget: 44,
-
-  // Icon sizes (will be calculated in components)
   iconSize: {
     sm: 56,
     md: 96,
@@ -124,63 +90,16 @@ export const layout = {
   },
 } as const;
 
+// Colors - re-export with legacy structure
 export const colors = {
-  // RenkiOO Brand Colors - "Gün Batımı Bahçesi" teması
   brand: {
-    primary: '#FF9B7A',      // Yumuşak turuncu-pembe (ana aksiyon)
-    secondary: '#78C8E8',    // Gökyüzü mavisi (güven, sakinlik)
-    accent: '#FFD56B',       // Güneş sarısı (enerji, neşe)
-    success: '#7ED99C',      // Çimen yeşili (büyüme, başarı)
-    premium: '#A78BFA',      // Lavanta (yaratıcılık, premium)
+    primary: Colors.primary.sunset,
+    secondary: Colors.secondary.sky,
+    accent: Colors.secondary.sunshine,
+    success: Colors.secondary.grass,
+    premium: Colors.secondary.lavender,
   },
-
-  // Gradient setleri - RenkiOO temalı
-  gradients: {
-    // Ana tema - Yumuşak gün batımı (turuncu-pembe-krem)
-    primary: ['#FF9B7A', '#FFB299', '#FFC4B0'],
-
-    // Sıcak ve enerjik - Turuncu-sarı (kayıt ekranı için ideal)
-    warm: ['#FF9B7A', '#FFB55F', '#FFD56B'],
-
-    // Sakin ve güvenli - Mavi-yeşil (profil, ayarlar için)
-    calm: ['#78C8E8', '#7ED99C', '#A8E8BA'],
-
-    // Yaratıcı ve eğlenceli - Pembe-mor (hikaye, yaratıcılık için)
-    creative: ['#FFB299', '#E9B8F7', '#C4B5FD'],
-
-    // Gün batımı gökyüzü - Turuncu-pembe-mor (premium özellikler)
-    sunset: ['#FF9B7A', '#FFB299', '#E9B8F7', '#C4B5FD'],
-
-    // Bahçe - Yeşil-sarı (doğa, öğrenme için)
-    garden: ['#7ED99C', '#A8E8BA', '#FFD56B'],
-
-    // Okyanus - Mavi tonları (analiz, veri için)
-    ocean: ['#4FB3D4', '#78C8E8', '#A3DBF0'],
-
-    // Orman - Yeşil tonları (doğa, sakinlik için)
-    forest: ['#7ED99C', '#6BC798', '#5AB594'],
-
-    // PROFESSIONAL THEME - Yetişkinler için (ebeveyn, öğretmen, psikolog)
-    // Profesyonel mavi - Güven ve uzmanlık
-    professional: ['#2E5266', '#4A7C9D', '#6EA8C6'],
-
-    // Bilimsel yeşil - Analiz ve gelişim
-    scientific: ['#5A7A6A', '#7D9C8E', '#A8C5B5'],
-
-    // Premium mor - Kalite ve teknoloji
-    expertise: ['#5D4E7C', '#7D6B9D', '#9E8FBF'],
-
-    // Sıcak nötr - Erişilebilir ve profesyonel
-    accessible: ['#7B6B5D', '#9D8B7D', '#BFAB9E'],
-
-    // Vibrant - Modern ve enerjik (kayıt/giriş için)
-    vibrant: ['#6366F1', '#8B5CF6', '#A78BFA'],
-
-    // Aurora - Çok renkli dinamik (premium onboarding)
-    aurora: ['#EC4899', '#8B5CF6', '#3B82F6'],
-  },
-
-  // Opacity variants (beyaz overlay'ler için)
+  gradients: Colors.gradients,
   opacity: {
     subtle: 0.1,
     light: 0.15,
@@ -189,8 +108,8 @@ export const colors = {
   },
 } as const;
 
+// Haptics - unchanged
 export const haptics = {
-  // Haptic feedback types for different interactions
   light: 'light',
   medium: 'medium',
   heavy: 'heavy',

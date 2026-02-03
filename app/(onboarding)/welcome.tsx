@@ -32,12 +32,12 @@ import {
 } from 'lucide-react-native';
 import {
   spacing,
-  borderRadius,
+  radius,
   shadows,
   typography,
-  colors,
-} from '@/lib/design-tokens';
-import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
+} from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
+import { Ioo as IooMascot } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;

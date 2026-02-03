@@ -34,6 +34,8 @@ import * as FileSystem from "expo-file-system/legacy";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useChild } from "@/lib/contexts/ChildContext";
 import { ChildSelectorChip } from "@/components/ChildSelectorChip";
+import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
+import { IooAssistant } from "@/components/coaching/IooAssistant";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -140,15 +142,13 @@ export default function StoriesScreen() {
   type StoryMode = 'normal' | 'interactive';
   const [storyMode, setStoryMode] = useState<StoryMode>('normal');
 
-  // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
+  // Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
   useEffect(() => {
     if (params.imageUri && typeof params.imageUri === 'string') {
-      console.log('[Stories] 🖼️ Image received from Hayal Atölyesi:', params.imageUri);
       setShowCreateForm(true); // Form'u otomatik aç
 
       // Blob URL için analiz sürecini başlat
       if (params.imageUri.startsWith('blob:')) {
-        console.log('[Stories] 🎨 Starting image analysis flow...');
         analyzeAndPrepareImage(params.imageUri);
       } else {
         setStoryImage(params.imageUri);
@@ -1008,29 +1008,24 @@ export default function StoriesScreen() {
   };
 
   const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <View style={styles.emptyContent}>
-        <BookOpen size={80} color={Colors.neutral.light} />
-        <Text style={styles.emptyTitle}>Henüz masal oluşturulmamış</Text>
-        <Text style={styles.emptyDescription}>
-          Yukarıdaki + butonuna tıklayarak çocuğunuzun çizimlerinden ilham alan masallar oluşturabilirsiniz.
-        </Text>
-      </View>
-    </View>
+    <IooEmptyState
+      {...EMPTY_STATE_PRESETS.noStories}
+      action={{
+        label: "Masal Oluştur",
+        onPress: () => setShowCreateForm(true),
+      }}
+    />
   );
 
   const renderError = () => (
-    <View style={styles.emptyContainer}>
-      <View style={styles.emptyContent}>
-        <Text style={styles.emptyTitle}>Bir hata oluştu</Text>
-        <Text style={styles.emptyDescription}>
-          {error?.message || "Masallar yüklenirken bir sorun oluştu."}
-        </Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-        </Pressable>
-      </View>
-    </View>
+    <IooEmptyState
+      {...EMPTY_STATE_PRESETS.error}
+      message={error?.message || "Masallar yüklenirken bir sorun oluştu."}
+      action={{
+        label: "Tekrar Dene",
+        onPress: () => refetch(),
+      }}
+    />
   );
 
   return (
@@ -1660,6 +1655,9 @@ export default function StoriesScreen() {
         </View>
       </Modal>
       </LinearGradient>
+
+      {/* Ioo Assistant */}
+      <IooAssistant screen="story" position="bottom-right" compact />
     </View>
   );
 }

@@ -30,6 +30,7 @@ import {
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useCameraPermissions } from "expo-camera";
+import { IooAssistant } from "@/components/coaching/IooAssistant";
 
 export default function HayalAtolyesiScreen() {
   const insets = useSafeAreaInsets();
@@ -69,9 +70,9 @@ export default function HayalAtolyesiScreen() {
     }
     // Navigate to stories with the image
     router.push({
-      pathname: "/stories" as any,
+      pathname: "/(tabs)/stories",
       params: { imageUri: selectedImage },
-    });
+    } as const);
   };
 
   const handleCreateColoring = () => {
@@ -81,9 +82,9 @@ export default function HayalAtolyesiScreen() {
     }
     // Navigate to studio with the image
     router.push({
-      pathname: "/studio" as any,
+      pathname: "/(tabs)/studio",
       params: { imageUri: selectedImage },
-    });
+    } as const);
   };
 
   const handleAnalyze = () => {
@@ -93,9 +94,9 @@ export default function HayalAtolyesiScreen() {
     }
     // Navigate to advanced analysis with the image
     router.push({
-      pathname: "/advanced-analysis" as any,
+      pathname: "/(tabs)/advanced-analysis",
       params: { imageUri: selectedImage },
-    });
+    } as const);
   };
 
   return (
@@ -239,7 +240,7 @@ export default function HayalAtolyesiScreen() {
                   <View style={styles.optionContent}>
                     <Text style={styles.optionTitle}>🎨 Boyama Sayfası</Text>
                     <Text style={styles.optionDescription}>
-                      Çiziminden basitleştirilmiş boyama PDF&apos;i oluştur
+                      Çiziminden basitleştirilmiş boyama PDF'i oluştur
                     </Text>
                     <View style={styles.optionFeatures}>
                       <View style={styles.optionFeature}>
@@ -301,6 +302,9 @@ export default function HayalAtolyesiScreen() {
           )}
         </ScrollView>
       </LinearGradient>
+
+      {/* Ioo Assistant */}
+      <IooAssistant screen="hayal_atolyesi" position="bottom-right" compact />
     </View>
   );
 }

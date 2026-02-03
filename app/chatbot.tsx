@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import {
   ChevronLeft,
   Send,
@@ -35,7 +35,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { RenkooColors } from "@/constants/colors";
-import { IooMascotFinal as IooMascot } from "@/components/IooMascotFinal";
+import { Ioo as IooMascot } from "@/components/Ioo";
 import { spacing, radius, typography } from "@/constants/design-system";
 import { trpc } from "@/lib/trpc";
 
@@ -214,8 +214,8 @@ export default function ChatbotScreen() {
         ...prev,
         { role: 'assistant' as const, content: response.message },
       ]);
-    } catch (error) {
-      console.error('[Chatbot] Error:', error);
+    } catch {
+      // Chatbot error - show fallback message
       // Hata durumunda fallback mesaj
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -363,7 +363,7 @@ export default function ChatbotScreen() {
                         onPress={() => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                           if (action.type === 'navigate' || action.type === 'create') {
-                            router.push(action.target as any);
+                            router.push(action.target as Href);
                           }
                         }}
                       >

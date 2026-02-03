@@ -35,6 +35,7 @@ import {
   shadows,
 } from "@/constants/design-system";
 import { Image } from "expo-image";
+import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
 
 export default function ColoringHistoryScreen() {
   const insets = useSafeAreaInsets();
@@ -193,27 +194,13 @@ export default function ColoringHistoryScreen() {
 
           {/* Empty State */}
           {!isLoading && coloringsList.length === 0 && (
-            <View style={styles.emptyContainer}>
-              <Palette size={64} color={Colors.neutral.light} />
-              <Text style={styles.emptyTitle}>Henüz boyama yok</Text>
-              <Text style={styles.emptyText}>
-                Studio sekmesinden çizimlerinizi boyama sayfasına dönüştürebilirsiniz
-              </Text>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.emptyButton,
-                  pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-                ]}
-                onPress={() => router.push("/(tabs)/studio")}
-              >
-                <LinearGradient
-                  colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                  style={styles.emptyButtonGradient}
-                >
-                  <Text style={styles.emptyButtonText}>Studio&apos;ya Git</Text>
-                </LinearGradient>
-              </Pressable>
-            </View>
+            <IooEmptyState
+              {...EMPTY_STATE_PRESETS.noColorings}
+              action={{
+                label: "Studio'ya Git",
+                onPress: () => router.push("/(tabs)/studio"),
+              }}
+            />
           )}
 
           {/* Colorings Grid */}

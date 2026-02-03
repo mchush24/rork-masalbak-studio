@@ -383,8 +383,8 @@ export default function AdvancedAnalysisScreen() {
             processingTimeMs: Date.now() - startTime,
             language: "tr",
           });
-        } catch (saveError) {
-          console.error("[Analysis] Failed to save:", saveError);
+        } catch {
+          // Failed to save analysis - silently handle
         }
       }
     } catch (e) {
@@ -408,8 +408,8 @@ export default function AdvancedAnalysisScreen() {
         top?.theme?.replaceAll("_", " ") || "nazik ipucu"
       );
       await Share.share({ message: text });
-    } catch (e) {
-      console.log(e);
+    } catch {
+      // Share cancelled or failed
     }
   }
 

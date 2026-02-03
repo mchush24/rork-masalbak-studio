@@ -39,6 +39,7 @@ import {
   shadows,
 } from "@/constants/design-system";
 import { Image } from "expo-image";
+import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
 
 type TabType = "analyses" | "stories" | "colorings";
 
@@ -249,9 +250,9 @@ export default function HistoryScreen() {
                   } else {
                     Alert.alert("Başarılı", "PDF oluşturuldu ancak otomatik açılamadı. Lütfen geçmişten tekrar deneyin.");
                   }
-                } catch (error: any) {
-                  console.error("PDF generation error:", error);
-                  Alert.alert("Hata", error.message || "PDF oluşturulamadı");
+                } catch (error: unknown) {
+                  const errorMessage = error instanceof Error ? error.message : "PDF oluşturulamadı";
+                  Alert.alert("Hata", errorMessage);
                 }
               },
             },
@@ -415,24 +416,35 @@ export default function HistoryScreen() {
 
           {/* Empty State */}
           {!isLoading && isEmpty && (
-            <View style={styles.emptyContainer}>
-              {activeTab === TAB_ANALYSES && <Brain size={64} color={Colors.neutral.light} />}
-              {activeTab === TAB_STORIES && <BookOpen size={64} color={Colors.neutral.light} />}
-              {activeTab === TAB_COLORINGS && <Palette size={64} color={Colors.neutral.light} />}
-              <Text style={styles.emptyTitle}>
-                {activeTab === TAB_ANALYSES && (filterFavorites ? t.history.empty : t.history.empty)}
-                {activeTab === TAB_STORIES && t.history.empty}
-                {activeTab === TAB_COLORINGS && t.history.empty}
-              </Text>
-              <Text style={styles.emptyText}>
-                {activeTab === TAB_ANALYSES &&
-                  (filterFavorites
+            <>
+              {activeTab === TAB_ANALYSES && (
+                <IooEmptyState
+                  title={filterFavorites ? "Favori analiz yok" : EMPTY_STATE_PRESETS.noAnalysis.title}
+                  message={filterFavorites
                     ? "Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz"
-                    : "Bir çizim analiz ettiğinizde buradan görebilirsiniz")}
-                {activeTab === TAB_STORIES && "Hikayeler sekmesinden çizimlerinizden masal oluşturabilirsiniz"}
-                {activeTab === TAB_COLORINGS && "Studio sekmesinden çizimlerinizi boyama sayfasına dönüştürebilirsiniz"}
-              </Text>
-            </View>
+                    : EMPTY_STATE_PRESETS.noAnalysis.message}
+                  mood={filterFavorites ? "curious" : EMPTY_STATE_PRESETS.noAnalysis.mood}
+                />
+              )}
+              {activeTab === TAB_STORIES && (
+                <IooEmptyState
+                  {...EMPTY_STATE_PRESETS.noStories}
+                  action={{
+                    label: "Masal Oluştur",
+                    onPress: () => router.push("/(tabs)/stories"),
+                  }}
+                />
+              )}
+              {activeTab === TAB_COLORINGS && (
+                <IooEmptyState
+                  {...EMPTY_STATE_PRESETS.noColorings}
+                  action={{
+                    label: "Studio'ya Git",
+                    onPress: () => router.push("/(tabs)/studio"),
+                  }}
+                />
+              )}
+            </>
           )}
 
           {/* Analyses List */}
@@ -470,11 +482,11 @@ export default function HistoryScreen() {
                     <ChevronRight size={20} color={Colors.neutral.light} />
                   </View>
 
-                  {analysis.analysis_result?.insights?.length > 0 && (
+                  {analysis.analysis_result?.insights?.length > 0 && analysis.analysis_result.insights[0] && (
                     <View style={styles.insightsPreview}>
                       <Text style={styles.insightText} numberOfLines={2}>
-                        {analysis.analysis_result.insights[0].title}:{" "}
-                        {analysis.analysis_result.insights[0].summary}
+                        {analysis.analysis_result.insights[0]?.title}:{" "}
+                        {analysis.analysis_result.insights[0]?.summary}
                       </Text>
                     </View>
                   )}

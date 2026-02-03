@@ -34,6 +34,7 @@ import { FirstTimeWelcomeModal } from "@/components/FirstTimeWelcomeModal";
 import { LoadingAnimation } from "@/components/LoadingAnimation";
 import { useAgeCollection } from "@/lib/hooks/useAgeCollection";
 import { AgePickerModal } from "@/components/AgePickerModal";
+import { IooAssistant } from "@/components/coaching/IooAssistant";
 
 // New schema types matching backend
 type AnalysisMeta = {
@@ -105,12 +106,16 @@ export default function AnalyzeScreen() {
 
   // Show welcome modal for first-time users
   useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
     if (!isCheckingFirstTime && isFirstTime) {
       // Small delay for smooth appearance
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setShowWelcomeModal(true);
       }, 500);
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [isFirstTime, isCheckingFirstTime]);
 
   const handleDismissWelcome = () => {
@@ -120,12 +125,16 @@ export default function AnalyzeScreen() {
 
   // Show age picker when image is selected for the first time
   useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
     if (selectedImage && !ageCollected && !isCheckingAge) {
       // Small delay for smooth transition
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setShowAgePickerModal(true);
       }, 300);
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [selectedImage, ageCollected, isCheckingAge]);
 
   const handleSelectAge = async (age: number) => {
@@ -136,9 +145,9 @@ export default function AnalyzeScreen() {
       // Mark age as collected
       await markAgeAsCollected();
 
-      console.log('[Age] Selected age:', age);
+      // Age selected successfully
     } catch (error) {
-      console.error('[Age] Error updating age:', error);
+      // Error updating age - silently handle
       // Still mark as collected to not show modal again
       await markAgeAsCollected();
     }
@@ -180,8 +189,6 @@ export default function AnalyzeScreen() {
       // Use selectedAge if available, otherwise default to 7
       const childAge = selectedAge || 7;
 
-      console.log("[Analysis] Starting analysis with age:", childAge);
-
       // Base64 encode the image
       const response = await fetch(selectedImage);
       const blob = await response.blob();
@@ -207,21 +214,18 @@ export default function AnalyzeScreen() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Bilinmeyen hata oluştu";
       setError(message);
-      console.error("[Analysis Error]", err);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      // ✅ YENİ: Otomatik retry mantığı
+      // Otomatik retry mantığı
       if (retries < 3) {
         const delay = 2000 * (retries + 1); // 2s, 4s, 6s
-        console.log(`[Analysis] Retrying in ${delay}ms (${retries + 1}/3)...`);
-        
+
         setTimeout(() => {
           setRetries(retries + 1);
           handleAnalysis();
         }, delay);
       } else {
-        console.error("[Analysis] Max retries exceeded");
         Alert.alert(
           "❌ Analiz Başarısız",
           "3 kez deneme yapıldı ancak başarısız oldu. Lütfen daha sonra tekrar deneyin.",
@@ -445,8 +449,8 @@ export default function AnalyzeScreen() {
                       if (Platform.OS !== 'web') {
                         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                       }
-                    } catch (err) {
-                      console.error('Camera error:', err);
+                    } catch {
+                      // Camera capture failed - silently handle
                     }
                   };
                 }
@@ -620,6 +624,9 @@ export default function AnalyzeScreen() {
         </ScrollView>
         </LinearGradient>
       )}
+
+      {/* Ioo Assistant */}
+      {!analyzing && <IooAssistant screen="quick_analysis" position="bottom-right" compact />}
     </View>
   );
 }

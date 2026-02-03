@@ -90,10 +90,9 @@ export default function StudioScreen() {
     other: { label: 'Diğer', emoji: '💜', color: '#9CA3AF' },
   };
 
-  // 🎯 ÇÖZÜM: Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
+  // Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
   useEffect(() => {
     if (params.imageUri && typeof params.imageUri === 'string') {
-      console.log('[Studio] 🖼️ Image received from Hayal Atölyesi:', params.imageUri);
       setAIDrawingImage(params.imageUri);
       setShowAIModal(true); // Modal'ı otomatik aç
     }
@@ -157,13 +156,11 @@ export default function StudioScreen() {
 
       // Check for concerning content and show warning modal
       if (result?.contentAnalysis?.hasConcerningContent) {
-        console.log('[Studio] ⚠️ Concerning content detected:', result.contentAnalysis);
         setShowContentWarningModal(true);
       } else {
         Alert.alert(t.studio.success, t.studio.coloringPageCreated);
       }
-    } catch (err) {
-      console.error("AI Coloring error:", err);
+    } catch {
       Alert.alert(t.common.error, t.studio.coloringPageError);
     }
   }
@@ -602,8 +599,7 @@ export default function StudioScreen() {
             <ColoringCanvas
               backgroundImage={coloringPage.imageUrl}
               onClose={() => setShowColoringCanvas(false)}
-              onSave={(paths) => {
-                console.log("Saved paths:", paths);
+              onSave={() => {
                 Alert.alert(t.studio.great, t.studio.coloringSaved);
                 setShowColoringCanvas(false);
               }}

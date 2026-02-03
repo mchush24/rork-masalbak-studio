@@ -70,8 +70,7 @@ export default function AnalysisResultScreen() {
         analysisId: analysisData.id,
         favorited: newFavoritedState,
       });
-    } catch (error) {
-      console.error('Failed to update favorite:', error);
+    } catch {
       setIsFavorited(!newFavoritedState); // Revert on error
       Alert.alert('Hata', 'Favori güncellenemedi');
     }
@@ -86,8 +85,8 @@ export default function AnalysisResultScreen() {
         message: `RenkiOO Analiz Sonuçları\n\n${summary}\n\nDetaylar için uygulamayı indirin!`,
         title: 'Analiz Sonuçları',
       });
-    } catch (error) {
-      console.error('Share error:', error);
+    } catch {
+      // Share cancelled or failed
     }
   };
 
@@ -340,8 +339,7 @@ export default function AnalysisResultScreen() {
         // Web: Print directly
         await Print.printAsync({ uri });
       }
-    } catch (error) {
-      console.error('PDF generation error:', error);
+    } catch {
       Alert.alert('Hata', 'PDF oluşturulurken bir hata oluştu');
     }
   };

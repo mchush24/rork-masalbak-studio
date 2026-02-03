@@ -106,7 +106,7 @@ export default function ProfileScreen() {
   // Sync user's backend language setting with local language context
   React.useEffect(() => {
     if (userSettings?.language && userSettings.language !== language) {
-      setAppLanguage(userSettings.language as Language).catch(console.error);
+      setAppLanguage(userSettings.language as Language).catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettings?.language]);
@@ -133,8 +133,7 @@ export default function ProfileScreen() {
       await refetchSettings();
       setShowLanguageModal(false);
       showAlert(t.common.success, t.settings.language + ' ' + t.common.save.toLowerCase());
-    } catch (error) {
-      console.error('[Profile] Language change error:', error);
+    } catch {
       showAlert(t.common.error, t.settings.language + ' ' + t.common.error.toLowerCase());
     }
   };
@@ -167,8 +166,7 @@ export default function ProfileScreen() {
       });
       await refreshUserFromBackend();
       showAlert(t.common.success, 'Avatar güncellendi!');
-    } catch (error) {
-      console.error('[Profile] Avatar change error:', error);
+    } catch {
       showAlert(t.common.error, 'Avatar güncellenemedi. Lütfen tekrar deneyin.');
     }
   };
@@ -191,8 +189,7 @@ export default function ProfileScreen() {
       setShowProfileModal(false);
       showAlert(t.common.success, t.profile.editProfile + ' ' + t.common.success.toLowerCase());
       await refreshUserFromBackend();
-    } catch (error) {
-      console.error('[Profile] Profile save error:', error);
+    } catch {
       showAlert(t.common.error, t.profile.editProfile + ' ' + t.common.error.toLowerCase());
     }
   };
@@ -203,8 +200,7 @@ export default function ProfileScreen() {
         [setting]: value,
       });
       await refetchSettings();
-    } catch (error) {
-      console.error('[Profile] Setting toggle error:', error);
+    } catch {
       showAlert('Hata', 'Ayar güncellenemedi. Lütfen tekrar deneyin.');
     }
   };
@@ -239,8 +235,7 @@ export default function ProfileScreen() {
       setShowChildrenModal(false);
       showAlert('Başarılı', 'Çocuk profili eklendi!');
       await refreshUserFromBackend();
-    } catch (error) {
-      console.error('[Profile] Add child error:', error);
+    } catch {
       showAlert('Hata', 'Çocuk profili eklenemedi. Lütfen tekrar deneyin.');
     }
   };
@@ -256,8 +251,7 @@ export default function ProfileScreen() {
 
       showAlert('Başarılı', 'Çocuk profili silindi!');
       await refreshUserFromBackend();
-    } catch (error) {
-      console.error('[Profile] Remove child error:', error);
+    } catch {
       showAlert('Hata', 'Çocuk profili silinemedi. Lütfen tekrar deneyin.');
     }
   };
