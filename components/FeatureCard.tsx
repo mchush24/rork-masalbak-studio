@@ -15,8 +15,15 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+  withDelay,
+  FadeInDown,
+  Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useFeedback } from '@/hooks/useFeedback';
 
 type FeatureType = 'analysis' | 'chat' | 'story' | 'emotion' | 'reward' | 'coloring';
 
@@ -31,6 +38,12 @@ interface FeatureCardProps {
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   comingSoon?: boolean;
+  /** Show "NEW" badge with attention animation */
+  isNew?: boolean;
+  /** Index for staggered entrance animation (0-based) */
+  entranceIndex?: number;
+  /** Delay between staggered items in ms */
+  entranceDelay?: number;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -46,20 +59,52 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   size = 'medium',
   disabled = false,
   comingSoon = false,
+  isNew = false,
+  entranceIndex = 0,
+  entranceDelay = 100,
 }) => {
   const scale = useSharedValue(1);
+  const borderGlow = useSharedValue(0);
+  const { feedback } = useFeedback();
 
   const cardConfig = RenkooColors.featureCards[type];
   const isDisabled = disabled || comingSoon;
+
+  // Attention animation for new features
+  React.useEffect(() => {
+    if (isNew && !isDisabled) {
+      borderGlow.value = withRepeat(
+        withSequence(
+          withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1, // infinite repeat
+        true
+      );
+    }
+
+    // Cleanup: reset animation when component unmounts or conditions change
+    return () => {
+      borderGlow.value = 0;
+    };
+  }, [isNew, isDisabled]); // Removed borderGlow from deps to prevent infinite loop
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
+  const borderAnimatedStyle = useAnimatedStyle(() => {
+    if (!isNew) return {};
+    return {
+      shadowOpacity: 0.2 + borderGlow.value * 0.3,
+      shadowRadius: 8 + borderGlow.value * 8,
+    };
+  });
+
   const handlePressIn = () => {
     if (isDisabled) return;
     scale.value = withSpring(0.97, { damping: 15, stiffness: 300 });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    feedback('tap');
   };
 
   const handlePressOut = () => {
@@ -93,9 +138,20 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
 
   const currentSize = sizeStyles[size];
 
+  // Calculate entrance delay
+  const entranceAnimationDelay = entranceIndex * entranceDelay;
+
   return (
     <AnimatedPressable
-      style={[styles.container, animatedStyle, isDisabled && styles.containerDisabled, style]}
+      entering={FadeInDown.delay(entranceAnimationDelay).springify().damping(15)}
+      style={[
+        styles.container,
+        animatedStyle,
+        borderAnimatedStyle,
+        isDisabled && styles.containerDisabled,
+        isNew && styles.containerNew,
+        style,
+      ]}
       onPress={isDisabled ? undefined : onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
@@ -124,6 +180,16 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
             end={{ x: 1, y: 0.5 }}
             style={[styles.shimmer, { borderRadius: currentSize.borderRadius }]}
           />
+        )}
+
+        {/* NEW Badge */}
+        {isNew && !comingSoon && (
+          <Animated.View
+            entering={FadeInDown.delay(entranceAnimationDelay + 200).springify()}
+            style={styles.newBadge}
+          >
+            <Text style={styles.newBadgeText}>YENİ</Text>
+          </Animated.View>
         )}
 
         {/* Coming Soon Badge */}
@@ -256,6 +322,35 @@ const styles = StyleSheet.create({
   },
   containerDisabled: {
     opacity: 0.7,
+  },
+  containerNew: {
+    shadowColor: '#B98EFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  newBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#B98EFF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 10,
+    shadowColor: '#B98EFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  newBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   contentDisabled: {
     opacity: 0.6,

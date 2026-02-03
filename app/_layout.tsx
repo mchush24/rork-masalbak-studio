@@ -2,17 +2,26 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { trpc, queryClient, trpcClient } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ChildProvider } from '@/lib/contexts/ChildContext';
+import { ThemeProvider } from '@/lib/theme';
 import { ChatBot } from '@/components/ChatBot';
 import { AppErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { DelightWrapper } from '@/lib/delight';
+import { ToastProvider } from '@/components/ui/Toast';
+import { OfflineIndicator, CrashRecoveryDialog } from '@/components/ui';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import * as SplashScreen from 'expo-splash-screen';
+
+// Phase 5 & 6 modules
+import { networkMonitor } from '@/lib/network';
+import { statePersistence, SessionState } from '@/lib/persistence';
+import { globalErrorHandler } from '@/lib/error';
+import { analytics } from '@/lib/analytics';
 
 // Web responsive container
 const WebContainer = ({ children }: { children: React.ReactNode }) => {
@@ -61,6 +70,51 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
 
+  // Initialize core services
+  useEffect(() => {
+    async function initializeServices() {
+      try {
+        // Initialize network monitor
+        await networkMonitor.initialize();
+
+        // Initialize state persistence
+        await statePersistence.initialize();
+
+        // Initialize global error handler
+        globalErrorHandler.initialize();
+
+        // Initialize analytics
+        await analytics.initialize();
+
+        if (__DEV__) {
+          console.log('[_layout] All services initialized');
+        }
+      } catch (error) {
+        console.warn('[_layout] Service initialization error:', error);
+      }
+    }
+
+    initializeServices();
+
+    // Cleanup on unmount
+    return () => {
+      networkMonitor.cleanup();
+      statePersistence.cleanup();
+      analytics.flush();
+    };
+  }, []);
+
+  // Track current screen for persistence
+  useEffect(() => {
+    const currentSegment = segments[0] as string | undefined;
+    if (currentSegment) {
+      statePersistence.updateSession({
+        lastScreen: currentSegment,
+        lastAction: 'navigation',
+      });
+    }
+  }, [segments]);
+
   useEffect(() => {
     if (isLoading) return;
 
@@ -81,10 +135,25 @@ function RootLayoutNav() {
     }
   }, [isAuthenticated, hasCompletedOnboarding, isLoading]);
 
+  // Handle crash recovery
+  const handleCrashRecover = useCallback((session: SessionState) => {
+    if (session.lastScreen) {
+      // Navigate to last screen if possible
+      try {
+        router.push(session.lastScreen as any);
+      } catch (e) {
+        // Fallback to tabs
+        router.replace('/(tabs)');
+      }
+    }
+  }, [router]);
+
   // ChatBot: show when authenticated and in tabs (onboarding check removed for now)
   const showChatBot = isAuthenticated && segments[0] === '(tabs)';
 
-  console.log('[_layout] ChatBot visibility:', { showChatBot, isAuthenticated, segment: segments[0] });
+  if (__DEV__) {
+    console.log('[_layout] ChatBot visibility:', { showChatBot, isAuthenticated, segment: segments[0] });
+  }
 
   if (isLoading) {
     return (
@@ -96,12 +165,26 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+          animationDuration: 300,
+        }}
+      >
+        <Stack.Screen name="index" options={{ animation: 'fade' }} />
+        <Stack.Screen name="(onboarding)" options={{ animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }}
+        />
         <Stack.Screen name="storybook" />
+        <Stack.Screen name="analysis/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="mascot-demo" options={{ animation: 'fade' }} />
       </Stack>
 
       {showChatBot && (
@@ -109,6 +192,12 @@ function RootLayoutNav() {
           <ChatBot />
         </ComponentErrorBoundary>
       )}
+
+      {/* Offline Indicator */}
+      <OfflineIndicator position="top" />
+
+      {/* Crash Recovery Dialog */}
+      <CrashRecoveryDialog onRecover={handleCrashRecover} />
     </View>
   );
 }
@@ -140,17 +229,21 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppErrorBoundary>
         <WebContainer>
-          <LanguageProvider>
-            <trpc.Provider client={trpcClient} queryClient={queryClient}>
-              <QueryClientProvider client={queryClient}>
-                <ChildProvider>
-                  <DelightWrapper>
-                    <RootLayoutNav />
-                  </DelightWrapper>
-                </ChildProvider>
-              </QueryClientProvider>
-            </trpc.Provider>
-          </LanguageProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <trpc.Provider client={trpcClient} queryClient={queryClient}>
+                <QueryClientProvider client={queryClient}>
+                  <ChildProvider>
+                    <ToastProvider>
+                      <DelightWrapper>
+                        <RootLayoutNav />
+                      </DelightWrapper>
+                    </ToastProvider>
+                  </ChildProvider>
+                </QueryClientProvider>
+              </trpc.Provider>
+            </LanguageProvider>
+          </ThemeProvider>
         </WebContainer>
       </AppErrorBoundary>
     </GestureHandlerRootView>

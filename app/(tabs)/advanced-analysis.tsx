@@ -45,8 +45,60 @@ import { buildShareText } from "@/services/abTest";
 import { pickFromLibrary, captureWithCamera } from "@/services/imagePick";
 import type { TaskType } from "@/types/AssessmentSchema";
 import { trpc } from "@/lib/trpc";
+
+// Type definitions for analysis results
+interface ReflectiveHypothesis {
+  theme: string;
+  confidence: number;
+  evidence: string[];
+}
+
+interface SafetyFlags {
+  self_harm: boolean;
+  abuse_concern: boolean;
+}
+
+interface AnalysisResult {
+  task_type: TaskType;
+  reflective_hypotheses: ReflectiveHypothesis[];
+  conversation_prompts: string[];
+  activity_ideas: string[];
+  safety_flags: SafetyFlags;
+  disclaimers: string[];
+  feature_preview?: unknown;
+}
+
+interface AnalysisInsight {
+  title: string;
+  strength: 'strong' | 'moderate' | 'weak';
+  evidence: string[];
+  summary?: string;
+}
+
+interface RiskFlag {
+  type: string;
+  severity?: string;
+}
+
+interface HomeTip {
+  steps: string[];
+}
+
+interface BackendAnalysisResult {
+  insights: AnalysisInsight[];
+  conversationGuide?: {
+    openingQuestions?: string[];
+  };
+  homeTips: HomeTip[];
+  riskFlags: RiskFlag[];
+  disclaimer: string;
+  meta?: {
+    confidence?: number;
+  };
+}
 import * as FileSystem from "expo-file-system/legacy";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { IooAssistant } from "@/components/coaching/IooAssistant";
 
 const lang = "tr";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -78,7 +130,7 @@ export default function AdvancedAnalysisScreen() {
   const [task, setTask] = useState<TaskType>("DAP");
   const [quote, setQuote] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
 
   // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
@@ -290,25 +342,26 @@ export default function AdvancedAnalysisScreen() {
         featuresJson: {},
       });
 
-      const transformedResult = {
+      const typedBackendResult = backendResult as BackendAnalysisResult;
+      const transformedResult: AnalysisResult = {
         task_type: task,
-        reflective_hypotheses: backendResult.insights.map((insight: any) => ({
+        reflective_hypotheses: typedBackendResult.insights.map((insight: AnalysisInsight) => ({
           theme: insight.title,
           confidence: insight.strength === "strong" ? 0.8 : insight.strength === "moderate" ? 0.6 : 0.4,
           evidence: insight.evidence,
         })),
-        conversation_prompts: backendResult.conversationGuide?.openingQuestions || [
+        conversation_prompts: typedBackendResult.conversationGuide?.openingQuestions || [
           "Bu çizimde neler oluyor?",
           "En sevdiğin kısım neresi?",
         ],
-        activity_ideas: backendResult.homeTips.flatMap((tip: any) => tip.steps),
+        activity_ideas: typedBackendResult.homeTips.flatMap((tip: HomeTip) => tip.steps),
         safety_flags: {
-          self_harm: backendResult.riskFlags.some((flag: any) => flag.type === "self_harm"),
-          abuse_concern: backendResult.riskFlags.some((flag: any) =>
+          self_harm: typedBackendResult.riskFlags.some((flag: RiskFlag) => flag.type === "self_harm"),
+          abuse_concern: typedBackendResult.riskFlags.some((flag: RiskFlag) =>
             flag.type === "harm_others" || flag.type === "sexual_inappropriate"
           ),
         },
-        disclaimers: [backendResult.disclaimer],
+        disclaimers: [typedBackendResult.disclaimer],
         feature_preview: undefined,
       };
 
@@ -324,9 +377,9 @@ export default function AdvancedAnalysisScreen() {
             originalImageUrl: primaryUri || undefined,
             drawingDescription: undefined,
             childQuote: quote || undefined,
-            analysisResult: backendResult,
+            analysisResult: typedBackendResult,
             aiModel: "gpt-4-vision-preview",
-            aiConfidence: backendResult.meta?.confidence,
+            aiConfidence: typedBackendResult.meta?.confidence,
             processingTimeMs: Date.now() - startTime,
             language: "tr",
           });
@@ -546,7 +599,7 @@ export default function AdvancedAnalysisScreen() {
                   </Pressable>
                 </View>
                 <Text style={styles.selectedTestInstruction} numberOfLines={2}>
-                  &ldquo;{PROTOCOLS[task].phases[0]?.instruction}&rdquo;
+                  "{PROTOCOLS[task].phases[0]?.instruction}"
                 </Text>
               </LinearGradient>
             </View>
@@ -831,7 +884,7 @@ export default function AdvancedAnalysisScreen() {
                           )}
                         </View>
                       </View>
-                      <Text style={styles.phaseInstruction}>&ldquo;{phase.instruction}&rdquo;</Text>
+                      <Text style={styles.phaseInstruction}>"{phase.instruction}"</Text>
                       {phase.notes && phase.notes.length > 0 && (
                         <View style={styles.phaseNotes}>
                           {phase.notes.map((note: string, j: number) => (
@@ -913,6 +966,9 @@ export default function AdvancedAnalysisScreen() {
           </Animated.View>
         </>
       )}
+
+      {/* Ioo Assistant */}
+      {!loading && <IooAssistant screen="advanced_analysis" position="bottom-right" compact />}
     </View>
   );
 }

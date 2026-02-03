@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+/**
+ * Home Screen (Ana Sayfa)
+ * Professional home screen for parents, teachers, and professionals
+ * Includes Ioo mascot, gamification, and all key features
+ */
+
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,8 +13,8 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
-  Alert,
   Dimensions,
+  StatusBar,
 } from "react-native";
 import {
   BookOpen,
@@ -20,15 +26,16 @@ import {
   MessageCircle,
   Sparkles,
   Gift,
-  Star,
   Trophy,
+  Camera,
+  Image as ImageIcon,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Colors, RenkooColors } from "@/constants/colors";
+import { Colors, RenkooColors, EtherealColors } from "@/constants/colors";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import {
   layout,
@@ -41,24 +48,39 @@ import { GreetingService } from "@/lib/services/greeting-service";
 import { useGamification } from "@/lib/gamification";
 import { StreakDisplay, XPProgressBar, NewBadgeModal } from "@/components/gamification";
 
-// New Components
-import { IooMascotFinal as IooMascot } from "@/components/IooMascotFinal";
+// Components
+import { Ioo as IooMascot } from "@/components/Ioo";
 import { OrganicContainer } from "@/components/OrganicContainer";
 import { FeatureCard, FeatureCardCompact } from "@/components/FeatureCard";
 import { JellyButton } from "@/components/JellyButton";
+import { ChildSelectorChip } from "@/components/ChildSelectorChip";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 
 type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
 
-// Analysis type for recent analyses list
 interface RecentAnalysis {
   id: string;
   task_type: TaskType;
   created_at: string;
+  child_name?: string;
   child_age?: number;
   is_favorite?: boolean;
+}
+
+interface ChildData {
+  id?: string;
+  name: string;
+  avatar_url?: string;
+  age?: number;
+}
+
+interface ProcessedChild {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  age?: number;
 }
 
 const TASK_TYPE_LABELS: Record<TaskType, string> = {
@@ -85,6 +107,7 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   // Gamification hook
   const {
@@ -99,7 +122,37 @@ export default function HomeScreen() {
 
   const levelInfo = getUserLevel();
 
-  // Fetch recent analyses (last 3)
+  // Fetch children
+  const {
+    data: childrenData,
+    isLoading: childrenLoading,
+    refetch: refetchChildren,
+  } = trpc.user.getChildren.useQuery(undefined, {
+    enabled: !!user?.userId,
+  });
+
+  // Process children data
+  const children: ProcessedChild[] = useMemo(() => {
+    return (childrenData || []).map((child: ChildData) => ({
+      id: child.id || `child-${child.name}`,
+      name: child.name,
+      avatarUrl: child.avatar_url,
+      age: child.age,
+    }));
+  }, [childrenData]);
+
+  const selectedChild = useMemo(() => {
+    return children.find(c => c.id === selectedChildId);
+  }, [children, selectedChildId]);
+
+  // Set initial selected child
+  useEffect(() => {
+    if (children.length && !selectedChildId) {
+      setSelectedChildId(children[0].id);
+    }
+  }, [children, selectedChildId]);
+
+  // Fetch recent analyses
   const {
     data: recentAnalysesData,
     isLoading: analysesLoading,
@@ -110,6 +163,7 @@ export default function HomeScreen() {
       offset: 0,
       sortBy: "created_at",
       sortOrder: "desc",
+      childName: selectedChild?.name,
     },
     { enabled: !!user?.userId }
   );
@@ -123,16 +177,21 @@ export default function HomeScreen() {
     { enabled: !!user?.userId }
   );
 
-  // Get dynamic greeting based on time, special days, and user activity
+  // Get dynamic greeting
   const greeting = useMemo(() => {
     return GreetingService.getFormattedGreeting();
   }, []);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([refetchAnalyses(), refetchStats(), refreshGamification()]);
+    await Promise.all([
+      refetchChildren(),
+      refetchAnalyses(),
+      refetchStats(),
+      refreshGamification(),
+    ]);
     setRefreshing(false);
-  };
+  }, [refetchChildren, refetchAnalyses, refetchStats, refreshGamification]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -147,14 +206,16 @@ export default function HomeScreen() {
   };
 
   const recentAnalyses = recentAnalysesData?.analyses || [];
-  const stats = userStats || { totalAnalyses: 0, totalStorybooks: 0, totalColorings: 0 };
+  const stats = userStats || { totalAnalyses: 0, totalStorybooks: 0, totalColorings: 0, totalActivities: 0 };
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+
       <LinearGradient
-        colors={RenkooColors.gradients.homeScreen}
+        colors={[EtherealColors.core.celestial, '#FFFFFF']}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 0.4 }}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         <ScrollView
@@ -165,10 +226,31 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              tintColor={RenkooColors.brand.jellyPurple}
+              tintColor={Colors.primary.sunset}
             />
           }
         >
+          {/* Child Selector */}
+          <View style={styles.childSelectorSection}>
+            <ChildSelectorChip
+              selectedChild={selectedChild ? {
+                name: selectedChild.name,
+                age: selectedChild.age || 0,
+                avatarId: selectedChild.avatarUrl,
+              } : null}
+              childrenList={children.map(c => ({
+                name: c.name,
+                age: c.age || 0,
+                avatarId: c.avatarUrl,
+              }))}
+              onSelectChild={(child) => {
+                const found = children.find(c => c.name === child.name);
+                if (found) setSelectedChildId(found.id);
+              }}
+              compact
+            />
+          </View>
+
           {/* Hero Section with Mascot */}
           <View style={styles.heroSection}>
             <OrganicContainer
@@ -178,18 +260,17 @@ export default function HomeScreen() {
               animated
             >
               <View style={styles.heroContent}>
-                {/* Mascot - Ioo Dream Guardian - Tıklanabilir */}
+                {/* Mascot - New Ioo Light Drop */}
                 <View style={styles.mascotContainer}>
                   <IooMascot
                     size={isSmallDevice ? "medium" : "large"}
                     animated
                     showGlow
-                    showSparkles
                     mood="happy"
                     onPress={() => router.push("/chatbot" as Href)}
                   />
                   <View style={styles.chatHint}>
-                    <MessageCircle size={12} color={RenkooColors.brand.jellyPurple} />
+                    <MessageCircle size={12} color={Colors.primary.sunset} />
                     <Text style={styles.chatHintText}>Yardıma mı ihtiyacınız var?</Text>
                   </View>
                 </View>
@@ -259,7 +340,7 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* PRIMARY CTA: Duygu Yansıması - Above the fold */}
+          {/* PRIMARY CTA: Duygu Yansıması - Detailed Analysis */}
           <Pressable
             onPress={() => router.push("/advanced-analysis" as Href)}
             style={({ pressed }) => [
@@ -292,21 +373,11 @@ export default function HomeScreen() {
             </LinearGradient>
           </Pressable>
 
-          {/* Secondary CTA */}
-          <View style={styles.ctaSection}>
-            <JellyButton
-              title="Hızlı Analiz"
-              onPress={() => router.push("/quick-analysis" as Href)}
-              size="medium"
-              gradientColors={['#FFB5D8', '#FF9EBF']}
-            />
-          </View>
-
-          {/* Feature Cards Grid */}
+          {/* Feature Cards - Ioo Chat */}
           <View style={styles.featuresSection}>
             <View style={styles.sectionTitleRow}>
               <View style={styles.sectionTitleIcon}>
-                <Sparkles size={16} color={RenkooColors.brand.jellyPurple} />
+                <Sparkles size={16} color={Colors.primary.sunset} />
               </View>
               <Text style={styles.sectionTitle}>Keşfet</Text>
             </View>
@@ -337,17 +408,17 @@ export default function HomeScreen() {
                 title="Masal"
                 icon={<BookOpen size={22} color={RenkooColors.featureCards.story.icon} />}
                 type="story"
-                onPress={() => router.push("/hayal-atolyesi" as Href)}
+                onPress={() => router.push("/stories" as Href)}
               />
               <FeatureCardCompact
                 title="Boyama"
                 icon={<Palette size={22} color={RenkooColors.featureCards.coloring.icon} />}
                 type="coloring"
-                onPress={() => router.push("/hayal-atolyesi" as Href)}
+                onPress={() => router.push("/coloring-history" as Href)}
               />
               <FeatureCardCompact
                 title="Ödüller"
-                icon={<Gift size={22} color={RenkooColors.featureCards.reward.icon} />}
+                icon={<Gift size={22} color={RenkooColors.featureCards.reward?.icon || '#F59E0B'} />}
                 type="reward"
                 onPress={() => router.push("/profile" as Href)}
               />
@@ -367,7 +438,7 @@ export default function HomeScreen() {
                 onPress={() => router.push("/hayal-atolyesi" as Href)}
                 style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
-                <Text style={styles.seeAllText}>{t.home.viewAll} →</Text>
+                <Text style={styles.seeAllText}>Tümünü Gör →</Text>
               </Pressable>
             </View>
 
@@ -392,88 +463,93 @@ export default function HomeScreen() {
                       Masal • Boyama • Analiz - Tek yerden tümü
                     </Text>
                   </View>
-                  <ChevronRight size={24} color={RenkooColors.text.primary} />
+                  <ChevronRight size={24} color={Colors.neutral.darker} />
                 </View>
               </LinearGradient>
             </Pressable>
           </View>
 
-          {/* Recent Analyses */}
+          {/* Recent Analyses Section */}
           <View style={styles.recentSection}>
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleRow}>
-                <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}>
-                  <Brain size={16} color="#A78BFA" />
+                <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(185, 142, 255, 0.15)' }]}>
+                  <Clock size={16} color={Colors.primary.sunset} />
                 </View>
                 <Text style={styles.sectionTitle}>Son Analizler</Text>
               </View>
-              <Pressable
-                onPress={() => router.push("/history" as Href)}
-                style={({ pressed }) => [pressed && { opacity: 0.6 }]}
-              >
-                <Text style={styles.seeAllText}>{t.home.viewAll} →</Text>
-              </Pressable>
+              {recentAnalyses.length > 0 && (
+                <Pressable
+                  onPress={() => router.push("/history" as Href)}
+                  style={({ pressed }) => [pressed && { opacity: 0.6 }]}
+                >
+                  <Text style={styles.seeAllText}>Tümünü Gör →</Text>
+                </Pressable>
+              )}
             </View>
 
             {analysesLoading ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={RenkooColors.brand.jellyPurple} />
+                <ActivityIndicator size="small" color={Colors.primary.sunset} />
               </View>
             ) : recentAnalyses.length === 0 ? (
-              <OrganicContainer style={styles.emptyContainer} shape="rounded">
+              <OrganicContainer style={styles.emptyContainer}>
                 <LinearGradient
-                  colors={['rgba(185, 142, 255, 0.08)', 'rgba(255, 203, 164, 0.08)']}
+                  colors={['rgba(255, 255, 255, 0.9)', 'rgba(248, 250, 252, 0.95)']}
                   style={styles.emptyGradient}
                 >
                   <View style={styles.emptyIconContainer}>
                     <View style={styles.emptyIconRing}>
-                      <Brain size={32} color={RenkooColors.brand.jellyPurple} />
+                      <Brain size={28} color={Colors.primary.sunset} />
                     </View>
                     <View style={styles.emptySparkle1}>
-                      <Sparkles size={14} color="#FFD93D" />
-                    </View>
-                    <View style={styles.emptySparkle2}>
-                      <Star size={12} color="#FF9EBF" />
+                      <Sparkles size={14} color="#FFD700" />
                     </View>
                   </View>
-                  <Text style={styles.emptyText}>Henüz analiz yok</Text>
-                  <Text style={styles.emptySubtext}>
-                    Çocuğunun çizimlerini keşfetmeye başla!
-                  </Text>
+                  <View style={styles.emptyContent}>
+                    <Text style={styles.emptyText}>Henüz analiz yok</Text>
+                    <Text style={styles.emptySubtext}>
+                      Çizim yükleyerek ilk analizinizi yapın
+                    </Text>
+                  </View>
                   <Pressable
-                    style={({ pressed }) => [
-                      styles.emptyCtaButton,
-                      pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
-                    ]}
-                    onPress={() => router.push("/quick-analysis" as Href)}
+                    style={styles.emptyCtaButton}
+                    onPress={() => router.push("/advanced-analysis" as Href)}
                   >
-                    <Text style={styles.emptyCtaText}>İlk Analizi Yap</Text>
-                    <ChevronRight size={16} color={RenkooColors.brand.jellyPurple} />
+                    <Camera size={16} color={Colors.primary.sunset} />
+                    <Text style={styles.emptyCtaText}>İlk Analizi Başlat</Text>
                   </Pressable>
                 </LinearGradient>
               </OrganicContainer>
             ) : (
               <View style={styles.recentCardsContainer}>
                 {recentAnalyses.map((analysis: RecentAnalysis) => (
-                  <OrganicContainer key={analysis.id} style={styles.recentCard} shape="rounded">
-                    <Pressable
-                      style={styles.recentCardContent}
-                      onPress={() => Alert.alert("Analiz Detayı", "Detay ekranı yakında!")}
-                    >
-                      <View style={styles.recentCardIcon}>
-                        <Brain size={20} color={RenkooColors.brand.jellyPurple} />
+                  <Pressable
+                    key={analysis.id}
+                    style={({ pressed }) => [
+                      styles.recentCard,
+                      pressed && { opacity: 0.8 },
+                    ]}
+                    onPress={() => router.push(`/analysis/${analysis.id}` as Href)}
+                  >
+                    <OrganicContainer style={styles.recentCardInner}>
+                      <View style={styles.recentCardContent}>
+                        <View style={styles.recentCardIcon}>
+                          <Brain size={20} color={Colors.primary.sunset} />
+                        </View>
+                        <View style={styles.recentCardInfo}>
+                          <Text style={styles.recentCardTitle}>
+                            {TASK_TYPE_LABELS[analysis.task_type] || analysis.task_type}
+                          </Text>
+                          <Text style={styles.recentCardDate}>
+                            {formatDate(analysis.created_at)}
+                            {analysis.child_name && ` • ${analysis.child_name}`}
+                          </Text>
+                        </View>
+                        <ChevronRight size={18} color={Colors.neutral.medium} />
                       </View>
-                      <View style={styles.recentCardInfo}>
-                        <Text style={styles.recentCardTitle} numberOfLines={1}>
-                          {TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type}
-                        </Text>
-                        <Text style={styles.recentCardDate}>
-                          {formatDate(analysis.created_at)}
-                        </Text>
-                      </View>
-                      <ChevronRight size={18} color={RenkooColors.text.tertiary} />
-                    </Pressable>
-                  </OrganicContainer>
+                    </OrganicContainer>
+                  </Pressable>
                 ))}
               </View>
             )}
@@ -482,30 +558,29 @@ export default function HomeScreen() {
           {/* Stats Section */}
           <View style={styles.statsSection}>
             <View style={styles.sectionTitleRow}>
-              <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}>
-                <Clock size={16} color="#7ED99C" />
+              <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}>
+                <TrendingUp size={16} color="#4ECDC4" />
               </View>
-              <Text style={styles.sectionTitle}>Bu Hafta</Text>
+              <Text style={styles.sectionTitle}>Bu Ay</Text>
             </View>
+
             <View style={styles.statsGrid}>
-              <OrganicContainer style={styles.statCard} shape="rounded">
+              <OrganicContainer style={styles.statCard}>
                 <View style={styles.statContent}>
                   <Text style={styles.statNumber}>{stats.totalAnalyses || 0}</Text>
-                  <Text style={styles.statLabel}>Analiz</Text>
+                  <Text style={styles.statLabel}>ANALİZ</Text>
                 </View>
               </OrganicContainer>
-
-              <OrganicContainer style={styles.statCard} shape="rounded">
+              <OrganicContainer style={styles.statCard}>
+                <View style={styles.statContent}>
+                  <Text style={styles.statNumber}>{stats.totalActivities || 0}</Text>
+                  <Text style={styles.statLabel}>AKTİVİTE</Text>
+                </View>
+              </OrganicContainer>
+              <OrganicContainer style={styles.statCard}>
                 <View style={styles.statContent}>
                   <Text style={styles.statNumber}>{stats.totalStorybooks || 0}</Text>
-                  <Text style={styles.statLabel}>Masal</Text>
-                </View>
-              </OrganicContainer>
-
-              <OrganicContainer style={styles.statCard} shape="rounded">
-                <View style={styles.statContent}>
-                  <Text style={styles.statNumber}>{stats.totalColorings || 0}</Text>
-                  <Text style={styles.statLabel}>Boyama</Text>
+                  <Text style={styles.statLabel}>MASAL</Text>
                 </View>
               </OrganicContainer>
             </View>
@@ -513,17 +588,19 @@ export default function HomeScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>2035 Organic Biomimicry Design</Text>
+            <Text style={styles.footerText}>RENKIOO • DUYGULARIN RENGİ</Text>
           </View>
         </ScrollView>
       </LinearGradient>
 
       {/* New Badge Modal */}
-      <NewBadgeModal
-        visible={!!newlyUnlockedBadge}
-        badge={newlyUnlockedBadge}
-        onClose={clearNewBadge}
-      />
+      {newlyUnlockedBadge && (
+        <NewBadgeModal
+          badge={newlyUnlockedBadge}
+          visible={!!newlyUnlockedBadge}
+          onClose={clearNewBadge}
+        />
+      )}
     </View>
   );
 }
@@ -531,6 +608,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   gradientContainer: {
     flex: 1,
@@ -539,71 +617,76 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: layout.screenPadding,
+    paddingHorizontal: spacing["4"],
+    paddingTop: spacing["3"],
+  },
+
+  // Child Selector
+  childSelectorSection: {
+    marginBottom: spacing["4"],
+    paddingHorizontal: spacing["2"],
   },
 
   // Hero Section
   heroSection: {
-    paddingTop: spacing["4"],
     marginBottom: spacing["4"],
   },
   heroCard: {
     padding: spacing["5"],
   },
   heroContent: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: spacing["4"],
   },
   mascotContainer: {
     alignItems: 'center',
+    gap: spacing["1"],
+    marginLeft: -spacing["2"],
+    marginRight: spacing["2"],
   },
   chatHint: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(185, 142, 255, 0.15)',
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["1"],
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 12,
-    marginTop: spacing["2"],
-    gap: spacing["1"],
   },
   chatHintText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: RenkooColors.brand.jellyPurple,
+    fontSize: 10,
+    color: Colors.primary.sunset,
+    fontWeight: '500',
   },
   heroTextContainer: {
-    alignItems: 'center',
+    flex: 1,
   },
   heroGreeting: {
-    fontSize: isSmallDevice ? 24 : 28,
-    fontWeight: '800',
-    color: RenkooColors.text.primary,
-    marginBottom: spacing["1"],
-    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: '700',
+    color: Colors.neutral.darker,
+    marginBottom: 4,
   },
   heroSubtitle: {
-    fontSize: isSmallDevice ? 14 : 16,
-    color: RenkooColors.text.secondary,
-    textAlign: 'center',
-    marginBottom: spacing["2"],
+    fontSize: 14,
+    color: Colors.neutral.dark,
+    marginBottom: spacing["3"],
   },
   mascotIntro: {
-    backgroundColor: 'rgba(255, 203, 164, 0.15)',
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["2"],
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(232, 213, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   mascotIntroText: {
-    fontSize: 13,
-    color: RenkooColors.text.secondary,
-    textAlign: 'center',
+    fontSize: 12,
+    color: Colors.neutral.dark,
+    lineHeight: 18,
   },
   mascotName: {
     fontWeight: '700',
-    color: RenkooColors.brand.jellyPurple,
+    color: Colors.primary.sunset,
   },
 
   // Gamification Section
@@ -622,14 +705,17 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
-  // Primary CTA - Duygu Yansıması (Above the fold)
+  // Primary CTA
   primaryCtaCard: {
     marginBottom: spacing["4"],
     borderRadius: 24,
@@ -696,15 +782,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
   },
 
-  // CTA Section (Secondary)
-  ctaSection: {
-    alignItems: 'center',
-    marginBottom: spacing["6"],
-  },
-
   // Features Section
   featuresSection: {
-    marginBottom: spacing["6"],
+    marginBottom: spacing["4"],
   },
   featureCardsGrid: {
     gap: spacing["3"],
@@ -712,7 +792,7 @@ const styles = StyleSheet.create({
 
   // Quick Actions
   quickActionsSection: {
-    marginBottom: spacing["6"],
+    marginBottom: spacing["4"],
   },
   compactCardsRow: {
     flexDirection: 'row',
@@ -721,7 +801,7 @@ const styles = StyleSheet.create({
 
   // Atolye Section
   atolyeSection: {
-    marginBottom: spacing["6"],
+    marginBottom: spacing["4"],
   },
   atolyeCard: {
     borderRadius: 24,
@@ -749,19 +829,19 @@ const styles = StyleSheet.create({
   atolyeTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: RenkooColors.text.primary,
+    color: Colors.neutral.darker,
     marginBottom: 4,
   },
   atolyeSubtitle: {
     fontSize: 13,
-    color: RenkooColors.text.secondary,
+    color: Colors.neutral.dark,
   },
 
   // Section Styles
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing["4"],
+    marginBottom: spacing["3"],
     gap: spacing["2"],
   },
   sectionTitleIcon: {
@@ -773,25 +853,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
-    color: RenkooColors.text.primary,
+    color: Colors.neutral.darker,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing["4"],
+    marginBottom: spacing["3"],
   },
   seeAllText: {
     fontSize: 14,
-    color: RenkooColors.brand.jellyPurple,
+    color: Colors.primary.sunset,
     fontWeight: '600',
   },
 
   // Recent Section
   recentSection: {
-    marginBottom: spacing["6"],
+    marginBottom: spacing["4"],
   },
   loadingContainer: {
     paddingVertical: spacing["6"],
@@ -824,11 +904,6 @@ const styles = StyleSheet.create({
     top: -4,
     right: -4,
   },
-  emptySparkle2: {
-    position: 'absolute',
-    bottom: 4,
-    left: -8,
-  },
   emptyContent: {
     alignItems: 'center',
     gap: spacing["2"],
@@ -836,11 +911,11 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 17,
     fontWeight: '700',
-    color: RenkooColors.text.primary,
+    color: Colors.neutral.darker,
   },
   emptySubtext: {
     fontSize: 14,
-    color: RenkooColors.text.secondary,
+    color: Colors.neutral.medium,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -852,17 +927,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing["5"],
     borderRadius: 20,
     marginTop: spacing["2"],
-    gap: spacing["1"],
+    gap: spacing["2"],
   },
   emptyCtaText: {
     fontSize: 14,
     fontWeight: '600',
-    color: RenkooColors.brand.jellyPurple,
+    color: Colors.primary.sunset,
   },
   recentCardsContainer: {
     gap: spacing["3"],
   },
   recentCard: {
+    // Wrapper for pressable
+  },
+  recentCardInner: {
     padding: spacing["4"],
   },
   recentCardContent: {
@@ -884,17 +962,17 @@ const styles = StyleSheet.create({
   recentCardTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: RenkooColors.text.primary,
+    color: Colors.neutral.darker,
   },
   recentCardDate: {
     fontSize: 12,
-    color: RenkooColors.text.tertiary,
+    color: Colors.neutral.medium,
     marginTop: 2,
   },
 
   // Stats Section
   statsSection: {
-    marginBottom: spacing["6"],
+    marginBottom: spacing["4"],
   },
   statsGrid: {
     flexDirection: 'row',
@@ -910,13 +988,14 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 28,
     fontWeight: '800',
-    color: RenkooColors.brand.jellyPurple,
+    color: Colors.primary.sunset,
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-    color: RenkooColors.text.secondary,
+    color: Colors.neutral.medium,
+    letterSpacing: 0.5,
   },
 
   // Footer
@@ -926,7 +1005,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
-    color: RenkooColors.text.muted,
+    color: Colors.neutral.medium,
     letterSpacing: 1,
   },
 });

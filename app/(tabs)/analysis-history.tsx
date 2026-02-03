@@ -22,7 +22,7 @@ import {
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
@@ -33,8 +33,29 @@ import {
   radius,
   shadows,
 } from "@/constants/design-system";
+import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
 
 type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
+
+interface AnalysisInsightPreview {
+  title: string;
+  summary: string;
+}
+
+interface AnalysisResultPreview {
+  insights?: AnalysisInsightPreview[];
+}
+
+interface Analysis {
+  id: string;
+  task_type: TaskType;
+  created_at: string;
+  child_age?: number;
+  child_name?: string;
+  favorited?: boolean;
+  analysis_result?: AnalysisResultPreview;
+  tags?: string[];
+}
 
 const TASK_TYPE_LABELS: Record<TaskType, string> = {
   DAP: "İnsan Çizimi",
@@ -129,7 +150,7 @@ export default function AnalysisHistoryScreen() {
   };
 
   const handleViewAnalysis = (analysisId: string) => {
-    router.push(`/analysis/${analysisId}` as any);
+    router.push(`/analysis/${analysisId}` as Href);
   };
 
   const formatDate = (dateString: string) => {
@@ -269,31 +290,22 @@ export default function AnalysisHistoryScreen() {
 
           {/* Empty State */}
           {!isLoading && analyses.length === 0 && (
-            <View style={styles.emptyContainer}>
-              <Brain size={isSmallScreen ? 48 : 64} color={Colors.neutral.light} />
-              <Text style={[
-                styles.emptyTitle,
-                isSmallScreen && { fontSize: typography.size.lg },
-              ]}>
-                {filterFavorites ? "Favori analiz yok" : "Henüz analiz yok"}
-              </Text>
-              <Text style={[
-                styles.emptyText,
-                isSmallScreen && {
-                  fontSize: typography.size.sm,
-                  paddingHorizontal: spacing["4"],
-                },
-              ]}>
-                {filterFavorites
-                  ? "Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz"
-                  : "Bir çizim analiz ettiğinizde buradan görebilirsiniz"}
-              </Text>
-            </View>
+            <IooEmptyState
+              title={filterFavorites ? "Favori analiz yok" : EMPTY_STATE_PRESETS.noAnalysis.title}
+              message={filterFavorites
+                ? "Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz"
+                : EMPTY_STATE_PRESETS.noAnalysis.message}
+              mood={filterFavorites ? "curious" : EMPTY_STATE_PRESETS.noAnalysis.mood}
+              action={!filterFavorites ? {
+                label: "Analiz Yap",
+                onPress: () => router.push("/(tabs)/quick-analysis"),
+              } : undefined}
+            />
           )}
 
           {/* Analysis List */}
           {!isLoading &&
-            analyses.map((analysis: any) => (
+            analyses.map((analysis: Analysis) => (
               <View key={analysis.id} style={styles.analysisCard}>
                 <Pressable
                   onPress={() => handleViewAnalysis(analysis.id)}

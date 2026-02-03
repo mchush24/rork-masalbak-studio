@@ -16,3 +16,16 @@ export { useMemoryManager, useComponentCleanup } from './MemoryManager';
 export { useDeferredLoad, useCriticalPath } from './StartupOptimizer';
 export { PerformanceMonitor, usePerformanceMetrics } from './PerformanceMonitor';
 export { VirtualizedList, useVirtualization } from './VirtualizedList';
+
+// Phase 4: Enhanced Performance Tracking
+export {
+  useRenderTracking,
+  useInteractionTracking,
+  useAPITracking,
+  usePerformanceOverlay,
+  measureTime,
+  measureTimeAsync,
+  runAfterInteractions,
+  withPerformanceTracking,
+  performanceStore,
+} from './usePerformance';

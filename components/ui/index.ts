@@ -4,6 +4,35 @@
  * Reusable UI primitives for the app
  */
 
+// Phase 2: Toast System
+export {
+  ToastProvider,
+  useToast,
+  useToastHelpers,
+} from './Toast';
+export type { ToastType, ToastOptions, ToastAction } from './Toast';
+
+// Phase 2: Search Input
+export {
+  SearchInput,
+  SearchWithHistory,
+} from './SearchInput';
+
+// Phase 2: Dialog System
+export {
+  BaseDialog,
+  ConfirmDialog,
+  AlertDialog,
+  InputDialog,
+} from './Dialog';
+export type {
+  BaseDialogProps,
+  ConfirmDialogProps,
+  AlertDialogProps,
+  InputDialogProps,
+} from './Dialog';
+
+// Skeleton Loaders
 export {
   SkeletonLoader,
   SkeletonText,
@@ -59,3 +88,31 @@ export {
   AccessibleCard,
   AccessibleListItem,
 } from './AccessibleTouchable';
+
+// Phase 3: Enhanced Refresh
+export {
+  EnhancedRefreshControl,
+  useEnhancedRefresh,
+  AnimatedRefreshIndicator,
+  PullIndicator,
+} from './EnhancedRefresh';
+
+// Phase 3: Smart Lists
+export {
+  SmartList,
+  SmartGrid,
+  SmartSectionList,
+} from './SmartList';
+
+// Phase 6: Offline Indicator
+export {
+  OfflineIndicator,
+  OfflineBadge,
+  OfflineIndicatorProvider,
+} from './OfflineIndicator';
+
+// Phase 6: Crash Recovery
+export {
+  CrashRecoveryDialog,
+  useRecoveryPrompt,
+} from './CrashRecoveryDialog';
