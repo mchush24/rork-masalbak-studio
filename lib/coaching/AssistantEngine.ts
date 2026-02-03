@@ -24,12 +24,17 @@ export type UserType = 'parent' | 'professional' | 'teacher';
 export type ScreenContext =
   | 'home'
   | 'analysis'
+  | 'quick_analysis'
+  | 'advanced_analysis'
   | 'analysis_result'
   | 'story'
   | 'story_reading'
   | 'coloring'
+  | 'studio'
+  | 'hayal_atolyesi'
   | 'profile'
-  | 'history';
+  | 'history'
+  | 'settings';
 
 export interface AssistantTip {
   id: string;
@@ -91,7 +96,61 @@ const TIPS_DATABASE: AssistantTip[] = [
     mood: 'curious',
   },
 
-  // ANALYSIS SCREEN TIPS
+  // QUICK ANALYSIS SCREEN TIPS
+  {
+    id: 'quick_analysis_first',
+    screen: 'quick_analysis',
+    userTypes: ['parent'],
+    title: 'Hızlı Analiz',
+    message: 'Fotoğraf çekin veya galeriden seçin. Hızlı analiz, anında duygusal temalar hakkında bilgi verir.',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'curious',
+  },
+  {
+    id: 'quick_analysis_tip',
+    screen: 'quick_analysis',
+    userTypes: ['parent'],
+    title: 'İyi Aydınlatma',
+    message: 'Daha doğru sonuçlar için çizimi iyi ışık altında ve düz bir yüzeyde çekin.',
+    firstTimeOnly: false,
+    priority: 5,
+    mood: 'thinking',
+  },
+
+  // ADVANCED ANALYSIS SCREEN TIPS
+  {
+    id: 'advanced_analysis_first_parent',
+    screen: 'advanced_analysis',
+    userTypes: ['parent'],
+    title: 'Detaylı Analiz',
+    message: 'Gelişmiş analiz, daha derinlemesine duygusal değerlendirme sunar. Çizim bağlamını da ekleyebilirsiniz.',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'curious',
+  },
+  {
+    id: 'advanced_analysis_first_professional',
+    screen: 'advanced_analysis',
+    userTypes: ['professional'],
+    title: 'Klinik Analiz Aracı',
+    message: 'Projektif çizim testleri, DSM-5 tanı kriterleri yerine destekleyici veri sağlar. Klinik değerlendirmenin bir parçası olarak kullanın.',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'thinking',
+  },
+  {
+    id: 'advanced_analysis_context',
+    screen: 'advanced_analysis',
+    userTypes: ['parent', 'professional'],
+    title: 'Bağlam Önemli',
+    message: 'Çizim hakkında bağlam bilgisi eklemek (ne zaman, nerede, neden çizildi) analizi zenginleştirir.',
+    firstTimeOnly: false,
+    priority: 6,
+    mood: 'supportive',
+  },
+
+  // ANALYSIS SCREEN TIPS (General)
   {
     id: 'analysis_first_parent',
     screen: 'analysis',
@@ -188,6 +247,70 @@ const TIPS_DATABASE: AssistantTip[] = [
     priority: 5,
     mood: 'supportive',
   },
+  {
+    id: 'coloring_save_tip',
+    screen: 'coloring',
+    userTypes: ['parent'],
+    title: 'Eserleri Kaydedin',
+    message: 'Tamamlanan boyamaları kaydedip analiz için kullanabilirsiniz.',
+    firstTimeOnly: false,
+    priority: 4,
+    mood: 'excited',
+  },
+
+  // STUDIO SCREEN TIPS
+  {
+    id: 'studio_first',
+    screen: 'studio',
+    userTypes: ['parent'],
+    title: 'Yaratıcı Stüdyo',
+    message: 'Burada çocuğunuzla birlikte özgürce çizim yapabilirsiniz. Fırçalar, renkler ve araçlar sizi bekliyor!',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'excited',
+  },
+  {
+    id: 'studio_free_draw',
+    screen: 'studio',
+    userTypes: ['parent'],
+    title: 'Serbest Çizim',
+    message: 'Serbest çizim, çocuğunuzun duygularını ifade etmesi için harika bir araç.',
+    firstTimeOnly: false,
+    priority: 5,
+    mood: 'curious',
+  },
+
+  // HAYAL ATÖLYESİ SCREEN TIPS
+  {
+    id: 'hayal_atolyesi_first',
+    screen: 'hayal_atolyesi',
+    userTypes: ['parent'],
+    title: 'Hayal Atölyesi',
+    message: 'Hayal gücünü canlandıran aktiviteler burada! Çocuğunuzla birlikte yaratıcı serüvenlere çıkın.',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'excited',
+  },
+  {
+    id: 'hayal_atolyesi_imagination',
+    screen: 'hayal_atolyesi',
+    userTypes: ['parent'],
+    title: 'Hayal Gücü',
+    message: 'Çocukların hayal gücü sınırsızdır. Onların fikirlerini yargılamadan dinleyin ve katılın.',
+    firstTimeOnly: false,
+    priority: 6,
+    mood: 'supportive',
+  },
+  {
+    id: 'hayal_atolyesi_play',
+    screen: 'hayal_atolyesi',
+    userTypes: ['parent'],
+    title: 'Birlikte Oynayın',
+    message: 'Bu aktiviteleri birlikte yapmak, çocuğunuzla bağınızı güçlendirir.',
+    firstTimeOnly: false,
+    priority: 4,
+    mood: 'happy',
+  },
 
   // PROFILE TIPS
   {
@@ -211,6 +334,70 @@ const TIPS_DATABASE: AssistantTip[] = [
     firstTimeOnly: true,
     priority: 8,
     mood: 'curious',
+  },
+  {
+    id: 'history_compare',
+    screen: 'history',
+    userTypes: ['parent'],
+    title: 'Karşılaştırın',
+    message: 'Farklı dönemlerdeki çizimleri karşılaştırarak çocuğunuzun duygusal gelişimini takip edin.',
+    firstTimeOnly: false,
+    priority: 5,
+    mood: 'thinking',
+  },
+
+  // SETTINGS TIPS
+  {
+    id: 'settings_first',
+    screen: 'settings',
+    userTypes: ['parent', 'professional', 'teacher'],
+    title: 'Ayarlar',
+    message: 'Buradan bildirim, ses ve titreşim tercihlerinizi yönetebilirsiniz.',
+    firstTimeOnly: true,
+    priority: 8,
+    mood: 'thinking',
+  },
+  {
+    id: 'settings_accessibility',
+    screen: 'settings',
+    userTypes: ['parent'],
+    title: 'Erişilebilirlik',
+    message: 'Daha rahat kullanım için yazı boyutunu ve kontrast ayarlarını değiştirebilirsiniz.',
+    firstTimeOnly: false,
+    priority: 5,
+    mood: 'supportive',
+  },
+
+  // TEACHER-SPECIFIC TIPS
+  {
+    id: 'home_welcome_teacher',
+    screen: 'home',
+    userTypes: ['teacher'],
+    title: 'Hoş Geldiniz!',
+    message: 'Öğrencilerinizin yaratıcılığını keşfetmek için burada doğru araçları bulacaksınız.',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'happy',
+  },
+  {
+    id: 'analysis_first_teacher',
+    screen: 'advanced_analysis',
+    userTypes: ['teacher'],
+    title: 'Sınıf Aktivitesi',
+    message: 'Öğrenci çizimlerini toplu olarak analiz edebilir, sınıf raporları oluşturabilirsiniz.',
+    firstTimeOnly: true,
+    priority: 10,
+    mood: 'thinking',
+  },
+  {
+    id: 'coloring_teacher',
+    screen: 'coloring',
+    userTypes: ['teacher'],
+    title: 'Grup Boyama',
+    message: 'Boyama aktivitelerini sınıfta birlikte yaparak takım çalışmasını destekleyin.',
+    firstTimeOnly: true,
+    priority: 9,
+    mood: 'excited',
   },
 ];
 

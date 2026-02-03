@@ -1,9 +1,7 @@
 /**
- * Audio module exports
- * Phase 1: Sound Foundation
+ * Audio Module - Ses yönetimi ana export
  */
 
-export { soundManager, SoundManager } from './SoundManager';
-export { useSound, useSoundPlayer } from './useSound';
-export { SOUNDS, SOUND_CATEGORIES } from './sounds';
-export type { SoundName, SoundCategory, SoundConfig } from './sounds';
+export { SoundManager, soundManager } from './SoundManager';
+export { SOUNDS, SOUND_CATEGORIES, getSoundsByCategory } from './sounds';
+export type { SoundName, SoundCategory } from './sounds';

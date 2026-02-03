@@ -6,27 +6,24 @@
  * - Easter egg detection
  * - Seasonal themes
  * - Milestone celebrations
+ *
+ * Note: Delight features are implemented via hooks and components
+ * (useMilestones, useSeasonalTheme, SeasonalEffects, etc.)
+ * rather than context providers, so this wrapper is a simple pass-through.
  */
 
 import React from 'react';
-import { EasterEggProvider } from './EasterEggs';
-import { SeasonalProvider } from './SeasonalThemes';
-import { DelightProvider } from './DelightMoments';
+import { View } from 'react-native';
 
 interface DelightWrapperProps {
   children: React.ReactNode;
 }
 
 export function DelightWrapper({ children }: DelightWrapperProps) {
-  return (
-    <DelightProvider>
-      <SeasonalProvider>
-        <EasterEggProvider>
-          {children}
-        </EasterEggProvider>
-      </SeasonalProvider>
-    </DelightProvider>
-  );
+  // Delight features (easter eggs, seasonal themes, milestones) are
+  // implemented via hooks and components that can be used directly.
+  // This wrapper provides a consistent API for future provider additions.
+  return <>{children}</>;
 }
 
 export default DelightWrapper;

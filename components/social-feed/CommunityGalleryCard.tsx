@@ -1,0 +1,281 @@
+/**
+ * CommunityGalleryCard - Topluluk Galerisi Kartı
+ *
+ * Grid item for community gallery with:
+ * - Image with gradient overlay
+ * - Age badge
+ * - Theme tag
+ * - Like button with count
+ * - Anonymous (privacy-first)
+ */
+
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Platform,
+  Image,
+  Dimensions,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  FadeIn,
+  FadeInUp,
+} from 'react-native-reanimated';
+import { Heart, ImageIcon } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2;
+const CARD_HEIGHT = CARD_WIDTH * 1.2;
+
+interface CommunityGalleryCardProps {
+  item: {
+    id: string;
+    image_url: string;
+    thumbnail_url?: string | null;
+    child_age?: number | null;
+    theme?: string | null;
+    content_type: string;
+    likes_count: number;
+  };
+  index?: number;
+  isLiked?: boolean;
+  onLike?: (id: string) => void;
+  onPress?: (id: string) => void;
+}
+
+// Theme labels
+const THEME_LABELS: Record<string, { label: string; color: string }> = {
+  family: { label: 'Aile', color: '#EC407A' },
+  nature: { label: 'Doga', color: '#66BB6A' },
+  animals: { label: 'Hayvanlar', color: '#FB8C00' },
+  fantasy: { label: 'Hayal', color: '#AB47BC' },
+  emotions: { label: 'Duygular', color: '#5C6BC0' },
+  seasons: { label: 'Mevsimler', color: '#26A69A' },
+  holidays: { label: 'Tatil', color: '#EF5350' },
+  other: { label: 'Diger', color: '#78909C' },
+};
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export function CommunityGalleryCard({
+  item,
+  index = 0,
+  isLiked = false,
+  onLike,
+  onPress,
+}: CommunityGalleryCardProps) {
+  const [liked, setLiked] = useState(isLiked);
+  const [likesCount, setLikesCount] = useState(item.likes_count);
+  const [imageError, setImageError] = useState(false);
+
+  // Heart animation
+  const heartScale = useSharedValue(1);
+
+  const heartAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heartScale.value }],
+  }));
+
+  const handleLike = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
+    heartScale.value = withSequence(
+      withSpring(1.3, { damping: 5 }),
+      withSpring(1, { damping: 5 })
+    );
+
+    const newLiked = !liked;
+    setLiked(newLiked);
+    setLikesCount(prev => newLiked ? prev + 1 : prev - 1);
+    onLike?.(item.id);
+  };
+
+  const handlePress = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    onPress?.(item.id);
+  };
+
+  const themeStyle = item.theme ? THEME_LABELS[item.theme] : THEME_LABELS.other;
+  const imageSource = item.thumbnail_url || item.image_url;
+
+  return (
+    <AnimatedPressable
+      entering={FadeInUp.delay(index * 50).duration(400).springify()}
+      onPress={handlePress}
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.containerPressed,
+      ]}
+    >
+      {/* Image */}
+      <View style={styles.imageContainer}>
+        {imageError ? (
+          <View style={styles.imagePlaceholder}>
+            <ImageIcon size={32} color="#D1D5DB" />
+          </View>
+        ) : (
+          <Image
+            source={{ uri: imageSource }}
+            style={styles.image}
+            resizeMode="cover"
+            onError={() => setImageError(true)}
+          />
+        )}
+
+        {/* Gradient overlay */}
+        <LinearGradient
+          colors={['transparent', 'transparent', 'rgba(0, 0, 0, 0.5)']}
+          style={styles.imageOverlay}
+        />
+
+        {/* Age badge */}
+        {item.child_age && (
+          <View style={styles.ageBadge}>
+            <Text style={styles.ageBadgeText}>{item.child_age} yas</Text>
+          </View>
+        )}
+
+        {/* Theme tag */}
+        <View style={[styles.themeTag, { backgroundColor: `${themeStyle.color}E6` }]}>
+          <Text style={styles.themeTagText}>{themeStyle.label}</Text>
+        </View>
+      </View>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <Pressable
+          onPress={handleLike}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.likeButton}
+        >
+          <Animated.View style={heartAnimStyle}>
+            <Heart
+              size={18}
+              color={liked ? '#EC4899' : '#9CA3AF'}
+              fill={liked ? '#EC4899' : 'transparent'}
+            />
+          </Animated.View>
+          <Text style={[styles.likesCount, liked && styles.likesCountActive]}>
+            {likesCount}
+          </Text>
+        </Pressable>
+
+        {/* Content type indicator */}
+        <View style={styles.contentTypeIndicator}>
+          <View
+            style={[
+              styles.contentTypeDot,
+              { backgroundColor: item.content_type === 'coloring' ? '#A78BFA' : '#60A5FA' },
+            ]}
+          />
+        </View>
+      </View>
+    </AnimatedPressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    borderRadius: borderRadius.lg,
+    backgroundColor: '#FFF',
+    overflow: 'hidden',
+    ...shadows.md,
+  },
+  containerPressed: {
+    transform: [{ scale: 0.97 }],
+    opacity: 0.9,
+  },
+  imageContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  ageBadge: {
+    position: 'absolute',
+    top: spacing.sm,
+    left: spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: borderRadius.full,
+    ...shadows.sm,
+  },
+  ageBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  themeTag: {
+    position: 'absolute',
+    bottom: spacing.sm,
+    left: spacing.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: borderRadius.sm,
+  },
+  themeTagText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#FFF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    backgroundColor: '#FFF',
+  },
+  likeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 4,
+  },
+  likesCount: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  likesCountActive: {
+    color: '#EC4899',
+  },
+  contentTypeIndicator: {
+    padding: 4,
+  },
+  contentTypeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+});
+
+export default CommunityGalleryCard;

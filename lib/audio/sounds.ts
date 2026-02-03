@@ -1,230 +1,120 @@
 /**
- * Sound constants and types for Renkioo audio system
- * Phase 1: Sound Foundation
+ * Sound Registry - Ses efektleri tanımları
+ *
+ * Uygulama genelinde kullanılan ses efektlerinin merkezi kaydı.
+ * Her ses için kategori, dosya yolu ve varsayılan ses seviyesi tanımlanır.
  */
 
 export type SoundName =
   // UI Sounds
-  | 'UI_TAP'
-  | 'UI_TAP_LIGHT'
-  | 'UI_SUCCESS'
-  | 'UI_ERROR'
-  | 'UI_SWOOSH'
-  | 'UI_POP'
-  | 'UI_TOGGLE'
-  // Celebration Sounds
-  | 'CELEBRATION_FANFARE'
-  | 'CELEBRATION_CONFETTI'
-  | 'CELEBRATION_SPARKLE'
-  // Gamification Sounds
-  | 'XP_GAIN'
-  | 'LEVEL_UP'
-  | 'BADGE_UNLOCK'
-  | 'STREAK_FIRE'
-  | 'STREAK_MILESTONE'
-  // Ioo (Mascot) Sounds
-  | 'IOO_HAPPY'
-  | 'IOO_CURIOUS'
-  | 'IOO_CELEBRATE'
-  | 'IOO_GREETING'
-  // Analysis Sounds
-  | 'ANALYSIS_START'
-  | 'ANALYSIS_COMPLETE';
+  | 'tap_light'
+  | 'tap_medium'
+  | 'tap_heavy'
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'swoosh'
+  | 'pop'
+  | 'toggle'
+  // Gamification
+  | 'xp_gain'
+  | 'level_up'
+  | 'badge_unlock'
+  | 'streak_fire'
+  | 'celebration'
+  | 'confetti'
+  | 'coin'
+  // Ioo
+  | 'ioo_happy'
+  | 'ioo_curious'
+  | 'ioo_celebrate'
+  | 'ioo_thinking'
+  | 'ioo_sad'
+  // Coloring
+  | 'brush_stroke'
+  | 'fill_bucket'
+  | 'color_pick'
+  // Story
+  | 'page_turn'
+  | 'story_complete'
+  // Analysis
+  | 'scan_start'
+  | 'scan_complete'
+  | 'insight_reveal';
 
-export interface SoundConfig {
-  name: SoundName;
-  file: string;
-  volume: number; // 0.0 - 1.0
-  category: 'ui' | 'celebration' | 'gamification' | 'mascot' | 'analysis';
-  description: string;
-}
+export type SoundCategory =
+  | 'ui'
+  | 'gamification'
+  | 'celebration'
+  | 'mascot'
+  | 'coloring'
+  | 'story'
+  | 'analysis';
 
-/**
- * Sound configuration map
- * Note: Sound files should be placed in assets/sounds/
- * For now, we use placeholder paths. Replace with actual audio files.
- */
-export const SOUNDS: Record<SoundName, SoundConfig> = {
-  // UI Sounds
-  UI_TAP: {
-    name: 'UI_TAP',
-    file: 'tap.mp3',
-    volume: 0.5,
-    category: 'ui',
-    description: 'Button tap sound',
-  },
-  UI_TAP_LIGHT: {
-    name: 'UI_TAP_LIGHT',
-    file: 'tap-light.mp3',
-    volume: 0.3,
-    category: 'ui',
-    description: 'Light tap for small interactions',
-  },
-  UI_SUCCESS: {
-    name: 'UI_SUCCESS',
-    file: 'success.mp3',
-    volume: 0.6,
-    category: 'ui',
-    description: 'Success confirmation sound',
-  },
-  UI_ERROR: {
-    name: 'UI_ERROR',
-    file: 'error.mp3',
-    volume: 0.5,
-    category: 'ui',
-    description: 'Error notification sound',
-  },
-  UI_SWOOSH: {
-    name: 'UI_SWOOSH',
-    file: 'swoosh.mp3',
-    volume: 0.4,
-    category: 'ui',
-    description: 'Screen transition swoosh',
-  },
-  UI_POP: {
-    name: 'UI_POP',
-    file: 'pop.mp3',
-    volume: 0.5,
-    category: 'ui',
-    description: 'Popup/modal appearance',
-  },
-  UI_TOGGLE: {
-    name: 'UI_TOGGLE',
-    file: 'toggle.mp3',
-    volume: 0.4,
-    category: 'ui',
-    description: 'Toggle switch sound',
-  },
-
-  // Celebration Sounds
-  CELEBRATION_FANFARE: {
-    name: 'CELEBRATION_FANFARE',
-    file: 'fanfare.mp3',
-    volume: 0.7,
-    category: 'celebration',
-    description: 'Major achievement celebration',
-  },
-  CELEBRATION_CONFETTI: {
-    name: 'CELEBRATION_CONFETTI',
-    file: 'confetti.mp3',
-    volume: 0.6,
-    category: 'celebration',
-    description: 'Confetti burst sound',
-  },
-  CELEBRATION_SPARKLE: {
-    name: 'CELEBRATION_SPARKLE',
-    file: 'sparkle.mp3',
-    volume: 0.5,
-    category: 'celebration',
-    description: 'Sparkle/shine effect',
-  },
-
-  // Gamification Sounds
-  XP_GAIN: {
-    name: 'XP_GAIN',
-    file: 'xp-gain.mp3',
-    volume: 0.5,
-    category: 'gamification',
-    description: 'XP points earned',
-  },
-  LEVEL_UP: {
-    name: 'LEVEL_UP',
-    file: 'level-up.mp3',
-    volume: 0.8,
-    category: 'gamification',
-    description: 'Level up fanfare',
-  },
-  BADGE_UNLOCK: {
-    name: 'BADGE_UNLOCK',
-    file: 'badge-unlock.mp3',
-    volume: 0.7,
-    category: 'gamification',
-    description: 'Badge unlocked sound',
-  },
-  STREAK_FIRE: {
-    name: 'STREAK_FIRE',
-    file: 'streak-fire.mp3',
-    volume: 0.6,
-    category: 'gamification',
-    description: 'Streak maintained fire sound',
-  },
-  STREAK_MILESTONE: {
-    name: 'STREAK_MILESTONE',
-    file: 'streak-milestone.mp3',
-    volume: 0.7,
-    category: 'gamification',
-    description: 'Streak milestone reached',
-  },
-
-  // Ioo (Mascot) Sounds
-  IOO_HAPPY: {
-    name: 'IOO_HAPPY',
-    file: 'ioo-happy.mp3',
-    volume: 0.5,
-    category: 'mascot',
-    description: 'Ioo happy expression',
-  },
-  IOO_CURIOUS: {
-    name: 'IOO_CURIOUS',
-    file: 'ioo-curious.mp3',
-    volume: 0.5,
-    category: 'mascot',
-    description: 'Ioo curious/thinking',
-  },
-  IOO_CELEBRATE: {
-    name: 'IOO_CELEBRATE',
-    file: 'ioo-celebrate.mp3',
-    volume: 0.6,
-    category: 'mascot',
-    description: 'Ioo celebration',
-  },
-  IOO_GREETING: {
-    name: 'IOO_GREETING',
-    file: 'ioo-greeting.mp3',
-    volume: 0.5,
-    category: 'mascot',
-    description: 'Ioo greeting/hello',
-  },
-
-  // Analysis Sounds
-  ANALYSIS_START: {
-    name: 'ANALYSIS_START',
-    file: 'analysis-start.mp3',
-    volume: 0.5,
-    category: 'analysis',
-    description: 'Analysis started',
-  },
-  ANALYSIS_COMPLETE: {
-    name: 'ANALYSIS_COMPLETE',
-    file: 'analysis-complete.mp3',
-    volume: 0.6,
-    category: 'analysis',
-    description: 'Analysis completed',
-  },
+// Category descriptions for settings UI
+export const SOUND_CATEGORIES: Record<SoundCategory, { label: string; description: string }> = {
+  ui: { label: 'Arayüz Sesleri', description: 'Buton, toggle ve genel etkileşim sesleri' },
+  gamification: { label: 'Oyunlaştırma', description: 'XP, seviye atlama ve başarı sesleri' },
+  celebration: { label: 'Kutlama', description: 'Başarı ve tamamlama sesleri' },
+  mascot: { label: 'Ioo Sesleri', description: 'Maskot karakterin sesleri' },
+  coloring: { label: 'Boyama', description: 'Fırça ve boya kovası sesleri' },
+  story: { label: 'Hikaye', description: 'Sayfa çevirme ve hikaye sesleri' },
+  analysis: { label: 'Analiz', description: 'Tarama ve içgörü sesleri' },
 };
 
-// Sound categories for settings
-export const SOUND_CATEGORIES = {
-  ui: {
-    label: 'Arayüz Sesleri',
-    description: 'Buton tıklamaları, geçişler',
-  },
-  celebration: {
-    label: 'Kutlama Sesleri',
-    description: 'Konfeti, fanfare',
-  },
-  gamification: {
-    label: 'Oyun Sesleri',
-    description: 'XP, rozet, seviye',
-  },
-  mascot: {
-    label: 'Ioo Sesleri',
-    description: 'Maskot sesleri',
-  },
-  analysis: {
-    label: 'Analiz Sesleri',
-    description: 'Analiz bildirimleri',
-  },
-} as const;
+interface SoundDefinition {
+  name: SoundName;
+  category: SoundCategory;
+  file: string;
+  volume: number;
+  respectHapticSetting?: boolean;
+}
 
-export type SoundCategory = keyof typeof SOUND_CATEGORIES;
+export const SOUNDS: Record<SoundName, SoundDefinition> = {
+  // UI Sounds
+  tap_light: { name: 'tap_light', category: 'ui', file: 'tap_light.mp3', volume: 0.3, respectHapticSetting: true },
+  tap_medium: { name: 'tap_medium', category: 'ui', file: 'tap_medium.mp3', volume: 0.4, respectHapticSetting: true },
+  tap_heavy: { name: 'tap_heavy', category: 'ui', file: 'tap_heavy.mp3', volume: 0.5, respectHapticSetting: true },
+  success: { name: 'success', category: 'ui', file: 'success.mp3', volume: 0.5 },
+  error: { name: 'error', category: 'ui', file: 'error.mp3', volume: 0.4 },
+  warning: { name: 'warning', category: 'ui', file: 'warning.mp3', volume: 0.4 },
+  swoosh: { name: 'swoosh', category: 'ui', file: 'swoosh.mp3', volume: 0.3 },
+  pop: { name: 'pop', category: 'ui', file: 'pop.mp3', volume: 0.4 },
+  toggle: { name: 'toggle', category: 'ui', file: 'toggle.mp3', volume: 0.3, respectHapticSetting: true },
+
+  // Gamification Sounds
+  xp_gain: { name: 'xp_gain', category: 'gamification', file: 'xp_gain.mp3', volume: 0.5 },
+  level_up: { name: 'level_up', category: 'gamification', file: 'level_up.mp3', volume: 0.7 },
+  badge_unlock: { name: 'badge_unlock', category: 'gamification', file: 'badge_unlock.mp3', volume: 0.6 },
+  streak_fire: { name: 'streak_fire', category: 'gamification', file: 'streak_fire.mp3', volume: 0.5 },
+  coin: { name: 'coin', category: 'gamification', file: 'coin.mp3', volume: 0.4 },
+
+  // Celebration Sounds
+  celebration: { name: 'celebration', category: 'celebration', file: 'celebration.mp3', volume: 0.6 },
+  confetti: { name: 'confetti', category: 'celebration', file: 'confetti.mp3', volume: 0.5 },
+
+  // Mascot (Ioo) Sounds
+  ioo_happy: { name: 'ioo_happy', category: 'mascot', file: 'ioo_happy.mp3', volume: 0.5 },
+  ioo_curious: { name: 'ioo_curious', category: 'mascot', file: 'ioo_curious.mp3', volume: 0.4 },
+  ioo_celebrate: { name: 'ioo_celebrate', category: 'mascot', file: 'ioo_celebrate.mp3', volume: 0.6 },
+  ioo_thinking: { name: 'ioo_thinking', category: 'mascot', file: 'ioo_thinking.mp3', volume: 0.3 },
+  ioo_sad: { name: 'ioo_sad', category: 'mascot', file: 'ioo_sad.mp3', volume: 0.4 },
+
+  // Coloring Sounds
+  brush_stroke: { name: 'brush_stroke', category: 'coloring', file: 'brush_stroke.mp3', volume: 0.2 },
+  fill_bucket: { name: 'fill_bucket', category: 'coloring', file: 'fill_bucket.mp3', volume: 0.4 },
+  color_pick: { name: 'color_pick', category: 'coloring', file: 'color_pick.mp3', volume: 0.3 },
+
+  // Story Sounds
+  page_turn: { name: 'page_turn', category: 'story', file: 'page_turn.mp3', volume: 0.4 },
+  story_complete: { name: 'story_complete', category: 'story', file: 'story_complete.mp3', volume: 0.5 },
+
+  // Analysis Sounds
+  scan_start: { name: 'scan_start', category: 'analysis', file: 'scan_start.mp3', volume: 0.4 },
+  scan_complete: { name: 'scan_complete', category: 'analysis', file: 'scan_complete.mp3', volume: 0.5 },
+  insight_reveal: { name: 'insight_reveal', category: 'analysis', file: 'insight_reveal.mp3', volume: 0.5 },
+};
+
+export function getSoundsByCategory(category: SoundCategory): SoundDefinition[] {
+  return Object.values(SOUNDS).filter((sound) => sound.category === category);
+}

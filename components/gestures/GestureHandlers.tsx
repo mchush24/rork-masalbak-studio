@@ -37,6 +37,8 @@ import {
 import { Heart, Trash2, Share2 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { useFeedback } from '@/hooks/useFeedback';
+import { Ioo } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -590,7 +592,7 @@ export function PullToAction({
       <Animated.View style={[styles.pullActionContainer, actionStyle]}>
         {actionContent || (
           <View style={styles.defaultPullAction}>
-            <Share2 size={24} color={Colors.primary.purple} />
+            <Ioo mood="excited" size="xs" animated />
           </View>
         )}
       </Animated.View>

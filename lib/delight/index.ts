@@ -53,3 +53,6 @@ export {
   responsive,
   colorUtils,
 } from './VisualPolish';
+
+// Wrapper Component
+export { DelightWrapper } from './DelightWrapper';

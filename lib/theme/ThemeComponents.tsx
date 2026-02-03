@@ -30,7 +30,7 @@ import Animated, {
 import { Sun, Moon, Monitor } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, ThemeColors } from './ThemeProvider';
-import { useHaptics } from '@/lib/haptics';
+import { useFeedback } from '@/hooks/useFeedback';
 
 interface ThemeToggleProps {
   showLabels?: boolean;
@@ -47,7 +47,7 @@ export function ThemeToggle({
   style,
 }: ThemeToggleProps) {
   const { mode, isDark, setTheme, toggleTheme } = useTheme();
-  const { tapLight } = useHaptics();
+  const { feedback } = useFeedback();
 
   if (variant === 'segmented') {
     return (
@@ -65,7 +65,7 @@ export function ThemeToggle({
       <IconThemeToggle
         isDark={isDark}
         onToggle={() => {
-          tapLight();
+          feedback('tap');
           toggleTheme();
         }}
         style={style}
@@ -77,7 +77,7 @@ export function ThemeToggle({
     <SwitchThemeToggle
       isDark={isDark}
       onToggle={() => {
-        tapLight();
+        feedback('tap');
         toggleTheme();
       }}
       showLabels={showLabels}
@@ -161,7 +161,7 @@ function SegmentedThemeToggle({
   style,
 }: SegmentedThemeToggleProps) {
   const { colors, isDark } = useTheme();
-  const { tapLight } = useHaptics();
+  const { feedback } = useFeedback();
 
   const options: { value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }[] = [
     { value: 'light', icon: Sun, label: 'Açık' },
@@ -200,7 +200,7 @@ function SegmentedThemeToggle({
           key={option.value}
           style={styles.segmentedOption}
           onPress={() => {
-            tapLight();
+            feedback('tap');
             setTheme(option.value);
           }}
         >

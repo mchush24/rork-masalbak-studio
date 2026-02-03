@@ -22,7 +22,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { X, Sparkles, Star, Flame, Calendar } from 'lucide-react-native';
-import { IooMascotFinal as IooMascot } from './IooMascotFinal';
+import { Ioo } from './Ioo';
 import { IooEmotionPicker, Emotion, EMOTIONS } from './IooEmotionPicker';
 import { useEmotionTracker } from '@/lib/hooks/useEmotionTracker';
 
@@ -212,11 +212,10 @@ export function IooEmotionCheckIn({
             {/* STEP: Greeting */}
             {step === 'greeting' && (
               <View style={styles.stepContent}>
-                <IooMascot
-                  size="large"
+                <Ioo
+                  size="lg"
                   mood={greeting.iooMood}
-                  animated
-                  showGlow
+                  animated={true}
                 />
 
                 <View style={styles.greetingText}>
@@ -303,11 +302,10 @@ export function IooEmotionCheckIn({
                     <Sparkles size={40} color="#FFD93D" />
                   </Animated.View>
 
-                  <IooMascot
-                    size="large"
+                  <Ioo
+                    size="lg"
                     mood={selectedEmotion.iooMood}
-                    animated
-                    showGlow
+                    animated={true}
                   />
 
                   <View style={styles.completeText}>

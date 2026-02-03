@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -7,9 +7,23 @@ import {
   TextInputProps,
   ViewStyle,
   Pressable,
+  Platform,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withSequence,
+  interpolateColor,
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+} from "react-native-reanimated";
+import { Check, AlertCircle } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
 import { spacing, typography, radius, semantic } from "@/constants/tokens";
+import { useHaptic } from "@/lib/haptics";
 
 export type InputSize = "sm" | "md" | "lg";
 export type InputState = "default" | "error" | "success";
@@ -49,6 +63,8 @@ interface InputProps extends Omit<TextInputProps, "style"> {
   state?: InputState;
 }
 
+const AnimatedView = Animated.createAnimatedComponent(View);
+
 export function Input({
   label,
   error,
@@ -64,21 +80,73 @@ export function Input({
   ...textInputProps
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const { error: errorHaptic, success: successHaptic, tap } = useHaptic();
+
+  // Animation values
+  const focusProgress = useSharedValue(0);
+  const shakeX = useSharedValue(0);
+  const borderColorProgress = useSharedValue(0);
+  const labelScale = useSharedValue(1);
+  const glowOpacity = useSharedValue(0);
 
   // Determine state from props
   const state: InputState = controlledState || (error ? "error" : success ? "success" : "default");
 
-  const getBorderColor = () => {
-    if (state === "error") return semantic.error;
-    if (state === "success") return semantic.success;
-    if (isFocused) return Colors.primary.sunset;
-    return Colors.neutral.medium;
-  };
+  // Handle state changes with animations
+  useEffect(() => {
+    if (state === "error") {
+      errorHaptic();
+      // Shake animation
+      shakeX.value = withSequence(
+        withTiming(10, { duration: 50 }),
+        withTiming(-10, { duration: 50 }),
+        withTiming(8, { duration: 50 }),
+        withTiming(-8, { duration: 50 }),
+        withTiming(0, { duration: 50 })
+      );
+      borderColorProgress.value = withTiming(1, { duration: 200 });
+    } else if (state === "success") {
+      successHaptic();
+      borderColorProgress.value = withTiming(2, { duration: 200 });
+    } else {
+      borderColorProgress.value = withTiming(0, { duration: 200 });
+    }
+  }, [state, errorHaptic, successHaptic, shakeX, borderColorProgress]);
+
+  // Handle focus changes
+  useEffect(() => {
+    focusProgress.value = withTiming(isFocused ? 1 : 0, { duration: 200 });
+    glowOpacity.value = withTiming(isFocused ? 0.15 : 0, { duration: 200 });
+  }, [isFocused, focusProgress, glowOpacity]);
+
+  // Animated border style
+  const animatedBorderStyle = useAnimatedStyle(() => {
+    const borderColor = interpolateColor(
+      borderColorProgress.value,
+      [0, 1, 2],
+      [
+        isFocused ? Colors.primary.sunset : Colors.neutral.medium,
+        semantic.error,
+        semantic.success,
+      ]
+    );
+
+    return {
+      borderColor,
+      transform: [{ translateX: shakeX.value }],
+    };
+  });
+
+  // Animated glow style
+  const animatedGlowStyle = useAnimatedStyle(() => ({
+    shadowOpacity: glowOpacity.value,
+    shadowRadius: 8 + focusProgress.value * 4,
+  }));
 
   const getMessage = () => {
-    if (error) return { text: error, color: semantic.error };
-    if (success) return { text: success, color: semantic.success };
-    if (helperText) return { text: helperText, color: Colors.neutral.medium };
+    if (error) return { text: error, color: semantic.error, icon: AlertCircle };
+    if (success) return { text: success, color: semantic.success, icon: Check };
+    if (helperText) return { text: helperText, color: Colors.neutral.medium, icon: null };
     return null;
   };
 
@@ -87,21 +155,26 @@ export function Input({
   return (
     <View style={[styles.container, fullWidth && styles.fullWidth, containerStyle]}>
       {label && (
-        <View style={styles.labelContainer}>
+        <Animated.View
+          entering={FadeIn.duration(200)}
+          style={styles.labelContainer}
+        >
           <Text style={styles.label}>
             {label}
             {required && <Text style={styles.required}> *</Text>}
           </Text>
-        </View>
+        </Animated.View>
       )}
 
-      <View
+      <AnimatedView
         style={[
           styles.inputContainer,
           styles[`inputContainer_${size}`],
-          { borderColor: getBorderColor() },
+          animatedBorderStyle,
+          animatedGlowStyle,
           isFocused && styles.inputContainerFocused,
           state === "error" && styles.inputContainerError,
+          state === "success" && styles.inputContainerSuccess,
           textInputProps.editable === false && styles.inputContainerDisabled,
         ]}
       >
@@ -118,6 +191,7 @@ export function Input({
           placeholderTextColor={Colors.neutral.light}
           onFocus={(e) => {
             setIsFocused(true);
+            tap();
             textInputProps.onFocus?.(e);
           }}
           onBlur={(e) => {
@@ -131,13 +205,33 @@ export function Input({
           }}
         />
 
-        {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
-      </View>
+        {/* Success/Error icon */}
+        {state === "success" && !rightIcon && (
+          <Animated.View
+            entering={FadeIn.springify()}
+            style={styles.stateIconContainer}
+          >
+            <Check size={18} color={semantic.success} />
+          </Animated.View>
+        )}
 
+        {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
+      </AnimatedView>
+
+      {/* Message with animation */}
       {message && (
-        <Text style={[styles.message, { color: message.color }]}>
-          {message.text}
-        </Text>
+        <Animated.View
+          entering={SlideInDown.springify().damping(15)}
+          exiting={FadeOut.duration(150)}
+          style={styles.messageContainer}
+        >
+          {message.icon && (
+            <message.icon size={14} color={message.color} style={styles.messageIcon} />
+          )}
+          <Text style={[styles.message, { color: message.color }]}>
+            {message.text}
+          </Text>
+        </Animated.View>
       )}
     </View>
   );
@@ -194,9 +288,26 @@ const styles = StyleSheet.create({
     borderColor: semantic.error,
     backgroundColor: "#FEF2F2",
   },
+  inputContainerSuccess: {
+    borderColor: semantic.success,
+    backgroundColor: "#F0FDF4",
+  },
   inputContainerDisabled: {
     backgroundColor: Colors.background.primary,
     opacity: 0.6,
+  },
+  stateIconContainer: {
+    marginLeft: spacing.xs,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: spacing.xs,
+  },
+  messageIcon: {
+    marginRight: spacing.xs / 2,
   },
   input: {
     flex: 1,

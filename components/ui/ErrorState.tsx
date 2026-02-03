@@ -33,6 +33,7 @@ import {
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
+import { Ioo } from '@/components/Ioo';
 
 export type ErrorType = 'network' | 'server' | 'auth' | 'notfound' | 'generic' | 'timeout' | 'permission';
 
@@ -200,21 +201,24 @@ export function ErrorState({
         style,
       ]}
     >
-      {/* Icon Container */}
+      {/* Ioo with supportive mood */}
+      <View style={[styles.iooContainer, compact && styles.iooContainerCompact]}>
+        <Ioo
+          mood="sad"
+          size={compact ? 'sm' : 'md'}
+          animated={true}
+        />
+      </View>
+
+      {/* Icon Badge */}
       <LinearGradient
         colors={config.gradient}
-        style={[styles.iconContainer, compact && styles.iconContainerCompact]}
+        style={[styles.iconBadge, compact && styles.iconBadgeCompact]}
       >
         <IconComponent
-          size={compact ? 36 : 48}
+          size={compact ? 18 : 24}
           color={config.iconColor}
         />
-
-        {/* Ioo supportive face */}
-        <View style={styles.iooFace}>
-          <Text style={styles.iooEyes}>◠ ◠</Text>
-          <Text style={styles.iooMouth}>︵</Text>
-        </View>
       </LinearGradient>
 
       {/* Error Message */}
@@ -321,35 +325,33 @@ const styles = StyleSheet.create({
     minHeight: 250,
   },
 
-  // Icon
-  iconContainer: {
-    width: 120,
-    height: 120,
+  // Ioo Container
+  iooContainer: {
+    marginBottom: spacing['4'],
+    position: 'relative',
+  },
+  iooContainerCompact: {
+    marginBottom: spacing['3'],
+  },
+
+  // Icon Badge (positioned relative to Ioo)
+  iconBadge: {
+    width: 48,
+    height: 48,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing['6'],
-    ...shadows.md,
-  },
-  iconContainerCompact: {
-    width: 90,
-    height: 90,
+    marginTop: -spacing['4'],
     marginBottom: spacing['4'],
+    ...shadows.md,
+    borderWidth: 3,
+    borderColor: Colors.neutral.white,
   },
-  iooFace: {
-    position: 'absolute',
-    bottom: 12,
-    alignItems: 'center',
-  },
-  iooEyes: {
-    fontSize: 14,
-    letterSpacing: 4,
-    color: Colors.neutral.dark,
-  },
-  iooMouth: {
-    fontSize: 12,
-    color: Colors.neutral.dark,
-    marginTop: -2,
+  iconBadgeCompact: {
+    width: 36,
+    height: 36,
+    marginTop: -spacing['3'],
+    marginBottom: spacing['3'],
   },
 
   // Text

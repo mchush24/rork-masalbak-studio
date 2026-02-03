@@ -31,7 +31,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { X, Info, Lightbulb, HelpCircle } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
-import { useHaptics } from '@/lib/haptics';
+import { useFeedback } from '@/hooks/useFeedback';
+import { Ioo } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -50,6 +51,8 @@ interface TooltipProps {
   autoDismiss?: number; // ms
   maxWidth?: number;
   style?: StyleProp<ViewStyle>;
+  /** Show Ioo mascot as guide */
+  showIoo?: boolean;
 }
 
 /**
@@ -67,12 +70,13 @@ export function Tooltip({
   autoDismiss,
   maxWidth = 280,
   style,
+  showIoo = false,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false);
   const [targetLayout, setTargetLayout] = useState<LayoutRectangle | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<TooltipPosition>('bottom');
   const targetRef = useRef<View>(null);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { feedback } = useFeedback();
 
   const isControlled = controlledVisible !== undefined;
   const isVisible = isControlled ? controlledVisible : visible;
@@ -88,7 +92,7 @@ export function Tooltip({
 
   const handlePress = () => {
     if (!isControlled) {
-      tapLight();
+      feedback('tap');
       measureTarget();
       setVisible(true);
     }
@@ -173,6 +177,7 @@ export function Tooltip({
           maxWidth={maxWidth}
           showCloseButton={showCloseButton}
           onClose={handleClose}
+          showIoo={showIoo}
         />
       )}
     </>
@@ -189,6 +194,7 @@ interface TooltipOverlayProps {
   maxWidth: number;
   showCloseButton: boolean;
   onClose: () => void;
+  showIoo?: boolean;
 }
 
 function TooltipOverlay({
@@ -201,18 +207,28 @@ function TooltipOverlay({
   maxWidth,
   showCloseButton,
   onClose,
+  showIoo = false,
 }: TooltipOverlayProps) {
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
+  const iooScale = useSharedValue(0.5);
 
   useEffect(() => {
     scale.value = withSpring(1, { damping: 15, stiffness: 150 });
     opacity.value = withTiming(1, { duration: 200 });
-  }, []);
+
+    if (showIoo) {
+      iooScale.value = withDelay(100, withSpring(1, { damping: 12, stiffness: 150 }));
+    }
+  }, [showIoo]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,
+  }));
+
+  const iooAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iooScale.value }],
   }));
 
   const getTooltipStyle = (): ViewStyle => {
@@ -312,9 +328,16 @@ function TooltipOverlay({
           <View style={[styles.arrow, getArrowStyle()]} />
 
           <View style={styles.tooltipContent}>
+            {/* Ioo Guide (optional) */}
+            {showIoo && (
+              <Animated.View style={[styles.tooltipIooContainer, iooAnimatedStyle]}>
+                <Ioo mood="happy" size="xs" animated={true} />
+              </Animated.View>
+            )}
+
             {(title || showCloseButton) && (
               <View style={styles.tooltipHeader}>
-                {icon}
+                {!showIoo && icon}
                 {title && (
                   <Animated.Text style={[styles.tooltipTitle, { color: typeColor }]}>
                     {title}
@@ -392,6 +415,11 @@ const styles = StyleSheet.create({
   },
   tooltipContent: {
     padding: 12,
+  },
+  tooltipIooContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
+    marginTop: -4,
   },
   tooltipHeader: {
     flexDirection: 'row',

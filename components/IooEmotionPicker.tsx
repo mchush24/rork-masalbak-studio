@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { IooMascotFinal as IooMascot, IooMood } from './IooMascotFinal';
+import { Ioo, IooMood } from './Ioo';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -60,7 +60,7 @@ export const EMOTIONS: Emotion[] = [
     emoji: '😌',
     color: '#6BCB77',
     gradient: ['#E8F5E9', '#C8E6C9'] as const,
-    iooMood: 'sleepy',
+    iooMood: 'calm',
     message: 'Sakin hissetmek çok güzel...',
     encouragement: 'Huzurlu anların tadını çıkar!',
   },
@@ -80,7 +80,7 @@ export const EMOTIONS: Emotion[] = [
     emoji: '🥰',
     color: '#FF9EBF',
     gradient: ['#FCE4EC', '#F8BBD0'] as const,
-    iooMood: 'love',
+    iooMood: 'loving',
     message: 'Aww, ne tatlı! Ben de seni seviyorum!',
     encouragement: 'Sevgi her şeyi güzelleştirir!',
   },
@@ -100,7 +100,7 @@ export const EMOTIONS: Emotion[] = [
     emoji: '😢',
     color: '#64B5F6',
     gradient: ['#E3F2FD', '#BBDEFB'] as const,
-    iooMood: 'sleepy',
+    iooMood: 'sad',
     message: 'Üzgün olman da tamam. Yanındayım.',
     encouragement: 'Her şey daha iyi olacak!',
   },
@@ -110,7 +110,7 @@ export const EMOTIONS: Emotion[] = [
     emoji: '😤',
     color: '#FF7043',
     gradient: ['#FBE9E7', '#FFCCBC'] as const,
-    iooMood: 'curious',
+    iooMood: 'angry',
     message: 'Kızgın hissediyorsun, anlıyorum.',
     encouragement: 'Derin nefes al, sakinleş.',
   },
@@ -194,11 +194,10 @@ export function IooEmotionPicker({
       {/* Ioo Mascot */}
       {showIoo && (
         <View style={styles.mascotSection}>
-          <IooMascot
-            size={isCompact ? 'medium' : 'large'}
+          <Ioo
+            size={isCompact ? 'md' : 'lg'}
             mood={selectedEmotion?.iooMood || 'curious'}
-            animated
-            showGlow
+            animated={true}
           />
 
           {/* Speech Bubble with Message */}

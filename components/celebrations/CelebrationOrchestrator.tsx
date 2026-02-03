@@ -37,8 +37,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Trophy, Flame, Award, Zap, Shield, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
-import { hapticService } from '@/lib/haptics';
-import { soundManager } from '@/lib/audio';
+import { hapticManager, type HapticType } from '@/lib/haptics';
+import { soundManager, type SoundName } from '@/lib/audio';
 import { ConfettiAnimation, SparkleAnimation } from '@/components/animations/MicroInteractions';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -70,8 +70,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 1500,
     showConfetti: false,
     fullScreen: false,
-    sound: 'XP_GAIN',
-    haptic: 'XP_TICK',
+    sound: 'xp_gain',
+    haptic: 'xp_gain',
   },
   STREAK_FIRE: {
     type: 'STREAK_FIRE',
@@ -79,8 +79,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 2000,
     showConfetti: false,
     fullScreen: false,
-    sound: 'STREAK_FIRE',
-    haptic: 'TAP_MEDIUM',
+    sound: 'streak_fire',
+    haptic: 'tap',
   },
   STREAK_MILESTONE: {
     type: 'STREAK_MILESTONE',
@@ -88,8 +88,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 2500,
     showConfetti: true,
     fullScreen: false,
-    sound: 'STREAK_MILESTONE',
-    haptic: 'CELEBRATION',
+    sound: 'celebration',
+    haptic: 'celebration',
   },
   BADGE_UNLOCK: {
     type: 'BADGE_UNLOCK',
@@ -97,8 +97,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 4000,
     showConfetti: true,
     fullScreen: true,
-    sound: 'BADGE_UNLOCK',
-    haptic: 'BADGE_UNLOCK',
+    sound: 'badge_unlock',
+    haptic: 'badge_unlock',
   },
   LEVEL_UP: {
     type: 'LEVEL_UP',
@@ -106,8 +106,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 5000,
     showConfetti: true,
     fullScreen: true,
-    sound: 'LEVEL_UP',
-    haptic: 'LEVEL_UP',
+    sound: 'level_up',
+    haptic: 'level_up',
   },
   FIRST_ANALYSIS: {
     type: 'FIRST_ANALYSIS',
@@ -115,8 +115,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 4000,
     showConfetti: true,
     fullScreen: true,
-    sound: 'CELEBRATION_FANFARE',
-    haptic: 'CELEBRATION',
+    sound: 'celebration',
+    haptic: 'celebration',
   },
   STREAK_SAVE: {
     type: 'STREAK_SAVE',
@@ -124,8 +124,8 @@ const CELEBRATION_CONFIGS: Record<CelebrationType, CelebrationConfig> = {
     duration: 2000,
     showConfetti: false,
     fullScreen: false,
-    sound: 'UI_SUCCESS',
-    haptic: 'SUCCESS',
+    sound: 'success',
+    haptic: 'success',
   },
 };
 
@@ -193,8 +193,8 @@ export function CelebrationProvider({ children }: CelebrationProviderProps) {
 
       // Play sound and haptic
       const config = CELEBRATION_CONFIGS[next.type];
-      soundManager.play(config.sound as any);
-      hapticService.play(config.haptic as any);
+      soundManager.play(config.sound as SoundName);
+      hapticManager.trigger(config.haptic as HapticType);
 
       // Auto-dismiss after duration
       timeoutRef.current = setTimeout(() => {

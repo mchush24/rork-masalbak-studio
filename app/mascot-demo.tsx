@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { IooMascotPro as IooMascot, IooMood } from '@/components/IooMascotPro';
+import { Ioo as IooMascot, IooMood } from '@/components/Ioo';
 
 const MOODS: IooMood[] = ['happy', 'excited', 'sleepy', 'curious', 'talking', 'surprised', 'love', 'thinking'];
 const SIZES = ['tiny', 'small', 'medium', 'large', 'hero', 'giant'] as const;

@@ -33,7 +33,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { useAccessibility, useAccessibleFontSize, useMinimumTouchTarget } from './AccessibilityProvider';
+import { useAccessibility, useAccessibleFontSize, useMinimumTouchTarget, useColorBlindSafeColors, ColorBlindMode } from './AccessibilityProvider';
 import { UIColors as Colors } from '@/constants/color-aliases';
 
 interface AccessibleButtonProps {
@@ -502,7 +502,187 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.neutral.dark,
   },
+
+  // Color Blind Mode Selector
+  colorBlindSelector: {
+    gap: 12,
+  },
+  colorBlindOption: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    gap: 12,
+  },
+  colorBlindOptionSelected: {
+    borderColor: Colors.primary.purple,
+    backgroundColor: `${Colors.primary.purple}10`,
+  },
+  colorBlindOptionUnselected: {
+    borderColor: Colors.neutral.lighter,
+    backgroundColor: Colors.neutral.white,
+  },
+  colorBlindOptionRadio: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  colorBlindOptionRadioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: Colors.primary.purple,
+  },
+  colorBlindOptionContent: {
+    flex: 1,
+  },
+  colorBlindOptionLabel: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: Colors.neutral.dark,
+  },
+  colorBlindOptionDescription: {
+    fontSize: 13,
+    color: Colors.neutral.medium,
+    marginTop: 2,
+  },
+  colorBlindPreview: {
+    flexDirection: 'row' as const,
+    gap: 4,
+    marginTop: 8,
+  },
+  colorBlindPreviewDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+  },
 });
+
+interface ColorBlindModeSelectorProps {
+  value: ColorBlindMode;
+  onValueChange: (mode: ColorBlindMode) => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+const COLOR_BLIND_OPTIONS: { value: ColorBlindMode; label: string; description: string }[] = [
+  {
+    value: 'none',
+    label: 'Normal',
+    description: 'Standart renk görünümü',
+  },
+  {
+    value: 'deuteranopia',
+    label: 'Deuteranopi',
+    description: 'Kırmızı-yeşil renk körlüğü (en yaygın)',
+  },
+  {
+    value: 'protanopia',
+    label: 'Protanopi',
+    description: 'Kırmızı renk körlüğü',
+  },
+  {
+    value: 'tritanopia',
+    label: 'Tritanopi',
+    description: 'Mavi-sarı renk körlüğü',
+  },
+];
+
+/**
+ * Color blind mode selector component
+ */
+export function ColorBlindModeSelector({
+  value,
+  onValueChange,
+  style,
+}: ColorBlindModeSelectorProps) {
+  const { colors: safeColors } = useColorBlindSafeColors();
+  const minTouchSize = useMinimumTouchTarget();
+
+  return (
+    <View style={[styles.colorBlindSelector, style]}>
+      {COLOR_BLIND_OPTIONS.map((option) => {
+        const isSelected = value === option.value;
+        return (
+          <Pressable
+            key={option.value}
+            onPress={() => onValueChange(option.value)}
+            accessibilityLabel={`${option.label}, ${option.description}`}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: isSelected }}
+            style={[
+              styles.colorBlindOption,
+              { minHeight: minTouchSize + 20 },
+              isSelected ? styles.colorBlindOptionSelected : styles.colorBlindOptionUnselected,
+            ]}
+          >
+            <View
+              style={[
+                styles.colorBlindOptionRadio,
+                { borderColor: isSelected ? Colors.primary.purple : Colors.neutral.light },
+              ]}
+            >
+              {isSelected && <View style={styles.colorBlindOptionRadioInner} />}
+            </View>
+            <View style={styles.colorBlindOptionContent}>
+              <Text style={styles.colorBlindOptionLabel}>{option.label}</Text>
+              <Text style={styles.colorBlindOptionDescription}>{option.description}</Text>
+              {option.value !== 'none' && (
+                <View style={styles.colorBlindPreview}>
+                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.success }]} />
+                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.error }]} />
+                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.warning }]} />
+                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.info }]} />
+                </View>
+              )}
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+interface CognitiveAccessibilityToggleProps {
+  simplifiedLanguage: boolean;
+  reducedInformation: boolean;
+  onSimplifiedLanguageChange: (value: boolean) => void;
+  onReducedInformationChange: (value: boolean) => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+/**
+ * Cognitive accessibility settings component
+ */
+export function CognitiveAccessibilitySettings({
+  simplifiedLanguage,
+  reducedInformation,
+  onSimplifiedLanguageChange,
+  onReducedInformationChange,
+  style,
+}: CognitiveAccessibilityToggleProps) {
+  return (
+    <View style={style}>
+      <AccessibilitySettingsItem
+        label="Basitleştirilmiş Dil"
+        description="Daha kısa ve anlaşılır metinler kullan"
+        value={simplifiedLanguage}
+        onValueChange={onSimplifiedLanguageChange}
+        type="toggle"
+      />
+      <AccessibilitySettingsItem
+        label="Azaltılmış Bilgi"
+        description="Daha az detay göster, temel bilgilere odaklan"
+        value={reducedInformation}
+        onValueChange={onReducedInformationChange}
+        type="toggle"
+      />
+    </View>
+  );
+}
 
 export default {
   AccessibleButton,
@@ -514,4 +694,6 @@ export default {
   AccessibilitySettingsItem,
   HighContrastWrapper,
   ReducedMotionWrapper,
+  ColorBlindModeSelector,
+  CognitiveAccessibilitySettings,
 };

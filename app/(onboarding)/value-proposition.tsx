@@ -52,7 +52,7 @@ import {
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
-import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
+import { Ioo as IooMascot } from '@/components/Ioo';
 import { useHapticFeedback } from '@/lib/haptics';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');

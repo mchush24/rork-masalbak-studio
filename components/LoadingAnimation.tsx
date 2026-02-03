@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, StyleSheet, Dimensions, Platform } from 'react-native';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
@@ -10,19 +10,99 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedG = Animated.createAnimatedComponent(G);
 
-type AnimationType = 'drawing' | 'painting' | 'story' | 'analysis';
+type AnimationType = 'drawing' | 'painting' | 'story' | 'analysis' | 'thinking' | 'uploading' | 'magic';
+
+// Rotating tips for each animation type
+const LOADING_TIPS: Record<AnimationType, string[]> = {
+  drawing: [
+    'Çocukların çizimleri duygusal bir harita gibidir.',
+    'Renk seçimleri ruh halini yansıtabilir.',
+    'Çizim büyüklükleri özgüven göstergesi olabilir.',
+  ],
+  painting: [
+    'Boyama aktiviteleri stresi azaltmaya yardımcı olur.',
+    'Yaratıcılık beyni aktif tutar.',
+    'Renkleri birlikte keşfetmek bağ kurar.',
+  ],
+  story: [
+    'Hikayeler empati geliştirmeye yardımcı olur.',
+    'Seçimler düşünce kalıplarını gösterir.',
+    'Birlikte okuma kaliteli vakit demek.',
+  ],
+  analysis: [
+    'Her çizim bir hikaye anlatır.',
+    'Duygusal temalar zaman içinde değişebilir.',
+    'Düzenli takip gelişimi gösterir.',
+  ],
+  thinking: [
+    'Biraz düşünmeme izin ver...',
+    'En iyi sonucu hazırlıyorum.',
+    'Detayları inceliyorum.',
+  ],
+  uploading: [
+    'Dosya güvenle yükleniyor.',
+    'Verileriniz şifreli olarak korunuyor.',
+    'Neredeyse bitti!',
+  ],
+  magic: [
+    'Sihirli dokunuşlar ekleniyor...',
+    'Yaratıcılık devrede!',
+    'Bir şeyler harika olacak...',
+  ],
+};
 
 interface LoadingAnimationProps {
   type: AnimationType;
   message?: string;
+  /** Show rotating tips */
+  showTips?: boolean;
+  /** Tip rotation interval in ms */
+  tipInterval?: number;
+  /** Progress percentage (0-100), if available */
+  progress?: number;
 }
 
-export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
+export function LoadingAnimation({
+  type,
+  message,
+  showTips = true,
+  tipInterval = 3000,
+  progress,
+}: LoadingAnimationProps) {
+  // Rotating tips state
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const tips = LOADING_TIPS[type] || LOADING_TIPS.thinking;
+  const tipOpacity = useRef(new Animated.Value(1)).current;
   const rotation = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
   const opacity1 = useRef(new Animated.Value(0.3)).current;
   const opacity2 = useRef(new Animated.Value(0.6)).current;
   const opacity3 = useRef(new Animated.Value(1)).current;
+
+  // Tip rotation effect
+  useEffect(() => {
+    if (!showTips || tips.length <= 1) return;
+
+    const interval = setInterval(() => {
+      // Fade out
+      Animated.timing(tipOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      }).start(() => {
+        // Change tip
+        setCurrentTipIndex((prev) => (prev + 1) % tips.length);
+        // Fade in
+        Animated.timing(tipOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: USE_NATIVE_DRIVER,
+        }).start();
+      });
+    }, tipInterval);
+
+    return () => clearInterval(interval);
+  }, [showTips, tips.length, tipInterval, tipOpacity]);
 
   useEffect(() => {
     // Rotation animation
@@ -108,6 +188,12 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
         return 'Hikaye yazılıyor';
       case 'analysis':
         return 'Duygusal analiz yapılıyor';
+      case 'thinking':
+        return 'Düşünüyorum';
+      case 'uploading':
+        return 'Yükleniyor';
+      case 'magic':
+        return 'Sihir yapılıyor';
       default:
         return 'Yükleniyor';
     }
@@ -123,6 +209,12 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
         return colors.gradients.accessible; // Purple-pink
       case 'analysis':
         return ['#667eea', '#764ba2', '#f093fb']; // Deep purple to pink gradient
+      case 'thinking':
+        return ['#E8D5FF', '#C7CEEA', '#B98EFF']; // Soft lavender
+      case 'uploading':
+        return ['#4ECDC4', '#44A08D', '#093637']; // Teal to dark
+      case 'magic':
+        return ['#FFD93D', '#FF6B9D', '#C7CEEA']; // Gold to pink to lavender
       default:
         return colors.gradients.professional;
     }
@@ -391,12 +483,30 @@ export function LoadingAnimation({ type, message }: LoadingAnimationProps) {
           {/* Message */}
           <Text style={styles.message}>{message || getDefaultMessage()}</Text>
 
+          {/* Progress indicator */}
+          {progress !== undefined && (
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: `${progress}%` }]} />
+              </View>
+              <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+            </View>
+          )}
+
           {/* Animated Dots */}
           <View style={styles.dotsContainer}>
             <Animated.View style={[styles.dot, { opacity: opacity1 }]} />
             <Animated.View style={[styles.dot, { opacity: opacity2 }]} />
             <Animated.View style={[styles.dot, { opacity: opacity3 }]} />
           </View>
+
+          {/* Rotating Tips */}
+          {showTips && (
+            <Animated.View style={[styles.tipContainer, { opacity: tipOpacity }]}>
+              <Text style={styles.tipLabel}>💡 Biliyor muydun?</Text>
+              <Text style={styles.tipText}>{tips[currentTipIndex]}</Text>
+            </Animated.View>
+          )}
         </View>
       </LinearGradient>
     </View>
@@ -443,5 +553,51 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     backgroundColor: 'white',
+  },
+  // Progress styles
+  progressContainer: {
+    width: '80%',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  progressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: spacing.xs,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: 'white',
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: typography.fontSize.sm,
+    color: 'white',
+    fontWeight: '600',
+  },
+  // Tip styles
+  tipContainer: {
+    marginTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 16,
+    maxWidth: SCREEN_WIDTH * 0.85,
+    alignItems: 'center',
+  },
+  tipLabel: {
+    fontSize: typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+  },
+  tipText: {
+    fontSize: typography.fontSize.base,
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: typography.fontSize.base * 1.5,
   },
 });

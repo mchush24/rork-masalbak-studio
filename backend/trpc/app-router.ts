@@ -40,6 +40,7 @@ import { recordColoringActivityProcedure, getColoringStatsProcedure } from "./ro
 import { chatbotRouter } from "./routes/chatbot.js";
 import { analysisChatRouter } from "./routes/analysis-chat.js";
 import { analysisNotesRouter } from "./routes/analysis-notes.js";
+import { socialFeedRouter } from "./routes/social-feed.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -99,6 +100,7 @@ export const appRouter = createTRPCRouter({
   chatbot: chatbotRouter,
   analysisChat: analysisChatRouter,
   analysisNotes: analysisNotesRouter,
+  socialFeed: socialFeedRouter,
 });
 
 export type AppRouter = typeof appRouter;

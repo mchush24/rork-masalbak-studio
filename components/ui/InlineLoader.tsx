@@ -13,7 +13,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
+import { Ioo, IooSize } from '@/components/Ioo';
 
 type LoaderSize = 'tiny' | 'small' | 'medium';
 type LoaderVariant = 'dots' | 'pulse' | 'bounce' | 'ioo';
@@ -26,10 +26,10 @@ interface InlineLoaderProps {
   showMessage?: boolean;
 }
 
-const SIZE_CONFIG = {
-  tiny: { dot: 4, gap: 4, ioo: 'tiny' as const },
-  small: { dot: 6, gap: 6, ioo: 'small' as const },
-  medium: { dot: 8, gap: 8, ioo: 'small' as const },
+const SIZE_CONFIG: Record<LoaderSize, { dot: number; gap: number; ioo: IooSize }> = {
+  tiny: { dot: 4, gap: 4, ioo: 'xs' },
+  small: { dot: 6, gap: 6, ioo: 'xs' },
+  medium: { dot: 8, gap: 8, ioo: 'sm' },
 };
 
 export function InlineLoader({
@@ -186,7 +186,7 @@ export function InlineLoader({
   const renderIoo = () => {
     return (
       <View style={styles.iooContainer}>
-        <IooMascot size={config.ioo} mood="curious" animated showGlow={false} />
+        <Ioo size={config.ioo} mood="thinking" animated={true} />
       </View>
     );
   };

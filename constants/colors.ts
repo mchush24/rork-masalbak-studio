@@ -13,6 +13,60 @@
  * High-end Glassmorphism with Fluid Gradients
  * Dream Guardian Mascot: Ioo (I + oo = Star + Eyes)
  */
+// Ethereal Color Palette - Dreamy, luminescent, otherworldly
+export const EtherealColors = {
+  // Core ethereal colors - soft, glowing pastels
+  core: {
+    moonlight: '#F0F4FF',      // Soft silvery blue
+    stardust: '#E8E0F0',       // Pale lavender with shimmer
+    aurora: '#E0F5F0',         // Mint with ethereal glow
+    nebula: '#F5E0F0',         // Soft pink-purple
+    celestial: '#E8F0FF',      // Light sky blue
+    twilight: '#E0E8F5',       // Dusk blue-purple
+  },
+
+  // Luminescent accents - glowing highlights
+  glow: {
+    soft: 'rgba(255, 255, 255, 0.6)',
+    medium: 'rgba(255, 255, 255, 0.8)',
+    bright: 'rgba(255, 255, 255, 0.95)',
+    moonbeam: 'rgba(240, 244, 255, 0.9)',
+    starshine: 'rgba(255, 248, 240, 0.85)',
+  },
+
+  // Iridescent shimmer colors
+  shimmer: {
+    pearl: ['#FFFFFF', '#F0F4FF', '#FFE8F0', '#E8FFF0'] as const,
+    opal: ['#E8F0FF', '#F0E8FF', '#FFE8F0', '#E8FFF5'] as const,
+    crystal: ['#FFFFFF', '#F8F0FF', '#FFF0F8', '#F0FFF8'] as const,
+  },
+
+  // Ethereal gradients - dreamy transitions
+  gradients: {
+    moonrise: ['#F0F4FF', '#E8E0F0', '#F5E0F0'] as const,
+    starfall: ['#E8F0FF', '#F0E8FF', '#FFE8F5'] as const,
+    dreamscape: ['#F0F4FF', '#E0F5F0', '#F5E0F0', '#E8F0FF'] as const,
+    aurora: ['#E0F5F0', '#E8E0F0', '#F0E8FF', '#E8F0FF'] as const,
+    twilightSky: ['#E0E8F5', '#E8E0F0', '#F5E0F0'] as const,
+    celestialDawn: ['#FFF8F0', '#F0F4FF', '#E8E0F0'] as const,
+  },
+
+  // Translucent overlays
+  veil: {
+    light: 'rgba(240, 244, 255, 0.4)',
+    medium: 'rgba(232, 224, 240, 0.5)',
+    deep: 'rgba(224, 232, 245, 0.6)',
+  },
+
+  // Ethereal shadows - soft and diffused
+  shadows: {
+    soft: 'rgba(200, 210, 230, 0.2)',
+    medium: 'rgba(180, 190, 220, 0.3)',
+    deep: 'rgba(160, 170, 200, 0.4)',
+    glow: 'rgba(240, 244, 255, 0.5)',
+  },
+} as const;
+
 export const RenkooColors = {
   // Brand Gradients - Dream Palette
   brand: {

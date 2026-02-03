@@ -47,6 +47,8 @@ export function SoundSettings({ visible, onClose }: SoundSettingsProps) {
     celebration: true,
     gamification: true,
     mascot: true,
+    coloring: true,
+    story: true,
     analysis: true,
   });
 
@@ -58,6 +60,8 @@ export function SoundSettings({ visible, onClose }: SoundSettingsProps) {
       celebration: isCategoryEnabled('celebration'),
       gamification: isCategoryEnabled('gamification'),
       mascot: isCategoryEnabled('mascot'),
+      coloring: isCategoryEnabled('coloring'),
+      story: isCategoryEnabled('story'),
       analysis: isCategoryEnabled('analysis'),
     });
   }, [volume, isCategoryEnabled, visible]);

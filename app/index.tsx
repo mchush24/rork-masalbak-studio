@@ -38,7 +38,7 @@ import { useRouter, Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
 // Components
-import { IooMascotFinal as IooMascot } from '@/components/IooMascotFinal';
+import { Ioo as IooMascot } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;

@@ -30,10 +30,11 @@ import Animated, {
   SlideInRight,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, ExternalLink, Info, ChevronRight } from 'lucide-react-native';
+import { X, ExternalLink, Info, ChevronRight, MessageCircle, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
+import { Ioo, IooMood } from '@/components/Ioo';
 import {
   assistantEngine,
   ScreenContext,
@@ -53,13 +54,13 @@ interface IooAssistantProps {
   compact?: boolean;
 }
 
-// Ioo face expressions
-const IOO_MOODS = {
-  happy: { eyes: '◡ ◡', mouth: '◡', color: Colors.secondary.grass },
-  curious: { eyes: '◉ ◉', mouth: '○', color: Colors.secondary.sky },
-  thinking: { eyes: '◑ ◑', mouth: '~', color: Colors.secondary.lavender },
-  excited: { eyes: '★ ★', mouth: 'D', color: Colors.secondary.sunshine },
-  supportive: { eyes: '◠ ◠', mouth: '‿', color: Colors.primary.sunset },
+// Ioo mood mapping for assistant tips
+const IOO_MOOD_MAP: Record<string, { iooMood: IooMood; color: string }> = {
+  happy: { iooMood: 'happy', color: Colors.secondary.grass },
+  curious: { iooMood: 'curious', color: Colors.secondary.sky },
+  thinking: { iooMood: 'curious', color: Colors.secondary.lavender },
+  excited: { iooMood: 'excited', color: Colors.secondary.sunshine },
+  supportive: { iooMood: 'love', color: Colors.primary.sunset },
 };
 
 export function IooAssistant({
@@ -148,7 +149,7 @@ export function IooAssistant({
   if (!visible) return null;
 
   const mood = currentTip?.mood || 'happy';
-  const moodConfig = IOO_MOODS[mood];
+  const moodConfig = IOO_MOOD_MAP[mood] || IOO_MOOD_MAP.happy;
 
   return (
     <>
@@ -169,21 +170,29 @@ export function IooAssistant({
             pressed && styles.iooButtonPressed,
           ]}
         >
-          <LinearGradient
-            colors={['#FFF8F0', '#FFE8D6']}
-            style={[styles.iooBody, compact && styles.iooBodyCompact]}
-          >
-            <Text style={[styles.iooEyes, compact && styles.iooEyesCompact]}>
-              {moodConfig.eyes}
-            </Text>
-            <Text style={[styles.iooMouth, compact && styles.iooMouthCompact]}>
-              {moodConfig.mouth}
-            </Text>
-          </LinearGradient>
+          <View style={[styles.iooWrapper, compact && styles.iooWrapperCompact]}>
+            <Ioo
+              mood={moodConfig.iooMood}
+              size={compact ? 'xs' : 'sm'}
+              animated={true}
+            />
+          </View>
 
           {/* Notification dot if there's a tip */}
           {currentTip && (
-            <View style={[styles.notificationDot, { backgroundColor: moodConfig.color }]} />
+            <View style={[styles.notificationDot, { backgroundColor: moodConfig.color }]}>
+              <Sparkles size={8} color="#FFF" />
+            </View>
+          )}
+
+          {/* Speech bubble hint */}
+          {currentTip && !showTipPanel && (
+            <Animated.View
+              entering={FadeIn.delay(500)}
+              style={styles.speechBubble}
+            >
+              <MessageCircle size={12} color={Colors.secondary.lavender} />
+            </Animated.View>
           )}
         </Pressable>
       </Animated.View>
@@ -252,13 +261,7 @@ export function IooAssistant({
           <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
             <View style={styles.modalHeader}>
               <View style={styles.modalIoo}>
-                <LinearGradient
-                  colors={['#FFF8F0', '#FFE8D6']}
-                  style={styles.modalIooBody}
-                >
-                  <Text style={styles.modalIooEyes}>◡ ◡</Text>
-                  <Text style={styles.modalIooMouth}>◡</Text>
-                </LinearGradient>
+                <Ioo mood="happy" size="lg" animated={true} />
               </View>
               <Text style={styles.modalTitle}>Merhaba!</Text>
               <Text style={styles.modalSubtitle}>
@@ -303,12 +306,17 @@ function getScreenHelpText(screen: ScreenContext): string {
   const texts: Record<ScreenContext, string> = {
     home: 'Ana sayfadan tüm özelliklere erişebilirsiniz. Kartlara dokunarak başlayın.',
     analysis: 'Çocuğunuzun çizimini yükleyerek AI destekli analiz yapabilirsiniz.',
+    quick_analysis: 'Hızlı analiz ile anında duygusal temalar hakkında bilgi alın.',
+    advanced_analysis: 'Detaylı analiz için bağlam bilgisi ekleyerek daha derinlemesine sonuçlar elde edin.',
     analysis_result: 'Analiz sonuçlarını inceleyebilir, kaydedebilir veya paylaşabilirsiniz.',
     story: 'İnteraktif hikayeler seçerek çocuğunuzla okuma zamanı geçirebilirsiniz.',
     story_reading: 'Hikayedeki seçimleri çocuğunuzla birlikte yapın.',
     coloring: 'Boyama araçlarını kullanarak yaratıcılığınızı ortaya koyun.',
+    studio: 'Yaratıcı stüdyoda serbest çizim yaparak hayal gücünüzü konuşturun.',
+    hayal_atolyesi: 'Hayal atölyesinde çocuğunuzla birlikte yaratıcı aktivitelere katılın.',
     profile: 'Profil ayarlarınızı ve çocuk profillerini buradan yönetebilirsiniz.',
     history: 'Geçmiş aktivitelerinizi ve analizlerinizi görüntüleyebilirsiniz.',
+    settings: 'Uygulama tercihlerinizi ve bildirim ayarlarınızı yönetin.',
   };
   return texts[screen] || 'Size nasıl yardımcı olabilirim?';
 }
@@ -327,51 +335,51 @@ const styles = StyleSheet.create({
     ...shadows.lg,
   },
   iooButtonCompact: {
-    transform: [{ scale: 0.8 }],
+    transform: [{ scale: 0.85 }],
   },
   iooButtonPressed: {
     opacity: 0.9,
     transform: [{ scale: 0.95 }],
   },
-  iooBody: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.full,
+  iooWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.8)',
+    borderColor: 'rgba(167, 139, 250, 0.3)',
+    ...shadows.md,
   },
-  iooBodyCompact: {
-    width: 44,
-    height: 44,
-  },
-  iooEyes: {
-    fontSize: 14,
-    letterSpacing: 4,
-    color: Colors.neutral.darkest,
-    marginBottom: -2,
-  },
-  iooEyesCompact: {
-    fontSize: 12,
-    letterSpacing: 3,
-  },
-  iooMouth: {
-    fontSize: 12,
-    color: Colors.neutral.darkest,
-  },
-  iooMouthCompact: {
-    fontSize: 10,
+  iooWrapperCompact: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
   },
   notificationDot: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    top: -2,
+    right: -2,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 2,
     borderColor: Colors.neutral.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  speechBubble: {
+    position: 'absolute',
+    top: -8,
+    left: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.neutral.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...shadows.sm,
   },
 
   // Tip Panel

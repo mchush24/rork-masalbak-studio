@@ -36,6 +36,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronRight, ChevronLeft, X, Sparkles } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { useFeedback } from '@/hooks/useFeedback';
+import { Ioo } from '@/components/Ioo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -79,7 +81,7 @@ export function Spotlight({
   const [visible, setVisible] = useState(false);
   const [targetLayout, setTargetLayout] = useState<LayoutRectangle | null>(null);
   const targetRef = useRef<View>(null);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { feedback } = useFeedback();
 
   useEffect(() => {
     const checkAndShow = async () => {
@@ -106,7 +108,7 @@ export function Spotlight({
   };
 
   const handleDismiss = async () => {
-    tapLight();
+    feedback('success');
     if (showOnce) {
       await AsyncStorage.setItem(`${DISCOVERY_PREFIX}${id}`, 'true');
     }
@@ -150,6 +152,8 @@ function SpotlightOverlay({
 }: SpotlightOverlayProps) {
   const pulseScale = useSharedValue(1);
   const contentOpacity = useSharedValue(0);
+  const iooScale = useSharedValue(0.5);
+  const iooBounce = useSharedValue(0);
 
   useEffect(() => {
     pulseScale.value = withRepeat(
@@ -162,6 +166,19 @@ function SpotlightOverlay({
     );
 
     contentOpacity.value = withTiming(1, { duration: 300 });
+
+    // Ioo entrance animation
+    iooScale.value = withSpring(1, { damping: 12, stiffness: 150 });
+
+    // Ioo subtle bounce
+    iooBounce.value = withRepeat(
+      withSequence(
+        withTiming(-5, { duration: 600, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 600, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
   }, []);
 
   const pulseStyle = useAnimatedStyle(() => ({
@@ -170,6 +187,13 @@ function SpotlightOverlay({
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
+  }));
+
+  const iooAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: iooScale.value },
+      { translateY: iooBounce.value },
+    ],
   }));
 
   const PADDING = 16;
@@ -243,9 +267,11 @@ function SpotlightOverlay({
           ]}
         >
           <View style={styles.spotlightContentInner}>
-            <View style={styles.spotlightIcon}>
-              <Sparkles size={24} color={Colors.primary.purple} />
-            </View>
+            {/* Ioo Guide Mascot */}
+            <Animated.View style={[styles.spotlightIooContainer, iooAnimatedStyle]}>
+              <Ioo mood="excited" size="sm" animated={true} />
+            </Animated.View>
+
             <Animated.Text style={styles.spotlightTitle}>{title}</Animated.Text>
             <Animated.Text style={styles.spotlightDescription}>
               {description}
@@ -282,7 +308,7 @@ export function FeatureTour({
 }: FeatureTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [layouts, setLayouts] = useState<Map<number, LayoutRectangle>>(new Map());
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { feedback } = useFeedback();
 
   useEffect(() => {
     if (visible) {
@@ -300,7 +326,7 @@ export function FeatureTour({
   };
 
   const handleNext = () => {
-    tapMedium();
+    feedback('tap');
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -309,20 +335,20 @@ export function FeatureTour({
   };
 
   const handlePrev = () => {
-    tapLight();
+    feedback('tap');
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleComplete = async () => {
-    success();
+    feedback('success');
     await AsyncStorage.setItem(`${DISCOVERY_PREFIX}tour_${tourId}`, 'true');
     onComplete();
   };
 
   const handleSkip = async () => {
-    tapLight();
+    feedback('tap');
     await AsyncStorage.setItem(`${DISCOVERY_PREFIX}tour_${tourId}`, 'true');
     onSkip?.();
   };
@@ -391,13 +417,27 @@ function TourCard({
   isLast,
 }: TourCardProps) {
   const scale = useSharedValue(0.9);
+  const iooRotate = useSharedValue(0);
 
   useEffect(() => {
     scale.value = withSpring(1, { damping: 15 });
+
+    // Ioo wave animation when step changes
+    iooRotate.value = withSequence(
+      withTiming(-10, { duration: 150 }),
+      withTiming(10, { duration: 150 }),
+      withTiming(-5, { duration: 100 }),
+      withTiming(5, { duration: 100 }),
+      withTiming(0, { duration: 100 })
+    );
   }, [currentStep]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+  }));
+
+  const iooAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${iooRotate.value}deg` }],
   }));
 
   const position = step.position || (
@@ -414,6 +454,15 @@ function TourCard({
       <Pressable style={styles.tourSkipButton} onPress={onSkip}>
         <X size={18} color={Colors.neutral.medium} />
       </Pressable>
+
+      {/* Ioo Guide Mascot */}
+      <Animated.View style={[styles.tourIooContainer, iooAnimatedStyle]}>
+        <Ioo
+          mood={isLast ? 'excited' : 'happy'}
+          size="xs"
+          animated={true}
+        />
+      </Animated.View>
 
       {/* Progress dots */}
       <View style={styles.tourProgress}>
@@ -654,14 +703,10 @@ const styles = StyleSheet.create({
     elevation: 8,
     maxWidth: 320,
   },
-  spotlightIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary.purple + '15',
-    justifyContent: 'center',
+  spotlightIooContainer: {
+    marginBottom: 12,
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'center',
   },
   spotlightTitle: {
     fontSize: 20,
@@ -722,6 +767,11 @@ const styles = StyleSheet.create({
     top: 12,
     right: 12,
     padding: 8,
+    zIndex: 10,
+  },
+  tourIooContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
   },
   tourProgress: {
     flexDirection: 'row',

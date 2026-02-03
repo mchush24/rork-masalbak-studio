@@ -26,7 +26,7 @@ import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
-import { IooMascotFinal } from '@/components/IooMascotFinal';
+import { Ioo } from '@/components/Ioo';
 import { AnimatedMessage } from '@/components/chat/AnimatedMessage';
 import { ChatMessage } from './ChatMessage';
 import { QuickPrompts } from './QuickPrompts';
@@ -209,7 +209,7 @@ export function AnalysisChatSheet({
           >
             <View style={styles.headerContent}>
               <View style={styles.headerLeft}>
-                <IooMascotFinal size="small" mood="curious" animated />
+                <Ioo size="sm" mood="curious" animated={true} />
                 <View style={styles.headerTextContainer}>
                   <Text style={styles.headerTitle}>Ioo ile Sohbet</Text>
                   <Text style={styles.headerSubtitle}>
@@ -260,7 +260,7 @@ export function AnalysisChatSheet({
                 <View style={styles.welcomeSection}>
                   <AnimatedMessage type="assistant">
                     <View style={styles.welcomeCard}>
-                      <IooMascotFinal size="medium" mood="happy" />
+                      <Ioo size="md" mood="happy" animated={true} />
                       <Text style={styles.welcomeTitle}>
                         Merhaba{childName ? ` ${childName}'in ebeveyni` : ''}!
                       </Text>
