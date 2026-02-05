@@ -1,23 +1,18 @@
 import { createTRPCReact } from "@trpc/react-query";
 import { httpBatchLink } from "@trpc/client";
 import type { AppRouter } from "../types/trpc";
-import { QueryClient } from "@tanstack/react-query";
 import superjson from "superjson";
 import { Platform } from "react-native";
 import Constants from "expo-constants";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createOptimizedQueryClient } from './query';
 
 const ACCESS_TOKEN_KEY = '@renkioo_access_token';
 
 export const trpc = createTRPCReact<AppRouter>();
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 dakika
-    },
-  },
-});
+// Use optimized query client with better cache management
+export const queryClient = createOptimizedQueryClient();
 
 // Backend server URL (runs separately from Expo dev server)
 const getApiUrl = () => {

@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.expo/
+
+# Native directories
+ios/
+android/
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.generated.*
+*.d.ts
+
+# Assets
+assets/fonts/
+assets/images/
+assets/models/
+
+# Misc
+.git/
+coverage/
+*.log

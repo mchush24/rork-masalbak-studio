@@ -29,3 +29,29 @@ export {
   withPerformanceTracking,
   performanceStore,
 } from './usePerformance';
+
+// Memory Leak Prevention
+export {
+  useIsMounted,
+  useSafeState,
+  useCancellablePromise,
+  useEventListenerCleanup,
+  useSubscriptionCleanup,
+  useAppStateAwareEffect,
+  useCachedCallback,
+  useMemoryWarning,
+  WeakCache,
+} from './useLeakPrevention';
+
+// App Startup Optimization
+export {
+  startupManager,
+  useAppStartup,
+  createFontLoadTask,
+  createAuthCheckTask,
+  createCacheWarmTask,
+  createAnalyticsTask,
+  type StartupTask,
+  type StartupMetrics,
+  type StartupPhase,
+} from './AppStartup';

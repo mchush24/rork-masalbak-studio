@@ -1,0 +1,93 @@
+# Pull Request Labeler Configuration
+# https://github.com/actions/labeler
+
+# Frontend changes
+frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'app/**/*'
+          - 'components/**/*'
+          - 'lib/**/*'
+          - 'constants/**/*'
+
+# Backend changes
+backend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'backend/**/*'
+
+# Documentation changes
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'docs/**/*'
+
+# Test changes
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.test.ts'
+          - '**/*.test.tsx'
+          - '**/__tests__/**/*'
+          - 'e2e/**/*'
+          - 'jest.config.js'
+          - 'jest.setup.js'
+
+# CI/CD changes
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**/*'
+          - 'scripts/**/*'
+
+# Dependencies
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'package.json'
+          - 'package-lock.json'
+
+# Configuration
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tsconfig.json'
+          - 'babel.config.js'
+          - 'metro.config.js'
+          - 'app.config.js'
+          - 'eslint.config.js'
+          - '.prettierrc'
+
+# Storybook
+storybook:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.storybook/**/*'
+          - '**/*.stories.tsx'
+
+# Accessibility
+accessibility:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/accessibility/**/*'
+
+# Performance
+performance:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/performance/**/*'
+
+# UI Components
+ui:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'components/ui/**/*'
+          - 'components/*.tsx'
+
+# Animations
+animations:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/animations/**/*'
+          - 'components/animations/**/*'

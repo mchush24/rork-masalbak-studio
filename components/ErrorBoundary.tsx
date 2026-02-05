@@ -14,6 +14,7 @@ import { RenkooColors, Colors } from '@/constants/colors';
 import { typography, spacing, radius } from '@/constants/design-system';
 import { ErrorState, ErrorType } from '@/components/ui/ErrorState';
 import { analytics } from '@/lib/analytics';
+import * as Sentry from '@sentry/react-native';
 
 // =============================================================================
 // Error Boundary - Uygulama Crash Koruması
@@ -116,9 +117,25 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Custom error handler (Sentry vb. için)
+    // Custom error handler
     if (onError) {
       onError(error, errorInfo);
+    }
+
+    // Report to Sentry (production only)
+    if (!__DEV__) {
+      Sentry.captureException(error, {
+        tags: {
+          boundary,
+          errorType: categorizeError(error),
+        },
+        extra: {
+          errorId,
+          componentStack: errorInfo.componentStack,
+          retryCount: this.state.retryCount,
+        },
+        level: boundary === 'app' ? 'fatal' : 'error',
+      });
     }
 
     // Log error details for debugging

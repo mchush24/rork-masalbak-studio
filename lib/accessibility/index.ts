@@ -38,3 +38,30 @@ export {
   ColorBlindModeSelector,
   CognitiveAccessibilitySettings,
 } from './AccessibilityComponents';
+
+// Color contrast checking utilities
+export {
+  checkContrast,
+  getContrastRatio,
+  getLuminance,
+  hexToRgb,
+  rgbToHex,
+  parseColor,
+  suggestAccessibleColor,
+  testColorPairs,
+  isLargeText,
+  getRequiredContrast,
+  type ContrastResult,
+  type AccessibilityReport,
+  type ColorPair,
+} from './contrastChecker';
+
+// Accessibility audit utilities
+export {
+  useAccessibilityAudit,
+  useScreenReaderStatus,
+  WCAG_GUIDELINES,
+  type AccessibilityIssue,
+  type AuditConfig,
+  type AuditResult,
+} from './useAccessibilityAudit';
