@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
 
 export default function SetPasswordScreen() {
   const params = useLocalSearchParams();
@@ -68,7 +68,7 @@ export default function SetPasswordScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1, padding: spacing.lg, justifyContent: 'center' }}
       >
-        <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '700', color: 'white', marginBottom: spacing.sm, textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.15)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 }}>
+        <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '700', color: 'white', marginBottom: spacing.sm, textAlign: 'center', ...textShadows.lg }}>
           Şifre Oluşturun
         </Text>
         <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500' }}>

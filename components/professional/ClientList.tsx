@@ -25,6 +25,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 import { ClientCard, Client } from './ClientCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -427,11 +428,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.purple,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary.purple,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    ...shadows.colored(Colors.primary.purple),
   },
 });
 

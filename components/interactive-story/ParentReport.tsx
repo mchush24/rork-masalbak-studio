@@ -38,6 +38,7 @@ import {
   PersonalityTrait,
   TherapeuticReportSection,
 } from "@/types/InteractiveStory";
+import { shadows } from "@/constants/design-system";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -393,11 +394,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderRadius: 16,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.xs,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -673,11 +670,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.xs,
   },
   therapeuticHeader: {
     paddingVertical: 20,

@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
     marginBottom: spacing['3'],
   },
   descriptionCompact: {

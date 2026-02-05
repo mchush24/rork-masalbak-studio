@@ -37,6 +37,7 @@ import {
   Check,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 import { SavedAnalysis } from '@/types/analysis';
 import { pdfService, ClientInfo } from '@/lib/pdf';
 
@@ -396,11 +397,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.xs,
   },
   cardIcon: {
     width: 48,

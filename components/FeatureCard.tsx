@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { ChevronRight } from 'lucide-react-native';
 import { RenkooColors } from '@/constants/colors';
+import { shadows, createShadow } from '@/constants/design-system';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -67,7 +68,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   const borderGlow = useSharedValue(0);
   const { feedback } = useFeedback();
 
-  const cardConfig = RenkooColors.featureCards[type];
+  const cardConfig = RenkooColors.featureCards[type] || RenkooColors.featureCards.analysis;
   const isDisabled = disabled || comingSoon;
 
   // Attention animation for new features
@@ -142,21 +143,23 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   const entranceAnimationDelay = entranceIndex * entranceDelay;
 
   return (
-    <AnimatedPressable
+    <Animated.View
       entering={FadeInDown.delay(entranceAnimationDelay).springify().damping(15)}
-      style={[
-        styles.container,
-        animatedStyle,
-        borderAnimatedStyle,
-        isDisabled && styles.containerDisabled,
-        isNew && styles.containerNew,
-        style,
-      ]}
-      onPress={isDisabled ? undefined : onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={isDisabled}
+      style={style}
     >
+      <AnimatedPressable
+        style={[
+          styles.container,
+          animatedStyle,
+          borderAnimatedStyle,
+          isDisabled && styles.containerDisabled,
+          isNew && styles.containerNew,
+        ]}
+        onPress={isDisabled ? undefined : onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={isDisabled}
+      >
       <LinearGradient
         colors={isDisabled ? ['#F3F4F6', '#E5E7EB'] : cardConfig.gradient}
         start={{ x: 0, y: 0 }}
@@ -225,6 +228,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
                 isDisabled && styles.titleDisabled,
               ]}
               numberOfLines={1}
+              ellipsizeMode="tail"
             >
               {title}
             </Text>
@@ -236,6 +240,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
                   isDisabled && styles.subtitleDisabled,
                 ]}
                 numberOfLines={2}
+                ellipsizeMode="tail"
               >
                 {subtitle}
               </Text>
@@ -261,7 +266,8 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
           ]}
         />
       </LinearGradient>
-    </AnimatedPressable>
+      </AnimatedPressable>
+    </Animated.View>
   );
 };
 
@@ -274,7 +280,7 @@ export const FeatureCardCompact: React.FC<{
   style?: StyleProp<ViewStyle>;
 }> = ({ title, icon, onPress, type = 'analysis', style }) => {
   const scale = useSharedValue(1);
-  const cardConfig = RenkooColors.featureCards[type];
+  const cardConfig = RenkooColors.featureCards[type] || RenkooColors.featureCards.analysis;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -314,21 +320,13 @@ export const FeatureCardCompact: React.FC<{
 
 const styles = StyleSheet.create({
   container: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
+    ...shadows.md,
   },
   containerDisabled: {
     opacity: 0.7,
   },
   containerNew: {
-    shadowColor: '#B98EFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.colored('#B98EFF'),
   },
   newBadge: {
     position: 'absolute',
@@ -339,11 +337,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     zIndex: 10,
-    shadowColor: '#B98EFF',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 4,
+    ...createShadow(2, 4, 0.4, 4, '#B98EFF'),
   },
   newBadgeText: {
     fontSize: 10,
@@ -407,15 +401,17 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    overflow: 'hidden',
   },
   title: {
     fontWeight: '700',
     color: RenkooColors.text.primary,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   subtitle: {
     color: RenkooColors.text.secondary,
     lineHeight: 18,
+    flexShrink: 1,
   },
   arrowContainer: {
     marginLeft: 8,
@@ -430,11 +426,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.sm,
   },
   compactBlur: {
     borderRadius: 20,

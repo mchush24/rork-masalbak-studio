@@ -30,6 +30,7 @@ import Animated, {
 import { X, FlaskConical, Check, RefreshCw, Bug } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { shadows } from '@/constants/design-system';
 import {
   useABTesting,
   useExperiment,
@@ -558,11 +559,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.purple,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    ...shadows.md,
   },
 });
 

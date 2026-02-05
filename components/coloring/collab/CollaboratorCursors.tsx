@@ -15,6 +15,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import { CursorPosition, CollaboratorInfo } from '@/lib/collab/CollaborationManager';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -294,11 +295,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 3,
     borderColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    ...shadows.sm,
   },
   cursorDotDrawing: {
     width: 20,
@@ -356,11 +353,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   currentUserAvatar: {
     borderWidth: 3,

@@ -23,6 +23,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import { useColoring } from '../ColoringContext';
@@ -333,11 +334,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.2,
-    shadowRadius: 24,
-    elevation: 12,
+    ...shadows.xl,
   },
   gradient: {
     flex: 1,
@@ -439,11 +436,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 9999,
     backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.xs,
   },
   toggleThumbActive: {
     transform: [{ translateX: 28 }],
@@ -474,11 +467,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.xs,
   },
   presetButtonPressed: {
     transform: [{ scale: 0.95 }],

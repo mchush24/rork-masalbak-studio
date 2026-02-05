@@ -31,6 +31,7 @@ import { Sun, Moon, Monitor } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, ThemeColors } from './ThemeProvider';
 import { useFeedback } from '@/hooks/useFeedback';
+import { shadows } from '@/constants/design-system';
 
 interface ThemeToggleProps {
   showLabels?: boolean;
@@ -499,11 +500,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.sm,
   },
 
   // Segmented
@@ -548,9 +545,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadows.md,
   },
 
   // Divider

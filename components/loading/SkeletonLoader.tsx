@@ -22,6 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -430,22 +431,14 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: Colors.neutral.white,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.sm,
   },
   horizontalCard: {
     flexDirection: 'row',
     padding: 12,
     backgroundColor: Colors.neutral.white,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.sm,
   },
   horizontalCardContent: {
     flex: 1,

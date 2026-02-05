@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 18,
   },
 });
 

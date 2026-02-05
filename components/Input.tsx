@@ -23,6 +23,7 @@ import Animated, {
 import { Check, AlertCircle } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
 import { spacing, typography, radius, semantic } from "@/constants/tokens";
+import { shadows } from "@/constants/design-system";
 import { useHaptic } from "@/lib/haptics";
 
 export type InputSize = "sm" | "md" | "lg";
@@ -278,11 +279,7 @@ const styles = StyleSheet.create({
   },
   inputContainerFocused: {
     borderWidth: 2,
-    shadowColor: Colors.primary.sunset,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.colored(Colors.primary.sunset),
   },
   inputContainerError: {
     borderColor: semantic.error,

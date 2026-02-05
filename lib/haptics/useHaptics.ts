@@ -199,7 +199,11 @@ export function useHapticFeedback() {
     await hapticService.selection();
   }, []);
 
-  return { playHaptic, tapLight, tapMedium, tapHeavy, success, error, selection };
+  const warning = useCallback(async () => {
+    await hapticService.warning();
+  }, []);
+
+  return { playHaptic, tapLight, tapMedium, tapHeavy, success, error, warning, selection };
 }
 
 export default useHaptics;

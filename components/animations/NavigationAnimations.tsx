@@ -37,6 +37,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -509,11 +510,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     borderTopWidth: 1,
     borderTopColor: Colors.neutral.lighter,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 8,
+    ...shadows.sm,
   },
   tabIconContainer: {
     alignItems: 'center',

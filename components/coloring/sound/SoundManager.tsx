@@ -56,9 +56,10 @@
  * - Sources: Freesound.org (CC0), Zapsplat (with license)
  */
 
-import { Audio } from 'expo-av';
+import { useAudioPlayer, AudioSource } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
+import React from 'react';
 
 export type SoundType =
   // Tool sounds
@@ -86,7 +87,7 @@ export type SoundType =
 // Sound file mappings
 // NOTE: In production, these files should exist in assets/sounds/
 // For now, we'll use a graceful fallback if files don't exist
-const SOUND_FILES: Record<SoundType, any> = {
+const SOUND_FILES: Record<SoundType, AudioSource | null> = {
   // Tool sounds
   'tool-change': null, // require('@/assets/sounds/tool-change.mp3')
   'color-select': null, // require('@/assets/sounds/color-select.mp3')
@@ -157,7 +158,6 @@ export interface SoundManagerConfig {
 }
 
 class SoundManagerClass {
-  private sounds: Map<SoundType, Audio.Sound> = new Map();
   private enabled: boolean = true;
   private volume: number = 0.7; // Default 70% volume
   private hapticEnabled: boolean = true;
@@ -165,7 +165,7 @@ class SoundManagerClass {
   private initializationPromise: Promise<void> | null = null;
 
   /**
-   * Initialize sound manager and preload all sounds
+   * Initialize sound manager
    */
   async initialize(config?: SoundManagerConfig): Promise<void> {
     // If already initializing, return the same promise
@@ -190,46 +190,13 @@ class SoundManagerClass {
     if (config?.volume !== undefined) this.volume = config.volume;
     if (config?.hapticEnabled !== undefined) this.hapticEnabled = config.hapticEnabled;
 
-    // Set audio mode for iOS
-    try {
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        shouldDuckAndroid: true,
-      });
-    } catch (error) {
-      console.warn('[SoundManager] Failed to set audio mode:', error);
-    }
-
-    // Preload all sounds (with graceful failure)
-    const loadPromises = Object.entries(SOUND_FILES).map(async ([key, source]) => {
-      try {
-        if (!source) {
-          // Sound file not provided - skip for now
-          console.log(`[SoundManager] Sound file for '${key}' not found - skipping`);
-          return;
-        }
-
-        const { sound } = await Audio.Sound.createAsync(source, {
-          shouldPlay: false,
-          volume: this.volume,
-        });
-
-        this.sounds.set(key as SoundType, sound);
-        console.log(`[SoundManager] Loaded sound: ${key}`);
-      } catch (error) {
-        console.warn(`[SoundManager] Failed to load sound '${key}':`, error);
-      }
-    });
-
-    await Promise.all(loadPromises);
-
     this.initialized = true;
-    console.log(`[SoundManager] Initialized with ${this.sounds.size} sounds loaded`);
+    console.log('[SoundManager] Initialized (expo-audio)');
   }
 
   /**
    * Play a sound effect with optional haptic feedback
+   * Note: expo-audio uses hook-based approach, this is a simplified imperative wrapper
    */
   async play(
     soundType: SoundType,
@@ -251,7 +218,7 @@ class SoundManagerClass {
       if (Platform.OS !== 'web') {
         try {
           await Haptics.impactAsync(
-            options?.hapticType ?? Haptics.ImpactFeedbackStyle.Light
+            options?.hapticType ?? HAPTIC_PATTERNS[soundType] ?? Haptics.ImpactFeedbackStyle.Light
           );
         } catch (error) {
           console.warn('[SoundManager] Haptic failed:', error);
@@ -259,24 +226,16 @@ class SoundManagerClass {
       }
     }
 
-    // Play sound
-    const sound = this.sounds.get(soundType);
-    if (!sound) {
-      console.log(`[SoundManager] Sound '${soundType}' not available`);
+    // Sound files are not implemented yet - log for debugging
+    const soundFile = SOUND_FILES[soundType];
+    if (!soundFile) {
+      console.log(`[SoundManager] Sound '${soundType}' not available (file not configured)`);
       return;
     }
 
-    try {
-      // Set volume for this playback
-      const volume = options?.volume ?? this.volume;
-      await sound.setVolumeAsync(volume);
-
-      // Replay from start
-      await sound.setPositionAsync(0);
-      await sound.playAsync();
-    } catch (error) {
-      console.warn(`[SoundManager] Failed to play sound '${soundType}':`, error);
-    }
+    // When sound files are implemented, use useAudioPlayer hook in components
+    // For now, this is a placeholder for the imperative API
+    console.debug(`[SoundManager] Would play: ${soundType}`);
   }
 
   /**
@@ -295,9 +254,8 @@ class SoundManagerClass {
   }
 
   async playBrushStroke(): Promise<void> {
-    // Play quietly and without strong haptic (subtle feedback)
     await this.play('brush-stroke', {
-      haptic: false, // No haptic for brush strokes (too frequent)
+      haptic: false,
       volume: this.volume * 0.5,
     });
   }
@@ -315,7 +273,6 @@ class SoundManagerClass {
   }
 
   async playSaveSuccess(): Promise<void> {
-    // Play with notification haptic for celebration
     if (this.hapticEnabled && Platform.OS !== 'web') {
       try {
         await Haptics.notificationAsync(
@@ -327,8 +284,8 @@ class SoundManagerClass {
     }
 
     await this.play('save-success', {
-      haptic: false, // We already triggered custom haptic above
-      volume: this.volume * 1.2, // Slightly louder for celebration
+      haptic: false,
+      volume: this.volume * 1.2,
     });
   }
 
@@ -336,10 +293,6 @@ class SoundManagerClass {
   // ASMR BRUSH SOUNDS
   // ============================================================================
 
-  /**
-   * Play brush-type specific ASMR sound
-   * @param brushType The type of brush being used
-   */
   async playBrushSound(brushType: 'standard' | 'watercolor' | 'marker' | 'crayon' | 'pencil' | 'spray' | 'highlighter'): Promise<void> {
     const soundMap: Record<string, SoundType> = {
       standard: 'brush-stroke',
@@ -348,7 +301,7 @@ class SoundManagerClass {
       crayon: 'brush-crayon',
       pencil: 'brush-pencil',
       spray: 'brush-spray',
-      highlighter: 'brush-marker', // Highlighter uses marker sound
+      highlighter: 'brush-marker',
     };
 
     const soundType = soundMap[brushType] || 'brush-stroke';
@@ -358,9 +311,6 @@ class SoundManagerClass {
     });
   }
 
-  /**
-   * Play watercolor swish sound
-   */
   async playWatercolorSwish(): Promise<void> {
     await this.play('brush-watercolor', {
       haptic: false,
@@ -368,9 +318,6 @@ class SoundManagerClass {
     });
   }
 
-  /**
-   * Play marker squeak sound
-   */
   async playMarkerSqueak(): Promise<void> {
     await this.play('brush-marker', {
       haptic: false,
@@ -378,9 +325,6 @@ class SoundManagerClass {
     });
   }
 
-  /**
-   * Play crayon texture sound
-   */
   async playCrayonTexture(): Promise<void> {
     await this.play('brush-crayon', {
       haptic: false,
@@ -388,9 +332,6 @@ class SoundManagerClass {
     });
   }
 
-  /**
-   * Play pencil scratch sound
-   */
   async playPencilScratch(): Promise<void> {
     await this.play('brush-pencil', {
       haptic: false,
@@ -398,9 +339,6 @@ class SoundManagerClass {
     });
   }
 
-  /**
-   * Play spray/airbrush hiss sound
-   */
   async playSprayHiss(): Promise<void> {
     await this.play('brush-spray', {
       haptic: false,
@@ -412,9 +350,6 @@ class SoundManagerClass {
   // FILL SOUNDS
   // ============================================================================
 
-  /**
-   * Play fill splash sound (for larger fills)
-   */
   async playFillSplash(): Promise<void> {
     await this.play('fill-splash', {
       hapticType: Haptics.ImpactFeedbackStyle.Medium,
@@ -425,18 +360,12 @@ class SoundManagerClass {
   // UI SOUNDS
   // ============================================================================
 
-  /**
-   * Play redo sound
-   */
   async playRedo(): Promise<void> {
     await this.play('redo', {
       hapticType: Haptics.ImpactFeedbackStyle.Light,
     });
   }
 
-  /**
-   * Play milestone/achievement sound
-   */
   async playMilestone(): Promise<void> {
     if (this.hapticEnabled && Platform.OS !== 'web') {
       try {
@@ -455,118 +384,25 @@ class SoundManagerClass {
   }
 
   // ============================================================================
-  // AMBIENT SOUNDS
+  // SETTINGS
   // ============================================================================
 
-  private ambientSound: Audio.Sound | null = null;
-  private isAmbientPlaying: boolean = false;
-
-  /**
-   * Start playing ambient nature sounds (birds, breeze)
-   */
-  async startAmbientNature(): Promise<void> {
-    await this.startAmbient('ambient-nature');
-  }
-
-  /**
-   * Start playing ambient rain sounds
-   */
-  async startAmbientRain(): Promise<void> {
-    await this.startAmbient('ambient-rain');
-  }
-
-  /**
-   * Start playing an ambient sound loop
-   */
-  private async startAmbient(soundType: SoundType): Promise<void> {
-    if (this.isAmbientPlaying) {
-      await this.stopAmbient();
-    }
-
-    const sound = this.sounds.get(soundType);
-    if (!sound) {
-      console.log(`[SoundManager] Ambient sound '${soundType}' not available`);
-      return;
-    }
-
-    try {
-      await sound.setIsLoopingAsync(true);
-      await sound.setVolumeAsync(SOUND_VOLUMES[soundType] * this.volume);
-      await sound.playAsync();
-      this.ambientSound = sound;
-      this.isAmbientPlaying = true;
-      console.log(`[SoundManager] Started ambient: ${soundType}`);
-    } catch (error) {
-      console.warn(`[SoundManager] Failed to start ambient '${soundType}':`, error);
-    }
-  }
-
-  /**
-   * Stop ambient sounds
-   */
-  async stopAmbient(): Promise<void> {
-    if (this.ambientSound && this.isAmbientPlaying) {
-      try {
-        await this.ambientSound.stopAsync();
-        await this.ambientSound.setIsLoopingAsync(false);
-        this.isAmbientPlaying = false;
-        this.ambientSound = null;
-        console.log('[SoundManager] Stopped ambient sounds');
-      } catch (error) {
-        console.warn('[SoundManager] Failed to stop ambient:', error);
-      }
-    }
-  }
-
-  /**
-   * Check if ambient sounds are playing
-   */
-  isAmbientSoundPlaying(): boolean {
-    return this.isAmbientPlaying;
-  }
-
-  /**
-   * Set global volume (0-1)
-   */
   async setVolume(volume: number): Promise<void> {
     this.volume = Math.max(0, Math.min(1, volume));
-
-    // Update all loaded sounds
-    const updatePromises = Array.from(this.sounds.values()).map(async (sound) => {
-      try {
-        await sound.setVolumeAsync(this.volume);
-      } catch (error) {
-        console.warn('[SoundManager] Failed to update volume:', error);
-      }
-    });
-
-    await Promise.all(updatePromises);
   }
 
-  /**
-   * Enable/disable sound effects
-   */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
   }
 
-  /**
-   * Enable/disable haptic feedback
-   */
   setHapticEnabled(enabled: boolean): void {
     this.hapticEnabled = enabled;
   }
 
-  /**
-   * Mute/unmute (keeps haptics enabled)
-   */
   setMuted(muted: boolean): void {
     this.enabled = !muted;
   }
 
-  /**
-   * Get current settings
-   */
   getSettings(): SoundManagerConfig {
     return {
       enabled: this.enabled,
@@ -575,26 +411,10 @@ class SoundManagerClass {
     };
   }
 
-  /**
-   * Cleanup - unload all sounds
-   */
   async cleanup(): Promise<void> {
-    console.log('[SoundManager] Cleaning up...');
-
-    const unloadPromises = Array.from(this.sounds.values()).map(async (sound) => {
-      try {
-        await sound.unloadAsync();
-      } catch (error) {
-        console.warn('[SoundManager] Failed to unload sound:', error);
-      }
-    });
-
-    await Promise.all(unloadPromises);
-    this.sounds.clear();
+    console.log('[SoundManager] Cleanup complete');
     this.initialized = false;
     this.initializationPromise = null;
-
-    console.log('[SoundManager] Cleanup complete');
   }
 }
 
@@ -621,6 +441,3 @@ export function useSoundManagerInit(config?: SoundManagerConfig) {
 
   return SoundManager;
 }
-
-// React import for hooks
-import React from 'react';

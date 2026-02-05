@@ -22,6 +22,7 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const COLUMN_COUNT = 2;
@@ -509,11 +510,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...shadows.sm,
   },
   imageContainer: {
     width: '100%',

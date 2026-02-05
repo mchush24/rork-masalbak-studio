@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp, Pressable } from 'react-native';
+import { shadows, createShadow } from '@/constants/design-system';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -875,11 +876,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     // Premium shadow
-    shadowColor: '#D4A574',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.35,
-    shadowRadius: 24,
-    elevation: 20,
+    ...shadows.colored('#D4A574'),
   },
   eyesContainer: {
     position: 'absolute',
@@ -896,11 +893,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     // Soft shadow for depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.xs,
   },
   eyeWhite: {
     backgroundColor: '#FFFFFF',
@@ -930,10 +923,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#FFFFFF',
     // Soft edge
-    shadowColor: '#FFF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
+    ...createShadow(0, 2, 0.5, 2, '#FFF'),
   },
   highlight2: {
     position: 'absolute',

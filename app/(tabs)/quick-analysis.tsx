@@ -725,7 +725,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
   },
   errorRetryInfo: {
     fontSize: typography.size.xs,
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
   resultsDescription: {
     fontSize: typography.size.base,
     color: Colors.neutral.dark,
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
   },
   
   // Action Buttons

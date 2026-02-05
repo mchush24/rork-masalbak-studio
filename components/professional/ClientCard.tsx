@@ -24,6 +24,7 @@ import {
   MoreHorizontal,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
@@ -167,11 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.xs,
   },
   archived: {
     opacity: 0.7,

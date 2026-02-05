@@ -21,6 +21,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -446,11 +447,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFF',
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.md,
     overflow: 'hidden',
   },
   header: {
@@ -533,11 +530,7 @@ const styles = StyleSheet.create({
     borderColor: '#6366F1',
   },
   layerItemDragging: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    ...shadows.lg,
   },
   layerContent: {
     flexDirection: 'row',

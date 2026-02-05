@@ -40,6 +40,7 @@ import {
   Trash2,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 
 const STORAGE_KEYS = {
   APP_LOCK_ENABLED: '@renkioo_app_lock_enabled',
@@ -512,11 +513,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     backgroundColor: Colors.neutral.white,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    ...shadows.xs,
   },
   toggleKnobActive: {
     alignSelf: 'flex-end',

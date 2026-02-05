@@ -40,6 +40,7 @@ import {
   ScreenContext,
   AssistantTip,
 } from '@/lib/coaching/AssistantEngine';
+import { useOverlay } from '@/lib/overlay';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -74,6 +75,10 @@ export function IooAssistant({
   const [showTipPanel, setShowTipPanel] = useState(false);
   const [showFullModal, setShowFullModal] = useState(false);
 
+  // Overlay coordination - prevent multiple overlays from showing
+  const overlayId = `ioo_assistant_${screen}`;
+  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('ioo_assistant', overlayId);
+
   // Animations
   const pulseScale = useSharedValue(1);
   const bounceY = useSharedValue(0);
@@ -106,20 +111,28 @@ export function IooAssistant({
       const tip = await assistantEngine.getTipForScreen(screen);
       setCurrentTip(tip);
 
-      // Auto-show tip panel if there's a first-time tip
-      if (tip?.firstTimeOnly && tip.priority >= 8) {
-        setTimeout(() => setShowTipPanel(true), 1000);
+      // Auto-show tip panel if there's a first-time tip AND we can show overlay
+      if (tip?.firstTimeOnly && tip.priority >= 8 && canShow) {
+        setTimeout(() => {
+          if (requestOverlay()) {
+            setShowTipPanel(true);
+          }
+        }, 1000);
       }
     };
 
     loadTip();
-  }, [screen]);
+  }, [screen, canShow, requestOverlay]);
 
   const handlePress = () => {
     tapMedium();
     if (currentTip) {
-      setShowTipPanel(true);
+      // Request overlay permission before showing
+      if (requestOverlay()) {
+        setShowTipPanel(true);
+      }
     } else {
+      // Modal uses its own overlay system
       setShowFullModal(true);
     }
   };
@@ -131,6 +144,8 @@ export function IooAssistant({
     }
     setShowTipPanel(false);
     setCurrentTip(null);
+    // Release overlay when dismissed
+    releaseOverlay();
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -389,6 +404,9 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH - 32,
     maxWidth: 320,
     zIndex: 1001,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.xl,
+    overflow: 'hidden',
   },
   tipPanelGradient: {
     borderRadius: radius.xl,
@@ -396,6 +414,7 @@ const styles = StyleSheet.create({
     ...shadows.xl,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: '#FFFFFF',
   },
   tipHeader: {
     flexDirection: 'row',
@@ -419,6 +438,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     flex: 1,
+    lineHeight: 28,
   },
   tipCloseButton: {
     padding: spacing['1'],
@@ -426,7 +446,7 @@ const styles = StyleSheet.create({
   tipMessage: {
     fontSize: typography.size.base,
     color: Colors.neutral.dark,
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
     marginBottom: spacing['4'],
   },
   tipActions: {
@@ -549,7 +569,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.base,
     color: Colors.neutral.dark,
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
   },
   helpLink: {
     flexDirection: 'row',

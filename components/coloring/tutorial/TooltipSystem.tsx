@@ -27,7 +27,9 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useOverlay } from '@/lib/overlay';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -64,8 +66,16 @@ export function Tooltip({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
+  // Overlay coordination
+  const overlayId = `tooltip_${id}`;
+  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('tooltip', overlayId);
+
   useEffect(() => {
-    if (visible) {
+    if (visible && canShow) {
+      // Request overlay permission
+      if (!requestOverlay()) {
+        return; // Another overlay is active
+      }
       // Animate in
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -104,15 +114,17 @@ export function Tooltip({
         }),
       ]).start();
     }
-  }, [visible]);
+  }, [visible, canShow, requestOverlay]);
 
   const handleDismiss = async () => {
     // Mark as seen
     await markTooltipSeen(id);
+    releaseOverlay(); // Release overlay before closing
     onDismiss();
   };
 
-  if (!visible) return null;
+  // Don't render if not visible or can't show due to overlay conflict
+  if (!visible || !canShow) return null;
 
   // Calculate tooltip position
   const tooltipStyle = getTooltipPosition(position, targetX, targetY);
@@ -334,11 +346,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     zIndex: 9999,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.lg,
   },
   arrow: {
     position: 'absolute',

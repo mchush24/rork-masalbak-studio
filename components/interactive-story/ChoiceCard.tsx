@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
+import { shadows } from "@/constants/design-system";
 import { ChoiceOption, TRAIT_DEFINITIONS } from "@/types/InteractiveStory";
 
 interface ChoiceCardProps {
@@ -191,12 +192,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 20,
     overflow: "hidden",
-    // Shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    ...shadows.md,
   },
   gradient: {
     flex: 1,

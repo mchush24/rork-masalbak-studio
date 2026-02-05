@@ -56,13 +56,16 @@ export type IooMood =
   | 'love'
   | 'calm'
   | 'thinking'
-  | 'sleepy';
+  | 'sleepy'
+  | 'concerned'
+  | 'sad';
 
-export type IooSize = 'xs' | 'sm' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
+export type IooSize = 'xs' | 'sm' | 'md' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
 
 const SIZE_MAP: Record<IooSize, number> = {
   xs: 50,
   sm: 70,
+  md: 100,
   tiny: 70,
   small: 100,
   medium: 140,

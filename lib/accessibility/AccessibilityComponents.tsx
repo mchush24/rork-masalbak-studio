@@ -35,6 +35,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useAccessibility, useAccessibleFontSize, useMinimumTouchTarget, useColorBlindSafeColors, ColorBlindMode } from './AccessibilityProvider';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 
 interface AccessibleButtonProps {
   children: React.ReactNode;
@@ -486,11 +487,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     backgroundColor: Colors.neutral.white,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.sm,
   },
   selectValue: {
     fontSize: 14,

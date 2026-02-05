@@ -19,6 +19,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable, Text, Animated } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import {
   Canvas,
   Circle,
@@ -313,11 +314,7 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.md,
   },
   pulseOverlay: {
     position: 'absolute',

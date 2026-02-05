@@ -35,6 +35,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Skia, Path, Circle, Group, Blur, BlendMode, Paint } from '@shopify/react-native-skia';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -665,11 +666,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: SCREEN_HEIGHT * 0.7,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 20,
+    ...shadows.xl,
   },
 
   // Header
@@ -731,11 +728,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...shadows.xs,
   },
   brushCardEmoji: {
     fontSize: 24,

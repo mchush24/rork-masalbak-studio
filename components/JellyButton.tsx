@@ -15,6 +15,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { RenkooColors } from '@/constants/colors';
+import { textShadows, shadows } from '@/constants/design-system';
 
 interface JellyButtonProps {
   title: string;
@@ -133,14 +134,7 @@ export const JellyButton: React.FC<JellyButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    shadowColor: RenkooColors.brand.jellyPurple,
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    elevation: 12,
+    ...shadows.colored(RenkooColors.brand.jellyPurple),
   },
   gradient: {
     alignItems: 'center',
@@ -150,9 +144,7 @@ const styles = StyleSheet.create({
     color: RenkooColors.text.light,
     fontWeight: '700',
     letterSpacing: 0.5,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
 });
 

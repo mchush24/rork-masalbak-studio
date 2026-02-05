@@ -11,7 +11,7 @@ module.exports = {
     splash: {
       image: "./assets/images/splash-icon.png",
       resizeMode: "contain",
-      backgroundColor: "#4A90A4"
+      backgroundColor: "#F5F3EE"
     },
     ios: {
       supportsTablet: true,
@@ -26,7 +26,7 @@ module.exports = {
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff"
+        backgroundColor: "#F5F3EE"
       },
       package: "com.renkioo.studio",
       permissions: [
@@ -44,7 +44,9 @@ module.exports = {
     plugins: [
       "expo-router",
       "expo-font",
+      "expo-asset",
       "expo-web-browser",
+      "expo-audio",
       [
         "expo-camera",
         {
@@ -60,7 +62,16 @@ module.exports = {
         }
       ],
       "expo-local-authentication",
-      "expo-secure-store"
+      "expo-secure-store",
+      // Sentry error tracking - uncomment and configure for production builds
+      // [
+      //   "@sentry/react-native/expo",
+      //   {
+      //     organization: "your-org",
+      //     project: "renkioo",
+      //     // url: "https://sentry.io/", // For self-hosted Sentry
+      //   }
+      // ]
     ],
     experiments: {
       typedRoutes: true
@@ -69,7 +80,9 @@ module.exports = {
       // These are loaded from .env file and available via expo-constants
       EXPO_PUBLIC_API: process.env.EXPO_PUBLIC_API || "http://localhost:3000",
       EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-      EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      // Sentry DSN for error tracking (optional)
+      EXPO_PUBLIC_SENTRY_DSN: process.env.EXPO_PUBLIC_SENTRY_DSN
     }
   }
 };

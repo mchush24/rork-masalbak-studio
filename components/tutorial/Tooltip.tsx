@@ -33,6 +33,7 @@ import { X, Info, Lightbulb, HelpCircle } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -401,11 +402,7 @@ const styles = StyleSheet.create({
   tooltipContainer: {
     backgroundColor: Colors.neutral.dark,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadows.md,
   },
   arrow: {
     width: 0,

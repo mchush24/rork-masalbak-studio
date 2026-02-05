@@ -16,6 +16,7 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 
 // ============================================
 // TYPES
@@ -227,11 +228,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFF',
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...shadows.sm,
     overflow: 'hidden',
   },
   mainButton: {

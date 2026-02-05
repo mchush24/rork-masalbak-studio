@@ -1,4 +1,4 @@
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, Href } from 'expo-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { trpc, queryClient, trpcClient } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ChildProvider } from '@/lib/contexts/ChildContext';
 import { ThemeProvider } from '@/lib/theme';
+import { OverlayProvider } from '@/lib/overlay';
 import { ChatBot } from '@/components/ChatBot';
 import { AppErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { DelightWrapper } from '@/lib/delight';
@@ -16,6 +17,42 @@ import { OfflineIndicator, CrashRecoveryDialog } from '@/components/ui';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Sentry from '@sentry/react-native';
+
+// Initialize Sentry for error tracking (before app renders)
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
+if (SENTRY_DSN && !__DEV__) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    // Set environment based on build
+    environment: __DEV__ ? 'development' : 'production',
+    // Performance monitoring - sample 20% of transactions
+    tracesSampleRate: 0.2,
+    // Session replay - disabled by default for privacy
+    // Enable only if needed and with user consent
+    enableAutoSessionTracking: true,
+    sessionTrackingIntervalMillis: 30000,
+    // Attach user context when available
+    attachStacktrace: true,
+    // Debug mode in development only
+    debug: __DEV__,
+    // Ignore common non-critical errors
+    ignoreErrors: [
+      'Network request failed',
+      'Failed to fetch',
+      'AbortError',
+    ],
+    // Before sending, sanitize sensitive data
+    beforeSend(event) {
+      // Remove sensitive user data if present
+      if (event.user) {
+        delete event.user.email;
+        delete event.user.ip_address;
+      }
+      return event;
+    },
+  });
+}
 
 // Phase 5 & 6 modules
 import { networkMonitor } from '@/lib/network';
@@ -54,12 +91,17 @@ const webStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: Platform.OS === 'web' ? 40 : 0,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 30,
-    // @ts-ignore - web only
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    ...Platform.select({
+      web: {
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 30,
+      },
+    }),
   },
 });
 
@@ -91,6 +133,12 @@ function RootLayoutNav() {
         }
       } catch (error) {
         console.warn('[_layout] Service initialization error:', error);
+        // Report initialization errors to Sentry
+        if (!__DEV__ && SENTRY_DSN) {
+          Sentry.captureException(error, {
+            tags: { location: 'service_initialization' },
+          });
+        }
       }
     }
 
@@ -140,7 +188,7 @@ function RootLayoutNav() {
     if (session.lastScreen) {
       // Navigate to last screen if possible
       try {
-        router.push(session.lastScreen as any);
+        router.push(session.lastScreen as Href);
       } catch (e) {
         // Fallback to tabs
         router.replace('/(tabs)');
@@ -234,11 +282,13 @@ export default function RootLayout() {
               <trpc.Provider client={trpcClient} queryClient={queryClient}>
                 <QueryClientProvider client={queryClient}>
                   <ChildProvider>
-                    <ToastProvider>
-                      <DelightWrapper>
-                        <RootLayoutNav />
-                      </DelightWrapper>
-                    </ToastProvider>
+                    <OverlayProvider>
+                      <ToastProvider>
+                        <DelightWrapper>
+                          <RootLayoutNav />
+                        </DelightWrapper>
+                      </ToastProvider>
+                    </OverlayProvider>
                   </ChildProvider>
                 </QueryClientProvider>
               </trpc.Provider>

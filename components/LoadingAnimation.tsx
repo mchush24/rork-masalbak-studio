@@ -4,7 +4,8 @@ import { View, Text, Animated, StyleSheet, Dimensions, Platform } from 'react-na
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
-import { spacing, typography, colors } from '@/lib/design-tokens';
+import { spacing, typography, colors, textShadows } from '@/lib/design-tokens';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -528,11 +529,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: spacing.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    ...shadows.md,
   },
   message: {
     fontSize: typography.fontSize.xl,
@@ -540,9 +537,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     marginBottom: spacing.md,
-    textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    ...textShadows.lg,
   },
   dotsContainer: {
     flexDirection: 'row',

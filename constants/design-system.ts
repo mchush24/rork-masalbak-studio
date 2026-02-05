@@ -5,7 +5,7 @@
  * İlham: Apple HIG, Material Design, Duolingo, Khan Academy Kids
  */
 
-import { Dimensions } from "react-native";
+import { Dimensions, Platform } from "react-native";
 import { Colors } from "./colors";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -95,13 +95,23 @@ export const typography = {
     black: "900" as const,
   },
 
-  // Line height
+  // Line height multipliers (for calculating: fontSize * multiplier)
   lineHeight: {
     tight: 1.2,
     snug: 1.375,
     normal: 1.5,
     relaxed: 1.625,
     loose: 2,
+  },
+
+  // Pre-calculated line heights in pixels (for direct use, based on common font sizes)
+  lineHeightPx: {
+    xs: 16,    // for 11px font
+    sm: 20,    // for 13px font
+    base: 24,  // for 15px font
+    md: 26,    // for 17px font
+    lg: 30,    // for 20px font
+    xl: 36,    // for 24px font
   },
 
   // Letter spacing
@@ -154,58 +164,98 @@ export const radius = {
 
 // ============================================
 // SHADOWS & ELEVATION
+// React Native Web uses boxShadow, native uses shadow* props
 // ============================================
-export const shadows = {
-  none: {
-    shadowColor: "transparent",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  xs: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  sm: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  lg: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  xl: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.2,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  colored: (color: string) => ({
+export const createShadow = (
+  offsetY: number,
+  blur: number,
+  opacity: number,
+  elevation: number,
+  color: string = "#000"
+) => {
+  const nativeShadow = {
     shadowColor: color,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
-  }),
-} as const;
+    shadowOffset: { width: 0, height: offsetY },
+    shadowOpacity: opacity,
+    shadowRadius: blur,
+    elevation,
+  };
+
+  // On web, use boxShadow instead of deprecated shadow* props
+  if (Platform.OS === "web") {
+    const alpha = Math.round(opacity * 255).toString(16).padStart(2, "0");
+    return {
+      boxShadow: `0px ${offsetY}px ${blur}px ${color}${alpha}`,
+      elevation,
+    };
+  }
+
+  return nativeShadow;
+};
+
+export const shadows = {
+  none: Platform.OS === "web"
+    ? { boxShadow: "none", elevation: 0 }
+    : {
+        shadowColor: "transparent",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0,
+        shadowRadius: 0,
+        elevation: 0,
+      },
+  xs: createShadow(1, 2, 0.05, 1),
+  sm: createShadow(2, 4, 0.08, 2),
+  md: createShadow(4, 8, 0.12, 4),
+  lg: createShadow(8, 16, 0.15, 8),
+  xl: createShadow(12, 24, 0.2, 12),
+  colored: (color: string) => {
+    if (Platform.OS === "web") {
+      return {
+        boxShadow: `0px 4px 12px ${color}4D`, // 0.3 opacity = 4D in hex
+        elevation: 6,
+      };
+    }
+    return {
+      shadowColor: color,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 6,
+    };
+  },
+};
+
+// ============================================
+// TEXT SHADOWS
+// React Native Web uses textShadow CSS property
+// ============================================
+export const createTextShadow = (
+  offsetX: number,
+  offsetY: number,
+  blur: number,
+  color: string
+) => {
+  if (Platform.OS === "web") {
+    return {
+      textShadow: `${offsetX}px ${offsetY}px ${blur}px ${color}`,
+    };
+  }
+  return {
+    textShadowColor: color,
+    textShadowOffset: { width: offsetX, height: offsetY },
+    textShadowRadius: blur,
+  };
+};
+
+export const textShadows = {
+  none: Platform.OS === "web"
+    ? { textShadow: "none" }
+    : { textShadowColor: "transparent", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 0 },
+  sm: createTextShadow(0, 1, 2, "rgba(0,0,0,0.1)"),
+  md: createTextShadow(0, 2, 4, "rgba(0,0,0,0.15)"),
+  lg: createTextShadow(0, 2, 8, "rgba(0,0,0,0.2)"),
+  hero: createTextShadow(0, 2, 10, "rgba(0,0,0,0.2)"),
+};
 
 // ============================================
 // ANIMATION TIMINGS
@@ -267,23 +317,35 @@ export const glassmorphism = {
 // NEUMORPHISM STYLES
 // ============================================
 export const neumorphism = {
-  raised: {
-    backgroundColor: Colors.background.primary,
-    shadowColor: "#000",
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  pressed: {
-    backgroundColor: Colors.background.primary,
-    shadowColor: "#000",
-    shadowOffset: { width: -2, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-} as const;
+  raised: Platform.OS === "web"
+    ? {
+        backgroundColor: Colors.background.primary,
+        boxShadow: "4px 4px 8px #0000001A", // 0.1 opacity
+        elevation: 4,
+      }
+    : {
+        backgroundColor: Colors.background.primary,
+        shadowColor: "#000",
+        shadowOffset: { width: 4, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+      },
+  pressed: Platform.OS === "web"
+    ? {
+        backgroundColor: Colors.background.primary,
+        boxShadow: "-2px -2px 4px #0000000D", // 0.05 opacity
+        elevation: 1,
+      }
+    : {
+        backgroundColor: Colors.background.primary,
+        shadowColor: "#000",
+        shadowOffset: { width: -2, height: -2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 1,
+      },
+};
 
 // ============================================
 // Z-INDEX LAYERS
@@ -424,6 +486,9 @@ export default {
   spacing,
   radius,
   shadows,
+  createShadow,
+  textShadows,
+  createTextShadow,
   animation,
   glassmorphism,
   neumorphism,

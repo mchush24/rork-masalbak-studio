@@ -19,7 +19,7 @@ import {
 import { TEXTURE_OPTIONS } from '../effects/TexturedFill';
 import { TextureType } from '../effects/TextureShaders';
 import { Colors } from '@/constants/colors';
-import { spacing, typography, radius, shadows } from '@/constants/design-system';
+import { spacing, typography, radius, shadows, createTextShadow } from '@/constants/design-system';
 
 // ============================================================================
 // TYPES
@@ -241,8 +241,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: 'bold',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
-    textShadowRadius: 4,
+    ...createTextShadow(0, 0, 4, 'rgba(255, 255, 255, 0.8)'),
   },
   sparkle2: {
     top: 5,

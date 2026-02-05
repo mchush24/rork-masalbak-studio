@@ -37,6 +37,7 @@ import Animated, {
 import { Check, AlertCircle, Eye, EyeOff } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { shadows } from '@/constants/design-system';
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -723,11 +724,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepDotCurrent: {
-    shadowColor: Colors.primary.purple,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.colored(Colors.primary.purple),
   },
   stepNumber: {
     fontSize: 12,

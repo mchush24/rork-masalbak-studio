@@ -2,6 +2,12 @@ const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
+// Add GLB/GLTF 3D model support
+config.resolver = {
+  ...config.resolver,
+  assetExts: [...config.resolver.assetExts, 'glb', 'gltf'],
+};
+
 // Optimize Metro for large packages like Skia
 config.transformer = {
   ...config.transformer,

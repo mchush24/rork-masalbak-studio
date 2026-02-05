@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
+import { shadows, textShadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -800,17 +801,13 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 18,
     fontWeight: '700',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+    ...textShadows.lg,
   },
   subtitle: {
     color: '#FFF',
     fontSize: 14,
     opacity: 0.9,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+    ...textShadows.lg,
   },
   modeButton: {
     width: 44,
@@ -967,11 +964,7 @@ const styles = StyleSheet.create({
 
   // AR Button
   arButton: {
-    shadowColor: '#667eea',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
+    ...shadows.colored('#667eea'),
   },
   arButtonGradient: {
     flex: 1,

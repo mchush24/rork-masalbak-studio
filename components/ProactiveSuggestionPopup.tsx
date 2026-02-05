@@ -25,6 +25,7 @@ import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useOverlay } from '@/lib/overlay';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -68,6 +69,10 @@ export function ProactiveSuggestionPopup({
   const slideAnim = useRef(new Animated.Value(0)).current;
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Overlay coordination - prevent multiple overlays from showing
+  const overlayId = `chatbot_suggestion_${screen}`;
+  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('chatbot_suggestion', overlayId);
+
   // Fetch suggestion based on screen and trigger
   const suggestionQuery = trpc.chatbot.getProactiveSuggestion.useQuery(
     { screen, trigger: currentTrigger || 'enter' },
@@ -86,10 +91,10 @@ export function ProactiveSuggestionPopup({
 
   // Show popup when suggestion is available
   useEffect(() => {
-    if (suggestionQuery.data?.found && suggestionQuery.data.suggestion && !hasShownForScreen) {
+    if (suggestionQuery.data?.found && suggestionQuery.data.suggestion && !hasShownForScreen && canShow) {
       showPopup();
     }
-  }, [suggestionQuery.data]);
+  }, [suggestionQuery.data, canShow, hasShownForScreen]);
 
   const checkFirstVisit = async () => {
     try {
@@ -149,6 +154,11 @@ export function ProactiveSuggestionPopup({
   };
 
   const showPopup = () => {
+    // Request overlay permission before showing
+    if (!requestOverlay()) {
+      // Another overlay is active, don't show
+      return;
+    }
     setIsVisible(true);
     setHasShownForScreen(true);
     Animated.spring(slideAnim, {
@@ -166,6 +176,8 @@ export function ProactiveSuggestionPopup({
       useNativeDriver: true,
     }).start(() => {
       setIsVisible(false);
+      // Release overlay when hidden
+      releaseOverlay();
     });
 
     // Mark as dismissed for today

@@ -6,7 +6,7 @@
  * with animated entrance/exit and reconnection feedback
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -20,14 +20,12 @@ import Animated, {
   withSpring,
   withTiming,
   withSequence,
-  interpolate,
-  Extrapolate,
   runOnJS,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WifiOff, Wifi, RefreshCw, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius } from '@/constants/design-system';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useOfflineIndicator, networkMonitor } from '@/lib/network';
 import { useHapticFeedback } from '@/lib/haptics';
 
@@ -55,6 +53,9 @@ export function OfflineIndicator({
   const { showIndicator, isOnline, message: defaultMessage } = useOfflineIndicator();
   const { tapLight, warning, success } = useHapticFeedback();
 
+  // Track visibility with React state (not shared value) to avoid reading .value during render
+  const [isVisible, setIsVisible] = useState(showIndicator);
+
   // Animation values
   const translateY = useSharedValue(position === 'top' ? -100 : 100);
   const opacity = useSharedValue(0);
@@ -66,6 +67,9 @@ export function OfflineIndicator({
 
   useEffect(() => {
     if (showIndicator) {
+      // Make visible immediately when showing
+      setIsVisible(true);
+
       // Show animation
       translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
       opacity.value = withTiming(1, { duration: 200 });
@@ -88,7 +92,10 @@ export function OfflineIndicator({
         damping: 15,
         stiffness: 150,
       });
-      opacity.value = withTiming(0, { duration: 200 });
+      opacity.value = withTiming(0, { duration: 200 }, () => {
+        // Set invisible after animation completes using runOnJS
+        runOnJS(setIsVisible)(false);
+      });
 
       // Success haptic when coming back online
       if (isOnline && !wasOnlineRef.current) {
@@ -138,11 +145,13 @@ export function OfflineIndicator({
   const handleDismiss = () => {
     tapLight();
     translateY.value = withSpring(position === 'top' ? -100 : 100);
-    opacity.value = withTiming(0, { duration: 200 });
+    opacity.value = withTiming(0, { duration: 200 }, () => {
+      runOnJS(setIsVisible)(false);
+    });
   };
 
-  // Don't render if not showing
-  if (!showIndicator && opacity.value === 0) {
+  // Don't render if not visible
+  if (!isVisible) {
     return null;
   }
 
@@ -285,17 +294,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['4'],
     borderRadius: radius.xl,
     gap: spacing['3'],
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    ...shadows.md,
   },
   bannerOffline: {
     backgroundColor: Colors.semantic.error,

@@ -27,6 +27,7 @@ import {
   Info,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 import { ChartDataService, TimeRange, EmotionChartData } from '@/lib/professional';
 import { useFeedback } from '@/hooks/useFeedback';
 
@@ -244,15 +245,13 @@ export function DevelopmentChart({
 
 const styles = StyleSheet.create({
   container: { backgroundColor: Colors.neutral.white, borderRadius: 20, padding: 20,
-    marginHorizontal: 16, marginVertical: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
+    marginHorizontal: 16, marginVertical: 12, ...shadows.sm },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
   title: { fontSize: 18, fontWeight: '700', color: Colors.neutral.dark },
   subtitle: { fontSize: 14, color: Colors.neutral.medium, marginTop: 2 },
   rangeSelector: { flexDirection: 'row', backgroundColor: Colors.neutral.lighter, borderRadius: 10, padding: 4, marginBottom: 16 },
   rangeButton: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
-  rangeButtonActive: { backgroundColor: Colors.neutral.white, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  rangeButtonActive: { backgroundColor: Colors.neutral.white, ...shadows.xs },
   rangeButtonText: { fontSize: 12, fontWeight: '600', color: Colors.neutral.medium },
   rangeButtonTextActive: { color: Colors.primary.purple },
   chartContainer: { alignItems: 'center', marginBottom: 16 },

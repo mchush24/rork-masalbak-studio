@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator
 import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award, RefreshCw, Volume2, Vibrate, Shield } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
@@ -18,6 +18,7 @@ import {
   spacing,
   radius,
   shadows,
+  textShadows,
 } from "@/constants/design-system";
 import { SoundSettings, HapticSettings, AppLockSettings } from "@/components/settings";
 
@@ -386,7 +387,7 @@ export default function ProfileScreen() {
                   styles.statCard,
                   pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
-                onPress={() => router.push('/history' as any)}
+                onPress={() => router.push('/history' as Href)}
               >
                 <LinearGradient
                   colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
@@ -403,7 +404,7 @@ export default function ProfileScreen() {
                   styles.statCard,
                   pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
-                onPress={() => router.push('/history' as any)}
+                onPress={() => router.push('/history' as Href)}
               >
                 <LinearGradient
                   colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
@@ -420,7 +421,7 @@ export default function ProfileScreen() {
                   styles.statCard,
                   pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
-                onPress={() => router.push('/history' as any)}
+                onPress={() => router.push('/history' as Href)}
               >
                 <LinearGradient
                   colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
@@ -442,7 +443,7 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
-              onPress={() => router.push('/history' as any)}
+              onPress={() => router.push('/history' as Href)}
             >
               <LinearGradient
                 colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
@@ -1296,9 +1297,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.white,
     letterSpacing: typography.letterSpacing.tight,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.md,
   },
   statLabel: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
@@ -1307,9 +1306,7 @@ const styles = StyleSheet.create({
     opacity: 0.95,
     textTransform: "uppercase" as const,
     letterSpacing: typography.letterSpacing.wide,
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   userName: {
     fontSize: isSmallDevice ? typography.size["2xl"] : typography.size["3xl"],
@@ -1317,9 +1314,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
     marginBottom: spacing["2"],
     letterSpacing: typography.letterSpacing.tight,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.sm,
   },
   userEmail: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
@@ -1439,9 +1434,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    textShadowColor: 'rgba(0, 0, 0, 0.05)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   modalCloseButton: {
     padding: spacing["2"],
@@ -1537,7 +1530,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
     marginBottom: spacing["3"],
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 20,
   },
   selectButton: {
     backgroundColor: Colors.secondary.grassLight,
@@ -1601,9 +1594,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   addChildButton: {
     backgroundColor: Colors.secondary.lavender,

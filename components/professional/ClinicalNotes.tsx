@@ -28,6 +28,7 @@ import {
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useFeedback } from '@/hooks/useFeedback';
+import { shadows } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Note {
@@ -284,8 +285,7 @@ export function ClinicalNotes({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flex: 1, backgroundColor: Colors.neutral.white, borderRadius: 20, padding: 20,
-    marginHorizontal: 16, marginVertical: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
+    marginHorizontal: 16, marginVertical: 12, ...shadows.sm },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.neutral.dark, flex: 1 },
   noteCount: { fontSize: 13, color: Colors.neutral.medium, backgroundColor: Colors.neutral.lighter,

@@ -39,6 +39,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -632,11 +633,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadows.md,
   },
 
   // Glowing Border

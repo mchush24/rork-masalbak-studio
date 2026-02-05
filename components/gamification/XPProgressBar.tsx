@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Zap, TrendingUp } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
+import { shadows } from '@/constants/design-system';
 
 interface XPProgressBarProps {
   level: number;
@@ -230,11 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     gap: 16,
-    shadowColor: '#A78BFA',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadows.colored('#A78BFA'),
   },
   levelSection: {
     flexDirection: 'row',

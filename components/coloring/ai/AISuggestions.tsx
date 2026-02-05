@@ -34,6 +34,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useColoring } from '../ColoringContext';
+import { shadows } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -478,11 +479,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#9D4EDD',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
+    ...shadows.colored('#9D4EDD'),
   },
   magicIcon: {
     fontSize: 24,
@@ -509,11 +506,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: -4, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 20,
+    ...shadows.xl,
   },
 
   // Header
@@ -593,11 +586,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 8,
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   colorItemBadge: {
     backgroundColor: 'rgba(255,255,255,0.9)',

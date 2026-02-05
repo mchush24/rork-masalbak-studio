@@ -28,6 +28,7 @@ import Animated, {
 import Svg, { Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { Check, Upload, Download, Loader2 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { shadows } from '@/constants/design-system';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -682,11 +683,7 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: Colors.neutral.white,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.xs,
   },
   uploadIcon: {
     width: 40,

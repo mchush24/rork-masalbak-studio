@@ -28,7 +28,7 @@ import {
 } from 'lucide-react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { spacing, borderRadius, typography, shadows } from '@/lib/design-tokens';
+import { spacing, borderRadius, typography, shadows, textShadows } from '@/lib/design-tokens';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import { AnalysisShareCard } from '@/components/AnalysisShareCard';
 import { AnalysisChatSheet } from '@/components/analysis-chat';
@@ -615,9 +615,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: 'white',
     marginBottom: spacing.xs,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.lg,
   },
   dateText: {
     fontSize: typography.fontSize.sm,
@@ -833,8 +831,6 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     marginBottom: spacing.md,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.lg,
   },
 });

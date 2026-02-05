@@ -14,6 +14,7 @@
 
 import React, { useCallback, useRef } from 'react';
 import { View, StyleSheet, Text, Animated, Pressable } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Canvas, Rect, LinearGradient as SkiaGradient, vec } from '@shopify/react-native-skia';
 
@@ -246,11 +247,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 3,
     borderColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    ...shadows.sm,
   },
   valueContainer: {
     marginTop: 12,

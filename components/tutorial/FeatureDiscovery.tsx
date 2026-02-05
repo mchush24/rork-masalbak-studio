@@ -39,6 +39,8 @@ import { useHaptics } from '@/lib/haptics';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { shadows } from '@/constants/design-system';
+import { useOverlay } from '@/lib/overlay';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -83,6 +85,10 @@ export function Spotlight({
   const targetRef = useRef<View>(null);
   const { feedback } = useFeedback();
 
+  // Overlay coordination
+  const overlayId = `feature_discovery_${id}`;
+  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('feature_discovery', overlayId);
+
   useEffect(() => {
     const checkAndShow = async () => {
       if (showOnce) {
@@ -90,16 +96,22 @@ export function Spotlight({
         if (discovered) return;
       }
 
+      // Check if we can show (no other overlay is active)
+      if (!canShow) return;
+
       const timeout = setTimeout(() => {
-        measureTarget();
-        setVisible(true);
+        // Request overlay permission before showing
+        if (requestOverlay()) {
+          measureTarget();
+          setVisible(true);
+        }
       }, delay);
 
       return () => clearTimeout(timeout);
     };
 
     checkAndShow();
-  }, [id, showOnce, delay]);
+  }, [id, showOnce, delay, canShow, requestOverlay]);
 
   const measureTarget = () => {
     targetRef.current?.measureInWindow((x, y, width, height) => {
@@ -113,6 +125,7 @@ export function Spotlight({
       await AsyncStorage.setItem(`${DISCOVERY_PREFIX}${id}`, 'true');
     }
     setVisible(false);
+    releaseOverlay(); // Release overlay before closing
     onDismiss?.();
   };
 
@@ -696,11 +709,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    ...shadows.lg,
     maxWidth: 320,
   },
   spotlightIooContainer: {
@@ -756,11 +765,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    ...shadows.lg,
   },
   tourSkipButton: {
     position: 'absolute',

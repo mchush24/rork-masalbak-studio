@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff, Mail, KeyRound, Shield, Zap, ArrowLeft, Sparkles, Heart } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
-import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
 import { SuccessModal } from '@/components/SuccessModal';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -271,9 +271,7 @@ export default function ForgotPasswordScreen() {
                     color: 'white',
                     marginBottom: spacing.xs,
                     textAlign: 'center',
-                    textShadowColor: 'rgba(0,0,0,0.2)',
-                    textShadowOffset: { width: 0, height: 2 },
-                    textShadowRadius: 10,
+                    ...textShadows.hero,
                   }}
                 >
                   Şifrenizi mi Unuttunuz?
@@ -399,9 +397,7 @@ export default function ForgotPasswordScreen() {
                     color: 'white',
                     marginBottom: spacing.xs,
                     textAlign: 'center',
-                    textShadowColor: 'rgba(0,0,0,0.2)',
-                    textShadowOffset: { width: 0, height: 2 },
-                    textShadowRadius: 10,
+                    ...textShadows.hero,
                   }}
                 >
                   Kodu Girin
@@ -577,9 +573,7 @@ export default function ForgotPasswordScreen() {
                     color: 'white',
                     marginBottom: spacing.xs,
                     textAlign: 'center',
-                    textShadowColor: 'rgba(0,0,0,0.2)',
-                    textShadowOffset: { width: 0, height: 2 },
-                    textShadowRadius: 10,
+                    ...textShadows.hero,
                   }}
                 >
                   Yeni Şifre Oluşturun

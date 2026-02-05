@@ -25,6 +25,7 @@ import {
   spacing,
   radius,
   shadows,
+  textShadows,
 } from "@/constants/design-system";
 import { trpc } from "@/lib/trpc";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -1696,9 +1697,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.sm,
   },
   headerSubtitle: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
@@ -1767,9 +1766,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     lineHeight: typography.lineHeight.snug * (isSmallDevice ? typography.size.lg : typography.size.xl),
-    textShadowColor: 'rgba(0, 0, 0, 0.05)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   cardMeta: {
     flexDirection: "row",
@@ -1830,9 +1827,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     textAlign: "center",
-    textShadowColor: 'rgba(0, 0, 0, 0.05)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   emptyDescription: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
@@ -1886,9 +1881,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    textShadowColor: 'rgba(0, 0, 0, 0.05)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   createFormDescription: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
@@ -2032,9 +2025,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
     fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
     fontWeight: typography.weight.semibold,
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   progressContainer: {
     marginTop: spacing["4"],
@@ -2048,9 +2039,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     textAlign: "center",
-    textShadowColor: 'rgba(0, 0, 0, 0.05)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   progressBarContainer: {
     height: 8,
@@ -2226,9 +2215,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size["2xl"],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.white,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.lg,
   },
   progressBarWrapper: {
     width: '100%',
@@ -2412,9 +2399,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    ...textShadows.md,
   },
   // Content Warning Modal Styles
   modalOverlay: {

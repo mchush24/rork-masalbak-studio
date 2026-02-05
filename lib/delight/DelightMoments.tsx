@@ -26,6 +26,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -454,11 +455,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
+    ...shadows.lg,
   },
   milestoneEmoji: {
     fontSize: 56,

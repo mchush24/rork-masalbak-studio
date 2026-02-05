@@ -36,7 +36,7 @@ import Animated, {
 import * as Haptics from "expo-haptics";
 import { RenkooColors } from "@/constants/colors";
 import { Ioo as IooMascot } from "@/components/Ioo";
-import { spacing, radius, typography } from "@/constants/design-system";
+import { spacing, radius, typography, shadows } from "@/constants/design-system";
 import { trpc } from "@/lib/trpc";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -536,11 +536,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderBottomLeftRadius: spacing["1"],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.sm,
   },
   messageText: {
     fontSize: typography.size.base,
@@ -609,11 +605,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1.5,
     gap: spacing["2"],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
+    ...shadows.xs,
   },
   quickActionIcon: {
     width: 32,
@@ -642,11 +634,7 @@ const styles = StyleSheet.create({
     paddingLeft: spacing["4"],
     paddingRight: spacing["2"],
     paddingVertical: spacing["2"],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    ...shadows.sm,
   },
   textInput: {
     flex: 1,

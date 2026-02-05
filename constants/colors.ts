@@ -379,6 +379,9 @@ export const Colors = {
 
     // Sıcak nötr - Erişilebilir ve profesyonel
     accessible: ["#7B6B5D", "#9D8B7D", "#BFAB9E"],
+
+    // Canlı ve enerjik - Onboarding ekranları için
+    vibrant: ["#6366F1", "#8B5CF6", "#A855F7"],
   },
 
   // Kart Renkleri - Özellik bazlı

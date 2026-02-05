@@ -31,6 +31,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import { shadows, textShadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -595,19 +596,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   baseColorHex: {
     fontSize: 14,
     fontWeight: '700',
     color: '#FFF',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.md,
   },
 
   // Harmony Types
@@ -664,11 +659,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 16,
     justifyContent: 'flex-end',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   harmonyColorLabel: {
     backgroundColor: 'rgba(255,255,255,0.9)',
@@ -699,11 +690,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...shadows.xs,
   },
   suggestionBoxActive: {
     borderWidth: 2,
@@ -713,9 +700,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '600',
     color: '#FFF',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.md,
   },
 
   // Compact Version
@@ -737,11 +722,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 2,
     borderColor: 'rgba(0,0,0,0.1)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...shadows.xs,
   },
 });
 

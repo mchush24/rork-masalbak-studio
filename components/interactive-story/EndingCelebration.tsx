@@ -19,6 +19,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { Star, FileText, Share2, Home } from "lucide-react-native";
 import { InteractiveCharacter } from "@/types/InteractiveStory";
+import { shadows } from "@/constants/design-system";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -223,11 +224,7 @@ const styles = StyleSheet.create({
     padding: 32,
     width: "100%",
     maxWidth: 340,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 10,
+    ...shadows.lg,
   },
   characterContainer: {
     width: 100,
@@ -295,11 +292,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   primaryButtonText: {
     fontSize: 18,

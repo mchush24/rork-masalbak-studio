@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Dimensions,
   StatusBar,
+  Modal,
 } from "react-native";
 import {
   BookOpen,
@@ -29,6 +30,10 @@ import {
   Trophy,
   Camera,
   Image as ImageIcon,
+  X,
+  Wand2,
+  FileText,
+  Zap,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -108,6 +113,7 @@ export default function HomeScreen() {
   const { t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [showActionModal, setShowActionModal] = useState(false);
 
   // Gamification hook
   const {
@@ -340,9 +346,9 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* PRIMARY CTA: Duygu Yansıması - Detailed Analysis */}
+          {/* PRIMARY CTA: Duygu Yansıması - Opens Action Modal */}
           <Pressable
-            onPress={() => router.push("/advanced-analysis" as Href)}
+            onPress={() => setShowActionModal(true)}
             style={({ pressed }) => [
               styles.primaryCtaCard,
               pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] }
@@ -363,7 +369,7 @@ export default function HomeScreen() {
                     <Text style={styles.primaryCtaBadgeText}>ANA ÖZELLİK</Text>
                   </View>
                   <Text style={styles.primaryCtaTitle}>Duygu Yansıması</Text>
-                  <Text style={styles.primaryCtaSubtitle}>
+                  <Text style={styles.primaryCtaSubtitle} numberOfLines={2} ellipsizeMode="tail">
                     Çocuğunuzun çizimlerinden duygusal dünyasını keşfedin
                   </Text>
                 </View>
@@ -601,6 +607,150 @@ export default function HomeScreen() {
           onClose={clearNewBadge}
         />
       )}
+
+      {/* Action Modal for Duygu Yansıması */}
+      <Modal
+        visible={showActionModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowActionModal(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowActionModal(false)}
+        >
+          <View style={styles.modalContent}>
+            {/* Handle Bar */}
+            <View style={styles.modalHandle} />
+
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Ne yapmak istersiniz?</Text>
+              <Pressable
+                onPress={() => setShowActionModal(false)}
+                style={styles.modalCloseBtn}
+              >
+                <X size={20} color={Colors.neutral.medium} />
+              </Pressable>
+            </View>
+
+            {/* Action Options */}
+            <View style={styles.actionOptionsContainer}>
+              {/* Detaylı Analiz */}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionOption,
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                ]}
+                onPress={() => {
+                  setShowActionModal(false);
+                  router.push("/advanced-analysis" as Href);
+                }}
+              >
+                <LinearGradient
+                  colors={['#6366F1', '#8B5CF6']}
+                  style={styles.actionOptionGradient}
+                >
+                  <View style={styles.actionOptionIcon}>
+                    <Brain size={28} color="#FFF" />
+                  </View>
+                  <View style={styles.actionOptionTextContainer}>
+                    <Text style={styles.actionOptionTitle}>Detaylı Analiz</Text>
+                    <Text style={styles.actionOptionDesc} numberOfLines={2}>
+                      Projektif testler ile kapsamlı değerlendirme
+                    </Text>
+                  </View>
+                  <ChevronRight size={20} color="rgba(255,255,255,0.7)" />
+                </LinearGradient>
+              </Pressable>
+
+              {/* Hızlı Analiz */}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionOption,
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                ]}
+                onPress={() => {
+                  setShowActionModal(false);
+                  router.push("/hayal-atolyesi" as Href);
+                }}
+              >
+                <LinearGradient
+                  colors={['#EC4899', '#F472B6']}
+                  style={styles.actionOptionGradient}
+                >
+                  <View style={styles.actionOptionIcon}>
+                    <Wand2 size={28} color="#FFF" />
+                  </View>
+                  <View style={styles.actionOptionTextContainer}>
+                    <Text style={styles.actionOptionTitle}>Hayal Atölyesi</Text>
+                    <Text style={styles.actionOptionDesc} numberOfLines={2}>
+                      Çizimden masal, boyama ve analiz
+                    </Text>
+                  </View>
+                  <ChevronRight size={20} color="rgba(255,255,255,0.7)" />
+                </LinearGradient>
+              </Pressable>
+
+              {/* Geçmiş Analizler */}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionOption,
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                ]}
+                onPress={() => {
+                  setShowActionModal(false);
+                  router.push("/history" as Href);
+                }}
+              >
+                <LinearGradient
+                  colors={['#10B981', '#34D399']}
+                  style={styles.actionOptionGradient}
+                >
+                  <View style={styles.actionOptionIcon}>
+                    <FileText size={28} color="#FFF" />
+                  </View>
+                  <View style={styles.actionOptionTextContainer}>
+                    <Text style={styles.actionOptionTitle}>Geçmiş Analizler</Text>
+                    <Text style={styles.actionOptionDesc} numberOfLines={2}>
+                      Önceki analizlerinizi görüntüleyin
+                    </Text>
+                  </View>
+                  <ChevronRight size={20} color="rgba(255,255,255,0.7)" />
+                </LinearGradient>
+              </Pressable>
+
+              {/* Ioo ile Sohbet */}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionOption,
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                ]}
+                onPress={() => {
+                  setShowActionModal(false);
+                  router.push("/chatbot" as Href);
+                }}
+              >
+                <LinearGradient
+                  colors={['#F59E0B', '#FBBF24']}
+                  style={styles.actionOptionGradient}
+                >
+                  <View style={styles.actionOptionIcon}>
+                    <MessageCircle size={28} color="#FFF" />
+                  </View>
+                  <View style={styles.actionOptionTextContainer}>
+                    <Text style={styles.actionOptionTitle}>Ioo'ya Sor</Text>
+                    <Text style={styles.actionOptionDesc} numberOfLines={2}>
+                      Analiz hakkında sorularınızı sorun
+                    </Text>
+                  </View>
+                  <ChevronRight size={20} color="rgba(255,255,255,0.7)" />
+                </LinearGradient>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -678,11 +828,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
+    flexShrink: 1,
   },
   mascotIntroText: {
     fontSize: 12,
     color: Colors.neutral.dark,
     lineHeight: 18,
+    flexWrap: 'wrap',
   },
   mascotName: {
     fontWeight: '700',
@@ -708,11 +860,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...shadows.xs,
   },
 
   // Primary CTA
@@ -720,11 +868,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing["4"],
     borderRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    elevation: 12,
+    ...shadows.colored('#6366F1'),
   },
   primaryCtaGradient: {
     padding: spacing["5"],
@@ -806,11 +950,7 @@ const styles = StyleSheet.create({
   atolyeCard: {
     borderRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#B98EFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 6,
+    ...shadows.colored('#B98EFF'),
   },
   atolyeGradient: {
     padding: spacing["5"],
@@ -1007,5 +1147,85 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.neutral.medium,
     letterSpacing: 1,
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: spacing["5"],
+    paddingBottom: spacing["8"],
+    maxHeight: '80%',
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: Colors.neutral.lighter,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: spacing["3"],
+    marginBottom: spacing["4"],
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing["5"],
+    paddingHorizontal: spacing["2"],
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.neutral.darker,
+  },
+  modalCloseBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.neutral.lightest,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionOptionsContainer: {
+    gap: spacing["3"],
+  },
+  actionOption: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    ...shadows.md,
+  },
+  actionOptionGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing["4"],
+    gap: spacing["4"],
+  },
+  actionOptionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionOptionTextContainer: {
+    flex: 1,
+  },
+  actionOptionTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  actionOptionDesc: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.85)',
+    lineHeight: 18,
   },
 });

@@ -12,6 +12,7 @@ import {
   spacing,
   radius,
   shadows,
+  textShadows,
 } from '@/constants/design-system';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -251,18 +252,14 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
     marginBottom: isSmallDevice ? spacing['1'] : spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.md,
   },
   actionDescription: {
     fontSize: typography.size.sm,
     color: 'rgba(255,255,255,0.95)',
     marginBottom: spacing['4'],
     lineHeight: typography.size.sm * 1.5,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   actionButton: {
     alignSelf: 'flex-start',
@@ -277,9 +274,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.white,
-    textShadowColor: 'rgba(0,0,0,0.15)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   skipButton: {
     paddingVertical: isSmallDevice ? spacing['2'] : spacing['3'],

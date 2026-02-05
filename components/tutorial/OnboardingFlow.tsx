@@ -47,6 +47,7 @@ import {
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
+import { shadows } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -440,11 +441,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
+    ...shadows.lg,
   },
   stepContent: {
     flex: 1,
@@ -512,11 +509,7 @@ const styles = StyleSheet.create({
   nextButton: {
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: Colors.primary.purple,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.colored(Colors.primary.purple),
   },
   completeButton: {
     shadowColor: Colors.emotion.trust,

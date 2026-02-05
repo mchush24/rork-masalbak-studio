@@ -20,6 +20,7 @@ import { BlurView } from 'expo-blur';
 import { X, Sparkles } from 'lucide-react-native';
 import { Badge, RARITY_COLORS, BadgeRarity } from '@/lib/gamification/badges';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -264,11 +265,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 28,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 30,
-    elevation: 20,
+    ...shadows.xl,
   },
   closeButton: {
     position: 'absolute',

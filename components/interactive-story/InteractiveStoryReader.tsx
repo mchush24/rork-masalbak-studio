@@ -30,6 +30,7 @@ import {
   InteractiveCharacter,
   StoryPage,
 } from "@/types/InteractiveStory";
+import { shadows } from "@/constants/design-system";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const PAGE_WIDTH = SCREEN_WIDTH * 0.9;
@@ -310,11 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 24,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    ...shadows.md,
     maxHeight: SCREEN_HEIGHT * 0.65,
   },
   pageImage: {
@@ -375,11 +372,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   navButtonDisabled: {
     opacity: 0.5,

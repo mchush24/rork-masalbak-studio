@@ -36,7 +36,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Trophy, Flame, Award, Zap, Shield, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, textShadows } from '@/constants/design-system';
 import { hapticManager, type HapticType } from '@/lib/haptics';
 import { soundManager, type SoundName } from '@/lib/audio';
 import { ConfettiAnimation, SparkleAnimation } from '@/components/animations/MicroInteractions';
@@ -524,9 +524,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...textShadows.sm,
   },
   toastSubtitle: {
     fontSize: typography.size.sm,

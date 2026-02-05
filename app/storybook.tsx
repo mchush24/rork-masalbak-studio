@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Colors } from "@/constants/colors";
+import { createTextShadow, shadows } from "@/constants/design-system";
 import { useState, useRef, useEffect } from "react";
 import { Image } from "expo-image";
 import { ChevronLeft, ChevronRight, Sparkles, BookOpen, Star } from "lucide-react-native";
@@ -450,11 +451,7 @@ const styles = StyleSheet.create({
     padding: 48,
     alignItems: "center",
     gap: 20,
-    shadowColor: "#9333EA",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
+    ...shadows.colored("#9333EA"),
     maxWidth: 320,
   },
   loadingText: {
@@ -520,11 +517,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadows.md,
   },
   storyTitle: {
     flex: 1,
@@ -543,11 +536,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     borderRadius: 32,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 10,
+    ...shadows.xl,
   },
   pageImageContainer: {
     position: "relative",
@@ -605,9 +594,7 @@ const styles = StyleSheet.create({
     lineHeight: 52,
     marginRight: 4,
     marginTop: -4,
-    textShadowColor: "rgba(147, 51, 234, 0.2)",
-    textShadowOffset: { width: 1, height: 2 },
-    textShadowRadius: 4,
+    ...createTextShadow(1, 2, 4, "rgba(147, 51, 234, 0.2)"),
   },
   pageText: {
     flex: 1,
@@ -669,11 +656,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.md,
   },
   navButtonPrev: {},
   navButtonNext: {},

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -437,11 +438,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     // Soft shadow
-    shadowColor: '#E8D0B8',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
+    ...shadows.colored('#E8D0B8'),
   },
   eyesRow: {
     position: 'absolute',
@@ -457,11 +454,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...shadows.xs,
   },
   sleepyEye: {
     backgroundColor: '#2D1F15',

@@ -33,6 +33,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { ConfettiAnimation, SuccessAnimation, SparkleAnimation } from './MicroInteractions';
 import { SymbiosisTheme, EmotionalZones } from '@/constants/SymbiosisTheme';
+import { shadows } from '@/constants/design-system';
 
 export type CelebrationType =
   | 'analysis_complete'
@@ -208,11 +209,7 @@ const styles = StyleSheet.create({
     maxWidth: 340,
     borderRadius: 32,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 30,
-    elevation: 20,
+    ...shadows.xl,
   },
   card: {
     padding: 32,

@@ -8,7 +8,7 @@ import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
-import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
 import { Mail, Zap } from 'lucide-react-native';
 
 export default function LoginScreen() {
@@ -168,7 +168,7 @@ export default function LoginScreen() {
         >
           <Animated.View style={{ flex: 1, opacity: fadeAnim, padding: spacing.lg, justifyContent: 'center' }}>
             {/* Header */}
-            <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '800', color: 'white', marginBottom: spacing.xs, textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.2)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 10 }}>
+            <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '800', color: 'white', marginBottom: spacing.xs, textAlign: 'center', ...textShadows.hero }}>
               Tekrar Hoş Geldiniz!
             </Text>
             <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.95)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500', lineHeight: 22 }}>

@@ -102,11 +102,6 @@ const illustrationStyles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   privacyIllustration: {
     alignItems: 'center',
@@ -579,7 +574,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 28,
     marginBottom: spacing['4'],
   },
 

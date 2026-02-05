@@ -28,6 +28,7 @@ import { View, StyleSheet, Text, Animated, Dimensions, Modal } from 'react-nativ
 import LottieView from 'lottie-react-native';
 import { Circle, Group } from '@shopify/react-native-skia';
 import { LinearGradient } from 'expo-linear-gradient';
+import { shadows, textShadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -437,11 +438,7 @@ const styles = StyleSheet.create({
     width: 280,
     borderRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    ...shadows.xl,
   },
   badgeGradient: {
     paddingVertical: 32,
@@ -466,9 +463,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.lg,
   },
   badgeSubtitle: {
     fontSize: 16,
@@ -495,11 +490,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    ...shadows.md,
   },
   successText: {
     fontSize: 18,

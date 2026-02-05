@@ -34,49 +34,67 @@ export const supabase = !isBrowser && supabaseUrl && supabaseServiceKey
 
 // Frontend Supabase Client (Anon Key - User Access)
 let supabaseFrontend: ReturnType<typeof createClient> | null = null;
+// Promise to track initialization and prevent race conditions
+let supabaseFrontendInitPromise: Promise<ReturnType<typeof createClient>> | null = null;
 
 /**
  * Get Supabase client for frontend (React Native & Web)
  * This client uses the ANON key and AsyncStorage for session persistence
+ *
+ * Uses a singleton pattern with promise tracking to prevent multiple
+ * GoTrueClient instances from being created during concurrent initialization
  */
 export async function getSupabaseFrontend() {
+  // Return existing client if already initialized
   if (supabaseFrontend) return supabaseFrontend;
 
-  const Constants = (await import('expo-constants')).default;
+  // If initialization is in progress, wait for it to complete
+  if (supabaseFrontendInitPromise) return supabaseFrontendInitPromise;
 
-  const frontendUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
-  const frontendAnonKey = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  // Start initialization and store the promise to prevent race conditions
+  supabaseFrontendInitPromise = (async () => {
+    // Double-check in case another call completed while we were waiting
+    if (supabaseFrontend) return supabaseFrontend;
 
-  if (!frontendUrl || !frontendAnonKey) {
-    throw new Error(
-      'Supabase URL and Anon Key must be set in environment variables.\n' +
-      'Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your .env file.'
-    );
-  }
+    const Constants = (await import('expo-constants')).default;
 
-  // React Native: Use AsyncStorage for session persistence
-  if (isReactNative) {
-    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
-    supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
-      auth: {
-        storage: AsyncStorage,
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
-      },
-    });
-  } else {
-    // Web: Use localStorage (default)
-    supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
-      },
-    });
-  }
+    const frontendUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
+    const frontendAnonKey = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-  return supabaseFrontend;
+    if (!frontendUrl || !frontendAnonKey) {
+      throw new Error(
+        'Supabase URL and Anon Key must be set in environment variables.\n' +
+        'Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your .env file.'
+      );
+    }
+
+    // React Native: Use AsyncStorage for session persistence
+    if (isReactNative) {
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+      supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
+        auth: {
+          storage: AsyncStorage,
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false,
+        },
+      });
+    } else {
+      // Web: Use localStorage (default) with a unique storage key
+      supabaseFrontend = createClient(frontendUrl, frontendAnonKey, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false,
+          storageKey: 'sb-renkioo-auth-token',
+        },
+      });
+    }
+
+    return supabaseFrontend;
+  })();
+
+  return supabaseFrontendInitPromise;
 }
 
 /**

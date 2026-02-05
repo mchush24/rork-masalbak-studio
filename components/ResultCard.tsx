@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import type { AssessmentOutput } from "@/types/AssessmentSchema";
+import { shadows } from "@/constants/design-system";
 
 export const ResultCard: React.FC<{ 
   data: AssessmentOutput; 
@@ -56,11 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   title: {
     fontSize: 18,

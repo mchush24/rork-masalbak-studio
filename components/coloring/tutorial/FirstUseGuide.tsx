@@ -29,7 +29,9 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useOverlay } from '@/lib/overlay';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -131,6 +133,15 @@ export function FirstUseGuide({ onComplete, onSkip }: FirstUseGuideProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
+  // Overlay coordination - first use guide has low priority
+  const { request: requestOverlay, release: releaseOverlay } = useOverlay('first_use_guide', 'first_use_guide');
+
+  // Request overlay on mount
+  useEffect(() => {
+    requestOverlay();
+    return () => releaseOverlay();
+  }, [requestOverlay, releaseOverlay]);
+
   const step = GUIDE_STEPS[currentStep];
   const isLastStep = currentStep === GUIDE_STEPS.length - 1;
 
@@ -180,11 +191,13 @@ export function FirstUseGuide({ onComplete, onSkip }: FirstUseGuideProps) {
 
   const handleSkip = async () => {
     await markGuideComplete();
+    releaseOverlay(); // Release overlay before closing
     onSkip();
   };
 
   const handleComplete = async () => {
     await markGuideComplete();
+    releaseOverlay(); // Release overlay before closing
     onComplete();
   };
 
@@ -361,10 +374,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 3,
     borderColor: '#FF9B7A',
-    shadowColor: '#FF9B7A',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
+    ...shadows.colored('#FF9B7A'),
   },
   messageCard: {
     position: 'absolute',
@@ -373,11 +383,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
+    ...shadows.lg,
   },
   progressDots: {
     flexDirection: 'row',

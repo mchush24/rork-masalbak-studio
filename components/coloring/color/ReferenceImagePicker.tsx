@@ -31,6 +31,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
@@ -500,11 +501,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: SCREEN_HEIGHT * 0.85,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 20,
+    ...shadows.xl,
   },
 
   // Header
@@ -631,11 +628,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 16,
     justifyContent: 'flex-end',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.sm,
   },
   colorSwatchLabel: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',

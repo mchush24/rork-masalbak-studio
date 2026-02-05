@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Colors } from "@/constants/colors";
 import { X, CheckCircle2 } from "lucide-react-native";
+import { shadows } from "@/constants/design-system";
 import {
   QUESTIONNAIRE_QUESTIONS,
   QUESTIONNAIRE_INTRO,
@@ -161,11 +162,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
     maxHeight: "90%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 10,
+    ...shadows.lg,
   },
   header: {
     flexDirection: "row",
@@ -268,11 +265,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     marginTop: 12,
-    shadowColor: Colors.primary.sunset,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadows.colored(Colors.primary.sunset),
   },
   completeButtonDisabled: {
     opacity: 0.5,

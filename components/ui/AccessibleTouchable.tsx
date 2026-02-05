@@ -24,6 +24,7 @@ import {
   useReduceMotion,
   getAccessibilityProps,
 } from '@/utils/accessibility';
+import { shadows } from '@/constants/design-system';
 
 interface AccessibleTouchableProps {
   onPress: () => void;
@@ -278,11 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    ...shadows.sm,
   },
   cardPressed: {
     transform: [{ scale: 0.98 }],

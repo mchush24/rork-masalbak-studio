@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 20,
   },
 
   // Bottom

@@ -34,6 +34,7 @@ import {
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
+import { Ioo, IooMood as NewIooMood } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -136,13 +137,13 @@ const ILLUSTRATIONS: Record<EmptyStateIllustration, {
   },
 };
 
-// Ioo face expressions based on mood
-const IOO_EXPRESSIONS: Record<IooMood, { eyes: string; mouth: string }> = {
-  happy: { eyes: '◡ ◡', mouth: '◡' },
-  curious: { eyes: '◉ ◉', mouth: '○' },
-  excited: { eyes: '★ ★', mouth: 'D' },
-  sad: { eyes: '◠ ◠', mouth: '︵' },
-  thinking: { eyes: '◑ ◑', mouth: '~' },
+// Map old mood types to new Ioo moods
+const MOOD_MAP: Record<IooMood, NewIooMood> = {
+  happy: 'happy',
+  curious: 'curious',
+  excited: 'excited',
+  sad: 'sleepy', // sleepy is closest to sad in new Ioo
+  thinking: 'curious',
 };
 
 export function EmptyState({
@@ -159,7 +160,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   const { tapMedium } = useHapticFeedback();
   const config = ILLUSTRATIONS[illustration];
-  const expression = IOO_EXPRESSIONS[mascotMood];
+  const mappedMood = MOOD_MAP[mascotMood] || 'happy';
 
   // Animations
   const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -246,20 +247,21 @@ export function EmptyState({
           },
         ]}
       >
+        {/* Use actual Ioo mascot instead of text-based face */}
+        <View style={styles.iooContainer}>
+          <Ioo
+            mood={mappedMood}
+            size={compact ? 'sm' : 'md'}
+            animated={true}
+          />
+        </View>
+
+        {/* Icon Badge */}
         <LinearGradient
           colors={config.gradient}
-          style={styles.illustrationBg}
+          style={[styles.iconBadge, compact && styles.iconBadgeCompact]}
         >
-          {/* Icon */}
-          <View style={styles.iconContainer}>
-            <IconComponent size={compact ? 40 : 56} color={config.iconColor} />
-          </View>
-
-          {/* Ioo Face */}
-          <View style={styles.iooFace}>
-            <Text style={styles.iooEyes}>{expression.eyes}</Text>
-            <Text style={styles.iooMouth}>{expression.mouth}</Text>
-          </View>
+          <IconComponent size={compact ? 18 : 24} color={config.iconColor} />
         </LinearGradient>
       </Animated.View>
 
@@ -435,33 +437,29 @@ const styles = StyleSheet.create({
   // Illustration
   illustrationContainer: {
     marginBottom: spacing['6'],
+    alignItems: 'center',
   },
   illustrationCompact: {
     marginBottom: spacing['4'],
   },
-  illustrationBg: {
-    width: 140,
-    height: 140,
+  iooContainer: {
+    marginBottom: spacing['2'],
+  },
+  iconBadge: {
+    width: 48,
+    height: 48,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.lg,
+    marginTop: -spacing['4'],
+    borderWidth: 3,
+    borderColor: Colors.neutral.white,
+    ...shadows.md,
   },
-  iconContainer: {
-    marginBottom: spacing['2'],
-  },
-  iooFace: {
-    alignItems: 'center',
-  },
-  iooEyes: {
-    fontSize: 20,
-    letterSpacing: 8,
-    color: Colors.neutral.darkest,
-  },
-  iooMouth: {
-    fontSize: 16,
-    color: Colors.neutral.darkest,
-    marginTop: -4,
+  iconBadgeCompact: {
+    width: 36,
+    height: 36,
+    marginTop: -spacing['3'],
   },
 
   // Text
@@ -484,7 +482,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
   },
   descriptionCompact: {
     fontSize: typography.size.sm,

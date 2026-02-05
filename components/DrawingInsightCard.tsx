@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
 import { MapPin, Lightbulb, Heart } from "lucide-react-native";
+import { shadows } from "@/constants/design-system";
 
 interface DrawingInsightCardProps {
   placement: string;
@@ -62,11 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     gap: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 5,
+    ...shadows.md,
   },
   header: {
     flexDirection: "row",

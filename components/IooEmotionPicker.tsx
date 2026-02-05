@@ -18,6 +18,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ioo, IooMood } from './Ioo';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -315,11 +316,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 12,
     maxWidth: SCREEN_WIDTH * 0.8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
+    ...shadows.md,
     position: 'relative',
   },
   speechBubbleArrow: {
@@ -389,11 +386,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 3,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...shadows.sm,
   },
   emotionCardCompact: {
     borderRadius: 16,
@@ -401,9 +394,7 @@ const styles = StyleSheet.create({
   },
   emotionCardSelected: {
     borderWidth: 3,
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    ...shadows.md,
   },
   emotionCardPressed: {
     opacity: 0.9,

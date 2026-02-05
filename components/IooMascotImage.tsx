@@ -1,0 +1,281 @@
+/**
+ * IooMascotImage - Custom Designed Mascot with 3D Effects
+ *
+ * Uses the user's custom designed fluffy cloud mascot image
+ * with rainbow glasses and green sparkly hair.
+ *
+ * 3D-like Features:
+ * - Layered shadows for depth
+ * - Breathing animation with scale
+ * - Floating animation
+ * - Subtle tilt/rotation for dynamism
+ * - Multiple glow layers
+ * - Parallax-like shadow movement
+ */
+
+import React, { memo, useEffect } from 'react';
+import { View, StyleSheet, Pressable, Image, Platform } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  withDelay,
+  Easing,
+  interpolate,
+} from 'react-native-reanimated';
+
+// Mood types - kept for API compatibility
+export type IooMood =
+  | 'neutral'
+  | 'happy'
+  | 'excited'
+  | 'curious'
+  | 'love'
+  | 'calm'
+  | 'thinking'
+  | 'sleepy'
+  | 'concerned'
+  | 'sad';
+
+export type IooSize = 'xs' | 'sm' | 'md' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
+
+const SIZE_MAP: Record<IooSize, number> = {
+  xs: 50,
+  sm: 70,
+  md: 100,
+  tiny: 70,
+  small: 100,
+  medium: 140,
+  lg: 180,
+  large: 200,
+  hero: 280,
+  giant: 350,
+};
+
+interface IooProps {
+  size?: IooSize | number;
+  mood?: IooMood;
+  animated?: boolean;
+  showGlow?: boolean;
+  onPress?: () => void;
+}
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
+
+export const IooMascotImage = memo(function IooMascotImage({
+  size = 'medium',
+  mood = 'happy',
+  animated = true,
+  showGlow = true,
+  onPress,
+}: IooProps) {
+  const dimensions = typeof size === 'number' ? size : SIZE_MAP[size];
+
+  // Animation values
+  const breathe = useSharedValue(1);
+  const float = useSharedValue(0);
+  const tiltX = useSharedValue(0);
+  const tiltY = useSharedValue(0);
+  const glowOpacity = useSharedValue(0.4);
+  const shadowOffset = useSharedValue(0);
+
+  useEffect(() => {
+    if (!animated) return;
+
+    // Gentle breathing animation - 3D scale effect
+    breathe.value = withRepeat(
+      withSequence(
+        withTiming(1.03, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.97, { duration: 2500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Floating animation - up and down
+    float.value = withRepeat(
+      withSequence(
+        withTiming(-6, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(6, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Subtle tilt animation for 3D feel - X axis
+    tiltX.value = withRepeat(
+      withSequence(
+        withDelay(500, withTiming(3, { duration: 3000, easing: Easing.inOut(Easing.ease) })),
+        withTiming(-3, { duration: 3000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Subtle tilt animation - Y axis (slightly offset timing)
+    tiltY.value = withRepeat(
+      withSequence(
+        withTiming(2, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-2, { duration: 2500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Shadow parallax - moves opposite to float for depth
+    shadowOffset.value = withRepeat(
+      withSequence(
+        withTiming(4, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-4, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Glow pulse
+    if (showGlow) {
+      glowOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.6, { duration: 1800, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.25, { duration: 1800, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        true
+      );
+    }
+  }, [animated, showGlow]);
+
+  // Main container animation - breathing + floating + tilt
+  const containerStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: breathe.value },
+      { translateY: float.value },
+      { perspective: 800 },
+      { rotateX: `${tiltX.value}deg` },
+      { rotateY: `${tiltY.value}deg` },
+    ],
+  }));
+
+  // Outer glow animation
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+    transform: [
+      { scale: interpolate(glowOpacity.value, [0.25, 0.6], [1, 1.1]) },
+    ],
+  }));
+
+  // Shadow animation - moves opposite for parallax depth effect
+  const shadowStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: shadowOffset.value + 8 },
+      { scaleX: interpolate(float.value, [-6, 6], [0.9, 1.1]) },
+    ],
+    opacity: interpolate(float.value, [-6, 6], [0.3, 0.15]),
+  }));
+
+  const Content = (
+    <View style={[styles.wrapper, { width: dimensions + 20, height: dimensions + 30 }]}>
+      {/* Ground shadow - subtle for 3D grounding */}
+      <Animated.View
+        style={[
+          styles.groundShadow,
+          {
+            width: dimensions * 0.5,
+            height: dimensions * 0.1,
+            bottom: 5,
+            left: (dimensions + 20 - dimensions * 0.5) / 2,
+          },
+          shadowStyle,
+        ]}
+      />
+
+      <Animated.View style={[styles.container, { width: dimensions, height: dimensions }, containerStyle]}>
+        {/* Subtle ambient glow behind the 3D model */}
+        {showGlow && (
+          <Animated.View
+            style={[
+              styles.ambientGlow,
+              {
+                width: dimensions * 1.1,
+                height: dimensions * 1.1,
+                borderRadius: dimensions * 0.55,
+              },
+              glowStyle,
+            ]}
+          />
+        )}
+
+        {/* 3D Mascot image - already has built-in lighting */}
+        <Image
+          source={require('@/assets/images/ioo-mascot.png')}
+          style={[
+            styles.mascotImage,
+            {
+              width: dimensions,
+              height: dimensions,
+            },
+          ]}
+          resizeMode="contain"
+        />
+      </Animated.View>
+    </View>
+  );
+
+  if (onPress) {
+    return (
+      <Pressable onPress={onPress} style={({ pressed }) => pressed && styles.pressed}>
+        {Content}
+      </Pressable>
+    );
+  }
+
+  return Content;
+});
+
+const styles = StyleSheet.create({
+  wrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  container: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Ground shadow for 3D grounding effect
+  groundShadow: {
+    position: 'absolute',
+    backgroundColor: 'rgba(150, 120, 180, 0.25)',
+    borderRadius: 100,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#8B5CF6',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 0,
+      },
+    }),
+  },
+  // Subtle ambient glow - complements the 3D model's lighting
+  ambientGlow: {
+    position: 'absolute',
+    backgroundColor: 'rgba(180, 160, 220, 0.2)',
+  },
+  mascotImage: {
+    zIndex: 10,
+  },
+  pressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.98 }],
+  },
+});
+
+// Re-exports for compatibility
+export { IooMascotImage as Ioo };
+export default IooMascotImage;

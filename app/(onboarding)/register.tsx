@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
 import { ExistingUserModal } from '@/components/ExistingUserModal';
-import { spacing, borderRadius, animations, shadows, typography, colors } from '@/lib/design-tokens';
+import { spacing, borderRadius, animations, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
 import { Brain, Palette, BookOpen, Eye, EyeOff, Mail, Sparkles, Shield, ChartLine, Star, Heart, Zap } from 'lucide-react-native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -366,7 +366,7 @@ export default function RegisterScreen() {
                   }}
                 />
               </View>
-              <Text style={{ marginLeft: spacing.md, color: 'white', fontSize: typography.fontSize.sm, fontWeight: '600', textShadowColor: 'rgba(0,0,0,0.2)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }}>
+              <Text style={{ marginLeft: spacing.md, color: 'white', fontSize: typography.fontSize.sm, fontWeight: '600', ...textShadows.sm }}>
                 {currentStep + 1}/3
               </Text>
             </View>
@@ -548,9 +548,7 @@ function EmailStepNew({
           color: 'white',
           marginBottom: spacing.xs,
           textAlign: 'center',
-          textShadowColor: 'rgba(0,0,0,0.2)',
-          textShadowOffset: { width: 0, height: 2 },
-          textShadowRadius: 10,
+          ...textShadows.hero,
         }}
       >
         {isLoginMode ? 'Tekrar Hoş Geldiniz!' : 'Renkioo\'ya Hoş Geldiniz!'}
@@ -883,9 +881,7 @@ function PasswordStepNew({
           color: 'white',
           marginBottom: spacing.xs,
           textAlign: 'center',
-          textShadowColor: 'rgba(0,0,0,0.2)',
-          textShadowOffset: { width: 0, height: 2 },
-          textShadowRadius: 10,
+          ...textShadows.hero,
         }}
       >
         {isExistingUser ? 'Şifrenizi Girin' : 'Güvenli Şifre Oluşturun'}
@@ -1216,9 +1212,7 @@ function VerifyCodeStepNew({
           color: 'white',
           marginBottom: spacing.xs,
           textAlign: 'center',
-          textShadowColor: 'rgba(0,0,0,0.2)',
-          textShadowOffset: { width: 0, height: 2 },
-          textShadowRadius: 10,
+          ...textShadows.hero,
         }}
       >
         Email Doğrulama

@@ -28,6 +28,7 @@ import { typography, spacing, radius, shadows } from '@/constants/design-system'
 import { useCrashRecovery, SessionState } from '@/lib/persistence';
 import { useHapticFeedback } from '@/lib/haptics';
 import { Ioo } from '@/components/Ioo';
+import { useOverlay } from '@/lib/overlay';
 
 interface CrashRecoveryDialogProps {
   /** Callback when user chooses to recover */
@@ -46,17 +47,22 @@ export function CrashRecoveryDialog({
   const { showRecoveryDialog, crashRecovery, recover, dismiss } = useCrashRecovery(onRecover);
   const { tapMedium, success, warning } = useHapticFeedback();
 
+  // Overlay coordination - crash recovery has highest priority
+  const { request: requestOverlay, release: releaseOverlay } = useOverlay('crash_recovery', 'crash_recovery_dialog');
+
   // Animation
   const scale = useSharedValue(0.9);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
     if (showRecoveryDialog) {
+      // Request overlay - crash recovery has highest priority so it will always succeed
+      requestOverlay();
       scale.value = withSpring(1, { damping: 15, stiffness: 150 });
       opacity.value = withTiming(1, { duration: 200 });
       warning(); // Alert user
     }
-  }, [showRecoveryDialog, scale, opacity, warning]);
+  }, [showRecoveryDialog, scale, opacity, warning, requestOverlay]);
 
   const containerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -66,11 +72,13 @@ export function CrashRecoveryDialog({
   const handleRecover = () => {
     tapMedium();
     success();
+    releaseOverlay(); // Release overlay before closing
     recover();
   };
 
   const handleDismiss = () => {
     tapMedium();
+    releaseOverlay(); // Release overlay before closing
     dismiss();
     onDismiss?.();
   };
@@ -236,6 +244,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
+    lineHeight: 32,
   },
 
   // Description
@@ -243,7 +252,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed,
+    lineHeight: 24,
     marginBottom: spacing['4'],
   },
 

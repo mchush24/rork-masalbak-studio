@@ -22,6 +22,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { shadows, textShadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -366,11 +367,7 @@ const styles = StyleSheet.create({
     width: 300,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
+    ...shadows.lg,
     zIndex: 10000,
   },
   gradient: {
@@ -388,9 +385,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 8,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadows.md,
   },
   message: {
     fontSize: 16,

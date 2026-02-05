@@ -14,6 +14,9 @@ import {
   shadows as dsShadows,
   typography as dsTypography,
   animation,
+  textShadows as dsTextShadows,
+  createTextShadow,
+  createShadow,
 } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
@@ -121,3 +124,10 @@ export const haptics = {
   impactMedium: 'impactMedium',
   impactHeavy: 'impactHeavy',
 } as const;
+
+// Text Shadows - Platform-aware text shadow styles
+export const textShadows = dsTextShadows;
+export { createTextShadow };
+
+// Box Shadows - Platform-aware shadow styles
+export { createShadow };

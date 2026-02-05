@@ -18,6 +18,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -412,11 +413,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: -4, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 10,
+    ...shadows.lg,
   },
   header: {
     flexDirection: 'row',
@@ -467,11 +464,7 @@ const styles = StyleSheet.create({
   },
   moodCardSelected: {
     borderWidth: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
+    ...shadows.sm,
   },
   moodGradient: {
     position: 'absolute',
@@ -533,11 +526,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 3,
     borderColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    ...shadows.sm,
     overflow: 'hidden',
   },
   colorShine: {
@@ -564,11 +553,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
+    ...shadows.sm,
     borderWidth: 2,
     borderColor: '#E0E0E0',
   },
