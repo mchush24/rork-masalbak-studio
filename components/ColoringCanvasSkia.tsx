@@ -129,7 +129,7 @@ import {
 } from "@shopify/react-native-skia";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
+import { spacing, radius, shadows, typography, zIndex } from "@/constants/design-system";
 import {
   ArrowLeft,
   X,
@@ -1716,8 +1716,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.2)",
   },
   selectedCheck: {
-    fontSize: 24,
-    fontWeight: "900",
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.black,
     color: Colors.neutral.white,
   },
   bottomActions: {
@@ -1747,7 +1747,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000,
+    zIndex: zIndex.modal,
   },
   colorPickerBackdrop: {
     position: 'absolute',
@@ -1776,8 +1776,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E0E0E0',
   },
   colorPickerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
   },
   colorPickerClose: {
@@ -1793,9 +1793,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['3'],
   },
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
     marginBottom: spacing['2'],
     paddingHorizontal: spacing['4'],
   },
@@ -1813,9 +1813,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
   },
   currentColorLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
   currentColorPreview: {
@@ -1828,15 +1828,15 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   currentColorHex: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
     fontFamily: 'monospace',
     marginBottom: spacing['1'],
   },
   currentColorOpacity: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
   },
   colorPickerApplyButton: {
     marginHorizontal: spacing['4'],
@@ -1850,8 +1850,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   colorPickerApplyText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
   },
   // Phase 7: Sticker and Texture UI Styles

@@ -127,8 +127,20 @@ export const duration = {
 } as const;
 
 // ============================================
-// BUTTON VARIANTS
+// BUTTON SYSTEM
 // ============================================
+/**
+ * Button Variants - Color configurations for different button types
+ *
+ * USAGE:
+ * - primary: Main CTA buttons (Kaydet, Devam Et, Başla)
+ * - secondary: Secondary actions (İptal, Geri)
+ * - outline: Tertiary actions with border
+ * - ghost: Text-only buttons, minimal emphasis
+ * - danger: Destructive actions (Sil, Kaldır)
+ * - success: Positive confirmations (Onayla, Tamam)
+ * - muted: Disabled-looking or low-priority actions
+ */
 export const buttonVariants = {
   primary: {
     backgroundColor: Colors.primary.sunset,
@@ -141,7 +153,7 @@ export const buttonVariants = {
   outline: {
     backgroundColor: "transparent",
     borderColor: Colors.neutral.medium,
-    borderWidth: 1,
+    borderWidth: 1.5,
     color: Colors.neutral.darkest,
   },
   ghost: {
@@ -155,6 +167,119 @@ export const buttonVariants = {
   success: {
     backgroundColor: Colors.secondary.grass,
     color: Colors.neutral.white,
+  },
+  muted: {
+    backgroundColor: Colors.neutral.lighter,
+    color: Colors.neutral.dark,
+  },
+} as const;
+
+/**
+ * Button Sizes - Consistent sizing across all button types
+ *
+ * USAGE GUIDE:
+ * - xs: Icon-only buttons, inline actions (28px height)
+ * - sm: Secondary actions, compact UI (36px height)
+ * - md: Default size, most buttons (44px height - Apple HIG touch target)
+ * - lg: Primary CTAs, prominent actions (52px height)
+ * - xl: Hero CTAs, onboarding buttons (60px height)
+ */
+export const buttonSizes = {
+  xs: {
+    height: 28,
+    paddingHorizontal: spacing.sm,    // 8px
+    paddingVertical: spacing.xs,      // 4px
+    fontSize: typography.size.xs,     // 11px
+    fontWeight: typography.weight.semibold,
+    iconSize: 14,
+    borderRadius: radius.sm,          // 8px
+  },
+  sm: {
+    height: 36,
+    paddingHorizontal: spacing.lg,    // 16px
+    paddingVertical: spacing.sm,      // 8px
+    fontSize: typography.size.sm,     // 13px
+    fontWeight: typography.weight.semibold,
+    iconSize: 16,
+    borderRadius: radius.md,          // 12px
+  },
+  md: {
+    height: 44,
+    paddingHorizontal: spacing.xl,    // 20px
+    paddingVertical: spacing.md,      // 12px
+    fontSize: typography.size.base,   // 15px
+    fontWeight: typography.weight.bold,
+    iconSize: 18,
+    borderRadius: radius.md,          // 12px
+  },
+  lg: {
+    height: 52,
+    paddingHorizontal: spacing["2xl"], // 24px
+    paddingVertical: spacing.lg,       // 16px
+    fontSize: typography.size.lg,      // 17px
+    fontWeight: typography.weight.bold,
+    iconSize: 20,
+    borderRadius: radius.lg,           // 16px
+  },
+  xl: {
+    height: 60,
+    paddingHorizontal: spacing["3xl"], // 32px
+    paddingVertical: spacing.xl,       // 20px
+    fontSize: typography.size.xl,      // 20px
+    fontWeight: typography.weight.extrabold,
+    iconSize: 24,
+    borderRadius: radius.xl,           // 20px
+  },
+} as const;
+
+/**
+ * Button Styles - Pre-composed style objects for quick application
+ */
+export const buttonStyles = {
+  /** Standard button base styles */
+  base: {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    gap: spacing.sm, // 8px gap between icon and text
+  },
+
+  /** Shadow for elevated buttons */
+  elevated: shadows.sm,
+
+  /** Shadow for primary/prominent CTAs */
+  prominent: shadows.md,
+
+  /** Pressed state opacity */
+  pressedOpacity: 0.85,
+
+  /** Disabled state opacity */
+  disabledOpacity: 0.5,
+
+  /** Icon button (square) configurations */
+  iconButton: {
+    xs: { width: 28, height: 28, borderRadius: radius.sm },
+    sm: { width: 36, height: 36, borderRadius: radius.md },
+    md: { width: 44, height: 44, borderRadius: radius.md },
+    lg: { width: 52, height: 52, borderRadius: radius.lg },
+  },
+
+  /** Circular button configurations */
+  circularButton: {
+    xs: { width: 28, height: 28, borderRadius: radius.full },
+    sm: { width: 36, height: 36, borderRadius: radius.full },
+    md: { width: 44, height: 44, borderRadius: radius.full },
+    lg: { width: 52, height: 52, borderRadius: radius.full },
+  },
+
+  /** Chip/Tag button styles */
+  chip: {
+    height: 32,
+    paddingHorizontal: spacing.md,   // 12px
+    paddingVertical: spacing.xs,     // 4px
+    fontSize: typography.size.sm,    // 13px
+    fontWeight: typography.weight.medium,
+    borderRadius: radius.full,
   },
 } as const;
 
@@ -228,3 +353,4 @@ export type Spacing = keyof typeof spacing;
 export type Radius = keyof typeof radius;
 export type Shadow = keyof typeof shadows;
 export type ButtonVariant = keyof typeof buttonVariants;
+export type ButtonSize = keyof typeof buttonSizes;

@@ -37,7 +37,7 @@ import {
 import { Heart, Trash2, Share2 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
 
@@ -658,7 +658,7 @@ const styles = StyleSheet.create({
   // Long Press Menu
   menuOverlay: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
+    zIndex: zIndex.popover,
   },
   menuContainer: {
     position: 'absolute',

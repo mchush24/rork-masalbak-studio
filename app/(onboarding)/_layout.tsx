@@ -11,6 +11,7 @@ export default function OnboardingLayout() {
       <Stack.Screen name="login" />
       <Stack.Screen name="forgot-password" />
       <Stack.Screen name="set-password" />
+      <Stack.Screen name="role-select" options={{ animation: 'slide_from_bottom' }} />
     </Stack>
   );
 }

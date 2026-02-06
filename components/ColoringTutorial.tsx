@@ -21,7 +21,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
+import { spacing, radius, shadows, typography, zIndex } from "@/constants/design-system";
 import {
   Paintbrush,
   PaintBucket,
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 9999,
+    zIndex: zIndex.modal,
     justifyContent: "center",
     alignItems: "center",
   },

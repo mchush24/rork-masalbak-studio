@@ -21,6 +21,7 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { zIndex } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -427,7 +428,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     overflow: 'hidden',
-    zIndex: 1000,
+    zIndex: zIndex.overlay,
   },
   snowflake: {
     position: 'absolute',

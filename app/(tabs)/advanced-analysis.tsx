@@ -99,6 +99,8 @@ interface BackendAnalysisResult {
 import * as FileSystem from "expo-file-system/legacy";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { IooAssistant } from "@/components/coaching/IooAssistant";
+import { AnalysisStepper, AnalysisStep } from "@/components/analysis/AnalysisStepper";
+import { AnalysisLoadingOverlay } from "@/components/analysis/AnalysisLoadingOverlay";
 
 const lang = "tr";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -106,17 +108,27 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Native driver is not supported on web platform
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
-// Test type icons and colors
-const TEST_CONFIG: Record<TaskType, { icon: string; gradient: readonly [string, string]; description: string }> = {
-  DAP: { icon: "👤", gradient: ["#A78BFA", "#C4B5FD"], description: "Kişi çizimi analizi" },
-  HTP: { icon: "🏠", gradient: ["#78C8E8", "#A3DBF0"], description: "Ev-Ağaç-Kişi testi" },
-  Aile: { icon: "👨‍👩‍👧", gradient: ["#FFB5D8", "#FFD6ED"], description: "Aile dinamikleri" },
-  Kaktus: { icon: "🌵", gradient: ["#7ED99C", "#A8E8BA"], description: "Savunma mekanizmaları" },
-  Agac: { icon: "🌳", gradient: ["#68D89B", "#9EE7B7"], description: "Kişilik yapısı" },
-  Bahce: { icon: "🌷", gradient: ["#FF9B7A", "#FFB299"], description: "İç dünya analizi" },
-  Bender: { icon: "🔷", gradient: ["#4FB3D4", "#78C8E8"], description: "Görsel-motor entegrasyon" },
-  Rey: { icon: "🧩", gradient: ["#F59E0B", "#FBBF24"], description: "Görsel bellek testi" },
-  Luscher: { icon: "🎨", gradient: ["#EC4899", "#F472B6"], description: "Renk psikolojisi" },
+// Test type icons, colors, duration and difficulty
+interface TestConfigItem {
+  icon: string;
+  gradient: readonly [string, string];
+  description: string;
+  duration: string;
+  difficulty: 'Kolay' | 'Orta' | 'Zor';
+  ageRange: string;
+  imageCount: number;
+}
+
+const TEST_CONFIG: Record<TaskType, TestConfigItem> = {
+  DAP: { icon: "👤", gradient: ["#A78BFA", "#C4B5FD"], description: "Kişi çizimi analizi", duration: "10-15 dk", difficulty: "Kolay", ageRange: "5-12 yaş", imageCount: 1 },
+  HTP: { icon: "🏠", gradient: ["#78C8E8", "#A3DBF0"], description: "Ev-Ağaç-Kişi testi", duration: "20-30 dk", difficulty: "Orta", ageRange: "5-12 yaş", imageCount: 3 },
+  Aile: { icon: "👨‍👩‍👧", gradient: ["#FFB5D8", "#FFD6ED"], description: "Aile dinamikleri", duration: "15-20 dk", difficulty: "Orta", ageRange: "4-14 yaş", imageCount: 1 },
+  Kaktus: { icon: "🌵", gradient: ["#7ED99C", "#A8E8BA"], description: "Savunma mekanizmaları", duration: "10-15 dk", difficulty: "Kolay", ageRange: "5-12 yaş", imageCount: 1 },
+  Agac: { icon: "🌳", gradient: ["#68D89B", "#9EE7B7"], description: "Kişilik yapısı", duration: "10-15 dk", difficulty: "Kolay", ageRange: "5-14 yaş", imageCount: 1 },
+  Bahce: { icon: "🌷", gradient: ["#FF9B7A", "#FFB299"], description: "İç dünya analizi", duration: "15-20 dk", difficulty: "Orta", ageRange: "5-12 yaş", imageCount: 1 },
+  Bender: { icon: "🔷", gradient: ["#4FB3D4", "#78C8E8"], description: "Görsel-motor entegrasyon", duration: "20-30 dk", difficulty: "Zor", ageRange: "5-11 yaş", imageCount: 1 },
+  Rey: { icon: "🧩", gradient: ["#F59E0B", "#FBBF24"], description: "Görsel bellek testi", duration: "15-20 dk", difficulty: "Orta", ageRange: "4-14 yaş", imageCount: 1 },
+  Luscher: { icon: "🎨", gradient: ["#EC4899", "#F472B6"], description: "Renk psikolojisi", duration: "5-10 dk", difficulty: "Kolay", ageRange: "5-14 yaş", imageCount: 0 },
 };
 
 export default function AdvancedAnalysisScreen() {
@@ -135,6 +147,13 @@ export default function AdvancedAnalysisScreen() {
   // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
   const saveAnalysisMutation = trpc.analysis.save.useMutation();
+
+  // Compute current analysis step for stepper (hasRequiredImages defined below)
+  const currentAnalysisStep: AnalysisStep = result
+    ? 'results'
+    : loading
+    ? 'analyzing'
+    : 'select';
 
   const [sheetTask, setSheetTask] = useState<TaskType>("DAP");
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -432,7 +451,11 @@ export default function AdvancedAnalysisScreen() {
   return (
     <View style={styles.container}>
       {loading ? (
-        <LoadingAnimation type="analysis" message="AI analizi devam ediyor..." />
+        <AnalysisLoadingOverlay
+          message="AI analizi devam ediyor..."
+          estimatedDuration={TEST_CONFIG[task]?.duration || "15-30 saniye"}
+          testType={`${task} (${TEST_CONFIG[task]?.description || 'Analiz'})`}
+        />
       ) : (
         <LinearGradient
           colors={["#F0F4FF", "#E8EFFF", "#DFE8FF"]}
@@ -526,6 +549,11 @@ export default function AdvancedAnalysisScreen() {
               </View>
             </View>
 
+            {/* Analysis Progress Stepper */}
+            <View style={styles.stepperContainer}>
+              <AnalysisStepper currentStep={currentAnalysisStep} />
+            </View>
+
             {/* Test Selector Section */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Test Seçimi</Text>
@@ -563,6 +591,25 @@ export default function AdvancedAnalysisScreen() {
                       <Text style={[styles.testCardDesc, isActive && styles.testCardDescActive]} numberOfLines={1}>
                         {config.description}
                       </Text>
+                      {/* Duration & Difficulty Badges */}
+                      <View style={styles.testCardBadges}>
+                        <View style={[styles.testCardBadge, isActive && styles.testCardBadgeActive]}>
+                          <Text style={[styles.testCardBadgeText, isActive && styles.testCardBadgeTextActive]}>
+                            {config.duration}
+                          </Text>
+                        </View>
+                        <View style={[
+                          styles.testCardBadge,
+                          isActive && styles.testCardBadgeActive,
+                          config.difficulty === 'Kolay' && styles.testCardBadgeEasy,
+                          config.difficulty === 'Orta' && styles.testCardBadgeMedium,
+                          config.difficulty === 'Zor' && styles.testCardBadgeHard,
+                        ]}>
+                          <Text style={[styles.testCardBadgeText, isActive && styles.testCardBadgeTextActive]}>
+                            {config.difficulty}
+                          </Text>
+                        </View>
+                      </View>
                       {isActive && (
                         <View style={styles.testCardCheck}>
                           <CheckCircle size={16} color="#FFF" />
@@ -1141,6 +1188,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
 
+  // Analysis Stepper
+  stepperContainer: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+
   // Section Header
   sectionHeader: {
     flexDirection: "row",
@@ -1174,7 +1227,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   testCard: {
-    width: 110,
+    width: 125,
     borderRadius: 16,
     overflow: "hidden",
     ...shadows.sm,
@@ -1183,9 +1236,9 @@ const styles = StyleSheet.create({
     ...shadows.lg,
   },
   testCardGradient: {
-    padding: 14,
+    padding: 12,
     alignItems: "center",
-    minHeight: 110,
+    minHeight: 135,
     justifyContent: "center",
   },
   testCardIcon: {
@@ -1208,6 +1261,37 @@ const styles = StyleSheet.create({
   },
   testCardDescActive: {
     color: "rgba(255,255,255,0.85)",
+  },
+  testCardBadges: {
+    flexDirection: "row",
+    gap: 4,
+    marginTop: 6,
+  },
+  testCardBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: "rgba(100, 116, 139, 0.1)",
+  },
+  testCardBadgeActive: {
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+  },
+  testCardBadgeEasy: {
+    // Green tint for easy
+  },
+  testCardBadgeMedium: {
+    // Orange tint for medium
+  },
+  testCardBadgeHard: {
+    // Red tint for hard
+  },
+  testCardBadgeText: {
+    fontSize: 9,
+    fontWeight: "600",
+    color: "#64748B",
+  },
+  testCardBadgeTextActive: {
+    color: "rgba(255, 255, 255, 0.9)",
   },
   testCardCheck: {
     position: "absolute",

@@ -32,7 +32,7 @@ import {
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import { useChild } from '@/lib/contexts/ChildContext';
 import type { Child } from '@/lib/hooks/useAuth';
@@ -1048,7 +1048,7 @@ const styles = StyleSheet.create({
   floatingButton: {
     position: 'absolute',
     left: 20,
-    zIndex: 1000,
+    zIndex: zIndex.floating,
   },
   floatingButtonInner: {
     borderRadius: 28,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  Share,
 } from "react-native";
 import {
   Brain,
@@ -19,9 +20,10 @@ import {
   Trash2,
   Download,
   ChevronRight,
-  Filter,
   Star,
   Clock,
+  Share2,
+  FileText,
 } from "lucide-react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -37,9 +39,12 @@ import {
   spacing,
   radius,
   shadows,
+  iconSizes,
+  iconStroke,
 } from "@/constants/design-system";
 import { Image } from "expo-image";
 import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
+import { HistoryStatsCard, HistorySearchBar, HistoryFilters, type DateFilter, type TestTypeFilter } from "@/components/history";
 
 type TabType = "analyses" | "stories" | "colorings";
 
@@ -76,6 +81,9 @@ export default function HistoryScreen() {
   const [activeTab, setActiveTab] = useState<TabType>(TAB_ANALYSES);
   const [refreshing, setRefreshing] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+  const [testTypeFilter, setTestTypeFilter] = useState<TestTypeFilter>("all");
 
   // Fetch analyses
   const {
@@ -179,6 +187,26 @@ export default function HistoryScreen() {
 
   const handleViewAnalysis = (analysisId: string) => {
     Alert.alert("Analiz Detayı", "Analiz detay ekranı yakında eklenecek!");
+  };
+
+  const handleShareAnalysis = async (analysis: any) => {
+    try {
+      const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type;
+      const message = `Renkioo - ${testLabel} Analizi\n\nTarih: ${formatDate(analysis.created_at)}${
+        analysis.child_age ? `\nYaş: ${analysis.child_age}` : ""
+      }${
+        analysis.analysis_result?.insights?.[0]
+          ? `\n\nÖzet: ${analysis.analysis_result.insights[0].summary}`
+          : ""
+      }\n\nRenkioo ile çocuğunuzun çizimlerini analiz edin!`;
+
+      await Share.share({
+        message,
+        title: `${testLabel} Analizi`,
+      });
+    } catch (error) {
+      // User cancelled share
+    }
   };
 
   // Story Handlers
@@ -292,9 +320,134 @@ export default function HistoryScreen() {
   };
 
   // Get current data based on active tab
-  const analyses = analysesData?.analyses || [];
+  const rawAnalyses = analysesData?.analyses || [];
   const storybooksList = storybooks || [];
   const coloringsList = colorings || [];
+
+  // Filter analyses based on search, date, and test type
+  const filteredAnalyses = useMemo(() => {
+    let result = [...rawAnalyses];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((analysis: any) => {
+        const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType]?.toLowerCase() || "";
+        return (
+          testLabel.includes(query) ||
+          analysis.task_type.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // Date filter
+    if (dateFilter !== "all") {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfWeek = new Date(startOfToday);
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      result = result.filter((analysis: any) => {
+        const analysisDate = new Date(analysis.created_at);
+        switch (dateFilter) {
+          case "today":
+            return analysisDate >= startOfToday;
+          case "week":
+            return analysisDate >= startOfWeek;
+          case "month":
+            return analysisDate >= startOfMonth;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Test type filter
+    if (testTypeFilter !== "all") {
+      result = result.filter((analysis: any) => {
+        // Handle both English and Turkish variants
+        const type = analysis.task_type;
+        const normalizedFilter = testTypeFilter;
+
+        // Map Turkish variants to English
+        const typeMapping: Record<string, string> = {
+          Aile: "Family",
+          Kaktus: "Cactus",
+          Agac: "Tree",
+          Bahce: "Garden",
+          Bender: "BenderGestalt2",
+          Rey: "ReyOsterrieth",
+        };
+
+        const normalizedType = typeMapping[type] || type;
+        return normalizedType === normalizedFilter || type === normalizedFilter;
+      });
+    }
+
+    return result;
+  }, [rawAnalyses, searchQuery, dateFilter, testTypeFilter]);
+
+  const analyses = filteredAnalyses;
+
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const thisWeekCount = rawAnalyses.filter((a: any) =>
+      new Date(a.created_at) >= startOfWeek
+    ).length;
+
+    const thisMonthCount = rawAnalyses.filter((a: any) =>
+      new Date(a.created_at) >= startOfMonth
+    ).length;
+
+    const favoriteCount = rawAnalyses.filter((a: any) => a.favorited).length;
+
+    return {
+      totalCount: rawAnalyses.length,
+      favoriteCount,
+      thisWeekCount,
+      thisMonthCount,
+    };
+  }, [rawAnalyses]);
+
+  // Group analyses by date for timeline view
+  const groupedAnalyses = useMemo(() => {
+    const groups: { [key: string]: typeof analyses } = {};
+
+    analyses.forEach((analysis: any) => {
+      const date = new Date(analysis.created_at);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      let groupKey: string;
+
+      if (date.toDateString() === today.toDateString()) {
+        groupKey = "Bugün";
+      } else if (date.toDateString() === yesterday.toDateString()) {
+        groupKey = "Dün";
+      } else {
+        // Format as "15 Ocak 2024"
+        groupKey = date.toLocaleDateString("tr-TR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(analysis);
+    });
+
+    return Object.entries(groups);
+  }, [analyses]);
 
   const isLoading = activeTab === TAB_ANALYSES ? analysesLoading : activeTab === TAB_STORIES ? storiesLoading : coloringsLoading;
   const isEmpty = activeTab === TAB_ANALYSES ? analyses.length === 0 : activeTab === TAB_STORIES ? storybooksList.length === 0 : coloringsList.length === 0;
@@ -335,7 +488,7 @@ export default function HistoryScreen() {
             ]}
             onPress={() => setActiveTab(TAB_ANALYSES)}
           >
-            <Brain size={20} color={activeTab === TAB_ANALYSES ? Colors.neutral.white : Colors.neutral.dark} />
+            <Brain size={iconSizes.small} color={activeTab === TAB_ANALYSES ? Colors.neutral.white : Colors.neutral.dark} strokeWidth={iconStroke.standard} />
             <Text style={[styles.tabText, activeTab === TAB_ANALYSES && styles.tabTextActive]}>
               {t.history.analyses}
             </Text>
@@ -349,7 +502,7 @@ export default function HistoryScreen() {
             ]}
             onPress={() => setActiveTab(TAB_STORIES)}
           >
-            <BookOpen size={20} color={activeTab === TAB_STORIES ? Colors.neutral.white : Colors.neutral.dark} />
+            <BookOpen size={iconSizes.small} color={activeTab === TAB_STORIES ? Colors.neutral.white : Colors.neutral.dark} strokeWidth={iconStroke.standard} />
             <Text style={[styles.tabText, activeTab === TAB_STORIES && styles.tabTextActive]}>
               {t.history.stories}
             </Text>
@@ -363,33 +516,29 @@ export default function HistoryScreen() {
             ]}
             onPress={() => setActiveTab(TAB_COLORINGS)}
           >
-            <Palette size={20} color={activeTab === TAB_COLORINGS ? Colors.neutral.white : Colors.neutral.dark} />
+            <Palette size={iconSizes.small} color={activeTab === TAB_COLORINGS ? Colors.neutral.white : Colors.neutral.dark} strokeWidth={iconStroke.standard} />
             <Text style={[styles.tabText, activeTab === TAB_COLORINGS && styles.tabTextActive]}>
               {t.history.colorings}
             </Text>
           </Pressable>
         </View>
 
-        {/* Filters (only for analyses) */}
+        {/* Search and Filters (only for analyses) */}
         {activeTab === TAB_ANALYSES && (
           <View style={styles.filtersContainer}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.filterChip,
-                filterFavorites && styles.filterChipActive,
-                pressed && { opacity: 0.7 },
-              ]}
-              onPress={() => setFilterFavorites(!filterFavorites)}
-            >
-              <Star
-                size={16}
-                color={filterFavorites ? Colors.neutral.white : Colors.secondary.sunshine}
-                fill={filterFavorites ? Colors.neutral.white : "none"}
-              />
-              <Text style={[styles.filterChipText, filterFavorites && styles.filterChipTextActive]}>
-                Favoriler
-              </Text>
-            </Pressable>
+            <HistorySearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Analiz ara..."
+            />
+            <HistoryFilters
+              dateFilter={dateFilter}
+              onDateFilterChange={setDateFilter}
+              testTypeFilter={testTypeFilter}
+              onTestTypeFilterChange={setTestTypeFilter}
+              showFavorites={filterFavorites}
+              onShowFavoritesChange={setFilterFavorites}
+            />
           </View>
         )}
 
@@ -412,6 +561,16 @@ export default function HistoryScreen() {
               <ActivityIndicator size="large" color={Colors.primary.sunset} />
               <Text style={styles.loadingText}>Yükleniyor...</Text>
             </View>
+          )}
+
+          {/* Stats Card (only for analyses) */}
+          {!isLoading && activeTab === TAB_ANALYSES && rawAnalyses.length > 0 && (
+            <HistoryStatsCard
+              totalCount={stats.totalCount}
+              favoriteCount={stats.favoriteCount}
+              thisWeekCount={stats.thisWeekCount}
+              thisMonthCount={stats.thisMonthCount}
+            />
           )}
 
           {/* Empty State */}
@@ -447,69 +606,104 @@ export default function HistoryScreen() {
             </>
           )}
 
-          {/* Analyses List */}
+          {/* Analyses List - Timeline Grouped */}
           {!isLoading && activeTab === TAB_ANALYSES && analyses.length > 0 &&
-            analyses.map((analysis: any) => (
-              <View key={analysis.id} style={styles.analysisCard}>
-                <Pressable
-                  onPress={() => handleViewAnalysis(analysis.id)}
-                  style={({ pressed }) => [styles.cardPressable, pressed && { opacity: 0.8 }]}
-                >
-                  <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderLeft}>
-                      <LinearGradient
-                        colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                        style={styles.cardIcon}
-                      >
-                        <Brain size={20} color={Colors.neutral.white} />
-                      </LinearGradient>
-                      <View style={styles.cardHeaderText}>
-                        <Text style={styles.cardTitle}>
-                          {TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type}
-                        </Text>
-                        <View style={styles.cardMeta}>
-                          <Calendar size={12} color={Colors.neutral.medium} />
-                          <Text style={styles.cardMetaText}>{formatDate(analysis.created_at)}</Text>
-                          {analysis.child_age && (
-                            <>
-                              <Text style={styles.cardMetaDot}>•</Text>
-                              <Text style={styles.cardMetaText}>{analysis.child_age} yaş</Text>
-                            </>
-                          )}
-                        </View>
-                      </View>
-                    </View>
-                    <ChevronRight size={20} color={Colors.neutral.light} />
-                  </View>
-
-                  {analysis.analysis_result?.insights?.length > 0 && analysis.analysis_result.insights[0] && (
-                    <View style={styles.insightsPreview}>
-                      <Text style={styles.insightText} numberOfLines={2}>
-                        {analysis.analysis_result.insights[0]?.title}:{" "}
-                        {analysis.analysis_result.insights[0]?.summary}
-                      </Text>
-                    </View>
-                  )}
-                </Pressable>
-
-                <View style={styles.cardActions}>
-                  <Pressable
-                    onPress={() => handleToggleFavorite(analysis.id, analysis.favorited)}
-                    style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
-                  >
-                    <Heart
-                      size={20}
-                      color={analysis.favorited ? Colors.semantic.error : Colors.neutral.medium}
-                      fill={analysis.favorited ? Colors.semantic.error : "none"}
-                    />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleDeleteAnalysis(analysis.id)}
-                    style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
-                  >
-                    <Trash2 size={20} color={Colors.neutral.medium} />
-                  </Pressable>
+            groupedAnalyses.map(([dateGroup, groupAnalyses]) => (
+              <View key={dateGroup} style={styles.timelineGroup}>
+                {/* Timeline Date Header */}
+                <View style={styles.timelineHeader}>
+                  <View style={styles.timelineDot} />
+                  <Text style={styles.timelineDate}>{dateGroup}</Text>
+                  <View style={styles.timelineLine} />
                 </View>
+
+                {/* Analyses in this group */}
+                {groupAnalyses.map((analysis: any) => (
+                  <View key={analysis.id} style={styles.analysisCard}>
+                    <Pressable
+                      onPress={() => handleViewAnalysis(analysis.id)}
+                      style={({ pressed }) => [styles.cardPressable, pressed && { opacity: 0.8 }]}
+                    >
+                      <View style={styles.cardHeader}>
+                        <View style={styles.cardHeaderLeft}>
+                          {/* Thumbnail if available */}
+                          {analysis.image_url ? (
+                            <View style={styles.cardThumbnail}>
+                              <Image
+                                source={{ uri: analysis.image_url }}
+                                style={styles.cardThumbnailImage}
+                                contentFit="cover"
+                              />
+                            </View>
+                          ) : (
+                            <LinearGradient
+                              colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                              style={styles.cardIcon}
+                            >
+                              <Brain size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                            </LinearGradient>
+                          )}
+                          <View style={styles.cardHeaderText}>
+                            <Text style={styles.cardTitle}>
+                              {TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type}
+                            </Text>
+                            <View style={styles.cardMeta}>
+                              <Clock size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                              <Text style={styles.cardMetaText}>
+                                {new Date(analysis.created_at).toLocaleTimeString("tr-TR", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </Text>
+                              {analysis.child_age && (
+                                <>
+                                  <Text style={styles.cardMetaDot}>•</Text>
+                                  <Text style={styles.cardMetaText}>{analysis.child_age} yaş</Text>
+                                </>
+                              )}
+                            </View>
+                          </View>
+                        </View>
+                        <ChevronRight size={iconSizes.small} color={Colors.neutral.light} strokeWidth={iconStroke.standard} />
+                      </View>
+
+                      {analysis.analysis_result?.insights?.length > 0 && analysis.analysis_result.insights[0] && (
+                        <View style={styles.insightsPreview}>
+                          <Text style={styles.insightText} numberOfLines={2}>
+                            {analysis.analysis_result.insights[0]?.title}:{" "}
+                            {analysis.analysis_result.insights[0]?.summary}
+                          </Text>
+                        </View>
+                      )}
+                    </Pressable>
+
+                    <View style={styles.cardActions}>
+                      <Pressable
+                        onPress={() => handleToggleFavorite(analysis.id, analysis.favorited)}
+                        style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
+                      >
+                        <Heart
+                          size={iconSizes.small}
+                          color={analysis.favorited ? Colors.semantic.error : Colors.neutral.medium}
+                          fill={analysis.favorited ? Colors.semantic.error : "none"}
+                          strokeWidth={iconStroke.standard}
+                        />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleShareAnalysis(analysis)}
+                        style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
+                      >
+                        <Share2 size={iconSizes.small} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleDeleteAnalysis(analysis.id)}
+                        style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
+                      >
+                        <Trash2 size={iconSizes.small} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
               </View>
             ))}
 
@@ -522,7 +716,7 @@ export default function HistoryScreen() {
                     style={styles.deleteButton}
                     onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
                   >
-                    <Trash2 size={24} color={Colors.neutral.white} />
+                    <Trash2 size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
                     <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
                   </Pressable>
                 </View>
@@ -554,7 +748,7 @@ export default function HistoryScreen() {
                           {storybook.title}
                         </Text>
                         <View style={styles.storyMeta}>
-                          <Calendar size={14} color={Colors.neutral.medium} />
+                          <Calendar size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
                           <Text style={styles.storyMetaText}>{formatDate(storybook.created_at)}</Text>
                           <Text style={styles.cardMetaDot}>•</Text>
                           <Text style={styles.storyMetaText}>{storybook.pages?.length || 0} sayfa</Text>
@@ -576,7 +770,7 @@ export default function HistoryScreen() {
                       style={styles.deleteButton}
                       onPress={() => handleDeleteColoring(coloring.id, coloring.title)}
                     >
-                      <Trash2 size={20} color={Colors.neutral.white} />
+                      <Trash2 size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
                       <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
                     </Pressable>
                   </View>
@@ -598,7 +792,7 @@ export default function HistoryScreen() {
                             />
                           ) : (
                             <View style={styles.coloringImagePlaceholder}>
-                              <Palette size={48} color={Colors.neutral.light} />
+                              <Palette size={iconSizes.hero} color={Colors.neutral.light} strokeWidth={iconStroke.thin} />
                             </View>
                           )}
                         </View>
@@ -608,7 +802,7 @@ export default function HistoryScreen() {
                             {coloring.title}
                           </Text>
                           <View style={styles.cardMeta}>
-                            <Calendar size={12} color={Colors.neutral.medium} />
+                            <Calendar size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
                             <Text style={styles.cardMetaText}>{formatDate(coloring.created_at)}</Text>
                           </View>
 
@@ -625,7 +819,7 @@ export default function HistoryScreen() {
                                 <ActivityIndicator size="small" color={Colors.neutral.white} />
                               ) : (
                                 <>
-                                  <Download size={16} color={Colors.neutral.white} />
+                                  <Download size={iconSizes.inline} color={Colors.neutral.white} strokeWidth={iconStroke.bold} />
                                   <Text style={styles.downloadButtonText}>
                                     {coloring.pdf_url ? "İndir" : "PDF Oluştur"}
                                   </Text>
@@ -718,33 +912,8 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
   },
   filtersContainer: {
-    flexDirection: "row",
-    gap: spacing["2"],
     paddingHorizontal: layout.screenPadding,
     marginBottom: spacing["4"],
-  },
-  filterChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
-    borderRadius: radius.lg,
-    backgroundColor: Colors.neutral.white,
-    borderWidth: 2,
-    borderColor: Colors.neutral.lighter,
-  },
-  filterChipActive: {
-    backgroundColor: Colors.secondary.sunshine,
-    borderColor: Colors.secondary.sunshine,
-  },
-  filterChipText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.dark,
-  },
-  filterChipTextActive: {
-    color: Colors.neutral.white,
   },
   scrollView: {
     flex: 1,
@@ -777,13 +946,51 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: spacing["8"],
   },
+  // Timeline Styles
+  timelineGroup: {
+    marginBottom: spacing["4"],
+  },
+  timelineHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing["3"],
+    gap: spacing["2"],
+  },
+  timelineDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.secondary.lavender,
+  },
+  timelineDate: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: Colors.secondary.lavender,
+  },
+  timelineLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.neutral.lighter,
+  },
   // Analysis Card Styles
   analysisCard: {
     backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
-    marginBottom: spacing["4"],
+    marginBottom: spacing["3"],
+    marginLeft: spacing["4"],
     ...shadows.md,
     overflow: "hidden",
+  },
+  cardThumbnail: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.lg,
+    overflow: "hidden",
+    backgroundColor: Colors.neutral.lightest,
+  },
+  cardThumbnailImage: {
+    width: "100%",
+    height: "100%",
   },
   cardPressable: {
     padding: spacing["5"],

@@ -27,7 +27,7 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
 
@@ -338,14 +338,16 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    zIndex: 9998,
+    // Backdrop sits just below tooltip - coordinated via OverlayCoordinator
+    zIndex: zIndex.tooltip - 1,
   },
   tooltip: {
     position: 'absolute',
     width: 280,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    zIndex: 9999,
+    // Uses design system z-index for tooltips
+    zIndex: zIndex.tooltip,
     ...shadows.lg,
   },
   arrow: {

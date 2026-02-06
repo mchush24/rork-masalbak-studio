@@ -9,6 +9,7 @@ import React, { ReactNode, useMemo } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useExperiment } from './useExperiment';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { zIndex } from '@/constants/design-system';
 
 interface ExperimentBoundaryProps {
   experimentId: string;
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     padding: 8,
     borderRadius: 8,
-    zIndex: 9999,
+    zIndex: zIndex.debug,
   },
   debugRow: {
     flexDirection: 'row',

@@ -32,7 +32,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ExternalLink, Info, ChevronRight, MessageCircle, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 import { Ioo, IooMood } from '@/components/Ioo';
 import {
@@ -339,7 +339,7 @@ function getScreenHelpText(screen: ScreenContext): string {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    zIndex: 1000,
+    zIndex: zIndex.popover,
   },
   containerCompact: {
     // Smaller positioning adjustments if needed
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     right: 16,
     width: SCREEN_WIDTH - 32,
     maxWidth: 320,
-    zIndex: 1001,
+    zIndex: zIndex.toast,
     backgroundColor: '#FFFFFF',
     borderRadius: radius.xl,
     overflow: 'hidden',

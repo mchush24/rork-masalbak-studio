@@ -22,7 +22,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { shadows, textShadows } from '@/constants/design-system';
+import { shadows, textShadows, zIndex } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     ...shadows.lg,
-    zIndex: 10000,
+    zIndex: zIndex.modal,
   },
   gradient: {
     paddingVertical: 24,

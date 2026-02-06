@@ -25,34 +25,10 @@ import Animated, {
   Easing,
   interpolate,
 } from 'react-native-reanimated';
+import { IooMood, IooSize, SIZE_MAP, getPixelSize } from '@/constants/ioo-config';
 
-// Mood types - kept for API compatibility
-export type IooMood =
-  | 'neutral'
-  | 'happy'
-  | 'excited'
-  | 'curious'
-  | 'love'
-  | 'calm'
-  | 'thinking'
-  | 'sleepy'
-  | 'concerned'
-  | 'sad';
-
-export type IooSize = 'xs' | 'sm' | 'md' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
-
-const SIZE_MAP: Record<IooSize, number> = {
-  xs: 50,
-  sm: 70,
-  md: 100,
-  tiny: 70,
-  small: 100,
-  medium: 140,
-  lg: 180,
-  large: 200,
-  hero: 280,
-  giant: 350,
-};
+// Re-export types for backwards compatibility
+export type { IooMood, IooSize } from '@/constants/ioo-config';
 
 interface IooProps {
   size?: IooSize | number;
@@ -71,7 +47,7 @@ export const IooMascotImage = memo(function IooMascotImage({
   showGlow = true,
   onPress,
 }: IooProps) {
-  const dimensions = typeof size === 'number' ? size : SIZE_MAP[size];
+  const dimensions = getPixelSize(size);
 
   // Animation values
   const breathe = useSharedValue(1);

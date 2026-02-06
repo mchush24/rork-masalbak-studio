@@ -18,6 +18,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { buttonStyles } from '@/constants/tokens';
 
 export interface QuickReply {
   id: string;
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
     gap: spacing['1'],
   },
   chipEmoji: {
-    fontSize: 14,
+    fontSize: typography.size.sm,
   },
   chipLabel: {
     fontSize: typography.size.sm,

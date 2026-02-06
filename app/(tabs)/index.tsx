@@ -1,7 +1,8 @@
 /**
  * Home Screen (Ana Sayfa)
- * Professional home screen for parents, teachers, and professionals
- * Includes Ioo mascot, gamification, and all key features
+ * Role-aware professional home screen for parents, teachers, and professionals
+ * Features adapt based on user role: gamification visibility, mascot prominence, tools access
+ * Part of #17: Profesyonel Dashboard Tasarımı
  */
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
@@ -29,18 +30,16 @@ import {
   Gift,
   Trophy,
   Camera,
-  Image as ImageIcon,
   X,
   Wand2,
   FileText,
-  Zap,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, Href } from "expo-router";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Colors, RenkooColors, EtherealColors } from "@/constants/colors";
+import { Colors, RenkooColors, EtherealColors, ProfessionalColors } from "@/constants/colors";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import {
   layout,
@@ -53,12 +52,29 @@ import { GreetingService } from "@/lib/services/greeting-service";
 import { useGamification } from "@/lib/gamification";
 import { StreakDisplay, XPProgressBar, NewBadgeModal } from "@/components/gamification";
 
+// Role Context
+import {
+  useRole,
+  useGamification as useGamificationSettings,
+  useMascotSettings,
+  useRoleText,
+  useIsProfessional,
+} from "@/lib/contexts/RoleContext";
+
 // Components
 import { Ioo as IooMascot } from "@/components/Ioo";
 import { OrganicContainer } from "@/components/OrganicContainer";
-import { FeatureCard, FeatureCardCompact } from "@/components/FeatureCard";
+import { FeatureCardCompact } from "@/components/FeatureCard";
 import { JellyButton } from "@/components/JellyButton";
 import { ChildSelectorChip } from "@/components/ChildSelectorChip";
+
+// Dashboard Components
+import {
+  DashboardHeader,
+  DashboardSummaryCards,
+  ProfessionalToolsSection,
+  RecentActivityList,
+} from "@/components/dashboard";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -115,7 +131,15 @@ export default function HomeScreen() {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
 
-  // Gamification hook
+  // Role Context hooks
+  const { role, config: roleConfig } = useRole();
+  const gamificationSettings = useGamificationSettings();
+  const mascotSettings = useMascotSettings();
+  const isProfessional = useIsProfessional();
+  const ctaText = useRoleText('cta_new_analysis');
+  const childrenTitle = useRoleText('children_title');
+
+  // Gamification hook (only active for non-professionals)
   const {
     isLoading: gamificationLoading,
     streakData,
@@ -127,6 +151,9 @@ export default function HomeScreen() {
   } = useGamification();
 
   const levelInfo = getUserLevel();
+
+  // Should show gamification elements based on role
+  const showGamification = gamificationSettings.isEnabled && !isProfessional;
 
   // Fetch children
   const {
@@ -214,12 +241,20 @@ export default function HomeScreen() {
   const recentAnalyses = recentAnalysesData?.analyses || [];
   const stats = userStats || { totalAnalyses: 0, totalStorybooks: 0, totalColorings: 0, totalActivities: 0 };
 
+  // Get gradient colors based on role
+  const getBackgroundGradient = (): [string, string] => {
+    if (isProfessional) {
+      return ['#FAFAFA', '#FFFFFF'];
+    }
+    return [EtherealColors.core.celestial, '#FFFFFF'];
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       <LinearGradient
-        colors={[EtherealColors.core.celestial, '#FFFFFF']}
+        colors={getBackgroundGradient()}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 0.4 }}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
@@ -236,365 +271,417 @@ export default function HomeScreen() {
             />
           }
         >
-          {/* Child Selector */}
-          <View style={styles.childSelectorSection}>
-            <ChildSelectorChip
-              selectedChild={selectedChild ? {
-                name: selectedChild.name,
-                age: selectedChild.age || 0,
-                avatarId: selectedChild.avatarUrl,
-              } : null}
-              childrenList={children.map(c => ({
-                name: c.name,
-                age: c.age || 0,
-                avatarId: c.avatarUrl,
-              }))}
-              onSelectChild={(child) => {
-                const found = children.find(c => c.name === child.name);
-                if (found) setSelectedChildId(found.id);
-              }}
-              compact
-            />
-          </View>
+          {/* Child/Client Selector - Only show if there are children */}
+          {children.length > 0 && (
+            <View style={styles.childSelectorSection}>
+              <ChildSelectorChip
+                selectedChild={selectedChild ? {
+                  name: selectedChild.name,
+                  age: selectedChild.age || 0,
+                  avatarId: selectedChild.avatarUrl,
+                } : null}
+                childrenList={children.map(c => ({
+                  name: c.name,
+                  age: c.age || 0,
+                  avatarId: c.avatarUrl,
+                }))}
+                onSelectChild={(child) => {
+                  const found = children.find(c => c.name === child.name);
+                  if (found) setSelectedChildId(found.id);
+                }}
+                compact
+              />
+            </View>
+          )}
 
-          {/* Hero Section with Mascot */}
+          {/* Hero Section with Role-aware content */}
           <View style={styles.heroSection}>
-            <OrganicContainer
-              style={styles.heroCard}
-              shape="blob"
-              glowColor="rgba(255, 203, 164, 0.3)"
-              animated
-            >
-              <View style={styles.heroContent}>
-                {/* Mascot - New Ioo Light Drop */}
-                <View style={styles.mascotContainer}>
-                  <IooMascot
-                    size={isSmallDevice ? "medium" : "large"}
-                    animated
-                    showGlow
-                    mood="happy"
-                    onPress={() => router.push("/chatbot" as Href)}
-                  />
-                  <View style={styles.chatHint}>
-                    <MessageCircle size={12} color={Colors.primary.sunset} />
-                    <Text style={styles.chatHintText}>Yardıma mı ihtiyacınız var?</Text>
+            {isProfessional ? (
+              /* Professional Header - Simpler, no mascot prominence */
+              <DashboardHeader
+                userName={user?.name}
+                onMascotPress={() => router.push("/chatbot" as Href)}
+                onSettingsPress={() => router.push("/profile" as Href)}
+                notificationCount={0}
+              />
+            ) : (
+              /* Parent Mode - With mascot and gamification flavor */
+              <OrganicContainer
+                style={styles.heroCard}
+                shape="blob"
+                glowColor="rgba(255, 203, 164, 0.3)"
+                animated
+              >
+                <View style={styles.heroContent}>
+                  {/* Mascot - Only shown if enabled for role */}
+                  {mascotSettings.showOnDashboard && (
+                    <View style={styles.mascotContainer}>
+                      <IooMascot
+                        size={isSmallDevice ? "medium" : "large"}
+                        animated
+                        showGlow={mascotSettings.prominence === 'high'}
+                        mood="happy"
+                        onPress={() => router.push("/chatbot" as Href)}
+                      />
+                      {mascotSettings.prominence === 'high' && (
+                        <View style={styles.chatHint}>
+                          <MessageCircle size={12} color={Colors.primary.sunset} />
+                          <Text style={styles.chatHintText}>Yardıma mı ihtiyacınız var?</Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {/* Welcome Text */}
+                  <View style={[styles.heroTextContainer, !mascotSettings.showOnDashboard && { flex: 1 }]}>
+                    <Text style={styles.heroGreeting}>{greeting.title}</Text>
+                    <Text style={styles.heroSubtitle}>{greeting.subtitle}</Text>
+                    {mascotSettings.showOnDashboard && mascotSettings.prominence === 'high' && (
+                      <View style={styles.mascotIntro}>
+                        <Text style={styles.mascotIntroText}>
+                          Ben <Text style={styles.mascotName}>Ioo</Text>, çocuğunuzun gelişim yolculuğunda yanınızdayım
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 </View>
+              </OrganicContainer>
+            )}
+          </View>
 
-                {/* Welcome Text */}
-                <View style={styles.heroTextContainer}>
-                  <Text style={styles.heroGreeting}>{greeting.title}</Text>
-                  <Text style={styles.heroSubtitle}>{greeting.subtitle}</Text>
-                  <View style={styles.mascotIntro}>
-                    <Text style={styles.mascotIntroText}>
-                      Ben <Text style={styles.mascotName}>Ioo</Text>, çocuğunuzun gelişim yolculuğunda yanınızdayım
+          {/* PRIMARY CTA: Right after Hero for immediate visibility (Parent mode) */}
+          {!isProfessional && (
+            <Pressable
+              onPress={() => setShowActionModal(true)}
+              style={({ pressed }) => [
+                styles.primaryCtaCard,
+                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] }
+              ]}
+            >
+              <LinearGradient
+                colors={['#A78BFA', '#818CF8', '#6366F1']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.primaryCtaGradient}
+              >
+                <View style={styles.primaryCtaContent}>
+                  <View style={styles.primaryCtaIconContainer}>
+                    <Sparkles size={32} color="#FFF" />
+                  </View>
+                  <View style={styles.primaryCtaTextContainer}>
+                    <View style={styles.primaryCtaBadge}>
+                      <Text style={styles.primaryCtaBadgeText}>ANA ÖZELLİK</Text>
+                    </View>
+                    <Text style={styles.primaryCtaTitle}>Duygu Yansıması</Text>
+                    <Text style={styles.primaryCtaSubtitle} numberOfLines={2} ellipsizeMode="tail">
+                      Çocuğunuzun çizimlerinden duygusal dünyasını keşfedin
                     </Text>
                   </View>
+                  <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
+                </View>
+                <View style={styles.primaryCtaShine} />
+              </LinearGradient>
+            </Pressable>
+          )}
+
+          {/* Progress & Stats Combined Section - Parent mode */}
+          {!isProfessional && (
+            <View style={styles.progressSection}>
+              {/* Section Header with Primary Styling */}
+              <View style={styles.sectionHeaderPrimary}>
+                <View style={styles.sectionTitleRow}>
+                  <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
+                    <TrendingUp size={16} color="#F59E0B" />
+                  </View>
+                  <Text style={styles.sectionTitlePrimary}>İlerleme</Text>
                 </View>
               </View>
-            </OrganicContainer>
-          </View>
 
-          {/* Gamification Section - Streak & XP */}
-          {!gamificationLoading && (
-            <View style={styles.gamificationSection}>
-              <View style={styles.gamificationRow}>
-                {/* Streak Display */}
-                <StreakDisplay
-                  currentStreak={streakData?.currentStreak || 0}
-                  longestStreak={streakData?.longestStreak || 0}
-                  isActiveToday={streakData?.lastActivityDate === new Date().toISOString().split('T')[0]}
-                  streakAtRisk={
-                    !streakData?.lastActivityDate ||
-                    (streakData?.currentStreak > 0 &&
-                      streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
-                      streakData?.lastActivityDate !== (() => {
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        return yesterday.toISOString().split('T')[0];
-                      })())
-                  }
-                  hasFreezeAvailable={streakData?.streakFreezeAvailable}
-                  size="compact"
-                  onPress={() => router.push("/profile" as Href)}
-                />
-
-                {/* XP Progress */}
-                <View style={styles.xpContainer}>
-                  <XPProgressBar
-                    level={levelInfo.level}
-                    xpProgress={levelInfo.xpProgress}
-                    xpNeeded={levelInfo.xpNeeded}
-                    totalXp={totalXp}
-                    progressPercent={levelInfo.progressPercent}
+              {/* Gamification Row - Compact */}
+              {showGamification && !gamificationLoading && (
+                <View style={styles.gamificationRow}>
+                  <StreakDisplay
+                    currentStreak={streakData?.currentStreak || 0}
+                    longestStreak={streakData?.longestStreak || 0}
+                    isActiveToday={streakData?.lastActivityDate === new Date().toISOString().split('T')[0]}
+                    streakAtRisk={
+                      !streakData?.lastActivityDate ||
+                      (streakData?.currentStreak > 0 &&
+                        streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
+                        streakData?.lastActivityDate !== (() => {
+                          const yesterday = new Date();
+                          yesterday.setDate(yesterday.getDate() - 1);
+                          return yesterday.toISOString().split('T')[0];
+                        })())
+                    }
+                    hasFreezeAvailable={streakData?.streakFreezeAvailable}
                     size="compact"
                     onPress={() => router.push("/profile" as Href)}
                   />
+                  <View style={styles.xpContainer}>
+                    <XPProgressBar
+                      level={levelInfo.level}
+                      xpProgress={levelInfo.xpProgress}
+                      xpNeeded={levelInfo.xpNeeded}
+                      totalXp={totalXp}
+                      progressPercent={levelInfo.progressPercent}
+                      size="compact"
+                      onPress={() => router.push("/profile" as Href)}
+                    />
+                  </View>
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.badgesButton,
+                      pressed && { opacity: 0.8 },
+                    ]}
+                    onPress={() => router.push("/profile" as Href)}
+                  >
+                    <Trophy size={18} color="#F59E0B" />
+                  </Pressable>
                 </View>
+              )}
 
-                {/* Badges Button */}
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.badgesButton,
-                    pressed && { opacity: 0.8 },
-                  ]}
-                  onPress={() => router.push("/profile" as Href)}
-                >
-                  <Trophy size={18} color="#F59E0B" />
-                </Pressable>
+              {/* Mini Stats Row - Combined with Gamification */}
+              <View style={styles.miniStatsRow}>
+                <View style={styles.miniStatItem}>
+                  <Text style={styles.miniStatNumber}>{stats.totalAnalyses || 0}</Text>
+                  <Text style={styles.miniStatLabel}>Analiz</Text>
+                </View>
+                <View style={styles.miniStatDivider} />
+                <View style={styles.miniStatItem}>
+                  <Text style={styles.miniStatNumber}>{stats.totalActivities || 0}</Text>
+                  <Text style={styles.miniStatLabel}>Aktivite</Text>
+                </View>
+                <View style={styles.miniStatDivider} />
+                <View style={styles.miniStatItem}>
+                  <Text style={styles.miniStatNumber}>{stats.totalStorybooks || 0}</Text>
+                  <Text style={styles.miniStatLabel}>Masal</Text>
+                </View>
               </View>
             </View>
           )}
 
-          {/* PRIMARY CTA: Duygu Yansıması - Opens Action Modal */}
-          <Pressable
-            onPress={() => setShowActionModal(true)}
-            style={({ pressed }) => [
-              styles.primaryCtaCard,
-              pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] }
-            ]}
-          >
-            <LinearGradient
-              colors={['#A78BFA', '#818CF8', '#6366F1']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.primaryCtaGradient}
-            >
-              <View style={styles.primaryCtaContent}>
-                <View style={styles.primaryCtaIconContainer}>
-                  <Sparkles size={32} color="#FFF" />
-                </View>
-                <View style={styles.primaryCtaTextContainer}>
-                  <View style={styles.primaryCtaBadge}>
-                    <Text style={styles.primaryCtaBadgeText}>ANA ÖZELLİK</Text>
+          {/* Section Divider */}
+          {!isProfessional && <View style={styles.sectionDivider} />}
+
+          {/* Professional Summary Cards - For experts and teachers */}
+          {isProfessional && (
+            <DashboardSummaryCards
+              stats={{
+                totalAnalyses: stats.totalAnalyses || 0,
+                weeklyAnalyses: stats.totalActivities || 0,
+                monthlyAnalyses: (stats.totalAnalyses || 0) + (stats.totalStorybooks || 0),
+                childrenCount: children.length,
+                pendingReviews: 0,
+                recentTrend: 'up',
+                trendPercent: 12,
+              }}
+              onCardPress={(cardType) => {
+                if (cardType === 'total' || cardType === 'cases') {
+                  router.push("/history" as Href);
+                } else if (cardType === 'children' || cardType === 'clients' || cardType === 'students') {
+                  router.push("/profile" as Href);
+                }
+              }}
+              isLoading={analysesLoading}
+            />
+          )}
+
+          {/* Professional Tools Section - For experts and teachers */}
+          {isProfessional && (
+            <ProfessionalToolsSection
+              onToolPress={(toolId, route) => {
+                if (route) {
+                  router.push(route as Href);
+                }
+              }}
+            />
+          )}
+
+          {/* Unified "Keşfet" Section - Combined Features & Quick Actions (Parent mode) */}
+          {!isProfessional && (
+            <View style={styles.exploreSection}>
+              {/* Section Header - Primary */}
+              <View style={styles.sectionHeaderPrimary}>
+                <View style={styles.sectionTitleRow}>
+                  <View style={styles.sectionTitleIcon}>
+                    <Sparkles size={16} color={Colors.primary.sunset} />
                   </View>
-                  <Text style={styles.primaryCtaTitle}>Duygu Yansıması</Text>
-                  <Text style={styles.primaryCtaSubtitle} numberOfLines={2} ellipsizeMode="tail">
-                    Çocuğunuzun çizimlerinden duygusal dünyasını keşfedin
-                  </Text>
+                  <Text style={styles.sectionTitlePrimary}>Keşfet</Text>
                 </View>
-                <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
               </View>
-              <View style={styles.primaryCtaShine} />
-            </LinearGradient>
-          </Pressable>
 
-          {/* Feature Cards - Ioo Chat */}
-          <View style={styles.featuresSection}>
-            <View style={styles.sectionTitleRow}>
-              <View style={styles.sectionTitleIcon}>
-                <Sparkles size={16} color={Colors.primary.sunset} />
-              </View>
-              <Text style={styles.sectionTitle}>Keşfet</Text>
-            </View>
-
-            <View style={styles.featureCardsGrid}>
-              <FeatureCard
-                title="Ioo ile Sohbet"
-                subtitle="Çocuk gelişimi, boyama önerileri ve sorularınız"
-                icon={<MessageCircle size={26} color={RenkooColors.featureCards.chat.icon} />}
-                type="chat"
-                onPress={() => router.push("/chatbot" as Href)}
-                size="medium"
-              />
-            </View>
-          </View>
-
-          {/* Quick Actions - Compact Cards */}
-          <View style={styles.quickActionsSection}>
-            <View style={styles.sectionTitleRow}>
-              <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(255, 217, 61, 0.15)' }]}>
-                <TrendingUp size={16} color="#FFB347" />
-              </View>
-              <Text style={styles.sectionTitle}>Hızlı Eylemler</Text>
-            </View>
-
-            <View style={styles.compactCardsRow}>
-              <FeatureCardCompact
-                title="Masal"
-                icon={<BookOpen size={22} color={RenkooColors.featureCards.story.icon} />}
-                type="story"
-                onPress={() => router.push("/stories" as Href)}
-              />
-              <FeatureCardCompact
-                title="Boyama"
-                icon={<Palette size={22} color={RenkooColors.featureCards.coloring.icon} />}
-                type="coloring"
-                onPress={() => router.push("/coloring-history" as Href)}
-              />
-              <FeatureCardCompact
-                title="Ödüller"
-                icon={<Gift size={22} color={RenkooColors.featureCards.reward?.icon || '#F59E0B'} />}
-                type="reward"
-                onPress={() => router.push("/profile" as Href)}
-              />
-            </View>
-          </View>
-
-          {/* Hayal Atölyesi Section */}
-          <View style={styles.atolyeSection}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionTitleRow}>
-                <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}>
-                  <Palette size={16} color="#4ECDC4" />
-                </View>
-                <Text style={styles.sectionTitle}>Hayal Atölyesi</Text>
-              </View>
+              {/* Hayal Atölyesi - Featured Card */}
               <Pressable
+                style={({ pressed }) => [
+                  styles.atolyeCard,
+                  pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
+                ]}
                 onPress={() => router.push("/hayal-atolyesi" as Href)}
-                style={({ pressed }) => [pressed && { opacity: 0.6 }]}
               >
-                <Text style={styles.seeAllText}>Tümünü Gör →</Text>
-              </Pressable>
-            </View>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.atolyeCard,
-                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => router.push("/hayal-atolyesi" as Href)}
-            >
-              <LinearGradient
-                colors={['#E8D5FF', '#FFCBA4', '#FFD6E0']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.atolyeGradient}
-              >
-                <View style={styles.atolyeContent}>
-                  <Text style={styles.atolyeEmoji}>🌟</Text>
-                  <View style={styles.atolyeTextContainer}>
-                    <Text style={styles.atolyeTitle}>Çiziminden Yarat</Text>
-                    <Text style={styles.atolyeSubtitle}>
-                      Masal • Boyama • Analiz - Tek yerden tümü
-                    </Text>
-                  </View>
-                  <ChevronRight size={24} color={Colors.neutral.darker} />
-                </View>
-              </LinearGradient>
-            </Pressable>
-          </View>
-
-          {/* Recent Analyses Section */}
-          <View style={styles.recentSection}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionTitleRow}>
-                <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(185, 142, 255, 0.15)' }]}>
-                  <Clock size={16} color={Colors.primary.sunset} />
-                </View>
-                <Text style={styles.sectionTitle}>Son Analizler</Text>
-              </View>
-              {recentAnalyses.length > 0 && (
-                <Pressable
-                  onPress={() => router.push("/history" as Href)}
-                  style={({ pressed }) => [pressed && { opacity: 0.6 }]}
+                <LinearGradient
+                  colors={['#E8D5FF', '#FFCBA4', '#FFD6E0']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={styles.atolyeGradient}
                 >
-                  <Text style={styles.seeAllText}>Tümünü Gör →</Text>
-                </Pressable>
+                  <View style={styles.atolyeContent}>
+                    <Text style={styles.atolyeEmoji}>🌟</Text>
+                    <View style={styles.atolyeTextContainer}>
+                      <Text style={styles.atolyeTitle}>Hayal Atölyesi</Text>
+                      <Text style={styles.atolyeSubtitle}>
+                        Çizimden Masal • Boyama • Analiz
+                      </Text>
+                    </View>
+                    <ChevronRight size={24} color={Colors.neutral.darker} />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Quick Actions Row */}
+              <View style={styles.quickActionsRow}>
+                <FeatureCardCompact
+                  title="Ioo"
+                  icon={<MessageCircle size={22} color={RenkooColors.featureCards.chat.icon} />}
+                  type="chat"
+                  onPress={() => router.push("/chatbot" as Href)}
+                />
+                <FeatureCardCompact
+                  title="Masal"
+                  icon={<BookOpen size={22} color={RenkooColors.featureCards.story.icon} />}
+                  type="story"
+                  onPress={() => router.push("/stories" as Href)}
+                />
+                <FeatureCardCompact
+                  title="Boyama"
+                  icon={<Palette size={22} color={RenkooColors.featureCards.coloring.icon} />}
+                  type="coloring"
+                  onPress={() => router.push("/coloring-history" as Href)}
+                />
+                <FeatureCardCompact
+                  title="Ödüller"
+                  icon={<Gift size={22} color={RenkooColors.featureCards.reward?.icon || '#F59E0B'} />}
+                  type="reward"
+                  onPress={() => router.push("/profile" as Href)}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* Section Divider */}
+          {!isProfessional && <View style={styles.sectionDivider} />}
+
+          {/* Recent Analyses Section - Role-aware */}
+          {isProfessional ? (
+            /* Professional view with RecentActivityList */
+            <RecentActivityList
+              analyses={recentAnalyses.map((a: RecentAnalysis) => ({
+                id: a.id,
+                taskType: a.task_type,
+                createdAt: a.created_at,
+                childName: a.child_name,
+                childAge: a.child_age,
+                status: 'completed' as const,
+              }))}
+              isLoading={analysesLoading}
+              onAnalysisPress={(id) => router.push(`/analysis/${id}` as Href)}
+              onSeeAllPress={() => router.push("/history" as Href)}
+              maxItems={5}
+            />
+          ) : (
+            /* Parent view - Organic containers with playful design */
+            <View style={styles.recentSection}>
+              {/* Section Header - Secondary */}
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(185, 142, 255, 0.15)' }]}>
+                    <Clock size={16} color={Colors.primary.sunset} />
+                  </View>
+                  <Text style={styles.sectionTitleSecondary}>Son Analizler</Text>
+                </View>
+                {recentAnalyses.length > 0 && (
+                  <Pressable
+                    onPress={() => router.push("/history" as Href)}
+                    style={({ pressed }) => [pressed && { opacity: 0.6 }]}
+                  >
+                    <Text style={styles.seeAllText}>Tümünü Gör →</Text>
+                  </Pressable>
+                )}
+              </View>
+
+              {analysesLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={Colors.primary.sunset} />
+                </View>
+              ) : recentAnalyses.length === 0 ? (
+                <OrganicContainer style={styles.emptyContainer}>
+                  <LinearGradient
+                    colors={['rgba(255, 255, 255, 0.9)', 'rgba(248, 250, 252, 0.95)']}
+                    style={styles.emptyGradient}
+                  >
+                    <View style={styles.emptyIconContainer}>
+                      <View style={styles.emptyIconRing}>
+                        <Brain size={28} color={Colors.primary.sunset} />
+                      </View>
+                      <View style={styles.emptySparkle1}>
+                        <Sparkles size={14} color="#FFD700" />
+                      </View>
+                    </View>
+                    <View style={styles.emptyContent}>
+                      <Text style={styles.emptyText}>Henüz analiz yok</Text>
+                      <Text style={styles.emptySubtext}>
+                        Çizim yükleyerek ilk analizinizi yapın
+                      </Text>
+                    </View>
+                    <Pressable
+                      style={styles.emptyCtaButton}
+                      onPress={() => router.push("/advanced-analysis" as Href)}
+                    >
+                      <Camera size={16} color={Colors.primary.sunset} />
+                      <Text style={styles.emptyCtaText}>İlk Analizi Başlat</Text>
+                    </Pressable>
+                  </LinearGradient>
+                </OrganicContainer>
+              ) : (
+                <View style={styles.recentCardsContainer}>
+                  {recentAnalyses.map((analysis: RecentAnalysis) => (
+                    <Pressable
+                      key={analysis.id}
+                      style={({ pressed }) => [
+                        styles.recentCard,
+                        pressed && { opacity: 0.8 },
+                      ]}
+                      onPress={() => router.push(`/analysis/${analysis.id}` as Href)}
+                    >
+                      <OrganicContainer style={styles.recentCardInner}>
+                        <View style={styles.recentCardContent}>
+                          <View style={styles.recentCardIcon}>
+                            <Brain size={20} color={Colors.primary.sunset} />
+                          </View>
+                          <View style={styles.recentCardInfo}>
+                            <Text style={styles.recentCardTitle}>
+                              {TASK_TYPE_LABELS[analysis.task_type] || analysis.task_type}
+                            </Text>
+                            <Text style={styles.recentCardDate}>
+                              {formatDate(analysis.created_at)}
+                              {analysis.child_name && ` • ${analysis.child_name}`}
+                            </Text>
+                          </View>
+                          <ChevronRight size={18} color={Colors.neutral.medium} />
+                        </View>
+                      </OrganicContainer>
+                    </Pressable>
+                  ))}
+                </View>
               )}
             </View>
-
-            {analysesLoading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={Colors.primary.sunset} />
-              </View>
-            ) : recentAnalyses.length === 0 ? (
-              <OrganicContainer style={styles.emptyContainer}>
-                <LinearGradient
-                  colors={['rgba(255, 255, 255, 0.9)', 'rgba(248, 250, 252, 0.95)']}
-                  style={styles.emptyGradient}
-                >
-                  <View style={styles.emptyIconContainer}>
-                    <View style={styles.emptyIconRing}>
-                      <Brain size={28} color={Colors.primary.sunset} />
-                    </View>
-                    <View style={styles.emptySparkle1}>
-                      <Sparkles size={14} color="#FFD700" />
-                    </View>
-                  </View>
-                  <View style={styles.emptyContent}>
-                    <Text style={styles.emptyText}>Henüz analiz yok</Text>
-                    <Text style={styles.emptySubtext}>
-                      Çizim yükleyerek ilk analizinizi yapın
-                    </Text>
-                  </View>
-                  <Pressable
-                    style={styles.emptyCtaButton}
-                    onPress={() => router.push("/advanced-analysis" as Href)}
-                  >
-                    <Camera size={16} color={Colors.primary.sunset} />
-                    <Text style={styles.emptyCtaText}>İlk Analizi Başlat</Text>
-                  </Pressable>
-                </LinearGradient>
-              </OrganicContainer>
-            ) : (
-              <View style={styles.recentCardsContainer}>
-                {recentAnalyses.map((analysis: RecentAnalysis) => (
-                  <Pressable
-                    key={analysis.id}
-                    style={({ pressed }) => [
-                      styles.recentCard,
-                      pressed && { opacity: 0.8 },
-                    ]}
-                    onPress={() => router.push(`/analysis/${analysis.id}` as Href)}
-                  >
-                    <OrganicContainer style={styles.recentCardInner}>
-                      <View style={styles.recentCardContent}>
-                        <View style={styles.recentCardIcon}>
-                          <Brain size={20} color={Colors.primary.sunset} />
-                        </View>
-                        <View style={styles.recentCardInfo}>
-                          <Text style={styles.recentCardTitle}>
-                            {TASK_TYPE_LABELS[analysis.task_type] || analysis.task_type}
-                          </Text>
-                          <Text style={styles.recentCardDate}>
-                            {formatDate(analysis.created_at)}
-                            {analysis.child_name && ` • ${analysis.child_name}`}
-                          </Text>
-                        </View>
-                        <ChevronRight size={18} color={Colors.neutral.medium} />
-                      </View>
-                    </OrganicContainer>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {/* Stats Section */}
-          <View style={styles.statsSection}>
-            <View style={styles.sectionTitleRow}>
-              <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}>
-                <TrendingUp size={16} color="#4ECDC4" />
-              </View>
-              <Text style={styles.sectionTitle}>Bu Ay</Text>
-            </View>
-
-            <View style={styles.statsGrid}>
-              <OrganicContainer style={styles.statCard}>
-                <View style={styles.statContent}>
-                  <Text style={styles.statNumber}>{stats.totalAnalyses || 0}</Text>
-                  <Text style={styles.statLabel}>ANALİZ</Text>
-                </View>
-              </OrganicContainer>
-              <OrganicContainer style={styles.statCard}>
-                <View style={styles.statContent}>
-                  <Text style={styles.statNumber}>{stats.totalActivities || 0}</Text>
-                  <Text style={styles.statLabel}>AKTİVİTE</Text>
-                </View>
-              </OrganicContainer>
-              <OrganicContainer style={styles.statCard}>
-                <View style={styles.statContent}>
-                  <Text style={styles.statNumber}>{stats.totalStorybooks || 0}</Text>
-                  <Text style={styles.statLabel}>MASAL</Text>
-                </View>
-              </OrganicContainer>
-            </View>
-          </View>
+          )}
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>RENKIOO • DUYGULARIN RENGİ</Text>
+            <Text style={[styles.footerText, isProfessional && styles.footerTextProfessional]}>
+              {isProfessional ? 'RENKIOO • PROFESYONEL PLATFORM' : 'RENKIOO • DUYGULARIN RENGİ'}
+            </Text>
           </View>
         </ScrollView>
       </LinearGradient>
@@ -841,14 +928,33 @@ const styles = StyleSheet.create({
     color: Colors.primary.sunset,
   },
 
-  // Gamification Section
-  gamificationSection: {
+  // Progress Section (Gamification + Stats Combined)
+  progressSection: {
     marginBottom: spacing["4"],
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 20,
+    padding: spacing["4"],
+    ...shadows.xs,
+  },
+  sectionHeaderPrimary: {
+    marginBottom: spacing["3"],
+  },
+  sectionTitlePrimary: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: Colors.neutral.darker,
+    letterSpacing: -0.3,
+  },
+  sectionTitleSecondary: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.neutral.dark,
   },
   gamificationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing["3"],
+    marginBottom: spacing["3"],
   },
   xpContainer: {
     flex: 1,
@@ -861,6 +967,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.xs,
+  },
+  miniStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: 'rgba(248, 250, 252, 0.8)',
+    borderRadius: 14,
+    paddingVertical: spacing["3"],
+    paddingHorizontal: spacing["2"],
+  },
+  miniStatItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  miniStatNumber: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: Colors.primary.sunset,
+  },
+  miniStatLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: Colors.neutral.medium,
+    marginTop: 2,
+  },
+  miniStatDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: Colors.neutral.lighter,
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    marginVertical: spacing["3"],
+    marginHorizontal: spacing["2"],
+  },
+
+  // Explore Section (Combined Features + Quick Actions)
+  exploreSection: {
+    marginBottom: spacing["4"],
+  },
+  quickActionsRow: {
+    flexDirection: 'row',
+    gap: spacing["2"],
+    marginTop: spacing["3"],
   },
 
   // Primary CTA
@@ -926,29 +1077,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
   },
 
-  // Features Section
-  featuresSection: {
-    marginBottom: spacing["4"],
-  },
-  featureCardsGrid: {
-    gap: spacing["3"],
-  },
-
-  // Quick Actions
-  quickActionsSection: {
-    marginBottom: spacing["4"],
-  },
-  compactCardsRow: {
-    flexDirection: 'row',
-    gap: spacing["3"],
-  },
-
-  // Atolye Section
-  atolyeSection: {
-    marginBottom: spacing["4"],
-  },
+  // Atolye Card (inside Explore Section)
   atolyeCard: {
-    borderRadius: 24,
+    borderRadius: 20,
     overflow: 'hidden',
     ...shadows.colored('#B98EFF'),
   },
@@ -1110,34 +1241,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Stats Section
-  statsSection: {
-    marginBottom: spacing["4"],
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: spacing["3"],
-  },
-  statCard: {
-    flex: 1,
-    padding: spacing["4"],
-  },
-  statContent: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: Colors.primary.sunset,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: Colors.neutral.medium,
-    letterSpacing: 0.5,
-  },
-
   // Footer
   footer: {
     alignItems: 'center',
@@ -1147,6 +1250,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.neutral.medium,
     letterSpacing: 1,
+  },
+  footerTextProfessional: {
+    color: ProfessionalColors.text.tertiary,
+    letterSpacing: 0.5,
   },
 
   // Modal Styles

@@ -26,6 +26,7 @@ import {
   radius,
   shadows,
   textShadows,
+  zIndex,
 } from "@/constants/design-system";
 import { trpc } from "@/lib/trpc";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -2375,7 +2376,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing["3"],
     paddingBottom: spacing["4"],
     backgroundColor: 'transparent',
-    zIndex: 999,
+    zIndex: zIndex.max,
     position: 'relative',
   },
   createStoryButtonFixed: {

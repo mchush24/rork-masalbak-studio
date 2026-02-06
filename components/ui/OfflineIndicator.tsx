@@ -25,7 +25,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WifiOff, Wifi, RefreshCw, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { useOfflineIndicator, networkMonitor } from '@/lib/network';
 import { useHapticFeedback } from '@/lib/haptics';
 
@@ -284,7 +284,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 9999,
+    // Use design system z-index for overlay notifications
+    zIndex: zIndex.overlay,
     paddingHorizontal: spacing['4'],
   },
   banner: {

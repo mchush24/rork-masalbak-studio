@@ -18,7 +18,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ioo, IooMood } from './Ioo';
-import { shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -334,15 +335,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#FFF',
   },
   speechText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.darkest,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: spacing['1'],
   },
   encouragementText: {
-    fontSize: 13,
-    color: '#9CA3AF',
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
     textAlign: 'center',
     fontStyle: 'italic',
   },
@@ -353,15 +354,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   questionText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: spacing['1'],
   },
   questionSubtext: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
     textAlign: 'center',
   },
 
@@ -420,12 +421,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
   },
   emotionName: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
     textAlign: 'center',
   },
   emotionNameCompact: {
-    fontSize: 11,
+    fontSize: typography.size.xs,
   },
 
   // Selection Indicator
@@ -440,9 +441,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectedCheck: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
+    color: Colors.neutral.white,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
   },
 });
 

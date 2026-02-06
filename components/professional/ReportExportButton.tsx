@@ -25,6 +25,8 @@ import {
   FileSpreadsheet,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { buttonSizes, buttonStyles } from '@/constants/tokens';
 import { PdfReportService, ReportAnalysis, ReportOptions } from '@/lib/professional/PdfReportService';
 import { DataExportService, ExportFormat } from '@/lib/professional/DataExportService';
 import { useFeedback } from '@/hooks/useFeedback';
@@ -220,31 +222,123 @@ export function ReportExportButton({
 }
 
 const styles = StyleSheet.create({
-  button: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary.purple,
-    paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, gap: 8 },
-  buttonText: { fontSize: 15, fontWeight: '600', color: Colors.neutral.white },
-  iconButton: { padding: 10, backgroundColor: \`\${Colors.primary.purple}15\`, borderRadius: 10 },
-  menuButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16, gap: 12 },
-  menuButtonText: { fontSize: 15, color: Colors.neutral.dark },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: Colors.neutral.white, borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    padding: 20, paddingBottom: 40 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: Colors.neutral.dark },
-  closeButton: { padding: 8 },
-  loadingContainer: { alignItems: 'center', paddingVertical: 40 },
-  loadingText: { marginTop: 16, fontSize: 15, color: Colors.neutral.medium },
-  successContainer: { alignItems: 'center', paddingVertical: 40 },
-  successIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: Colors.status.success,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  successText: { fontSize: 16, fontWeight: '600', color: Colors.status.success },
-  optionsContainer: { gap: 12 },
-  exportOption: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: Colors.neutral.lighter,
-    borderRadius: 12, gap: 16 },
-  optionIcon: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  optionInfo: { flex: 1 },
-  optionTitle: { fontSize: 15, fontWeight: '600', color: Colors.neutral.dark },
-  optionDesc: { fontSize: 13, color: Colors.neutral.medium, marginTop: 2 },
+  // Button variants - using standardized tokens
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary.purple,
+    paddingVertical: buttonSizes.md.paddingVertical,
+    paddingHorizontal: buttonSizes.md.paddingHorizontal,
+    borderRadius: buttonSizes.md.borderRadius,
+    gap: spacing['2'],
+    ...buttonStyles.elevated,
+  },
+  buttonText: {
+    fontSize: buttonSizes.md.fontSize,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.white,
+  },
+  iconButton: {
+    padding: spacing['2.5'],
+    backgroundColor: `${Colors.primary.purple}15`,
+    borderRadius: radius.md,
+  },
+  menuButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['4'],
+    gap: spacing['3'],
+  },
+  menuButtonText: {
+    fontSize: typography.size.base,
+    color: Colors.neutral.dark,
+  },
+  // Modal styles
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.neutral.white,
+    borderTopLeftRadius: radius['2xl'],
+    borderTopRightRadius: radius['2xl'],
+    padding: spacing['5'],
+    paddingBottom: spacing['10'],
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing['5'],
+  },
+  modalTitle: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.dark,
+  },
+  closeButton: {
+    padding: spacing['2'],
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing['10'],
+  },
+  loadingText: {
+    marginTop: spacing['4'],
+    fontSize: typography.size.base,
+    color: Colors.neutral.medium,
+  },
+  successContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing['10'],
+  },
+  successIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.full,
+    backgroundColor: Colors.status.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing['4'],
+  },
+  successText: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: Colors.status.success,
+  },
+  optionsContainer: {
+    gap: spacing['3'],
+  },
+  exportOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing['4'],
+    backgroundColor: Colors.neutral.lighter,
+    borderRadius: radius.md,
+    gap: spacing['4'],
+  },
+  optionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  optionInfo: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
+  },
+  optionDesc: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    marginTop: spacing['0.5'] || 2,
+  },
 });
 
 export default ReportExportButton;

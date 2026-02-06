@@ -33,11 +33,14 @@ import {
 } from 'lucide-react-native';
 import {
   spacing,
-  borderRadius,
+  radius,
   shadows,
   typography,
-  colors,
-} from '@/lib/design-tokens';
+  iconSizes,
+  iconStroke,
+  iconColors,
+} from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -175,7 +178,7 @@ export default function TourScreen() {
         <View style={styles.header}>
           {currentStep > 0 ? (
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <ChevronLeft size={20} color="#6B7280" />
+              <ChevronLeft size={iconSizes.action} color={Colors.neutral.dark} strokeWidth={iconStroke.standard} />
               <Text style={styles.backText}>Geri</Text>
             </Pressable>
           ) : (
@@ -229,9 +232,9 @@ export default function TourScreen() {
             ]}
           >
             <IconComponent
-              size={isSmallDevice ? 40 : 52}
+              size={isSmallDevice ? iconSizes.large : iconSizes.empty}
               color={currentStepData.iconColor}
-              strokeWidth={2}
+              strokeWidth={iconStroke.standard}
             />
           </Animated.View>
 
@@ -259,7 +262,7 @@ export default function TourScreen() {
                 { backgroundColor: `${currentStepData.iconBg}40` },
               ]}
             >
-              <Sparkles size={14} color={currentStepData.iconColor} />
+              <Sparkles size={iconSizes.badge} color={currentStepData.iconColor} strokeWidth={iconStroke.standard} />
               <Text
                 style={[styles.highlightText, { color: currentStepData.iconColor }]}
               >
@@ -303,7 +306,7 @@ export default function TourScreen() {
             <Text style={styles.ctaText}>
               {isLastStep ? 'Hesap Oluştur' : 'Devam Et'}
             </Text>
-            <ChevronRight size={20} color="#FFF" />
+            <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
           </Pressable>
 
           {/* Login Link */}
@@ -349,18 +352,18 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   backText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
   },
   skipButton: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
   skipText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#9CA3AF',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.medium,
   },
 
   // Progress
@@ -382,9 +385,9 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   stepCounter: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.medium,
     minWidth: 32,
     textAlign: 'right',
   },
@@ -421,16 +424,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   title: {
-    fontSize: isSmallDevice ? 26 : 32,
-    fontWeight: '800',
+    fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
+    fontWeight: typography.weight.extrabold,
     textAlign: 'center',
     marginBottom: spacing.xs,
     marginTop: spacing.md,
   },
   subtitle: {
-    fontSize: isSmallDevice ? 14 : 16,
-    fontWeight: '500',
-    color: '#6B7280',
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
+    fontWeight: typography.weight.medium,
+    color: Colors.neutral.dark,
     textAlign: 'center',
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.md,
@@ -447,8 +450,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   description: {
-    fontSize: isSmallDevice ? 14 : 15,
-    color: '#374151',
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
+    color: Colors.neutral.darker,
     textAlign: 'center',
     lineHeight: isSmallDevice ? 22 : 24,
     marginBottom: spacing.md,
@@ -463,8 +466,8 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   highlightText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
   },
 
   // Footer
@@ -499,16 +502,16 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   ctaText: {
-    fontSize: isSmallDevice ? 15 : 17,
-    fontWeight: '700',
-    color: '#FFF',
+    fontSize: isSmallDevice ? typography.size.base : typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
   },
   loginText: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
     textAlign: 'center',
   },
   loginLink: {
-    fontWeight: '600',
+    fontWeight: typography.weight.semibold,
   },
 });

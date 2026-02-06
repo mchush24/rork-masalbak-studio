@@ -7,8 +7,10 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBiometric } from '@/lib/hooks/useBiometric';
+import { useRole } from '@/lib/contexts/RoleContext';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
-import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
+import { spacing, radius, shadows, typography, iconSizes, iconStroke, iconColors, textShadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 import { Mail, Zap } from 'lucide-react-native';
 
 export default function LoginScreen() {
@@ -27,6 +29,7 @@ export default function LoginScreen() {
     loginWithBiometric,
     enrollBiometric,
   } = useBiometric();
+  const { isOnboarded: roleOnboarded } = useRole();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const loginMutation = trpc.auth.loginWithPassword.useMutation();
@@ -102,11 +105,14 @@ export default function LoginScreen() {
         await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
         await completeOnboarding();
 
-        console.log('[Login] 🚀 Navigating to tabs...');
+        console.log('[Login] 🚀 Navigating...');
 
-        // Check if should show biometric enrollment
+        // Check if should show biometric enrollment or role selection
         if (capability.isAvailable && Platform.OS !== 'web') {
           setShowBiometricModal(true);
+        } else if (!roleOnboarded) {
+          // Role not selected - go to role selection
+          router.replace('/(onboarding)/role-select');
         } else {
           router.replace('/(tabs)');
         }
@@ -142,17 +148,26 @@ export default function LoginScreen() {
       }
 
       setShowBiometricModal(false);
-      router.replace('/(tabs)');
+      // Navigate based on role onboarding status
+      if (!roleOnboarded) {
+        router.replace('/(onboarding)/role-select');
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (error) {
       console.error('[Login] Biometric enrollment error:', error);
       setShowBiometricModal(false);
-      router.replace('/(tabs)');
+      if (!roleOnboarded) {
+        router.replace('/(onboarding)/role-select');
+      } else {
+        router.replace('/(tabs)');
+      }
     }
   };
 
   return (
     <LinearGradient
-      colors={colors.gradients.vibrant}
+      colors={[Colors.secondary.lavender, '#818CF8', Colors.secondary.sky]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -168,10 +183,10 @@ export default function LoginScreen() {
         >
           <Animated.View style={{ flex: 1, opacity: fadeAnim, padding: spacing.lg, justifyContent: 'center' }}>
             {/* Header */}
-            <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '800', color: 'white', marginBottom: spacing.xs, textAlign: 'center', ...textShadows.hero }}>
+            <Text style={{ fontSize: typography.size['2xl'], fontWeight: '800', color: 'white', marginBottom: spacing.xs, textAlign: 'center', ...textShadows.hero }}>
               Tekrar Hoş Geldiniz!
             </Text>
-            <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.95)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500', lineHeight: 22 }}>
+            <Text style={{ fontSize: typography.size.base, color: 'rgba(255,255,255,0.95)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500', lineHeight: 22 }}>
               Hesabınıza giriş yapın
             </Text>
 
@@ -179,7 +194,7 @@ export default function LoginScreen() {
             <View
               style={{
                 backgroundColor: 'white',
-                borderRadius: borderRadius.xxl,
+                borderRadius: radius.xl,
                 padding: spacing.xs,
                 marginBottom: spacing.md,
                 ...shadows.lg,
@@ -197,7 +212,7 @@ export default function LoginScreen() {
                     marginRight: spacing.sm,
                   }}
                 >
-                  <Mail size={20} color="#6366F1" strokeWidth={2} />
+                  <Mail size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
                 </View>
                 <TextInput
                   value={email}
@@ -207,7 +222,7 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
-                  style={{ flex: 1, fontSize: typography.fontSize.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
+                  style={{ flex: 1, fontSize: typography.size.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
                 />
               </View>
             </View>
@@ -216,7 +231,7 @@ export default function LoginScreen() {
             <View
               style={{
                 backgroundColor: 'white',
-                borderRadius: borderRadius.xxl,
+                borderRadius: radius.xl,
                 padding: spacing.xs,
                 marginBottom: spacing.sm,
                 ...shadows.lg,
@@ -234,7 +249,7 @@ export default function LoginScreen() {
                     marginRight: spacing.sm,
                   }}
                 >
-                  <Eye size={20} color="#6366F1" strokeWidth={2} />
+                  <Eye size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
                 </View>
                 <TextInput
                   value={password}
@@ -243,13 +258,13 @@ export default function LoginScreen() {
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showPassword}
                   autoComplete="password"
-                  style={{ flex: 1, fontSize: typography.fontSize.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
+                  style={{ flex: 1, fontSize: typography.size.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
                 />
                 <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
                   {showPassword ? (
-                    <EyeOff size={22} color="#6366F1" />
+                    <EyeOff size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
                   ) : (
-                    <Eye size={22} color="#6366F1" />
+                    <Eye size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
                   )}
                 </Pressable>
               </View>
@@ -263,7 +278,7 @@ export default function LoginScreen() {
               })}
               style={{ alignSelf: 'center', marginBottom: spacing.xl, paddingVertical: spacing.sm }}
             >
-              <Text style={{ fontSize: typography.fontSize.sm, color: 'white', textDecorationLine: 'underline', fontWeight: '600' }}>
+              <Text style={{ fontSize: typography.size.sm, color: 'white', textDecorationLine: 'underline', fontWeight: '600' }}>
                 Şifremi Unuttum
               </Text>
             </Pressable>
@@ -276,7 +291,7 @@ export default function LoginScreen() {
                 {
                   backgroundColor: email && password && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
                   paddingVertical: spacing.md + spacing.xs,
-                  borderRadius: borderRadius.xxxl,
+                  borderRadius: radius['2xl'],
                   ...shadows.lg,
                   marginBottom: spacing.lg,
                   transform: [{ scale: pressed ? 0.97 : 1 }],
@@ -291,17 +306,17 @@ export default function LoginScreen() {
                 <ActivityIndicator color="#6366F1" />
               ) : (
                 <>
-                  <Text style={{ fontSize: typography.fontSize.md, fontWeight: '700', color: email && password ? '#6366F1' : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
+                  <Text style={{ fontSize: typography.size.md, fontWeight: '700', color: email && password ? '#6366F1' : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
                     Giriş Yap
                   </Text>
-                  {email && password && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+                  {email && password && <Zap size={iconSizes.small} color={Colors.secondary.lavender} strokeWidth={iconStroke.bold} />}
                 </>
               )}
             </Pressable>
 
             {/* Register Link */}
             <Pressable onPress={() => router.push('/(onboarding)/register')} style={{ paddingVertical: spacing.sm }}>
-              <Text style={{ fontSize: typography.fontSize.sm, color: 'white', textAlign: 'center', fontWeight: '600' }}>
+              <Text style={{ fontSize: typography.size.sm, color: 'white', textAlign: 'center', fontWeight: '600' }}>
                 Hesabınız yok mu? <Text style={{ textDecorationLine: 'underline' }}>Kayıt olun</Text>
               </Text>
             </Pressable>
@@ -316,7 +331,11 @@ export default function LoginScreen() {
         onEnroll={handleBiometricEnroll}
         onSkip={() => {
           setShowBiometricModal(false);
-          router.replace('/(tabs)');
+          if (!roleOnboarded) {
+            router.replace('/(onboarding)/role-select');
+          } else {
+            router.replace('/(tabs)');
+          }
         }}
       />
     </LinearGradient>

@@ -33,7 +33,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Search, X, Loader2, Clock, TrendingUp } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 
 interface FilterChip {
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.neutral.lighter,
     ...shadows.lg,
-    zIndex: 100,
+    zIndex: zIndex.floating,
     overflow: 'hidden',
   },
   suggestionItem: {

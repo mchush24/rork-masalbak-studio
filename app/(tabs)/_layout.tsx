@@ -3,6 +3,7 @@ import { Home, Compass, Palette, TrendingUp, User } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography, iconSizes, iconStroke } from "@/constants/design-system";
 
 export default function TabLayout() {
   return (
@@ -21,8 +22,8 @@ export default function TabLayout() {
           height: Platform.OS === 'ios' ? 85 : 65,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
+          fontSize: typography.size.xs,
+          fontWeight: typography.weight.semibold,
           marginTop: 2,
         },
         tabBarIconStyle: {
@@ -35,7 +36,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Ana Sayfa",
-          tabBarIcon: ({ color }) => <Home size={26} color={color} />,
+          tabBarIcon: ({ color }) => <Home size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />,
         }}
       />
       {/* Tab 2: Keşfet - Social Feed */}
@@ -43,7 +44,7 @@ export default function TabLayout() {
         name="discover"
         options={{
           title: "Keşfet",
-          tabBarIcon: ({ color }) => <Compass size={26} color={color} />,
+          tabBarIcon: ({ color }) => <Compass size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />,
         }}
       />
       {/* Tab 3: Analiz - Tüm yaratım araçları */}
@@ -51,7 +52,7 @@ export default function TabLayout() {
         name="hayal-atolyesi"
         options={{
           title: "Analiz",
-          tabBarIcon: ({ color }) => <Palette size={26} color={color} />,
+          tabBarIcon: ({ color }) => <Palette size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />,
         }}
       />
       {/* Tab 4: Gelişim - İlerleme takibi */}
@@ -59,7 +60,7 @@ export default function TabLayout() {
         name="history"
         options={{
           title: "Gelişim",
-          tabBarIcon: ({ color }) => <TrendingUp size={26} color={color} />,
+          tabBarIcon: ({ color }) => <TrendingUp size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />,
         }}
       />
       {/* Tab 5: Hesabım - Profil ve ayarlar */}
@@ -67,7 +68,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Hesabım",
-          tabBarIcon: ({ color }) => <User size={26} color={color} />,
+          tabBarIcon: ({ color }) => <User size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />,
         }}
       />
       {/* Hidden screens */}

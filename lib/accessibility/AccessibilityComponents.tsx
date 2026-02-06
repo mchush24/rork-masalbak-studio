@@ -35,7 +35,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useAccessibility, useAccessibleFontSize, useMinimumTouchTarget, useColorBlindSafeColors, ColorBlindMode } from './AccessibilityProvider';
 import { UIColors as Colors } from '@/constants/color-aliases';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 
 interface AccessibleButtonProps {
   children: React.ReactNode;
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.purple,
     padding: 12,
     borderRadius: 8,
-    zIndex: 1000,
+    zIndex: zIndex.floating,
   },
   skipLinkText: {
     color: Colors.neutral.white,

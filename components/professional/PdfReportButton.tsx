@@ -37,7 +37,8 @@ import {
   Check,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
-import { shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { buttonSizes, buttonStyles } from '@/constants/tokens';
 import { SavedAnalysis } from '@/types/analysis';
 import { pdfService, ClientInfo } from '@/lib/pdf';
 
@@ -126,10 +127,26 @@ export function PdfReportButton({
   };
 
   const renderButton = () => {
+    // Use standardized button sizes from design tokens
     const sizes = {
-      small: { paddingH: 12, paddingV: 8, fontSize: 13, iconSize: 16 },
-      medium: { paddingH: 16, paddingV: 12, fontSize: 14, iconSize: 18 },
-      large: { paddingH: 20, paddingV: 14, fontSize: 15, iconSize: 20 },
+      small: {
+        paddingH: buttonSizes.sm.paddingHorizontal,
+        paddingV: buttonSizes.sm.paddingVertical,
+        fontSize: buttonSizes.sm.fontSize,
+        iconSize: buttonSizes.sm.iconSize,
+      },
+      medium: {
+        paddingH: buttonSizes.md.paddingHorizontal,
+        paddingV: buttonSizes.md.paddingVertical,
+        fontSize: buttonSizes.md.fontSize,
+        iconSize: buttonSizes.md.iconSize,
+      },
+      large: {
+        paddingH: buttonSizes.lg.paddingHorizontal,
+        paddingV: buttonSizes.lg.paddingVertical,
+        fontSize: buttonSizes.lg.fontSize,
+        iconSize: buttonSizes.lg.iconSize,
+      },
     };
 
     const s = sizes[size];
@@ -368,25 +385,24 @@ export function PdfReportButton({
 }
 
 const styles = StyleSheet.create({
-  // Button Variants
+  // Button Variants - Using standardized button tokens
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing['2'],
     backgroundColor: Colors.primary.purple,
-    borderRadius: 12,
+    borderRadius: buttonSizes.md.borderRadius,
+    ...buttonStyles.elevated,
   },
   buttonText: {
     color: Colors.neutral.white,
-    fontWeight: '600',
+    fontWeight: typography.weight.semibold,
   },
   buttonDisabled: {
-    opacity: 0.5,
+    opacity: buttonStyles.disabledOpacity,
   },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    ...buttonStyles.iconButton.md,
     backgroundColor: Colors.primary.purple + '15',
     alignItems: 'center',
     justifyContent: 'center',
@@ -395,30 +411,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.neutral.white,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: radius.lg,
+    padding: spacing['4'],
     ...shadows.xs,
   },
   cardIcon: {
     width: 48,
     height: 48,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: Colors.primary.purple + '15',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: spacing['3'],
   },
   cardContent: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
-    marginBottom: 2,
+    marginBottom: spacing['0.5'] || 2,
   },
   cardDescription: {
-    fontSize: 13,
+    fontSize: typography.size.sm,
     color: Colors.neutral.gray,
   },
 
@@ -438,8 +454,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.neutral.lighter,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {

@@ -1,189 +1,201 @@
 /**
- * IooEmptyState - Boş durum komponenti
+ * IooEmptyState - Role-Aware Empty State Component
  *
- * Liste boş olduğunda, arama sonucu bulunamadığında vb.
- * kullanıcıya sevimli bir şekilde bilgi verir.
+ * Thin wrapper around EmptyState that provides preset configurations.
+ * Use this for quick empty state implementations with predefined content.
  *
- * Yeni IooMascotFinal kullanır (eski gökkuşaklı Ioo yerine)
+ * For custom empty states, use EmptyState directly from @/components/ui/EmptyState
+ *
+ * Part of #5: Empty State Tasarımları
+ * Part of #21: Maskot Kullanımını Yetişkin Odaklı Yap
  */
 
 import React from 'react';
-import { StyleSheet, View, Text, Pressable, ViewStyle } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { Ioo, IooMood as NewIooMood } from './Ioo';
+import { ViewStyle } from 'react-native';
+import {
+  EmptyState,
+  EmptyStateIllustration,
+  IooMood,
+  // Pre-configured exports
+  NoAnalysisEmpty,
+  NoStoriesEmpty,
+  NoColoringEmpty,
+  NoHistoryEmpty,
+  NoChildrenEmpty,
+  NoClientsEmpty,
+  NoFavoritesEmpty,
+  NoBadgesEmpty,
+  SearchEmpty,
+  ErrorEmpty,
+  OfflineEmpty,
+  ComingSoonEmpty,
+  WelcomeEmpty,
+} from '@/components/ui/EmptyState';
 
-// Legacy mood type for backward compatibility
-export type IooMood =
-  | 'neutral'
-  | 'happy'
-  | 'excited'
-  | 'thinking'
-  | 'curious'
-  | 'loving'
-  | 'proud'
-  | 'sleepy'
-  | 'wink'
-  | 'sad'
-  | 'surprised'
-  | 'shy'
-  | 'determined'
-  | 'angry'
-  | 'confused'
-  | 'calm'
-  | 'playful';
+// Re-export types for backward compatibility
+export type { IooMood, EmptyStateIllustration };
 
-// Map old moods to new IooMascotFinal moods
-const MOOD_MAP: Record<IooMood, NewIooMood> = {
-  neutral: 'happy',
-  happy: 'happy',
-  excited: 'excited',
-  thinking: 'curious',
-  curious: 'curious',
-  loving: 'love',
-  proud: 'happy',
-  sleepy: 'sleepy',
-  wink: 'happy',
-  sad: 'sleepy',
-  surprised: 'excited',
-  shy: 'curious',
-  determined: 'happy',
-  angry: 'sleepy',
-  confused: 'curious',
-  calm: 'happy',
-  playful: 'excited',
+// Re-export pre-configured empty states
+export {
+  NoAnalysisEmpty,
+  NoStoriesEmpty,
+  NoColoringEmpty,
+  NoHistoryEmpty,
+  NoChildrenEmpty,
+  NoClientsEmpty,
+  NoFavoritesEmpty,
+  NoBadgesEmpty,
+  SearchEmpty,
+  ErrorEmpty,
+  OfflineEmpty,
+  ComingSoonEmpty,
+  WelcomeEmpty,
 };
 
-interface IooEmptyStateProps {
-  title: string;
-  message?: string;
-  mood?: IooMood;
-  action?: {
-    label: string;
-    onPress: () => void;
-  };
-  style?: ViewStyle;
-}
+// =============================================================================
+// Preset Configurations
+// =============================================================================
 
-// Preset boş durumlar
 export const EMPTY_STATE_PRESETS = {
   noResults: {
+    illustration: 'search-empty' as EmptyStateIllustration,
     title: 'Sonuç bulunamadı',
     message: 'Farklı bir arama yapmayı deneyin.',
     mood: 'curious' as IooMood,
   },
   noData: {
+    illustration: 'no-history' as EmptyStateIllustration,
     title: 'Henüz veri yok',
     message: 'Yeni bir şeyler eklemeye başlayın!',
     mood: 'thinking' as IooMood,
   },
   noColorings: {
+    illustration: 'no-coloring' as EmptyStateIllustration,
     title: 'Henüz boyama yok',
     message: 'İlk boyanı oluşturmak için başla!',
     mood: 'excited' as IooMood,
   },
   noStories: {
+    illustration: 'no-stories' as EmptyStateIllustration,
     title: 'Henüz hikaye yok',
     message: 'Birlikte harika hikayeler yaratalım!',
     mood: 'curious' as IooMood,
   },
   noAnalysis: {
+    illustration: 'no-analysis' as EmptyStateIllustration,
     title: 'Henüz analiz yok',
     message: 'Çizim yükleyerek ilk analizinizi yapın.',
     mood: 'curious' as IooMood,
   },
+  noFavorites: {
+    illustration: 'no-favorites' as EmptyStateIllustration,
+    title: 'Favori yok',
+    message: 'Beğendiğiniz öğeleri favorilere ekleyin.',
+    mood: 'curious' as IooMood,
+  },
+  noChildren: {
+    illustration: 'no-children' as EmptyStateIllustration,
+    title: 'Çocuk profili yok',
+    message: 'Profil ekleyerek başlayın.',
+    mood: 'curious' as IooMood,
+  },
+  noClients: {
+    illustration: 'no-clients' as EmptyStateIllustration,
+    title: 'Danışan yok',
+    message: 'Yeni danışan ekleyerek başlayın.',
+    mood: 'curious' as IooMood,
+  },
   error: {
+    illustration: 'error' as EmptyStateIllustration,
     title: 'Bir şeyler ters gitti',
     message: 'Lütfen daha sonra tekrar deneyin.',
     mood: 'sad' as IooMood,
   },
   offline: {
+    illustration: 'offline' as EmptyStateIllustration,
     title: 'İnternet bağlantısı yok',
     message: 'Bağlantınızı kontrol edip tekrar deneyin.',
-    mood: 'confused' as IooMood,
+    mood: 'sad' as IooMood,
   },
   comingSoon: {
+    illustration: 'coming-soon' as EmptyStateIllustration,
     title: 'Çok yakında!',
     message: 'Bu özellik üzerinde çalışıyoruz.',
-    mood: 'wink' as IooMood,
+    mood: 'excited' as IooMood,
   },
-};
+} as const;
 
-export function IooEmptyState({
-  title,
-  message,
-  mood = 'thinking',
-  action,
-  style,
-}: IooEmptyStateProps) {
-  // Map legacy mood to new mood
-  const mappedMood = MOOD_MAP[mood] || 'happy';
+export type EmptyStatePreset = keyof typeof EMPTY_STATE_PRESETS;
 
-  return (
-    <View style={[styles.container, style]}>
-      <Animated.View entering={FadeIn.delay(100).duration(400)}>
-        <Ioo
-          mood={mappedMood}
-          size="large"
-          animated={true}
-          showGlow
-        />
-      </Animated.View>
+// =============================================================================
+// Main Component
+// =============================================================================
 
-      <Animated.View
-        entering={FadeInDown.delay(200).duration(400)}
-        style={styles.textContainer}
-      >
-        <Text style={styles.title}>{title}</Text>
-        {message && <Text style={styles.message}>{message}</Text>}
-      </Animated.View>
-
-      {action && (
-        <Animated.View entering={FadeInDown.delay(350).duration(400)}>
-          <Pressable onPress={action.onPress} style={styles.actionButton}>
-            <Text style={styles.actionText}>{action.label}</Text>
-          </Pressable>
-        </Animated.View>
-      )}
-    </View>
-  );
+interface IooEmptyStateProps {
+  /** Use a preset configuration */
+  preset?: EmptyStatePreset;
+  /** Direct illustration type (from spread operator or custom) */
+  illustration?: EmptyStateIllustration;
+  /** Custom title (overrides preset) */
+  title?: string;
+  /** Custom message/description (overrides preset) */
+  message?: string;
+  /** Ioo mood for parent mode */
+  mood?: IooMood;
+  /** Action button configuration */
+  action?: {
+    label: string;
+    onPress: () => void;
+  };
+  /** Secondary action */
+  secondaryAction?: {
+    label: string;
+    onPress: () => void;
+  };
+  /** Custom style */
+  style?: ViewStyle;
+  /** Compact mode for smaller spaces */
+  compact?: boolean;
+  /** Force professional styling */
+  forceProStyle?: boolean;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  textContainer: {
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 20,
-  },
-  actionButton: {
-    marginTop: 24,
-    backgroundColor: '#7C3AED',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  actionText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
+export function IooEmptyState({
+  preset,
+  illustration,
+  title,
+  message,
+  mood,
+  action,
+  secondaryAction,
+  style,
+  compact = false,
+  forceProStyle = false,
+}: IooEmptyStateProps) {
+  // Get preset config if provided
+  const presetConfig = preset ? EMPTY_STATE_PRESETS[preset] : null;
+
+  // Determine final values (direct props > preset > defaults)
+  const finalTitle = title || presetConfig?.title || 'Henüz veri yok';
+  const finalDescription = message || presetConfig?.message || '';
+  const finalMood = mood || presetConfig?.mood || 'curious';
+  const finalIllustration = illustration || presetConfig?.illustration || 'no-history';
+
+  return (
+    <EmptyState
+      illustration={finalIllustration}
+      title={finalTitle}
+      description={finalDescription}
+      mascotMood={finalMood}
+      actionLabel={action?.label}
+      onAction={action?.onPress}
+      secondaryLabel={secondaryAction?.label}
+      onSecondaryAction={secondaryAction?.onPress}
+      style={style}
+      compact={compact}
+      forceProStyle={forceProStyle}
+    />
+  );
+}
 
 export default IooEmptyState;

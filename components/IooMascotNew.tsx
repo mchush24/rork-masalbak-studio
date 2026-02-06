@@ -46,34 +46,10 @@ import Svg, {
   FeMerge,
   FeMergeNode,
 } from 'react-native-svg';
+import { IooMood, IooSize, getPixelSize, IOO_COLORS } from '@/constants/ioo-config';
 
-// Mood types
-export type IooMood =
-  | 'neutral'
-  | 'happy'
-  | 'excited'
-  | 'curious'
-  | 'love'
-  | 'calm'
-  | 'thinking'
-  | 'sleepy'
-  | 'concerned'
-  | 'sad';
-
-export type IooSize = 'xs' | 'sm' | 'md' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
-
-const SIZE_MAP: Record<IooSize, number> = {
-  xs: 50,
-  sm: 70,
-  md: 100,
-  tiny: 70,
-  small: 100,
-  medium: 140,
-  lg: 180,
-  large: 200,
-  hero: 280,
-  giant: 350,
-};
+// Re-export types for backwards compatibility
+export type { IooMood, IooSize } from '@/constants/ioo-config';
 
 interface IooProps {
   size?: IooSize | number;
@@ -83,17 +59,8 @@ interface IooProps {
   onPress?: () => void;
 }
 
-// Fiber optic tip colors - rainbow spectrum
-const FIBER_TIP_COLORS = [
-  '#FF69B4', // Pink
-  '#FFB6C1', // Light pink
-  '#87CEEB', // Sky blue
-  '#98FB98', // Pale green
-  '#DDA0DD', // Plum
-  '#F0E68C', // Khaki yellow
-  '#E6E6FA', // Lavender
-  '#AFEEEE', // Pale turquoise
-];
+// Use unified fiber tip colors from config
+const FIBER_TIP_COLORS = IOO_COLORS.fiberTips;
 
 export const IooMascotNew = memo(function IooMascotNew({
   size = 'medium',
@@ -102,7 +69,7 @@ export const IooMascotNew = memo(function IooMascotNew({
   showGlow = true,
   onPress,
 }: IooProps) {
-  const dimensions = typeof size === 'number' ? size : SIZE_MAP[size];
+  const dimensions = getPixelSize(size);
 
   // Animation values
   const breathe = useSharedValue(1);

@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import type { AnalysisNote, NoteType } from '@/types/analysis';
 
 interface NoteListProps {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing['2'],
     ...shadows.lg,
-    zIndex: 100,
+    zIndex: zIndex.floating,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Colors } from "@/constants/colors";
 import { X, CheckCircle2 } from "lucide-react-native";
-import { shadows } from "@/constants/design-system";
+import { typography, spacing, radius, shadows } from "@/constants/design-system";
 import {
   QUESTIONNAIRE_QUESTIONS,
   QUESTIONNAIRE_INTRO,
@@ -171,16 +171,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "800" as const,
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
-    letterSpacing: -0.3,
-    marginBottom: 6,
+    letterSpacing: typography.letterSpacing.tight,
+    marginBottom: spacing['1.5'],
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: typography.size.base,
     color: Colors.neutral.medium,
-    lineHeight: 22,
+    lineHeight: typography.lineHeightPx.base,
   },
   closeButton: {
     width: 40,
@@ -199,9 +199,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   noteText: {
-    fontSize: 14,
+    fontSize: typography.size.sm,
     color: "#92400E",
-    lineHeight: 21,
+    lineHeight: typography.lineHeightPx.sm,
     textAlign: "center",
   },
   scrollView: {
@@ -211,10 +211,10 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   timeframeLabel: {
-    fontSize: 15,
-    fontWeight: "700" as const,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: 16,
+    marginBottom: spacing['4'],
   },
   questionCard: {
     backgroundColor: Colors.background.primary,
@@ -225,11 +225,11 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.lighter,
   },
   questionText: {
-    fontSize: 15,
+    fontSize: typography.size.base,
     color: Colors.neutral.darkest,
-    lineHeight: 22,
-    marginBottom: 14,
-    fontWeight: "600" as const,
+    lineHeight: typography.lineHeightPx.base,
+    marginBottom: spacing['3'],
+    fontWeight: typography.weight.semibold,
   },
   answersRow: {
     flexDirection: "row",
@@ -252,8 +252,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary.sunset,
   },
   answerText: {
-    fontSize: 13,
-    fontWeight: "600" as const,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.medium,
   },
   answerTextSelected: {
@@ -271,9 +271,9 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   completeButtonText: {
-    fontSize: 16,
-    fontWeight: "700" as const,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
-    letterSpacing: 0.3,
+    letterSpacing: typography.letterSpacing.normal,
   },
 });

@@ -14,6 +14,7 @@ import {
   Platform,
 } from 'react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { zIndex } from '@/constants/design-system';
 
 interface PerformanceMetrics {
   fps: number;
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     minWidth: 80,
-    zIndex: 9999,
+    zIndex: zIndex.debug,
   },
   row: {
     flexDirection: 'row',

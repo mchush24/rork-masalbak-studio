@@ -36,7 +36,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Trophy, Flame, Award, Zap, Shield, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, textShadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, textShadows, zIndex } from '@/constants/design-system';
 import { hapticManager, type HapticType } from '@/lib/haptics';
 import { soundManager, type SoundName } from '@/lib/audio';
 import { ConfettiAnimation, SparkleAnimation } from '@/components/animations/MicroInteractions';
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    zIndex: 9999,
+    zIndex: zIndex.toast,
   },
   toastCard: {
     flexDirection: 'row',

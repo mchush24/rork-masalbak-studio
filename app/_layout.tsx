@@ -7,6 +7,7 @@ import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ChildProvider } from '@/lib/contexts/ChildContext';
+import { RoleProvider } from '@/lib/contexts/RoleContext';
 import { ThemeProvider } from '@/lib/theme';
 import { OverlayProvider } from '@/lib/overlay';
 import { ChatBot } from '@/components/ChatBot';
@@ -279,19 +280,21 @@ export default function RootLayout() {
         <WebContainer>
           <ThemeProvider>
             <LanguageProvider>
-              <trpc.Provider client={trpcClient} queryClient={queryClient}>
-                <QueryClientProvider client={queryClient}>
-                  <ChildProvider>
-                    <OverlayProvider>
-                      <ToastProvider>
-                        <DelightWrapper>
-                          <RootLayoutNav />
-                        </DelightWrapper>
-                      </ToastProvider>
-                    </OverlayProvider>
-                  </ChildProvider>
-                </QueryClientProvider>
-              </trpc.Provider>
+              <RoleProvider>
+                <trpc.Provider client={trpcClient} queryClient={queryClient}>
+                  <QueryClientProvider client={queryClient}>
+                    <ChildProvider>
+                      <OverlayProvider>
+                        <ToastProvider>
+                          <DelightWrapper>
+                            <RootLayoutNav />
+                          </DelightWrapper>
+                        </ToastProvider>
+                      </OverlayProvider>
+                    </ChildProvider>
+                  </QueryClientProvider>
+                </trpc.Provider>
+              </RoleProvider>
             </LanguageProvider>
           </ThemeProvider>
         </WebContainer>

@@ -51,3 +51,25 @@ export {
   screenEntering,
   screenExiting,
 } from './NavigationAnimations';
+
+// Phase 15: Standardized Micro-interactions
+export { AnimatedPressable } from './AnimatedPressable';
+export { StaggeredList, StaggeredItem } from './StaggeredList';
+export { SuccessAnimation as StateAnimation } from './SuccessAnimation';
+export { Skeleton, SkeletonText, SkeletonCard, SkeletonList } from './Skeleton';
+export { Confetti, Stars, Sparkle } from './Celebration';
+
+// Animation constants re-export
+export {
+  duration,
+  spring,
+  easing,
+  transforms,
+  entrance,
+  exit,
+  stagger,
+  haptics,
+  skeleton,
+  celebration,
+  pullToRefresh,
+} from '@/constants/animations';

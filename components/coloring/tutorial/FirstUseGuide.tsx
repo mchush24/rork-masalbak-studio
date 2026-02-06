@@ -29,7 +29,7 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
 
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 9999,
+    zIndex: zIndex.modal,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,

@@ -12,6 +12,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Circle, Ellipse, Path } from 'react-native-svg';
+import { IooMood, IooSize, getPixelSize } from '@/constants/ioo-config';
 
 // =============================================================================
 // IOO FINAL - Minimal, Temiz, Profesyonel
@@ -20,16 +21,8 @@ import Svg, { Defs, RadialGradient, Stop, Circle, Ellipse, Path } from 'react-na
 // İlham: Molang, Pusheen, Studio Ghibli dust sprites
 // =============================================================================
 
-export type IooMood = 'happy' | 'excited' | 'sleepy' | 'curious' | 'love';
-export type IooSize = 'tiny' | 'small' | 'medium' | 'large' | 'hero';
-
-const SIZE_MAP: Record<IooSize, number> = {
-  tiny: 60,
-  small: 90,
-  medium: 130,
-  large: 180,
-  hero: 240,
-};
+// Re-export types for backwards compatibility
+export type { IooMood, IooSize } from '@/constants/ioo-config';
 
 interface Props {
   size?: IooSize | number;
@@ -73,7 +66,7 @@ export function IooMascotFinal({
 }: Props) {
 
   // Size hesaplama
-  const size = typeof sizeProp === 'string' ? SIZE_MAP[sizeProp] : sizeProp;
+  const size = getPixelSize(sizeProp);
 
   // === Animasyon değerleri ===
   const floatY = useSharedValue(0);

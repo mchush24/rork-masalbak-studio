@@ -28,6 +28,7 @@ import Svg, {
   FeMerge,
   FeMergeNode,
 } from 'react-native-svg';
+import { IooMood, IooSize, getPixelSize, IOO_COLORS } from '@/constants/ioo-config';
 
 // =============================================================================
 // IOO PRO - Premium Maskot Tasarımı
@@ -36,72 +37,19 @@ import Svg, {
 // Derinlik, karakter, profesyonel render hissi
 // =============================================================================
 
-export type IooMood = 'happy' | 'excited' | 'sleepy' | 'curious' | 'talking' | 'surprised' | 'love' | 'thinking';
+// Re-export types for backwards compatibility
+export type { IooMood, IooSize } from '@/constants/ioo-config';
 
 interface IooMascotProProps {
-  size?: 'tiny' | 'small' | 'medium' | 'large' | 'hero' | 'giant';
+  size?: IooSize | number;
   style?: StyleProp<ViewStyle>;
   animated?: boolean;
   mood?: IooMood;
   onPress?: () => void;
 }
 
-const SIZES = {
-  tiny: 56,
-  small: 80,
-  medium: 140,
-  large: 200,
-  hero: 280,
-  giant: 360,
-};
-
-// Premium Renk Paleti - Sıcak, Soft, Derinlikli
-const Colors = {
-  // Ana beden - sıcak krem tonları ile derinlik
-  body: {
-    light: '#FFFDF8',
-    main: '#FFF8EE',
-    mid: '#FFE8D6',
-    shadow: '#F5D5BC',
-    deepShadow: '#E8C4A8',
-    ambient: '#FFE0C4',
-  },
-  // Gözler - derin, canlı, glossy
-  eyes: {
-    white: '#FFFFFF',
-    iris: '#3D2314',
-    irisLight: '#5C3D2E',
-    irisDeep: '#1A0F0A',
-    pupil: '#0A0505',
-    highlight1: '#FFFFFF',
-    highlight2: 'rgba(255,255,255,0.7)',
-    reflection: 'rgba(255,220,200,0.3)',
-  },
-  // Yanaklar - soft pembe glow
-  cheeks: {
-    main: '#FFB5B5',
-    glow: '#FFC4C4',
-    soft: 'rgba(255,181,181,0.6)',
-  },
-  // Ağız
-  mouth: {
-    line: '#C4937A',
-    tongue: '#FF9999',
-    inside: '#D4847A',
-  },
-  // Glow efektleri
-  glow: {
-    warm: 'rgba(255,240,220,0.5)',
-    soft: 'rgba(255,230,210,0.3)',
-    ambient: 'rgba(255,220,200,0.2)',
-  },
-  // Sparkle
-  sparkle: {
-    gold: '#FFD700',
-    white: '#FFFFFF',
-    soft: '#FFF5E6',
-  },
-};
+// Use unified color palette from config
+const Colors = IOO_COLORS;
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
@@ -113,7 +61,7 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
   mood = 'happy',
   onPress,
 }) => {
-  const bodySize = SIZES[size];
+  const bodySize = getPixelSize(size);
 
   // Animation values
   const breathScale = useSharedValue(1);

@@ -51,7 +51,7 @@ import {
   ArrowRight,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
 import { Ioo as IooMascot } from '@/components/Ioo';
 import { useHapticFeedback } from '@/lib/haptics';
 
@@ -152,15 +152,15 @@ const SCENES: Scene[] = [
     title: 'Bilimsel Yaklaşım',
     description: 'Yapay zeka destekli çizim analizi,\nçocuk psikolojisi uzmanlarıyla geliştirildi.',
     features: [
-      { icon: <Brain size={20} color={Colors.secondary.lavender} />, text: 'AI destekli analiz' },
-      { icon: <Users size={20} color={Colors.secondary.sky} />, text: 'Uzman onaylı' },
-      { icon: <Star size={20} color={Colors.secondary.sunshine} />, text: 'Kanıta dayalı' },
+      { icon: <Brain size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />, text: 'AI destekli analiz' },
+      { icon: <Users size={iconSizes.action} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />, text: 'Uzman onaylı' },
+      { icon: <Star size={iconSizes.action} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />, text: 'Kanıta dayalı' },
     ],
     gradient: ['#F0F9FF', '#E8F4FD', '#F5F3FF'],
     illustration: (
       <View style={illustrationStyles.scienceIllustration}>
         <View style={illustrationStyles.brainIconContainer}>
-          <Brain size={64} color={Colors.secondary.lavender} />
+          <Brain size={iconSizes.empty} color={Colors.secondary.lavender} strokeWidth={iconStroke.thin} />
         </View>
         <View style={illustrationStyles.pulseRing} />
         <View style={[illustrationStyles.pulseRing, illustrationStyles.pulseRing2]} />
@@ -172,25 +172,25 @@ const SCENES: Scene[] = [
     title: 'Araçlarınız',
     description: 'Çocuğunuzun duygusal dünyasını anlamak için\nihtiyacınız olan her şey.',
     features: [
-      { icon: <Brain size={20} color={Colors.secondary.lavender} />, text: 'Çizim Analizi: Duygusal ipuçları' },
-      { icon: <BookOpen size={20} color={Colors.secondary.sunshine} />, text: 'İnteraktif Hikayeler: Karar süreçleri' },
-      { icon: <Palette size={20} color={Colors.secondary.mint} />, text: 'Dijital Boyama: Yaratıcılık' },
-      { icon: <TrendingUp size={20} color={Colors.secondary.grass} />, text: 'Gelişim Takibi: Zaman içi değişim' },
+      { icon: <Brain size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />, text: 'Çizim Analizi: Duygusal ipuçları' },
+      { icon: <BookOpen size={iconSizes.action} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />, text: 'İnteraktif Hikayeler: Karar süreçleri' },
+      { icon: <Palette size={iconSizes.action} color={Colors.secondary.mint} strokeWidth={iconStroke.standard} />, text: 'Dijital Boyama: Yaratıcılık' },
+      { icon: <TrendingUp size={iconSizes.action} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />, text: 'Gelişim Takibi: Zaman içi değişim' },
     ],
     gradient: ['#FFF5F2', '#E8FFF5', '#FFF9E6'],
     illustration: (
       <View style={illustrationStyles.toolsGrid}>
         <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}>
-          <Brain size={32} color={Colors.secondary.lavender} />
+          <Brain size={iconSizes.feature} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
         </View>
         <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}>
-          <BookOpen size={32} color={Colors.secondary.sunshine} />
+          <BookOpen size={iconSizes.feature} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
         </View>
         <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}>
-          <Palette size={32} color={Colors.secondary.mint} />
+          <Palette size={iconSizes.feature} color={Colors.secondary.mint} strokeWidth={iconStroke.standard} />
         </View>
         <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}>
-          <TrendingUp size={32} color={Colors.secondary.grass} />
+          <TrendingUp size={iconSizes.feature} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />
         </View>
       </View>
     ),
@@ -200,17 +200,17 @@ const SCENES: Scene[] = [
     title: 'Gizlilik & Güvenlik',
     description: 'Çocuğunuzun verileri sadece sizin.\nGüvenlik bizim önceliğimiz.',
     features: [
-      { icon: <Lock size={20} color={Colors.secondary.grass} />, text: 'Uçtan uca şifreleme' },
-      { icon: <Shield size={20} color={Colors.secondary.sky} />, text: 'KVKK ve GDPR uyumlu' },
-      { icon: <CheckCircle size={20} color={Colors.semantic.success} />, text: 'Danışan gizliliği korunur' },
+      { icon: <Lock size={iconSizes.action} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />, text: 'Uçtan uca şifreleme' },
+      { icon: <Shield size={iconSizes.action} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />, text: 'KVKK ve GDPR uyumlu' },
+      { icon: <CheckCircle size={iconSizes.action} color={Colors.semantic.success} strokeWidth={iconStroke.standard} />, text: 'Danışan gizliliği korunur' },
     ],
     gradient: ['#F0FDF4', '#E8FFF5', '#F0F9FF'],
     illustration: (
       <View style={illustrationStyles.privacyIllustration}>
         <View style={illustrationStyles.shieldContainer}>
-          <Shield size={72} color={Colors.secondary.grass} />
+          <Shield size={iconSizes.hero} color={Colors.secondary.grass} strokeWidth={iconStroke.thin} />
           <View style={illustrationStyles.checkBadge}>
-            <CheckCircle size={24} color={Colors.neutral.white} fill={Colors.semantic.success} />
+            <CheckCircle size={iconSizes.navigation} color={Colors.neutral.white} fill={Colors.semantic.success} strokeWidth={iconStroke.standard} />
           </View>
         </View>
       </View>
@@ -373,7 +373,7 @@ export default function ValuePropositionScreen() {
                   pressed && { opacity: 0.7 },
                 ]}
               >
-                <ChevronLeft size={24} color={Colors.neutral.medium} />
+                <ChevronLeft size={iconSizes.navigation} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
               </Pressable>
             )}
 
@@ -393,7 +393,7 @@ export default function ValuePropositionScreen() {
                     style={styles.primaryButtonGradient}
                   >
                     <Text style={styles.primaryButtonText}>Hesap Oluştur</Text>
-                    <ArrowRight size={20} color={Colors.neutral.white} />
+                    <ArrowRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
                   </LinearGradient>
                 </Pressable>
 
@@ -416,7 +416,7 @@ export default function ValuePropositionScreen() {
                 ]}
               >
                 <Text style={styles.nextButtonText}>Devam</Text>
-                <ChevronRight size={20} color={Colors.neutral.white} />
+                <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
               </Pressable>
             )}
           </View>

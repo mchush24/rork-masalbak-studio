@@ -42,6 +42,7 @@ import { useRouter, Href } from 'expo-router';
 
 import { trpc } from '@/lib/trpc';
 import { spacing, radius, shadows } from '@/constants/design-system';
+import { IooEmptyState } from '@/components/IooEmptyState';
 import {
   ExpertTipCard,
   ActivityCard,
@@ -85,12 +86,15 @@ function SectionHeader({
   );
 }
 
-// Empty state component
-function EmptyState({ message, icon: Icon }: { message: string; icon: React.ComponentType<any> }) {
+// Empty state component - uses unified IooEmptyState
+function DiscoverEmptyState({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.emptyState}>
-      <Icon size={40} color="#D1D5DB" />
-      <Text style={styles.emptyStateText}>{message}</Text>
+      <IooEmptyState
+        title={title}
+        message={message}
+        compact
+      />
     </View>
   );
 }
@@ -252,9 +256,9 @@ export default function DiscoverScreen() {
                 ))}
               </ScrollView>
             ) : (
-              <EmptyState
+              <DiscoverEmptyState
+                title="Aktivite Önerisi Yok"
                 message="Henüz aktivite önerisi yok"
-                icon={Sparkles}
               />
             )}
           </Animated.View>
@@ -289,9 +293,9 @@ export default function DiscoverScreen() {
                 ))}
               </View>
             ) : (
-              <EmptyState
-                message="Henüz paylaşım yok"
-                icon={ImageIcon}
+              <DiscoverEmptyState
+                title="Paylaşım Yok"
+                message="Henüz topluluk paylaşımı yok"
               />
             )}
           </Animated.View>
@@ -326,9 +330,9 @@ export default function DiscoverScreen() {
                 ))}
               </View>
             ) : (
-              <EmptyState
-                message="Henüz hikaye yok"
-                icon={BookOpen}
+              <DiscoverEmptyState
+                title="Hikaye Yok"
+                message="Henüz başarı hikayesi paylaşılmamış"
               />
             )}
           </Animated.View>

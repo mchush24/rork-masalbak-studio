@@ -35,6 +35,9 @@ import {
   radius,
   shadows,
   typography,
+  iconSizes,
+  iconStroke,
+  iconColors,
 } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 import { Ioo as IooMascot } from '@/components/Ioo';
@@ -201,7 +204,7 @@ export default function WelcomeScreen() {
                 ]}
               >
                 <View style={styles.previewHeader}>
-                  <Sparkles size={16} color="#A78BFA" />
+                  <Sparkles size={iconSizes.inline} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
                   <Text style={styles.previewHeaderText}>
                     Örnek Çizim Analizi
                   </Text>
@@ -258,17 +261,17 @@ export default function WelcomeScreen() {
           {/* Social Proof */}
           <View style={styles.socialProof}>
             <View style={styles.socialProofItem}>
-              <Users size={14} color="#6366F1" />
+              <Users size={iconSizes.badge} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
               <Text style={styles.socialProofText}>10,000+ aile</Text>
             </View>
             <View style={styles.socialProofDot} />
             <View style={styles.socialProofItem}>
-              <Star size={14} color="#F59E0B" fill="#F59E0B" />
+              <Star size={iconSizes.badge} color={Colors.secondary.sunshine} fill={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
               <Text style={styles.socialProofText}>4.9 puan</Text>
             </View>
             <View style={styles.socialProofDot} />
             <View style={styles.socialProofItem}>
-              <Heart size={14} color="#EC4899" fill="#EC4899" />
+              <Heart size={iconSizes.badge} color={Colors.secondary.peach} fill={Colors.secondary.peach} strokeWidth={iconStroke.standard} />
               <Text style={styles.socialProofText}>Psikolog onaylı</Text>
             </View>
           </View>
@@ -284,16 +287,16 @@ export default function WelcomeScreen() {
               ]}
             >
               <LinearGradient
-                colors={['#A78BFA', '#818CF8', '#6366F1']}
+                colors={[Colors.secondary.lavender, '#818CF8', '#6366F1']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
               >
-                <Play size={20} color="#FFF" fill="#FFF" />
+                <Play size={iconSizes.action} color={iconColors.inverted} fill={iconColors.inverted} strokeWidth={iconStroke.standard} />
                 <Text style={styles.primaryButtonText}>
                   Hemen Deneyin - Ücretsiz
                 </Text>
-                <ChevronRight size={20} color="#FFF" />
+                <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
               </LinearGradient>
             </Pressable>
 
@@ -364,21 +367,21 @@ const styles = StyleSheet.create({
     marginBottom: isSmallDevice ? spacing.md : spacing.lg,
   },
   hookTitle: {
-    fontSize: isSmallDevice ? 24 : 28,
-    fontWeight: '800',
-    color: '#1F2937',
+    fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
+    fontWeight: typography.weight.extrabold,
+    color: Colors.neutral.darkest,
     textAlign: 'center',
     lineHeight: isSmallDevice ? 32 : 38,
     marginBottom: spacing.sm,
   },
   hookHighlight: {
-    color: '#7C3AED',
+    color: Colors.secondary.lavender,
   },
   hookSubtitle: {
-    fontSize: isSmallDevice ? 14 : 16,
-    color: '#6B7280',
+    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
+    color: Colors.neutral.dark,
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: typography.weight.medium,
   },
 
   // Preview Card
@@ -402,9 +405,9 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(167, 139, 250, 0.15)',
   },
   previewHeaderText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#A78BFA',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.secondary.lavender,
   },
   insightsContainer: {
     gap: spacing.sm,
@@ -421,10 +424,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   insightLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 4,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.darkest,
+    marginBottom: spacing['1'],
   },
   insightBarBg: {
     height: 6,
@@ -437,8 +440,8 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   insightPercent: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
     width: 36,
     textAlign: 'right',
   },
@@ -458,9 +461,9 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   socialProofText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4B5563',
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.dark,
   },
   socialProofDot: {
     width: 4,
@@ -488,9 +491,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   primaryButtonText: {
-    fontSize: isSmallDevice ? 15 : 17,
-    fontWeight: '700',
-    color: '#FFF',
+    fontSize: isSmallDevice ? typography.size.base : typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.white,
   },
   buttonPressed: {
     transform: [{ scale: 0.98 }],
@@ -501,18 +504,18 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   secondaryButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6366F1',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    color: Colors.secondary.lavender,
   },
   loginText: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
     textAlign: 'center',
   },
   loginLink: {
-    color: '#7C3AED',
-    fontWeight: '600',
+    color: Colors.secondary.lavender,
+    fontWeight: typography.weight.semibold,
   },
 
   // Trust Badge
@@ -521,8 +524,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   trustText: {
-    fontSize: 11,
-    color: '#9CA3AF',
-    fontWeight: '500',
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
   },
 });

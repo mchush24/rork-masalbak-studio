@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable, ScrollView, Alert, ActivityIndicator, RefreshControl, Modal, TextInput, Switch, Dimensions, Platform } from "react-native";
-import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award, RefreshCw, Volume2, Vibrate, Shield } from "lucide-react-native";
+import { Settings, Globe, Crown, HelpCircle, LogOut, ChevronRight, BookOpen, Palette, Brain, Edit2, History, Check, X, Bell, Lock, Sun, Baby, Plus, Trash2, Award, RefreshCw, Volume2, Vibrate, Shield, Users, Download } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, Href } from "expo-router";
@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Colors } from "@/constants/colors";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { useRole, ROLE_CONFIGS, type UserRole } from "@/lib/contexts/RoleContext";
 import { AvatarPicker, AvatarDisplay } from "@/components/AvatarPicker";
 import { BadgeGrid, BadgeUnlockModal } from "@/components/badges";
 import { type BadgeRarity } from "@/constants/badges";
@@ -21,6 +22,8 @@ import {
   textShadows,
 } from "@/constants/design-system";
 import { SoundSettings, HapticSettings, AppLockSettings } from "@/components/settings";
+import { ChildProfileCard, AddChildWizard, DataExportOptions } from "@/components/profile";
+import { iconSizes, iconStroke } from "@/constants/design-system";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -48,7 +51,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout, refreshUserFromBackend } = useAuth();
   const { t, language, setLanguage: setAppLanguage } = useLanguage();
+  const { role, setRole, config: roleConfig } = useRole();
   const [refreshing, setRefreshing] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -66,6 +71,8 @@ export default function ProfileScreen() {
   const [showSoundModal, setShowSoundModal] = useState(false);
   const [showHapticModal, setShowHapticModal] = useState(false);
   const [showAppLockModal, setShowAppLockModal] = useState(false);
+  const [showAddChildWizard, setShowAddChildWizard] = useState(false);
+  const [showDataExportModal, setShowDataExportModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<{
     id: string;
     name: string;
@@ -241,6 +248,27 @@ export default function ProfileScreen() {
     }
   };
 
+  // Handle add child from wizard
+  const handleAddChildFromWizard = async (childData: { name: string; age: number; avatarId?: string }) => {
+    try {
+      const currentChildren = user?.children || [];
+      const newChild = {
+        name: childData.name,
+        age: childData.age,
+        avatarId: childData.avatarId,
+      };
+
+      await updateProfileMutation.mutateAsync({
+        children: [...currentChildren, newChild],
+      });
+
+      showAlert('Başarılı', `${childData.name} profili eklendi!`);
+      await refreshUserFromBackend();
+    } catch {
+      showAlert('Hata', 'Çocuk profili eklenemedi. Lütfen tekrar deneyin.');
+    }
+  };
+
   const handleRemoveChild = async (index: number) => {
     try {
       const currentChildren = user?.children || [];
@@ -317,48 +345,49 @@ export default function ProfileScreen() {
           {/* Children Profiles */}
           <View style={styles.childrenSection}>
             <View style={styles.childrenHeader}>
-              <Text style={styles.childrenTitle}>👶 {t.profile.children}</Text>
+              <View style={styles.childrenTitleRow}>
+                <Baby size={iconSizes.small} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+                <Text style={styles.childrenTitle}>{t.profile.children}</Text>
+                {user?.children && user.children.length > 0 && (
+                  <View style={styles.childrenCount}>
+                    <Text style={styles.childrenCountText}>{user.children.length}</Text>
+                  </View>
+                )}
+              </View>
               <Pressable
                 style={({ pressed }) => [
                   styles.addChildButton,
                   pressed && { opacity: 0.7 },
                 ]}
-                onPress={() => setShowChildrenModal(true)}
+                onPress={() => setShowAddChildWizard(true)}
               >
-                <Plus size={20} color={Colors.neutral.white} />
+                <Plus size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.bold} />
               </Pressable>
             </View>
 
             {user?.children && user.children.length > 0 ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.childrenList}>
                 {user.children.map((child: any, index: number) => (
-                  <View key={index} style={styles.childCard}>
-                    <View style={styles.childCardContent}>
-                      <AvatarDisplay
-                        avatarId={child.avatarId}
-                        size={56}
-                      />
-                      <Text style={styles.childName}>{child.name}</Text>
-                      <Text style={styles.childAge}>{child.age} yaş</Text>
-                      <Pressable
-                        style={({ pressed }) => [
-                          styles.removeChildButton,
-                          pressed && { opacity: 0.7 },
-                        ]}
-                        onPress={() => {
-                          showConfirmDialog(
-                            'Çocuk Profilini Sil',
-                            `${child.name} adlı çocuk profilini silmek istediğinize emin misiniz?`,
-                            () => handleRemoveChild(index),
-                            undefined,
-                            { confirmText: 'Sil', cancelText: 'İptal', destructive: true }
-                          );
-                        }}
-                      >
-                        <Trash2 size={16} color={Colors.semantic.error} />
-                      </Pressable>
-                    </View>
-                  </View>
+                  <ChildProfileCard
+                    key={index}
+                    child={{
+                      name: child.name,
+                      age: child.age,
+                      avatarId: child.avatarId,
+                      lastActivity: child.lastActivity,
+                      analysisCount: child.analysisCount,
+                    }}
+                    index={index}
+                    onDelete={() => {
+                      showConfirmDialog(
+                        'Çocuk Profilini Sil',
+                        `${child.name} adlı çocuk profilini silmek istediğinize emin misiniz?`,
+                        () => handleRemoveChild(index),
+                        undefined,
+                        { confirmText: 'Sil', cancelText: 'İptal', destructive: true }
+                      );
+                    }}
+                  />
                 ))}
               </ScrollView>
             ) : (
@@ -367,10 +396,11 @@ export default function ProfileScreen() {
                   styles.addChildPrompt,
                   pressed && { opacity: 0.7 },
                 ]}
-                onPress={() => setShowChildrenModal(true)}
+                onPress={() => setShowAddChildWizard(true)}
               >
-                <Baby size={40} color={Colors.neutral.light} />
+                <Baby size={iconSizes.hero} color={Colors.neutral.light} strokeWidth={iconStroke.thin} />
                 <Text style={styles.addChildPromptText}>Çocuk profili ekleyin</Text>
+                <Text style={styles.addChildPromptHint}>Adım adım rehberlik ile kolayca ekleyin</Text>
               </Pressable>
             )}
           </View>
@@ -553,6 +583,30 @@ export default function ProfileScreen() {
                 styles.menuItem,
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
               ]}
+              onPress={() => setShowRoleModal(true)}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                style={styles.menuIcon}
+              >
+                <Users size={24} color={Colors.neutral.white} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Kullanıcı Rolü</Text>
+                <View style={styles.menuRight}>
+                  <Text style={styles.menuValue}>
+                    {roleConfig.displayName}
+                  </Text>
+                  <ChevronRight size={20} color={Colors.neutral.light} />
+                </View>
+              </View>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
             >
               <LinearGradient
                 colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
@@ -698,11 +752,35 @@ export default function ProfileScreen() {
                 colors={[Colors.neutral.medium, Colors.neutral.light]}
                 style={styles.menuIcon}
               >
-                <Settings size={24} color={Colors.neutral.white} />
+                <Settings size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
               </LinearGradient>
               <View style={styles.menuContent}>
                 <Text style={styles.menuLabel}>{t.settings.general}</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
+                <ChevronRight size={iconSizes.small} color={Colors.neutral.light} strokeWidth={iconStroke.standard} />
+              </View>
+            </Pressable>
+          </View>
+
+          {/* Data & Security Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Veri ve Güvenlik</Text>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => setShowDataExportModal(true)}
+            >
+              <LinearGradient
+                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                style={styles.menuIcon}
+              >
+                <Download size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+              </LinearGradient>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuLabel}>Verilerimi İndir</Text>
+                <ChevronRight size={iconSizes.small} color={Colors.neutral.light} strokeWidth={iconStroke.standard} />
               </View>
             </Pressable>
           </View>
@@ -1218,6 +1296,94 @@ export default function ProfileScreen() {
           visible={showAppLockModal}
           onClose={() => setShowAppLockModal(false)}
         />
+
+        {/* Role Selection Modal */}
+        <Modal
+          visible={showRoleModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowRoleModal(false)}
+        >
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setShowRoleModal(false)}
+          >
+            <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>👤 Kullanıcı Rolü</Text>
+                <Pressable onPress={() => setShowRoleModal(false)} style={styles.modalCloseButton}>
+                  <X size={24} color={Colors.neutral.dark} />
+                </Pressable>
+              </View>
+
+              <View style={styles.themeList}>
+                {(Object.keys(ROLE_CONFIGS) as UserRole[]).map((roleKey) => {
+                  const roleInfo = ROLE_CONFIGS[roleKey];
+                  const isSelected = role === roleKey;
+
+                  return (
+                    <Pressable
+                      key={roleKey}
+                      style={({ pressed }) => [
+                        styles.themeItem,
+                        isSelected && styles.themeItemSelected,
+                        pressed && { opacity: 0.7 },
+                      ]}
+                      onPress={async () => {
+                        await setRole(roleKey);
+                        setShowRoleModal(false);
+                        showAlert('Başarılı', `Rol "${roleInfo.displayName}" olarak değiştirildi.`);
+                      }}
+                    >
+                      <Text style={styles.themeIcon}>
+                        {roleKey === 'parent' ? '👨‍👩‍👧' : roleKey === 'teacher' ? '👩‍🏫' : '🩺'}
+                      </Text>
+                      <View style={styles.themeInfo}>
+                        <Text style={styles.themeName}>{roleInfo.displayName}</Text>
+                        <Text style={styles.themeDescription}>{roleInfo.description}</Text>
+                      </View>
+                      {isSelected && (
+                        <Check size={24} color={Colors.secondary.grass} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <View style={{ paddingHorizontal: spacing["4"], paddingBottom: spacing["4"] }}>
+                <Text style={{ fontSize: typography.size.xs, color: Colors.neutral.medium, textAlign: 'center' }}>
+                  Rolünüz UI'ı ve kullanılabilir özellikleri değiştirir
+                </Text>
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        {/* Add Child Wizard */}
+        <AddChildWizard
+          visible={showAddChildWizard}
+          onClose={() => setShowAddChildWizard(false)}
+          onComplete={handleAddChildFromWizard}
+        />
+
+        {/* Data Export Options */}
+        <DataExportOptions
+          visible={showDataExportModal}
+          onClose={() => setShowDataExportModal(false)}
+          onDeleteAccount={() => {
+            setShowDataExportModal(false);
+            showConfirmDialog(
+              'Hesabı Sil',
+              'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinecektir.',
+              () => {
+                // TODO: Implement account deletion
+                showAlert('Bilgi', 'Hesap silme işlemi için destek@renkioo.com adresine e-posta gönderin.');
+              },
+              undefined,
+              { confirmText: 'Hesabı Sil', cancelText: 'Vazgeç', destructive: true }
+            );
+          }}
+        />
       </LinearGradient>
     </View>
   );
@@ -1590,11 +1756,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: spacing["4"],
   },
+  childrenTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing["2"],
+  },
   childrenTitle: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    ...textShadows.sm,
+  },
+  childrenCount: {
+    backgroundColor: Colors.secondary.lavenderLight,
+    paddingHorizontal: spacing["2"],
+    paddingVertical: spacing["1"],
+    borderRadius: radius.full,
+  },
+  childrenCountText: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
+    color: Colors.secondary.lavender,
   },
   addChildButton: {
     backgroundColor: Colors.secondary.lavender,
@@ -1656,6 +1837,12 @@ const styles = StyleSheet.create({
     fontSize: typography.size.md,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
+  },
+  addChildPromptHint: {
+    fontSize: typography.size.xs,
+    color: Colors.neutral.light,
+    fontWeight: typography.weight.normal,
+    marginTop: -spacing["2"],
   },
   childCardContent: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',

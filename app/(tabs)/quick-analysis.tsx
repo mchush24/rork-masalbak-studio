@@ -35,6 +35,8 @@ import { LoadingAnimation } from "@/components/LoadingAnimation";
 import { useAgeCollection } from "@/lib/hooks/useAgeCollection";
 import { AgePickerModal } from "@/components/AgePickerModal";
 import { IooAssistant } from "@/components/coaching/IooAssistant";
+import { AnalysisStepper, AnalysisStep } from "@/components/analysis/AnalysisStepper";
+import { AnalysisLoadingOverlay } from "@/components/analysis/AnalysisLoadingOverlay";
 
 // New schema types matching backend
 type AnalysisMeta = {
@@ -99,6 +101,13 @@ export default function AnalyzeScreen() {
   // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
   const updateProfileMutation = trpc.user.updateProfile.useMutation();
+
+  // Compute current analysis step for stepper
+  const currentAnalysisStep: AnalysisStep = analysis
+    ? 'results'
+    : analyzing
+    ? 'analyzing'
+    : 'select';
 
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -258,7 +267,11 @@ export default function AnalyzeScreen() {
       />
 
       {analyzing ? (
-        <LoadingAnimation type="analysis" message="Çizim analiz ediliyor..." />
+        <AnalysisLoadingOverlay
+          message="Çizim analiz ediliyor..."
+          estimatedDuration="15-30 saniye"
+          testType="DAP (Kişi Çizimi)"
+        />
       ) : (
         <LinearGradient
           colors={Colors.background.analysis}
@@ -319,6 +332,11 @@ export default function AnalyzeScreen() {
                 Çocuk psikolojisi uzmanı desteğiyle
               </Text>
             </View>
+          </View>
+
+          {/* Analysis Progress Stepper */}
+          <View style={styles.stepperContainer}>
+            <AnalysisStepper currentStep={currentAnalysisStep} />
           </View>
 
           {/* Stats Row */}
@@ -672,6 +690,9 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
+  },
+  stepperContainer: {
+    marginBottom: spacing["6"],
   },
   statsRow: {
     flexDirection: "row",

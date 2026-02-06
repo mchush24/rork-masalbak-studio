@@ -1,15 +1,17 @@
 /**
  * Dialog/Modal System
- * Phase 2: UX Enhancement
+ * Part of #3: Oturum Kurtarma Modal Düzeltmeleri
  *
- * Provides flexible dialog components:
+ * Provides flexible, role-aware dialog components:
  * - BaseDialog: Core modal wrapper
  * - ConfirmDialog: For destructive actions
  * - AlertDialog: For simple messages
  * - InputDialog: For text input
+ *
+ * All dialogs adapt to user role (parent/teacher/expert)
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -38,11 +40,14 @@ import {
   Info,
   XCircle,
   X,
+  HelpCircle,
 } from 'lucide-react-native';
-import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
+import { Colors, ProfessionalColors } from '@/constants/colors';
+import { typography, spacing, radius, shadows, zIndex, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
+import { buttonSizes, buttonStyles } from '@/constants/tokens';
 import { useHapticFeedback } from '@/lib/haptics';
-import { Ioo } from '@/components/Ioo';
+import { IooRoleAware } from '@/components/Ioo';
+import { useRole, useMascotSettings, useIsProfessional } from '@/lib/contexts/RoleContext';
 
 // ============================================
 // BASE DIALOG
@@ -65,6 +70,8 @@ export interface BaseDialogProps {
   style?: ViewStyle;
   /** Animation type */
   animation?: 'zoom' | 'fade' | 'slide';
+  /** Professional mode override */
+  forceProStyle?: boolean;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -78,8 +85,11 @@ export function BaseDialog({
   closeOnBackdrop = true,
   style,
   animation = 'zoom',
+  forceProStyle = false,
 }: BaseDialogProps) {
   const { tapLight } = useHapticFeedback();
+  const isProfessional = useIsProfessional();
+  const useProfessionalStyle = forceProStyle || isProfessional;
 
   const handleBackdropPress = useCallback(() => {
     if (closeOnBackdrop) {
@@ -98,7 +108,7 @@ export function BaseDialog({
       case 'fade':
         return FadeIn.duration(200);
       case 'slide':
-        return FadeIn.duration(200); // Would use SlideInUp but keeping consistent
+        return FadeIn.duration(200);
       default:
         return ZoomIn.springify().damping(15);
     }
@@ -134,14 +144,22 @@ export function BaseDialog({
           style={styles.backdrop}
           onPress={handleBackdropPress}
         >
-          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+          <BlurView
+            intensity={useProfessionalStyle ? 10 : 20}
+            tint={useProfessionalStyle ? 'light' : 'dark'}
+            style={StyleSheet.absoluteFill}
+          />
         </AnimatedPressable>
 
         {/* Dialog */}
         <Animated.View
           entering={getEnteringAnimation()}
           exiting={getExitingAnimation()}
-          style={[styles.dialog, style]}
+          style={[
+            styles.dialog,
+            useProfessionalStyle && styles.dialogProfessional,
+            style,
+          ]}
         >
           {/* Close Button */}
           {showCloseButton && (
@@ -153,12 +171,23 @@ export function BaseDialog({
               ]}
               hitSlop={8}
             >
-              <X size={20} color={Colors.neutral.medium} />
+              <X
+                size={iconSizes.action}
+                color={useProfessionalStyle ? ProfessionalColors.text.tertiary : iconColors.medium}
+                strokeWidth={iconStroke.standard}
+              />
             </Pressable>
           )}
 
           {/* Title */}
-          {title && <Text style={styles.title}>{title}</Text>}
+          {title && (
+            <Text style={[
+              styles.title,
+              useProfessionalStyle && styles.titleProfessional
+            ]}>
+              {title}
+            </Text>
+          )}
 
           {/* Content */}
           {children}
@@ -196,6 +225,9 @@ export function ConfirmDialog({
   showIoo = true,
 }: ConfirmDialogProps) {
   const { tapLight, warning, error } = useHapticFeedback();
+  const { role } = useRole();
+  const mascotSettings = useMascotSettings();
+  const isProfessional = useIsProfessional();
 
   const handleConfirm = useCallback(() => {
     if (variant === 'danger') {
@@ -212,23 +244,29 @@ export function ConfirmDialog({
     onClose();
   }, [tapLight, onClose]);
 
+  // Check if mascot should be shown
+  const shouldShowMascot = showIoo && mascotSettings.prominence !== 'hidden' && !isProfessional;
+
   const variantConfig = {
     danger: {
       icon: AlertTriangle,
-      iconColor: Colors.semantic.error,
-      confirmBg: Colors.semantic.error,
-      iooMood: 'curious' as const,
+      iconColor: isProfessional ? '#DC2626' : Colors.semantic.error,
+      iconBg: isProfessional ? '#FEF2F2' : `${Colors.semantic.error}15`,
+      confirmBg: isProfessional ? '#DC2626' : Colors.semantic.error,
+      iooMood: 'concerned' as const,
     },
     warning: {
       icon: AlertTriangle,
-      iconColor: Colors.semantic.warning,
-      confirmBg: Colors.semantic.warning,
+      iconColor: isProfessional ? '#D97706' : Colors.semantic.warning,
+      iconBg: isProfessional ? '#FFFBEB' : `${Colors.semantic.warning}15`,
+      confirmBg: isProfessional ? '#D97706' : Colors.semantic.warning,
       iooMood: 'curious' as const,
     },
     info: {
       icon: Info,
-      iconColor: Colors.secondary.sky,
-      confirmBg: Colors.secondary.sky,
+      iconColor: isProfessional ? ProfessionalColors.trust.primary : Colors.secondary.sky,
+      iconBg: isProfessional ? ProfessionalColors.trust.background : `${Colors.secondary.sky}15`,
+      confirmBg: isProfessional ? ProfessionalColors.trust.primary : Colors.secondary.sky,
       iooMood: 'happy' as const,
     },
   };
@@ -236,23 +274,56 @@ export function ConfirmDialog({
   const config = variantConfig[variant];
   const IconComponent = config.icon;
 
+  // Role-specific button text
+  const roleText = useMemo(() => {
+    if (role === 'expert') {
+      return {
+        confirm: variant === 'danger' ? 'Sil' : 'Onayla',
+        cancel: 'Vazgeç',
+      };
+    }
+    if (role === 'teacher') {
+      return {
+        confirm: confirmText,
+        cancel: 'İptal Et',
+      };
+    }
+    return {
+      confirm: confirmText,
+      cancel: cancelText,
+    };
+  }, [role, variant, confirmText, cancelText]);
+
   return (
     <BaseDialog visible={visible} onClose={onClose} showCloseButton={false}>
       <View style={styles.confirmContent}>
-        {/* Ioo or Icon */}
-        {showIoo ? (
-          <View style={styles.iooContainer}>
-            <Ioo mood={config.iooMood} size="sm" animated />
+        {/* Mascot or Icon */}
+        {shouldShowMascot ? (
+          <View style={styles.mascotContainer}>
+            <IooRoleAware
+              mood={config.iooMood === 'concerned' ? 'sleepy' : config.iooMood}
+              size="small"
+              context="general"
+              animated
+            />
           </View>
         ) : (
-          <View style={[styles.iconContainer, { backgroundColor: `${config.iconColor}15` }]}>
-            <IconComponent size={32} color={config.iconColor} />
+          <View style={[
+            styles.iconContainer,
+            { backgroundColor: config.iconBg },
+            isProfessional && styles.iconContainerProfessional
+          ]}>
+            <IconComponent size={isProfessional ? 28 : 32} color={config.iconColor} />
           </View>
         )}
 
         {/* Text */}
-        <Text style={styles.confirmTitle}>{title}</Text>
-        <Text style={styles.confirmMessage}>{message}</Text>
+        <Text style={[styles.confirmTitle, isProfessional && styles.confirmTitleProfessional]}>
+          {title}
+        </Text>
+        <Text style={[styles.confirmMessage, isProfessional && styles.confirmMessageProfessional]}>
+          {message}
+        </Text>
 
         {/* Buttons */}
         <View style={styles.buttonRow}>
@@ -261,10 +332,13 @@ export function ConfirmDialog({
             style={({ pressed }) => [
               styles.button,
               styles.cancelButton,
+              isProfessional && styles.cancelButtonProfessional,
               pressed && { opacity: 0.7 },
             ]}
           >
-            <Text style={styles.cancelButtonText}>{cancelText}</Text>
+            <Text style={[styles.cancelButtonText, isProfessional && styles.cancelButtonTextProfessional]}>
+              {roleText.cancel}
+            </Text>
           </Pressable>
 
           <Pressable
@@ -273,10 +347,11 @@ export function ConfirmDialog({
               styles.button,
               styles.confirmButton,
               { backgroundColor: config.confirmBg },
+              isProfessional && styles.confirmButtonProfessional,
               pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
             ]}
           >
-            <Text style={styles.confirmButtonText}>{confirmText}</Text>
+            <Text style={styles.confirmButtonText}>{roleText.confirm}</Text>
           </Pressable>
         </View>
       </View>
@@ -308,6 +383,8 @@ export function AlertDialog({
   showIoo = true,
 }: AlertDialogProps) {
   const { tapLight, success, error, warning } = useHapticFeedback();
+  const mascotSettings = useMascotSettings();
+  const isProfessional = useIsProfessional();
 
   const handlePress = useCallback(() => {
     switch (variant) {
@@ -326,29 +403,36 @@ export function AlertDialog({
     onClose();
   }, [variant, success, error, warning, tapLight, onClose]);
 
+  // Check if mascot should be shown
+  const shouldShowMascot = showIoo && mascotSettings.prominence !== 'hidden' && !isProfessional;
+
   const variantConfig = {
     success: {
       icon: CheckCircle,
-      iconColor: Colors.semantic.success,
-      buttonBg: Colors.semantic.success,
+      iconColor: isProfessional ? '#059669' : Colors.semantic.success,
+      iconBg: isProfessional ? '#ECFDF5' : `${Colors.semantic.success}15`,
+      buttonBg: isProfessional ? '#059669' : Colors.semantic.success,
       iooMood: 'happy' as const,
     },
     error: {
       icon: XCircle,
-      iconColor: Colors.semantic.error,
-      buttonBg: Colors.semantic.error,
+      iconColor: isProfessional ? '#DC2626' : Colors.semantic.error,
+      iconBg: isProfessional ? '#FEF2F2' : `${Colors.semantic.error}15`,
+      buttonBg: isProfessional ? '#DC2626' : Colors.semantic.error,
       iooMood: 'sleepy' as const,
     },
     warning: {
       icon: AlertTriangle,
-      iconColor: Colors.semantic.warning,
-      buttonBg: Colors.semantic.warning,
+      iconColor: isProfessional ? '#D97706' : Colors.semantic.warning,
+      iconBg: isProfessional ? '#FFFBEB' : `${Colors.semantic.warning}15`,
+      buttonBg: isProfessional ? '#D97706' : Colors.semantic.warning,
       iooMood: 'curious' as const,
     },
     info: {
       icon: Info,
-      iconColor: Colors.secondary.sky,
-      buttonBg: Colors.secondary.sky,
+      iconColor: isProfessional ? ProfessionalColors.trust.primary : Colors.secondary.sky,
+      iconBg: isProfessional ? ProfessionalColors.trust.background : `${Colors.secondary.sky}15`,
+      buttonBg: isProfessional ? ProfessionalColors.trust.primary : Colors.secondary.sky,
       iooMood: 'happy' as const,
     },
   };
@@ -359,20 +443,33 @@ export function AlertDialog({
   return (
     <BaseDialog visible={visible} onClose={onClose} showCloseButton={false}>
       <View style={styles.alertContent}>
-        {/* Ioo or Icon */}
-        {showIoo ? (
-          <View style={styles.iooContainer}>
-            <Ioo mood={config.iooMood} size="sm" animated />
+        {/* Mascot or Icon */}
+        {shouldShowMascot ? (
+          <View style={styles.mascotContainer}>
+            <IooRoleAware
+              mood={config.iooMood}
+              size="small"
+              context="general"
+              animated
+            />
           </View>
         ) : (
-          <View style={[styles.iconContainer, { backgroundColor: `${config.iconColor}15` }]}>
-            <IconComponent size={32} color={config.iconColor} />
+          <View style={[
+            styles.iconContainer,
+            { backgroundColor: config.iconBg },
+            isProfessional && styles.iconContainerProfessional
+          ]}>
+            <IconComponent size={isProfessional ? 28 : 32} color={config.iconColor} />
           </View>
         )}
 
         {/* Text */}
-        <Text style={styles.alertTitle}>{title}</Text>
-        <Text style={styles.alertMessage}>{message}</Text>
+        <Text style={[styles.alertTitle, isProfessional && styles.alertTitleProfessional]}>
+          {title}
+        </Text>
+        <Text style={[styles.alertMessage, isProfessional && styles.alertMessageProfessional]}>
+          {message}
+        </Text>
 
         {/* Button */}
         <Pressable
@@ -380,10 +477,13 @@ export function AlertDialog({
           style={({ pressed }) => [
             styles.alertButton,
             { backgroundColor: config.buttonBg },
+            isProfessional && styles.alertButtonProfessional,
             pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
           ]}
         >
-          <Text style={styles.alertButtonText}>{buttonText}</Text>
+          <Text style={styles.alertButtonText}>
+            {isProfessional ? 'Kapat' : buttonText}
+          </Text>
         </Pressable>
       </View>
     </BaseDialog>
@@ -424,12 +524,13 @@ export function InputDialog({
   required = false,
 }: InputDialogProps) {
   const { tapLight, success } = useHapticFeedback();
+  const isProfessional = useIsProfessional();
   const [value, setValue] = useState(initialValue);
   const [error, setError] = useState('');
 
   const handleSubmit = useCallback(() => {
     if (required && !value.trim()) {
-      setError('Bu alan zorunludur');
+      setError(isProfessional ? 'Bu alan zorunludur' : 'Lütfen bir değer girin');
       return;
     }
     success();
@@ -437,7 +538,7 @@ export function InputDialog({
     onClose();
     setValue('');
     setError('');
-  }, [value, required, success, onSubmit, onClose]);
+  }, [value, required, isProfessional, success, onSubmit, onClose]);
 
   const handleCancel = useCallback(() => {
     tapLight();
@@ -460,18 +561,28 @@ export function InputDialog({
   return (
     <BaseDialog visible={visible} onClose={handleCancel}>
       <View style={styles.inputContent}>
-        <Text style={styles.inputTitle}>{title}</Text>
-        {message && <Text style={styles.inputMessage}>{message}</Text>}
+        <Text style={[styles.inputTitle, isProfessional && styles.inputTitleProfessional]}>
+          {title}
+        </Text>
+        {message && (
+          <Text style={[styles.inputMessage, isProfessional && styles.inputMessageProfessional]}>
+            {message}
+          </Text>
+        )}
 
         <TextInput
-          style={[styles.textInput, error && styles.textInputError]}
+          style={[
+            styles.textInput,
+            isProfessional && styles.textInputProfessional,
+            error && styles.textInputError,
+          ]}
           value={value}
           onChangeText={(text) => {
             setValue(text);
             if (error) setError('');
           }}
           placeholder={placeholder}
-          placeholderTextColor={Colors.neutral.light}
+          placeholderTextColor={isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light}
           keyboardType={getKeyboardType()}
           maxLength={maxLength}
           autoFocus
@@ -485,10 +596,13 @@ export function InputDialog({
             style={({ pressed }) => [
               styles.button,
               styles.cancelButton,
+              isProfessional && styles.cancelButtonProfessional,
               pressed && { opacity: 0.7 },
             ]}
           >
-            <Text style={styles.cancelButtonText}>{cancelText}</Text>
+            <Text style={[styles.cancelButtonText, isProfessional && styles.cancelButtonTextProfessional]}>
+              {cancelText}
+            </Text>
           </Pressable>
 
           <Pressable
@@ -496,6 +610,7 @@ export function InputDialog({
             style={({ pressed }) => [
               styles.button,
               styles.submitButton,
+              isProfessional && styles.submitButtonProfessional,
               pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
             ]}
           >
@@ -530,6 +645,13 @@ const styles = StyleSheet.create({
     padding: spacing['6'],
     ...shadows.xl,
   },
+  dialogProfessional: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: ProfessionalColors.border.light,
+    ...shadows.md,
+  },
   closeButton: {
     position: 'absolute',
     top: spacing['4'],
@@ -544,12 +666,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing['4'],
   },
+  titleProfessional: {
+    fontSize: typography.size.lg,
+    color: ProfessionalColors.text.primary,
+  },
 
-  // Confirm Dialog
+  // Confirm/Alert Content
   confirmContent: {
     alignItems: 'center',
   },
-  iooContainer: {
+  alertContent: {
+    alignItems: 'center',
+  },
+  mascotContainer: {
     marginBottom: spacing['4'],
   },
   iconContainer: {
@@ -560,12 +689,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing['4'],
   },
+  iconContainerProfessional: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.xl,
+  },
   confirmTitle: {
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
+  },
+  confirmTitleProfessional: {
+    fontSize: typography.size.lg,
+    color: ProfessionalColors.text.primary,
   },
   confirmMessage: {
     fontSize: typography.size.base,
@@ -574,38 +712,10 @@ const styles = StyleSheet.create({
     lineHeight: typography.size.base * typography.lineHeight.relaxed,
     marginBottom: spacing['6'],
   },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: spacing['3'],
-    width: '100%',
-  },
-  button: {
-    flex: 1,
-    paddingVertical: spacing['3'],
-    borderRadius: radius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelButton: {
-    backgroundColor: Colors.neutral.lighter,
-  },
-  cancelButtonText: {
-    fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.dark,
-  },
-  confirmButton: {
-    ...shadows.md,
-  },
-  confirmButtonText: {
-    fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
-    color: Colors.neutral.white,
-  },
-
-  // Alert Dialog
-  alertContent: {
-    alignItems: 'center',
+  confirmMessageProfessional: {
+    fontSize: typography.size.sm,
+    color: ProfessionalColors.text.secondary,
+    marginBottom: spacing['5'],
   },
   alertTitle: {
     fontSize: typography.size.xl,
@@ -614,6 +724,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing['2'],
   },
+  alertTitleProfessional: {
+    fontSize: typography.size.lg,
+    color: ProfessionalColors.text.primary,
+  },
   alertMessage: {
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
@@ -621,16 +735,66 @@ const styles = StyleSheet.create({
     lineHeight: typography.size.base * typography.lineHeight.relaxed,
     marginBottom: spacing['6'],
   },
+  alertMessageProfessional: {
+    fontSize: typography.size.sm,
+    color: ProfessionalColors.text.secondary,
+    marginBottom: spacing['5'],
+  },
+
+  // Buttons - Using standardized button tokens
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing['3'],
+    width: '100%',
+  },
+  button: {
+    flex: 1,
+    minHeight: buttonSizes.md.height,
+    paddingVertical: buttonSizes.md.paddingVertical,
+    paddingHorizontal: buttonSizes.md.paddingHorizontal,
+    borderRadius: buttonSizes.md.borderRadius,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButton: {
+    backgroundColor: Colors.neutral.lighter,
+  },
+  cancelButtonProfessional: {
+    backgroundColor: '#F3F4F6',
+  },
+  cancelButtonText: {
+    fontSize: buttonSizes.md.fontSize,
+    fontWeight: buttonSizes.md.fontWeight,
+    color: Colors.neutral.dark,
+  },
+  cancelButtonTextProfessional: {
+    color: ProfessionalColors.text.secondary,
+  },
+  confirmButton: {
+    ...buttonStyles.elevated,
+  },
+  confirmButtonProfessional: {
+    // Same as default for consistency
+  },
+  confirmButtonText: {
+    fontSize: buttonSizes.md.fontSize,
+    fontWeight: buttonSizes.md.fontWeight,
+    color: Colors.neutral.white,
+  },
   alertButton: {
     width: '100%',
-    paddingVertical: spacing['3'],
-    borderRadius: radius.xl,
+    minHeight: buttonSizes.md.height,
+    paddingVertical: buttonSizes.md.paddingVertical,
+    borderRadius: buttonSizes.md.borderRadius,
     alignItems: 'center',
-    ...shadows.md,
+    ...buttonStyles.elevated,
+  },
+  alertButtonProfessional: {
+    // Same as default for consistency
   },
   alertButtonText: {
-    fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontSize: buttonSizes.md.fontSize,
+    fontWeight: buttonSizes.md.fontWeight,
     color: Colors.neutral.white,
   },
 
@@ -645,11 +809,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing['2'],
   },
+  inputTitleProfessional: {
+    fontSize: typography.size.lg,
+    color: ProfessionalColors.text.primary,
+  },
   inputMessage: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     textAlign: 'center',
     marginBottom: spacing['4'],
+  },
+  inputMessageProfessional: {
+    color: ProfessionalColors.text.secondary,
   },
   textInput: {
     width: '100%',
@@ -662,6 +833,11 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
     marginBottom: spacing['4'],
   },
+  textInputProfessional: {
+    borderWidth: 1,
+    borderColor: ProfessionalColors.border.medium,
+    color: ProfessionalColors.text.primary,
+  },
   textInputError: {
     borderColor: Colors.semantic.error,
   },
@@ -673,6 +849,11 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: Colors.primary.sunset,
     ...shadows.md,
+  },
+  submitButtonProfessional: {
+    backgroundColor: ProfessionalColors.trust.primary,
+    borderRadius: radius.lg,
+    ...shadows.sm,
   },
   submitButtonText: {
     fontSize: typography.size.base,

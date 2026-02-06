@@ -30,7 +30,7 @@ import Animated, {
 import { X, FlaskConical, Check, RefreshCw, Bug } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { useHaptics } from '@/lib/haptics';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 import {
   useABTesting,
   useExperiment,
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 100,
     right: 20,
-    zIndex: 1000,
+    zIndex: zIndex.floating,
   },
   fabButton: {
     width: 56,

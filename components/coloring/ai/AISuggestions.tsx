@@ -34,7 +34,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useColoring } from '../ColoringContext';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     bottom: 200,
-    zIndex: 100,
+    zIndex: zIndex.floating,
   },
   magicButtonGradient: {
     width: 56,

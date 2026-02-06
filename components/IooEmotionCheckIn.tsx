@@ -25,6 +25,7 @@ import { X, Sparkles, Star, Flame, Calendar } from 'lucide-react-native';
 import { Ioo } from './Ioo';
 import { IooEmotionPicker, Emotion, EMOTIONS } from './IooEmotionPicker';
 import { useEmotionTracker } from '@/lib/hooks/useEmotionTracker';
+import { zIndex } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -354,7 +355,7 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
-    zIndex: 1000,
+    zIndex: zIndex.modal,
   },
   blurView: {
     ...StyleSheet.absoluteFillObject,

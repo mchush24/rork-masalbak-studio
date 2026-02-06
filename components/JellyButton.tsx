@@ -15,7 +15,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { RenkooColors } from '@/constants/colors';
-import { textShadows, shadows } from '@/constants/design-system';
+import { textShadows, shadows, typography, spacing, radius } from '@/constants/design-system';
+import { buttonSizes, buttonStyles } from '@/constants/tokens';
 
 interface JellyButtonProps {
   title: string;
@@ -69,24 +70,25 @@ export const JellyButton: React.FC<JellyButtonProps> = ({
     });
   };
 
+  // Map JellyButton sizes to standardized button sizes
   const sizeStyles = {
     small: {
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 20,
-      fontSize: 14,
+      paddingVertical: buttonSizes.sm.paddingVertical,
+      paddingHorizontal: buttonSizes.sm.paddingHorizontal,
+      borderRadius: buttonSizes.sm.borderRadius,
+      fontSize: buttonSizes.sm.fontSize,
     },
     medium: {
-      paddingVertical: 16,
-      paddingHorizontal: 32,
-      borderRadius: 26,
-      fontSize: 16,
+      paddingVertical: buttonSizes.md.paddingVertical,
+      paddingHorizontal: buttonSizes.md.paddingHorizontal,
+      borderRadius: buttonSizes.md.borderRadius,
+      fontSize: buttonSizes.md.fontSize,
     },
     large: {
-      paddingVertical: 20,
-      paddingHorizontal: 40,
-      borderRadius: 30,
-      fontSize: 18,
+      paddingVertical: buttonSizes.lg.paddingVertical,
+      paddingHorizontal: buttonSizes.lg.paddingHorizontal,
+      borderRadius: buttonSizes.lg.borderRadius,
+      fontSize: buttonSizes.lg.fontSize,
     },
   };
 
@@ -142,8 +144,8 @@ const styles = StyleSheet.create({
   },
   text: {
     color: RenkooColors.text.light,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontWeight: typography.weight.bold,
+    letterSpacing: typography.letterSpacing.wide,
     ...textShadows.sm,
   },
 });

@@ -22,7 +22,7 @@ import {
   Lightbulb,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
@@ -348,7 +348,8 @@ const styles = StyleSheet.create({
     borderRadius: radius['2xl'],
     padding: spacing['4'],
     ...shadows.lg,
-    zIndex: 999,
+    // Uses design system z-index - coordinated via OverlayCoordinator
+    zIndex: zIndex.popover,
   },
 
   // Header

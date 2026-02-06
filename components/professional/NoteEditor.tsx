@@ -43,6 +43,7 @@ import {
   Link2,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
+import { zIndex } from '@/constants/design-system';
 import { NoteType, AnalysisNote } from '@/types/analysis';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: Colors.neutral.white,
-    zIndex: 100,
+    zIndex: zIndex.floating,
   },
   keyboardView: {
     flex: 1,

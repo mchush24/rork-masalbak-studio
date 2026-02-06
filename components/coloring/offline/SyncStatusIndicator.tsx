@@ -16,7 +16,7 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 
 // ============================================
 // TYPES
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 1000,
+    zIndex: zIndex.overlay,
   },
   offlineBannerContent: {
     flexDirection: 'row',

@@ -15,7 +15,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, zIndex } from '@/constants/design-system';
 import { CursorPosition, CollaboratorInfo } from '@/lib/collab/CollaborationManager';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -281,7 +281,7 @@ export function RoomCodeDisplay({ code, onShare }: RoomCodeDisplayProps) {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
+    zIndex: zIndex.overlay,
   },
 
   // Cursor styles

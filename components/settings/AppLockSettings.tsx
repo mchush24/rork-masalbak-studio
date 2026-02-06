@@ -40,7 +40,7 @@ import {
   Trash2,
 } from 'lucide-react-native';
 import { UIColors as Colors } from '@/constants/color-aliases';
-import { shadows } from '@/constants/design-system';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
 
 const STORAGE_KEYS = {
   APP_LOCK_ENABLED: '@renkioo_app_lock_enabled',
@@ -457,8 +457,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -488,13 +488,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
     marginBottom: 2,
   },
   settingDescription: {
-    fontSize: 13,
+    fontSize: typography.size.sm,
     color: Colors.neutral.gray,
   },
   toggle: {
@@ -530,14 +530,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   timeoutTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
   },
   timeoutDescription: {
-    fontSize: 13,
+    fontSize: typography.size.sm,
     color: Colors.neutral.gray,
-    marginBottom: 14,
+    marginBottom: spacing['3'],
   },
   timeoutOptions: {
     flexDirection: 'row',
@@ -557,12 +557,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary.purple,
   },
   timeoutOptionText: {
-    fontSize: 13,
+    fontSize: typography.size.sm,
     color: Colors.neutral.gray,
   },
   timeoutOptionTextActive: {
     color: Colors.primary.purple,
-    fontWeight: '600',
+    fontWeight: typography.weight.semibold,
   },
   changePinButton: {
     flexDirection: 'row',
@@ -575,8 +575,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.purple + '10',
   },
   changePinText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: Colors.primary.purple,
   },
   privacyNote: {
@@ -590,9 +590,9 @@ const styles = StyleSheet.create({
   },
   privacyNoteText: {
     flex: 1,
-    fontSize: 12,
+    fontSize: typography.size.xs,
     color: Colors.neutral.gray,
-    lineHeight: 18,
+    lineHeight: typography.lineHeightPx.sm,
   },
   // PIN Modal Styles
   pinOverlay: {
@@ -618,10 +618,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   pinTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginTop: 12,
+    marginTop: spacing['3'],
   },
   pinInputContainer: {
     flexDirection: 'row',
@@ -632,10 +632,10 @@ const styles = StyleSheet.create({
   },
   pinInput: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 24,
-    fontWeight: '600',
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['3'],
+    fontSize: typography.size.xl,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     letterSpacing: 8,
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   errorText: {
-    fontSize: 13,
+    fontSize: typography.size.sm,
     color: Colors.status.error,
   },
   pinButtons: {
@@ -666,8 +666,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lightest,
   },
   pinCancelText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.gray,
   },
   pinSubmitButton: {
@@ -681,8 +681,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   pinSubmitText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
     color: Colors.neutral.white,
   },
 });

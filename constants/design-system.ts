@@ -38,7 +38,7 @@ export const layout = {
     },
   },
 
-  // Icon sizes
+  // Icon sizes (base scale)
   icon: {
     tiny: 16,
     small: 24,
@@ -60,6 +60,35 @@ export const layout = {
 // ============================================
 // TYPOGRAPHY SYSTEM (Enhanced)
 // ============================================
+/**
+ * Typography System
+ *
+ * USAGE GUIDE:
+ * - ALWAYS use typography.size instead of hardcoded fontSize values
+ * - ALWAYS use typography.weight instead of hardcoded fontWeight strings
+ * - Use typography.lineHeight multipliers or typography.lineHeightPx for line heights
+ *
+ * SIZE MAPPING (from hardcoded to tokens):
+ * 10-11px → typography.size.xs (11)
+ * 12-13px → typography.size.sm (13)
+ * 14-15px → typography.size.base (15)
+ * 16-17px → typography.size.md (17)
+ * 18-20px → typography.size.lg (20)
+ * 22-24px → typography.size.xl (24)
+ * 26-28px → typography.size["2xl"] (28)
+ * 30-32px → typography.size["3xl"] (32)
+ * 36-40px → typography.size["4xl"] (40)
+ * 44-48px → typography.size["5xl"] (48)
+ * 52-56px → typography.size.hero (56)
+ *
+ * WEIGHT MAPPING:
+ * '400' / 'normal' → typography.weight.regular
+ * '500' → typography.weight.medium
+ * '600' → typography.weight.semibold
+ * '700' / 'bold' → typography.weight.bold
+ * '800' → typography.weight.extrabold
+ * '900' → typography.weight.black
+ */
 export const typography = {
   // Font families
   family: {
@@ -70,60 +99,138 @@ export const typography = {
     extrabold: "System",
   },
 
-  // Size scale
+  /**
+   * Size Scale (in pixels)
+   *
+   * Semantic naming for consistent usage:
+   * - xs: Captions, timestamps, badges
+   * - sm: Secondary text, labels, helper text
+   * - base: Body text, default size
+   * - md: Emphasized body, lead text
+   * - lg: Subheadings, card titles
+   * - xl: Section headers
+   * - 2xl: Page subtitles
+   * - 3xl: Page titles
+   * - 4xl: Hero sections
+   * - 5xl: Feature highlights
+   * - hero: Main hero text
+   */
   size: {
+    /** 11px - Captions, timestamps, fine print */
     xs: 11,
+    /** 13px - Labels, secondary text, helper text */
     sm: 13,
+    /** 15px - Body text, default readable size */
     base: 15,
+    /** 17px - Emphasized body, lead paragraphs */
     md: 17,
+    /** 20px - Subheadings, card titles */
     lg: 20,
+    /** 24px - Section headers, modal titles */
     xl: 24,
+    /** 28px - Page subtitles */
     "2xl": 28,
+    /** 32px - Page titles */
     "3xl": 32,
+    /** 40px - Hero sections, feature highlights */
     "4xl": 40,
+    /** 48px - Large feature text */
     "5xl": 48,
+    /** 56px - Main hero headlines */
     hero: 56,
   },
 
-  // Weight scale
+  /**
+   * Weight Scale
+   *
+   * Use semantic names instead of numeric strings!
+   * Bad:  fontWeight: '600'
+   * Good: fontWeight: typography.weight.semibold
+   */
   weight: {
+    /** 400 - Regular body text */
     regular: "400" as const,
+    /** 500 - Slightly emphasized text */
     medium: "500" as const,
+    /** 600 - Labels, subtitles, emphasized */
     semibold: "600" as const,
+    /** 700 - Headlines, buttons, important */
     bold: "700" as const,
+    /** 800 - Extra emphasis, hero text */
     extrabold: "800" as const,
+    /** 900 - Maximum emphasis */
     black: "900" as const,
   },
 
-  // Line height multipliers (for calculating: fontSize * multiplier)
+  /**
+   * Line Height Multipliers
+   *
+   * Usage: lineHeight: fontSize * typography.lineHeight.normal
+   */
   lineHeight: {
+    /** 1.2 - Headlines, single line text */
     tight: 1.2,
+    /** 1.375 - Subheadings, short paragraphs */
     snug: 1.375,
+    /** 1.5 - Body text (default) */
     normal: 1.5,
+    /** 1.625 - Relaxed body text */
     relaxed: 1.625,
+    /** 2.0 - Extra spacious text */
     loose: 2,
   },
 
-  // Pre-calculated line heights in pixels (for direct use, based on common font sizes)
+  /**
+   * Pre-calculated Line Heights (in pixels)
+   *
+   * Direct pixel values for common size/lineHeight combos.
+   * These match size tokens with normal (1.5) line height.
+   */
   lineHeightPx: {
-    xs: 16,    // for 11px font
-    sm: 20,    // for 13px font
-    base: 24,  // for 15px font
-    md: 26,    // for 17px font
-    lg: 30,    // for 20px font
-    xl: 36,    // for 24px font
+    /** 16px - for xs (11px) text */
+    xs: 16,
+    /** 20px - for sm (13px) text */
+    sm: 20,
+    /** 24px - for base (15px) text */
+    base: 24,
+    /** 26px - for md (17px) text */
+    md: 26,
+    /** 30px - for lg (20px) text */
+    lg: 30,
+    /** 36px - for xl (24px) text */
+    xl: 36,
+    /** 42px - for 2xl (28px) text */
+    "2xl": 42,
+    /** 48px - for 3xl (32px) text */
+    "3xl": 48,
+    /** 56px - for 4xl (40px) text - tight line height for headlines */
+    "4xl": 56,
+    /** 64px - for 5xl (48px) text */
+    "5xl": 64,
+    /** 72px - for hero (56px) text */
+    hero: 72,
   },
 
-  // Letter spacing
+  /**
+   * Letter Spacing
+   *
+   * Use sparingly - mainly for headlines and special cases.
+   */
   letterSpacing: {
+    /** -1px - Very tight, large headlines only */
     tighter: -1,
+    /** -0.5px - Slightly tight headlines */
     tight: -0.5,
+    /** 0 - Normal spacing (default) */
     normal: 0,
+    /** 0.5px - Slightly wide */
     wide: 0.5,
+    /** 1px - Wide spacing for emphasis */
     wider: 1,
+    /** 2px - Very wide, labels/badges */
     widest: 2,
   },
-};
+} as const;
 
 // ============================================
 // SPACING SYSTEM (8pt grid)
@@ -350,16 +457,63 @@ export const neumorphism = {
 // ============================================
 // Z-INDEX LAYERS
 // ============================================
+/**
+ * Z-Index Layering System
+ *
+ * Consistent z-index values to prevent overlap issues.
+ * ALWAYS use these tokens instead of hardcoded values!
+ *
+ * Layer order (bottom to top):
+ * ┌─────────────────────────────────────────────────────┐
+ * │  debug (9999)     - Dev tools, debug panels         │
+ * │  max (999)        - Reserved for system modals      │
+ * │  floating (100)   - FAB, floating selectors         │
+ * │  tooltip (80)     - Tooltips, hints                 │
+ * │  toast (70)       - Toast notifications, snackbars  │
+ * │  popover (60)     - Popovers, assistant panels      │
+ * │  modal (50)       - Modals, dialogs, overlays       │
+ * │  overlay (40)     - Dim overlays, cursors           │
+ * │  sticky (30)      - Sticky headers, banners         │
+ * │  dropdown (20)    - Dropdowns, menus                │
+ * │  raised (10)      - Cards with shadow, elevated     │
+ * │  base (0)         - Default layer                   │
+ * └─────────────────────────────────────────────────────┘
+ *
+ * Usage Examples:
+ * - IooAssistant container: zIndex.popover
+ * - IooAssistant tip panel: zIndex.toast
+ * - Modal overlays: zIndex.modal
+ * - Floating buttons (FAB, chat): zIndex.floating
+ * - Tooltips: zIndex.tooltip
+ * - Offline banners: zIndex.overlay
+ * - Dropdown menus: zIndex.dropdown
+ * - Debug panels (DEV only): zIndex.debug
+ */
 export const zIndex = {
+  /** Default layer for normal elements */
   base: 0,
+  /** Raised cards and elevated surfaces */
   raised: 10,
+  /** Dropdown menus, selects */
   dropdown: 20,
+  /** Sticky headers, navigation bars */
   sticky: 30,
+  /** Dim overlays, backdrop, cursors */
   overlay: 40,
+  /** Modal dialogs, bottom sheets */
   modal: 50,
+  /** Popovers, assistant panels */
   popover: 60,
+  /** Toast notifications, snackbars */
   toast: 70,
+  /** Tooltips, info hints */
   tooltip: 80,
+  /** Floating action buttons (FAB), floating child selector */
+  floating: 100,
+  /** Maximum safe z-index - use sparingly! */
+  max: 999,
+  /** Debug panels (only for development) */
+  debug: 9999,
 } as const;
 
 // ============================================
@@ -480,6 +634,150 @@ export const emptyState = {
   descriptionSize: typography.size.base,
 } as const;
 
+// ============================================
+// ICON SYSTEM
+// ============================================
+/**
+ * Icon System
+ *
+ * Standardized icon configuration for consistent icon usage across the app.
+ * All icons should use these tokens instead of hardcoded values.
+ *
+ * USAGE:
+ * import { iconSizes, iconStroke, iconColors } from '@/constants/design-system';
+ *
+ * <Heart size={iconSizes.action} strokeWidth={iconStroke.standard} color={iconColors.primary} />
+ */
+
+/**
+ * Icon Sizes - Semantic sizing for different contexts
+ *
+ * MAPPING GUIDE:
+ * - size={12-14} → iconSizes.badge (14px)
+ * - size={16} → iconSizes.inline (16px)
+ * - size={18} → iconSizes.small (18px)
+ * - size={20} → iconSizes.action (20px)
+ * - size={24} → iconSizes.navigation (24px)
+ * - size={26-28} → iconSizes.header (28px)
+ * - size={32} → iconSizes.feature (32px)
+ * - size={48} → iconSizes.large (48px)
+ * - size={64-80} → iconSizes.empty (64px)
+ */
+export const iconSizes = {
+  /** 14px - Badge icons, small labels, inline annotations */
+  badge: 14,
+  /** 16px - Inline text icons, chip icons */
+  inline: 16,
+  /** 18px - Small action icons, button icons */
+  small: 18,
+  /** 20px - Standard action icons (edit, delete, share) */
+  action: 20,
+  /** 24px - Navigation icons, close buttons, menu items */
+  navigation: 24,
+  /** 28px - Header icons, modal titles, prominent actions */
+  header: 28,
+  /** 32px - Feature card icons, section headers */
+  feature: 32,
+  /** 48px - Large feature icons, illustrations */
+  large: 48,
+  /** 64px - Empty state icons, onboarding */
+  empty: 64,
+  /** 80px - Hero illustrations, splash screens */
+  hero: 80,
+
+  // Context-specific sizes
+  /** Tab bar icon size (24px - Apple HIG recommendation) */
+  tabBar: 24,
+  /** Floating action button icon (24px) */
+  fab: 24,
+  /** Toast notification icon (20px) */
+  toast: 20,
+  /** Dialog/modal action icon (24px) */
+  dialog: 24,
+  /** List item icon (20px) */
+  listItem: 20,
+  /** Card action icon (18px) */
+  cardAction: 18,
+  /** Input field icon (20px) */
+  input: 20,
+} as const;
+
+/**
+ * Icon Stroke Widths - Consistent stroke weights
+ *
+ * USAGE BY ROLE:
+ * - Parent mode: standard (2) - Friendly, approachable
+ * - Professional mode: thin (1.5) - Minimal, professional
+ * - Emphasis: bold (2.5) - Important actions
+ */
+export const iconStroke = {
+  /** 1px - Ultra thin, decorative */
+  hairline: 1,
+  /** 1.5px - Professional/minimal style */
+  thin: 1.5,
+  /** 2px - Standard weight (default) */
+  standard: 2,
+  /** 2.5px - Bold, emphasized */
+  bold: 2.5,
+  /** 3px - Extra bold, attention-grabbing */
+  heavy: 3,
+} as const;
+
+/**
+ * Icon Colors - Semantic color mapping
+ *
+ * Use these instead of hardcoded color values for icons.
+ */
+export const iconColors = {
+  // Primary colors
+  primary: Colors.primary.sunset,
+  secondary: Colors.secondary.sky,
+  accent: Colors.secondary.lavender,
+
+  // Neutral colors
+  dark: Colors.neutral.darkest,
+  medium: Colors.neutral.medium,
+  light: Colors.neutral.light,
+  muted: Colors.neutral.lighter,
+  inverted: Colors.neutral.white,
+
+  // Semantic colors
+  success: Colors.semantic.success,
+  error: Colors.semantic.error,
+  warning: Colors.semantic.warning,
+  info: Colors.semantic.info,
+
+  // Feature-specific colors
+  stories: Colors.secondary.lavender,
+  coloring: Colors.secondary.peach,
+  analysis: Colors.secondary.sky,
+  profile: Colors.secondary.grass,
+
+  // Emotion colors (for mood/emotion icons)
+  happy: Colors.secondary.sunshine,
+  sad: Colors.secondary.sky,
+  angry: Colors.secondary.coral,
+  calm: Colors.secondary.grass,
+  loved: Colors.secondary.peach,
+} as const;
+
+/**
+ * Get role-aware stroke width
+ * @param isProfessional - Whether user is in professional mode
+ */
+export const getRoleStrokeWidth = (isProfessional: boolean): number => {
+  return isProfessional ? iconStroke.thin : iconStroke.standard;
+};
+
+/**
+ * Get role-aware icon size (slightly smaller for professional)
+ * @param baseSize - Base icon size
+ * @param isProfessional - Whether user is in professional mode
+ */
+export const getRoleIconSize = (baseSize: number, isProfessional: boolean): number => {
+  return isProfessional ? Math.round(baseSize * 0.9) : baseSize;
+};
+
 export default {
   layout,
   typography,
@@ -498,4 +796,9 @@ export default {
   badgeStyles,
   chipStyles,
   emptyState,
+  iconSizes,
+  iconStroke,
+  iconColors,
+  getRoleStrokeWidth,
+  getRoleIconSize,
 };

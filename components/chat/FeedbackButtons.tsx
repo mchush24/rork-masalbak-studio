@@ -16,7 +16,8 @@ import {
 } from 'react-native';
 import { ThumbsUp, ThumbsDown } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { spacing, radius } from '@/constants/design-system';
+import { typography, spacing, radius } from '@/constants/design-system';
+import { buttonStyles } from '@/constants/tokens';
 
 type FeedbackType = 'positive' | 'negative' | null;
 
@@ -113,8 +114,8 @@ export function FeedbackButtons({
           >
             <ThumbsUp
               size={iconSize}
-              color={feedback === 'positive' ? '#10B981' : Colors.neutral.medium}
-              fill={feedback === 'positive' ? '#10B981' : 'transparent'}
+              color={feedback === 'positive' ? Colors.semantic.success : Colors.neutral.medium}
+              fill={feedback === 'positive' ? Colors.semantic.success : 'transparent'}
             />
           </Pressable>
         </Animated.View>
@@ -133,8 +134,8 @@ export function FeedbackButtons({
           >
             <ThumbsDown
               size={iconSize}
-              color={feedback === 'negative' ? '#EF4444' : Colors.neutral.medium}
-              fill={feedback === 'negative' ? '#EF4444' : 'transparent'}
+              color={feedback === 'negative' ? Colors.semantic.error : Colors.neutral.medium}
+              fill={feedback === 'negative' ? Colors.semantic.error : 'transparent'}
             />
           </Pressable>
         </Animated.View>
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
     gap: spacing['2'],
   },
   label: {
-    fontSize: 11,
+    fontSize: typography.size.xs,
     color: Colors.neutral.medium,
     marginRight: spacing['1'],
   },
@@ -234,9 +235,7 @@ const styles = StyleSheet.create({
     gap: spacing['1'],
   },
   button: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    ...buttonStyles.circularButton.xs,
     backgroundColor: 'rgba(0, 0, 0, 0.03)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -248,16 +247,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   buttonPositive: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: Colors.semantic.successLight,
   },
   buttonNegative: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: Colors.semantic.errorLight,
   },
   thanksContainer: {
     marginLeft: spacing['2'],
   },
   thanksText: {
-    fontSize: 11,
+    fontSize: typography.size.xs,
     color: Colors.neutral.medium,
     fontStyle: 'italic',
   },
@@ -277,10 +276,10 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.1 }],
   },
   inlineEmoji: {
-    fontSize: 12,
+    fontSize: typography.size.xs,
   },
   inlineFeedbackGiven: {
-    fontSize: 14,
+    fontSize: typography.size.sm,
   },
 });
 

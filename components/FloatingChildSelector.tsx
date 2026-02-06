@@ -35,7 +35,7 @@ import {
 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
+import { spacing, radius, shadows, typography, zIndex } from "@/constants/design-system";
 import { AvatarDisplay } from "@/components/AvatarPicker";
 import { useRouter } from "expo-router";
 
@@ -432,13 +432,14 @@ export function FloatingChildSelector({
 
 const styles = StyleSheet.create({
   // Floating Button - positioned directly via left/top props
+  // Uses design system z-index for consistent layering
   floatingButton: {
     position: "absolute",
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
-    zIndex: 9999,
+    zIndex: zIndex.floating,
     ...shadows.xl,
-    elevation: 9999, // Android z-index - must come after shadows.xl
+    elevation: zIndex.floating, // Android z-index - must come after shadows.xl
   },
   floatingGradient: {
     width: BUTTON_SIZE,

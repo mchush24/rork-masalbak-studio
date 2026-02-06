@@ -5,3 +5,4 @@
 export { SoundSettings } from './SoundSettings';
 export { HapticSettings } from './HapticSettings';
 export { AppLockSettings } from './AppLockSettings';
+export { ThemeSelector } from './ThemeSelector';
