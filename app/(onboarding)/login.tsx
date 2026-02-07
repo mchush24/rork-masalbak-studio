@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { getErrorMessage } from '@/lib/utils/error';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { useRole } from '@/lib/contexts/RoleContext';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
@@ -117,16 +118,17 @@ export default function LoginScreen() {
           router.replace('/(tabs)');
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('[Login] ❌ Error:', error);
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
 
+      const errorMessage = getErrorMessage(error) || 'Email veya şifre hatalı';
       if (Platform.OS === 'web') {
-        alert(error.message || 'Email veya şifre hatalı');
+        alert(errorMessage);
       } else {
-        Alert.alert('Giriş Başarısız', error.message || 'Email veya şifre hatalı');
+        Alert.alert('Giriş Başarısız', errorMessage);
       }
     } finally {
       setIsLoading(false);

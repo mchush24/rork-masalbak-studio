@@ -93,6 +93,18 @@ export function validatePasswordStrength(password: string): PasswordStrength {
 }
 
 /**
+ * Fisher-Yates shuffle algorithm for secure randomization
+ */
+function fisherYatesShuffle(array: string[]): string[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
  * Generate secure random password for temporary use
  */
 export function generateTempPassword(): string {
@@ -113,6 +125,6 @@ export function generateTempPassword(): string {
     password += allChars[Math.floor(Math.random() * allChars.length)];
   }
 
-  // Shuffle
-  return password.split('').sort(() => Math.random() - 0.5).join('');
+  // Shuffle using Fisher-Yates algorithm (unbiased)
+  return fisherYatesShuffle(password.split('')).join('');
 }

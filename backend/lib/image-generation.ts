@@ -11,6 +11,11 @@ import { logger } from "./utils.js";
 
 import * as fal from "@fal-ai/serverless-client";
 
+// Validate API key at startup
+if (!process.env.FAL_API_KEY) {
+  logger.warn('[ImageGen] ⚠️ FAL_API_KEY not set - image generation will be disabled');
+}
+
 // Initialize FAL client
 fal.config({
   credentials: process.env.FAL_API_KEY,

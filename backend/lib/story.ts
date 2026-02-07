@@ -18,6 +18,11 @@ import {
 } from "./text-overlay.js";
 // Note: compositeTextOnImage no longer used - text is shown in app UI instead
 
+// Validate API key at startup
+if (!process.env.OPENAI_API_KEY) {
+  logger.warn('[Story] ⚠️ OPENAI_API_KEY not set - story generation will be disabled');
+}
+
 const oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
 

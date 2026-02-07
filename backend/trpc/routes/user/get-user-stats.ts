@@ -10,7 +10,8 @@ export const getUserStatsProcedure = protectedProcedure
     const supabase = getSecureClient(ctx);
 
     // Use user_id_fk for storybooks and colorings (foreign key column)
-    const [storybooksResult, coloringsResult, userResult] = await Promise.all([
+    // Use Promise.allSettled for partial failure recovery
+    const results = await Promise.allSettled([
       supabase
         .from("storybooks")
         .select("*", { count: "exact", head: true })
@@ -25,6 +26,19 @@ export const getUserStatsProcedure = protectedProcedure
         .eq("id", userId)
         .single(),
     ]);
+
+    // Extract results with fallbacks for failures
+    const storybooksResult = results[0].status === 'fulfilled' ? results[0].value : { count: null };
+    const coloringsResult = results[1].status === 'fulfilled' ? results[1].value : { count: null };
+    const userResult = results[2].status === 'fulfilled' ? results[2].value : { data: null };
+
+    // Log any failures
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const queryNames = ['storybooks', 'colorings', 'user'];
+        logger.warn(`[getUserStats] ${queryNames[index]} query failed:`, result.reason);
+      }
+    });
 
     const stats = {
       totalStorybooks: storybooksResult.count || 0,

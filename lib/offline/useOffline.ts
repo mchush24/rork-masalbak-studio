@@ -57,21 +57,45 @@ export function useOffline(): UseOfflineReturn {
 
   // Initialize and subscribe to network changes
   useEffect(() => {
+    let isMounted = true;
+
     const initialize = async () => {
       await OfflineManager.initialize();
+      // Check if still mounted before setting state
+      if (!isMounted) return;
       setIsOnline(OfflineManager.getOnlineStatus());
-      await refreshData();
+
+      // Inline the refresh to check mounted status
+      try {
+        const [artworks, colorings, queue, offlineStats] = await Promise.all([
+          OfflineManager.getArtworks(),
+          OfflineManager.getColorings(),
+          OfflineManager.getSyncQueue(),
+          OfflineManager.getStats(),
+        ]);
+
+        if (!isMounted) return;
+        setLocalArtworks(artworks);
+        setLocalColorings(colorings);
+        setPendingCount(queue.length);
+        setStats(offlineStats);
+        setLastSyncTime(offlineStats.lastSyncTime || null);
+      } catch (error) {
+        console.warn('[useOffline] Initialization error:', error);
+      }
     };
 
     const unsubscribe = OfflineManager.onNetworkChange((online) => {
-      setIsOnline(online);
+      if (isMounted) setIsOnline(online);
     });
 
     initialize();
 
     return () => {
+      isMounted = false;
       unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Refresh all data

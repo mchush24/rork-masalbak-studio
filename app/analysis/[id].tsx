@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -33,6 +33,7 @@ import { useResponsive } from '@/lib/hooks/useResponsive';
 import { AnalysisShareCard } from '@/components/AnalysisShareCard';
 import { AnalysisChatSheet } from '@/components/analysis-chat';
 import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -40,16 +41,33 @@ export default function AnalysisResultScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { isSmallScreen, screenPadding } = useResponsive();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isFavorited, setIsFavorited] = useState(false);
   const [showChat, setShowChat] = useState(false);
 
-  // Get analysis ID from params
-  const analysisId = params.id as string;
+  // Get and validate analysis ID from params
+  const analysisId = typeof params.id === 'string' ? params.id : undefined;
 
-  // Fetch analysis from backend
+  // Auth guard - redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/(onboarding)/welcome');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Validate ID parameter
+  useEffect(() => {
+    if (!analysisId) {
+      Alert.alert('Hata', 'Geçersiz analiz ID', [
+        { text: 'Tamam', onPress: () => router.back() }
+      ]);
+    }
+  }, [analysisId, router]);
+
+  // Fetch analysis from backend (only when authenticated and ID is valid)
   const { data: analysisData, isLoading, error } = trpc.analysis.get.useQuery(
-    { analysisId },
-    { enabled: !!analysisId }
+    { analysisId: analysisId! },
+    { enabled: !!analysisId && isAuthenticated && !authLoading }
   );
 
   // Update favorite mutation

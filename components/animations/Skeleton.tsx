@@ -68,6 +68,9 @@ export function Skeleton({
   const highlightColor = dark ? '#3A3D48' : '#F5F5F5';
 
   useEffect(() => {
+    // Note: shimmerPosition and pulseOpacity are Reanimated shared values
+    // and should NOT be in the dependency array (they're stable refs)
+    // skeletonConfig is a constant import, so it's also stable
     if (animation === 'shimmer') {
       shimmerPosition.value = withRepeat(
         withTiming(1, {
@@ -91,6 +94,7 @@ export function Skeleton({
         true
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animation]);
 
   const shimmerStyle = useAnimatedStyle(() => {

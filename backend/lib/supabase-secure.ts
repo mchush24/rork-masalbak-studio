@@ -11,6 +11,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { logger } from './utils.js';
 
 let _secureClient: SupabaseClient | null = null;
 
@@ -99,9 +100,18 @@ export function createSecureClient(userId: string): SupabaseClient {
   // @ts-ignore - Monkey patching for context injection
   client.from = function(table: string) {
     // Set context before query (fire and forget for performance)
+    // This is intentionally non-blocking - RLS context is set async
     supa.rpc('set_user_context', { user_id: userId }).then(
-      () => {},
-      (err: any) => console.warn('[Supabase] Context set warning:', err?.message)
+      () => {
+        // Context set successfully (debug logging only)
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug('[Supabase] RLS context set for user:', userId.substring(0, 8) + '...');
+        }
+      },
+      (err: Error) => {
+        // Log context set failures - these are non-critical but should be monitored
+        logger.warn('[Supabase] RLS context set failed:', err?.message);
+      }
     );
 
     return originalFrom(table);

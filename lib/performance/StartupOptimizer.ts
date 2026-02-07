@@ -165,10 +165,18 @@ export async function preloadAssets(assets: {
   }
 
   if (assets.images) {
-    // Image preloading
+    // Image preloading (non-critical - failures are logged but don't block startup)
     const { Image } = require('react-native');
     assets.images.forEach((uri) => {
-      tasks.push(Image.prefetch(uri).catch(() => {}));
+      tasks.push(
+        Image.prefetch(uri).catch((err: Error) => {
+          if (__DEV__) {
+            console.warn('[StartupOptimizer] Image prefetch failed for:', uri, err?.message);
+          }
+          // Return resolved to not fail Promise.all
+          return null;
+        })
+      );
     });
   }
 

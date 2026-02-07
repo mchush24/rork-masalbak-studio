@@ -171,29 +171,63 @@ function RootLayoutNav() {
     const inOnboarding = currentSegment === '(onboarding)';
     const inTabs = currentSegment === '(tabs)';
     const isAtRoot = !currentSegment || currentSegment === 'index';
+    // Allow specific authenticated routes outside tabs
+    const allowedAuthRoutes = ['chatbot', 'analysis', 'interactive-story'];
+    const isAllowedAuthRoute = allowedAuthRoutes.some(route => currentSegment === route);
 
     if (!isAuthenticated) {
       // Allow root index (RENKİOO home) or onboarding screens
       if (!inOnboarding && !isAtRoot) {
         router.replace('/(onboarding)/welcome');
       }
-    } else if (isAuthenticated && hasCompletedOnboarding) {
-      if (!inTabs) {
-        router.replace('/(tabs)');
+    } else if (isAuthenticated) {
+      if (!hasCompletedOnboarding) {
+        // User is authenticated but hasn't completed onboarding
+        if (!inOnboarding) {
+          router.replace('/(onboarding)/tour');
+        }
+      } else {
+        // User is authenticated and has completed onboarding
+        // Allow tabs, chatbot, and dynamic routes (analysis, interactive-story)
+        if (!inTabs && !isAllowedAuthRoute) {
+          router.replace('/(tabs)');
+        }
       }
     }
   }, [isAuthenticated, hasCompletedOnboarding, isLoading]);
 
-  // Handle crash recovery
+  // Valid routes for crash recovery
+  const validRecoveryRoutes = [
+    '/(tabs)',
+    '/(tabs)/index',
+    '/(tabs)/discover',
+    '/(tabs)/hayal-atolyesi',
+    '/(tabs)/history',
+    '/(tabs)/profile',
+    '/(tabs)/quick-analysis',
+    '/(tabs)/advanced-analysis',
+    '/(tabs)/stories',
+    '/chatbot',
+  ];
+
+  // Handle crash recovery with route validation
   const handleCrashRecover = useCallback((session: SessionState) => {
     if (session.lastScreen) {
-      // Navigate to last screen if possible
-      try {
-        router.push(session.lastScreen as Href);
-      } catch (e) {
-        // Fallback to tabs
-        router.replace('/(tabs)');
+      // Validate route before navigating
+      const isValidRoute = validRecoveryRoutes.some(route =>
+        session.lastScreen === route || session.lastScreen?.startsWith(route + '/')
+      );
+
+      if (isValidRoute) {
+        try {
+          router.push(session.lastScreen as Href);
+          return;
+        } catch (e) {
+          console.warn('[_layout] Invalid recovery route:', session.lastScreen);
+        }
       }
+      // Fallback to tabs for invalid or unknown routes
+      router.replace('/(tabs)');
     }
   }, [router]);
 
@@ -233,6 +267,8 @@ function RootLayoutNav() {
         />
         <Stack.Screen name="storybook" />
         <Stack.Screen name="analysis/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="interactive-story/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="chatbot" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="mascot-demo" options={{ animation: 'fade' }} />
       </Stack>
 

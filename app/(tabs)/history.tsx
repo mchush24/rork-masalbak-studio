@@ -20,10 +20,8 @@ import {
   Trash2,
   Download,
   ChevronRight,
-  Star,
   Clock,
   Share2,
-  FileText,
 } from "lucide-react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -45,6 +43,7 @@ import {
 import { Image } from "expo-image";
 import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
 import { HistoryStatsCard, HistorySearchBar, HistoryFilters, type DateFilter, type TestTypeFilter } from "@/components/history";
+import type { TypedAnalysis, TypedStorybook, Coloring } from "@/types/history";
 
 type TabType = "analyses" | "stories" | "colorings";
 
@@ -189,7 +188,7 @@ export default function HistoryScreen() {
     Alert.alert("Analiz Detayı", "Analiz detay ekranı yakında eklenecek!");
   };
 
-  const handleShareAnalysis = async (analysis: any) => {
+  const handleShareAnalysis = async (analysis: TypedAnalysis) => {
     try {
       const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type;
       const message = `Renkioo - ${testLabel} Analizi\n\nTarih: ${formatDate(analysis.created_at)}${
@@ -228,7 +227,7 @@ export default function HistoryScreen() {
     );
   };
 
-  const handleStorybookPress = (storybook: any) => {
+  const handleStorybookPress = (storybook: TypedStorybook) => {
     router.push({
       pathname: "/storybook",
       params: {
@@ -242,7 +241,7 @@ export default function HistoryScreen() {
   };
 
   // Coloring Handlers
-  const handleDownloadPDF = async (coloring: any) => {
+  const handleDownloadPDF = async (coloring: Coloring) => {
     try {
       let pdfUrlToOpen = coloring.pdf_url;
 
@@ -331,11 +330,11 @@ export default function HistoryScreen() {
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter((analysis: any) => {
+      result = result.filter((analysis) => {
         const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType]?.toLowerCase() || "";
         return (
           testLabel.includes(query) ||
-          analysis.task_type.toLowerCase().includes(query)
+          (analysis.task_type?.toLowerCase() || "").includes(query)
         );
       });
     }
@@ -348,7 +347,7 @@ export default function HistoryScreen() {
       startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      result = result.filter((analysis: any) => {
+      result = result.filter((analysis) => {
         const analysisDate = new Date(analysis.created_at);
         switch (dateFilter) {
           case "today":
@@ -365,9 +364,9 @@ export default function HistoryScreen() {
 
     // Test type filter
     if (testTypeFilter !== "all") {
-      result = result.filter((analysis: any) => {
+      result = result.filter((analysis) => {
         // Handle both English and Turkish variants
-        const type = analysis.task_type;
+        const type = analysis.task_type || "";
         const normalizedFilter = testTypeFilter;
 
         // Map Turkish variants to English
@@ -397,15 +396,15 @@ export default function HistoryScreen() {
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const thisWeekCount = rawAnalyses.filter((a: any) =>
+    const thisWeekCount = rawAnalyses.filter((a) =>
       new Date(a.created_at) >= startOfWeek
     ).length;
 
-    const thisMonthCount = rawAnalyses.filter((a: any) =>
+    const thisMonthCount = rawAnalyses.filter((a) =>
       new Date(a.created_at) >= startOfMonth
     ).length;
 
-    const favoriteCount = rawAnalyses.filter((a: any) => a.favorited).length;
+    const favoriteCount = rawAnalyses.filter((a) => a.favorited).length;
 
     return {
       totalCount: rawAnalyses.length,
@@ -419,7 +418,7 @@ export default function HistoryScreen() {
   const groupedAnalyses = useMemo(() => {
     const groups: { [key: string]: typeof analyses } = {};
 
-    analyses.forEach((analysis: any) => {
+    analyses.forEach((analysis) => {
       const date = new Date(analysis.created_at);
       const today = new Date();
       const yesterday = new Date(today);
@@ -618,7 +617,7 @@ export default function HistoryScreen() {
                 </View>
 
                 {/* Analyses in this group */}
-                {groupAnalyses.map((analysis: any) => (
+                {groupAnalyses.map((analysis) => (
                   <View key={analysis.id} style={styles.analysisCard}>
                     <Pressable
                       onPress={() => handleViewAnalysis(analysis.id)}
@@ -709,7 +708,7 @@ export default function HistoryScreen() {
 
           {/* Stories List */}
           {!isLoading && activeTab === TAB_STORIES && storybooksList.length > 0 &&
-            storybooksList.map((storybook: any) => {
+            (storybooksList as TypedStorybook[]).map((storybook) => {
               const renderRightActions = () => (
                 <View style={styles.swipeDeleteContainer}>
                   <Pressable
@@ -763,7 +762,7 @@ export default function HistoryScreen() {
           {/* Colorings Grid */}
           {!isLoading && activeTab === TAB_COLORINGS && coloringsList.length > 0 && (
             <View style={styles.coloringsGrid}>
-              {coloringsList.map((coloring: any) => {
+              {(coloringsList as Coloring[]).map((coloring) => {
                 const renderRightActions = () => (
                   <View style={styles.swipeDeleteContainer}>
                     <Pressable
@@ -1168,7 +1167,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing["4"],
   },
   deleteButton: {
-    backgroundColor: "#EF4444",
+    backgroundColor: Colors.semantic.error,
     justifyContent: "center",
     alignItems: "center",
     width: 90,

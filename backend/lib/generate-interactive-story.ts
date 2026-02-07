@@ -84,6 +84,11 @@ function formatRecommendedTraitsPrompt(
     : `RECOMMENDED THERAPEUTIC TRAITS (prioritize in choices):\n${traitDetails}`;
 }
 
+// Validate API key at startup
+if (!process.env.OPENAI_API_KEY) {
+  logger.warn('[InteractiveStory] ⚠️ OPENAI_API_KEY not set - interactive story generation will be disabled');
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

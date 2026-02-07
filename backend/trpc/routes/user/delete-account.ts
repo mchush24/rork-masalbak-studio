@@ -2,6 +2,7 @@ import { logger } from "../../../lib/utils.js";
 import { protectedProcedure } from "../../create-context.js";
 import { z } from "zod";
 import { getSecureClient } from "../../../lib/supabase-secure.js";
+import bcrypt from "bcryptjs";
 
 const deleteAccountInputSchema = z.object({
   confirmEmail: z.string().email(),
@@ -34,7 +35,6 @@ export const deleteAccountProcedure = protectedProcedure
     }
 
     // Verify password
-    const bcrypt = require("bcryptjs");
     const isPasswordValid = await bcrypt.compare(input.confirmPassword, userData.password_hash);
 
     if (!isPasswordValid) {

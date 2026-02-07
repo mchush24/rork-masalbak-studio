@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, Href } from "expo-router";
+import { useAuth } from "@/lib/hooks/useAuth";
 import {
   ChevronLeft,
   Send,
@@ -109,6 +110,14 @@ export default function ChatbotScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // Auth guard - redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/(onboarding)/welcome');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -363,7 +372,21 @@ export default function ChatbotScreen() {
                         onPress={() => {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                           if (action.type === 'navigate' || action.type === 'create') {
-                            router.push(action.target as Href);
+                            // Validate target route before navigating
+                            const validRoutes = [
+                              '/(tabs)', '/(tabs)/index', '/(tabs)/discover',
+                              '/(tabs)/hayal-atolyesi', '/(tabs)/history', '/(tabs)/profile',
+                              '/(tabs)/quick-analysis', '/(tabs)/advanced-analysis',
+                              '/(tabs)/stories', '/analysis/', '/interactive-story/',
+                            ];
+                            const isValid = validRoutes.some(route =>
+                              action.target === route || action.target?.startsWith(route)
+                            );
+                            if (isValid && action.target) {
+                              router.push(action.target as Href);
+                            } else {
+                              console.warn('[Chatbot] Invalid navigation target:', action.target);
+                            }
                           }
                         }}
                       >

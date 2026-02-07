@@ -8,7 +8,7 @@
  * - Filtreleme ve sıralama
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -75,7 +75,8 @@ interface ArtworkCardProps {
   index: number;
 }
 
-function ArtworkCard({
+// Memoized to prevent unnecessary re-renders in FlatList
+const ArtworkCard = memo(function ArtworkCard({
   artwork,
   onPress,
   onLikePress,
@@ -222,7 +223,7 @@ function ArtworkCard({
       </TouchableOpacity>
     </Animated.View>
   );
-}
+});
 
 // ============================================
 // ARTWORK DETAIL MODAL

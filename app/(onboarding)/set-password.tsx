@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { getErrorMessage } from '@/lib/utils/error';
 import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
 
 export default function SetPasswordScreen() {
@@ -48,10 +49,10 @@ export default function SetPasswordScreen() {
       await completeOnboarding();
 
       router.replace('/(tabs)');
-    } catch (error: any) {
+    } catch (error) {
       console.error('[SetPassword] Error:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Hata', error.message || 'Şifre oluşturulurken hata oluştu');
+      Alert.alert('Hata', getErrorMessage(error) || 'Şifre oluşturulurken hata oluştu');
     } finally {
       setIsLoading(false);
     }

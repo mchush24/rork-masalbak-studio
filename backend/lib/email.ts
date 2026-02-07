@@ -1,6 +1,11 @@
 import { logger } from "./utils.js";
 import { Resend } from 'resend';
 
+// Validate API key at startup
+if (!process.env.RESEND_API_KEY) {
+  logger.warn('[Email] ⚠️ RESEND_API_KEY not set - email functionality will be disabled');
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email configuration from environment variables

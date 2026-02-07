@@ -137,15 +137,18 @@ export function SearchInput({
   }, [tapLight, onChangeText, onSearch]);
 
   // Focus handling
+  // Note: borderWidth is a Reanimated shared value (stable ref)
   const handleFocus = useCallback(() => {
     setIsFocused(true);
     borderWidth.value = withSpring(2);
-  }, [borderWidth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleBlur = useCallback(() => {
     setIsFocused(false);
     borderWidth.value = withSpring(1);
-  }, [borderWidth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Suggestion press
   const handleSuggestionPress = useCallback((suggestion: Suggestion) => {

@@ -6,6 +6,7 @@ import { trpc, trpcClient } from '@/lib/trpc';
 import { getSupabaseFrontend, signIn as supabaseSignIn, signUp as supabaseSignUp, signOut as supabaseSignOut } from '@/lib/supabase';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import type { Subscription } from '@supabase/auth-js';
+import { getErrorMessage } from '@/lib/utils/error';
 
 const ONBOARDING_KEY = '@renkioo_onboarding_completed';
 const MANUAL_SESSION_KEY = '@renkioo_manual_session';
@@ -172,8 +173,8 @@ export function useAuth() {
                 await AsyncStorage.setItem(MANUAL_SESSION_KEY, JSON.stringify(updatedUser));
                 console.log('[useAuth] ✅ Token validated, session restored:', updatedUser.email);
               }
-            } catch (tokenError: any) {
-              console.error('[useAuth] ❌ Token validation failed:', tokenError.message);
+            } catch (tokenError) {
+              console.error('[useAuth] ❌ Token validation failed:', getErrorMessage(tokenError));
               // Token is invalid/expired - clear all session data
               await AsyncStorage.removeItem(MANUAL_SESSION_KEY);
               await secureStorage.deleteItem(ACCESS_TOKEN_KEY);
@@ -278,9 +279,9 @@ export function useAuth() {
 
       // Session will be handled by onAuthStateChange listener
       return { user: supabaseUser, session: authSession };
-    } catch (error: any) {
+    } catch (error) {
       console.error('[useAuth] ❌ Sign up error:', error);
-      throw new Error(error.message || 'Sign up failed');
+      throw new Error(getErrorMessage(error) || 'Sign up failed');
     }
   };
 
@@ -301,9 +302,9 @@ export function useAuth() {
 
       // Session will be handled by onAuthStateChange listener
       return { user: supabaseUser, session: authSession };
-    } catch (error: any) {
+    } catch (error) {
       console.error('[useAuth] ❌ Login error:', error);
-      throw new Error(error.message || 'Login failed');
+      throw new Error(getErrorMessage(error) || 'Login failed');
     }
   };
 
@@ -404,8 +405,8 @@ export function useAuth() {
       }
 
       return result;
-    } catch (error: any) {
-      console.error('[useAuth] ❌ Password login error:', error);
+    } catch (error) {
+      console.error('[useAuth] ❌ Password login error:', getErrorMessage(error));
       throw error;
     }
   };

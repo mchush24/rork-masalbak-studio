@@ -70,6 +70,8 @@ export function useFadeAnimation(
     opacity: opacity.value,
   }));
 
+  // Note: opacity and isVisible are Reanimated shared values (stable refs)
+  // They should NOT be in dependency arrays as they don't trigger re-renders
   const fadeIn = useCallback(() => {
     isVisible.value = true;
     const animation = withTiming(
@@ -82,7 +84,8 @@ export function useFadeAnimation(
       }
     );
     opacity.value = delay > 0 ? withDelay(delay, animation) : animation;
-  }, [opacity, isVisible, targetOpacity, duration, delay, easing, onFadeInComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetOpacity, duration, delay, easing, onFadeInComplete]);
 
   const fadeOut = useCallback(() => {
     opacity.value = withTiming(
@@ -97,7 +100,8 @@ export function useFadeAnimation(
         }
       }
     );
-  }, [opacity, isVisible, initialOpacity, duration, easing, onFadeOutComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialOpacity, duration, easing, onFadeOutComplete]);
 
   const toggle = useCallback(() => {
     if (isVisible.value) {
@@ -105,7 +109,8 @@ export function useFadeAnimation(
     } else {
       fadeIn();
     }
-  }, [isVisible, fadeIn, fadeOut]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fadeIn, fadeOut]);
 
   // Auto fade in on mount
   useEffect(() => {

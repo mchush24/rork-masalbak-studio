@@ -8,7 +8,7 @@
  * - Action button
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import {
   View,
   Text,
@@ -113,7 +113,8 @@ const CATEGORY_DEFAULTS: Record<string, { colors: string[]; icon: string; iconCo
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function ActivityCard({ activity, index = 0, onPress }: ActivityCardProps) {
+// Memoized to prevent unnecessary re-renders in lists
+export const ActivityCard = memo(function ActivityCard({ activity, index = 0, onPress }: ActivityCardProps) {
   const router = useRouter();
 
   // Subtle glow animation
@@ -203,7 +204,7 @@ export function ActivityCard({ activity, index = 0, onPress }: ActivityCardProps
       </LinearGradient>
     </AnimatedPressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -65,6 +65,8 @@ export function useScaleAnimation(
     transform: [{ scale: scale.value }],
   }));
 
+  // Note: scale is a Reanimated shared value (stable ref)
+  // It should NOT be in the dependency array
   const animate = useCallback(
     (toValue: number) => {
       if (useTiming) {
@@ -73,7 +75,8 @@ export function useScaleAnimation(
         scale.value = withSpring(toValue, springConfig);
       }
     },
-    [scale, useTiming, duration, springConfig]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [useTiming, duration, springConfig]
   );
 
   const onPressIn = useCallback(() => {

@@ -261,7 +261,9 @@ export function useAppStartup(options: UseAppStartupOptions): UseAppStartupResul
     const runStartup = async () => {
       try {
         // Keep splash screen visible
-        await SplashScreen.preventAutoHideAsync().catch(() => {});
+        await SplashScreen.preventAutoHideAsync().catch((err) => {
+          if (__DEV__) console.warn('[Startup] SplashScreen.preventAutoHideAsync failed:', err?.message);
+        });
 
         // Register tasks
         startupManager.reset();
@@ -282,7 +284,9 @@ export function useAppStartup(options: UseAppStartupOptions): UseAppStartupResul
 
         // Hide splash screen
         if (hideSplashOnComplete) {
-          await SplashScreen.hideAsync().catch(() => {});
+          await SplashScreen.hideAsync().catch((err) => {
+            if (__DEV__) console.warn('[Startup] SplashScreen.hideAsync failed:', err?.message);
+          });
         }
 
         if (__DEV__) {
@@ -299,7 +303,9 @@ export function useAppStartup(options: UseAppStartupOptions): UseAppStartupResul
         onError?.([message]);
 
         // Still hide splash screen to show error state
-        await SplashScreen.hideAsync().catch(() => {});
+        await SplashScreen.hideAsync().catch((e) => {
+          if (__DEV__) console.warn('[Startup] Error recovery splash hide failed:', e?.message);
+        });
       }
     };
 

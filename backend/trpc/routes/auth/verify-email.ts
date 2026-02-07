@@ -53,14 +53,11 @@ export const verifyEmailProcedure = publicProcedure
         };
       }
 
-      // Check if code matches
-      logger.info("[Auth] 🔍 Comparing codes - Database:", verificationRecord.code, "| Input:", input.code);
-      logger.info("[Auth] 🔍 Code types - Database:", typeof verificationRecord.code, "| Input:", typeof input.code);
-      logger.info("[Auth] 🔍 Trimmed comparison - Database:", verificationRecord.code.trim(), "| Input:", input.code.trim());
+      // Check if code matches (codes are masked in logs for security)
+      logger.info("[Auth] 🔍 Comparing verification codes for:", input.email);
 
       if (verificationRecord.code.trim() !== input.code.trim()) {
         logger.error("[Auth] ❌ Invalid verification code for:", input.email);
-        logger.error("[Auth] ❌ Expected:", verificationRecord.code, "| Got:", input.code);
         return {
           success: false,
           message: "Doğrulama kodu hatalı. Lütfen tekrar deneyin.",

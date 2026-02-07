@@ -524,16 +524,23 @@ export const analyzeDrawingProcedure = protectedProcedure
   .mutation(async ({ ctx, input }) => {
     const result = await analyzeDrawing(input);
 
-    // Record activity and check badges in background
-    // Use Promise.race with timeout to prevent blocking response indefinitely
+    // Record activity and check badges in background (fire-and-forget with logging)
     const userId = ctx.userId;
-    const badgePromise = BadgeService.recordActivity(userId, 'analysis')
-      .then(() => BadgeService.checkAndAwardBadges(userId))
-      .catch(err => logger.error('[analyzeDrawing] Badge check error:', err));
+    const badgeStartTime = Date.now();
 
-    // Wait for badge with timeout (don't block response for more than 2s)
-    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2000));
-    await Promise.race([badgePromise, timeoutPromise]);
+    // Run badge operations async without blocking response
+    BadgeService.recordActivity(userId, 'analysis')
+      .then(() => BadgeService.checkAndAwardBadges(userId))
+      .then(() => {
+        const duration = Date.now() - badgeStartTime;
+        if (duration > 2000) {
+          logger.warn('[analyzeDrawing] Badge check took longer than expected:', duration, 'ms');
+        }
+      })
+      .catch(err => {
+        logger.error('[analyzeDrawing] Badge check error:', err);
+        // Badge errors are non-critical - user still gets their analysis
+      });
 
     return result;
   });

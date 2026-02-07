@@ -36,6 +36,7 @@ import {
 } from "@/constants/design-system";
 import { Image } from "expo-image";
 import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
+import type { Coloring } from "@/types/history";
 
 export default function ColoringHistoryScreen() {
   const insets = useSafeAreaInsets();
@@ -206,7 +207,7 @@ export default function ColoringHistoryScreen() {
           {/* Colorings Grid */}
           {!isLoading && coloringsList.length > 0 && (
             <View style={styles.grid}>
-              {coloringsList.map((coloring: any) => {
+              {(coloringsList as Coloring[]).map((coloring) => {
                 const renderRightActions = () => (
                   <View style={styles.swipeDeleteContainer}>
                     <Pressable
@@ -547,7 +548,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing["2"],
   },
   deleteButton: {
-    backgroundColor: "#EF4444",
+    backgroundColor: Colors.semantic.error,
     justifyContent: "center",
     alignItems: "center",
     width: 80,

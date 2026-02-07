@@ -14,7 +14,7 @@
  * - Loading skeletons
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import {
   View,
   Text,
@@ -53,8 +53,8 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Section header component
-function SectionHeader({
+// Section header component - memoized to prevent unnecessary re-renders
+const SectionHeader = memo(function SectionHeader({
   title,
   icon: Icon,
   iconColor = '#8B5CF6',
@@ -84,10 +84,10 @@ function SectionHeader({
       )}
     </View>
   );
-}
+});
 
-// Empty state component - uses unified IooEmptyState
-function DiscoverEmptyState({ title, message }: { title: string; message: string }) {
+// Empty state component - memoized, uses unified IooEmptyState
+const DiscoverEmptyState = memo(function DiscoverEmptyState({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.emptyState}>
       <IooEmptyState
@@ -97,7 +97,7 @@ function DiscoverEmptyState({ title, message }: { title: string; message: string
       />
     </View>
   );
-}
+});
 
 export default function DiscoverScreen() {
   const router = useRouter();

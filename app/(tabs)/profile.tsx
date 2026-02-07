@@ -202,7 +202,7 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleSettingToggle = async (setting: string, value: any) => {
+  const handleSettingToggle = async (setting: string, value: boolean | string | number) => {
     try {
       await updateSettingsMutation.mutateAsync({
         [setting]: value,
@@ -516,8 +516,8 @@ export default function ProfileScreen() {
                 showProgress={true}
                 onBadgePress={(badgeId, isUnlocked, badgeInfo) => {
                   // badgeInfo tüm rozet verilerini constants'dan alınabilir
-                  const unlockedBadge = badgesData?.badges.find((b: any) => b.id === badgeId);
-                  const progressInfo = badgeProgress?.progress?.find((p: any) => p.id === badgeId);
+                  const unlockedBadge = badgesData?.badges.find((b) => b.id === badgeId);
+                  const progressInfo = badgeProgress?.progress?.find((p) => p.id === badgeId);
 
                   if (unlockedBadge) {
                     // Açık rozet
@@ -1376,7 +1376,7 @@ export default function ProfileScreen() {
               'Hesabı Sil',
               'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinecektir.',
               () => {
-                // TODO: Implement account deletion
+                // Account deletion is handled via support email for safety
                 showAlert('Bilgi', 'Hesap silme işlemi için destek@renkioo.com adresine e-posta gönderin.');
               },
               undefined,

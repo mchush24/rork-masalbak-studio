@@ -1622,7 +1622,7 @@ export async function processChat(
         currentScreen,
         childAge,
         conversationLength: conversationHistory.length,
-      }).catch(() => {}); // Non-blocking
+      }).catch((err) => logger.debug('[Chatbot] Non-blocking log failed:', err?.message));
     }
 
     // Faz 3A: Konu tespiti
@@ -1669,7 +1669,7 @@ export async function processChat(
       childAge,
       conversationLength: conversationHistory.length,
       aiResponse,
-    }).catch(() => {}); // Non-blocking
+    }).catch((err) => logger.debug('[Chatbot] Non-blocking log failed:', err?.message));
 
     // Faz 3A: Konu tespiti
     const detectedTopic = detectConversationTopic([
@@ -1707,7 +1707,7 @@ export async function processChat(
       currentScreen,
       childAge,
       conversationLength: conversationHistory.length,
-    }).catch(() => {}); // Non-blocking
+    }).catch((err) => logger.debug('[Chatbot] Non-blocking log failed:', err?.message));
 
     return {
       message: errorResponse,
@@ -1739,7 +1739,7 @@ async function logInteraction(
       matchedFaqId,
       confidence,
       responseTimeMs: startTime ? Date.now() - startTime : undefined,
-    }).catch(() => {}); // Ignore logging errors
+    }).catch((err) => logger.debug('[Chatbot] Logging error (ignored):', err?.message));
   }
 }
 

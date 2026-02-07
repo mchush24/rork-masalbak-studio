@@ -46,7 +46,7 @@ export const registerProcedure = publicProcedure
         expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
         // Store verification code in database
-        logger.info("[Auth] 💾 Storing code for existing user:", verificationCode);
+        logger.info("[Auth] 💾 Storing verification code for existing user");
         const { error: insertError } = await supabase
           .from('verification_codes')
           .insert([
@@ -65,7 +65,7 @@ export const registerProcedure = publicProcedure
         logger.info("[Auth] ✅ Code stored in DB");
 
         // Send email
-        logger.info("[Auth] 📧 Sending email with code:", verificationCode);
+        logger.info("[Auth] 📧 Sending verification email to:", input.email);
         await sendVerificationEmail(input.email, verificationCode, existingUser.name);
 
         return {
@@ -81,7 +81,7 @@ export const registerProcedure = publicProcedure
       expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
       // Store verification code in database
-      logger.info("[Auth] 💾 Storing code for new user:", verificationCode);
+      logger.info("[Auth] 💾 Storing verification code for new user");
       const { error: insertError2 } = await supabase
         .from('verification_codes')
         .insert([
@@ -100,7 +100,7 @@ export const registerProcedure = publicProcedure
       logger.info("[Auth] ✅ Code stored in DB");
 
       // Send verification email
-      logger.info("[Auth] 📧 Sending email with code:", verificationCode);
+      logger.info("[Auth] 📧 Sending verification email to:", input.email);
       await sendVerificationEmail(input.email, verificationCode, input.name);
 
       // Hash password if provided

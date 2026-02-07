@@ -8,7 +8,7 @@
  * - Animasyonlu geçişler
  */
 
-import React from "react";
+import React, { memo } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Lock } from "lucide-react-native";
@@ -35,7 +35,8 @@ export interface BadgeCardProps {
   showDetails?: boolean;
 }
 
-export function BadgeCard({
+// Memoized to prevent unnecessary re-renders in badge grids
+export const BadgeCard = memo(function BadgeCard({
   id,
   name,
   description,
@@ -145,12 +146,13 @@ export function BadgeCard({
       )}
     </Pressable>
   );
-}
+});
 
 /**
  * Compact Badge - Sadece ikon gösteren mini rozet
+ * Memoized to prevent unnecessary re-renders
  */
-export function CompactBadge({
+export const CompactBadge = memo(function CompactBadge({
   icon,
   rarity,
   isUnlocked,
@@ -183,7 +185,7 @@ export function CompactBadge({
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

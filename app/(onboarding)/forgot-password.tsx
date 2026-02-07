@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff, Mail, KeyRound, Shield, Zap, ArrowLeft, Sparkles, Heart } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
+import { getErrorMessage } from '@/lib/utils/error';
 import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
 import { SuccessModal } from '@/components/SuccessModal';
 
@@ -108,14 +109,15 @@ export default function ForgotPasswordScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       setStep(STEPS.CODE);
-    } catch (error: any) {
+    } catch (error) {
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
+      const errorMessage = getErrorMessage(error) || 'Kod gönderilemedi';
       if (Platform.OS === 'web') {
-        alert(error.message || 'Kod gönderilemedi');
+        alert(errorMessage);
       } else {
-        Alert.alert('Hata', error.message || 'Kod gönderilemedi');
+        Alert.alert('Hata', errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -177,16 +179,17 @@ export default function ForgotPasswordScreen() {
       setIsLoading(false);
       setShowSuccessModal(true);
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error('[ForgotPassword] ❌ Reset error:', error);
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
 
+      const errorMessage = getErrorMessage(error) || 'Şifre sıfırlama başarısız';
       if (Platform.OS === 'web') {
-        alert(error.message || 'Şifre sıfırlama başarısız');
+        alert(errorMessage);
       } else {
-        Alert.alert('Hata', error.message || 'Şifre sıfırlama başarısız');
+        Alert.alert('Hata', errorMessage);
       }
       setIsLoading(false);
     }

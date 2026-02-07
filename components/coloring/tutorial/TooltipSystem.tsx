@@ -18,7 +18,7 @@
  * - Pro tips (after basic use)
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -70,6 +70,14 @@ export function Tooltip({
   const overlayId = `tooltip_${id}`;
   const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('tooltip', overlayId);
 
+  // Memoize handleDismiss to avoid stale closure issues
+  const handleDismiss = useCallback(async () => {
+    // Mark as seen
+    await markTooltipSeen(id);
+    releaseOverlay(); // Release overlay before closing
+    onDismiss();
+  }, [id, releaseOverlay, onDismiss]);
+
   useEffect(() => {
     if (visible && canShow) {
       // Request overlay permission
@@ -114,14 +122,7 @@ export function Tooltip({
         }),
       ]).start();
     }
-  }, [visible, canShow, requestOverlay]);
-
-  const handleDismiss = async () => {
-    // Mark as seen
-    await markTooltipSeen(id);
-    releaseOverlay(); // Release overlay before closing
-    onDismiss();
-  };
+  }, [visible, canShow, requestOverlay, autoDismiss, autoDismissDelay, handleDismiss, fadeAnim, scaleAnim]);
 
   // Don't render if not visible or can't show due to overlay conflict
   if (!visible || !canShow) return null;

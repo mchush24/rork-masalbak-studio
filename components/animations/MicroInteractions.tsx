@@ -54,7 +54,12 @@ interface MicroInteractionProps {
 // ============================================
 const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
   if (Platform.OS !== 'web') {
-    Haptics.impactAsync(style).catch(() => {});
+    Haptics.impactAsync(style).catch((err) => {
+      // Haptic failures are non-critical (device may not support haptics)
+      if (__DEV__) {
+        console.debug('[Haptics] Haptic feedback failed:', err?.message);
+      }
+    });
   }
 };
 

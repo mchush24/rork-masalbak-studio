@@ -494,21 +494,36 @@ JSON format:
 
 HER BEAT'TE SPESİFİK BİR OLAY VAR! (antrenman+harita bulma, ormana giriş, ayıyla karşılaşma, ninja hareket+sandığa varma, madalya bulma+köye dönüş)`;
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    temperature: 0.9, // Creative
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-  });
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      temperature: 0.9, // Creative
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+    });
 
-  const responseText = completion.choices[0]?.message?.content || "{}";
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  const outline = JSON.parse(jsonMatch ? jsonMatch[0] : responseText) as StoryOutline;
+    const responseText = completion.choices[0]?.message?.content || "{}";
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 
-  logger.info("[Stage 1] ✅ Outline created:", outline.mainCharacter.name, "-", outline.theme);
-  return outline;
+    if (!jsonMatch) {
+      logger.error("[Stage 1] ❌ No JSON found in response:", responseText.substring(0, 200));
+      throw new Error("AI yanıtından hikaye taslağı oluşturulamadı");
+    }
+
+    const outline = JSON.parse(jsonMatch[0]) as StoryOutline;
+
+    logger.info("[Stage 1] ✅ Outline created:", outline.mainCharacter.name, "-", outline.theme);
+    return outline;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      logger.error("[Stage 1] ❌ JSON parse error:", error.message);
+      throw new Error("Hikaye taslağı oluşturulurken format hatası oluştu");
+    }
+    logger.error("[Stage 1] ❌ OpenAI error:", error);
+    throw error;
+  }
 }
 
 /**
@@ -624,25 +639,48 @@ JSON format:
   "visualElements": ["meşe ağacı", "minik kuş", "dal", vb.]
 }`;
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    temperature: 0.8,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-  });
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      temperature: 0.8,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+    });
 
-  const responseText = completion.choices[0]?.message?.content || "{}";
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  const scene = JSON.parse(jsonMatch ? jsonMatch[0] : responseText) as Omit<DetailedScene, 'pageNumber'>;
+    const responseText = completion.choices[0]?.message?.content || "{}";
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 
-  logger.info(`[Stage 2] ✅ Scene ${pageNumber} expanded (${scene.text.split(' ').length} words)`);
+    if (!jsonMatch) {
+      logger.error(`[Stage 2] ❌ No JSON found in scene ${pageNumber}:`, responseText.substring(0, 200));
+      // Return a fallback scene instead of failing completely
+      return {
+        pageNumber,
+        text: beat, // Use the beat as fallback text
+        emotion: "happy",
+        visualElements: [],
+      };
+    }
 
-  return {
-    pageNumber,
-    ...scene
-  };
+    const scene = JSON.parse(jsonMatch[0]) as Omit<DetailedScene, 'pageNumber'>;
+
+    logger.info(`[Stage 2] ✅ Scene ${pageNumber} expanded (${scene.text.split(' ').length} words)`);
+
+    return {
+      pageNumber,
+      ...scene
+    };
+  } catch (error) {
+    logger.error(`[Stage 2] ❌ Error expanding scene ${pageNumber}:`, error);
+    // Return a fallback scene instead of failing completely
+    return {
+      pageNumber,
+      text: beat,
+      emotion: "happy",
+      visualElements: [],
+    };
+  }
 }
 
 /**

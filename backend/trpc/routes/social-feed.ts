@@ -638,13 +638,8 @@ export const socialFeedRouter = createTRPCRouter({
     .query(async ({ input }) => {
       log.debug('Fetching discover feed', { childAge: input.childAge });
 
-      // Parallel fetches for performance
-      const [
-        dailyTipResult,
-        suggestionsResult,
-        galleryResult,
-        storiesResult,
-      ] = await Promise.all([
+      // Parallel fetches with graceful failure handling
+      const results = await Promise.allSettled([
         // Daily tip
         supa
           .from('expert_tips')
@@ -688,6 +683,12 @@ export const socialFeedRouter = createTRPCRouter({
           .order('created_at', { ascending: false })
           .limit(3),
       ]);
+
+      // Extract results with fallbacks
+      const dailyTipResult = results[0].status === 'fulfilled' ? results[0].value : { data: null };
+      const suggestionsResult = results[1].status === 'fulfilled' ? results[1].value : { data: [] };
+      const galleryResult = results[2].status === 'fulfilled' ? results[2].value : { data: [] };
+      const storiesResult = results[3].status === 'fulfilled' ? results[3].value : { data: [] };
 
       return {
         dailyTip: (dailyTipResult.data as ExpertTip) || null,

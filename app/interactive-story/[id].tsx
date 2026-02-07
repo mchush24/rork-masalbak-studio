@@ -5,9 +5,10 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, StatusBar } from "react-native";
+import { View, StyleSheet, StatusBar, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/lib/hooks/useAuth";
 import {
   InteractiveStoryReader,
   EndingCelebration,
@@ -28,9 +29,26 @@ export default function InteractiveStoryScreen() {
   const params = useLocalSearchParams<{
     id: string;
   }>();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Route [id] parametresi session ID olarak kullanilir
-  const sessionId = params.id;
+  const sessionId = typeof params.id === 'string' ? params.id : undefined;
+
+  // Auth guard - redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/(onboarding)/welcome');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Validate session ID parameter
+  useEffect(() => {
+    if (!sessionId) {
+      Alert.alert('Hata', 'Geçersiz hikaye oturumu', [
+        { text: 'Tamam', onPress: () => router.back() }
+      ]);
+    }
+  }, [sessionId, router]);
 
   const [screenState, setScreenState] = useState<ScreenState>("reading");
   const [currentSegment, setCurrentSegment] = useState<StorySegment | null>(null);
@@ -46,10 +64,10 @@ export default function InteractiveStoryScreen() {
     character: InteractiveCharacter;
   } | null>(null);
 
-  // Session bilgisini getir
+  // Session bilgisini getir (only when authenticated and ID is valid)
   const sessionQuery = trpc.interactiveStory.getSession.useQuery(
-    { sessionId: sessionId || "" },
-    { enabled: !!sessionId }
+    { sessionId: sessionId! },
+    { enabled: !!sessionId && isAuthenticated && !authLoading }
   );
 
   // Secim mutation
