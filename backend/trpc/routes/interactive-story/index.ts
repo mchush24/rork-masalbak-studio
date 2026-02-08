@@ -1,23 +1,21 @@
-import { logger } from "../../../lib/utils.js";
+import { logger } from '../../../lib/utils.js';
 /**
  * Interactive Story tRPC Router
  *
  * Interaktif masal sistemi için tüm API endpointleri
  */
 
-import { z } from "zod";
-import { createTRPCRouter } from "../../create-context.js";
-import { protectedProcedure } from "../../create-context.js";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
+import { z } from 'zod';
+import { createTRPCRouter, protectedProcedure } from '../../create-context.js';
+import { authenticatedAiRateLimit } from '../../middleware/rate-limit.js';
 import {
   generateInteractiveStory,
   generateNextSegment,
   getTraitInfo,
   getTherapeuticMapping,
-} from "../../../lib/generate-interactive-story.js";
+} from '../../../lib/generate-interactive-story.js';
 import {
   InteractiveStory,
-  InteractiveStorySession,
   ChoiceMade,
   ParentReport,
   PersonalityTrait,
@@ -25,11 +23,10 @@ import {
   ChoiceTimelineItem,
   ActivitySuggestion,
   TRAIT_DEFINITIONS,
-  THERAPEUTIC_TRAIT_MAPPING,
   ConcernType,
   TherapeuticReportSection,
-} from "../../../types/InteractiveStory.js";
-import { createSupabaseClient } from "../../../lib/supabase.js";
+} from '../../../types/InteractiveStory.js';
+import { getSecureClient } from '../../../lib/supabase-secure.js';
 
 // ============================================
 // Zod Schemas
@@ -39,12 +36,14 @@ const generateInteractiveStorySchema = z.object({
   imageBase64: z.string(),
   childAge: z.number().min(2).max(12),
   childName: z.string().optional(),
-  language: z.enum(["tr", "en"]).default("tr"),
+  language: z.enum(['tr', 'en']).default('tr'),
   selectedTheme: z.string().optional(),
-  therapeuticContext: z.object({
-    concernType: z.string(),
-    therapeuticApproach: z.string(),
-  }).optional(),
+  therapeuticContext: z
+    .object({
+      concernType: z.string(),
+      therapeuticApproach: z.string(),
+    })
+    .optional(),
 });
 
 const makeChoiceSchema = z.object({
@@ -74,18 +73,18 @@ export const interactiveStoryRouter = createTRPCRouter({
     .use(authenticatedAiRateLimit)
     .input(generateInteractiveStorySchema)
     .mutation(async ({ ctx, input }) => {
-      logger.info("[Interactive Story API] 🚀 Generating new interactive story");
+      logger.info('[Interactive Story API] 🚀 Generating new interactive story');
 
       try {
         // Hikayeyi üret
         const { story, firstSegment, firstChoicePoint } = await generateInteractiveStory(input);
 
         // Veritabanına kaydet
-        const supabase = createSupabaseClient();
+        const supabase = await getSecureClient(ctx);
 
         // Storybook olarak kaydet (is_interactive = true)
         const { data: storybook, error: storybookError } = await supabase
-          .from("storybooks")
+          .from('storybooks')
           .insert({
             user_id_fk: ctx.userId,
             title: story.title,
@@ -110,30 +109,30 @@ export const interactiveStoryRouter = createTRPCRouter({
           .single();
 
         if (storybookError) {
-          logger.error("[Interactive Story API] ❌ Storybook save error:", storybookError);
-          throw new Error("Failed to save interactive story");
+          logger.error('[Interactive Story API] ❌ Storybook save error:', storybookError);
+          throw new Error('Failed to save interactive story');
         }
 
         // Session oluştur
         const { data: session, error: sessionError } = await supabase
-          .from("interactive_story_sessions")
+          .from('interactive_story_sessions')
           .insert({
             user_id_fk: ctx.userId,
             storybook_id: storybook.id,
             current_segment_id: story.startSegmentId,
             choices_made: [],
             path_taken: [story.startSegmentId],
-            status: "in_progress",
+            status: 'in_progress',
           })
           .select()
           .single();
 
         if (sessionError) {
-          logger.error("[Interactive Story API] ❌ Session save error:", sessionError);
-          throw new Error("Failed to create session");
+          logger.error('[Interactive Story API] ❌ Session save error:', sessionError);
+          throw new Error('Failed to create session');
         }
 
-        logger.info("[Interactive Story API] ✅ Interactive story created:", storybook.id);
+        logger.info('[Interactive Story API] ✅ Interactive story created:', storybook.id);
 
         return {
           storyId: storybook.id,
@@ -153,7 +152,7 @@ export const interactiveStoryRouter = createTRPCRouter({
           },
         };
       } catch (error) {
-        logger.error("[Interactive Story API] ❌ Generation failed:", error);
+        logger.error('[Interactive Story API] ❌ Generation failed:', error);
         throw error;
       }
     }),
@@ -165,28 +164,31 @@ export const interactiveStoryRouter = createTRPCRouter({
     .use(authenticatedAiRateLimit)
     .input(makeChoiceSchema)
     .mutation(async ({ ctx, input }) => {
-      logger.info("[Interactive Story API] 🎯 Making choice:", input.optionId);
+      logger.info('[Interactive Story API] 🎯 Making choice:', input.optionId);
 
-      const supabase = createSupabaseClient();
+      const supabase = await getSecureClient(ctx);
 
-      // Session'ı getir
+      // Session'ı getir - ownership check with user_id_fk
       const { data: session, error: sessionError } = await supabase
-        .from("interactive_story_sessions")
-        .select("*, storybooks(*)")
-        .eq("id", input.sessionId)
+        .from('interactive_story_sessions')
+        .select('*, storybooks(*)')
+        .eq('id', input.sessionId)
+        .eq('user_id_fk', ctx.userId)
         .single();
 
       if (sessionError || !session) {
-        throw new Error("Session not found");
+        throw new Error('Session not found');
       }
 
       // Story graph'ı al
       const storyGraph = session.storybooks.story_graph;
       const choicePoint = storyGraph.choicePoints[input.choicePointId];
-      const selectedOption = choicePoint?.options.find((o: any) => o.id === input.optionId);
+      const selectedOption = choicePoint?.options.find(
+        (o: { id: string }) => o.id === input.optionId
+      );
 
       if (!selectedOption) {
-        throw new Error("Invalid choice");
+        throw new Error('Invalid choice');
       }
 
       // Seçimi kaydet
@@ -203,10 +205,10 @@ export const interactiveStoryRouter = createTRPCRouter({
       // Sonraki segmenti üret
       const previousChoices = updatedChoices.map((c: ChoiceMade) => {
         const cp = storyGraph.choicePoints[c.choicePointId];
-        const opt = cp?.options.find((o: any) => o.id === c.optionId);
+        const opt = cp?.options.find((o: { id: string }) => o.id === c.optionId);
         return {
-          question: cp?.question || "",
-          chosen: opt?.text || "",
+          question: cp?.question || '',
+          chosen: opt?.text || '',
           trait: c.trait,
         };
       });
@@ -222,14 +224,14 @@ export const interactiveStoryRouter = createTRPCRouter({
         startSegmentId: storyGraph.startSegmentId,
         endingSegmentIds: storyGraph.endingSegmentIds,
         totalChoicePoints: storyGraph.totalChoicePoints,
-        estimatedDuration: "",
+        estimatedDuration: '',
         themes: [],
-        educationalValue: "",
+        educationalValue: '',
         mood: storyGraph.mood,
       };
 
       // Get language and childAge from story_graph (stored during story generation)
-      const language = storyGraph.language || "tr";
+      const language = storyGraph.language || 'tr';
       const childAge = storyGraph.childAge || 6;
 
       const { segment, nextChoicePoint, isEnding } = await generateNextSegment(
@@ -242,9 +244,9 @@ export const interactiveStoryRouter = createTRPCRouter({
       );
 
       // Session'ı güncelle
-      const newStatus = isEnding ? "completed" : "in_progress";
+      const newStatus = isEnding ? 'completed' : 'in_progress';
       const { error: updateError } = await supabase
-        .from("interactive_story_sessions")
+        .from('interactive_story_sessions')
         .update({
           current_segment_id: selectedOption.nextSegmentId,
           choices_made: updatedChoices,
@@ -252,14 +254,14 @@ export const interactiveStoryRouter = createTRPCRouter({
           status: newStatus,
           completed_at: isEnding ? new Date().toISOString() : null,
         })
-        .eq("id", input.sessionId);
+        .eq('id', input.sessionId);
 
       if (updateError) {
-        logger.error("[Interactive Story API] ❌ Session update error:", updateError);
+        logger.error('[Interactive Story API] ❌ Session update error:', updateError);
       }
 
       // Analytics kaydet
-      await supabase.from("choice_analytics").insert({
+      await supabase.from('choice_analytics').insert({
         session_id: input.sessionId,
         choice_point_id: input.choicePointId,
         option_id: input.optionId,
@@ -276,11 +278,11 @@ export const interactiveStoryRouter = createTRPCRouter({
       };
 
       await supabase
-        .from("storybooks")
+        .from('storybooks')
         .update({ story_graph: updatedStoryGraph })
-        .eq("id", session.storybooks.id);
+        .eq('id', session.storybooks.id);
 
-      logger.info("[Interactive Story API] ✅ Choice made, segment generated");
+      logger.info('[Interactive Story API] ✅ Choice made, segment generated');
 
       return {
         segment,
@@ -292,7 +294,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         },
         choiceMade: {
           trait: selectedOption.trait,
-          traitInfo: getTraitInfo(selectedOption.trait, "tr"),
+          traitInfo: getTraitInfo(selectedOption.trait, 'tr'),
         },
       };
     }),
@@ -300,51 +302,50 @@ export const interactiveStoryRouter = createTRPCRouter({
   /**
    * Mevcut oturumu getir
    */
-  getSession: protectedProcedure
-    .input(getSessionSchema)
-    .query(async ({ ctx, input }) => {
-      const supabase = createSupabaseClient();
+  getSession: protectedProcedure.input(getSessionSchema).query(async ({ ctx, input }) => {
+    const supabase = await getSecureClient(ctx);
 
-      const { data: session, error } = await supabase
-        .from("interactive_story_sessions")
-        .select("*, storybooks(*)")
-        .eq("id", input.sessionId)
-        .single();
+    const { data: session, error } = await supabase
+      .from('interactive_story_sessions')
+      .select('*, storybooks(*)')
+      .eq('id', input.sessionId)
+      .eq('user_id_fk', ctx.userId)
+      .single();
 
-      if (error || !session) {
-        throw new Error("Session not found");
-      }
+    if (error || !session) {
+      throw new Error('Session not found');
+    }
 
-      const storyGraph = session.storybooks.story_graph;
-      const currentSegment = storyGraph.segments[session.current_segment_id];
+    const storyGraph = session.storybooks.story_graph;
+    const currentSegment = storyGraph.segments[session.current_segment_id];
 
-      // Sonraki seçim noktasını bul
-      const currentChoiceIndex = (session.choices_made || []).length;
-      const nextChoiceId = `choice_${currentChoiceIndex + 1}`;
-      const nextChoicePoint = storyGraph.choicePoints[nextChoiceId];
+    // Sonraki seçim noktasını bul
+    const currentChoiceIndex = (session.choices_made || []).length;
+    const nextChoiceId = `choice_${currentChoiceIndex + 1}`;
+    const nextChoicePoint = storyGraph.choicePoints[nextChoiceId];
 
-      return {
-        session: {
-          id: session.id,
-          status: session.status,
-          choicesMade: session.choices_made || [],
-          pathTaken: session.path_taken || [],
-        },
-        story: {
-          id: session.storybooks.id,
-          title: session.storybooks.title,
-          mainCharacter: storyGraph.mainCharacter,
-          totalChoicePoints: storyGraph.totalChoicePoints,
-        },
-        currentSegment,
-        currentChoicePoint: nextChoicePoint,
-        progress: {
-          currentChoice: currentChoiceIndex,
-          totalChoices: storyGraph.totalChoicePoints,
-        },
-        isEnding: session.status === "completed",
-      };
-    }),
+    return {
+      session: {
+        id: session.id,
+        status: session.status,
+        choicesMade: session.choices_made || [],
+        pathTaken: session.path_taken || [],
+      },
+      story: {
+        id: session.storybooks.id,
+        title: session.storybooks.title,
+        mainCharacter: storyGraph.mainCharacter,
+        totalChoicePoints: storyGraph.totalChoicePoints,
+      },
+      currentSegment,
+      currentChoicePoint: nextChoicePoint,
+      progress: {
+        currentChoice: currentChoiceIndex,
+        totalChoices: storyGraph.totalChoicePoints,
+      },
+      isEnding: session.status === 'completed',
+    };
+  }),
 
   /**
    * Ebeveyn raporu oluştur
@@ -352,23 +353,24 @@ export const interactiveStoryRouter = createTRPCRouter({
   generateParentReport: protectedProcedure
     .input(generateParentReportSchema)
     .mutation(async ({ ctx, input }) => {
-      logger.info("[Interactive Story API] 📊 Generating parent report");
+      logger.info('[Interactive Story API] 📊 Generating parent report');
 
-      const supabase = createSupabaseClient();
+      const supabase = await getSecureClient(ctx);
 
-      // Session'ı getir
+      // Session'ı getir - ownership check with user_id_fk
       const { data: session, error } = await supabase
-        .from("interactive_story_sessions")
-        .select("*, storybooks(*)")
-        .eq("id", input.sessionId)
+        .from('interactive_story_sessions')
+        .select('*, storybooks(*)')
+        .eq('id', input.sessionId)
+        .eq('user_id_fk', ctx.userId)
         .single();
 
       if (error || !session) {
-        throw new Error("Session not found");
+        throw new Error('Session not found');
       }
 
-      if (session.status !== "completed") {
-        throw new Error("Story must be completed to generate report");
+      if (session.status !== 'completed') {
+        throw new Error('Story must be completed to generate report');
       }
 
       const storyGraph = session.storybooks.story_graph;
@@ -377,7 +379,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       // Trait sayımı
       const traitCounts: Record<PersonalityTrait, number> = {} as Record<PersonalityTrait, number>;
       const allTraits = Object.keys(TRAIT_DEFINITIONS) as PersonalityTrait[];
-      allTraits.forEach(t => traitCounts[t] = 0);
+      allTraits.forEach(t => (traitCounts[t] = 0));
 
       choicesMade.forEach(choice => {
         traitCounts[choice.trait]++;
@@ -396,43 +398,44 @@ export const interactiveStoryRouter = createTRPCRouter({
       // Seçim zaman çizelgesi
       const choiceTimeline: ChoiceTimelineItem[] = choicesMade.map((choice, index) => {
         const cp = storyGraph.choicePoints[choice.choicePointId];
-        const opt = cp?.options.find((o: any) => o.id === choice.optionId);
-        const traitInfo = getTraitInfo(choice.trait, "tr");
+        const opt = cp?.options.find((o: { id: string }) => o.id === choice.optionId);
+        const traitInfo = getTraitInfo(choice.trait, 'tr');
 
         return {
           choiceNumber: index + 1,
-          question: cp?.question || "",
-          chosenOption: opt?.text || "",
+          question: cp?.question || '',
+          chosenOption: opt?.text || '',
           trait: choice.trait,
           insight: traitInfo.description,
         };
       });
 
       // Aktivite önerileri (baskın özellikler için)
-      const activitySuggestions: ActivitySuggestion[] = dominantTraits
-        .slice(0, 3)
-        .map(tc => {
-          const traitInfo = getTraitInfo(tc.trait, "tr");
-          return {
-            title: `${traitInfo.name} için aktivite`,
-            description: traitInfo.activitySuggestion,
-            forTrait: tc.trait,
-            emoji: traitInfo.emoji,
-          };
-        });
+      const activitySuggestions: ActivitySuggestion[] = dominantTraits.slice(0, 3).map(tc => {
+        const traitInfo = getTraitInfo(tc.trait, 'tr');
+        return {
+          title: `${traitInfo.name} için aktivite`,
+          description: traitInfo.activitySuggestion,
+          forTrait: tc.trait,
+          emoji: traitInfo.emoji,
+        };
+      });
 
       // Sohbet başlatıcıları
       const conversationStarters = [
         `"${session.storybooks.title}" hikayesinde en çok hangi kısmı sevdin?`,
         `${storyGraph.mainCharacter.name} gibi davranmak nasıl hissettirdi?`,
-        "Başka bir seçim yapsaydın hikaye nasıl değişirdi sence?",
-        "Bu hikayedeki gibi bir durumla karşılaşsan ne yapardın?",
+        'Başka bir seçim yapsaydın hikaye nasıl değişirdi sence?',
+        'Bu hikayedeki gibi bir durumla karşılaşsan ne yapardın?',
       ];
 
       // Trait insights
-      const traitInsights: Record<PersonalityTrait, string> = {} as Record<PersonalityTrait, string>;
+      const traitInsights: Record<PersonalityTrait, string> = {} as Record<
+        PersonalityTrait,
+        string
+      >;
       dominantTraits.forEach(tc => {
-        traitInsights[tc.trait] = getTraitInfo(tc.trait, "tr").description;
+        traitInsights[tc.trait] = getTraitInfo(tc.trait, 'tr').description;
       });
 
       // Terapötik bölüm (eğer terapötik bağlam varsa)
@@ -452,46 +455,50 @@ export const interactiveStoryRouter = createTRPCRouter({
                 `${traitDef.name_tr}: Çocuğunuz önerilen terapötik özelliklerden birini güçlü bir şekilde gösterdi.`
               );
             } else {
-              childStrengths.push(
-                `${traitDef.name_tr}: ${traitDef.positive_description_tr}`
-              );
+              childStrengths.push(`${traitDef.name_tr}: ${traitDef.positive_description_tr}`);
             }
           });
 
           // Cesaretlendirici mesaj oluştur
           const topTraitName = dominantTraits[0]
             ? TRAIT_DEFINITIONS[dominantTraits[0].trait].name_tr
-            : "özel";
+            : 'özel';
           const encouragingMessage = `Çocuğunuz zorluklarla karşılaşırken ${topTraitName.toLowerCase()} özelliğini güçlü bir şekilde gösterdi. ${mapping.copingMechanism_tr}`;
 
           // Concern type isimlerini oluştur
           const concernNames: Record<ConcernType, { tr: string; en: string }> = {
-            war: { tr: "Savaş/Çatışma", en: "War/Conflict" },
-            violence: { tr: "Şiddet", en: "Violence" },
-            fear: { tr: "Korku", en: "Fear" },
-            loneliness: { tr: "Yalnızlık", en: "Loneliness" },
-            loss: { tr: "Kayıp", en: "Loss" },
-            death: { tr: "Ölüm", en: "Death" },
-            bullying: { tr: "Zorbalık", en: "Bullying" },
-            family_separation: { tr: "Aile Ayrılığı", en: "Family Separation" },
-            anxiety: { tr: "Kaygı", en: "Anxiety" },
-            anger: { tr: "Öfke", en: "Anger" },
-            depression: { tr: "Depresyon", en: "Depression" },
-            low_self_esteem: { tr: "Düşük Özgüven", en: "Low Self-Esteem" },
-            disaster: { tr: "Felaket", en: "Disaster" },
-            abuse: { tr: "İstismar", en: "Abuse" },
-            neglect: { tr: "İhmal", en: "Neglect" },
-            domestic_violence_witness: { tr: "Aile İçi Şiddete Tanıklık", en: "Domestic Violence Witness" },
-            parental_addiction: { tr: "Ebeveyn Bağımlılığı", en: "Parental Addiction" },
-            parental_mental_illness: { tr: "Ebeveyn Ruh Sağlığı Sorunu", en: "Parental Mental Illness" },
-            medical_trauma: { tr: "Tıbbi Travma", en: "Medical Trauma" },
-            school_stress: { tr: "Okul Stresi", en: "School Stress" },
-            social_rejection: { tr: "Sosyal Reddedilme", en: "Social Rejection" },
-            displacement: { tr: "Yerinden Edilme", en: "Displacement" },
-            poverty: { tr: "Yoksulluk", en: "Poverty" },
-            cyberbullying: { tr: "Siber Zorbalık", en: "Cyberbullying" },
-            other: { tr: "Diğer", en: "Other" },
-            none: { tr: "Yok", en: "None" },
+            war: { tr: 'Savaş/Çatışma', en: 'War/Conflict' },
+            violence: { tr: 'Şiddet', en: 'Violence' },
+            fear: { tr: 'Korku', en: 'Fear' },
+            loneliness: { tr: 'Yalnızlık', en: 'Loneliness' },
+            loss: { tr: 'Kayıp', en: 'Loss' },
+            death: { tr: 'Ölüm', en: 'Death' },
+            bullying: { tr: 'Zorbalık', en: 'Bullying' },
+            family_separation: { tr: 'Aile Ayrılığı', en: 'Family Separation' },
+            anxiety: { tr: 'Kaygı', en: 'Anxiety' },
+            anger: { tr: 'Öfke', en: 'Anger' },
+            depression: { tr: 'Depresyon', en: 'Depression' },
+            low_self_esteem: { tr: 'Düşük Özgüven', en: 'Low Self-Esteem' },
+            disaster: { tr: 'Felaket', en: 'Disaster' },
+            abuse: { tr: 'İstismar', en: 'Abuse' },
+            neglect: { tr: 'İhmal', en: 'Neglect' },
+            domestic_violence_witness: {
+              tr: 'Aile İçi Şiddete Tanıklık',
+              en: 'Domestic Violence Witness',
+            },
+            parental_addiction: { tr: 'Ebeveyn Bağımlılığı', en: 'Parental Addiction' },
+            parental_mental_illness: {
+              tr: 'Ebeveyn Ruh Sağlığı Sorunu',
+              en: 'Parental Mental Illness',
+            },
+            medical_trauma: { tr: 'Tıbbi Travma', en: 'Medical Trauma' },
+            school_stress: { tr: 'Okul Stresi', en: 'School Stress' },
+            social_rejection: { tr: 'Sosyal Reddedilme', en: 'Social Rejection' },
+            displacement: { tr: 'Yerinden Edilme', en: 'Displacement' },
+            poverty: { tr: 'Yoksulluk', en: 'Poverty' },
+            cyberbullying: { tr: 'Siber Zorbalık', en: 'Cyberbullying' },
+            other: { tr: 'Diğer', en: 'Other' },
+            none: { tr: 'Yok', en: 'None' },
           };
 
           therapeuticSection = {
@@ -526,7 +533,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       };
 
       // Veritabanına kaydet
-      await supabase.from("parent_choice_reports").insert({
+      await supabase.from('parent_choice_reports').insert({
         session_id: input.sessionId,
         user_id_fk: ctx.userId,
         child_name: input.childName,
@@ -541,11 +548,11 @@ export const interactiveStoryRouter = createTRPCRouter({
 
       // Session'ı güncelle
       await supabase
-        .from("interactive_story_sessions")
+        .from('interactive_story_sessions')
         .update({ parent_report_generated: true })
-        .eq("id", input.sessionId);
+        .eq('id', input.sessionId);
 
-      logger.info("[Interactive Story API] ✅ Parent report generated");
+      logger.info('[Interactive Story API] ✅ Parent report generated');
 
       return report;
     }),
@@ -554,11 +561,12 @@ export const interactiveStoryRouter = createTRPCRouter({
    * Kullanıcının interaktif hikayelerini listele
    */
   list: protectedProcedure.query(async ({ ctx }) => {
-    const supabase = createSupabaseClient();
+    const supabase = await getSecureClient(ctx);
 
     const { data: storybooks, error } = await supabase
-      .from("storybooks")
-      .select(`
+      .from('storybooks')
+      .select(
+        `
         id,
         title,
         created_at,
@@ -570,16 +578,18 @@ export const interactiveStoryRouter = createTRPCRouter({
           choices_made,
           completed_at
         )
-      `)
-      .eq("user_id_fk", ctx.userId)
-      .eq("is_interactive", true)
-      .order("created_at", { ascending: false });
+      `
+      )
+      .eq('user_id_fk', ctx.userId)
+      .eq('is_interactive', true)
+      .order('created_at', { ascending: false });
 
     if (error) {
-      logger.error("[Interactive Story API] ❌ List error:", error);
-      throw new Error("Failed to list interactive stories");
+      logger.error('[Interactive Story API] ❌ List error:', error);
+      throw new Error('Failed to list interactive stories');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return storybooks.map((sb: any) => ({
       id: sb.id,
       title: sb.title,
@@ -591,7 +601,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         ? {
             currentChoice: (sb.interactive_story_sessions[0].choices_made || []).length,
             totalChoices: sb.total_choice_points,
-            isCompleted: sb.interactive_story_sessions[0].status === "completed",
+            isCompleted: sb.interactive_story_sessions[0].status === 'completed',
           }
         : null,
     }));

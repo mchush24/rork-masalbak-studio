@@ -12,11 +12,9 @@
  * - Faz 3E: Akıllı yönlendirme (aksiyon butonları)
  */
 
-import { z } from "zod";
-import { createLogger } from "../../lib/logger.js";
-
-const log = createLogger('ChatbotAPI');
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../create-context.js";
+import { z } from 'zod';
+import { createLogger } from '../../lib/logger.js';
+import { createTRPCRouter, publicProcedure, protectedProcedure } from '../create-context.js';
 import {
   processChat,
   getAllFAQQuestions,
@@ -27,9 +25,7 @@ import {
   getProactiveSuggestion,
   getAllProactiveSuggestions,
   getSuggestionsForScreen,
-  type ChatAction,
-  type ProactiveSuggestion,
-} from "../../lib/chatbot.js";
+} from '../../lib/chatbot.js';
 
 // Faz 6: Analytics module
 import {
@@ -37,7 +33,9 @@ import {
   getUnansweredStats,
   getRecentUnansweredQueries,
   getUnansweredByIntent,
-} from "../../lib/chatbot-analytics.js";
+} from '../../lib/chatbot-analytics.js';
+
+const log = createLogger('ChatbotAPI');
 
 // Lazy import for embeddings (optional feature)
 async function getEmbeddingsModule() {
@@ -72,7 +70,7 @@ const sendMessageSchema = z.object({
 });
 
 // Faz 3E: Aksiyon şeması
-const chatActionSchema = z.object({
+const _chatActionSchema = z.object({
   type: z.enum(['navigate', 'create', 'open', 'link']),
   label: z.string(),
   target: z.string(),
@@ -87,38 +85,39 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Mesaj gonder ve cevap al
    */
-  sendMessage: publicProcedure
-    .input(sendMessageSchema)
-    .mutation(async ({ input, ctx }) => {
-      log.debug('Message received', { message: input.message.substring(0, 50), childAge: input.childAge });
+  sendMessage: publicProcedure.input(sendMessageSchema).mutation(async ({ input, ctx }) => {
+    log.debug('Message received', {
+      message: input.message.substring(0, 50),
+      childAge: input.childAge,
+    });
 
-      const response = await processChat(
-        input.message,
-        input.conversationHistory || [],
-        {
-          sessionId: input.sessionId,
-          userId: (ctx as any)?.user?.id,
-          childAge: input.childAge,
-          childName: input.childName,
-          // Faz 6: Analytics için ekran bilgisi
-          currentScreen: input.currentScreen,
-        }
-      );
+    const response = await processChat(input.message, input.conversationHistory || [], {
+      sessionId: input.sessionId,
+      userId: (ctx as unknown as Record<string, { id?: string }>)?.user?.id,
+      childAge: input.childAge,
+      childName: input.childName,
+      // Faz 6: Analytics için ekran bilgisi
+      currentScreen: input.currentScreen,
+    });
 
-      log.debug('Response generated', { source: response.source, faq: response.matchedFAQ || 'N/A', topic: response.detectedTopic || 'N/A' });
+    log.debug('Response generated', {
+      source: response.source,
+      faq: response.matchedFAQ || 'N/A',
+      topic: response.detectedTopic || 'N/A',
+    });
 
-      return {
-        message: response.message,
-        source: response.source,
-        suggestedQuestions: response.suggestedQuestions,
-        matchedFAQ: response.matchedFAQ,
-        confidence: response.confidence,
-        // Faz 3E: Aksiyon butonları
-        actions: response.actions,
-        // Faz 3A: Tespit edilen konu
-        detectedTopic: response.detectedTopic,
-      };
-    }),
+    return {
+      message: response.message,
+      source: response.source,
+      suggestedQuestions: response.suggestedQuestions,
+      matchedFAQ: response.matchedFAQ,
+      confidence: response.confidence,
+      // Faz 3E: Aksiyon butonları
+      actions: response.actions,
+      // Faz 3A: Tespit edilen konu
+      detectedTopic: response.detectedTopic,
+    };
+  }),
 
   /**
    * Sik sorulan sorulari getir (kategorilere gore gruplu)
@@ -127,19 +126,27 @@ export const chatbotRouter = createTRPCRouter({
     const faqs = getAllFAQQuestions();
 
     // Group by category
-    const grouped = faqs.reduce((acc, faq) => {
-      if (!acc[faq.category]) {
-        acc[faq.category] = [];
-      }
-      acc[faq.category].push({ id: faq.id, question: faq.question });
-      return acc;
-    }, {} as Record<string, { id: string; question: string }[]>);
+    const grouped = faqs.reduce(
+      (acc, faq) => {
+        if (!acc[faq.category]) {
+          acc[faq.category] = [];
+        }
+        acc[faq.category].push({ id: faq.id, question: faq.question });
+        return acc;
+      },
+      {} as Record<string, { id: string; question: string }[]>
+    );
 
     return {
       categories: [
         { id: 'story', name: 'Masal Olusturma', emoji: '📖', questions: grouped.story || [] },
         { id: 'analysis', name: 'Cizim Analizi', emoji: '🎨', questions: grouped.analysis || [] },
-        { id: 'interactive', name: 'Interaktif Masal', emoji: '🎮', questions: grouped.interactive || [] },
+        {
+          id: 'interactive',
+          name: 'Interaktif Masal',
+          emoji: '🎮',
+          questions: grouped.interactive || [],
+        },
         { id: 'coloring', name: 'Boyama', emoji: '🖍️', questions: grouped.coloring || [] },
         { id: 'account', name: 'Hesap & Ayarlar', emoji: '⚙️', questions: grouped.account || [] },
         { id: 'technical', name: 'Teknik Destek', emoji: '🔧', questions: grouped.technical || [] },
@@ -152,25 +159,23 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Tek bir FAQ getir (ID ile)
    */
-  getFAQById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
-      const faq = getFAQById(input.id);
+  getFAQById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
+    const faq = getFAQById(input.id);
 
-      if (!faq) {
-        return { found: false, faq: null };
-      }
+    if (!faq) {
+      return { found: false, faq: null };
+    }
 
-      return {
-        found: true,
-        faq: {
-          id: faq.id,
-          question: faq.question,
-          answer: faq.answer,
-          category: faq.category,
-        },
-      };
-    }),
+    return {
+      found: true,
+      faq: {
+        id: faq.id,
+        question: faq.question,
+        answer: faq.answer,
+        category: faq.category,
+      },
+    };
+  }),
 
   /**
    * FAQ istatistiklerini getir (temel)
@@ -212,10 +217,14 @@ export const chatbotRouter = createTRPCRouter({
    * Chatbot kullanim istatistikleri
    * Son X gundeki konusma analitikleri
    */
-  getUsageStats: publicProcedure
-    .input(z.object({
-      days: z.number().min(1).max(90).default(30),
-    }).optional())
+  getUsageStats: protectedProcedure
+    .input(
+      z
+        .object({
+          days: z.number().min(1).max(90).default(30),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const days = input?.days || 30;
       const embeddings = await getEmbeddingsModule();
@@ -280,7 +289,7 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Embedding veritabani durumu
    */
-  getEmbeddingStatus: publicProcedure.query(async () => {
+  getEmbeddingStatus: protectedProcedure.query(async () => {
     const embeddings = await getEmbeddingsModule();
 
     if (!embeddings) {
@@ -302,11 +311,12 @@ export const chatbotRouter = createTRPCRouter({
         embeddingCount,
         faqCount,
         synced: embeddingCount === faqCount,
-        syncStatus: embeddingCount === faqCount
-          ? 'up-to-date'
-          : embeddingCount < faqCount
-            ? 'needs-sync'
-            : 'has-extra',
+        syncStatus:
+          embeddingCount === faqCount
+            ? 'up-to-date'
+            : embeddingCount < faqCount
+              ? 'needs-sync'
+              : 'has-extra',
         lastCheck: new Date().toISOString(),
       };
     } catch (error) {
@@ -324,11 +334,15 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * En cok sorulan sorular (top FAQs)
    */
-  getTopFAQs: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(20).default(10),
-      days: z.number().min(1).max(90).default(30),
-    }).optional())
+  getTopFAQs: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(20).default(10),
+          days: z.number().min(1).max(90).default(30),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const limit = input?.limit || 10;
       const days = input?.days || 30;
@@ -402,11 +416,15 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Cevaplanamayan sorular (AI'a dusen)
    */
-  getUnansweredQueries: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(50).default(20),
-      days: z.number().min(1).max(30).default(7),
-    }).optional())
+  getUnansweredQueries: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(50).default(20),
+          days: z.number().min(1).max(30).default(7),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const limit = input?.limit || 20;
       const days = input?.days || 7;
@@ -460,9 +478,8 @@ export const chatbotRouter = createTRPCRouter({
           period: `${days} gun`,
           totalUnanswered: data?.length || 0,
           queries,
-          suggestion: queries.length > 5
-            ? 'Bu sorgular icin yeni FAQ eklemek maliyeti dusurur'
-            : null,
+          suggestion:
+            queries.length > 5 ? 'Bu sorgular icin yeni FAQ eklemek maliyeti dusurur' : null,
         };
       } catch (error) {
         log.error('Error getting unanswered queries', error);
@@ -477,7 +494,7 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Dashboard icin ozet istatistikler
    */
-  getDashboardStats: publicProcedure.query(async () => {
+  getDashboardStats: protectedProcedure.query(async () => {
     const faqStats = getFAQCount();
     const embeddings = await getEmbeddingsModule();
 
@@ -491,7 +508,7 @@ export const chatbotRouter = createTRPCRouter({
         enabled: false,
         count: 0,
       },
-      usage: null as any,
+      usage: null as unknown,
     };
 
     if (!embeddings) {
@@ -521,9 +538,14 @@ export const chatbotRouter = createTRPCRouter({
             faqHits: usageStats.faqHits,
             embeddingHits: usageStats.embeddingHits,
             aiHits: usageStats.aiHits,
-            hitRate: usageStats.totalInteractions > 0
-              ? Math.round(((usageStats.faqHits + usageStats.embeddingHits) / usageStats.totalInteractions) * 100)
-              : 0,
+            hitRate:
+              usageStats.totalInteractions > 0
+                ? Math.round(
+                    ((usageStats.faqHits + usageStats.embeddingHits) /
+                      usageStats.totalInteractions) *
+                      100
+                  )
+                : 0,
             avgResponseMs: Math.round(usageStats.avgResponseTime),
           },
         },
@@ -546,10 +568,12 @@ export const chatbotRouter = createTRPCRouter({
    * Belirli bir ekran ve tetikleyici için proaktif öneri getir
    */
   getProactiveSuggestion: publicProcedure
-    .input(z.object({
-      screen: z.string(),
-      trigger: z.enum(['enter', 'idle', 'error', 'first_visit']),
-    }))
+    .input(
+      z.object({
+        screen: z.string(),
+        trigger: z.enum(['enter', 'idle', 'error', 'first_visit']),
+      })
+    )
     .query(async ({ input }) => {
       const suggestion = getProactiveSuggestion(input.screen, input.trigger);
 
@@ -576,9 +600,11 @@ export const chatbotRouter = createTRPCRouter({
    * Belirli bir ekran için tüm proaktif önerileri getir
    */
   getScreenSuggestions: publicProcedure
-    .input(z.object({
-      screen: z.string(),
-    }))
+    .input(
+      z.object({
+        screen: z.string(),
+      })
+    )
     .query(async ({ input }) => {
       const suggestions = getSuggestionsForScreen(input.screen);
 
@@ -597,17 +623,20 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Tüm proaktif önerileri getir (admin/debug için)
    */
-  getAllProactiveSuggestions: publicProcedure.query(async () => {
+  getAllProactiveSuggestions: protectedProcedure.query(async () => {
     const suggestions = getAllProactiveSuggestions();
 
     // Ekrana göre grupla
-    const byScreen: Record<string, Array<{
-      id: string;
-      trigger: string;
-      message: string;
-      questions: string[];
-      priority: number;
-    }>> = {};
+    const byScreen: Record<
+      string,
+      {
+        id: string;
+        trigger: string;
+        message: string;
+        questions: string[];
+        priority: number;
+      }[]
+    > = {};
 
     for (const s of suggestions) {
       if (!byScreen[s.screen]) {
@@ -637,11 +666,15 @@ export const chatbotRouter = createTRPCRouter({
    * En sık cevaplanamayan sorular (Faz 6)
    * FAQ geliştirme için kullanılır
    */
-  getTopUnansweredAnalytics: publicProcedure
-    .input(z.object({
-      days: z.number().min(1).max(90).default(30),
-      limit: z.number().min(1).max(50).default(20),
-    }).optional())
+  getTopUnansweredAnalytics: protectedProcedure
+    .input(
+      z
+        .object({
+          days: z.number().min(1).max(90).default(30),
+          limit: z.number().min(1).max(50).default(20),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const days = input?.days || 30;
       const limit = input?.limit || 20;
@@ -661,9 +694,7 @@ export const chatbotRouter = createTRPCRouter({
             reasons: q.reasons,
           })),
           actionable: queries.filter(q => q.occurrenceCount >= 3).length,
-          suggestion: queries.length > 5
-            ? 'Bu sorular için yeni FAQ eklemek önerilir'
-            : null,
+          suggestion: queries.length > 5 ? 'Bu sorular için yeni FAQ eklemek önerilir' : null,
         };
       } catch (error) {
         log.error('Error getting unanswered analytics', error);
@@ -678,10 +709,14 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Cevaplanamayan sorular istatistikleri (Faz 6)
    */
-  getUnansweredAnalyticsStats: publicProcedure
-    .input(z.object({
-      days: z.number().min(1).max(90).default(30),
-    }).optional())
+  getUnansweredAnalyticsStats: protectedProcedure
+    .input(
+      z
+        .object({
+          days: z.number().min(1).max(90).default(30),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const days = input?.days || 30;
 
@@ -730,11 +765,15 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Son cevaplanamayan sorular (Faz 6)
    */
-  getRecentUnansweredAnalytics: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(50),
-      offset: z.number().min(0).default(0),
-    }).optional())
+  getRecentUnansweredAnalytics: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(100).default(50),
+          offset: z.number().min(0).default(0),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const limit = input?.limit || 50;
       const offset = input?.offset || 0;
@@ -770,11 +809,13 @@ export const chatbotRouter = createTRPCRouter({
   /**
    * Intent bazlı cevaplanamayan sorular (Faz 6)
    */
-  getUnansweredByIntentAnalytics: publicProcedure
-    .input(z.object({
-      intent: z.string(),
-      limit: z.number().min(1).max(50).default(20),
-    }))
+  getUnansweredByIntentAnalytics: protectedProcedure
+    .input(
+      z.object({
+        intent: z.string(),
+        limit: z.number().min(1).max(50).default(20),
+      })
+    )
     .query(async ({ input }) => {
       try {
         const queries = await getUnansweredByIntent(input.intent, input.limit);
