@@ -1,13 +1,11 @@
-import { createTRPCReact } from "@trpc/react-query";
-import { httpBatchLink } from "@trpc/client";
-import type { AppRouter } from "../types/trpc";
-import superjson from "superjson";
-import { Platform } from "react-native";
-import Constants from "expo-constants";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createTRPCReact } from '@trpc/react-query';
+import { httpBatchLink } from '@trpc/client';
+import type { AppRouter } from '../types/trpc';
+import superjson from 'superjson';
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { createOptimizedQueryClient } from './query';
-
-const ACCESS_TOKEN_KEY = '@renkioo_access_token';
+import { secureStorage, ACCESS_TOKEN_KEY } from './secure-storage';
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -70,18 +68,19 @@ export const trpcClient = trpc.createClient({
       },
       async headers() {
         const headers: Record<string, string> = {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
 
         // Add Authorization header if token exists
+        // Uses secureStorage which reads from SecureStore on native, AsyncStorage on web
         try {
-          const accessToken = await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+          const accessToken = await secureStorage.getItem(ACCESS_TOKEN_KEY);
           if (accessToken) {
-            headers["Authorization"] = `Bearer ${accessToken}`;
-            console.log('[tRPC Client] 🔑 Added Authorization header');
+            headers['Authorization'] = `Bearer ${accessToken}`;
+            console.log('[tRPC Client] Added Authorization header');
           }
         } catch (error) {
-          console.error('[tRPC Client] ❌ Error reading access token:', error);
+          console.error('[tRPC Client] Error reading access token:', error);
         }
 
         return headers;

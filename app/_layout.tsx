@@ -2,6 +2,7 @@ import { Stack, useRouter, useSegments, Href } from 'expo-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { trpc, queryClient, trpcClient } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { AuthProvider } from '@/lib/contexts/AuthContext';
 import { useEffect, useCallback } from 'react';
 import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -15,10 +16,28 @@ import { AppErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoun
 import { DelightWrapper } from '@/lib/delight';
 import { ToastProvider } from '@/components/ui/Toast';
 import { OfflineIndicator, CrashRecoveryDialog } from '@/components/ui';
-import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
-import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+} from '@expo-google-fonts/poppins';
+import {
+  Fredoka_400Regular,
+  Fredoka_500Medium,
+  Fredoka_600SemiBold,
+  Fredoka_700Bold,
+} from '@expo-google-fonts/fredoka';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Sentry from '@sentry/react-native';
+
+// Phase 5 & 6 modules
+import { networkMonitor } from '@/lib/network';
+import { statePersistence, SessionState } from '@/lib/persistence';
+import { globalErrorHandler } from '@/lib/error';
+import { analytics } from '@/lib/analytics';
 
 // Initialize Sentry for error tracking (before app renders)
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -38,11 +57,7 @@ if (SENTRY_DSN && !__DEV__) {
     // Debug mode in development only
     debug: __DEV__,
     // Ignore common non-critical errors
-    ignoreErrors: [
-      'Network request failed',
-      'Failed to fetch',
-      'AbortError',
-    ],
+    ignoreErrors: ['Network request failed', 'Failed to fetch', 'AbortError'],
     // Before sending, sanitize sensitive data
     beforeSend(event) {
       // Remove sensitive user data if present
@@ -55,12 +70,6 @@ if (SENTRY_DSN && !__DEV__) {
   });
 }
 
-// Phase 5 & 6 modules
-import { networkMonitor } from '@/lib/network';
-import { statePersistence, SessionState } from '@/lib/persistence';
-import { globalErrorHandler } from '@/lib/error';
-import { analytics } from '@/lib/analytics';
-
 // Web responsive container
 const WebContainer = ({ children }: { children: React.ReactNode }) => {
   if (Platform.OS !== 'web') {
@@ -69,9 +78,7 @@ const WebContainer = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <View style={webStyles.container}>
-      <View style={webStyles.phoneFrame}>
-        {children}
-      </View>
+      <View style={webStyles.phoneFrame}>{children}</View>
     </View>
   );
 };
@@ -194,6 +201,7 @@ function RootLayoutNav() {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, hasCompletedOnboarding, isLoading]);
 
   // Valid routes for crash recovery
@@ -211,36 +219,51 @@ function RootLayoutNav() {
   ];
 
   // Handle crash recovery with route validation
-  const handleCrashRecover = useCallback((session: SessionState) => {
-    if (session.lastScreen) {
-      // Validate route before navigating
-      const isValidRoute = validRecoveryRoutes.some(route =>
-        session.lastScreen === route || session.lastScreen?.startsWith(route + '/')
-      );
+  const handleCrashRecover = useCallback(
+    (session: SessionState) => {
+      if (session.lastScreen) {
+        // Validate route before navigating
+        const isValidRoute = validRecoveryRoutes.some(
+          route => session.lastScreen === route || session.lastScreen?.startsWith(route + '/')
+        );
 
-      if (isValidRoute) {
-        try {
-          router.push(session.lastScreen as Href);
-          return;
-        } catch (e) {
-          console.warn('[_layout] Invalid recovery route:', session.lastScreen);
+        if (isValidRoute) {
+          try {
+            router.push(session.lastScreen as Href);
+            return;
+          } catch (_e) {
+            console.warn('[_layout] Invalid recovery route:', session.lastScreen);
+          }
         }
+        // Fallback to tabs for invalid or unknown routes
+        router.replace('/(tabs)');
       }
-      // Fallback to tabs for invalid or unknown routes
-      router.replace('/(tabs)');
-    }
-  }, [router]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [router]
+  );
 
   // ChatBot: show when authenticated and in tabs (onboarding check removed for now)
   const showChatBot = isAuthenticated && segments[0] === '(tabs)';
 
   if (__DEV__) {
-    console.log('[_layout] ChatBot visibility:', { showChatBot, isAuthenticated, segment: segments[0] });
+    console.log('[_layout] ChatBot visibility:', {
+      showChatBot,
+      isAuthenticated,
+      segment: segments[0],
+    });
   }
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#7C3AED' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#7C3AED',
+        }}
+      >
         <ActivityIndicator size="large" color="white" />
       </View>
     );
@@ -319,15 +342,17 @@ export default function RootLayout() {
               <RoleProvider>
                 <trpc.Provider client={trpcClient} queryClient={queryClient}>
                   <QueryClientProvider client={queryClient}>
-                    <ChildProvider>
-                      <OverlayProvider>
-                        <ToastProvider>
-                          <DelightWrapper>
-                            <RootLayoutNav />
-                          </DelightWrapper>
-                        </ToastProvider>
-                      </OverlayProvider>
-                    </ChildProvider>
+                    <AuthProvider>
+                      <ChildProvider>
+                        <OverlayProvider>
+                          <ToastProvider>
+                            <DelightWrapper>
+                              <RootLayoutNav />
+                            </DelightWrapper>
+                          </ToastProvider>
+                        </OverlayProvider>
+                      </ChildProvider>
+                    </AuthProvider>
                   </QueryClientProvider>
                 </trpc.Provider>
               </RoleProvider>

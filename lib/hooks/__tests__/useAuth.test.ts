@@ -6,10 +6,17 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 
+// Import after mocks
+import { useAuth } from '../useAuth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+
 // Mock dependencies before importing the hook
+/* eslint-disable @typescript-eslint/no-require-imports */
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 jest.mock('expo-secure-store', () => ({
   setItemAsync: jest.fn(() => Promise.resolve()),
@@ -51,11 +58,6 @@ jest.mock('@/lib/supabase', () => ({
   signUp: jest.fn(),
   signOut: jest.fn(),
 }));
-
-// Import after mocks
-import { useAuth } from '../useAuth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
 
 describe('useAuth', () => {
   beforeEach(() => {

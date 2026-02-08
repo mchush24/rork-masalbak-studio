@@ -6,7 +6,7 @@
 
 // Authentication
 export { useAuth } from './useAuth';
-export type { UserSession, Child, UserProfile } from './useAuth';
+export type { UserSession, Child } from './useAuth';
 
 // Drawing Analysis
 export { useAnalyzeDrawing } from './useAnalyzeDrawing';
@@ -48,9 +48,4 @@ export {
 } from './useCopywriting';
 
 // Greeting (Part of #23: Profesyonel Copywriting Revizyonu)
-export {
-  useGreeting,
-  useGreetingTitle,
-  useGreetingSubtitle,
-  useTimeOfDay,
-} from './useGreeting';
+export { useGreeting, useGreetingTitle, useGreetingSubtitle, useTimeOfDay } from './useGreeting';
