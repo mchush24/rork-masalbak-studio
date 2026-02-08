@@ -1,7 +1,8 @@
-import { logger } from "../../../lib/utils.js";
-import { publicProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { supabase } from "../../../lib/supabase.js";
+import { logger } from '../../../lib/utils.js';
+import { publicProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { supabase } from '../../../lib/supabase.js';
+import { authRateLimit } from '../../middleware/rate-limit.js';
 
 const checkEmailInputSchema = z.object({
   email: z.string().email(),
@@ -13,10 +14,11 @@ const checkEmailResponseSchema = z.object({
 });
 
 export const checkEmailProcedure = publicProcedure
+  .use(authRateLimit)
   .input(checkEmailInputSchema)
   .output(checkEmailResponseSchema)
   .mutation(async ({ input }) => {
-    logger.info("[Auth] 🔍 Checking email:", input.email);
+    logger.info('[Auth] 🔍 Checking email:', input.email);
 
     try {
       const { data: user, error } = await supabase
@@ -26,20 +28,20 @@ export const checkEmailProcedure = publicProcedure
         .single();
 
       if (error || !user) {
-        logger.info("[Auth] 📧 Email not registered:", input.email);
+        logger.info('[Auth] 📧 Email not registered:', input.email);
         return {
           exists: false,
           hasPassword: false,
         };
       }
 
-      logger.info("[Auth] ✅ Email exists:", input.email);
+      logger.info('[Auth] ✅ Email exists:', input.email);
       return {
         exists: true,
         hasPassword: !!user.password_hash,
       };
     } catch (error) {
-      logger.error("[Auth] ❌ Check email error:", error);
+      logger.error('[Auth] ❌ Check email error:', error);
       return {
         exists: false,
         hasPassword: false,

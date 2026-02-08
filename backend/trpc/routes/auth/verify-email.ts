@@ -1,8 +1,9 @@
-import { logger } from "../../../lib/utils.js";
-import { publicProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { supabase } from "../../../lib/supabase.js";
-import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt.js";
+import { logger } from '../../../lib/utils.js';
+import { publicProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { supabase } from '../../../lib/supabase.js';
+import { generateAccessToken, generateRefreshToken } from '../../../lib/auth/jwt.js';
+import { authRateLimit } from '../../middleware/rate-limit.js';
 
 const verifyEmailInputSchema = z.object({
   email: z.string().email(),
@@ -18,10 +19,11 @@ const verifyEmailResponseSchema = z.object({
 });
 
 export const verifyEmailProcedure = publicProcedure
+  .use(authRateLimit)
   .input(verifyEmailInputSchema)
   .output(verifyEmailResponseSchema)
   .mutation(async ({ input }) => {
-    logger.info("[Auth] 🔐 Verifying email code:", input.email);
+    logger.info('[Auth] 🔐 Verifying email code:', input.email);
 
     try {
       // Get the latest verification code for this email
@@ -34,10 +36,10 @@ export const verifyEmailProcedure = publicProcedure
         .single();
 
       if (fetchError || !verificationRecord) {
-        logger.error("[Auth] ❌ No verification code found for:", input.email);
+        logger.error('[Auth] ❌ No verification code found for:', input.email);
         return {
           success: false,
-          message: "Doğrulama kodu bulunamadı. Lütfen tekrar kayıt olun.",
+          message: 'Doğrulama kodu bulunamadı. Lütfen tekrar kayıt olun.',
         };
       }
 
@@ -46,33 +48,25 @@ export const verifyEmailProcedure = publicProcedure
       const now = new Date();
 
       if (now > expiresAt) {
-        logger.error("[Auth] ❌ Verification code expired for:", input.email);
+        logger.error('[Auth] ❌ Verification code expired for:', input.email);
         return {
           success: false,
-          message: "Doğrulama kodunun süresi dolmuş. Lütfen tekrar kayıt olun.",
+          message: 'Doğrulama kodunun süresi dolmuş. Lütfen tekrar kayıt olun.',
         };
       }
 
       // Check if code matches (codes are masked in logs for security)
-      logger.info("[Auth] 🔍 Comparing verification codes for:", input.email);
+      logger.info('[Auth] 🔍 Comparing verification codes for:', input.email);
 
       if (verificationRecord.code.trim() !== input.code.trim()) {
-        logger.error("[Auth] ❌ Invalid verification code for:", input.email);
+        logger.error('[Auth] ❌ Invalid verification code for:', input.email);
         return {
           success: false,
-          message: "Doğrulama kodu hatalı. Lütfen tekrar deneyin.",
+          message: 'Doğrulama kodu hatalı. Lütfen tekrar deneyin.',
         };
       }
 
-      // Delete used verification code
-      await supabase
-        .from('verification_codes')
-        .delete()
-        .eq('email', input.email);
-
-      logger.info("[Auth] ✅ Email verified successfully:", input.email);
-
-      // Get user for token generation
+      // Get user BEFORE deleting the code (so code can be retried if user lookup fails)
       const { data: user } = await supabase
         .from('users')
         .select('id, email')
@@ -80,28 +74,37 @@ export const verifyEmailProcedure = publicProcedure
         .single();
 
       if (!user) {
-        throw new Error("User not found after verification");
+        logger.error('[Auth] User not found after code verification:', input.email);
+        return {
+          success: false,
+          message: 'Kullanıcı bulunamadı. Lütfen tekrar kayıt olun.',
+        };
       }
+
+      // Delete used verification code only after user is confirmed
+      await supabase.from('verification_codes').delete().eq('email', input.email);
+
+      logger.info('[Auth] Email verified successfully:', input.email);
 
       // Generate JWT tokens
       const tokenPayload = { userId: user.id, email: user.email };
       const accessToken = generateAccessToken(tokenPayload);
       const refreshToken = generateRefreshToken(tokenPayload);
 
-      logger.info("[Auth] 🔑 Generated JWT tokens for user:", user.id);
+      logger.info('[Auth] 🔑 Generated JWT tokens for user:', user.id);
 
       return {
         success: true,
-        message: "Email adresiniz başarıyla doğrulandı!",
+        message: 'Email adresiniz başarıyla doğrulandı!',
         userId: user.id,
         accessToken,
         refreshToken,
       };
     } catch (error) {
-      logger.error("[Auth] ❌ Verification error:", error);
+      logger.error('[Auth] ❌ Verification error:', error);
       return {
         success: false,
-        message: "Doğrulama sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+        message: 'Doğrulama sırasında bir hata oluştu. Lütfen tekrar deneyin.',
       };
     }
   });
