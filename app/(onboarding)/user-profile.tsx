@@ -10,22 +10,8 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  Dimensions,
-  Platform,
-  TextInput,
-} from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInRight,
-  SlideOutLeft,
-} from 'react-native-reanimated';
+import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions } from 'react-native';
+import Animated, { SlideInRight, SlideOutLeft } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, Href } from 'expo-router';
@@ -42,7 +28,6 @@ import {
   Shield,
   Lightbulb,
   Bell,
-  Globe,
   Sun,
   Moon,
   Sparkles,
@@ -52,8 +37,8 @@ import { typography, spacing, radius, shadows } from '@/constants/design-system'
 import { useHapticFeedback } from '@/lib/haptics';
 import { assistantEngine, UserType } from '@/lib/coaching';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const isSmallDevice = SCREEN_HEIGHT < 700;
+const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const _isSmallDevice = SCREEN_HEIGHT < 700;
 
 type UsagePurpose = 'parent' | 'professional' | 'teacher';
 type ExperienceLevel = 'student' | '1-3' | '4-10' | '10+';
@@ -121,12 +106,36 @@ const EXPERIENCE_OPTIONS = [
 ];
 
 const PRIORITY_NEEDS = [
-  { id: 'emotional_awareness' as PriorityNeed, icon: <Heart size={18} color={Colors.primary.sunset} />, label: 'Duygusal farkındalık geliştirme' },
-  { id: 'communication' as PriorityNeed, icon: <Users size={18} color={Colors.secondary.sky} />, label: 'İletişim sorunlarını anlama' },
-  { id: 'trauma_recognition' as PriorityNeed, icon: <Shield size={18} color={Colors.semantic.warning} />, label: 'Travma/stres belirtilerini tanıma' },
-  { id: 'creativity' as PriorityNeed, icon: <Sparkles size={18} color={Colors.secondary.lavender} />, label: 'Yaratıcılığı destekleme' },
-  { id: 'development_tracking' as PriorityNeed, icon: <Clock size={18} color={Colors.secondary.grass} />, label: 'Gelişimsel takip yapma' },
-  { id: 'professional_reporting' as PriorityNeed, icon: <Briefcase size={18} color={Colors.neutral.dark} />, label: 'Profesyonel raporlama' },
+  {
+    id: 'emotional_awareness' as PriorityNeed,
+    icon: <Heart size={18} color={Colors.primary.sunset} />,
+    label: 'Duygusal farkındalık geliştirme',
+  },
+  {
+    id: 'communication' as PriorityNeed,
+    icon: <Users size={18} color={Colors.secondary.sky} />,
+    label: 'İletişim sorunlarını anlama',
+  },
+  {
+    id: 'trauma_recognition' as PriorityNeed,
+    icon: <Shield size={18} color={Colors.semantic.warning} />,
+    label: 'Travma/stres belirtilerini tanıma',
+  },
+  {
+    id: 'creativity' as PriorityNeed,
+    icon: <Sparkles size={18} color={Colors.secondary.lavender} />,
+    label: 'Yaratıcılığı destekleme',
+  },
+  {
+    id: 'development_tracking' as PriorityNeed,
+    icon: <Clock size={18} color={Colors.secondary.grass} />,
+    label: 'Gelişimsel takip yapma',
+  },
+  {
+    id: 'professional_reporting' as PriorityNeed,
+    icon: <Briefcase size={18} color={Colors.neutral.dark} />,
+    label: 'Profesyonel raporlama',
+  },
 ];
 
 export default function UserProfileScreen() {
@@ -182,9 +191,12 @@ export default function UserProfileScreen() {
     success();
     // Save user type to assistant engine
     if (profile.usagePurpose) {
-      const userType: UserType = profile.usagePurpose === 'parent' ? 'parent'
-        : profile.usagePurpose === 'professional' ? 'professional'
-        : 'teacher';
+      const userType: UserType =
+        profile.usagePurpose === 'parent'
+          ? 'parent'
+          : profile.usagePurpose === 'professional'
+            ? 'professional'
+            : 'teacher';
       await assistantEngine.setUserType(userType);
     }
     router.push('/(onboarding)/register' as Href);
@@ -212,18 +224,12 @@ export default function UserProfileScreen() {
     switch (step) {
       case 1:
         return (
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideOutLeft}
-            style={styles.stepContent}
-          >
+          <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
             <Text style={styles.stepTitle}>Kullanım Amacı</Text>
-            <Text style={styles.stepDescription}>
-              Renkioo'yu nasıl kullanacaksınız?
-            </Text>
+            <Text style={styles.stepDescription}>{"Renkioo'yu nasıl kullanacaksınız?"}</Text>
 
             <View style={styles.optionsContainer}>
-              {USAGE_OPTIONS.map((option) => (
+              {USAGE_OPTIONS.map(option => (
                 <Pressable
                   key={option.id}
                   onPress={() => handleSelectPurpose(option.id)}
@@ -233,10 +239,7 @@ export default function UserProfileScreen() {
                     pressed && { opacity: 0.9 },
                   ]}
                 >
-                  <LinearGradient
-                    colors={option.gradient}
-                    style={styles.optionGradient}
-                  >
+                  <LinearGradient colors={option.gradient} style={styles.optionGradient}>
                     <View style={styles.optionIcon}>{option.icon}</View>
                     <View style={styles.optionText}>
                       <Text style={styles.optionTitle}>{option.title}</Text>
@@ -263,12 +266,10 @@ export default function UserProfileScreen() {
               style={styles.stepContent}
             >
               <Text style={styles.stepTitle}>Aile Yapısı</Text>
-              <Text style={styles.stepDescription}>
-                Kaç çocuğunuz var?
-              </Text>
+              <Text style={styles.stepDescription}>Kaç çocuğunuz var?</Text>
 
               <View style={styles.childrenSelector}>
-                {[1, 2, 3, 4].map((count) => (
+                {[1, 2, 3, 4].map(count => (
                   <Pressable
                     key={count}
                     onPress={() => {
@@ -303,18 +304,12 @@ export default function UserProfileScreen() {
         }
 
         return (
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideOutLeft}
-            style={styles.stepContent}
-          >
+          <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
             <Text style={styles.stepTitle}>Deneyim Seviyesi</Text>
-            <Text style={styles.stepDescription}>
-              Çocuk psikolojisi alanındaki deneyiminiz?
-            </Text>
+            <Text style={styles.stepDescription}>Çocuk psikolojisi alanındaki deneyiminiz?</Text>
 
             <View style={styles.experienceOptions}>
-              {EXPERIENCE_OPTIONS.map((option) => (
+              {EXPERIENCE_OPTIONS.map(option => (
                 <Pressable
                   key={option.id}
                   onPress={() => handleSelectExperience(option.id)}
@@ -342,18 +337,14 @@ export default function UserProfileScreen() {
 
       case 3:
         return (
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideOutLeft}
-            style={styles.stepContent}
-          >
+          <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
             <Text style={styles.stepTitle}>Öncelikli İhtiyaçlar</Text>
             <Text style={styles.stepDescription}>
               En çok hangi konularda destek istiyorsunuz? (Maks. 3)
             </Text>
 
             <View style={styles.needsGrid}>
-              {PRIORITY_NEEDS.map((need) => {
+              {PRIORITY_NEEDS.map(need => {
                 const isSelected = profile.priorityNeeds.includes(need.id);
                 const isDisabled = !isSelected && profile.priorityNeeds.length >= 3;
 
@@ -368,12 +359,7 @@ export default function UserProfileScreen() {
                     ]}
                   >
                     {need.icon}
-                    <Text
-                      style={[
-                        styles.needText,
-                        isSelected && styles.needTextSelected,
-                      ]}
-                    >
+                    <Text style={[styles.needText, isSelected && styles.needTextSelected]}>
                       {need.label}
                     </Text>
                     {isSelected && (
@@ -390,15 +376,9 @@ export default function UserProfileScreen() {
 
       case 4:
         return (
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideOutLeft}
-            style={styles.stepContent}
-          >
+          <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
             <Text style={styles.stepTitle}>Tercihler</Text>
-            <Text style={styles.stepDescription}>
-              Uygulama deneyiminizi özelleştirin
-            </Text>
+            <Text style={styles.stepDescription}>Uygulama deneyiminizi özelleştirin</Text>
 
             {/* Notifications */}
             <View style={styles.preferenceSection}>
@@ -407,7 +387,7 @@ export default function UserProfileScreen() {
                 <Text style={styles.preferenceLabel}>Bildirimler</Text>
               </View>
               <View style={styles.notificationOptions}>
-                {(['daily', 'weekly', 'off'] as NotificationFrequency[]).map((freq) => (
+                {(['daily', 'weekly', 'off'] as NotificationFrequency[]).map(freq => (
                   <Pressable
                     key={freq}
                     onPress={() => {
@@ -439,7 +419,7 @@ export default function UserProfileScreen() {
                 <Text style={styles.preferenceLabel}>Tema</Text>
               </View>
               <View style={styles.themeOptions}>
-                {(['light', 'dark', 'system'] as Theme[]).map((theme) => (
+                {(['light', 'dark', 'system'] as Theme[]).map(theme => (
                   <Pressable
                     key={theme}
                     onPress={() => {
@@ -451,9 +431,30 @@ export default function UserProfileScreen() {
                       profile.theme === theme && styles.themeOptionSelected,
                     ]}
                   >
-                    {theme === 'light' && <Sun size={16} color={profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium} />}
-                    {theme === 'dark' && <Moon size={16} color={profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium} />}
-                    {theme === 'system' && <Lightbulb size={16} color={profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium} />}
+                    {theme === 'light' && (
+                      <Sun
+                        size={16}
+                        color={
+                          profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium
+                        }
+                      />
+                    )}
+                    {theme === 'dark' && (
+                      <Moon
+                        size={16}
+                        color={
+                          profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium
+                        }
+                      />
+                    )}
+                    {theme === 'system' && (
+                      <Lightbulb
+                        size={16}
+                        color={
+                          profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium
+                        }
+                      />
+                    )}
                     <Text
                       style={[
                         styles.themeText,
@@ -474,8 +475,8 @@ export default function UserProfileScreen() {
                 {profile.usagePurpose === 'parent'
                   ? 'Ebeveyn modunda sıcak ve destekleyici bir deneyim sunulacak.'
                   : profile.usagePurpose === 'professional'
-                  ? 'Profesyonel modda detaylı analiz araçları ve raporlama aktif olacak.'
-                  : 'Öğretmen modunda sınıf yönetimi özellikleri sunulacak.'}
+                    ? 'Profesyonel modda detaylı analiz araçları ve raporlama aktif olacak.'
+                    : 'Öğretmen modunda sınıf yönetimi özellikleri sunulacak.'}
               </Text>
             </View>
           </Animated.View>
@@ -487,10 +488,7 @@ export default function UserProfileScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#FFF8F0', '#F5E8FF', '#FFE8F5']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#FFF8F0', '#F5E8FF', '#FFE8F5']} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>

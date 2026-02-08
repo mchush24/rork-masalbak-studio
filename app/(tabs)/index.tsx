@@ -5,7 +5,7 @@
  * Part of #17: Profesyonel Dashboard Tasarımı
  */
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,7 +17,7 @@ import {
   Dimensions,
   StatusBar,
   Modal,
-} from "react-native";
+} from 'react-native';
 import {
   BookOpen,
   Palette,
@@ -33,24 +33,18 @@ import {
   X,
   Wand2,
   FileText,
-} from "lucide-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, Href } from "expo-router";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
-import { Colors, RenkooColors, EtherealColors, ProfessionalColors } from "@/constants/colors";
-import { useLanguage } from "@/lib/contexts/LanguageContext";
-import {
-  layout,
-  typography,
-  spacing,
-  radius,
-  shadows,
-} from "@/constants/design-system";
-import { GreetingService } from "@/lib/services/greeting-service";
-import { useGamification } from "@/lib/gamification";
-import { StreakDisplay, XPProgressBar, NewBadgeModal } from "@/components/gamification";
+} from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter, Href } from 'expo-router';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { trpc } from '@/lib/trpc';
+import { Colors, RenkooColors, EtherealColors, ProfessionalColors } from '@/constants/colors';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { spacing, shadows } from '@/constants/design-system';
+import { GreetingService } from '@/lib/services/greeting-service';
+import { useGamification } from '@/lib/gamification';
+import { StreakDisplay, XPProgressBar, NewBadgeModal } from '@/components/gamification';
 
 // Role Context
 import {
@@ -59,14 +53,13 @@ import {
   useMascotSettings,
   useRoleText,
   useIsProfessional,
-} from "@/lib/contexts/RoleContext";
+} from '@/lib/contexts/RoleContext';
 
 // Components
-import { Ioo as IooMascot } from "@/components/Ioo";
-import { OrganicContainer } from "@/components/OrganicContainer";
-import { FeatureCardCompact } from "@/components/FeatureCard";
-import { JellyButton } from "@/components/JellyButton";
-import { ChildSelectorChip } from "@/components/ChildSelectorChip";
+import { Ioo as IooMascot } from '@/components/Ioo';
+import { OrganicContainer } from '@/components/OrganicContainer';
+import { FeatureCardCompact } from '@/components/FeatureCard';
+import { ChildSelectorChip } from '@/components/ChildSelectorChip';
 
 // Dashboard Components
 import {
@@ -74,12 +67,27 @@ import {
   DashboardSummaryCards,
   ProfessionalToolsSection,
   RecentActivityList,
-} from "@/components/dashboard";
+} from '@/components/dashboard';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 
-type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
+type TaskType =
+  | 'DAP'
+  | 'HTP'
+  | 'Family'
+  | 'Cactus'
+  | 'Tree'
+  | 'Garden'
+  | 'BenderGestalt2'
+  | 'ReyOsterrieth'
+  | 'Aile'
+  | 'Kaktus'
+  | 'Agac'
+  | 'Bahce'
+  | 'Bender'
+  | 'Rey'
+  | 'Luscher';
 
 interface RecentAnalysis {
   id: string;
@@ -105,39 +113,39 @@ interface ProcessedChild {
 }
 
 const TASK_TYPE_LABELS: Record<TaskType, string> = {
-  DAP: "İnsan Çizimi",
-  HTP: "Ev-Ağaç-İnsan",
-  Family: "Aile Çizimi",
-  Aile: "Aile Çizimi",
-  Cactus: "Kaktüs Testi",
-  Kaktus: "Kaktüs Testi",
-  Tree: "Ağaç Testi",
-  Agac: "Ağaç Testi",
-  Garden: "Bahçe Testi",
-  Bahce: "Bahçe Testi",
-  BenderGestalt2: "Bender Gestalt",
-  Bender: "Bender Gestalt",
-  ReyOsterrieth: "Rey Figure",
-  Rey: "Rey Figure",
-  Luscher: "Luscher Renk",
+  DAP: 'İnsan Çizimi',
+  HTP: 'Ev-Ağaç-İnsan',
+  Family: 'Aile Çizimi',
+  Aile: 'Aile Çizimi',
+  Cactus: 'Kaktüs Testi',
+  Kaktus: 'Kaktüs Testi',
+  Tree: 'Ağaç Testi',
+  Agac: 'Ağaç Testi',
+  Garden: 'Bahçe Testi',
+  Bahce: 'Bahçe Testi',
+  BenderGestalt2: 'Bender Gestalt',
+  Bender: 'Bender Gestalt',
+  ReyOsterrieth: 'Rey Figure',
+  Rey: 'Rey Figure',
+  Luscher: 'Luscher Renk',
 };
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t: _t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
 
   // Role Context hooks
-  const { role, config: roleConfig } = useRole();
+  const { role: _role, config: _roleConfig } = useRole();
   const gamificationSettings = useGamificationSettings();
   const mascotSettings = useMascotSettings();
   const isProfessional = useIsProfessional();
-  const ctaText = useRoleText('cta_new_analysis');
-  const childrenTitle = useRoleText('children_title');
+  const _ctaText = useRoleText('cta_new_analysis');
+  const _childrenTitle = useRoleText('children_title');
 
   // Gamification hook (only active for non-professionals)
   const {
@@ -158,7 +166,7 @@ export default function HomeScreen() {
   // Fetch children
   const {
     data: childrenData,
-    isLoading: childrenLoading,
+    isLoading: _childrenLoading,
     refetch: refetchChildren,
   } = trpc.user.getChildren.useQuery(undefined, {
     enabled: !!user?.userId,
@@ -194,21 +202,17 @@ export default function HomeScreen() {
     {
       limit: 3,
       offset: 0,
-      sortBy: "created_at",
-      sortOrder: "desc",
+      sortBy: 'created_at',
+      sortOrder: 'desc',
       childName: selectedChild?.name,
     },
     { enabled: !!user?.userId }
   );
 
   // Fetch user stats
-  const {
-    data: userStats,
-    refetch: refetchStats,
-  } = trpc.user.getUserStats.useQuery(
-    undefined,
-    { enabled: !!user?.userId }
-  );
+  const { data: userStats, refetch: refetchStats } = trpc.user.getUserStats.useQuery(undefined, {
+    enabled: !!user?.userId,
+  });
 
   // Get dynamic greeting
   const greeting = useMemo(() => {
@@ -230,16 +234,21 @@ export default function HomeScreen() {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Bugün";
-    if (diffDays === 1) return "Dün";
+    if (diffDays === 0) return 'Bugün';
+    if (diffDays === 1) return 'Dün';
     if (diffDays < 7) return `${diffDays} gün önce`;
-    return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
+    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
   };
 
   const recentAnalyses = recentAnalysesData?.analyses || [];
-  const stats = userStats || { totalAnalyses: 0, totalStorybooks: 0, totalColorings: 0, totalActivities: 0 };
+  const stats = userStats || {
+    totalAnalyses: 0,
+    totalStorybooks: 0,
+    totalColorings: 0,
+    totalActivities: 0,
+  };
 
   // Get gradient colors based on role
   const getBackgroundGradient = (): [string, string] => {
@@ -275,17 +284,21 @@ export default function HomeScreen() {
           {children.length > 0 && (
             <View style={styles.childSelectorSection}>
               <ChildSelectorChip
-                selectedChild={selectedChild ? {
-                  name: selectedChild.name,
-                  age: selectedChild.age || 0,
-                  avatarId: selectedChild.avatarUrl,
-                } : null}
+                selectedChild={
+                  selectedChild
+                    ? {
+                        name: selectedChild.name,
+                        age: selectedChild.age || 0,
+                        avatarId: selectedChild.avatarUrl,
+                      }
+                    : null
+                }
                 childrenList={children.map(c => ({
                   name: c.name,
                   age: c.age || 0,
                   avatarId: c.avatarUrl,
                 }))}
-                onSelectChild={(child) => {
+                onSelectChild={child => {
                   const found = children.find(c => c.name === child.name);
                   if (found) setSelectedChildId(found.id);
                 }}
@@ -300,8 +313,8 @@ export default function HomeScreen() {
               /* Professional Header - Simpler, no mascot prominence */
               <DashboardHeader
                 userName={user?.name}
-                onMascotPress={() => router.push("/chatbot" as Href)}
-                onSettingsPress={() => router.push("/profile" as Href)}
+                onMascotPress={() => router.push('/chatbot' as Href)}
+                onSettingsPress={() => router.push('/profile' as Href)}
                 notificationCount={0}
               />
             ) : (
@@ -317,11 +330,11 @@ export default function HomeScreen() {
                   {mascotSettings.showOnDashboard && (
                     <View style={styles.mascotContainer}>
                       <IooMascot
-                        size={isSmallDevice ? "medium" : "large"}
+                        size={isSmallDevice ? 'medium' : 'large'}
                         animated
                         showGlow={mascotSettings.prominence === 'high'}
                         mood="happy"
-                        onPress={() => router.push("/chatbot" as Href)}
+                        onPress={() => router.push('/chatbot' as Href)}
                       />
                       {mascotSettings.prominence === 'high' && (
                         <View style={styles.chatHint}>
@@ -333,13 +346,19 @@ export default function HomeScreen() {
                   )}
 
                   {/* Welcome Text */}
-                  <View style={[styles.heroTextContainer, !mascotSettings.showOnDashboard && { flex: 1 }]}>
+                  <View
+                    style={[
+                      styles.heroTextContainer,
+                      !mascotSettings.showOnDashboard && { flex: 1 },
+                    ]}
+                  >
                     <Text style={styles.heroGreeting}>{greeting.title}</Text>
                     <Text style={styles.heroSubtitle}>{greeting.subtitle}</Text>
                     {mascotSettings.showOnDashboard && mascotSettings.prominence === 'high' && (
                       <View style={styles.mascotIntro}>
                         <Text style={styles.mascotIntroText}>
-                          Ben <Text style={styles.mascotName}>Ioo</Text>, çocuğunuzun gelişim yolculuğunda yanınızdayım
+                          Ben <Text style={styles.mascotName}>Ioo</Text>, çocuğunuzun gelişim
+                          yolculuğunda yanınızdayım
                         </Text>
                       </View>
                     )}
@@ -355,7 +374,7 @@ export default function HomeScreen() {
               onPress={() => setShowActionModal(true)}
               style={({ pressed }) => [
                 styles.primaryCtaCard,
-                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] }
+                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
               ]}
             >
               <LinearGradient
@@ -390,7 +409,12 @@ export default function HomeScreen() {
               {/* Section Header with Primary Styling */}
               <View style={styles.sectionHeaderPrimary}>
                 <View style={styles.sectionTitleRow}>
-                  <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
+                  <View
+                    style={[
+                      styles.sectionTitleIcon,
+                      { backgroundColor: 'rgba(245, 158, 11, 0.15)' },
+                    ]}
+                  >
                     <TrendingUp size={16} color="#F59E0B" />
                   </View>
                   <Text style={styles.sectionTitlePrimary}>İlerleme</Text>
@@ -403,20 +427,23 @@ export default function HomeScreen() {
                   <StreakDisplay
                     currentStreak={streakData?.currentStreak || 0}
                     longestStreak={streakData?.longestStreak || 0}
-                    isActiveToday={streakData?.lastActivityDate === new Date().toISOString().split('T')[0]}
+                    isActiveToday={
+                      streakData?.lastActivityDate === new Date().toISOString().split('T')[0]
+                    }
                     streakAtRisk={
                       !streakData?.lastActivityDate ||
                       (streakData?.currentStreak > 0 &&
                         streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
-                        streakData?.lastActivityDate !== (() => {
-                          const yesterday = new Date();
-                          yesterday.setDate(yesterday.getDate() - 1);
-                          return yesterday.toISOString().split('T')[0];
-                        })())
+                        streakData?.lastActivityDate !==
+                          (() => {
+                            const yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            return yesterday.toISOString().split('T')[0];
+                          })())
                     }
                     hasFreezeAvailable={streakData?.streakFreezeAvailable}
                     size="compact"
-                    onPress={() => router.push("/profile" as Href)}
+                    onPress={() => router.push('/profile' as Href)}
                   />
                   <View style={styles.xpContainer}>
                     <XPProgressBar
@@ -426,15 +453,12 @@ export default function HomeScreen() {
                       totalXp={totalXp}
                       progressPercent={levelInfo.progressPercent}
                       size="compact"
-                      onPress={() => router.push("/profile" as Href)}
+                      onPress={() => router.push('/profile' as Href)}
                     />
                   </View>
                   <Pressable
-                    style={({ pressed }) => [
-                      styles.badgesButton,
-                      pressed && { opacity: 0.8 },
-                    ]}
-                    onPress={() => router.push("/profile" as Href)}
+                    style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
+                    onPress={() => router.push('/profile' as Href)}
                   >
                     <Trophy size={18} color="#F59E0B" />
                   </Pressable>
@@ -476,11 +500,15 @@ export default function HomeScreen() {
                 recentTrend: 'up',
                 trendPercent: 12,
               }}
-              onCardPress={(cardType) => {
+              onCardPress={cardType => {
                 if (cardType === 'total' || cardType === 'cases') {
-                  router.push("/history" as Href);
-                } else if (cardType === 'children' || cardType === 'clients' || cardType === 'students') {
-                  router.push("/profile" as Href);
+                  router.push('/history' as Href);
+                } else if (
+                  cardType === 'children' ||
+                  cardType === 'clients' ||
+                  cardType === 'students'
+                ) {
+                  router.push('/profile' as Href);
                 }
               }}
               isLoading={analysesLoading}
@@ -517,7 +545,7 @@ export default function HomeScreen() {
                   styles.atolyeCard,
                   pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
                 ]}
-                onPress={() => router.push("/hayal-atolyesi" as Href)}
+                onPress={() => router.push('/hayal-atolyesi' as Href)}
               >
                 <LinearGradient
                   colors={['#E8D5FF', '#FFCBA4', '#FFD6E0']}
@@ -529,9 +557,7 @@ export default function HomeScreen() {
                     <Text style={styles.atolyeEmoji}>🌟</Text>
                     <View style={styles.atolyeTextContainer}>
                       <Text style={styles.atolyeTitle}>Hayal Atölyesi</Text>
-                      <Text style={styles.atolyeSubtitle}>
-                        Çizimden Masal • Boyama • Analiz
-                      </Text>
+                      <Text style={styles.atolyeSubtitle}>Çizimden Masal • Boyama • Analiz</Text>
                     </View>
                     <ChevronRight size={24} color={Colors.neutral.darker} />
                   </View>
@@ -544,25 +570,27 @@ export default function HomeScreen() {
                   title="Ioo"
                   icon={<MessageCircle size={22} color={RenkooColors.featureCards.chat.icon} />}
                   type="chat"
-                  onPress={() => router.push("/chatbot" as Href)}
+                  onPress={() => router.push('/chatbot' as Href)}
                 />
                 <FeatureCardCompact
                   title="Masal"
                   icon={<BookOpen size={22} color={RenkooColors.featureCards.story.icon} />}
                   type="story"
-                  onPress={() => router.push("/stories" as Href)}
+                  onPress={() => router.push('/stories' as Href)}
                 />
                 <FeatureCardCompact
                   title="Boyama"
                   icon={<Palette size={22} color={RenkooColors.featureCards.coloring.icon} />}
                   type="coloring"
-                  onPress={() => router.push("/coloring-history" as Href)}
+                  onPress={() => router.push('/coloring-history' as Href)}
                 />
                 <FeatureCardCompact
                   title="Ödüller"
-                  icon={<Gift size={22} color={RenkooColors.featureCards.reward?.icon || '#F59E0B'} />}
+                  icon={
+                    <Gift size={22} color={RenkooColors.featureCards.reward?.icon || '#F59E0B'} />
+                  }
                   type="reward"
-                  onPress={() => router.push("/profile" as Href)}
+                  onPress={() => router.push('/profile' as Href)}
                 />
               </View>
             </View>
@@ -584,8 +612,8 @@ export default function HomeScreen() {
                 status: 'completed' as const,
               }))}
               isLoading={analysesLoading}
-              onAnalysisPress={(id) => router.push(`/analysis/${id}` as Href)}
-              onSeeAllPress={() => router.push("/history" as Href)}
+              onAnalysisPress={id => router.push(`/analysis/${id}` as Href)}
+              onSeeAllPress={() => router.push('/history' as Href)}
               maxItems={5}
             />
           ) : (
@@ -594,14 +622,19 @@ export default function HomeScreen() {
               {/* Section Header - Secondary */}
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleRow}>
-                  <View style={[styles.sectionTitleIcon, { backgroundColor: 'rgba(185, 142, 255, 0.15)' }]}>
+                  <View
+                    style={[
+                      styles.sectionTitleIcon,
+                      { backgroundColor: 'rgba(185, 142, 255, 0.15)' },
+                    ]}
+                  >
                     <Clock size={16} color={Colors.primary.sunset} />
                   </View>
                   <Text style={styles.sectionTitleSecondary}>Son Analizler</Text>
                 </View>
                 {recentAnalyses.length > 0 && (
                   <Pressable
-                    onPress={() => router.push("/history" as Href)}
+                    onPress={() => router.push('/history' as Href)}
                     style={({ pressed }) => [pressed && { opacity: 0.6 }]}
                   >
                     <Text style={styles.seeAllText}>Tümünü Gör →</Text>
@@ -635,7 +668,7 @@ export default function HomeScreen() {
                     </View>
                     <Pressable
                       style={styles.emptyCtaButton}
-                      onPress={() => router.push("/advanced-analysis" as Href)}
+                      onPress={() => router.push('/advanced-analysis' as Href)}
                     >
                       <Camera size={16} color={Colors.primary.sunset} />
                       <Text style={styles.emptyCtaText}>İlk Analizi Başlat</Text>
@@ -647,10 +680,7 @@ export default function HomeScreen() {
                   {recentAnalyses.map((analysis: RecentAnalysis) => (
                     <Pressable
                       key={analysis.id}
-                      style={({ pressed }) => [
-                        styles.recentCard,
-                        pressed && { opacity: 0.8 },
-                      ]}
+                      style={({ pressed }) => [styles.recentCard, pressed && { opacity: 0.8 }]}
                       onPress={() => router.push(`/analysis/${analysis.id}` as Href)}
                     >
                       <OrganicContainer style={styles.recentCardInner}>
@@ -702,10 +732,7 @@ export default function HomeScreen() {
         animationType="slide"
         onRequestClose={() => setShowActionModal(false)}
       >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setShowActionModal(false)}
-        >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowActionModal(false)}>
           <View style={styles.modalContent}>
             {/* Handle Bar */}
             <View style={styles.modalHandle} />
@@ -713,10 +740,7 @@ export default function HomeScreen() {
             {/* Modal Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Ne yapmak istersiniz?</Text>
-              <Pressable
-                onPress={() => setShowActionModal(false)}
-                style={styles.modalCloseBtn}
-              >
+              <Pressable onPress={() => setShowActionModal(false)} style={styles.modalCloseBtn}>
                 <X size={20} color={Colors.neutral.medium} />
               </Pressable>
             </View>
@@ -727,17 +751,14 @@ export default function HomeScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.actionOption,
-                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
                 onPress={() => {
                   setShowActionModal(false);
-                  router.push("/advanced-analysis" as Href);
+                  router.push('/advanced-analysis' as Href);
                 }}
               >
-                <LinearGradient
-                  colors={['#6366F1', '#8B5CF6']}
-                  style={styles.actionOptionGradient}
-                >
+                <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
                     <Brain size={28} color="#FFF" />
                   </View>
@@ -755,17 +776,14 @@ export default function HomeScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.actionOption,
-                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
                 onPress={() => {
                   setShowActionModal(false);
-                  router.push("/hayal-atolyesi" as Href);
+                  router.push('/hayal-atolyesi' as Href);
                 }}
               >
-                <LinearGradient
-                  colors={['#EC4899', '#F472B6']}
-                  style={styles.actionOptionGradient}
-                >
+                <LinearGradient colors={['#EC4899', '#F472B6']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
                     <Wand2 size={28} color="#FFF" />
                   </View>
@@ -783,17 +801,14 @@ export default function HomeScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.actionOption,
-                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
                 onPress={() => {
                   setShowActionModal(false);
-                  router.push("/history" as Href);
+                  router.push('/history' as Href);
                 }}
               >
-                <LinearGradient
-                  colors={['#10B981', '#34D399']}
-                  style={styles.actionOptionGradient}
-                >
+                <LinearGradient colors={['#10B981', '#34D399']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
                     <FileText size={28} color="#FFF" />
                   </View>
@@ -811,22 +826,19 @@ export default function HomeScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.actionOption,
-                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }
+                  pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
                 ]}
                 onPress={() => {
                   setShowActionModal(false);
-                  router.push("/chatbot" as Href);
+                  router.push('/chatbot' as Href);
                 }}
               >
-                <LinearGradient
-                  colors={['#F59E0B', '#FBBF24']}
-                  style={styles.actionOptionGradient}
-                >
+                <LinearGradient colors={['#F59E0B', '#FBBF24']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
                     <MessageCircle size={28} color="#FFF" />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
-                    <Text style={styles.actionOptionTitle}>Ioo'ya Sor</Text>
+                    <Text style={styles.actionOptionTitle}>{"Ioo'ya Sor"}</Text>
                     <Text style={styles.actionOptionDesc} numberOfLines={2}>
                       Analiz hakkında sorularınızı sorun
                     </Text>
@@ -854,33 +866,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: spacing["4"],
-    paddingTop: spacing["3"],
+    paddingHorizontal: spacing['4'],
+    paddingTop: spacing['3'],
   },
 
   // Child Selector
   childSelectorSection: {
-    marginBottom: spacing["4"],
-    paddingHorizontal: spacing["2"],
+    marginBottom: spacing['4'],
+    paddingHorizontal: spacing['2'],
   },
 
   // Hero Section
   heroSection: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   heroCard: {
-    padding: spacing["5"],
+    padding: spacing['5'],
   },
   heroContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["4"],
+    gap: spacing['4'],
   },
   mascotContainer: {
     alignItems: 'center',
-    gap: spacing["1"],
-    marginLeft: -spacing["2"],
-    marginRight: spacing["2"],
+    gap: spacing['1'],
+    marginLeft: -spacing['2'],
+    marginRight: spacing['2'],
   },
   chatHint: {
     flexDirection: 'row',
@@ -908,7 +920,7 @@ const styles = StyleSheet.create({
   heroSubtitle: {
     fontSize: 14,
     color: Colors.neutral.dark,
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   mascotIntro: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -930,14 +942,14 @@ const styles = StyleSheet.create({
 
   // Progress Section (Gamification + Stats Combined)
   progressSection: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 20,
-    padding: spacing["4"],
+    padding: spacing['4'],
     ...shadows.xs,
   },
   sectionHeaderPrimary: {
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   sectionTitlePrimary: {
     fontSize: 18,
@@ -953,8 +965,8 @@ const styles = StyleSheet.create({
   gamificationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["3"],
-    marginBottom: spacing["3"],
+    gap: spacing['3'],
+    marginBottom: spacing['3'],
   },
   xpContainer: {
     flex: 1,
@@ -974,8 +986,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: 'rgba(248, 250, 252, 0.8)',
     borderRadius: 14,
-    paddingVertical: spacing["3"],
-    paddingHorizontal: spacing["2"],
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['2'],
   },
   miniStatItem: {
     alignItems: 'center',
@@ -1000,35 +1012,35 @@ const styles = StyleSheet.create({
   sectionDivider: {
     height: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    marginVertical: spacing["3"],
-    marginHorizontal: spacing["2"],
+    marginVertical: spacing['3'],
+    marginHorizontal: spacing['2'],
   },
 
   // Explore Section (Combined Features + Quick Actions)
   exploreSection: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   quickActionsRow: {
     flexDirection: 'row',
-    gap: spacing["2"],
-    marginTop: spacing["3"],
+    gap: spacing['2'],
+    marginTop: spacing['3'],
   },
 
   // Primary CTA
   primaryCtaCard: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
     borderRadius: 24,
     overflow: 'hidden',
     ...shadows.colored('#6366F1'),
   },
   primaryCtaGradient: {
-    padding: spacing["5"],
+    padding: spacing['5'],
     position: 'relative',
   },
   primaryCtaContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["4"],
+    gap: spacing['4'],
   },
   primaryCtaIconContainer: {
     width: 64,
@@ -1044,10 +1056,10 @@ const styles = StyleSheet.create({
   primaryCtaBadge: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    paddingHorizontal: spacing["2"],
+    paddingHorizontal: spacing['2'],
     paddingVertical: 2,
     borderRadius: 8,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   primaryCtaBadgeText: {
     fontSize: 10,
@@ -1084,12 +1096,12 @@ const styles = StyleSheet.create({
     ...shadows.colored('#B98EFF'),
   },
   atolyeGradient: {
-    padding: spacing["5"],
+    padding: spacing['5'],
   },
   atolyeContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["4"],
+    gap: spacing['4'],
   },
   atolyeEmoji: {
     fontSize: 36,
@@ -1112,8 +1124,8 @@ const styles = StyleSheet.create({
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing["3"],
-    gap: spacing["2"],
+    marginBottom: spacing['3'],
+    gap: spacing['2'],
   },
   sectionTitleIcon: {
     width: 28,
@@ -1132,7 +1144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   seeAllText: {
     fontSize: 14,
@@ -1142,10 +1154,10 @@ const styles = StyleSheet.create({
 
   // Recent Section
   recentSection: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   loadingContainer: {
-    paddingVertical: spacing["6"],
+    paddingVertical: spacing['6'],
     alignItems: 'center',
   },
   emptyContainer: {
@@ -1153,12 +1165,12 @@ const styles = StyleSheet.create({
   },
   emptyGradient: {
     alignItems: 'center',
-    padding: spacing["6"],
-    gap: spacing["3"],
+    padding: spacing['6'],
+    gap: spacing['3'],
   },
   emptyIconContainer: {
     position: 'relative',
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   emptyIconRing: {
     width: 72,
@@ -1177,7 +1189,7 @@ const styles = StyleSheet.create({
   },
   emptyContent: {
     alignItems: 'center',
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   emptyText: {
     fontSize: 17,
@@ -1194,11 +1206,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(185, 142, 255, 0.15)',
-    paddingVertical: spacing["3"],
-    paddingHorizontal: spacing["5"],
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['5'],
     borderRadius: 20,
-    marginTop: spacing["2"],
-    gap: spacing["2"],
+    marginTop: spacing['2'],
+    gap: spacing['2'],
   },
   emptyCtaText: {
     fontSize: 14,
@@ -1206,18 +1218,18 @@ const styles = StyleSheet.create({
     color: Colors.primary.sunset,
   },
   recentCardsContainer: {
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   recentCard: {
     // Wrapper for pressable
   },
   recentCardInner: {
-    padding: spacing["4"],
+    padding: spacing['4'],
   },
   recentCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   recentCardIcon: {
     width: 40,
@@ -1244,7 +1256,7 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     alignItems: 'center',
-    paddingVertical: spacing["4"],
+    paddingVertical: spacing['4'],
   },
   footerText: {
     fontSize: 11,
@@ -1266,8 +1278,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    paddingHorizontal: spacing["5"],
-    paddingBottom: spacing["8"],
+    paddingHorizontal: spacing['5'],
+    paddingBottom: spacing['8'],
     maxHeight: '80%',
   },
   modalHandle: {
@@ -1276,15 +1288,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lighter,
     borderRadius: 2,
     alignSelf: 'center',
-    marginTop: spacing["3"],
-    marginBottom: spacing["4"],
+    marginTop: spacing['3'],
+    marginBottom: spacing['4'],
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing["5"],
-    paddingHorizontal: spacing["2"],
+    marginBottom: spacing['5'],
+    paddingHorizontal: spacing['2'],
   },
   modalTitle: {
     fontSize: 20,
@@ -1300,7 +1312,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionOptionsContainer: {
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   actionOption: {
     borderRadius: 20,
@@ -1310,8 +1322,8 @@ const styles = StyleSheet.create({
   actionOptionGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing["4"],
-    gap: spacing["4"],
+    padding: spacing['4'],
+    gap: spacing['4'],
   },
   actionOptionIcon: {
     width: 52,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,12 +13,28 @@ import {
   Dimensions,
   Platform,
   Modal,
-} from "react-native";
-import { BookOpen, Calendar, FileText, Sparkles, Plus, ImagePlus, Wand2, Trash2, AlertTriangle, Heart, Gamepad2, ChevronRight, Star, Users, Brain } from "lucide-react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { Colors } from "@/constants/colors";
+} from 'react-native';
+import {
+  BookOpen,
+  Calendar,
+  FileText,
+  Sparkles,
+  Plus,
+  ImagePlus,
+  Wand2,
+  Trash2,
+  AlertTriangle,
+  Heart,
+  Gamepad2,
+  ChevronRight,
+  Star,
+  Users,
+  Brain,
+} from 'lucide-react-native';
+import { Swipeable } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '@/constants/colors';
 import {
   layout,
   typography,
@@ -27,17 +43,17 @@ import {
   shadows,
   textShadows,
   zIndex,
-} from "@/constants/design-system";
-import { trpc } from "@/lib/trpc";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { Image } from "expo-image";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system/legacy";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useChild } from "@/lib/contexts/ChildContext";
-import { ChildSelectorChip } from "@/components/ChildSelectorChip";
-import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
-import { IooAssistant } from "@/components/coaching/IooAssistant";
+} from '@/constants/design-system';
+import { trpc } from '@/lib/trpc';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useChild } from '@/lib/contexts/ChildContext';
+import { ChildSelectorChip } from '@/components/ChildSelectorChip';
+import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
+import { IooAssistant } from '@/components/coaching/IooAssistant';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -66,7 +82,7 @@ export default function StoriesScreen() {
 
   // Create storybook states
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [storyTitle, setStoryTitle] = useState("");
+  const [storyTitle, setStoryTitle] = useState('');
   const [storyImage, setStoryImage] = useState<string | null>(null);
   const [loadingStory, setLoadingStory] = useState(false);
 
@@ -79,13 +95,33 @@ export default function StoriesScreen() {
   // Comprehensive concern types based on ACEs (Adverse Childhood Experiences) and pediatric psychology
   type ConcernType =
     // Original categories
-    | 'war' | 'violence' | 'disaster' | 'loss' | 'loneliness' | 'fear' | 'abuse' | 'family_separation' | 'death'
+    | 'war'
+    | 'violence'
+    | 'disaster'
+    | 'loss'
+    | 'loneliness'
+    | 'fear'
+    | 'abuse'
+    | 'family_separation'
+    | 'death'
     // ACEs Framework categories
-    | 'neglect' | 'bullying' | 'domestic_violence_witness' | 'parental_addiction' | 'parental_mental_illness'
+    | 'neglect'
+    | 'bullying'
+    | 'domestic_violence_witness'
+    | 'parental_addiction'
+    | 'parental_mental_illness'
     // Pediatric psychology categories
-    | 'medical_trauma' | 'anxiety' | 'depression' | 'low_self_esteem' | 'anger' | 'school_stress' | 'social_rejection'
+    | 'medical_trauma'
+    | 'anxiety'
+    | 'depression'
+    | 'low_self_esteem'
+    | 'anger'
+    | 'school_stress'
+    | 'social_rejection'
     // Additional categories
-    | 'displacement' | 'poverty' | 'cyberbullying'
+    | 'displacement'
+    | 'poverty'
+    | 'cyberbullying'
     | 'other';
 
   type ContentAnalysis = {
@@ -110,7 +146,11 @@ export default function StoriesScreen() {
     // ACEs Framework categories
     neglect: { label: 'İhmal', emoji: '🏠', color: '#8B5CF6' },
     bullying: { label: 'Akran Zorbalığı', emoji: '🤝', color: '#F59E0B' },
-    domestic_violence_witness: { label: 'Aile İçi Şiddete Tanıklık', emoji: '🏡', color: '#EF4444' },
+    domestic_violence_witness: {
+      label: 'Aile İçi Şiddete Tanıklık',
+      emoji: '🏡',
+      color: '#EF4444',
+    },
     parental_addiction: { label: 'Ebeveyn Bağımlılığı', emoji: '🌱', color: '#10B981' },
     parental_mental_illness: { label: 'Ebeveyn Ruhsal Hastalığı', emoji: '💙', color: '#3B82F6' },
     // Pediatric psychology categories
@@ -138,7 +178,9 @@ export default function StoriesScreen() {
 
   // Image analysis loading state - show nice animation while analyzing
   const [analyzingImage, setAnalyzingImage] = useState(false);
-  const [analysisStep, setAnalysisStep] = useState<'uploading' | 'analyzing' | 'generating' | 'done'>('uploading');
+  const [analysisStep, setAnalysisStep] = useState<
+    'uploading' | 'analyzing' | 'generating' | 'done'
+  >('uploading');
 
   // Story mode: normal or interactive
   type StoryMode = 'normal' | 'interactive';
@@ -156,6 +198,7 @@ export default function StoriesScreen() {
         setStoryImage(params.imageUri);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.imageUri]);
 
   // Görsel analiz ve tema önerisi akışı
@@ -221,8 +264,7 @@ export default function StoriesScreen() {
       setStoryImage(imageUri);
       setThemeSuggestions(result.suggestions);
       setSelectedThemeIndex(null);
-      setStoryTitle("");
-
+      setStoryTitle('');
     } catch (error) {
       console.error('[Stories] ❌ Error in image analysis:', error);
       // Still show the image even if suggestions fail
@@ -234,7 +276,7 @@ export default function StoriesScreen() {
   }
 
   // Blob URL'den tema önerileri almak için ayrı fonksiyon (galeri için)
-  async function fetchThemeSuggestionsFromBlob(blobUri: string) {
+  async function _fetchThemeSuggestionsFromBlob(blobUri: string) {
     try {
       setLoadingSuggestions(true);
       console.log('[Stories] 🎨 Fetching theme suggestions from blob...');
@@ -280,7 +322,7 @@ export default function StoriesScreen() {
 
       setThemeSuggestions(result.suggestions);
       setSelectedThemeIndex(null);
-      setStoryTitle("");
+      setStoryTitle('');
     } catch (error) {
       console.error('[Stories] ❌ Error fetching theme suggestions from blob:', error);
       // Don't show alert, just continue without suggestions
@@ -318,7 +360,7 @@ export default function StoriesScreen() {
   const createStorybookMutation = trpc.studio.createStorybook.useMutation({
     onSuccess: () => {
       setShowCreateForm(false);
-      setStoryTitle("");
+      setStoryTitle('');
       setStoryImage(null);
       refetch();
     },
@@ -342,13 +384,10 @@ export default function StoriesScreen() {
     isLoading,
     error,
     refetch,
-  } = trpc.studio.listStorybooks.useQuery(
-    undefined,
-    {
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-    }
-  );
+  } = trpc.studio.listStorybooks.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -358,7 +397,7 @@ export default function StoriesScreen() {
 
   async function pickStoryImage() {
     const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ['images'],
       quality: 0.9,
     });
     if (!res.canceled && res.assets?.length) {
@@ -427,10 +466,10 @@ export default function StoriesScreen() {
 
       setThemeSuggestions(result.suggestions);
       setSelectedThemeIndex(null); // Reset selection
-      setStoryTitle(""); // Clear manual title
+      setStoryTitle(''); // Clear manual title
     } catch (error) {
       console.error('[Stories] ❌ Error fetching theme suggestions:', error);
-      Alert.alert("Hata", "Tema önerileri alınamadı. Lütfen başlığı kendiniz yazın.");
+      Alert.alert('Hata', 'Tema önerileri alınamadı. Lütfen başlığı kendiniz yazın.');
       setThemeSuggestions([]);
       setVisualDescription(null);
     } finally {
@@ -440,7 +479,7 @@ export default function StoriesScreen() {
 
   async function handleStorybook() {
     if (!storyImage) {
-      Alert.alert("Lütfen önce bir görsel seç.");
+      Alert.alert('Lütfen önce bir görsel seç.');
       return;
     }
 
@@ -462,41 +501,70 @@ export default function StoriesScreen() {
 
     // Check for sensitive content in title
     const sensitiveKeywords = [
-      "savaş", "savaşan", "savaştaki", "silah", "kan", "ölüm", "öldürme",
-      "vurmak", "döv", "şiddet", "kavga", "çatışma", "bomba", "patlama",
-      "war", "weapon", "blood", "death", "kill", "fight", "violence",
-      "deprem", "earthquake", "travma", "trauma", "korkuyor", "afraid"
+      'savaş',
+      'savaşan',
+      'savaştaki',
+      'silah',
+      'kan',
+      'ölüm',
+      'öldürme',
+      'vurmak',
+      'döv',
+      'şiddet',
+      'kavga',
+      'çatışma',
+      'bomba',
+      'patlama',
+      'war',
+      'weapon',
+      'blood',
+      'death',
+      'kill',
+      'fight',
+      'violence',
+      'deprem',
+      'earthquake',
+      'travma',
+      'trauma',
+      'korkuyor',
+      'afraid',
     ];
 
     // Also check for therapeutic intent keywords
     const therapeuticIndicators = [
-      "etkilenmiş", "gördü", "yaşadı", "çok kötü", "üzgün",
-      "affected", "witnessed", "experienced", "very bad", "sad"
+      'etkilenmiş',
+      'gördü',
+      'yaşadı',
+      'çok kötü',
+      'üzgün',
+      'affected',
+      'witnessed',
+      'experienced',
+      'very bad',
+      'sad',
     ];
 
     const titleLower = finalTitle.toLowerCase();
-    const hasSensitiveContent = sensitiveKeywords.some(keyword =>
-      titleLower.includes(keyword)
-    );
+    const hasSensitiveContent = sensitiveKeywords.some(keyword => titleLower.includes(keyword));
     const hasTherapeuticIntent = therapeuticIndicators.some(indicator =>
       titleLower.includes(indicator)
     );
 
     if (hasSensitiveContent || hasTherapeuticIntent) {
       Alert.alert(
-        "💛 Özel Masal Önerisi",
-        "Başlığınızda hassas konular tespit ettik. Çocuğunuz için özel tasarlanmış iki seçeneğimiz var:\n\n✨ TERAPÖTIK MASAL\nDuyguları işlemeye yardımcı, metaforik anlatım, umut odaklı sonuç\n\n📖 NORMAL MASAL  \nHayal gücü odaklı, eğlenceli macera\n\n💡 İPUCU: Travmatik konularda terapötik masalları öneriyoruz.\n\nHangi masal türünü oluşturalım?",
+        '💛 Özel Masal Önerisi',
+        'Başlığınızda hassas konular tespit ettik. Çocuğunuz için özel tasarlanmış iki seçeneğimiz var:\n\n✨ TERAPÖTIK MASAL\nDuyguları işlemeye yardımcı, metaforik anlatım, umut odaklı sonuç\n\n📖 NORMAL MASAL  \nHayal gücü odaklı, eğlenceli macera\n\n💡 İPUCU: Travmatik konularda terapötik masalları öneriyoruz.\n\nHangi masal türünü oluşturalım?',
         [
           {
-            text: "Vazgeç",
-            style: "cancel",
+            text: 'Vazgeç',
+            style: 'cancel',
           },
           {
-            text: "Normal Masal",
+            text: 'Normal Masal',
             onPress: () => proceedWithStorybook(false, finalTitle),
           },
           {
-            text: "Terapötik Masal (Önerilen)",
+            text: 'Terapötik Masal (Önerilen)',
             onPress: () => proceedWithStorybook(true, finalTitle),
           },
         ]
@@ -521,8 +589,8 @@ export default function StoriesScreen() {
       console.log('[Stories] 🎮 Creating interactive story...');
 
       // Convert image to base64
-      let imageBase64 = "";
-      if (storyImage!.startsWith("blob:")) {
+      let imageBase64 = '';
+      if (storyImage!.startsWith('blob:')) {
         const response = await fetch(storyImage!);
         const blob = await response.blob();
         imageBase64 = await new Promise<string>((resolve, reject) => {
@@ -536,13 +604,13 @@ export default function StoriesScreen() {
           reader.readAsDataURL(blob);
         });
       } else {
-        let cleanUri = storyImage!.replace(/^file:\/\//, "");
+        const cleanUri = storyImage!.replace(/^file:\/\//, '');
         let fileUri = cleanUri;
-        if (!fileUri.startsWith("file://") && !fileUri.startsWith("content://")) {
+        if (!fileUri.startsWith('file://') && !fileUri.startsWith('content://')) {
           fileUri = `file://${fileUri}`;
         }
         imageBase64 = await FileSystem.readAsStringAsync(fileUri, {
-          encoding: "base64",
+          encoding: 'base64',
         });
       }
 
@@ -556,12 +624,13 @@ export default function StoriesScreen() {
       const userLang = (user?.language || 'tr') as 'tr' | 'en';
 
       // Prepare therapeutic context if content warning exists
-      const therapeuticContext = contentWarning?.hasConcerningContent && contentWarning?.concernType
-        ? {
-            concernType: contentWarning.concernType,
-            therapeuticApproach: contentWarning.therapeuticApproach || 'Genel terapötik yaklaşım',
-          }
-        : undefined;
+      const therapeuticContext =
+        contentWarning?.hasConcerningContent && contentWarning?.concernType
+          ? {
+              concernType: contentWarning.concernType,
+              therapeuticApproach: contentWarning.therapeuticApproach || 'Genel terapötik yaklaşım',
+            }
+          : undefined;
 
       // Call interactive story generation
       const result = await generateInteractiveStoryMutation.mutateAsync({
@@ -569,9 +638,10 @@ export default function StoriesScreen() {
         childAge: childAge,
         childName: selectedChild?.name,
         language: userLang,
-        selectedTheme: selectedThemeIndex !== null && themeSuggestions[selectedThemeIndex]
-          ? themeSuggestions[selectedThemeIndex].theme
-          : title,
+        selectedTheme:
+          selectedThemeIndex !== null && themeSuggestions[selectedThemeIndex]
+            ? themeSuggestions[selectedThemeIndex].theme
+            : title,
         therapeuticContext,
       });
 
@@ -586,7 +656,7 @@ export default function StoriesScreen() {
 
       // Reset form state
       setShowCreateForm(false);
-      setStoryTitle("");
+      setStoryTitle('');
       setStoryImage(null);
       setThemeSuggestions([]);
       setSelectedThemeIndex(null);
@@ -596,15 +666,14 @@ export default function StoriesScreen() {
 
       // Navigate to interactive story screen
       router.push({
-        pathname: "/interactive-story/[id]",
+        pathname: '/interactive-story/[id]',
         params: { id: result.sessionId },
       });
-
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";
-      Alert.alert("Hata", errorMessage, [
-        { text: "Vazgeç", style: "cancel" },
-        { text: "Tekrar Dene", onPress: () => proceedWithInteractiveStory(title) },
+      const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
+      Alert.alert('Hata', errorMessage, [
+        { text: 'Vazgeç', style: 'cancel' },
+        { text: 'Tekrar Dene', onPress: () => proceedWithInteractiveStory(title) },
       ]);
     } finally {
       setLoadingStory(false);
@@ -630,7 +699,8 @@ export default function StoriesScreen() {
 
       if (therapeuticMode) {
         // Therapeutic stories use special template-based approach
-        const CONSISTENT_STYLE = "Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain light background, same character design, same art style, VERY IMPORTANT: NO TEXT NO LETTERS NO WORDS on image";
+        const CONSISTENT_STYLE =
+          "Children's storybook illustration, soft pastel watercolor, simple rounded shapes, warm friendly atmosphere, plain light background, same character design, same art style, VERY IMPORTANT: NO TEXT NO LETTERS NO WORDS on image";
         let pages: { text: string; prompt: string }[];
         // Therapeutic story generation with metaphorical transformation
         console.log('[Stories] Using therapeutic story structure');
@@ -643,29 +713,29 @@ export default function StoriesScreen() {
               prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${title}`,
             },
             {
-              text: "Küçük kahramanımız zor günler geçirdi, ama yalnız değildi.",
+              text: 'Küçük kahramanımız zor günler geçirdi, ama yalnız değildi.',
               prompt: `${CONSISTENT_STYLE}. Scene: safe space, supportive characters, together, help`,
             },
             // Phase 2: PROCESSING
             {
-              text: "Büyük fırtına geldiğinde, güçlü olmayı öğrendi.",
+              text: 'Büyük fırtına geldiğinde, güçlü olmayı öğrendi.',
               prompt: `${CONSISTENT_STYLE}. Nature metaphor: storm, wind, but sunlight visible, transformation, hope`,
             },
             {
-              text: "Arkadaşları yardım etti ve birlikte daha güçlü oldular.",
+              text: 'Arkadaşları yardım etti ve birlikte daha güçlü oldular.',
               prompt: `${CONSISTENT_STYLE}. Scene: friendship, togetherness, support, strength`,
             },
             {
-              text: "Zaman geçtikçe, fırtına sakinleşmeye başladı.",
+              text: 'Zaman geçtikçe, fırtına sakinleşmeye başladı.',
               prompt: `${CONSISTENT_STYLE}. Scene: peace, calm, transformation, healing`,
             },
             // Phase 3: INTEGRATION
             {
-              text: "Artık gökkuşağı gökyüzünde parlıyordu. Umut hep vardı.",
+              text: 'Artık gökkuşağı gökyüzünde parlıyordu. Umut hep vardı.',
               prompt: `${CONSISTENT_STYLE}. Scene: rainbow in sky, sun, bright colors, hope, happiness`,
             },
             {
-              text: "Ve böylece, güçlü ve cesur bir kalple yeni günlere hazır oldular.",
+              text: 'Ve böylece, güçlü ve cesur bir kalple yeni günlere hazır oldular.',
               prompt: `${CONSISTENT_STYLE}. Closing scene: happiness, safe future, peace, love, family`,
             },
           ];
@@ -677,29 +747,29 @@ export default function StoriesScreen() {
               prompt: `${CONSISTENT_STYLE}. Opening scene: safe place, understanding characters, accepting atmosphere. Theme: ${title}`,
             },
             {
-              text: "Our little hero had difficult days, but was not alone.",
+              text: 'Our little hero had difficult days, but was not alone.',
               prompt: `${CONSISTENT_STYLE}. Scene: safe space, supportive characters, together, help`,
             },
             // Phase 2: PROCESSING
             {
-              text: "When the great storm came, they learned to be strong.",
+              text: 'When the great storm came, they learned to be strong.',
               prompt: `${CONSISTENT_STYLE}. Nature metaphor: storm, wind, but sunlight visible, transformation, hope`,
             },
             {
-              text: "Friends helped, and together they became stronger.",
+              text: 'Friends helped, and together they became stronger.',
               prompt: `${CONSISTENT_STYLE}. Scene: friendship, togetherness, support, strength`,
             },
             {
-              text: "As time passed, the storm began to calm.",
+              text: 'As time passed, the storm began to calm.',
               prompt: `${CONSISTENT_STYLE}. Scene: peace, calm, transformation, healing`,
             },
             // Phase 3: INTEGRATION
             {
-              text: "Now the rainbow shone in the sky. Hope was always there.",
+              text: 'Now the rainbow shone in the sky. Hope was always there.',
               prompt: `${CONSISTENT_STYLE}. Scene: rainbow in sky, sun, bright colors, hope, happiness`,
             },
             {
-              text: "And so, with a strong and brave heart, they were ready for new days.",
+              text: 'And so, with a strong and brave heart, they were ready for new days.',
               prompt: `${CONSISTENT_STYLE}. Closing scene: happiness, safe future, peace, love, family`,
             },
           ];
@@ -728,7 +798,7 @@ export default function StoriesScreen() {
 
         // Reset form state and navigate
         setShowCreateForm(false);
-        setStoryTitle("");
+        setStoryTitle('');
         setStoryImage(null);
         setThemeSuggestions([]);
         setSelectedThemeIndex(null);
@@ -737,12 +807,12 @@ export default function StoriesScreen() {
 
         // Navigate to the new storybook
         router.push({
-          pathname: "/storybook",
+          pathname: '/storybook',
           params: {
             storybookId: therapeuticResult.record.id,
             title: title,
             pages: JSON.stringify(therapeuticResult.pages),
-            pdfUrl: therapeuticResult.pdf_url || "",
+            pdfUrl: therapeuticResult.pdf_url || '',
             voiceUrls: JSON.stringify(therapeuticResult.voice_urls || []),
           },
         });
@@ -756,10 +826,10 @@ export default function StoriesScreen() {
         setProgress({ step: 1, total: 4, message: steps[0].message, percentage: 25 });
 
         // Convert image URI to base64
-        let imageBase64 = "";
+        let imageBase64 = '';
 
         // Web: blob URL handling
-        if (storyImage!.startsWith("blob:")) {
+        if (storyImage!.startsWith('blob:')) {
           console.log('[Stories] 🌐 Converting blob URL to base64...');
           const response = await fetch(storyImage!);
           const blob = await response.blob();
@@ -780,24 +850,24 @@ export default function StoriesScreen() {
           imageBase64 = base64;
         } else {
           // Native: file:// URL handling
-          let cleanUri = storyImage!.replace(/^file:\/\//, "");
+          const cleanUri = storyImage!.replace(/^file:\/\//, '');
           let fileUri = cleanUri;
-          if (!fileUri.startsWith("file://") && !fileUri.startsWith("content://")) {
+          if (!fileUri.startsWith('file://') && !fileUri.startsWith('content://')) {
             fileUri = `file://${fileUri}`;
           }
           imageBase64 = await FileSystem.readAsStringAsync(fileUri, {
-            encoding: "base64",
+            encoding: 'base64',
           });
         }
 
         // Analyze the drawing (using "Family" as taskType for story generation context)
         const analysisResult = await analyzeDrawingMutation.mutateAsync({
-          taskType: "Family", // Use Family drawing analysis for story context
+          taskType: 'Family', // Use Family drawing analysis for story context
           childAge: childAge, // Use selected child's age
           childGender: childGender, // Use selected child's gender for developmental context
           imageBase64: imageBase64,
           language: userLang,
-          userRole: "parent",
+          userRole: 'parent',
           featuresJson: {},
         });
 
@@ -808,15 +878,20 @@ export default function StoriesScreen() {
         setProgress({ step: 2, total: 4, message: steps[1].message, percentage: 50 });
 
         // Prepare therapeutic context if content warning exists
-        const therapeuticContext = contentWarning?.hasConcerningContent && contentWarning?.concernType
-          ? {
-              concernType: contentWarning.concernType,
-              therapeuticApproach: contentWarning.therapeuticApproach || 'Genel terapötik yaklaşım',
-            }
-          : undefined;
+        const therapeuticContext =
+          contentWarning?.hasConcerningContent && contentWarning?.concernType
+            ? {
+                concernType: contentWarning.concernType,
+                therapeuticApproach:
+                  contentWarning.therapeuticApproach || 'Genel terapötik yaklaşım',
+              }
+            : undefined;
 
         // V2: Log visual description - this connects story to drawing
-        console.log('[Stories] 🎨 Visual description for story:', visualDescription?.substring(0, 100) || 'NONE');
+        console.log(
+          '[Stories] 🎨 Visual description for story:',
+          visualDescription?.substring(0, 100) || 'NONE'
+        );
 
         const storyResult = await generateStoryMutation.mutateAsync({
           drawingAnalysis: analysisResult,
@@ -848,7 +923,7 @@ export default function StoriesScreen() {
 
         // Reset form state
         setShowCreateForm(false);
-        setStoryTitle("");
+        setStoryTitle('');
         setStoryImage(null);
         setThemeSuggestions([]);
         setSelectedThemeIndex(null);
@@ -856,12 +931,12 @@ export default function StoriesScreen() {
 
         // Navigate to the new storybook
         router.push({
-          pathname: "/storybook",
+          pathname: '/storybook',
           params: {
             storybookId: storyResult.id,
             title: storyResult.story.title,
             pages: JSON.stringify(storyResult.storybook.pages),
-            pdfUrl: storyResult.storybook.pdf_url || "",
+            pdfUrl: storyResult.storybook.pdf_url || '',
             voiceUrls: JSON.stringify(storyResult.storybook.voice_urls || []),
           },
         });
@@ -869,11 +944,10 @@ export default function StoriesScreen() {
 
       // Note: Navigation is handled above for both therapeutic and normal modes
     } catch (e: unknown) {
-      const errorMessage =
-        e instanceof Error ? e.message : "Bilinmeyen bir hata oluştu";
-      Alert.alert("Hata", errorMessage, [
-        { text: "Vazgeç", style: "cancel" },
-        { text: "Tekrar Dene", onPress: handleStorybook },
+      const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
+      Alert.alert('Hata', errorMessage, [
+        { text: 'Vazgeç', style: 'cancel' },
+        { text: 'Tekrar Dene', onPress: handleStorybook },
       ]);
     } finally {
       setLoadingStory(false);
@@ -891,12 +965,12 @@ export default function StoriesScreen() {
 
     // Navigate to storybook viewer with the storybook data
     router.push({
-      pathname: "/storybook",
+      pathname: '/storybook',
       params: {
         storybookId: storybook.id,
         title: storybook.title,
         pages: JSON.stringify(storybook.pages),
-        pdfUrl: storybook.pdf_url || "",
+        pdfUrl: storybook.pdf_url || '',
         voiceUrls: JSON.stringify(storybook.voice_urls || []),
       },
     });
@@ -904,16 +978,16 @@ export default function StoriesScreen() {
 
   const handleDeleteStorybook = (storybookId: string, storybookTitle: string) => {
     Alert.alert(
-      "Masalı Sil",
+      'Masalı Sil',
       `"${storybookTitle}" adlı masalı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
       [
         {
-          text: "Vazgeç",
-          style: "cancel",
+          text: 'Vazgeç',
+          style: 'cancel',
         },
         {
-          text: "Sil",
-          style: "destructive",
+          text: 'Sil',
+          style: 'destructive',
           onPress: () => {
             deleteStorybookMutation.mutate({ storybookId });
           },
@@ -925,10 +999,10 @@ export default function StoriesScreen() {
   const renderStoryCard = (storybook: Storybook) => {
     const firstPageImage = storybook.pages?.[0]?.img_url;
     const pageCount = storybook.pages?.length || 0;
-    const createdDate = new Date(storybook.created_at).toLocaleDateString("tr-TR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    const createdDate = new Date(storybook.created_at).toLocaleDateString('tr-TR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
 
     const renderRightActions = () => (
@@ -944,11 +1018,7 @@ export default function StoriesScreen() {
     );
 
     return (
-      <Swipeable
-        key={storybook.id}
-        renderRightActions={renderRightActions}
-        overshootRight={false}
-      >
+      <Swipeable key={storybook.id} renderRightActions={renderRightActions} overshootRight={false}>
         <Pressable
           style={({ pressed }) => [
             styles.storyCard,
@@ -956,13 +1026,14 @@ export default function StoriesScreen() {
           ]}
           onPress={() => handleStorybookPress(storybook)}
         >
-          <LinearGradient
-            colors={Colors.cards.story.bg}
-            style={styles.cardGradient}
-          >
+          <LinearGradient colors={Colors.cards.story.bg} style={styles.cardGradient}>
             <View style={styles.cardImageContainer}>
               {firstPageImage ? (
-                <Image source={{ uri: firstPageImage }} style={styles.cardImage} contentFit="contain" />
+                <Image
+                  source={{ uri: firstPageImage }}
+                  style={styles.cardImage}
+                  contentFit="contain"
+                />
               ) : (
                 <View style={styles.cardImagePlaceholder}>
                   <BookOpen size={layout.icon.large} color={Colors.cards.story.icon} />
@@ -1013,7 +1084,7 @@ export default function StoriesScreen() {
     <IooEmptyState
       {...EMPTY_STATE_PRESETS.noStories}
       action={{
-        label: "Masal Oluştur",
+        label: 'Masal Oluştur',
         onPress: () => setShowCreateForm(true),
       }}
     />
@@ -1022,9 +1093,9 @@ export default function StoriesScreen() {
   const renderError = () => (
     <IooEmptyState
       {...EMPTY_STATE_PRESETS.error}
-      message={error?.message || "Masallar yüklenirken bir sorun oluştu."}
+      message={error?.message || 'Masallar yüklenirken bir sorun oluştu.'}
       action={{
-        label: "Tekrar Dene",
+        label: 'Tekrar Dene',
         onPress: () => refetch(),
       }}
     />
@@ -1050,7 +1121,7 @@ export default function StoriesScreen() {
               <Text style={styles.headerSubtitle}>
                 {storybooks && storybooks.length > 0
                   ? `${storybooks.length} masal kitabı`
-                  : "Masal koleksiyonunuz"}
+                  : 'Masal koleksiyonunuz'}
               </Text>
             </View>
             <Pressable
@@ -1083,14 +1154,18 @@ export default function StoriesScreen() {
                   <Sparkles size={48} color="#FFD700" />
                 )}
                 <Text style={styles.storyLoadingTitle}>
-                  {storyMode === 'interactive' ? 'İnteraktif Masal Hazırlanıyor' : 'Masal Hazırlanıyor'}
+                  {storyMode === 'interactive'
+                    ? 'İnteraktif Masal Hazırlanıyor'
+                    : 'Masal Hazırlanıyor'}
                 </Text>
               </View>
 
               {/* Progress Bar */}
               <View style={styles.progressBarWrapper}>
                 <View style={styles.progressBarTrack}>
-                  <View style={[styles.progressBarFillAnimated, { width: `${progress.percentage}%` }]} />
+                  <View
+                    style={[styles.progressBarFillAnimated, { width: `${progress.percentage}%` }]}
+                  />
                 </View>
                 <Text style={styles.progressPercentageText}>{progress.percentage}%</Text>
               </View>
@@ -1102,26 +1177,26 @@ export default function StoriesScreen() {
                   const isActive = progress.step === index + 1;
                   return (
                     <View key={index} style={styles.stepRow}>
-                      <View style={[
-                        styles.stepCircle,
-                        isCompleted && styles.stepCircleCompleted,
-                        isActive && styles.stepCircleActive,
-                      ]}>
-                        <Text style={styles.stepCircleText}>
-                          {isCompleted ? '✓' : step.icon}
-                        </Text>
+                      <View
+                        style={[
+                          styles.stepCircle,
+                          isCompleted && styles.stepCircleCompleted,
+                          isActive && styles.stepCircleActive,
+                        ]}
+                      >
+                        <Text style={styles.stepCircleText}>{isCompleted ? '✓' : step.icon}</Text>
                       </View>
                       <View style={styles.stepTextContainer}>
-                        <Text style={[
-                          styles.stepName,
-                          isActive && styles.stepNameActive,
-                          isCompleted && styles.stepNameCompleted,
-                        ]}>
+                        <Text
+                          style={[
+                            styles.stepName,
+                            isActive && styles.stepNameActive,
+                            isCompleted && styles.stepNameCompleted,
+                          ]}
+                        >
                           {step.message}
                         </Text>
-                        <Text style={styles.stepDuration}>
-                          ~{step.duration} saniye
-                        </Text>
+                        <Text style={styles.stepDuration}>~{step.duration} saniye</Text>
                       </View>
                     </View>
                   );
@@ -1146,20 +1221,26 @@ export default function StoriesScreen() {
           </View>
         ) : showCreateForm && analyzingImage ? (
           /* Image Analysis Loading Animation */
-          <LinearGradient
-            colors={Colors.cards.story.bg}
-            style={styles.analysisLoadingContainer}
-          >
+          <LinearGradient colors={Colors.cards.story.bg} style={styles.analysisLoadingContainer}>
             <View style={styles.analysisLoadingContent}>
               <View style={styles.analysisStepsContainer}>
                 {/* Step 1: Uploading */}
-                <View style={[
-                  styles.analysisStepItem,
-                  analysisStep === 'uploading' && styles.analysisStepActive,
-                  (analysisStep === 'analyzing' || analysisStep === 'generating' || analysisStep === 'done') && styles.analysisStepCompleted,
-                ]}>
+                <View
+                  style={[
+                    styles.analysisStepItem,
+                    analysisStep === 'uploading' && styles.analysisStepActive,
+                    (analysisStep === 'analyzing' ||
+                      analysisStep === 'generating' ||
+                      analysisStep === 'done') &&
+                      styles.analysisStepCompleted,
+                  ]}
+                >
                   <Text style={styles.analysisStepIcon}>
-                    {(analysisStep === 'analyzing' || analysisStep === 'generating' || analysisStep === 'done') ? '✓' : '📤'}
+                    {analysisStep === 'analyzing' ||
+                    analysisStep === 'generating' ||
+                    analysisStep === 'done'
+                      ? '✓'
+                      : '📤'}
                   </Text>
                   <Text style={styles.analysisStepText}>Yükleniyor</Text>
                 </View>
@@ -1167,13 +1248,16 @@ export default function StoriesScreen() {
                 <View style={styles.analysisStepLine} />
 
                 {/* Step 2: Analyzing */}
-                <View style={[
-                  styles.analysisStepItem,
-                  analysisStep === 'analyzing' && styles.analysisStepActive,
-                  (analysisStep === 'generating' || analysisStep === 'done') && styles.analysisStepCompleted,
-                ]}>
+                <View
+                  style={[
+                    styles.analysisStepItem,
+                    analysisStep === 'analyzing' && styles.analysisStepActive,
+                    (analysisStep === 'generating' || analysisStep === 'done') &&
+                      styles.analysisStepCompleted,
+                  ]}
+                >
                   <Text style={styles.analysisStepIcon}>
-                    {(analysisStep === 'generating' || analysisStep === 'done') ? '✓' : '🔍'}
+                    {analysisStep === 'generating' || analysisStep === 'done' ? '✓' : '🔍'}
                   </Text>
                   <Text style={styles.analysisStepText}>Analiz Ediliyor</Text>
                 </View>
@@ -1181,11 +1265,13 @@ export default function StoriesScreen() {
                 <View style={styles.analysisStepLine} />
 
                 {/* Step 3: Generating */}
-                <View style={[
-                  styles.analysisStepItem,
-                  analysisStep === 'generating' && styles.analysisStepActive,
-                  analysisStep === 'done' && styles.analysisStepCompleted,
-                ]}>
+                <View
+                  style={[
+                    styles.analysisStepItem,
+                    analysisStep === 'generating' && styles.analysisStepActive,
+                    analysisStep === 'done' && styles.analysisStepCompleted,
+                  ]}
+                >
                   <Text style={styles.analysisStepIcon}>
                     {analysisStep === 'done' ? '✓' : '✨'}
                   </Text>
@@ -1193,7 +1279,11 @@ export default function StoriesScreen() {
                 </View>
               </View>
 
-              <ActivityIndicator size="large" color={Colors.cards.story.icon} style={{ marginTop: spacing["4"] }} />
+              <ActivityIndicator
+                size="large"
+                color={Colors.cards.story.icon}
+                style={{ marginTop: spacing['4'] }}
+              />
 
               <Text style={styles.analysisLoadingTitle}>
                 {analysisStep === 'uploading' && '📤 Çizim yükleniyor...'}
@@ -1209,453 +1299,500 @@ export default function StoriesScreen() {
           </LinearGradient>
         ) : showCreateForm ? (
           <>
-          <ScrollView
-            style={styles.createFormScrollView}
-            contentContainerStyle={styles.createFormScrollContent}
-            showsVerticalScrollIndicator={true}
-            nestedScrollEnabled={true}
-          >
-            <LinearGradient
-              colors={Colors.cards.story.bg}
-              style={styles.createFormContainer}
+            <ScrollView
+              style={styles.createFormScrollView}
+              contentContainerStyle={styles.createFormScrollContent}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true}
             >
-              <View style={styles.createFormHeader}>
-                <Wand2 size={24} color={Colors.cards.story.icon} />
-                <Text style={styles.createFormTitle}>Yeni Masal Oluştur</Text>
-              </View>
-              <Text style={styles.createFormDescription}>
-                Çocuğunuzun çizimlerinden ilham alan özel bir masal kitabı oluşturun
-              </Text>
-
-              {/* Story Mode Toggle - Normal vs Interactive */}
-              <View style={styles.storyModeSection}>
-                <Text style={styles.storyModeSectionTitle}>Masal Türü Seçin</Text>
-                <View style={styles.storyModeToggle}>
-                  {/* Normal Story Option */}
-                  <Pressable
-                    style={[
-                      styles.storyModeOption,
-                      storyMode === 'normal' && styles.storyModeOptionSelected,
-                    ]}
-                    onPress={() => setStoryMode('normal')}
-                  >
-                    <LinearGradient
-                      colors={storyMode === 'normal'
-                        ? [Colors.secondary.sunshine, Colors.cards.story.border]
-                        : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']}
-                      style={styles.storyModeOptionGradient}
-                    >
-                      <BookOpen
-                        size={28}
-                        color={storyMode === 'normal' ? Colors.neutral.white : Colors.neutral.medium}
-                      />
-                      <Text style={[
-                        styles.storyModeOptionTitle,
-                        storyMode === 'normal' && styles.storyModeOptionTitleSelected
-                      ]}>
-                        Klasik Masal
-                      </Text>
-                      <Text style={[
-                        styles.storyModeOptionDesc,
-                        storyMode === 'normal' && styles.storyModeOptionDescSelected
-                      ]}>
-                        Görsellerle hikaye
-                      </Text>
-                    </LinearGradient>
-                  </Pressable>
-
-                  {/* Interactive Story Option */}
-                  <Pressable
-                    style={[
-                      styles.storyModeOption,
-                      storyMode === 'interactive' && styles.storyModeOptionSelected,
-                    ]}
-                    onPress={() => setStoryMode('interactive')}
-                  >
-                    <LinearGradient
-                      colors={storyMode === 'interactive'
-                        ? ['#9333EA', '#7C3AED']
-                        : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']}
-                      style={styles.storyModeOptionGradient}
-                    >
-                      <View style={styles.interactiveBadgeContainer}>
-                        <Gamepad2
-                          size={28}
-                          color={storyMode === 'interactive' ? Colors.neutral.white : Colors.neutral.medium}
-                        />
-                        <View style={styles.newBadge}>
-                          <Text style={styles.newBadgeText}>YENİ</Text>
-                        </View>
-                      </View>
-                      <Text style={[
-                        styles.storyModeOptionTitle,
-                        storyMode === 'interactive' && styles.storyModeOptionTitleSelected
-                      ]}>
-                        İnteraktif Masal
-                      </Text>
-                      <Text style={[
-                        styles.storyModeOptionDesc,
-                        storyMode === 'interactive' && styles.storyModeOptionDescSelected
-                      ]}>
-                        Seçimli macera
-                      </Text>
-                    </LinearGradient>
-                  </Pressable>
+              <LinearGradient colors={Colors.cards.story.bg} style={styles.createFormContainer}>
+                <View style={styles.createFormHeader}>
+                  <Wand2 size={24} color={Colors.cards.story.icon} />
+                  <Text style={styles.createFormTitle}>Yeni Masal Oluştur</Text>
                 </View>
-
-                {/* Interactive Story Info Card - Show when interactive mode selected */}
-                {storyMode === 'interactive' && (
-                  <View style={styles.interactiveInfoCard}>
-                    <LinearGradient
-                      colors={['rgba(147, 51, 234, 0.1)', 'rgba(124, 58, 237, 0.05)']}
-                      style={styles.interactiveInfoGradient}
-                    >
-                      <View style={styles.interactiveInfoHeader}>
-                        <Star size={20} color="#9333EA" />
-                        <Text style={styles.interactiveInfoTitle}>İnteraktif Masal Nedir?</Text>
-                      </View>
-                      <View style={styles.interactiveInfoFeatures}>
-                        <View style={styles.interactiveInfoFeature}>
-                          <View style={styles.featureIconCircle}>
-                            <ChevronRight size={14} color="#9333EA" />
-                          </View>
-                          <Text style={styles.featureText}>Çocuğunuz hikayede seçimler yapar</Text>
-                        </View>
-                        <View style={styles.interactiveInfoFeature}>
-                          <View style={styles.featureIconCircle}>
-                            <Brain size={14} color="#9333EA" />
-                          </View>
-                          <Text style={styles.featureText}>Seçimler kişilik özelliklerini yansıtır</Text>
-                        </View>
-                        <View style={styles.interactiveInfoFeature}>
-                          <View style={styles.featureIconCircle}>
-                            <Users size={14} color="#9333EA" />
-                          </View>
-                          <Text style={styles.featureText}>Ebeveynler için detaylı analiz raporu</Text>
-                        </View>
-                      </View>
-                    </LinearGradient>
-                  </View>
-                )}
-              </View>
-
-              {/* Child Selector - Show which child the story is for */}
-              <View style={styles.childSelectorSection}>
-                <Text style={styles.childSelectorLabel}>Bu masal kimin için?</Text>
-                <ChildSelectorChip
-                  selectedChild={selectedChild}
-                  childrenList={userChildren}
-                  onSelectChild={(child) => setSelectedChild(child)}
-                />
-                {selectedChild && (
-                  <Text style={styles.childSelectorHint}>
-                    Hikaye {selectedChild.age} yaş için{selectedChild.gender ? ` (${selectedChild.gender === 'male' ? 'erkek' : 'kız'} karakter)` : ''} oluşturulacak
-                  </Text>
-                )}
-                {!selectedChild && !hasChildren && (
-                  <Text style={styles.childSelectorWarning}>
-                    💡 Profil sayfasından çocuk ekleyerek kişiselleştirilmiş hikayeler oluşturabilirsiniz
-                  </Text>
-                )}
-              </View>
-
-              {/* Image Preview - Show first if image exists */}
-              {storyImage && (
-                <View style={styles.imagePreviewWrapper}>
-                  <Image source={{ uri: storyImage }} style={styles.imagePreview} contentFit="contain" />
-                  <View style={styles.imagePreviewBadge}>
-                    <Text style={styles.imagePreviewBadgeText}>✓ Görsel Yüklendi</Text>
-                  </View>
-                </View>
-              )}
-
-              {/* AI Theme Suggestions - Show prominently when image exists */}
-              {loadingSuggestions && (
-                <View style={styles.suggestionsLoading}>
-                  <ActivityIndicator size="small" color={Colors.cards.story.icon} />
-                  <Text style={styles.suggestionsLoadingText}>🎨 Çizim analiz ediliyor, tema önerileri hazırlanıyor...</Text>
-                </View>
-              )}
-
-              {!loadingSuggestions && themeSuggestions.length > 0 && (
-                <View style={styles.suggestionsContainer}>
-                  <View style={styles.suggestionsTitleRow}>
-                    <Text style={styles.suggestionsTitle}>✨ Masal Teması Seçin</Text>
-                    {selectedThemeIndex === null && !storyTitle.trim() && (
-                      <View style={styles.requiredBadge}>
-                        <Text style={styles.requiredBadgeText}>Gerekli</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text style={styles.suggestionsSubtitle}>AI çiziminizi analiz etti ve size özel temalar önerdi:</Text>
-                  {themeSuggestions.map((suggestion, index) => (
-                    <Pressable
-                      key={index}
-                      onPress={() => {
-                        setSelectedThemeIndex(index);
-                        setStoryTitle(""); // Clear manual title
-                      }}
-                      style={({ pressed }) => [
-                        styles.suggestionCard,
-                        selectedThemeIndex === index && styles.suggestionCardSelected,
-                        pressed && { opacity: 0.8 },
-                      ]}
-                    >
-                      <Text style={styles.suggestionEmoji}>{suggestion.emoji}</Text>
-                      <View style={styles.suggestionContent}>
-                        <Text style={styles.suggestionTitle}>{suggestion.title}</Text>
-                        <Text style={styles.suggestionTheme}>{suggestion.theme}</Text>
-                      </View>
-                      {selectedThemeIndex === index && (
-                        <Text style={styles.suggestionCheck}>✓</Text>
-                      )}
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-
-              {/* Manual title input - Alternative to theme selection */}
-              <View style={styles.manualTitleSection}>
-                <Text style={styles.manualTitleLabel}>
-                  {themeSuggestions.length > 0 ? "Ya da kendi başlığınızı yazın:" : "Masal başlığı:"}
+                <Text style={styles.createFormDescription}>
+                  Çocuğunuzun çizimlerinden ilham alan özel bir masal kitabı oluşturun
                 </Text>
-                <TextInput
-                  style={[
-                    styles.input,
-                    selectedThemeIndex !== null && styles.inputDisabledLook,
-                  ]}
-                  placeholder="Örn: Orman Macerası, Uzay Yolculuğu..."
-                  placeholderTextColor={Colors.neutral.light}
-                  value={storyTitle}
-                  onChangeText={(text) => {
-                    setStoryTitle(text);
-                    // Clear theme selection when user types manually
-                    if (text.trim() && selectedThemeIndex !== null) {
-                      setSelectedThemeIndex(null);
-                    }
-                  }}
-                />
-              </View>
 
-              {/* Status indicator */}
-              {storyImage && (
-                <View style={styles.statusIndicator}>
-                  {(selectedThemeIndex !== null || storyTitle.trim()) ? (
-                    <Text style={styles.statusReady}>✅ Masal oluşturmaya hazır!</Text>
-                  ) : (
-                    <Text style={styles.statusWaiting}>👆 Yukarıdan bir tema seçin veya başlık yazın</Text>
+                {/* Story Mode Toggle - Normal vs Interactive */}
+                <View style={styles.storyModeSection}>
+                  <Text style={styles.storyModeSectionTitle}>Masal Türü Seçin</Text>
+                  <View style={styles.storyModeToggle}>
+                    {/* Normal Story Option */}
+                    <Pressable
+                      style={[
+                        styles.storyModeOption,
+                        storyMode === 'normal' && styles.storyModeOptionSelected,
+                      ]}
+                      onPress={() => setStoryMode('normal')}
+                    >
+                      <LinearGradient
+                        colors={
+                          storyMode === 'normal'
+                            ? [Colors.secondary.sunshine, Colors.cards.story.border]
+                            : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
+                        }
+                        style={styles.storyModeOptionGradient}
+                      >
+                        <BookOpen
+                          size={28}
+                          color={
+                            storyMode === 'normal' ? Colors.neutral.white : Colors.neutral.medium
+                          }
+                        />
+                        <Text
+                          style={[
+                            styles.storyModeOptionTitle,
+                            storyMode === 'normal' && styles.storyModeOptionTitleSelected,
+                          ]}
+                        >
+                          Klasik Masal
+                        </Text>
+                        <Text
+                          style={[
+                            styles.storyModeOptionDesc,
+                            storyMode === 'normal' && styles.storyModeOptionDescSelected,
+                          ]}
+                        >
+                          Görsellerle hikaye
+                        </Text>
+                      </LinearGradient>
+                    </Pressable>
+
+                    {/* Interactive Story Option */}
+                    <Pressable
+                      style={[
+                        styles.storyModeOption,
+                        storyMode === 'interactive' && styles.storyModeOptionSelected,
+                      ]}
+                      onPress={() => setStoryMode('interactive')}
+                    >
+                      <LinearGradient
+                        colors={
+                          storyMode === 'interactive'
+                            ? ['#9333EA', '#7C3AED']
+                            : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
+                        }
+                        style={styles.storyModeOptionGradient}
+                      >
+                        <View style={styles.interactiveBadgeContainer}>
+                          <Gamepad2
+                            size={28}
+                            color={
+                              storyMode === 'interactive'
+                                ? Colors.neutral.white
+                                : Colors.neutral.medium
+                            }
+                          />
+                          <View style={styles.newBadge}>
+                            <Text style={styles.newBadgeText}>YENİ</Text>
+                          </View>
+                        </View>
+                        <Text
+                          style={[
+                            styles.storyModeOptionTitle,
+                            storyMode === 'interactive' && styles.storyModeOptionTitleSelected,
+                          ]}
+                        >
+                          İnteraktif Masal
+                        </Text>
+                        <Text
+                          style={[
+                            styles.storyModeOptionDesc,
+                            storyMode === 'interactive' && styles.storyModeOptionDescSelected,
+                          ]}
+                        >
+                          Seçimli macera
+                        </Text>
+                      </LinearGradient>
+                    </Pressable>
+                  </View>
+
+                  {/* Interactive Story Info Card - Show when interactive mode selected */}
+                  {storyMode === 'interactive' && (
+                    <View style={styles.interactiveInfoCard}>
+                      <LinearGradient
+                        colors={['rgba(147, 51, 234, 0.1)', 'rgba(124, 58, 237, 0.05)']}
+                        style={styles.interactiveInfoGradient}
+                      >
+                        <View style={styles.interactiveInfoHeader}>
+                          <Star size={20} color="#9333EA" />
+                          <Text style={styles.interactiveInfoTitle}>İnteraktif Masal Nedir?</Text>
+                        </View>
+                        <View style={styles.interactiveInfoFeatures}>
+                          <View style={styles.interactiveInfoFeature}>
+                            <View style={styles.featureIconCircle}>
+                              <ChevronRight size={14} color="#9333EA" />
+                            </View>
+                            <Text style={styles.featureText}>
+                              Çocuğunuz hikayede seçimler yapar
+                            </Text>
+                          </View>
+                          <View style={styles.interactiveInfoFeature}>
+                            <View style={styles.featureIconCircle}>
+                              <Brain size={14} color="#9333EA" />
+                            </View>
+                            <Text style={styles.featureText}>
+                              Seçimler kişilik özelliklerini yansıtır
+                            </Text>
+                          </View>
+                          <View style={styles.interactiveInfoFeature}>
+                            <View style={styles.featureIconCircle}>
+                              <Users size={14} color="#9333EA" />
+                            </View>
+                            <Text style={styles.featureText}>
+                              Ebeveynler için detaylı analiz raporu
+                            </Text>
+                          </View>
+                        </View>
+                      </LinearGradient>
+                    </View>
                   )}
                 </View>
+
+                {/* Child Selector - Show which child the story is for */}
+                <View style={styles.childSelectorSection}>
+                  <Text style={styles.childSelectorLabel}>Bu masal kimin için?</Text>
+                  <ChildSelectorChip
+                    selectedChild={selectedChild}
+                    childrenList={userChildren}
+                    onSelectChild={child => setSelectedChild(child)}
+                  />
+                  {selectedChild && (
+                    <Text style={styles.childSelectorHint}>
+                      Hikaye {selectedChild.age} yaş için
+                      {selectedChild.gender
+                        ? ` (${selectedChild.gender === 'male' ? 'erkek' : 'kız'} karakter)`
+                        : ''}{' '}
+                      oluşturulacak
+                    </Text>
+                  )}
+                  {!selectedChild && !hasChildren && (
+                    <Text style={styles.childSelectorWarning}>
+                      💡 Profil sayfasından çocuk ekleyerek kişiselleştirilmiş hikayeler
+                      oluşturabilirsiniz
+                    </Text>
+                  )}
+                </View>
+
+                {/* Image Preview - Show first if image exists */}
+                {storyImage && (
+                  <View style={styles.imagePreviewWrapper}>
+                    <Image
+                      source={{ uri: storyImage }}
+                      style={styles.imagePreview}
+                      contentFit="contain"
+                    />
+                    <View style={styles.imagePreviewBadge}>
+                      <Text style={styles.imagePreviewBadgeText}>✓ Görsel Yüklendi</Text>
+                    </View>
+                  </View>
+                )}
+
+                {/* AI Theme Suggestions - Show prominently when image exists */}
+                {loadingSuggestions && (
+                  <View style={styles.suggestionsLoading}>
+                    <ActivityIndicator size="small" color={Colors.cards.story.icon} />
+                    <Text style={styles.suggestionsLoadingText}>
+                      🎨 Çizim analiz ediliyor, tema önerileri hazırlanıyor...
+                    </Text>
+                  </View>
+                )}
+
+                {!loadingSuggestions && themeSuggestions.length > 0 && (
+                  <View style={styles.suggestionsContainer}>
+                    <View style={styles.suggestionsTitleRow}>
+                      <Text style={styles.suggestionsTitle}>✨ Masal Teması Seçin</Text>
+                      {selectedThemeIndex === null && !storyTitle.trim() && (
+                        <View style={styles.requiredBadge}>
+                          <Text style={styles.requiredBadgeText}>Gerekli</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={styles.suggestionsSubtitle}>
+                      AI çiziminizi analiz etti ve size özel temalar önerdi:
+                    </Text>
+                    {themeSuggestions.map((suggestion, index) => (
+                      <Pressable
+                        key={index}
+                        onPress={() => {
+                          setSelectedThemeIndex(index);
+                          setStoryTitle(''); // Clear manual title
+                        }}
+                        style={({ pressed }) => [
+                          styles.suggestionCard,
+                          selectedThemeIndex === index && styles.suggestionCardSelected,
+                          pressed && { opacity: 0.8 },
+                        ]}
+                      >
+                        <Text style={styles.suggestionEmoji}>{suggestion.emoji}</Text>
+                        <View style={styles.suggestionContent}>
+                          <Text style={styles.suggestionTitle}>{suggestion.title}</Text>
+                          <Text style={styles.suggestionTheme}>{suggestion.theme}</Text>
+                        </View>
+                        {selectedThemeIndex === index && (
+                          <Text style={styles.suggestionCheck}>✓</Text>
+                        )}
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+
+                {/* Manual title input - Alternative to theme selection */}
+                <View style={styles.manualTitleSection}>
+                  <Text style={styles.manualTitleLabel}>
+                    {themeSuggestions.length > 0
+                      ? 'Ya da kendi başlığınızı yazın:'
+                      : 'Masal başlığı:'}
+                  </Text>
+                  <TextInput
+                    style={[styles.input, selectedThemeIndex !== null && styles.inputDisabledLook]}
+                    placeholder="Örn: Orman Macerası, Uzay Yolculuğu..."
+                    placeholderTextColor={Colors.neutral.light}
+                    value={storyTitle}
+                    onChangeText={text => {
+                      setStoryTitle(text);
+                      // Clear theme selection when user types manually
+                      if (text.trim() && selectedThemeIndex !== null) {
+                        setSelectedThemeIndex(null);
+                      }
+                    }}
+                  />
+                </View>
+
+                {/* Status indicator */}
+                {storyImage && (
+                  <View style={styles.statusIndicator}>
+                    {selectedThemeIndex !== null || storyTitle.trim() ? (
+                      <Text style={styles.statusReady}>✅ Masal oluşturmaya hazır!</Text>
+                    ) : (
+                      <Text style={styles.statusWaiting}>
+                        👆 Yukarıdan bir tema seçin veya başlık yazın
+                      </Text>
+                    )}
+                  </View>
+                )}
+
+                <Pressable
+                  onPress={() => {
+                    console.log('[Stories] Pick image button pressed');
+                    pickStoryImage();
+                  }}
+                  style={({ pressed }) => [
+                    styles.pickButton,
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                  ]}
+                >
+                  <LinearGradient
+                    colors={[Colors.neutral.medium, Colors.neutral.dark]}
+                    style={styles.buttonGradient}
+                  >
+                    <ImagePlus size={20} color={Colors.neutral.white} />
+                    <Text style={styles.buttonText}>
+                      {storyImage ? 'Farklı Görsel Seç' : 'İlham Görseli Seç'}
+                    </Text>
+                  </LinearGradient>
+                </Pressable>
+              </LinearGradient>
+            </ScrollView>
+
+            {/* Fixed Create Story Button - Always visible at bottom */}
+            <View style={styles.fixedButtonContainer}>
+              {/* Debug: Show button state */}
+              {__DEV__ && (
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: Colors.neutral.medium,
+                    textAlign: 'center',
+                    marginBottom: 4,
+                  }}
+                >
+                  [Debug] Image: {storyImage ? '✓' : '✗'} | Loading: {loadingStory ? '✓' : '✗'} |
+                  Disabled: {!storyImage || loadingStory ? '✓' : '✗'}
+                </Text>
               )}
 
-            <Pressable
-              onPress={() => {
-                console.log('[Stories] Pick image button pressed');
-                pickStoryImage();
-              }}
-              style={({ pressed }) => [
-                styles.pickButton,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-            >
-              <LinearGradient
-                colors={[Colors.neutral.medium, Colors.neutral.dark]}
-                style={styles.buttonGradient}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  console.log('[Stories] 🔴 CREATE BUTTON PRESSED!');
+                  console.log('[Stories] storyImage:', !!storyImage, storyImage?.substring(0, 50));
+                  console.log('[Stories] storyTitle:', storyTitle);
+                  console.log('[Stories] loadingStory:', loadingStory);
+                  console.log('[Stories] selectedThemeIndex:', selectedThemeIndex);
+                  console.log('[Stories] storyMode:', storyMode);
+
+                  if (!storyImage) {
+                    console.log('[Stories] ❌ No storyImage - button should be disabled!');
+                    Alert.alert('Hata', 'Görsel bulunamadı. Lütfen tekrar deneyin.');
+                    return;
+                  }
+
+                  handleStorybook();
+                }}
+                disabled={!storyImage || loadingStory}
+                style={[
+                  styles.createStoryButtonFixed,
+                  (!storyImage || loadingStory) && styles.buttonDisabled,
+                ]}
               >
-                <ImagePlus size={20} color={Colors.neutral.white} />
-                <Text style={styles.buttonText}>
-                  {storyImage ? "Farklı Görsel Seç" : "İlham Görseli Seç"}
-                </Text>
-              </LinearGradient>
-            </Pressable>
-
-            </LinearGradient>
-          </ScrollView>
-
-          {/* Fixed Create Story Button - Always visible at bottom */}
-          <View style={styles.fixedButtonContainer}>
-            {/* Debug: Show button state */}
-            {__DEV__ && (
-              <Text style={{ fontSize: 10, color: Colors.neutral.medium, textAlign: 'center', marginBottom: 4 }}>
-                [Debug] Image: {storyImage ? '✓' : '✗'} | Loading: {loadingStory ? '✓' : '✗'} | Disabled: {(!storyImage || loadingStory) ? '✓' : '✗'}
-              </Text>
-            )}
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => {
-                console.log('[Stories] 🔴 CREATE BUTTON PRESSED!');
-                console.log('[Stories] storyImage:', !!storyImage, storyImage?.substring(0, 50));
-                console.log('[Stories] storyTitle:', storyTitle);
-                console.log('[Stories] loadingStory:', loadingStory);
-                console.log('[Stories] selectedThemeIndex:', selectedThemeIndex);
-                console.log('[Stories] storyMode:', storyMode);
-
-                if (!storyImage) {
-                  console.log('[Stories] ❌ No storyImage - button should be disabled!');
-                  Alert.alert("Hata", "Görsel bulunamadı. Lütfen tekrar deneyin.");
-                  return;
-                }
-
-                handleStorybook();
-              }}
-              disabled={!storyImage || loadingStory}
-              style={[
-                styles.createStoryButtonFixed,
-                (!storyImage || loadingStory) && styles.buttonDisabled,
-              ]}
-            >
-              <LinearGradient
-                colors={(!storyImage || loadingStory)
-                  ? [Colors.neutral.light, Colors.neutral.medium]
-                  : storyMode === 'interactive'
-                    ? ['#9333EA', '#7C3AED']
-                    : [Colors.secondary.sunshine, Colors.cards.story.border]}
-                style={styles.buttonGradientLarge}
-              >
-                {loadingStory ? (
-                  <ActivityIndicator size="small" color={Colors.neutral.white} />
-                ) : storyMode === 'interactive' ? (
-                  <Gamepad2 size={24} color={Colors.neutral.white} />
-                ) : (
-                  <Sparkles size={24} color={Colors.neutral.white} />
-                )}
-                <Text style={styles.buttonTextLarge}>
-                  {loadingStory
-                    ? storyMode === 'interactive'
-                      ? "İnteraktif Masal Oluşturuluyor..."
-                      : "Masal Oluşturuluyor..."
-                    : storyMode === 'interactive'
-                      ? "🎮 İnteraktif Masal Oluştur"
-                      : "✨ Masal Oluştur"}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+                <LinearGradient
+                  colors={
+                    !storyImage || loadingStory
+                      ? [Colors.neutral.light, Colors.neutral.medium]
+                      : storyMode === 'interactive'
+                        ? ['#9333EA', '#7C3AED']
+                        : [Colors.secondary.sunshine, Colors.cards.story.border]
+                  }
+                  style={styles.buttonGradientLarge}
+                >
+                  {loadingStory ? (
+                    <ActivityIndicator size="small" color={Colors.neutral.white} />
+                  ) : storyMode === 'interactive' ? (
+                    <Gamepad2 size={24} color={Colors.neutral.white} />
+                  ) : (
+                    <Sparkles size={24} color={Colors.neutral.white} />
+                  )}
+                  <Text style={styles.buttonTextLarge}>
+                    {loadingStory
+                      ? storyMode === 'interactive'
+                        ? 'İnteraktif Masal Oluşturuluyor...'
+                        : 'Masal Oluşturuluyor...'
+                      : storyMode === 'interactive'
+                        ? '🎮 İnteraktif Masal Oluştur'
+                        : '✨ Masal Oluştur'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
           </>
         ) : null}
 
-      {/* Content - Hidden when create form is open */}
-      {showCreateForm ? null : isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary.sunset} />
-          <Text style={styles.loadingText}>Masallar yükleniyor...</Text>
-        </View>
-      ) : error ? (
-        renderError()
-      ) : !storybooks || storybooks.length === 0 ? (
-        renderEmptyState()
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 20 },
-          ]}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={Colors.primary.sunset}
-              colors={[Colors.primary.sunset]}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        >
-          {storybooks.map((storybook) => renderStoryCard(storybook))}
-        </ScrollView>
-      )}
-
-      {/* Content Warning Modal for Parents */}
-      <Modal
-        visible={showContentWarningModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowContentWarningModal(false)}
-      >
-        <View style={styles.modalOverlay}>
+        {/* Content - Hidden when create form is open */}
+        {showCreateForm ? null : isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary.sunset} />
+            <Text style={styles.loadingText}>Masallar yükleniyor...</Text>
+          </View>
+        ) : error ? (
+          renderError()
+        ) : !storybooks || storybooks.length === 0 ? (
+          renderEmptyState()
+        ) : (
           <ScrollView
-            style={{ maxHeight: '90%' }}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            style={styles.scrollView}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={Colors.primary.sunset}
+                colors={[Colors.primary.sunset]}
+              />
+            }
             showsVerticalScrollIndicator={false}
           >
-          <View style={styles.contentWarningModal}>
-            <View style={styles.warningIconContainer}>
-              <AlertTriangle size={40} color={Colors.secondary.sunshine} />
-            </View>
-
-            <Text style={styles.warningTitle}>
-              Ebeveyn Bildirimi
-            </Text>
-
-            {/* Concern Type Badge */}
-            {contentWarning?.concernType && concernTypeLabels[contentWarning.concernType] && (
-              <View style={[
-                styles.concernTypeBadge,
-                { backgroundColor: `${concernTypeLabels[contentWarning.concernType].color}20` }
-              ]}>
-                <Text style={styles.concernTypeEmoji}>
-                  {concernTypeLabels[contentWarning.concernType].emoji}
-                </Text>
-                <Text style={[
-                  styles.concernTypeLabel,
-                  { color: concernTypeLabels[contentWarning.concernType].color }
-                ]}>
-                  {concernTypeLabels[contentWarning.concernType].label}
-                </Text>
-              </View>
-            )}
-
-            <Text style={styles.warningDescription}>
-              Çocuğunuzun çiziminde dikkat edilmesi gereken duygusal içerik tespit edildi.
-            </Text>
-
-            {contentWarning?.concernDescription && (
-              <View style={styles.warningDetailBox}>
-                <Text style={styles.warningDetailTitle}>Tespit Edilen İçerik:</Text>
-                <Text style={styles.warningDetailText}>
-                  {contentWarning.concernDescription}
-                </Text>
-              </View>
-            )}
-
-            {contentWarning?.therapeuticApproach && (
-              <View style={styles.therapeuticBox}>
-                <Text style={styles.therapeuticTitle}>🎯 Terapötik Yaklaşım:</Text>
-                <Text style={styles.therapeuticText}>
-                  {contentWarning.therapeuticApproach}
-                </Text>
-              </View>
-            )}
-
-            <View style={styles.warningInfoBox}>
-              <Heart size={20} color={Colors.primary.sunset} />
-              <Text style={styles.warningInfoText}>
-                Önerilen masal temaları, bibliotherapy (kitap terapisi) prensipleri doğrultusunda çocuğunuzun duygularını güvenli bir şekilde işlemesine yardımcı olmak için özel olarak seçildi. Bu hikayeler dolaylı yoldan iyileşmeyi destekler.
-              </Text>
-            </View>
-
-            <View style={styles.professionalNoteBox}>
-              <Text style={styles.professionalNoteText}>
-                💡 Not: Bu uygulama profesyonel psikolojik destek yerine geçmez. Endişeleriniz varsa bir çocuk psikoloğuna danışmanızı öneririz.
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.warningButton}
-              onPress={() => setShowContentWarningModal(false)}
-            >
-              <LinearGradient
-                colors={[Colors.primary.sunset, Colors.secondary.sunshine]}
-                style={styles.warningButtonGradient}
-              >
-                <Text style={styles.warningButtonText}>Anladım, Devam Et</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+            {storybooks.map(storybook => renderStoryCard(storybook))}
           </ScrollView>
-        </View>
-      </Modal>
+        )}
+
+        {/* Content Warning Modal for Parents */}
+        <Modal
+          visible={showContentWarningModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowContentWarningModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <ScrollView
+              style={{ maxHeight: '90%' }}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.contentWarningModal}>
+                <View style={styles.warningIconContainer}>
+                  <AlertTriangle size={40} color={Colors.secondary.sunshine} />
+                </View>
+
+                <Text style={styles.warningTitle}>Ebeveyn Bildirimi</Text>
+
+                {/* Concern Type Badge */}
+                {contentWarning?.concernType && concernTypeLabels[contentWarning.concernType] && (
+                  <View
+                    style={[
+                      styles.concernTypeBadge,
+                      {
+                        backgroundColor: `${concernTypeLabels[contentWarning.concernType].color}20`,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.concernTypeEmoji}>
+                      {concernTypeLabels[contentWarning.concernType].emoji}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.concernTypeLabel,
+                        { color: concernTypeLabels[contentWarning.concernType].color },
+                      ]}
+                    >
+                      {concernTypeLabels[contentWarning.concernType].label}
+                    </Text>
+                  </View>
+                )}
+
+                <Text style={styles.warningDescription}>
+                  Çocuğunuzun çiziminde dikkat edilmesi gereken duygusal içerik tespit edildi.
+                </Text>
+
+                {contentWarning?.concernDescription && (
+                  <View style={styles.warningDetailBox}>
+                    <Text style={styles.warningDetailTitle}>Tespit Edilen İçerik:</Text>
+                    <Text style={styles.warningDetailText}>
+                      {contentWarning.concernDescription}
+                    </Text>
+                  </View>
+                )}
+
+                {contentWarning?.therapeuticApproach && (
+                  <View style={styles.therapeuticBox}>
+                    <Text style={styles.therapeuticTitle}>🎯 Terapötik Yaklaşım:</Text>
+                    <Text style={styles.therapeuticText}>{contentWarning.therapeuticApproach}</Text>
+                  </View>
+                )}
+
+                <View style={styles.warningInfoBox}>
+                  <Heart size={20} color={Colors.primary.sunset} />
+                  <Text style={styles.warningInfoText}>
+                    Önerilen masal temaları, bibliotherapy (kitap terapisi) prensipleri
+                    doğrultusunda çocuğunuzun duygularını güvenli bir şekilde işlemesine yardımcı
+                    olmak için özel olarak seçildi. Bu hikayeler dolaylı yoldan iyileşmeyi
+                    destekler.
+                  </Text>
+                </View>
+
+                <View style={styles.professionalNoteBox}>
+                  <Text style={styles.professionalNoteText}>
+                    💡 Not: Bu uygulama profesyonel psikolojik destek yerine geçmez. Endişeleriniz
+                    varsa bir çocuk psikoloğuna danışmanızı öneririz.
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.warningButton}
+                  onPress={() => setShowContentWarningModal(false)}
+                >
+                  <LinearGradient
+                    colors={[Colors.primary.sunset, Colors.secondary.sunshine]}
+                    style={styles.warningButtonGradient}
+                  >
+                    <Text style={styles.warningButtonText}>Anladım, Devam Et</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </Modal>
       </LinearGradient>
 
       {/* Ioo Assistant */}
@@ -1674,27 +1811,27 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: layout.screenPadding,
-    paddingVertical: spacing["4"],
-    gap: spacing["4"],
+    paddingVertical: spacing['4'],
+    gap: spacing['4'],
   },
   headerTitleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["4"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['4'],
   },
   headerIcon: {
     width: layout.icon.mega,
     height: layout.icon.mega,
     borderRadius: radius.xl,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     ...shadows.lg,
   },
   headerTextContainer: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: isSmallDevice ? typography.size["2xl"] : typography.size["3xl"],
+    fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
@@ -1703,7 +1840,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
-    marginTop: spacing["1"],
+    marginTop: spacing['1'],
     fontWeight: typography.weight.medium,
   },
   scrollView: {
@@ -1711,45 +1848,45 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: layout.screenPadding,
-    gap: spacing["4"],
+    gap: spacing['4'],
   },
   storyCard: {
-    borderRadius: radius["2xl"],
-    overflow: "hidden",
+    borderRadius: radius['2xl'],
+    overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.4)',
     ...shadows.lg,
   },
   cardGradient: {
-    borderRadius: radius["2xl"],
-    overflow: "hidden",
+    borderRadius: radius['2xl'],
+    overflow: 'hidden',
   },
   cardImageContainer: {
-    position: "relative",
-    width: "100%",
+    position: 'relative',
+    width: '100%',
     height: 200,
     backgroundColor: Colors.background.primary,
   },
   cardImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   cardImagePlaceholder: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.neutral.lightest,
   },
   pdfBadge: {
-    position: "absolute",
-    top: spacing["3"],
-    right: spacing["3"],
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["2"],
+    position: 'absolute',
+    top: spacing['3'],
+    right: spacing['3'],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['2'],
     borderRadius: radius.full,
     ...shadows.md,
   },
@@ -1759,26 +1896,27 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
   },
   cardContent: {
-    padding: isSmallDevice ? spacing["3"] : spacing["4"],
-    gap: spacing["3"],
+    padding: isSmallDevice ? spacing['3'] : spacing['4'],
+    gap: spacing['3'],
   },
   cardTitle: {
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    lineHeight: typography.lineHeight.snug * (isSmallDevice ? typography.size.lg : typography.size.xl),
+    lineHeight:
+      typography.lineHeight.snug * (isSmallDevice ? typography.size.lg : typography.size.xl),
     ...textShadows.sm,
   },
   cardMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["4"],
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['4'],
+    flexWrap: 'wrap',
   },
   cardMetaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
   },
   cardMetaText: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
@@ -1786,13 +1924,13 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   featureBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    alignSelf: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    alignSelf: 'flex-start',
     backgroundColor: Colors.primary.soft,
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['2'],
     borderRadius: radius.lg,
   },
   featureBadgeText: {
@@ -1802,10 +1940,10 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: spacing["4"],
-    padding: spacing["8"],
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing['4'],
+    padding: spacing['8'],
   },
   loadingText: {
     fontSize: typography.size.md,
@@ -1814,32 +1952,33 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: spacing["10"],
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing['10'],
   },
   emptyContent: {
-    alignItems: "center",
-    gap: spacing["4"],
+    alignItems: 'center',
+    gap: spacing['4'],
     maxWidth: 320,
   },
   emptyTitle: {
-    fontSize: isSmallDevice ? typography.size.xl : typography.size["2xl"],
+    fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    textAlign: "center",
+    textAlign: 'center',
     ...textShadows.sm,
   },
   emptyDescription: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.medium,
-    textAlign: "center",
-    lineHeight: typography.lineHeight.relaxed * (isSmallDevice ? typography.size.sm : typography.size.base),
+    textAlign: 'center',
+    lineHeight:
+      typography.lineHeight.relaxed * (isSmallDevice ? typography.size.sm : typography.size.base),
   },
   retryButton: {
-    marginTop: spacing["2"],
-    paddingHorizontal: spacing["6"],
-    paddingVertical: spacing["3"],
+    marginTop: spacing['2'],
+    paddingHorizontal: spacing['6'],
+    paddingVertical: spacing['3'],
     backgroundColor: Colors.primary.sunset,
     borderRadius: radius.lg,
     ...shadows.md,
@@ -1854,8 +1993,8 @@ const styles = StyleSheet.create({
     height: layout.icon.huge + 16,
     borderRadius: radius.full,
     backgroundColor: Colors.primary.sunset,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     ...shadows.lg,
   },
   createFormScrollView: {
@@ -1863,20 +2002,20 @@ const styles = StyleSheet.create({
   },
   createFormScrollContent: {
     paddingHorizontal: layout.screenPadding,
-    paddingBottom: spacing["4"],
+    paddingBottom: spacing['4'],
   },
   createFormContainer: {
-    padding: isSmallDevice ? spacing["5"] : spacing["6"],
-    borderRadius: radius["2xl"],
+    padding: isSmallDevice ? spacing['5'] : spacing['6'],
+    borderRadius: radius['2xl'],
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.5)',
     ...shadows.xl,
   },
   createFormHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["3"],
-    marginBottom: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['3'],
+    marginBottom: spacing['2'],
   },
   createFormTitle: {
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
@@ -1887,13 +2026,14 @@ const styles = StyleSheet.create({
   createFormDescription: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
-    marginBottom: spacing["4"],
-    lineHeight: typography.lineHeight.normal * (isSmallDevice ? typography.size.xs : typography.size.sm),
+    marginBottom: spacing['4'],
+    lineHeight:
+      typography.lineHeight.normal * (isSmallDevice ? typography.size.xs : typography.size.sm),
   },
   // Child Selector Styles
   childSelectorSection: {
-    marginBottom: spacing["4"],
-    padding: spacing["4"],
+    marginBottom: spacing['4'],
+    padding: spacing['4'],
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: radius.xl,
     borderWidth: 1,
@@ -1903,49 +2043,49 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.dark,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   childSelectorHint: {
     fontSize: typography.size.xs,
     color: Colors.secondary.grass,
-    marginTop: spacing["2"],
+    marginTop: spacing['2'],
     fontWeight: typography.weight.medium,
   },
   childSelectorWarning: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    marginTop: spacing["2"],
+    marginTop: spacing['2'],
     fontStyle: 'italic',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: radius.lg,
-    padding: isSmallDevice ? spacing["3"] : spacing["4"],
+    padding: isSmallDevice ? spacing['3'] : spacing['4'],
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.darkest,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
     fontWeight: typography.weight.medium,
   },
   imagePreviewWrapper: {
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
     borderRadius: radius.lg,
-    overflow: "hidden",
-    position: "relative",
+    overflow: 'hidden',
+    position: 'relative',
   },
   imagePreview: {
-    width: "100%",
+    width: '100%',
     height: 180,
     borderRadius: radius.lg,
   },
   imagePreviewBadge: {
-    position: "absolute",
-    top: spacing["2"],
-    right: spacing["2"],
+    position: 'absolute',
+    top: spacing['2'],
+    right: spacing['2'],
     backgroundColor: Colors.secondary.mint,
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["1"],
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['1'],
     borderRadius: radius.full,
   },
   imagePreviewBadgeText: {
@@ -1954,23 +2094,23 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   manualTitleSection: {
-    marginTop: spacing["2"],
-    marginBottom: spacing["2"],
+    marginTop: spacing['2'],
+    marginBottom: spacing['2'],
   },
   manualTitleLabel: {
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
     fontWeight: typography.weight.medium,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   inputDisabledLook: {
     opacity: 0.5,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   statusIndicator: {
-    alignItems: "center",
-    paddingVertical: spacing["2"],
-    marginBottom: spacing["2"],
+    alignItems: 'center',
+    paddingVertical: spacing['2'],
+    marginBottom: spacing['2'],
   },
   statusReady: {
     fontSize: typography.size.sm,
@@ -1983,20 +2123,20 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   suggestionsTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing["1"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing['1'],
   },
   suggestionsSubtitle: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   requiredBadge: {
     backgroundColor: Colors.primary.sunset,
-    paddingHorizontal: spacing["2"],
-    paddingVertical: spacing["1"],
+    paddingHorizontal: spacing['2'],
+    paddingVertical: spacing['1'],
     borderRadius: radius.full,
   },
   requiredBadgeText: {
@@ -2005,18 +2145,18 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   pickButton: {
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   createStoryButton: {
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   buttonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing["2"],
-    paddingVertical: spacing["4"],
-    paddingHorizontal: spacing["5"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing['2'],
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['5'],
     borderRadius: radius.lg,
   },
   buttonDisabled: {
@@ -2029,27 +2169,27 @@ const styles = StyleSheet.create({
     ...textShadows.sm,
   },
   progressContainer: {
-    marginTop: spacing["4"],
-    padding: spacing["4"],
+    marginTop: spacing['4'],
+    padding: spacing['4'],
     backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   progressTitle: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    textAlign: "center",
+    textAlign: 'center',
     ...textShadows.sm,
   },
   progressBarContainer: {
     height: 8,
     backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.full,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   progressBarFill: {
-    height: "100%",
+    height: '100%',
     backgroundColor: Colors.secondary.sunshine,
     borderRadius: radius.full,
   },
@@ -2057,38 +2197,38 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.cards.story.icon,
-    textAlign: "center",
+    textAlign: 'center',
   },
   progressMessage: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.dark,
-    textAlign: "center",
+    textAlign: 'center',
     fontWeight: typography.weight.medium,
   },
   progressSteps: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    marginTop: spacing["2"],
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: spacing['2'],
   },
   progressStepItem: {
-    alignItems: "center",
-    gap: spacing["2"],
+    alignItems: 'center',
+    gap: spacing['2'],
     flex: 1,
   },
   stepIconContainer: {
     width: 40,
     height: 40,
     borderRadius: radius.full,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.neutral.lightest,
   },
   stepIconCompleted: {
-    backgroundColor: Colors.secondary.mint + "40",
+    backgroundColor: Colors.secondary.mint + '40',
   },
   stepIconActive: {
-    backgroundColor: Colors.secondary.sunshine + "40",
+    backgroundColor: Colors.secondary.sunshine + '40',
   },
   stepIconPending: {
     backgroundColor: Colors.neutral.lightest,
@@ -2099,7 +2239,7 @@ const styles = StyleSheet.create({
   stepLabel: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
     fontWeight: typography.weight.medium,
   },
   stepLabelActive: {
@@ -2109,24 +2249,24 @@ const styles = StyleSheet.create({
   progressFooter: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    textAlign: "center",
-    marginTop: spacing["2"],
+    textAlign: 'center',
+    marginTop: spacing['2'],
   },
   swipeDeleteContainer: {
-    justifyContent: "center",
-    alignItems: "flex-end",
-    marginBottom: spacing["4"],
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginBottom: spacing['4'],
   },
   deleteButton: {
-    backgroundColor: "#EF4444",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: 90,
-    height: "100%",
-    borderTopRightRadius: radius["2xl"],
-    borderBottomRightRadius: radius["2xl"],
-    paddingHorizontal: spacing["3"],
-    gap: spacing["1"],
+    height: '100%',
+    borderTopRightRadius: radius['2xl'],
+    borderBottomRightRadius: radius['2xl'],
+    paddingHorizontal: spacing['3'],
+    gap: spacing['1'],
   },
   deleteButtonText: {
     color: Colors.neutral.white,
@@ -2134,13 +2274,13 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   suggestionsLoading: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    padding: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    padding: spacing['3'],
     backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.lg,
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   suggestionsLoadingText: {
     fontSize: typography.size.sm,
@@ -2148,20 +2288,20 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   suggestionsContainer: {
-    gap: spacing["2"],
-    marginBottom: spacing["3"],
+    gap: spacing['2'],
+    marginBottom: spacing['3'],
   },
   suggestionsTitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
     fontWeight: typography.weight.semibold,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   suggestionCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: isSmallDevice ? spacing["2"] : spacing["3"],
-    padding: isSmallDevice ? spacing["2"] : spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: isSmallDevice ? spacing['2'] : spacing['3'],
+    padding: isSmallDevice ? spacing['2'] : spacing['3'],
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: radius.lg,
     borderWidth: 1.5,
@@ -2170,14 +2310,14 @@ const styles = StyleSheet.create({
   suggestionCardSelected: {
     borderWidth: 2,
     borderColor: Colors.cards.story.border,
-    backgroundColor: Colors.cards.story.bg[0] + "20",
+    backgroundColor: Colors.cards.story.bg[0] + '20',
   },
   suggestionEmoji: {
     fontSize: 32,
   },
   suggestionContent: {
     flex: 1,
-    gap: spacing["1"],
+    gap: spacing['1'],
   },
   suggestionTitle: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
@@ -2197,30 +2337,30 @@ const styles = StyleSheet.create({
   loadingAnimationContainer: {
     flex: 1,
     marginHorizontal: layout.screenPadding,
-    borderRadius: radius["2xl"],
+    borderRadius: radius['2xl'],
     overflow: 'hidden',
     ...shadows.xl,
   },
   storyLoadingGradient: {
     flex: 1,
-    padding: spacing["6"],
+    padding: spacing['6'],
     justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing["6"],
+    gap: spacing['6'],
   },
   storyLoadingHeader: {
     alignItems: 'center',
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   storyLoadingTitle: {
-    fontSize: typography.size["2xl"],
+    fontSize: typography.size['2xl'],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.white,
     ...textShadows.lg,
   },
   progressBarWrapper: {
     width: '100%',
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   progressBarTrack: {
     height: 12,
@@ -2241,15 +2381,15 @@ const styles = StyleSheet.create({
   },
   stepsContainer: {
     width: '100%',
-    gap: spacing["3"],
+    gap: spacing['3'],
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: spacing["4"],
+    padding: spacing['4'],
     borderRadius: radius.xl,
   },
   stepRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   stepCircle: {
     width: 40,
@@ -2290,7 +2430,7 @@ const styles = StyleSheet.create({
   },
   estimatedTimeContainer: {
     alignItems: 'center',
-    gap: spacing["1"],
+    gap: spacing['1'],
   },
   estimatedTimeLabel: {
     fontSize: typography.size.sm,
@@ -2303,9 +2443,9 @@ const styles = StyleSheet.create({
   },
   funTipContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    padding: spacing["4"],
+    padding: spacing['4'],
     borderRadius: radius.lg,
-    marginTop: spacing["2"],
+    marginTop: spacing['2'],
   },
   funTipText: {
     fontSize: typography.size.sm,
@@ -2316,26 +2456,26 @@ const styles = StyleSheet.create({
   // Analysis Loading Animation Styles
   analysisLoadingContainer: {
     marginHorizontal: layout.screenPadding,
-    borderRadius: radius["2xl"],
-    padding: spacing["6"],
+    borderRadius: radius['2xl'],
+    padding: spacing['6'],
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.5)',
     ...shadows.xl,
   },
   analysisLoadingContent: {
-    alignItems: "center",
-    gap: spacing["4"],
+    alignItems: 'center',
+    gap: spacing['4'],
   },
   analysisStepsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing["2"],
-    marginBottom: spacing["4"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing['2'],
+    marginBottom: spacing['4'],
   },
   analysisStepItem: {
-    alignItems: "center",
-    gap: spacing["2"],
+    alignItems: 'center',
+    gap: spacing['2'],
     opacity: 0.4,
   },
   analysisStepActive: {
@@ -2356,25 +2496,25 @@ const styles = StyleSheet.create({
     width: 30,
     height: 2,
     backgroundColor: Colors.neutral.light,
-    marginHorizontal: spacing["1"],
+    marginHorizontal: spacing['1'],
   },
   analysisLoadingTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    textAlign: "center",
-    marginTop: spacing["2"],
+    textAlign: 'center',
+    marginTop: spacing['2'],
   },
   analysisLoadingSubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
   },
   // Fixed button container - always visible at bottom
   fixedButtonContainer: {
     paddingHorizontal: layout.screenPadding,
-    paddingVertical: spacing["3"],
-    paddingBottom: spacing["4"],
+    paddingVertical: spacing['3'],
+    paddingBottom: spacing['4'],
     backgroundColor: 'transparent',
     zIndex: zIndex.max,
     position: 'relative',
@@ -2383,17 +2523,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     overflow: 'hidden',
     ...shadows.lg,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cursor: 'pointer' as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pointerEvents: 'auto' as any, // Ensure button can receive clicks on web
   },
   buttonGradientLarge: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing["3"],
-    paddingVertical: spacing["5"],
-    paddingHorizontal: spacing["6"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing['3'],
+    paddingVertical: spacing['5'],
+    paddingHorizontal: spacing['6'],
     borderRadius: radius.xl,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pointerEvents: 'none' as any, // Allow clicks to pass through to parent TouchableOpacity
   },
   buttonTextLarge: {
@@ -2408,12 +2551,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing["4"],
+    padding: spacing['4'],
   },
   contentWarningModal: {
     backgroundColor: Colors.neutral.white,
-    borderRadius: radius["2xl"],
-    padding: spacing["6"],
+    borderRadius: radius['2xl'],
+    padding: spacing['6'],
     maxWidth: 400,
     width: '100%',
     alignItems: 'center',
@@ -2426,27 +2569,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 183, 77, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   warningTitle: {
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   warningDescription: {
     fontSize: typography.size.md,
     color: Colors.neutral.dark,
     textAlign: 'center',
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
     lineHeight: 22,
   },
   warningDetailBox: {
     backgroundColor: 'rgba(255, 107, 107, 0.1)',
     borderRadius: radius.lg,
-    padding: spacing["4"],
-    marginBottom: spacing["4"],
+    padding: spacing['4'],
+    marginBottom: spacing['4'],
     width: '100%',
     borderLeftWidth: 4,
     borderLeftColor: Colors.primary.sunset,
@@ -2462,9 +2605,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: 'rgba(255, 160, 122, 0.1)',
     borderRadius: radius.lg,
-    padding: spacing["4"],
-    marginBottom: spacing["5"],
-    gap: spacing["3"],
+    padding: spacing['4'],
+    marginBottom: spacing['5'],
+    gap: spacing['3'],
   },
   warningInfoText: {
     flex: 1,
@@ -2478,8 +2621,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   warningButtonGradient: {
-    paddingVertical: spacing["4"],
-    paddingHorizontal: spacing["6"],
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['6'],
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2492,11 +2635,11 @@ const styles = StyleSheet.create({
   concernTypeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['2'],
     borderRadius: radius.full,
-    marginBottom: spacing["4"],
-    gap: spacing["2"],
+    marginBottom: spacing['4'],
+    gap: spacing['2'],
   },
   concernTypeEmoji: {
     fontSize: 20,
@@ -2510,14 +2653,14 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.dark,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   // Therapeutic approach box
   therapeuticBox: {
     backgroundColor: 'rgba(139, 92, 246, 0.1)',
     borderRadius: radius.lg,
-    padding: spacing["4"],
-    marginBottom: spacing["4"],
+    padding: spacing['4'],
+    marginBottom: spacing['4'],
     width: '100%',
     borderLeftWidth: 4,
     borderLeftColor: '#8B5CF6',
@@ -2526,7 +2669,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
     color: '#8B5CF6',
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   therapeuticText: {
     fontSize: typography.size.sm,
@@ -2537,8 +2680,8 @@ const styles = StyleSheet.create({
   professionalNoteBox: {
     backgroundColor: 'rgba(156, 163, 175, 0.1)',
     borderRadius: radius.lg,
-    padding: spacing["3"],
-    marginBottom: spacing["4"],
+    padding: spacing['3'],
+    marginBottom: spacing['4'],
     width: '100%',
   },
   professionalNoteText: {
@@ -2549,17 +2692,17 @@ const styles = StyleSheet.create({
   },
   // Story Mode Toggle Styles
   storyModeSection: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   storyModeSectionTitle: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.dark,
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   storyModeToggle: {
     flexDirection: 'row',
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   storyModeOption: {
     flex: 1,
@@ -2573,10 +2716,10 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   storyModeOptionGradient: {
-    paddingVertical: spacing["4"],
-    paddingHorizontal: spacing["3"],
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['3'],
     alignItems: 'center',
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   storyModeOptionTitle: {
     fontSize: typography.size.sm,
@@ -2603,7 +2746,7 @@ const styles = StyleSheet.create({
     top: -8,
     right: -16,
     backgroundColor: '#EF4444',
-    paddingHorizontal: spacing["2"],
+    paddingHorizontal: spacing['2'],
     paddingVertical: 2,
     borderRadius: radius.full,
   },
@@ -2614,12 +2757,12 @@ const styles = StyleSheet.create({
   },
   // Interactive Info Card
   interactiveInfoCard: {
-    marginTop: spacing["4"],
+    marginTop: spacing['4'],
     borderRadius: radius.xl,
     overflow: 'hidden',
   },
   interactiveInfoGradient: {
-    padding: spacing["4"],
+    padding: spacing['4'],
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: 'rgba(147, 51, 234, 0.2)',
@@ -2627,8 +2770,8 @@ const styles = StyleSheet.create({
   interactiveInfoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["2"],
-    marginBottom: spacing["3"],
+    gap: spacing['2'],
+    marginBottom: spacing['3'],
   },
   interactiveInfoTitle: {
     fontSize: typography.size.sm,
@@ -2636,12 +2779,12 @@ const styles = StyleSheet.create({
     color: '#9333EA',
   },
   interactiveInfoFeatures: {
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   interactiveInfoFeature: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   featureIconCircle: {
     width: 24,

@@ -1,5 +1,14 @@
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
-import { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -7,12 +16,19 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils/error';
-import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
+import {
+  spacing,
+  borderRadius,
+  shadows,
+  typography,
+  colors,
+  textShadows,
+} from '@/lib/design-tokens';
 
 export default function SetPasswordScreen() {
   const params = useLocalSearchParams();
-  const userId = params.userId as string;
-  const email = params.email as string;
+  const _userId = params.userId as string;
+  const _email = params.email as string;
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,29 +37,38 @@ export default function SetPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  const { setUserSession, completeOnboarding } = useAuth();
+  const { completeOnboarding } = useAuth();
   const setPasswordMutation = trpc.auth.setPassword.useMutation();
+
+  const safeAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
 
   const handleSetPassword = async () => {
     if (password.length < 6) {
-      Alert.alert('Hata', 'Şifre en az 6 karakter olmalıdır');
+      safeAlert('Hata', 'Şifre en az 6 karakter olmalıdır');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Hata', 'Şifreler eşleşmiyor');
+      safeAlert('Hata', 'Şifreler eşleşmiyor');
       return;
     }
 
     setIsLoading(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
       await setPasswordMutation.mutateAsync({
         password,
       });
 
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (Platform.OS !== 'web')
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       // User session and tokens should already be set from email verification
       await completeOnboarding();
@@ -51,8 +76,8 @@ export default function SetPasswordScreen() {
       router.replace('/(tabs)');
     } catch (error) {
       console.error('[SetPassword] Error:', error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Hata', getErrorMessage(error) || 'Şifre oluşturulurken hata oluştu');
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      safeAlert('Hata', getErrorMessage(error) || 'Şifre oluşturulurken hata oluştu');
     } finally {
       setIsLoading(false);
     }
@@ -69,40 +94,100 @@ export default function SetPasswordScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1, padding: spacing.lg, justifyContent: 'center' }}
       >
-        <Text style={{ fontSize: typography.fontSize.xxl, fontWeight: '700', color: 'white', marginBottom: spacing.sm, textAlign: 'center', ...textShadows.lg }}>
+        <Text
+          style={{
+            fontSize: typography.fontSize.xxl,
+            fontWeight: '700',
+            color: 'white',
+            marginBottom: spacing.sm,
+            textAlign: 'center',
+            ...textShadows.lg,
+          }}
+        >
           Şifre Oluşturun
         </Text>
-        <Text style={{ fontSize: typography.fontSize.base, color: 'rgba(255,255,255,0.9)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500' }}>
+        <Text
+          style={{
+            fontSize: typography.fontSize.base,
+            color: 'rgba(255,255,255,0.9)',
+            marginBottom: spacing.xl,
+            textAlign: 'center',
+            fontWeight: '500',
+          }}
+        >
           Hesabınızı güvence altına almak için bir şifre belirleyin
         </Text>
 
         {/* Password Input */}
-        <View style={{ backgroundColor: 'white', borderRadius: borderRadius.xl, padding: spacing.md, marginBottom: spacing.md, ...shadows.lg, flexDirection: 'row', alignItems: 'center' }}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: borderRadius.xl,
+            padding: spacing.md,
+            marginBottom: spacing.md,
+            ...shadows.lg,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
           <TextInput
             value={password}
             onChangeText={setPassword}
             placeholder="Şifreniz (min 6 karakter)"
             placeholderTextColor="#9CA3AF"
             secureTextEntry={!showPassword}
-            style={{ flex: 1, fontSize: typography.fontSize.base, color: '#1F2937', padding: spacing.sm, fontWeight: '500' }}
+            style={{
+              flex: 1,
+              fontSize: typography.fontSize.base,
+              color: '#1F2937',
+              padding: spacing.sm,
+              fontWeight: '500',
+            }}
           />
           <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
-            {showPassword ? <EyeOff size={20} color="#9CA3AF" /> : <Eye size={20} color="#9CA3AF" />}
+            {showPassword ? (
+              <EyeOff size={20} color="#9CA3AF" />
+            ) : (
+              <Eye size={20} color="#9CA3AF" />
+            )}
           </Pressable>
         </View>
 
         {/* Confirm Password */}
-        <View style={{ backgroundColor: 'white', borderRadius: borderRadius.xl, padding: spacing.md, marginBottom: spacing.xl, ...shadows.lg, flexDirection: 'row', alignItems: 'center' }}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: borderRadius.xl,
+            padding: spacing.md,
+            marginBottom: spacing.xl,
+            ...shadows.lg,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
           <TextInput
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             placeholder="Şifrenizi tekrar girin"
             placeholderTextColor="#9CA3AF"
             secureTextEntry={!showConfirmPassword}
-            style={{ flex: 1, fontSize: typography.fontSize.base, color: '#1F2937', padding: spacing.sm, fontWeight: '500' }}
+            style={{
+              flex: 1,
+              fontSize: typography.fontSize.base,
+              color: '#1F2937',
+              padding: spacing.sm,
+              fontWeight: '500',
+            }}
           />
-          <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: spacing.sm }}>
-            {showConfirmPassword ? <EyeOff size={20} color="#9CA3AF" /> : <Eye size={20} color="#9CA3AF" />}
+          <Pressable
+            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            style={{ padding: spacing.sm }}
+          >
+            {showConfirmPassword ? (
+              <EyeOff size={20} color="#9CA3AF" />
+            ) : (
+              <Eye size={20} color="#9CA3AF" />
+            )}
           </Pressable>
         </View>
 
@@ -111,7 +196,8 @@ export default function SetPasswordScreen() {
           disabled={!password || !confirmPassword || isLoading}
           style={({ pressed }) => [
             {
-              backgroundColor: password && confirmPassword && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
+              backgroundColor:
+                password && confirmPassword && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
               paddingVertical: spacing.lg,
               borderRadius: borderRadius.xxxl,
               ...shadows.lg,
@@ -122,7 +208,14 @@ export default function SetPasswordScreen() {
           {isLoading ? (
             <ActivityIndicator color={colors.brand.primary} />
           ) : (
-            <Text style={{ fontSize: typography.fontSize.md, fontWeight: 'bold', color: password && confirmPassword ? colors.brand.primary : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
+            <Text
+              style={{
+                fontSize: typography.fontSize.md,
+                fontWeight: 'bold',
+                color: password && confirmPassword ? colors.brand.primary : 'rgba(255,255,255,0.6)',
+                textAlign: 'center',
+              }}
+            >
               Şifreyi Kaydet
             </Text>
           )}

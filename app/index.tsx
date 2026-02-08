@@ -8,17 +8,9 @@
  */
 
 import React, { useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Pressable,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
@@ -32,7 +24,6 @@ import Animated, {
   FadeIn,
   FadeInDown,
   FadeInUp,
-  interpolateColor,
 } from 'react-native-reanimated';
 import { useRouter, Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -46,8 +37,8 @@ const isSmallDevice = SCREEN_HEIGHT < 700;
 // ============================================
 // ANIMATED COMPONENTS
 // ============================================
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+const _AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const _AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 // ============================================
 // PLATFORM UTILITIES
@@ -82,10 +73,7 @@ const FloatingParticle: React.FC<FloatingParticleProps> = ({
 
   useEffect(() => {
     // Fade in
-    opacity.value = withDelay(
-      delay,
-      withTiming(0.8, { duration: 2000 })
-    );
+    opacity.value = withDelay(delay, withTiming(0.8, { duration: 2000 }));
     scale.value = withDelay(
       delay,
       withTiming(1, { duration: 1500, easing: Easing.out(Easing.back(1.5)) })
@@ -103,13 +91,11 @@ const FloatingParticle: React.FC<FloatingParticleProps> = ({
         true
       )
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
     opacity: opacity.value,
   }));
 
@@ -195,14 +181,12 @@ export default function PremiumHomeScreen() {
       -1,
       true
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Animated styles
   const mascotAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: mascotY.value },
-      { rotate: `${mascotRotate.value}deg` },
-    ],
+    transform: [{ translateY: mascotY.value }, { rotate: `${mascotRotate.value}deg` }],
   }));
 
   const ctaAnimatedStyle = useAnimatedStyle(() => ({
@@ -232,24 +216,28 @@ export default function PremiumHomeScreen() {
   const handleCtaPressIn = useCallback(() => {
     ctaScale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCtaPressOut = useCallback(() => {
     ctaScale.value = withSpring(1, { damping: 12, stiffness: 200 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSecondaryPressIn = useCallback(() => {
     secondaryScale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSecondaryPressOut = useCallback(() => {
     secondaryScale.value = withSpring(1, { damping: 12, stiffness: 200 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleMascotTap = useCallback(() => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    const moods: Array<'happy' | 'excited' | 'love'> = ['excited', 'love', 'happy'];
+    const moods: ('happy' | 'excited' | 'love')[] = ['excited', 'love', 'happy'];
     const currentIndex = moods.indexOf(mascotMood);
     setMascotMood(moods[(currentIndex + 1) % moods.length]);
   }, [mascotMood]);
@@ -269,7 +257,12 @@ export default function PremiumHomeScreen() {
 
       {/* Warm overlay gradient */}
       <LinearGradient
-        colors={['transparent', 'rgba(255, 150, 180, 0.08)', 'rgba(255, 200, 150, 0.05)', 'transparent']}
+        colors={[
+          'transparent',
+          'rgba(255, 150, 180, 0.08)',
+          'rgba(255, 200, 150, 0.05)',
+          'transparent',
+        ]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
@@ -281,21 +274,55 @@ export default function PremiumHomeScreen() {
       <View style={styles.ambientLight3} />
 
       {/* Floating particles */}
-      <FloatingParticle size={8} color="rgba(255, 200, 255, 0.6)" initialX={SCREEN_WIDTH * 0.1} initialY={SCREEN_HEIGHT * 0.15} delay={0} />
-      <FloatingParticle size={6} color="rgba(200, 220, 255, 0.5)" initialX={SCREEN_WIDTH * 0.85} initialY={SCREEN_HEIGHT * 0.2} delay={300} />
-      <FloatingParticle size={10} color="rgba(255, 220, 200, 0.5)" initialX={SCREEN_WIDTH * 0.15} initialY={SCREEN_HEIGHT * 0.4} delay={600} />
-      <FloatingParticle size={7} color="rgba(220, 200, 255, 0.6)" initialX={SCREEN_WIDTH * 0.9} initialY={SCREEN_HEIGHT * 0.5} delay={900} />
-      <FloatingParticle size={5} color="rgba(255, 180, 200, 0.5)" initialX={SCREEN_WIDTH * 0.05} initialY={SCREEN_HEIGHT * 0.7} delay={400} />
-      <FloatingParticle size={9} color="rgba(200, 255, 230, 0.4)" initialX={SCREEN_WIDTH * 0.8} initialY={SCREEN_HEIGHT * 0.75} delay={700} />
+      <FloatingParticle
+        size={8}
+        color="rgba(255, 200, 255, 0.6)"
+        initialX={SCREEN_WIDTH * 0.1}
+        initialY={SCREEN_HEIGHT * 0.15}
+        delay={0}
+      />
+      <FloatingParticle
+        size={6}
+        color="rgba(200, 220, 255, 0.5)"
+        initialX={SCREEN_WIDTH * 0.85}
+        initialY={SCREEN_HEIGHT * 0.2}
+        delay={300}
+      />
+      <FloatingParticle
+        size={10}
+        color="rgba(255, 220, 200, 0.5)"
+        initialX={SCREEN_WIDTH * 0.15}
+        initialY={SCREEN_HEIGHT * 0.4}
+        delay={600}
+      />
+      <FloatingParticle
+        size={7}
+        color="rgba(220, 200, 255, 0.6)"
+        initialX={SCREEN_WIDTH * 0.9}
+        initialY={SCREEN_HEIGHT * 0.5}
+        delay={900}
+      />
+      <FloatingParticle
+        size={5}
+        color="rgba(255, 180, 200, 0.5)"
+        initialX={SCREEN_WIDTH * 0.05}
+        initialY={SCREEN_HEIGHT * 0.7}
+        delay={400}
+      />
+      <FloatingParticle
+        size={9}
+        color="rgba(200, 255, 230, 0.4)"
+        initialX={SCREEN_WIDTH * 0.8}
+        initialY={SCREEN_HEIGHT * 0.75}
+        delay={700}
+      />
 
       {/* Content */}
-      <View style={[styles.content, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}>
-
+      <View
+        style={[styles.content, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}
+      >
         {/* Brand Badge */}
-        <Animated.View
-          entering={FadeInDown.delay(200).duration(800)}
-          style={styles.brandContainer}
-        >
+        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.brandContainer}>
           <View style={styles.brandBadge}>
             <Text style={styles.brandText}>RENKİOO</Text>
           </View>
@@ -304,10 +331,7 @@ export default function PremiumHomeScreen() {
         {/* Hero Section */}
         <View style={styles.heroSection}>
           {/* Tagline above mascot */}
-          <Animated.View
-            entering={FadeIn.delay(400).duration(800)}
-            style={styles.taglineContainer}
-          >
+          <Animated.View entering={FadeIn.delay(400).duration(800)} style={styles.taglineContainer}>
             <Text style={styles.taglineHighlight}>Merhaba!</Text>
           </Animated.View>
 
@@ -317,13 +341,7 @@ export default function PremiumHomeScreen() {
             style={[styles.mascotContainer, mascotAnimatedStyle]}
           >
             <Pressable onPress={handleMascotTap} accessibilityLabel="Maskot">
-              <IooMascot
-                size="large"
-                animated
-                showGlow
-                showSparkles
-                mood={mascotMood}
-              />
+              <IooMascot size="large" animated showGlow showSparkles mood={mascotMood} />
             </Pressable>
           </Animated.View>
 
@@ -339,10 +357,7 @@ export default function PremiumHomeScreen() {
         {/* CTA Section */}
         <View style={styles.ctaSection}>
           {/* Primary CTA Button */}
-          <Animated.View
-            entering={FadeInUp.delay(1000).duration(800)}
-            style={ctaAnimatedStyle}
-          >
+          <Animated.View entering={FadeInUp.delay(1000).duration(800)} style={ctaAnimatedStyle}>
             {/* Glow effect behind button */}
             <Animated.View style={[styles.ctaGlow, ctaGlowStyle]} />
 
@@ -385,10 +400,7 @@ export default function PremiumHomeScreen() {
         </View>
 
         {/* Footer */}
-        <Animated.View
-          entering={FadeIn.delay(1400).duration(600)}
-          style={styles.footer}
-        >
+        <Animated.View entering={FadeIn.delay(1400).duration(600)} style={styles.footer}>
           <Text style={styles.footerText}>Çocuğunuzun duygusal dünyası</Text>
         </Animated.View>
       </View>

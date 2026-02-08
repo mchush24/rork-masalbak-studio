@@ -1,4 +1,15 @@
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert, Animated, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Animated,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,11 +18,31 @@ import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { useRole } from '@/lib/contexts/RoleContext';
-import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
 import { ExistingUserModal } from '@/components/ExistingUserModal';
-import { spacing, radius, shadows, typography, iconSizes, iconStroke, iconColors, textShadows, animation } from '@/constants/design-system';
+import {
+  spacing,
+  radius,
+  shadows,
+  typography,
+  iconSizes,
+  iconStroke,
+  iconColors,
+  textShadows,
+  animation,
+} from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
-import { Brain, Palette, BookOpen, Eye, EyeOff, Mail, Sparkles, Shield, ChartLine, Star, Heart, Zap } from 'lucide-react-native';
+import {
+  Brain,
+  Eye,
+  EyeOff,
+  Mail,
+  Sparkles,
+  Shield,
+  ChartLine,
+  Star,
+  Heart,
+  Zap,
+} from 'lucide-react-native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -38,13 +69,13 @@ export default function RegisterScreen() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [codeError, setCodeError] = useState('');
-  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [_showBiometricModal, setShowBiometricModal] = useState(false);
   const [showExistingUserModal, setShowExistingUserModal] = useState(false);
   const [isExistingUser, setIsExistingUser] = useState(false);
 
   const router = useRouter();
   const { completeOnboarding, setUserSession } = useAuth();
-  const { capability, enrollBiometric } = useBiometric();
+  const { capability, enrollBiometric: _enrollBiometric } = useBiometric();
   const { isOnboarded: roleOnboarded } = useRole();
 
   // Animations
@@ -57,7 +88,7 @@ export default function RegisterScreen() {
   const registerMutation = trpc.auth.register.useMutation();
   const verifyEmailMutation = trpc.auth.verifyEmail.useMutation();
   const completeOnboardingMutation = trpc.auth.completeOnboarding.useMutation();
-  const updateBiometricMutation = trpc.auth.updateBiometric.useMutation();
+  const _updateBiometricMutation = trpc.auth.updateBiometric.useMutation();
   const loginMutation = trpc.auth.loginWithPassword.useMutation();
   const checkEmailMutation = trpc.auth.checkEmail.useMutation();
 
@@ -85,6 +116,7 @@ export default function RegisterScreen() {
       duration: animation.duration.normal,
       useNativeDriver: false,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
 
   // Email validation
@@ -116,20 +148,45 @@ export default function RegisterScreen() {
     return true;
   };
 
+  // Platform-safe alert (Alert.alert is not available on web)
+  const safeAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   // Shake animation for errors
   const triggerShake = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: Platform.OS !== 'web' }),
-      Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: Platform.OS !== 'web' }),
-      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: Platform.OS !== 'web' }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
     ]).start();
   };
 
   // Step navigation
   const handleNext = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (currentStep === STEPS.EMAIL) {
       if (validateEmail(email)) {
@@ -141,7 +198,8 @@ export default function RegisterScreen() {
           if (result.exists && result.hasPassword) {
             // User already registered with password - show modal
             console.log('[Register] 📧 User already exists - showing modal');
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            if (Platform.OS !== 'web')
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             setShowExistingUserModal(true);
             return;
           }
@@ -176,7 +234,7 @@ export default function RegisterScreen() {
   };
 
   const handleBack = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (currentStep > STEPS.EMAIL) {
       setCurrentStep(currentStep - 1);
     }
@@ -196,7 +254,8 @@ export default function RegisterScreen() {
       // Check if user already exists
       if (!result.isNewUser) {
         console.log('[Register] ⚠️ User already exists - transforming to login mode');
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        if (Platform.OS !== 'web')
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
         // Transform form to login mode with animation
         setIsExistingUser(true);
@@ -213,18 +272,19 @@ export default function RegisterScreen() {
       }
 
       console.log('[Register] ✅ Verification email sent');
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (Platform.OS !== 'web')
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setCurrentStep(STEPS.VERIFY_CODE);
     } catch (error) {
       console.error('[Register] ❌ Error sending verification email:', error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      // ✅ FIX: Show specific error message from backend
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Email gönderilirken bir hata oluştu. Lütfen tekrar deneyin.';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Email gönderilirken bir hata oluştu. Lütfen tekrar deneyin.';
 
-      Alert.alert('Hata', errorMessage);
+      safeAlert('Hata', errorMessage);
       triggerShake();
     } finally {
       setIsLoading(false);
@@ -243,10 +303,17 @@ export default function RegisterScreen() {
 
       if (result.success && result.userId) {
         console.log('[Register/Login] ✅ Login successful');
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (Platform.OS !== 'web')
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         // Set session with tokens
-        await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
+        await setUserSession(
+          result.userId,
+          result.email!,
+          result.name,
+          result.accessToken,
+          result.refreshToken
+        );
         await completeOnboarding();
 
         // Check if should show biometric enrollment or role selection
@@ -261,13 +328,12 @@ export default function RegisterScreen() {
       }
     } catch (error) {
       console.error('[Register/Login] ❌ Login error:', error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Giriş yapılırken bir hata oluştu.';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Giriş yapılırken bir hata oluştu.';
 
-      Alert.alert('Giriş Başarısız', errorMessage);
+      safeAlert('Giriş Başarısız', errorMessage);
       triggerShake();
     } finally {
       setIsLoading(false);
@@ -294,12 +360,19 @@ export default function RegisterScreen() {
 
       if (result.success) {
         console.log('[Register] ✅ Email verified - completing onboarding');
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (Platform.OS !== 'web')
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         // Save JWT tokens and set user session
         if (result.userId && result.accessToken) {
           console.log('[Register] 🔑 Saving auth tokens for user:', result.userId);
-          await setUserSession(result.userId, email, undefined, result.accessToken, result.refreshToken);
+          await setUserSession(
+            result.userId,
+            email,
+            undefined,
+            result.accessToken,
+            result.refreshToken
+          );
 
           // Now call protected endpoints (with Authorization header from tRPC client)
           console.log('[Register] 🎯 Marking onboarding complete');
@@ -328,7 +401,7 @@ export default function RegisterScreen() {
     } catch (error) {
       console.error('[Register] ❌ Error verifying code:', error);
       setCodeError('Doğrulama kodu hatalı. Lütfen tekrar deneyin.');
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       triggerShake();
     } finally {
       setIsLoading(false);
@@ -357,14 +430,35 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Progress bar - simplified! */}
-          <View style={{ paddingTop: Platform.OS === 'ios' ? (isSmallDevice ? 50 : 60) : 40, paddingHorizontal: spacing.lg }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: isSmallDevice ? spacing.md : spacing.lg }}>
+          <View
+            style={{
+              paddingTop: Platform.OS === 'ios' ? (isSmallDevice ? 50 : 60) : 40,
+              paddingHorizontal: spacing.lg,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+              }}
+            >
               {currentStep > STEPS.EMAIL && (
                 <Pressable onPress={handleBack} style={{ marginRight: spacing.md }}>
                   <Text style={{ fontSize: isSmallDevice ? 20 : 24, color: 'white' }}>←</Text>
                 </Pressable>
               )}
-              <View style={{ flex: 1, height: isSmallDevice ? 4 : 6, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 3, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' }}>
+              <View
+                style={{
+                  flex: 1,
+                  height: isSmallDevice ? 4 : 6,
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                  borderWidth: 1,
+                  borderColor: 'rgba(255,255,255,0.4)',
+                }}
+              >
                 <Animated.View
                   style={{
                     height: '100%',
@@ -373,7 +467,15 @@ export default function RegisterScreen() {
                   }}
                 />
               </View>
-              <Text style={{ marginLeft: spacing.md, color: 'white', fontSize: typography.size.sm, fontWeight: '600', ...textShadows.sm }}>
+              <Text
+                style={{
+                  marginLeft: spacing.md,
+                  color: 'white',
+                  fontSize: typography.size.sm,
+                  fontWeight: '600',
+                  ...textShadows.sm,
+                }}
+              >
                 {currentStep + 1}/3
               </Text>
             </View>
@@ -384,10 +486,7 @@ export default function RegisterScreen() {
             style={{
               flex: 1,
               opacity: fadeAnim,
-              transform: [
-                { translateY: slideAnim },
-                { translateX: shakeAnim },
-              ],
+              transform: [{ translateY: slideAnim }, { translateX: shakeAnim }],
               paddingHorizontal: spacing.lg,
             }}
           >
@@ -420,10 +519,12 @@ export default function RegisterScreen() {
                 isLoading={isLoading}
                 isExistingUser={isExistingUser}
                 bannerSlideAnim={bannerSlideAnim}
-                onForgotPassword={() => router.push({
-                  pathname: '/(onboarding)/forgot-password',
-                  params: email ? { email: email.trim() } : undefined,
-                })}
+                onForgotPassword={() =>
+                  router.push({
+                    pathname: '/(onboarding)/forgot-password',
+                    params: email ? { email: email.trim() } : undefined,
+                  })
+                }
               />
             )}
             {currentStep === STEPS.VERIFY_CODE && (
@@ -448,7 +549,7 @@ export default function RegisterScreen() {
           setShowExistingUserModal(false);
           router.replace({
             pathname: '/(onboarding)/login',
-            params: { email: email.trim() }
+            params: { email: email.trim() },
           });
         }}
         onDismiss={() => setShowExistingUserModal(false)}
@@ -501,6 +602,7 @@ function EmailStepNew({
         }),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Feature cards with vibrant colors
@@ -558,7 +660,7 @@ function EmailStepNew({
           ...textShadows.hero,
         }}
       >
-        {isLoginMode ? 'Tekrar Hoş Geldiniz!' : 'Renkioo\'ya Hoş Geldiniz!'}
+        {isLoginMode ? 'Tekrar Hoş Geldiniz!' : "Renkioo'ya Hoş Geldiniz!"}
       </Text>
       <Text
         style={{
@@ -570,7 +672,9 @@ function EmailStepNew({
           lineHeight: 22,
         }}
       >
-        {isLoginMode ? 'Email adresinizle devam edin' : 'Çocuğunuzun gelişimini profesyonel olarak takip edin'}
+        {isLoginMode
+          ? 'Email adresinizle devam edin'
+          : 'Çocuğunuzun gelişimini profesyonel olarak takip edin'}
       </Text>
 
       {/* Colorful Feature Cards (only show on register, not login) */}
@@ -657,12 +761,16 @@ function EmailStepNew({
               marginRight: spacing.sm,
             }}
           >
-            <Mail size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+            <Mail
+              size={iconSizes.action}
+              color={Colors.secondary.lavender}
+              strokeWidth={iconStroke.standard}
+            />
           </View>
           <TextInput
             ref={inputRef}
             value={email}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setEmail(text);
               if (emailError) setEmailError('');
             }}
@@ -754,7 +862,13 @@ function EmailStepNew({
             >
               {isLoginMode ? 'Giriş Yap' : 'Başlayalım'}
             </Text>
-            {email && <Zap size={iconSizes.small} color={Colors.secondary.lavender} strokeWidth={iconStroke.bold} />}
+            {email && (
+              <Zap
+                size={iconSizes.small}
+                color={Colors.secondary.lavender}
+                strokeWidth={iconStroke.bold}
+              />
+            )}
           </>
         )}
       </Pressable>
@@ -852,8 +966,20 @@ function PasswordStepNew({
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
-            <Star size={iconSizes.action} color={Colors.secondary.sunshine} fill={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
-            <Text style={{ fontSize: typography.size.md, fontWeight: '700', color: '#92400E', marginLeft: spacing.sm }}>
+            <Star
+              size={iconSizes.action}
+              color={Colors.secondary.sunshine}
+              fill={Colors.secondary.sunshine}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text
+              style={{
+                fontSize: typography.size.md,
+                fontWeight: '700',
+                color: '#92400E',
+                marginLeft: spacing.sm,
+              }}
+            >
               Hoşgeldiniz tekrar!
             </Text>
           </View>
@@ -903,7 +1029,9 @@ function PasswordStepNew({
           lineHeight: 22,
         }}
       >
-        {isExistingUser ? 'Hesabınıza erişmek için şifrenizi girin' : 'Hesabınızı korumak için güçlü bir şifre belirleyin'}
+        {isExistingUser
+          ? 'Hesabınıza erişmek için şifrenizi girin'
+          : 'Hesabınızı korumak için güçlü bir şifre belirleyin'}
       </Text>
 
       {/* Password Input */}
@@ -930,12 +1058,16 @@ function PasswordStepNew({
               marginRight: spacing.sm,
             }}
           >
-            <Shield size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+            <Shield
+              size={iconSizes.action}
+              color={Colors.secondary.lavender}
+              strokeWidth={iconStroke.standard}
+            />
           </View>
           <TextInput
             ref={passwordInputRef}
             value={password}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setPassword(text);
               if (passwordError) setPasswordError('');
             }}
@@ -952,7 +1084,19 @@ function PasswordStepNew({
             }}
           />
           <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
-            {showPassword ? <EyeOff size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} /> : <Eye size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />}
+            {showPassword ? (
+              <EyeOff
+                size={iconSizes.input}
+                color={Colors.secondary.lavender}
+                strokeWidth={iconStroke.standard}
+              />
+            ) : (
+              <Eye
+                size={iconSizes.input}
+                color={Colors.secondary.lavender}
+                strokeWidth={iconStroke.standard}
+              />
+            )}
           </Pressable>
         </View>
       </View>
@@ -961,19 +1105,27 @@ function PasswordStepNew({
       {!isExistingUser && password.length > 0 && (
         <View style={{ marginBottom: spacing.md }}>
           <View style={{ flexDirection: 'row', gap: spacing.xs, marginBottom: spacing.xs }}>
-            {[1, 2, 3].map((level) => (
+            {[1, 2, 3].map(level => (
               <View
                 key={level}
                 style={{
                   flex: 1,
                   height: 4,
                   borderRadius: 2,
-                  backgroundColor: level <= strength.level ? strength.color : 'rgba(255,255,255,0.3)',
+                  backgroundColor:
+                    level <= strength.level ? strength.color : 'rgba(255,255,255,0.3)',
                 }}
               />
             ))}
           </View>
-          <Text style={{ fontSize: typography.size.xs, color: strength.color, fontWeight: '600', textAlign: 'right' }}>
+          <Text
+            style={{
+              fontSize: typography.size.xs,
+              color: strength.color,
+              fontWeight: '600',
+              textAlign: 'right',
+            }}
+          >
             {strength.text}
           </Text>
         </View>
@@ -992,27 +1144,41 @@ function PasswordStepNew({
             borderColor: passwordError ? '#EF4444' : 'transparent',
           }}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+          <View
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}
+          >
             <View
               style={{
                 width: 40,
                 height: 40,
                 borderRadius: 20,
-                backgroundColor: password === confirmPassword && confirmPassword.length > 0 ? '#D1FAE5' : '#F3F4F6',
+                backgroundColor:
+                  password === confirmPassword && confirmPassword.length > 0
+                    ? '#D1FAE5'
+                    : '#F3F4F6',
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginRight: spacing.sm,
               }}
             >
               {password === confirmPassword && confirmPassword.length > 0 ? (
-                <Heart size={iconSizes.action} color={Colors.semantic.success} fill={Colors.semantic.success} strokeWidth={iconStroke.standard} />
+                <Heart
+                  size={iconSizes.action}
+                  color={Colors.semantic.success}
+                  fill={Colors.semantic.success}
+                  strokeWidth={iconStroke.standard}
+                />
               ) : (
-                <Shield size={iconSizes.action} color={iconColors.medium} strokeWidth={iconStroke.standard} />
+                <Shield
+                  size={iconSizes.action}
+                  color={iconColors.medium}
+                  strokeWidth={iconStroke.standard}
+                />
               )}
             </View>
             <TextInput
               value={confirmPassword}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setConfirmPassword(text);
                 if (passwordError) setPasswordError('');
               }}
@@ -1028,8 +1194,23 @@ function PasswordStepNew({
                 fontWeight: '500',
               }}
             />
-            <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: spacing.sm }}>
-              {showConfirmPassword ? <EyeOff size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} /> : <Eye size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />}
+            <Pressable
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={{ padding: spacing.sm }}
+            >
+              {showConfirmPassword ? (
+                <EyeOff
+                  size={iconSizes.input}
+                  color={Colors.secondary.lavender}
+                  strokeWidth={iconStroke.standard}
+                />
+              ) : (
+                <Eye
+                  size={iconSizes.input}
+                  color={Colors.secondary.lavender}
+                  strokeWidth={iconStroke.standard}
+                />
+              )}
             </Pressable>
           </View>
         </View>
@@ -1069,8 +1250,18 @@ function PasswordStepNew({
 
       {/* Forgot Password Link - Only for existing users */}
       {isExistingUser && (
-        <Pressable onPress={onForgotPassword} style={{ alignSelf: 'center', marginBottom: spacing.lg }}>
-          <Text style={{ fontSize: typography.size.sm, color: 'white', textDecorationLine: 'underline', fontWeight: '600' }}>
+        <Pressable
+          onPress={onForgotPassword}
+          style={{ alignSelf: 'center', marginBottom: spacing.lg }}
+        >
+          <Text
+            style={{
+              fontSize: typography.size.sm,
+              color: 'white',
+              textDecorationLine: 'underline',
+              fontWeight: '600',
+            }}
+          >
             Şifremi Unuttum
           </Text>
         </Pressable>
@@ -1078,10 +1269,15 @@ function PasswordStepNew({
 
       <Pressable
         onPress={onNext}
-        disabled={isExistingUser ? !password || isLoading : (!password || !confirmPassword || isLoading)}
+        disabled={
+          isExistingUser ? !password || isLoading : !password || !confirmPassword || isLoading
+        }
         style={({ pressed }) => [
           {
-            backgroundColor: (isExistingUser ? password : (password && confirmPassword)) && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+            backgroundColor:
+              (isExistingUser ? password : password && confirmPassword) && !isLoading
+                ? 'white'
+                : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: radius['2xl'],
             ...shadows.lg,
@@ -1094,7 +1290,14 @@ function PasswordStepNew({
         ]}
       >
         {isLoading ? (
-          <Text style={{ fontSize: typography.size.md, fontWeight: 'bold', color: '#6366F1', textAlign: 'center' }}>
+          <Text
+            style={{
+              fontSize: typography.size.md,
+              fontWeight: 'bold',
+              color: '#6366F1',
+              textAlign: 'center',
+            }}
+          >
             {isExistingUser ? 'Giriş Yapılıyor...' : 'Kaydediliyor...'}
           </Text>
         ) : (
@@ -1103,13 +1306,21 @@ function PasswordStepNew({
               style={{
                 fontSize: typography.size.md,
                 fontWeight: '700',
-                color: (isExistingUser ? password : (password && confirmPassword)) ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                color: (isExistingUser ? password : password && confirmPassword)
+                  ? '#6366F1'
+                  : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
             >
               {isExistingUser ? 'Giriş Yap' : 'Devam Et'}
             </Text>
-            {(isExistingUser ? password : (password && confirmPassword)) && <Zap size={iconSizes.small} color={Colors.secondary.lavender} strokeWidth={iconStroke.bold} />}
+            {(isExistingUser ? password : password && confirmPassword) && (
+              <Zap
+                size={iconSizes.small}
+                color={Colors.secondary.lavender}
+                strokeWidth={iconStroke.bold}
+              />
+            )}
           </>
         )}
       </Pressable>
@@ -1157,6 +1368,7 @@ function VerifyCodeStepNew({
         }),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Resend timer countdown
@@ -1175,18 +1387,26 @@ function VerifyCodeStepNew({
 
       console.log('[Register] 📧 Resend result - isNewUser:', result.isNewUser);
 
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('Başarılı', 'Yeni doğrulama kodu gönderildi!');
+      if (Platform.OS !== 'web')
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (Platform.OS === 'web') {
+        window.alert('Başarılı\nYeni doğrulama kodu gönderildi!');
+      } else {
+        Alert.alert('Başarılı', 'Yeni doğrulama kodu gönderildi!');
+      }
       setResendTimer(60);
     } catch (error) {
       console.error('[Register] ❌ Error resending code:', error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Kod gönderilemedi. Lütfen tekrar deneyin.';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Kod gönderilemedi. Lütfen tekrar deneyin.';
 
-      Alert.alert('Hata', errorMessage);
+      if (Platform.OS === 'web') {
+        window.alert(`Hata\n${errorMessage}`);
+      } else {
+        Alert.alert('Hata', errorMessage);
+      }
     } finally {
       setIsResending(false);
     }
@@ -1251,7 +1471,11 @@ function VerifyCodeStepNew({
           gap: spacing.xs,
         }}
       >
-        <Mail size={iconSizes.badge} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+        <Mail
+          size={iconSizes.badge}
+          color={iconColors.inverted}
+          strokeWidth={iconStroke.standard}
+        />
         <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
           {email}
         </Text>
@@ -1290,8 +1514,15 @@ function VerifyCodeStepNew({
         />
 
         {/* Progress dots */}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm }}>
-          {[0, 1, 2, 3, 4, 5].map((index) => (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            gap: spacing.sm,
+            marginTop: spacing.sm,
+          }}
+        >
+          {[0, 1, 2, 3, 4, 5].map(index => (
             <View
               key={index}
               style={{
@@ -1345,7 +1576,11 @@ function VerifyCodeStepNew({
             alignItems: 'center',
           }}
         >
-          <Sparkles size={iconSizes.small} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+          <Sparkles
+            size={iconSizes.small}
+            color={iconColors.inverted}
+            strokeWidth={iconStroke.standard}
+          />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
@@ -1378,8 +1613,8 @@ function VerifyCodeStepNew({
           {isResending
             ? 'Gönderiliyor...'
             : resendTimer > 0
-            ? `Yeni kod gönder (${resendTimer}s)`
-            : 'Yeni kod gönder'}
+              ? `Yeni kod gönder (${resendTimer}s)`
+              : 'Yeni kod gönder'}
         </Text>
       </Pressable>
 
@@ -1389,7 +1624,8 @@ function VerifyCodeStepNew({
         disabled={verificationCode.length !== 6 || isLoading}
         style={({ pressed }) => [
           {
-            backgroundColor: verificationCode.length === 6 && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+            backgroundColor:
+              verificationCode.length === 6 && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: radius['2xl'],
             ...shadows.lg,
@@ -1402,7 +1638,14 @@ function VerifyCodeStepNew({
         ]}
       >
         {isLoading ? (
-          <Text style={{ fontSize: typography.size.md, fontWeight: 'bold', color: '#6366F1', textAlign: 'center' }}>
+          <Text
+            style={{
+              fontSize: typography.size.md,
+              fontWeight: 'bold',
+              color: '#6366F1',
+              textAlign: 'center',
+            }}
+          >
             Doğrulanıyor...
           </Text>
         ) : (
@@ -1417,7 +1660,13 @@ function VerifyCodeStepNew({
             >
               Doğrula
             </Text>
-            {verificationCode.length === 6 && <Zap size={iconSizes.small} color={Colors.secondary.lavender} strokeWidth={iconStroke.bold} />}
+            {verificationCode.length === 6 && (
+              <Zap
+                size={iconSizes.small}
+                color={Colors.secondary.lavender}
+                strokeWidth={iconStroke.bold}
+              />
+            )}
           </>
         )}
       </Pressable>

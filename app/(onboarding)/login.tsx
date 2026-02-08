@@ -1,18 +1,36 @@
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert, Animated, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Animated,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff, Mail, Zap } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils/error';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { useRole } from '@/lib/contexts/RoleContext';
 import { BiometricEnrollmentModal } from '@/components/BiometricEnrollmentModal';
-import { spacing, radius, shadows, typography, iconSizes, iconStroke, iconColors, textShadows } from '@/constants/design-system';
+import {
+  spacing,
+  radius,
+  shadows,
+  typography,
+  iconSizes,
+  iconStroke,
+  textShadows,
+} from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
-import { Mail, Zap } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const params = useLocalSearchParams<{ email?: string }>();
@@ -24,12 +42,7 @@ export default function LoginScreen() {
 
   const router = useRouter();
   const { setUserSession, completeOnboarding } = useAuth();
-  const {
-    capability,
-    isChecking,
-    loginWithBiometric,
-    enrollBiometric,
-  } = useBiometric();
+  const { capability, isChecking, loginWithBiometric, enrollBiometric } = useBiometric();
   const { isOnboarded: roleOnboarded } = useRole();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -45,6 +58,7 @@ export default function LoginScreen() {
 
     // Try biometric login on mount
     attemptBiometricLogin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const attemptBiometricLogin = async () => {
@@ -58,7 +72,7 @@ export default function LoginScreen() {
         await completeOnboarding();
         router.replace('/(tabs)');
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('[Login] Biometric login not available or failed');
     }
   };
@@ -103,7 +117,13 @@ export default function LoginScreen() {
 
         // Set session with tokens
         console.log('[Login] 💾 Setting user session...');
-        await setUserSession(result.userId, result.email!, result.name, result.accessToken, result.refreshToken);
+        await setUserSession(
+          result.userId,
+          result.email!,
+          result.name,
+          result.accessToken,
+          result.refreshToken
+        );
         await completeOnboarding();
 
         console.log('[Login] 🚀 Navigating...');
@@ -183,12 +203,32 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View style={{ flex: 1, opacity: fadeAnim, padding: spacing.lg, justifyContent: 'center' }}>
+          <Animated.View
+            style={{ flex: 1, opacity: fadeAnim, padding: spacing.lg, justifyContent: 'center' }}
+          >
             {/* Header */}
-            <Text style={{ fontSize: typography.size['2xl'], fontWeight: '800', color: 'white', marginBottom: spacing.xs, textAlign: 'center', ...textShadows.hero }}>
+            <Text
+              style={{
+                fontSize: typography.size['2xl'],
+                fontWeight: '800',
+                color: 'white',
+                marginBottom: spacing.xs,
+                textAlign: 'center',
+                ...textShadows.hero,
+              }}
+            >
               Tekrar Hoş Geldiniz!
             </Text>
-            <Text style={{ fontSize: typography.size.base, color: 'rgba(255,255,255,0.95)', marginBottom: spacing.xl, textAlign: 'center', fontWeight: '500', lineHeight: 22 }}>
+            <Text
+              style={{
+                fontSize: typography.size.base,
+                color: 'rgba(255,255,255,0.95)',
+                marginBottom: spacing.xl,
+                textAlign: 'center',
+                fontWeight: '500',
+                lineHeight: 22,
+              }}
+            >
               Hesabınıza giriş yapın
             </Text>
 
@@ -202,7 +242,13 @@ export default function LoginScreen() {
                 ...shadows.lg,
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: spacing.sm,
+                }}
+              >
                 <View
                   style={{
                     width: 40,
@@ -214,7 +260,11 @@ export default function LoginScreen() {
                     marginRight: spacing.sm,
                   }}
                 >
-                  <Mail size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+                  <Mail
+                    size={iconSizes.action}
+                    color={Colors.secondary.lavender}
+                    strokeWidth={iconStroke.standard}
+                  />
                 </View>
                 <TextInput
                   value={email}
@@ -224,7 +274,13 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
-                  style={{ flex: 1, fontSize: typography.size.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
+                  style={{
+                    flex: 1,
+                    fontSize: typography.size.md,
+                    color: '#1F2937',
+                    paddingVertical: spacing.md,
+                    fontWeight: '500',
+                  }}
                 />
               </View>
             </View>
@@ -239,7 +295,13 @@ export default function LoginScreen() {
                 ...shadows.lg,
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: spacing.sm,
+                }}
+              >
                 <View
                   style={{
                     width: 40,
@@ -251,7 +313,11 @@ export default function LoginScreen() {
                     marginRight: spacing.sm,
                   }}
                 >
-                  <Eye size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+                  <Eye
+                    size={iconSizes.action}
+                    color={Colors.secondary.lavender}
+                    strokeWidth={iconStroke.standard}
+                  />
                 </View>
                 <TextInput
                   value={password}
@@ -260,13 +326,30 @@ export default function LoginScreen() {
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showPassword}
                   autoComplete="password"
-                  style={{ flex: 1, fontSize: typography.size.md, color: '#1F2937', paddingVertical: spacing.md, fontWeight: '500' }}
+                  style={{
+                    flex: 1,
+                    fontSize: typography.size.md,
+                    color: '#1F2937',
+                    paddingVertical: spacing.md,
+                    fontWeight: '500',
+                  }}
                 />
-                <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
+                <Pressable
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={{ padding: spacing.sm }}
+                >
                   {showPassword ? (
-                    <EyeOff size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+                    <EyeOff
+                      size={iconSizes.input}
+                      color={Colors.secondary.lavender}
+                      strokeWidth={iconStroke.standard}
+                    />
                   ) : (
-                    <Eye size={iconSizes.input} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+                    <Eye
+                      size={iconSizes.input}
+                      color={Colors.secondary.lavender}
+                      strokeWidth={iconStroke.standard}
+                    />
                   )}
                 </Pressable>
               </View>
@@ -274,13 +357,22 @@ export default function LoginScreen() {
 
             {/* Forgot Password Link */}
             <Pressable
-              onPress={() => router.push({
-                pathname: '/(onboarding)/forgot-password',
-                params: email ? { email: email.trim() } : undefined,
-              })}
+              onPress={() =>
+                router.push({
+                  pathname: '/(onboarding)/forgot-password',
+                  params: email ? { email: email.trim() } : undefined,
+                })
+              }
               style={{ alignSelf: 'center', marginBottom: spacing.xl, paddingVertical: spacing.sm }}
             >
-              <Text style={{ fontSize: typography.size.sm, color: 'white', textDecorationLine: 'underline', fontWeight: '600' }}>
+              <Text
+                style={{
+                  fontSize: typography.size.sm,
+                  color: 'white',
+                  textDecorationLine: 'underline',
+                  fontWeight: '600',
+                }}
+              >
                 Şifremi Unuttum
               </Text>
             </Pressable>
@@ -291,7 +383,8 @@ export default function LoginScreen() {
               disabled={!email || !password || isLoading}
               style={({ pressed }) => [
                 {
-                  backgroundColor: email && password && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+                  backgroundColor:
+                    email && password && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
                   paddingVertical: spacing.md + spacing.xs,
                   borderRadius: radius['2xl'],
                   ...shadows.lg,
@@ -308,18 +401,42 @@ export default function LoginScreen() {
                 <ActivityIndicator color="#6366F1" />
               ) : (
                 <>
-                  <Text style={{ fontSize: typography.size.md, fontWeight: '700', color: email && password ? '#6366F1' : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
+                  <Text
+                    style={{
+                      fontSize: typography.size.md,
+                      fontWeight: '700',
+                      color: email && password ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                      textAlign: 'center',
+                    }}
+                  >
                     Giriş Yap
                   </Text>
-                  {email && password && <Zap size={iconSizes.small} color={Colors.secondary.lavender} strokeWidth={iconStroke.bold} />}
+                  {email && password && (
+                    <Zap
+                      size={iconSizes.small}
+                      color={Colors.secondary.lavender}
+                      strokeWidth={iconStroke.bold}
+                    />
+                  )}
                 </>
               )}
             </Pressable>
 
             {/* Register Link */}
-            <Pressable onPress={() => router.push('/(onboarding)/register')} style={{ paddingVertical: spacing.sm }}>
-              <Text style={{ fontSize: typography.size.sm, color: 'white', textAlign: 'center', fontWeight: '600' }}>
-                Hesabınız yok mu? <Text style={{ textDecorationLine: 'underline' }}>Kayıt olun</Text>
+            <Pressable
+              onPress={() => router.push('/(onboarding)/register')}
+              style={{ paddingVertical: spacing.sm }}
+            >
+              <Text
+                style={{
+                  fontSize: typography.size.sm,
+                  color: 'white',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                }}
+              >
+                Hesabınız yok mu?{' '}
+                <Text style={{ textDecorationLine: 'underline' }}>Kayıt olun</Text>
               </Text>
             </Pressable>
           </Animated.View>
