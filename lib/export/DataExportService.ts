@@ -43,12 +43,9 @@ class DataExportService {
   /**
    * Export analyses to CSV format
    */
-  async exportToCsv(
-    analyses: SavedAnalysis[],
-    options?: ExportOptions
-  ): Promise<ExportResult> {
+  async exportToCsv(analyses: SavedAnalysis[], options?: ExportOptions): Promise<ExportResult> {
     // Filter by date range if specified
-    let filtered = this.filterByOptions(analyses, options);
+    const filtered = this.filterByOptions(analyses, options);
 
     // CSV headers
     const headers = [
@@ -68,10 +65,8 @@ class DataExportService {
     ];
 
     // Build CSV rows
-    const rows = filtered.map((analysis) => {
-      const insights = analysis.analysisResult.insights
-        .map((i) => i.title)
-        .join('; ');
+    const rows = filtered.map(analysis => {
+      const insights = analysis.analysisResult.insights.map(i => i.title).join('; ');
 
       return [
         analysis.id,
@@ -86,16 +81,12 @@ class DataExportService {
         analysis.analysisResult.traumaAssessment ? 'Yes' : 'No',
         analysis.isFavorite ? 'Yes' : 'No',
         `"${insights.replace(/"/g, '""')}"`,
-        options?.includeNotes && analysis.notes
-          ? `"${analysis.notes.replace(/"/g, '""')}"`
-          : '',
+        options?.includeNotes && analysis.notes ? `"${analysis.notes.replace(/"/g, '""')}"` : '',
       ];
     });
 
     // Combine headers and rows
-    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join(
-      '\n'
-    );
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
 
     // Save to file using new API
     const fileName = `renkioo_export_${format(new Date(), 'yyyy-MM-dd_HHmm')}.csv`;
@@ -117,15 +108,12 @@ class DataExportService {
   /**
    * Export analyses to JSON format (full backup)
    */
-  async exportToJson(
-    analyses: SavedAnalysis[],
-    options?: ExportOptions
-  ): Promise<ExportResult> {
+  async exportToJson(analyses: SavedAnalysis[], options?: ExportOptions): Promise<ExportResult> {
     let filtered = this.filterByOptions(analyses, options);
 
     // Remove image URLs if not included
     if (!options?.includeImages) {
-      filtered = filtered.map((a) => ({
+      filtered = filtered.map(a => ({
         ...a,
         imageUrl: undefined,
       }));
@@ -133,7 +121,7 @@ class DataExportService {
 
     // Remove notes if not included
     if (!options?.includeNotes) {
-      filtered = filtered.map((a) => ({
+      filtered = filtered.map(a => ({
         ...a,
         notes: undefined,
       }));
@@ -225,23 +213,16 @@ class DataExportService {
 
     // Test type distribution
     const testTypeDistribution: Record<string, number> = {};
-    analyses.forEach((a) => {
-      testTypeDistribution[a.taskType] =
-        (testTypeDistribution[a.taskType] || 0) + 1;
+    analyses.forEach(a => {
+      testTypeDistribution[a.taskType] = (testTypeDistribution[a.taskType] || 0) + 1;
     });
 
     // Age distribution
     const ageDistribution: Record<string, number> = {};
-    analyses.forEach((a) => {
+    analyses.forEach(a => {
       if (a.childAge) {
         const ageGroup =
-          a.childAge <= 5
-            ? '3-5'
-            : a.childAge <= 8
-            ? '6-8'
-            : a.childAge <= 12
-            ? '9-12'
-            : '13+';
+          a.childAge <= 5 ? '3-5' : a.childAge <= 8 ? '6-8' : a.childAge <= 12 ? '9-12' : '13+';
         ageDistribution[ageGroup] = (ageDistribution[ageGroup] || 0) + 1;
       }
     });
@@ -252,19 +233,14 @@ class DataExportService {
       0
     );
 
-    const riskFlagCount = analyses.reduce(
-      (sum, a) => sum + a.analysisResult.riskFlags.length,
-      0
-    );
+    const riskFlagCount = analyses.reduce((sum, a) => sum + a.analysisResult.riskFlags.length, 0);
 
-    const traumaCount = analyses.filter(
-      (a) => a.analysisResult.traumaAssessment
-    ).length;
+    const traumaCount = analyses.filter(a => a.analysisResult.traumaAssessment).length;
 
-    const favoriteCount = analyses.filter((a) => a.isFavorite).length;
+    const favoriteCount = analyses.filter(a => a.isFavorite).length;
 
     // Date range
-    const dates = analyses.map((a) => new Date(a.createdAt).getTime());
+    const dates = analyses.map(a => new Date(a.createdAt).getTime());
     const minDate = new Date(Math.min(...dates));
     const maxDate = new Date(Math.max(...dates));
 
@@ -298,10 +274,7 @@ class DataExportService {
       2
     );
 
-    const fileName = `renkioo_statistics_${format(
-      new Date(),
-      'yyyy-MM-dd_HHmm'
-    )}.json`;
+    const fileName = `renkioo_statistics_${format(new Date(), 'yyyy-MM-dd_HHmm')}.json`;
     const file = new File(Paths.document, fileName);
 
     await file.create();
@@ -358,24 +331,21 @@ class DataExportService {
   /**
    * Filter analyses by options
    */
-  private filterByOptions(
-    analyses: SavedAnalysis[],
-    options?: ExportOptions
-  ): SavedAnalysis[] {
+  private filterByOptions(analyses: SavedAnalysis[], options?: ExportOptions): SavedAnalysis[] {
     let filtered = [...analyses];
 
     if (options?.dateRange) {
       const startTime = options.dateRange.start.getTime();
       const endTime = options.dateRange.end.getTime();
 
-      filtered = filtered.filter((a) => {
+      filtered = filtered.filter(a => {
         const time = new Date(a.createdAt).getTime();
         return time >= startTime && time <= endTime;
       });
     }
 
     if (options?.clientId) {
-      filtered = filtered.filter((a) => a.userId === options.clientId);
+      filtered = filtered.filter(a => a.userId === options.clientId);
     }
 
     return filtered;

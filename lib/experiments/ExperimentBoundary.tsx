@@ -5,7 +5,7 @@
  * Components for conditionally rendering based on experiment variants
  */
 
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useExperiment } from './useExperiment';
 import { UIColors as Colors } from '@/constants/color-aliases';
@@ -171,6 +171,7 @@ export function ExperimentProvider({
   loadingComponent,
 }: ExperimentProviderProps) {
   const experimentResults = experiments.map(exp =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useExperiment(exp.id, { userType: exp.userType, trackExposure: false })
   );
 
@@ -223,7 +224,11 @@ export function ExperimentDebugger({
   experimentId: string;
   visible?: boolean;
 }) {
-  const { variant, experiment, isLoading } = useExperiment(experimentId, {
+  const {
+    variant: _variant,
+    experiment,
+    isLoading,
+  } = useExperiment(experimentId, {
     trackExposure: false,
   });
 
@@ -233,7 +238,12 @@ export function ExperimentDebugger({
     <View style={styles.debugContainer}>
       <View style={styles.debugRow}>
         <View style={styles.debugLabel}>
-          <View style={[styles.debugDot, { backgroundColor: experiment?.isActive ? '#22C55E' : '#EF4444' }]} />
+          <View
+            style={[
+              styles.debugDot,
+              { backgroundColor: experiment?.isActive ? '#22C55E' : '#EF4444' },
+            ]}
+          />
         </View>
         <View style={styles.debugContent}>
           <View style={styles.debugText}>

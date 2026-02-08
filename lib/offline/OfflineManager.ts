@@ -24,7 +24,7 @@ const checkNetworkStatus = async (): Promise<NetInfoState> => {
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     await fetch('https://www.google.com/generate_204', {
       method: 'HEAD',
-      signal: controller.signal
+      signal: controller.signal,
     });
     clearTimeout(timeoutId);
     return { isConnected: true, isInternetReachable: true };
@@ -77,11 +77,11 @@ export interface StrokeData {
 }
 
 export type SyncStatus =
-  | 'pending'      // Henüz senkronize edilmedi
-  | 'syncing'      // Senkronizasyon devam ediyor
-  | 'synced'       // Başarıyla senkronize edildi
-  | 'error'        // Senkronizasyon hatası
-  | 'conflict';    // Çakışma var
+  | 'pending' // Henüz senkronize edilmedi
+  | 'syncing' // Senkronizasyon devam ediyor
+  | 'synced' // Başarıyla senkronize edildi
+  | 'error' // Senkronizasyon hatası
+  | 'conflict'; // Çakışma var
 
 export interface SyncQueueItem {
   id: string;
@@ -117,6 +117,7 @@ const STORAGE_KEYS = {
 // Get document directory - handle both old and new expo-file-system API
 const getDocumentDirectory = (): string => {
   // @ts-expect-error - expo-file-system API varies by version
+  // eslint-disable-next-line import/namespace
   const docDir = FileSystem.documentDirectory || FileSystem.cacheDirectory || '';
   return docDir;
 };
@@ -231,7 +232,9 @@ class OfflineManagerClass {
   /**
    * Save artwork locally
    */
-  async saveArtwork(artwork: Omit<OfflineArtwork, 'localId' | 'syncStatus' | 'version'>): Promise<OfflineArtwork> {
+  async saveArtwork(
+    artwork: Omit<OfflineArtwork, 'localId' | 'syncStatus' | 'version'>
+  ): Promise<OfflineArtwork> {
     const localId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Copy image to local storage
@@ -298,7 +301,10 @@ class OfflineManagerClass {
   /**
    * Update artwork
    */
-  async updateArtwork(id: string, updates: Partial<OfflineArtwork>): Promise<OfflineArtwork | null> {
+  async updateArtwork(
+    id: string,
+    updates: Partial<OfflineArtwork>
+  ): Promise<OfflineArtwork | null> {
     const artworks = await this.getArtworks();
     const index = artworks.findIndex(a => a.id === id || a.localId === id);
 
@@ -373,7 +379,9 @@ class OfflineManagerClass {
   /**
    * Save coloring progress locally
    */
-  async saveColoring(coloring: Omit<OfflineColoring, 'localId' | 'syncStatus' | 'version'>): Promise<OfflineColoring> {
+  async saveColoring(
+    coloring: Omit<OfflineColoring, 'localId' | 'syncStatus' | 'version'>
+  ): Promise<OfflineColoring> {
     const localId = `coloring_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Copy image to local storage
@@ -415,7 +423,10 @@ class OfflineManagerClass {
   /**
    * Update coloring progress
    */
-  async updateColoring(id: string, updates: Partial<OfflineColoring>): Promise<OfflineColoring | null> {
+  async updateColoring(
+    id: string,
+    updates: Partial<OfflineColoring>
+  ): Promise<OfflineColoring | null> {
     const colorings = await this.getColorings();
     const index = colorings.findIndex(c => c.id === id || c.localId === id);
 

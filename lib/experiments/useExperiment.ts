@@ -19,8 +19,10 @@ interface UseExperimentResult {
   variantId: string | null;
   isLoading: boolean;
   experiment: Experiment | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   trackEvent: (eventName: string, eventData?: Record<string, any>) => void;
   trackConversion: (value?: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConfig: <T = any>(key: string, defaultValue?: T) => T;
   isVariant: (variantId: string) => boolean;
 }
@@ -72,6 +74,7 @@ export function useExperiment(
   }, [experimentId, userType, appVersion, trackExposure]);
 
   const trackEvent = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (eventName: string, eventData?: Record<string, any>) => {
       ExperimentService.trackEvent(experimentId, eventName, eventData);
     },
@@ -86,6 +89,7 @@ export function useExperiment(
   );
 
   const getConfig = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <T = any>(key: string, defaultValue?: T): T => {
       if (!variant?.config) return defaultValue as T;
       return (variant.config[key] ?? defaultValue) as T;
@@ -124,6 +128,7 @@ export function useExperiments(
   experimentIds.forEach(id => {
     // Note: This technically breaks rules of hooks, but works for static arrays
     // For dynamic arrays, use individual useExperiment calls
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     results[id] = useExperiment(id, options);
   });
 
@@ -149,6 +154,7 @@ export function useFeatureFlag(
 /**
  * Hook for getting experiment configuration
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useExperimentConfig<T extends Record<string, any>>(
   experimentId: string,
   defaultConfig: T,

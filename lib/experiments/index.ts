@@ -9,7 +9,7 @@
 export {
   ExperimentService,
   type Experiment,
-  type Variant,
+  type Variant as VariantType,
   type ExperimentType,
   type VariantId,
   type ExperimentAssignment,

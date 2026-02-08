@@ -11,12 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BADGES, Badge, BadgeCategory } from './badges';
-import {
-  loadStreakData,
-  recordActivity,
-  getStreakStatus,
-  StreakData,
-} from './streaks';
+import { loadStreakData, recordActivity, StreakData } from './streaks';
 
 const STORAGE_KEYS = {
   UNLOCKED_BADGES: 'renkioo_unlocked_badges',
@@ -66,20 +61,15 @@ export function useGamification() {
 
   const loadGamificationData = async () => {
     try {
-      const [unlockedBadgesJson, userStatsJson, totalXpStr, streakData] =
-        await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.UNLOCKED_BADGES),
-          AsyncStorage.getItem(STORAGE_KEYS.USER_STATS),
-          AsyncStorage.getItem(STORAGE_KEYS.TOTAL_XP),
-          loadStreakData(),
-        ]);
+      const [unlockedBadgesJson, userStatsJson, totalXpStr, streakData] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.UNLOCKED_BADGES),
+        AsyncStorage.getItem(STORAGE_KEYS.USER_STATS),
+        AsyncStorage.getItem(STORAGE_KEYS.TOTAL_XP),
+        loadStreakData(),
+      ]);
 
-      const unlockedBadges = unlockedBadgesJson
-        ? JSON.parse(unlockedBadgesJson)
-        : [];
-      const userStats = userStatsJson
-        ? JSON.parse(userStatsJson)
-        : DEFAULT_STATS;
+      const unlockedBadges = unlockedBadgesJson ? JSON.parse(unlockedBadgesJson) : [];
+      const userStats = userStatsJson ? JSON.parse(userStatsJson) : DEFAULT_STATS;
       const totalXp = totalXpStr ? parseInt(totalXpStr, 10) : 0;
 
       setState({
@@ -92,7 +82,7 @@ export function useGamification() {
       });
     } catch (error) {
       console.error('[Gamification] Failed to load data:', error);
-      setState((prev) => ({ ...prev, isLoading: false }));
+      setState(prev => ({ ...prev, isLoading: false }));
     }
   };
 
@@ -104,10 +94,7 @@ export function useGamification() {
   ) => {
     try {
       await Promise.all([
-        AsyncStorage.setItem(
-          STORAGE_KEYS.UNLOCKED_BADGES,
-          JSON.stringify(unlockedBadges)
-        ),
+        AsyncStorage.setItem(STORAGE_KEYS.UNLOCKED_BADGES, JSON.stringify(unlockedBadges)),
         AsyncStorage.setItem(STORAGE_KEYS.USER_STATS, JSON.stringify(userStats)),
         AsyncStorage.setItem(STORAGE_KEYS.TOTAL_XP, totalXp.toString()),
       ]);
@@ -169,7 +156,7 @@ export function useGamification() {
       const newBadge = checkBadges(newStats, newStreak);
 
       let newXp = state.totalXp + 25; // Base XP for analysis
-      let newUnlockedBadges = [...state.unlockedBadges];
+      const newUnlockedBadges = [...state.unlockedBadges];
 
       if (newBadge) {
         newXp += newBadge.xpReward;
@@ -181,7 +168,7 @@ export function useGamification() {
 
       await saveGamificationData(newUnlockedBadges, newStats, newXp);
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         userStats: newStats,
         totalXp: newXp,
@@ -211,7 +198,7 @@ export function useGamification() {
     const newBadge = checkBadges(newStats, newStreak);
 
     let newXp = state.totalXp + 15; // Base XP for coloring
-    let newUnlockedBadges = [...state.unlockedBadges];
+    const newUnlockedBadges = [...state.unlockedBadges];
 
     if (newBadge) {
       newXp += newBadge.xpReward;
@@ -222,7 +209,7 @@ export function useGamification() {
 
     await saveGamificationData(newUnlockedBadges, newStats, newXp);
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       userStats: newStats,
       totalXp: newXp,
@@ -245,7 +232,7 @@ export function useGamification() {
     const newBadge = checkBadges(newStats, newStreak);
 
     let newXp = state.totalXp + 20; // Base XP for story
-    let newUnlockedBadges = [...state.unlockedBadges];
+    const newUnlockedBadges = [...state.unlockedBadges];
 
     if (newBadge) {
       newXp += newBadge.xpReward;
@@ -256,7 +243,7 @@ export function useGamification() {
 
     await saveGamificationData(newUnlockedBadges, newStats, newXp);
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       userStats: newStats,
       totalXp: newXp,
@@ -270,12 +257,12 @@ export function useGamification() {
 
   // Clear newly unlocked badge notification
   const clearNewBadge = useCallback(() => {
-    setState((prev) => ({ ...prev, newlyUnlockedBadge: null }));
+    setState(prev => ({ ...prev, newlyUnlockedBadge: null }));
   }, []);
 
   // Get all badges with unlock status
   const getAllBadges = useCallback(() => {
-    return BADGES.map((badge) => ({
+    return BADGES.map(badge => ({
       ...badge,
       isUnlocked: state.unlockedBadges.includes(badge.id),
     }));
@@ -284,12 +271,10 @@ export function useGamification() {
   // Get badges by category with unlock status
   const getBadgesByCategory = useCallback(
     (category: BadgeCategory) => {
-      return BADGES.filter((badge) => badge.category === category).map(
-        (badge) => ({
-          ...badge,
-          isUnlocked: state.unlockedBadges.includes(badge.id),
-        })
-      );
+      return BADGES.filter(badge => badge.category === category).map(badge => ({
+        ...badge,
+        isUnlocked: state.unlockedBadges.includes(badge.id),
+      }));
     },
     [state.unlockedBadges]
   );

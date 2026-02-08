@@ -6,13 +6,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, Dimensions, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,13 +14,11 @@ import Animated, {
   withSequence,
   withTiming,
   withRepeat,
-  runOnJS,
-  Easing,
 } from 'react-native-reanimated';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { UIColors as _Colors } from '@/constants/color-aliases';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -48,7 +40,7 @@ interface EasterEggState {
 }
 
 // Global easter egg state
-let easterEggState: EasterEggState = {
+const easterEggState: EasterEggState = {
   found: new Set(),
   totalFound: 0,
 };
@@ -165,7 +157,7 @@ export const IooDanceWrapper = memo(function IooDanceWrapper({
   const translateY = useSharedValue(0);
 
   const triggerDance = useCallback(async () => {
-    const isNew = await markEasterEggFound('ioo_dance');
+    const _isNew = await markEasterEggFound('ioo_dance');
     setIsDancing(true);
     onDanceTriggered?.();
 
@@ -193,10 +185,7 @@ export const IooDanceWrapper = memo(function IooDanceWrapper({
     );
 
     translateY.value = withRepeat(
-      withSequence(
-        withTiming(-20, { duration: 150 }),
-        withTiming(0, { duration: 150 })
-      ),
+      withSequence(withTiming(-20, { duration: 150 }), withTiming(0, { duration: 150 })),
       8,
       false
     );
@@ -205,6 +194,7 @@ export const IooDanceWrapper = memo(function IooDanceWrapper({
     setTimeout(() => {
       setIsDancing(false);
     }, 3000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onDanceTriggered]);
 
   const { handleTap } = useTapCounter(10, triggerDance);
@@ -218,14 +208,8 @@ export const IooDanceWrapper = memo(function IooDanceWrapper({
   }));
 
   return (
-    <TouchableOpacity
-      onPress={handleTap}
-      activeOpacity={1}
-      disabled={isDancing}
-    >
-      <Animated.View style={animatedStyle}>
-        {children}
-      </Animated.View>
+    <TouchableOpacity onPress={handleTap} activeOpacity={1} disabled={isDancing}>
+      <Animated.View style={animatedStyle}>{children}</Animated.View>
     </TouchableOpacity>
   );
 });
@@ -247,6 +231,7 @@ export const EasterEggBadge = memo(function EasterEggBadge({
     if (found) {
       scale.value = withSpring(1, { damping: 8 });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [found]);
 
   const animatedStyle = useAnimatedStyle(() => ({

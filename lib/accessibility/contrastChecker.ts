@@ -46,7 +46,7 @@ export function hexToRgb(hex: string): RGBColor {
     cleanHex.length === 3
       ? cleanHex
           .split('')
-          .map((c) => c + c)
+          .map(c => c + c)
           .join('')
       : cleanHex;
 
@@ -95,7 +95,7 @@ export function parseColor(color: string): RGBColor {
  * https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
  */
 export function getLuminance(rgb: RGBColor): number {
-  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((channel) => {
+  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(channel => {
     const sRGB = channel / 255;
     return sRGB <= 0.03928 ? sRGB / 12.92 : Math.pow((sRGB + 0.055) / 1.055, 2.4);
   });
@@ -151,8 +151,8 @@ export function suggestAccessibleColor(
   // Determine if we should lighten or darken
   const shouldLighten = bgLum < 0.5;
 
-  let rgb = { ...targetRgb };
-  let step = shouldLighten ? 5 : -5;
+  const rgb = { ...targetRgb };
+  const step = shouldLighten ? 5 : -5;
   let iterations = 0;
   const maxIterations = 100;
 
@@ -197,13 +197,13 @@ export interface ColorPair {
 export interface AccessibilityReport {
   passed: number;
   failed: number;
-  results: Array<{
+  results: {
     name: string;
     foreground: string;
     background: string;
     contrast: ContrastResult;
     suggestion?: string;
-  }>;
+  }[];
 }
 
 /**
@@ -229,9 +229,7 @@ export function testColorPairs(pairs: ColorPair[]): AccessibilityReport {
       foreground: pair.foreground,
       background: pair.background,
       contrast,
-      suggestion: !passesAA
-        ? suggestAccessibleColor(pair.foreground, pair.background)
-        : undefined,
+      suggestion: !passesAA ? suggestAccessibleColor(pair.foreground, pair.background) : undefined,
     });
   }
 

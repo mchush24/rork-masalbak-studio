@@ -13,6 +13,9 @@
 import { Platform } from 'react-native';
 import { analytics } from '@/lib/analytics';
 
+// Hook for using error handler
+import { useCallback, useEffect, useState } from 'react';
+
 // Error severity levels
 export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -49,12 +52,12 @@ export interface RecoveryOption {
 }
 
 // Error patterns for categorization
-const ERROR_PATTERNS: Array<{
+const ERROR_PATTERNS: {
   pattern: RegExp;
   category: ErrorCategory;
   severity: ErrorSeverity;
   userMessage: string;
-}> = [
+}[] = [
   // Network errors
   {
     pattern: /network|fetch|connection|offline|internet/i,
@@ -182,8 +185,10 @@ class GlobalErrorHandlerClass {
 
   private setupGlobalHandlers(): void {
     // Handle unhandled promise rejections
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originalHandler = (global as any).ErrorUtils?.getGlobalHandler?.();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (global as any).ErrorUtils?.setGlobalHandler?.((error: Error, isFatal?: boolean) => {
       this.handleError(error, { isFatal, source: 'global' });
       originalHandler?.(error, isFatal);
@@ -191,6 +196,7 @@ class GlobalErrorHandlerClass {
 
     // Handle unhandled promise rejections in React Native
     if (typeof global !== 'undefined') {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const rejectionTracking = require('promise/setimmediate/rejection-tracking');
       rejectionTracking.enable({
         allRejections: true,
@@ -203,10 +209,7 @@ class GlobalErrorHandlerClass {
   }
 
   // Main error handling method
-  handleError(
-    error: Error | unknown,
-    context?: Record<string, unknown>
-  ): ProcessedError {
+  handleError(error: Error | unknown, context?: Record<string, unknown>): ProcessedError {
     // Normalize error
     const normalizedError = this.normalizeError(error);
 
@@ -265,7 +268,7 @@ class GlobalErrorHandlerClass {
 
     if (typeof error === 'object' && error !== null) {
       const obj = error as Record<string, unknown>;
-      return new Error(obj.message as string || obj.error as string || JSON.stringify(error));
+      return new Error((obj.message as string) || (obj.error as string) || JSON.stringify(error));
     }
 
     return new Error('Unknown error occurred');
@@ -360,7 +363,7 @@ class GlobalErrorHandlerClass {
 
   // Notify listeners
   private notifyListeners(error: ProcessedError): void {
-    this.listeners.forEach((listener) => {
+    this.listeners.forEach(listener => {
       try {
         listener(error);
       } catch (e) {
@@ -382,12 +385,12 @@ class GlobalErrorHandlerClass {
 
   // Get recent errors by category
   getErrorsByCategory(category: ErrorCategory): ProcessedError[] {
-    return this.errorHistory.filter((e) => e.category === category);
+    return this.errorHistory.filter(e => e.category === category);
   }
 
   // Get error by ID
   getErrorById(id: string): ProcessedError | undefined {
-    return this.errorHistory.find((e) => e.id === id);
+    return this.errorHistory.find(e => e.id === id);
   }
 
   // Clear history
@@ -399,17 +402,12 @@ class GlobalErrorHandlerClass {
   hasSimilarRecentError(error: Error, withinMs = 5000): boolean {
     const now = Date.now();
     return this.errorHistory.some(
-      (e) =>
-        e.originalError.message === error.message &&
-        now - e.timestamp < withinMs
+      e => e.originalError.message === error.message && now - e.timestamp < withinMs
     );
   }
 }
 
 export const globalErrorHandler = GlobalErrorHandlerClass.getInstance();
-
-// Hook for using error handler
-import { useCallback, useEffect, useState } from 'react';
 
 export function useGlobalErrorHandler() {
   const [lastError, setLastError] = useState<ProcessedError | null>(null);
@@ -420,12 +418,9 @@ export function useGlobalErrorHandler() {
     return unsubscribe;
   }, []);
 
-  const handleError = useCallback(
-    (error: Error | unknown, context?: Record<string, unknown>) => {
-      return globalErrorHandler.handleError(error, context);
-    },
-    []
-  );
+  const handleError = useCallback((error: Error | unknown, context?: Record<string, unknown>) => {
+    return globalErrorHandler.handleError(error, context);
+  }, []);
 
   const clearLastError = useCallback(() => {
     setLastError(null);
@@ -441,6 +436,7 @@ export function useGlobalErrorHandler() {
 }
 
 // Utility: Wrap async function with error handling
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   context?: Record<string, unknown>
@@ -452,9 +448,7 @@ export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
       globalErrorHandler.handleError(error, {
         ...context,
         functionName: fn.name,
-        args: args.map((arg) =>
-          typeof arg === 'object' ? '[object]' : String(arg)
-        ),
+        args: args.map(arg => (typeof arg === 'object' ? '[object]' : String(arg))),
       });
       throw error;
     }
@@ -469,7 +463,9 @@ export function createError(
 ): Error {
   const error = new Error(message);
   error.name = `${category.charAt(0).toUpperCase() + category.slice(1)}Error`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (error as any).category = category;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (error as any).details = details;
   return error;
 }

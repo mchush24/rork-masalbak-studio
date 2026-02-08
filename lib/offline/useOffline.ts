@@ -28,13 +28,20 @@ interface UseOfflineReturn {
 
   // Artworks
   localArtworks: OfflineArtwork[];
-  saveArtwork: (artwork: Omit<OfflineArtwork, 'localId' | 'syncStatus' | 'version'>) => Promise<OfflineArtwork>;
+  saveArtwork: (
+    artwork: Omit<OfflineArtwork, 'localId' | 'syncStatus' | 'version'>
+  ) => Promise<OfflineArtwork>;
   deleteArtwork: (id: string) => Promise<boolean>;
 
   // Colorings
   localColorings: OfflineColoring[];
-  saveColoring: (coloring: Omit<OfflineColoring, 'localId' | 'syncStatus' | 'version'>) => Promise<OfflineColoring>;
-  updateColoring: (id: string, updates: Partial<OfflineColoring>) => Promise<OfflineColoring | null>;
+  saveColoring: (
+    coloring: Omit<OfflineColoring, 'localId' | 'syncStatus' | 'version'>
+  ) => Promise<OfflineColoring>;
+  updateColoring: (
+    id: string,
+    updates: Partial<OfflineColoring>
+  ) => Promise<OfflineColoring | null>;
 
   // Actions
   syncNow: () => Promise<{ success: number; failed: number }>;
@@ -85,7 +92,7 @@ export function useOffline(): UseOfflineReturn {
       }
     };
 
-    const unsubscribe = OfflineManager.onNetworkChange((online) => {
+    const unsubscribe = OfflineManager.onNetworkChange(online => {
       if (isMounted) setIsOnline(online);
     });
 
@@ -95,7 +102,6 @@ export function useOffline(): UseOfflineReturn {
       isMounted = false;
       unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Refresh all data
@@ -123,39 +129,48 @@ export function useOffline(): UseOfflineReturn {
   }, []);
 
   // Save artwork
-  const saveArtwork = useCallback(async (
-    artwork: Omit<OfflineArtwork, 'localId' | 'syncStatus' | 'version'>
-  ): Promise<OfflineArtwork> => {
-    const saved = await OfflineManager.saveArtwork(artwork);
-    await refreshData();
-    return saved;
-  }, [refreshData]);
+  const saveArtwork = useCallback(
+    async (
+      artwork: Omit<OfflineArtwork, 'localId' | 'syncStatus' | 'version'>
+    ): Promise<OfflineArtwork> => {
+      const saved = await OfflineManager.saveArtwork(artwork);
+      await refreshData();
+      return saved;
+    },
+    [refreshData]
+  );
 
   // Delete artwork
-  const deleteArtwork = useCallback(async (id: string): Promise<boolean> => {
-    const result = await OfflineManager.deleteArtwork(id);
-    await refreshData();
-    return result;
-  }, [refreshData]);
+  const deleteArtwork = useCallback(
+    async (id: string): Promise<boolean> => {
+      const result = await OfflineManager.deleteArtwork(id);
+      await refreshData();
+      return result;
+    },
+    [refreshData]
+  );
 
   // Save coloring
-  const saveColoring = useCallback(async (
-    coloring: Omit<OfflineColoring, 'localId' | 'syncStatus' | 'version'>
-  ): Promise<OfflineColoring> => {
-    const saved = await OfflineManager.saveColoring(coloring);
-    await refreshData();
-    return saved;
-  }, [refreshData]);
+  const saveColoring = useCallback(
+    async (
+      coloring: Omit<OfflineColoring, 'localId' | 'syncStatus' | 'version'>
+    ): Promise<OfflineColoring> => {
+      const saved = await OfflineManager.saveColoring(coloring);
+      await refreshData();
+      return saved;
+    },
+    [refreshData]
+  );
 
   // Update coloring
-  const updateColoring = useCallback(async (
-    id: string,
-    updates: Partial<OfflineColoring>
-  ): Promise<OfflineColoring | null> => {
-    const updated = await OfflineManager.updateColoring(id, updates);
-    await refreshData();
-    return updated;
-  }, [refreshData]);
+  const updateColoring = useCallback(
+    async (id: string, updates: Partial<OfflineColoring>): Promise<OfflineColoring | null> => {
+      const updated = await OfflineManager.updateColoring(id, updates);
+      await refreshData();
+      return updated;
+    },
+    [refreshData]
+  );
 
   // Sync now
   const syncNow = useCallback(async (): Promise<{ success: number; failed: number }> => {
