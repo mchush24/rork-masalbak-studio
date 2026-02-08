@@ -8,8 +8,8 @@
  * - Seri hesaplama
  */
 
-import { supa } from "./supabase.js";
-import { logger } from "./utils.js";
+import { supa } from './supabase.js';
+import { logger } from './utils.js';
 
 // Badge definitions (imported from frontend constants)
 // We duplicate the essential types here to avoid import issues
@@ -25,21 +25,21 @@ type BadgeRequirementType =
   | 'first_child'
   | 'multiple_children'
   // Phase 2: Coloring-specific achievements
-  | 'completed_colorings'        // Actually finished coloring pages
-  | 'colors_used_total'          // Total unique colors ever used
-  | 'colors_used_single'         // Colors used in a single artwork
-  | 'brush_types_used'           // Different brush types used
-  | 'premium_brushes_used'       // Premium brushes used
-  | 'ai_suggestions_used'        // Used AI color suggestions
-  | 'harmony_colors_used'        // Used color harmony feature
-  | 'reference_images_used'      // Used reference image picker
-  | 'coloring_streak'            // Days in a row coloring
-  | 'coloring_time_total'        // Total minutes spent coloring
-  | 'quick_coloring'             // Completed under 5 min
-  | 'marathon_coloring'          // Single session over 30 min
-  | 'undo_and_continue'          // Used undo but continued
-  | 'perfect_fill'               // No color outside lines
-  | 'coloring_time_of_day';      // Coloring at specific times
+  | 'completed_colorings' // Actually finished coloring pages
+  | 'colors_used_total' // Total unique colors ever used
+  | 'colors_used_single' // Colors used in a single artwork
+  | 'brush_types_used' // Different brush types used
+  | 'premium_brushes_used' // Premium brushes used
+  | 'ai_suggestions_used' // Used AI color suggestions
+  | 'harmony_colors_used' // Used color harmony feature
+  | 'reference_images_used' // Used reference image picker
+  | 'coloring_streak' // Days in a row coloring
+  | 'coloring_time_total' // Total minutes spent coloring
+  | 'quick_coloring' // Completed under 5 min
+  | 'marathon_coloring' // Single session over 30 min
+  | 'undo_and_continue' // Used undo but continued
+  | 'perfect_fill' // No color outside lines
+  | 'coloring_time_of_day'; // Coloring at specific times
 
 interface BadgeRequirement {
   type: BadgeRequirementType;
@@ -60,128 +60,758 @@ interface Badge {
 // Badge definitions (keep in sync with constants/badges.ts)
 const BADGES: Badge[] = [
   // İlk Adımlar
-  { id: 'first_analysis', name: 'İlk Çizgi', description: 'İlk analizini yap', icon: '✏️', category: 'first_steps', rarity: 'common', requirement: { type: 'total_analyses', value: 1 } },
-  { id: 'first_story', name: 'Masal Başlangıcı', description: 'İlk masalını oluştur', icon: '📖', category: 'first_steps', rarity: 'common', requirement: { type: 'total_stories', value: 1 } },
-  { id: 'first_coloring', name: 'Renk Ustası Adayı', description: 'İlk boyama sayfanı oluştur', icon: '🎨', category: 'first_steps', rarity: 'common', requirement: { type: 'total_colorings', value: 1 } },
-  { id: 'first_child', name: 'Aile Kurucusu', description: 'İlk çocuğunu ekle', icon: '👶', category: 'first_steps', rarity: 'common', requirement: { type: 'first_child', value: 1 } },
-  { id: 'profile_complete', name: 'Profil Yıldızı', description: 'Profilini tamamla', icon: '⭐', category: 'first_steps', rarity: 'common', requirement: { type: 'profile_complete', value: 1 } },
+  {
+    id: 'first_analysis',
+    name: 'İlk Çizgi',
+    description: 'İlk analizini yap',
+    icon: '✏️',
+    category: 'first_steps',
+    rarity: 'common',
+    requirement: { type: 'total_analyses', value: 1 },
+  },
+  {
+    id: 'first_story',
+    name: 'Masal Başlangıcı',
+    description: 'İlk masalını oluştur',
+    icon: '📖',
+    category: 'first_steps',
+    rarity: 'common',
+    requirement: { type: 'total_stories', value: 1 },
+  },
+  {
+    id: 'first_coloring',
+    name: 'Renk Ustası Adayı',
+    description: 'İlk boyama sayfanı oluştur',
+    icon: '🎨',
+    category: 'first_steps',
+    rarity: 'common',
+    requirement: { type: 'total_colorings', value: 1 },
+  },
+  {
+    id: 'first_child',
+    name: 'Aile Kurucusu',
+    description: 'İlk çocuğunu ekle',
+    icon: '👶',
+    category: 'first_steps',
+    rarity: 'common',
+    requirement: { type: 'first_child', value: 1 },
+  },
+  {
+    id: 'profile_complete',
+    name: 'Profil Yıldızı',
+    description: 'Profilini tamamla',
+    icon: '⭐',
+    category: 'first_steps',
+    rarity: 'common',
+    requirement: { type: 'profile_complete', value: 1 },
+  },
 
   // Yaratıcılık - Analyses
-  { id: 'analysis_5', name: 'Çizim Meraklısı', description: '5 analiz yap', icon: '🔍', category: 'creativity', rarity: 'common', requirement: { type: 'total_analyses', value: 5 } },
-  { id: 'analysis_10', name: 'Çizim Avcısı', description: '10 analiz yap', icon: '🎯', category: 'creativity', rarity: 'common', requirement: { type: 'total_analyses', value: 10 } },
-  { id: 'analysis_25', name: 'Çizim Uzmanı', description: '25 analiz yap', icon: '🏅', category: 'creativity', rarity: 'rare', requirement: { type: 'total_analyses', value: 25 } },
-  { id: 'analysis_50', name: 'Çizim Ustası', description: '50 analiz yap', icon: '🎖️', category: 'creativity', rarity: 'epic', requirement: { type: 'total_analyses', value: 50 } },
-  { id: 'analysis_100', name: 'Çizim Efsanesi', description: '100 analiz yap', icon: '👑', category: 'creativity', rarity: 'legendary', requirement: { type: 'total_analyses', value: 100 } },
+  {
+    id: 'analysis_5',
+    name: 'Çizim Meraklısı',
+    description: '5 analiz yap',
+    icon: '🔍',
+    category: 'creativity',
+    rarity: 'common',
+    requirement: { type: 'total_analyses', value: 5 },
+  },
+  {
+    id: 'analysis_10',
+    name: 'Çizim Avcısı',
+    description: '10 analiz yap',
+    icon: '🎯',
+    category: 'creativity',
+    rarity: 'common',
+    requirement: { type: 'total_analyses', value: 10 },
+  },
+  {
+    id: 'analysis_25',
+    name: 'Çizim Uzmanı',
+    description: '25 analiz yap',
+    icon: '🏅',
+    category: 'creativity',
+    rarity: 'rare',
+    requirement: { type: 'total_analyses', value: 25 },
+  },
+  {
+    id: 'analysis_50',
+    name: 'Çizim Ustası',
+    description: '50 analiz yap',
+    icon: '🎖️',
+    category: 'creativity',
+    rarity: 'epic',
+    requirement: { type: 'total_analyses', value: 50 },
+  },
+  {
+    id: 'analysis_100',
+    name: 'Çizim Efsanesi',
+    description: '100 analiz yap',
+    icon: '👑',
+    category: 'creativity',
+    rarity: 'legendary',
+    requirement: { type: 'total_analyses', value: 100 },
+  },
 
   // Yaratıcılık - Stories
-  { id: 'story_5', name: 'Masal Anlatıcısı', description: '5 masal oluştur', icon: '📚', category: 'creativity', rarity: 'common', requirement: { type: 'total_stories', value: 5 } },
-  { id: 'story_10', name: 'Masal Yazarı', description: '10 masal oluştur', icon: '✍️', category: 'creativity', rarity: 'common', requirement: { type: 'total_stories', value: 10 } },
-  { id: 'story_25', name: 'Masal Ustası', description: '25 masal oluştur', icon: '📜', category: 'creativity', rarity: 'rare', requirement: { type: 'total_stories', value: 25 } },
-  { id: 'story_50', name: 'Masal Büyücüsü', description: '50 masal oluştur', icon: '🧙', category: 'creativity', rarity: 'epic', requirement: { type: 'total_stories', value: 50 } },
-  { id: 'story_100', name: 'Masal Efsanesi', description: '100 masal oluştur', icon: '🌟', category: 'creativity', rarity: 'legendary', requirement: { type: 'total_stories', value: 100 } },
+  {
+    id: 'story_5',
+    name: 'Masal Anlatıcısı',
+    description: '5 masal oluştur',
+    icon: '📚',
+    category: 'creativity',
+    rarity: 'common',
+    requirement: { type: 'total_stories', value: 5 },
+  },
+  {
+    id: 'story_10',
+    name: 'Masal Yazarı',
+    description: '10 masal oluştur',
+    icon: '✍️',
+    category: 'creativity',
+    rarity: 'common',
+    requirement: { type: 'total_stories', value: 10 },
+  },
+  {
+    id: 'story_25',
+    name: 'Masal Ustası',
+    description: '25 masal oluştur',
+    icon: '📜',
+    category: 'creativity',
+    rarity: 'rare',
+    requirement: { type: 'total_stories', value: 25 },
+  },
+  {
+    id: 'story_50',
+    name: 'Masal Büyücüsü',
+    description: '50 masal oluştur',
+    icon: '🧙',
+    category: 'creativity',
+    rarity: 'epic',
+    requirement: { type: 'total_stories', value: 50 },
+  },
+  {
+    id: 'story_100',
+    name: 'Masal Efsanesi',
+    description: '100 masal oluştur',
+    icon: '🌟',
+    category: 'creativity',
+    rarity: 'legendary',
+    requirement: { type: 'total_stories', value: 100 },
+  },
 
   // Yaratıcılık - Colorings
-  { id: 'coloring_5', name: 'Renk Avcısı', description: '5 boyama sayfası oluştur', icon: '🖍️', category: 'creativity', rarity: 'common', requirement: { type: 'total_colorings', value: 5 } },
-  { id: 'coloring_10', name: 'Renk Ustası', description: '10 boyama sayfası oluştur', icon: '🎨', category: 'creativity', rarity: 'common', requirement: { type: 'total_colorings', value: 10 } },
-  { id: 'coloring_25', name: 'Renk Büyücüsü', description: '25 boyama sayfası oluştur', icon: '🌈', category: 'creativity', rarity: 'rare', requirement: { type: 'total_colorings', value: 25 } },
-  { id: 'coloring_50', name: 'Renk Şampiyonu', description: '50 boyama sayfası oluştur', icon: '🏆', category: 'creativity', rarity: 'epic', requirement: { type: 'total_colorings', value: 50 } },
-  { id: 'coloring_100', name: 'Renk Efsanesi', description: '100 boyama sayfası oluştur', icon: '💎', category: 'creativity', rarity: 'legendary', requirement: { type: 'total_colorings', value: 100 } },
+  {
+    id: 'coloring_5',
+    name: 'Renk Avcısı',
+    description: '5 boyama sayfası oluştur',
+    icon: '🖍️',
+    category: 'creativity',
+    rarity: 'common',
+    requirement: { type: 'total_colorings', value: 5 },
+  },
+  {
+    id: 'coloring_10',
+    name: 'Renk Ustası',
+    description: '10 boyama sayfası oluştur',
+    icon: '🎨',
+    category: 'creativity',
+    rarity: 'common',
+    requirement: { type: 'total_colorings', value: 10 },
+  },
+  {
+    id: 'coloring_25',
+    name: 'Renk Büyücüsü',
+    description: '25 boyama sayfası oluştur',
+    icon: '🌈',
+    category: 'creativity',
+    rarity: 'rare',
+    requirement: { type: 'total_colorings', value: 25 },
+  },
+  {
+    id: 'coloring_50',
+    name: 'Renk Şampiyonu',
+    description: '50 boyama sayfası oluştur',
+    icon: '🏆',
+    category: 'creativity',
+    rarity: 'epic',
+    requirement: { type: 'total_colorings', value: 50 },
+  },
+  {
+    id: 'coloring_100',
+    name: 'Renk Efsanesi',
+    description: '100 boyama sayfası oluştur',
+    icon: '💎',
+    category: 'creativity',
+    rarity: 'legendary',
+    requirement: { type: 'total_colorings', value: 100 },
+  },
 
   // =========================================
   // PHASE 2: COLORING ACHIEVEMENTS (20+ new)
   // =========================================
 
   // Masterpiece Collection - Completed Colorings
-  { id: 'first_masterpiece', name: 'İlk Şaheser', description: 'İlk boyamanı tamamla', icon: '🖼️', category: 'coloring_master', rarity: 'common', requirement: { type: 'completed_colorings', value: 1 } },
-  { id: 'gallery_starter', name: 'Galeri Başlangıcı', description: '5 boyama tamamla', icon: '🎭', category: 'coloring_master', rarity: 'common', requirement: { type: 'completed_colorings', value: 5 } },
-  { id: 'art_collector', name: 'Sanat Koleksiyoncusu', description: '10 boyama tamamla', icon: '🏛️', category: 'coloring_master', rarity: 'rare', requirement: { type: 'completed_colorings', value: 10 } },
-  { id: 'gallery_curator', name: 'Galeri Küratörü', description: '25 boyama tamamla', icon: '👨‍🎨', category: 'coloring_master', rarity: 'epic', requirement: { type: 'completed_colorings', value: 25 } },
-  { id: 'museum_worthy', name: 'Müze Değerinde', description: '50 boyama tamamla', icon: '🏆', category: 'coloring_master', rarity: 'legendary', requirement: { type: 'completed_colorings', value: 50 } },
+  {
+    id: 'first_masterpiece',
+    name: 'İlk Şaheser',
+    description: 'İlk boyamanı tamamla',
+    icon: '🖼️',
+    category: 'coloring_master',
+    rarity: 'common',
+    requirement: { type: 'completed_colorings', value: 1 },
+  },
+  {
+    id: 'gallery_starter',
+    name: 'Galeri Başlangıcı',
+    description: '5 boyama tamamla',
+    icon: '🎭',
+    category: 'coloring_master',
+    rarity: 'common',
+    requirement: { type: 'completed_colorings', value: 5 },
+  },
+  {
+    id: 'art_collector',
+    name: 'Sanat Koleksiyoncusu',
+    description: '10 boyama tamamla',
+    icon: '🏛️',
+    category: 'coloring_master',
+    rarity: 'rare',
+    requirement: { type: 'completed_colorings', value: 10 },
+  },
+  {
+    id: 'gallery_curator',
+    name: 'Galeri Küratörü',
+    description: '25 boyama tamamla',
+    icon: '👨‍🎨',
+    category: 'coloring_master',
+    rarity: 'epic',
+    requirement: { type: 'completed_colorings', value: 25 },
+  },
+  {
+    id: 'museum_worthy',
+    name: 'Müze Değerinde',
+    description: '50 boyama tamamla',
+    icon: '🏆',
+    category: 'coloring_master',
+    rarity: 'legendary',
+    requirement: { type: 'completed_colorings', value: 50 },
+  },
 
   // Color Explorer - Variety of Colors
-  { id: 'color_curious', name: 'Renk Meraklısı', description: '10 farklı renk kullan', icon: '🔴', category: 'color_explorer', rarity: 'common', requirement: { type: 'colors_used_total', value: 10 } },
-  { id: 'rainbow_chaser', name: 'Gökkuşağı Avcısı', description: '25 farklı renk kullan', icon: '🌈', category: 'color_explorer', rarity: 'common', requirement: { type: 'colors_used_total', value: 25 } },
-  { id: 'color_connoisseur', name: 'Renk Uzmanı', description: '50 farklı renk kullan', icon: '🎨', category: 'color_explorer', rarity: 'rare', requirement: { type: 'colors_used_total', value: 50 } },
-  { id: 'palette_master', name: 'Palet Ustası', description: '100 farklı renk kullan', icon: '🎭', category: 'color_explorer', rarity: 'epic', requirement: { type: 'colors_used_total', value: 100 } },
-  { id: 'chromatic_legend', name: 'Kromatik Efsane', description: '200 farklı renk kullan', icon: '💎', category: 'color_explorer', rarity: 'legendary', requirement: { type: 'colors_used_total', value: 200 } },
+  {
+    id: 'color_curious',
+    name: 'Renk Meraklısı',
+    description: '10 farklı renk kullan',
+    icon: '🔴',
+    category: 'color_explorer',
+    rarity: 'common',
+    requirement: { type: 'colors_used_total', value: 10 },
+  },
+  {
+    id: 'rainbow_chaser',
+    name: 'Gökkuşağı Avcısı',
+    description: '25 farklı renk kullan',
+    icon: '🌈',
+    category: 'color_explorer',
+    rarity: 'common',
+    requirement: { type: 'colors_used_total', value: 25 },
+  },
+  {
+    id: 'color_connoisseur',
+    name: 'Renk Uzmanı',
+    description: '50 farklı renk kullan',
+    icon: '🎨',
+    category: 'color_explorer',
+    rarity: 'rare',
+    requirement: { type: 'colors_used_total', value: 50 },
+  },
+  {
+    id: 'palette_master',
+    name: 'Palet Ustası',
+    description: '100 farklı renk kullan',
+    icon: '🎭',
+    category: 'color_explorer',
+    rarity: 'epic',
+    requirement: { type: 'colors_used_total', value: 100 },
+  },
+  {
+    id: 'chromatic_legend',
+    name: 'Kromatik Efsane',
+    description: '200 farklı renk kullan',
+    icon: '💎',
+    category: 'color_explorer',
+    rarity: 'legendary',
+    requirement: { type: 'colors_used_total', value: 200 },
+  },
 
   // Single Artwork Excellence
-  { id: 'colorful_creation', name: 'Renkli Yaratım', description: 'Tek eserde 5+ renk kullan', icon: '🖌️', category: 'color_explorer', rarity: 'common', requirement: { type: 'colors_used_single', value: 5 } },
-  { id: 'rainbow_artwork', name: 'Gökkuşağı Eseri', description: 'Tek eserde 10+ renk kullan', icon: '🌟', category: 'color_explorer', rarity: 'rare', requirement: { type: 'colors_used_single', value: 10 } },
-  { id: 'chromatic_masterpiece', name: 'Kromatik Şaheser', description: 'Tek eserde 15+ renk kullan', icon: '✨', category: 'color_explorer', rarity: 'epic', requirement: { type: 'colors_used_single', value: 15 } },
+  {
+    id: 'colorful_creation',
+    name: 'Renkli Yaratım',
+    description: 'Tek eserde 5+ renk kullan',
+    icon: '🖌️',
+    category: 'color_explorer',
+    rarity: 'common',
+    requirement: { type: 'colors_used_single', value: 5 },
+  },
+  {
+    id: 'rainbow_artwork',
+    name: 'Gökkuşağı Eseri',
+    description: 'Tek eserde 10+ renk kullan',
+    icon: '🌟',
+    category: 'color_explorer',
+    rarity: 'rare',
+    requirement: { type: 'colors_used_single', value: 10 },
+  },
+  {
+    id: 'chromatic_masterpiece',
+    name: 'Kromatik Şaheser',
+    description: 'Tek eserde 15+ renk kullan',
+    icon: '✨',
+    category: 'color_explorer',
+    rarity: 'epic',
+    requirement: { type: 'colors_used_single', value: 15 },
+  },
 
   // Brush Master - Tool Usage
-  { id: 'brush_beginner', name: 'Fırça Çırağı', description: '3 farklı fırça türü dene', icon: '🖌️', category: 'brush_master', rarity: 'common', requirement: { type: 'brush_types_used', value: 3 } },
-  { id: 'brush_explorer', name: 'Fırça Kaşifi', description: '5 farklı fırça türü dene', icon: '🎨', category: 'brush_master', rarity: 'rare', requirement: { type: 'brush_types_used', value: 5 } },
-  { id: 'brush_virtuoso', name: 'Fırça Virtüözü', description: 'Tüm 7 fırça türünü dene', icon: '🏆', category: 'brush_master', rarity: 'epic', requirement: { type: 'brush_types_used', value: 7 } },
+  {
+    id: 'brush_beginner',
+    name: 'Fırça Çırağı',
+    description: '3 farklı fırça türü dene',
+    icon: '🖌️',
+    category: 'brush_master',
+    rarity: 'common',
+    requirement: { type: 'brush_types_used', value: 3 },
+  },
+  {
+    id: 'brush_explorer',
+    name: 'Fırça Kaşifi',
+    description: '5 farklı fırça türü dene',
+    icon: '🎨',
+    category: 'brush_master',
+    rarity: 'rare',
+    requirement: { type: 'brush_types_used', value: 5 },
+  },
+  {
+    id: 'brush_virtuoso',
+    name: 'Fırça Virtüözü',
+    description: 'Tüm 7 fırça türünü dene',
+    icon: '🏆',
+    category: 'brush_master',
+    rarity: 'epic',
+    requirement: { type: 'brush_types_used', value: 7 },
+  },
 
   // Premium Artist
-  { id: 'premium_curious', name: 'Premium Meraklısı', description: 'İlk premium fırçayı kullan', icon: '💫', category: 'brush_master', rarity: 'rare', requirement: { type: 'premium_brushes_used', value: 1 } },
-  { id: 'premium_collector', name: 'Premium Koleksiyoncu', description: '3 farklı premium fırça kullan', icon: '💎', category: 'brush_master', rarity: 'epic', requirement: { type: 'premium_brushes_used', value: 3 } },
-  { id: 'premium_master', name: 'Premium Ustası', description: 'Tüm premium fırçaları kullan', icon: '👑', category: 'brush_master', rarity: 'legendary', requirement: { type: 'premium_brushes_used', value: 5 } },
+  {
+    id: 'premium_curious',
+    name: 'Premium Meraklısı',
+    description: 'İlk premium fırçayı kullan',
+    icon: '💫',
+    category: 'brush_master',
+    rarity: 'rare',
+    requirement: { type: 'premium_brushes_used', value: 1 },
+  },
+  {
+    id: 'premium_collector',
+    name: 'Premium Koleksiyoncu',
+    description: '3 farklı premium fırça kullan',
+    icon: '💎',
+    category: 'brush_master',
+    rarity: 'epic',
+    requirement: { type: 'premium_brushes_used', value: 3 },
+  },
+  {
+    id: 'premium_master',
+    name: 'Premium Ustası',
+    description: 'Tüm premium fırçaları kullan',
+    icon: '👑',
+    category: 'brush_master',
+    rarity: 'legendary',
+    requirement: { type: 'premium_brushes_used', value: 5 },
+  },
 
   // AI & Smart Features
-  { id: 'ai_curious', name: 'Yapay Zeka Meraklısı', description: 'İlk AI renk önerisini kullan', icon: '🤖', category: 'smart_artist', rarity: 'common', requirement: { type: 'ai_suggestions_used', value: 1 } },
-  { id: 'ai_collaborator', name: 'AI İşbirlikçisi', description: '10 kez AI öneri kullan', icon: '🧠', category: 'smart_artist', rarity: 'rare', requirement: { type: 'ai_suggestions_used', value: 10 } },
-  { id: 'ai_partner', name: 'AI Ortağı', description: '25 kez AI öneri kullan', icon: '🌟', category: 'smart_artist', rarity: 'epic', requirement: { type: 'ai_suggestions_used', value: 25 } },
+  {
+    id: 'ai_curious',
+    name: 'Yapay Zeka Meraklısı',
+    description: 'İlk AI renk önerisini kullan',
+    icon: '🤖',
+    category: 'smart_artist',
+    rarity: 'common',
+    requirement: { type: 'ai_suggestions_used', value: 1 },
+  },
+  {
+    id: 'ai_collaborator',
+    name: 'AI İşbirlikçisi',
+    description: '10 kez AI öneri kullan',
+    icon: '🧠',
+    category: 'smart_artist',
+    rarity: 'rare',
+    requirement: { type: 'ai_suggestions_used', value: 10 },
+  },
+  {
+    id: 'ai_partner',
+    name: 'AI Ortağı',
+    description: '25 kez AI öneri kullan',
+    icon: '🌟',
+    category: 'smart_artist',
+    rarity: 'epic',
+    requirement: { type: 'ai_suggestions_used', value: 25 },
+  },
 
   // Color Harmony
-  { id: 'harmony_seeker', name: 'Uyum Arayıcısı', description: 'İlk renk harmonisi kullan', icon: '🎵', category: 'smart_artist', rarity: 'common', requirement: { type: 'harmony_colors_used', value: 1 } },
-  { id: 'harmony_artist', name: 'Uyum Sanatçısı', description: '10 kez renk harmonisi kullan', icon: '🎶', category: 'smart_artist', rarity: 'rare', requirement: { type: 'harmony_colors_used', value: 10 } },
-  { id: 'harmony_master', name: 'Uyum Ustası', description: '25 kez renk harmonisi kullan', icon: '🎼', category: 'smart_artist', rarity: 'epic', requirement: { type: 'harmony_colors_used', value: 25 } },
+  {
+    id: 'harmony_seeker',
+    name: 'Uyum Arayıcısı',
+    description: 'İlk renk harmonisi kullan',
+    icon: '🎵',
+    category: 'smart_artist',
+    rarity: 'common',
+    requirement: { type: 'harmony_colors_used', value: 1 },
+  },
+  {
+    id: 'harmony_artist',
+    name: 'Uyum Sanatçısı',
+    description: '10 kez renk harmonisi kullan',
+    icon: '🎶',
+    category: 'smart_artist',
+    rarity: 'rare',
+    requirement: { type: 'harmony_colors_used', value: 10 },
+  },
+  {
+    id: 'harmony_master',
+    name: 'Uyum Ustası',
+    description: '25 kez renk harmonisi kullan',
+    icon: '🎼',
+    category: 'smart_artist',
+    rarity: 'epic',
+    requirement: { type: 'harmony_colors_used', value: 25 },
+  },
 
   // Reference Image
-  { id: 'reference_starter', name: 'Referans Başlangıcı', description: 'İlk referans görsel kullan', icon: '📷', category: 'smart_artist', rarity: 'common', requirement: { type: 'reference_images_used', value: 1 } },
-  { id: 'reference_pro', name: 'Referans Profesyoneli', description: '10 kez referans görsel kullan', icon: '📸', category: 'smart_artist', rarity: 'rare', requirement: { type: 'reference_images_used', value: 10 } },
+  {
+    id: 'reference_starter',
+    name: 'Referans Başlangıcı',
+    description: 'İlk referans görsel kullan',
+    icon: '📷',
+    category: 'smart_artist',
+    rarity: 'common',
+    requirement: { type: 'reference_images_used', value: 1 },
+  },
+  {
+    id: 'reference_pro',
+    name: 'Referans Profesyoneli',
+    description: '10 kez referans görsel kullan',
+    icon: '📸',
+    category: 'smart_artist',
+    rarity: 'rare',
+    requirement: { type: 'reference_images_used', value: 10 },
+  },
 
   // Coloring Streaks
-  { id: 'coloring_streak_3', name: 'Boyama Çırağı', description: '3 gün üst üste boya', icon: '🔥', category: 'coloring_streak', rarity: 'common', requirement: { type: 'coloring_streak', value: 3 } },
-  { id: 'coloring_streak_7', name: 'Haftalık Sanatçı', description: '7 gün üst üste boya', icon: '⭐', category: 'coloring_streak', rarity: 'rare', requirement: { type: 'coloring_streak', value: 7 } },
-  { id: 'coloring_streak_14', name: 'İki Haftalık Usta', description: '14 gün üst üste boya', icon: '💪', category: 'coloring_streak', rarity: 'epic', requirement: { type: 'coloring_streak', value: 14 } },
-  { id: 'coloring_streak_30', name: 'Aylık Efsane', description: '30 gün üst üste boya', icon: '👑', category: 'coloring_streak', rarity: 'legendary', requirement: { type: 'coloring_streak', value: 30 } },
+  {
+    id: 'coloring_streak_3',
+    name: 'Boyama Çırağı',
+    description: '3 gün üst üste boya',
+    icon: '🔥',
+    category: 'coloring_streak',
+    rarity: 'common',
+    requirement: { type: 'coloring_streak', value: 3 },
+  },
+  {
+    id: 'coloring_streak_7',
+    name: 'Haftalık Sanatçı',
+    description: '7 gün üst üste boya',
+    icon: '⭐',
+    category: 'coloring_streak',
+    rarity: 'rare',
+    requirement: { type: 'coloring_streak', value: 7 },
+  },
+  {
+    id: 'coloring_streak_14',
+    name: 'İki Haftalık Usta',
+    description: '14 gün üst üste boya',
+    icon: '💪',
+    category: 'coloring_streak',
+    rarity: 'epic',
+    requirement: { type: 'coloring_streak', value: 14 },
+  },
+  {
+    id: 'coloring_streak_30',
+    name: 'Aylık Efsane',
+    description: '30 gün üst üste boya',
+    icon: '👑',
+    category: 'coloring_streak',
+    rarity: 'legendary',
+    requirement: { type: 'coloring_streak', value: 30 },
+  },
 
   // Time Spent - Dedication
-  { id: 'time_spent_30', name: 'Sanat Zamanı', description: 'Toplam 30 dakika boyama yap', icon: '⏱️', category: 'dedication', rarity: 'common', requirement: { type: 'coloring_time_total', value: 30 } },
-  { id: 'time_spent_60', name: 'Sanat Saati', description: 'Toplam 1 saat boyama yap', icon: '🕐', category: 'dedication', rarity: 'common', requirement: { type: 'coloring_time_total', value: 60 } },
-  { id: 'time_spent_300', name: 'Sanat Günü', description: 'Toplam 5 saat boyama yap', icon: '🌅', category: 'dedication', rarity: 'rare', requirement: { type: 'coloring_time_total', value: 300 } },
-  { id: 'time_spent_600', name: 'Sanat Haftası', description: 'Toplam 10 saat boyama yap', icon: '🌙', category: 'dedication', rarity: 'epic', requirement: { type: 'coloring_time_total', value: 600 } },
-  { id: 'time_spent_1800', name: 'Sanat Yaşamı', description: 'Toplam 30 saat boyama yap', icon: '🌟', category: 'dedication', rarity: 'legendary', requirement: { type: 'coloring_time_total', value: 1800 } },
+  {
+    id: 'time_spent_30',
+    name: 'Sanat Zamanı',
+    description: 'Toplam 30 dakika boyama yap',
+    icon: '⏱️',
+    category: 'dedication',
+    rarity: 'common',
+    requirement: { type: 'coloring_time_total', value: 30 },
+  },
+  {
+    id: 'time_spent_60',
+    name: 'Sanat Saati',
+    description: 'Toplam 1 saat boyama yap',
+    icon: '🕐',
+    category: 'dedication',
+    rarity: 'common',
+    requirement: { type: 'coloring_time_total', value: 60 },
+  },
+  {
+    id: 'time_spent_300',
+    name: 'Sanat Günü',
+    description: 'Toplam 5 saat boyama yap',
+    icon: '🌅',
+    category: 'dedication',
+    rarity: 'rare',
+    requirement: { type: 'coloring_time_total', value: 300 },
+  },
+  {
+    id: 'time_spent_600',
+    name: 'Sanat Haftası',
+    description: 'Toplam 10 saat boyama yap',
+    icon: '🌙',
+    category: 'dedication',
+    rarity: 'epic',
+    requirement: { type: 'coloring_time_total', value: 600 },
+  },
+  {
+    id: 'time_spent_1800',
+    name: 'Sanat Yaşamı',
+    description: 'Toplam 30 saat boyama yap',
+    icon: '🌟',
+    category: 'dedication',
+    rarity: 'legendary',
+    requirement: { type: 'coloring_time_total', value: 1800 },
+  },
 
   // Session Achievements
-  { id: 'speed_artist', name: 'Hızlı Sanatçı', description: '5 dakikadan kısa sürede tamamla', icon: '⚡', category: 'session', rarity: 'rare', requirement: { type: 'quick_coloring', value: 1 } },
-  { id: 'marathon_artist', name: 'Maraton Sanatçısı', description: '30 dakikadan uzun tek oturum', icon: '🏃', category: 'session', rarity: 'rare', requirement: { type: 'marathon_coloring', value: 1 } },
+  {
+    id: 'speed_artist',
+    name: 'Hızlı Sanatçı',
+    description: '5 dakikadan kısa sürede tamamla',
+    icon: '⚡',
+    category: 'session',
+    rarity: 'rare',
+    requirement: { type: 'quick_coloring', value: 1 },
+  },
+  {
+    id: 'marathon_artist',
+    name: 'Maraton Sanatçısı',
+    description: '30 dakikadan uzun tek oturum',
+    icon: '🏃',
+    category: 'session',
+    rarity: 'rare',
+    requirement: { type: 'marathon_coloring', value: 1 },
+  },
 
   // Persistence
-  { id: 'never_give_up', name: 'Asla Pes Etme', description: 'Geri al\'ı kullan ve devam et', icon: '💪', category: 'persistence', rarity: 'common', requirement: { type: 'undo_and_continue', value: 1 } },
-  { id: 'persistent_artist', name: 'Azimli Sanatçı', description: '10 kez geri al\'ı kullan ve devam et', icon: '🔄', category: 'persistence', rarity: 'rare', requirement: { type: 'undo_and_continue', value: 10 } },
+  {
+    id: 'never_give_up',
+    name: 'Asla Pes Etme',
+    description: "Geri al'ı kullan ve devam et",
+    icon: '💪',
+    category: 'persistence',
+    rarity: 'common',
+    requirement: { type: 'undo_and_continue', value: 1 },
+  },
+  {
+    id: 'persistent_artist',
+    name: 'Azimli Sanatçı',
+    description: "10 kez geri al'ı kullan ve devam et",
+    icon: '🔄',
+    category: 'persistence',
+    rarity: 'rare',
+    requirement: { type: 'undo_and_continue', value: 10 },
+  },
 
   // Secret Coloring Badges
-  { id: 'secret_midnight_artist', name: 'Gece Yarısı Sanatçısı', description: 'Gece yarısından sonra boya', icon: '🌙', category: 'secret', rarity: 'rare', requirement: { type: 'coloring_time_of_day', value: 'midnight' }, isSecret: true },
-  { id: 'secret_sunrise_creator', name: 'Şafak Yaratıcısı', description: 'Gün doğumunda boya', icon: '🌅', category: 'secret', rarity: 'rare', requirement: { type: 'coloring_time_of_day', value: 'sunrise' }, isSecret: true },
-  { id: 'secret_golden_hour', name: 'Altın Saat', description: 'Gün batımında boya', icon: '🌇', category: 'secret', rarity: 'epic', requirement: { type: 'coloring_time_of_day', value: 'golden_hour' }, isSecret: true },
+  {
+    id: 'secret_midnight_artist',
+    name: 'Gece Yarısı Sanatçısı',
+    description: 'Gece yarısından sonra boya',
+    icon: '🌙',
+    category: 'secret',
+    rarity: 'rare',
+    requirement: { type: 'coloring_time_of_day', value: 'midnight' },
+    isSecret: true,
+  },
+  {
+    id: 'secret_sunrise_creator',
+    name: 'Şafak Yaratıcısı',
+    description: 'Gün doğumunda boya',
+    icon: '🌅',
+    category: 'secret',
+    rarity: 'rare',
+    requirement: { type: 'coloring_time_of_day', value: 'sunrise' },
+    isSecret: true,
+  },
+  {
+    id: 'secret_golden_hour',
+    name: 'Altın Saat',
+    description: 'Gün batımında boya',
+    icon: '🌇',
+    category: 'secret',
+    rarity: 'epic',
+    requirement: { type: 'coloring_time_of_day', value: 'golden_hour' },
+    isSecret: true,
+  },
 
   // Kaşif
-  { id: 'explorer_3_tests', name: 'Test Kaşifi', description: '3 farklı test türü dene', icon: '🔍', category: 'explorer', rarity: 'common', requirement: { type: 'unique_test_types', value: 3 } },
-  { id: 'explorer_5_tests', name: 'Test Gezgini', description: '5 farklı test türü dene', icon: '🧭', category: 'explorer', rarity: 'rare', requirement: { type: 'unique_test_types', value: 5 } },
-  { id: 'explorer_all_tests', name: 'Test Ustası', description: 'Tüm 9 test türünü dene', icon: '🏆', category: 'explorer', rarity: 'legendary', requirement: { type: 'unique_test_types', value: 9 } },
-  { id: 'multiple_children', name: 'Kalabalık Aile', description: 'Birden fazla çocuk ekle', icon: '👨‍👩‍👧‍👦', category: 'explorer', rarity: 'rare', requirement: { type: 'multiple_children', value: 2 } },
+  {
+    id: 'explorer_3_tests',
+    name: 'Test Kaşifi',
+    description: '3 farklı test türü dene',
+    icon: '🔍',
+    category: 'explorer',
+    rarity: 'common',
+    requirement: { type: 'unique_test_types', value: 3 },
+  },
+  {
+    id: 'explorer_5_tests',
+    name: 'Test Gezgini',
+    description: '5 farklı test türü dene',
+    icon: '🧭',
+    category: 'explorer',
+    rarity: 'rare',
+    requirement: { type: 'unique_test_types', value: 5 },
+  },
+  {
+    id: 'explorer_all_tests',
+    name: 'Test Ustası',
+    description: 'Tüm 9 test türünü dene',
+    icon: '🏆',
+    category: 'explorer',
+    rarity: 'legendary',
+    requirement: { type: 'unique_test_types', value: 9 },
+  },
+  {
+    id: 'multiple_children',
+    name: 'Kalabalık Aile',
+    description: 'Birden fazla çocuk ekle',
+    icon: '👨‍👩‍👧‍👦',
+    category: 'explorer',
+    rarity: 'rare',
+    requirement: { type: 'multiple_children', value: 2 },
+  },
 
   // Düzenlilik
-  { id: 'streak_3', name: 'Düzenli Ziyaretçi', description: '3 gün üst üste kullan', icon: '🔥', category: 'consistency', rarity: 'common', requirement: { type: 'consecutive_days', value: 3 } },
-  { id: 'streak_7', name: 'Haftalık Yıldız', description: '7 gün üst üste kullan', icon: '⭐', category: 'consistency', rarity: 'rare', requirement: { type: 'consecutive_days', value: 7 } },
-  { id: 'streak_14', name: 'Süper Kullanıcı', description: '14 gün üst üste kullan', icon: '💪', category: 'consistency', rarity: 'epic', requirement: { type: 'consecutive_days', value: 14 } },
-  { id: 'streak_30', name: 'Efsane', description: '30 gün üst üste kullan', icon: '👑', category: 'consistency', rarity: 'legendary', requirement: { type: 'consecutive_days', value: 30 } },
+  {
+    id: 'streak_3',
+    name: 'Düzenli Ziyaretçi',
+    description: '3 gün üst üste kullan',
+    icon: '🔥',
+    category: 'consistency',
+    rarity: 'common',
+    requirement: { type: 'consecutive_days', value: 3 },
+  },
+  {
+    id: 'streak_7',
+    name: 'Haftalık Yıldız',
+    description: '7 gün üst üste kullan',
+    icon: '⭐',
+    category: 'consistency',
+    rarity: 'rare',
+    requirement: { type: 'consecutive_days', value: 7 },
+  },
+  {
+    id: 'streak_14',
+    name: 'Süper Kullanıcı',
+    description: '14 gün üst üste kullan',
+    icon: '💪',
+    category: 'consistency',
+    rarity: 'epic',
+    requirement: { type: 'consecutive_days', value: 14 },
+  },
+  {
+    id: 'streak_30',
+    name: 'Efsane',
+    description: '30 gün üst üste kullan',
+    icon: '👑',
+    category: 'consistency',
+    rarity: 'legendary',
+    requirement: { type: 'consecutive_days', value: 30 },
+  },
 
   // Özel Günler
-  { id: 'special_23_nisan', name: 'Çocuk Bayramı', description: '23 Nisan\'da uygulamayı kullan', icon: '🎈', category: 'special', rarity: 'rare', requirement: { type: 'special_day', value: '04-23' } },
-  { id: 'special_29_ekim', name: 'Cumhuriyet Çocuğu', description: '29 Ekim\'de uygulamayı kullan', icon: '🇹🇷', category: 'special', rarity: 'rare', requirement: { type: 'special_day', value: '10-29' } },
-  { id: 'special_new_year', name: 'Yeni Yıl Büyücüsü', description: '1 Ocak\'ta uygulamayı kullan', icon: '🎉', category: 'special', rarity: 'rare', requirement: { type: 'special_day', value: '01-01' } },
-  { id: 'special_19_mayis', name: 'Gençlik Ruhu', description: '19 Mayıs\'ta uygulamayı kullan', icon: '🏃', category: 'special', rarity: 'rare', requirement: { type: 'special_day', value: '05-19' } },
+  {
+    id: 'special_23_nisan',
+    name: 'Çocuk Bayramı',
+    description: "23 Nisan'da uygulamayı kullan",
+    icon: '🎈',
+    category: 'special',
+    rarity: 'rare',
+    requirement: { type: 'special_day', value: '04-23' },
+  },
+  {
+    id: 'special_29_ekim',
+    name: 'Cumhuriyet Çocuğu',
+    description: "29 Ekim'de uygulamayı kullan",
+    icon: '🇹🇷',
+    category: 'special',
+    rarity: 'rare',
+    requirement: { type: 'special_day', value: '10-29' },
+  },
+  {
+    id: 'special_new_year',
+    name: 'Yeni Yıl Büyücüsü',
+    description: "1 Ocak'ta uygulamayı kullan",
+    icon: '🎉',
+    category: 'special',
+    rarity: 'rare',
+    requirement: { type: 'special_day', value: '01-01' },
+  },
+  {
+    id: 'special_19_mayis',
+    name: 'Gençlik Ruhu',
+    description: "19 Mayıs'ta uygulamayı kullan",
+    icon: '🏃',
+    category: 'special',
+    rarity: 'rare',
+    requirement: { type: 'special_day', value: '05-19' },
+  },
 
   // Gizli
-  { id: 'secret_night_owl', name: 'Gece Kuşu', description: 'Gece yarısından sonra kullan', icon: '🦉', category: 'secret', rarity: 'rare', requirement: { type: 'time_of_day', value: 'night' }, isSecret: true },
-  { id: 'secret_early_bird', name: 'Erken Kalkan', description: 'Sabah 6\'dan önce kullan', icon: '🌅', category: 'secret', rarity: 'rare', requirement: { type: 'time_of_day', value: 'early_morning' }, isSecret: true },
-  { id: 'secret_weekend_warrior', name: 'Hafta Sonu Savaşçısı', description: 'Hem Cumartesi hem Pazar kullan', icon: '🎮', category: 'secret', rarity: 'epic', requirement: { type: 'special_day', value: 'weekend_both' }, isSecret: true },
+  {
+    id: 'secret_night_owl',
+    name: 'Gece Kuşu',
+    description: 'Gece yarısından sonra kullan',
+    icon: '🦉',
+    category: 'secret',
+    rarity: 'rare',
+    requirement: { type: 'time_of_day', value: 'night' },
+    isSecret: true,
+  },
+  {
+    id: 'secret_early_bird',
+    name: 'Erken Kalkan',
+    description: "Sabah 6'dan önce kullan",
+    icon: '🌅',
+    category: 'secret',
+    rarity: 'rare',
+    requirement: { type: 'time_of_day', value: 'early_morning' },
+    isSecret: true,
+  },
+  {
+    id: 'secret_weekend_warrior',
+    name: 'Hafta Sonu Savaşçısı',
+    description: 'Hem Cumartesi hem Pazar kullan',
+    icon: '🎮',
+    category: 'secret',
+    rarity: 'epic',
+    requirement: { type: 'special_day', value: 'weekend_both' },
+    isSecret: true,
+  },
 ];
 
 export interface UserBadgeResult {
@@ -212,11 +842,13 @@ export class BadgeService {
         return [];
       }
 
-      return (data || []).map(ub => ({
-        badgeId: ub.badge_id,
-        badge: BADGES.find(b => b.id === ub.badge_id)!,
-        unlockedAt: new Date(ub.unlocked_at),
-      })).filter(ub => ub.badge);
+      return (data || [])
+        .map(ub => ({
+          badgeId: ub.badge_id,
+          badge: BADGES.find(b => b.id === ub.badge_id)!,
+          unlockedAt: new Date(ub.unlocked_at),
+        }))
+        .filter(ub => ub.badge);
     } catch (error) {
       logger.error('[BadgeService] Error in getUserBadges:', error);
       return [];
@@ -276,13 +908,11 @@ export class BadgeService {
    */
   static async awardBadge(userId: string, badgeId: string): Promise<boolean> {
     try {
-      const { error } = await supa
-        .from('user_badges')
-        .insert({
-          user_id: userId,
-          badge_id: badgeId,
-          unlocked_at: new Date().toISOString(),
-        });
+      const { error } = await supa.from('user_badges').insert({
+        user_id: userId,
+        badge_id: badgeId,
+        unlocked_at: new Date().toISOString(),
+      });
 
       if (error) {
         // Ignore unique constraint errors (badge already awarded)
@@ -327,10 +957,7 @@ export class BadgeService {
         if (type === 'story') updates.stories_count = (existing.stories_count || 0) + 1;
         if (type === 'coloring') updates.colorings_count = (existing.colorings_count || 0) + 1;
 
-        await supa
-          .from('user_activity')
-          .update(updates)
-          .eq('id', existing.id);
+        await supa.from('user_activity').update(updates).eq('id', existing.id);
       } else {
         // Insert new record
         const counts = {
@@ -339,14 +966,12 @@ export class BadgeService {
           colorings_count: type === 'coloring' ? 1 : 0,
         };
 
-        await supa
-          .from('user_activity')
-          .insert({
-            user_id: userId,
-            activity_date: today,
-            ...counts,
-            first_activity_at: new Date().toISOString(),
-          });
+        await supa.from('user_activity').insert({
+          user_id: userId,
+          activity_date: today,
+          ...counts,
+          first_activity_at: new Date().toISOString(),
+        });
       }
 
       // Check for time-based secret badges
@@ -394,17 +1019,17 @@ export class BadgeService {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId);
 
-      // Get story count
+      // Get story count (storybooks uses user_id_fk as foreign key)
       const { count: storiesCount } = await supa
         .from('storybooks')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+        .eq('user_id_fk', userId);
 
-      // Get coloring count
+      // Get coloring count (colorings uses user_id_fk as foreign key)
       const { count: coloringsCount } = await supa
         .from('colorings')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+        .eq('user_id_fk', userId);
 
       // Get unique test types
       const { data: testTypes } = await supa
@@ -616,8 +1241,15 @@ export class BadgeService {
   static async recordColoringActivity(
     userId: string,
     activity: {
-      type: 'coloring_completed' | 'brush_used' | 'color_used' | 'ai_suggestion' |
-            'harmony_used' | 'reference_used' | 'undo_used' | 'session_time';
+      type:
+        | 'coloring_completed'
+        | 'brush_used'
+        | 'color_used'
+        | 'ai_suggestion'
+        | 'harmony_used'
+        | 'reference_used'
+        | 'undo_used'
+        | 'session_time';
       value?: string | number;
       sessionDuration?: number;
       colorsInSession?: number;
@@ -640,7 +1272,10 @@ export class BadgeService {
         case 'coloring_completed':
           updates.completed_colorings = (existing?.completed_colorings || 0) + 1;
           // Update colors used in single max
-          if (activity.colorsInSession && activity.colorsInSession > (existing?.colors_used_single_max || 0)) {
+          if (
+            activity.colorsInSession &&
+            activity.colorsInSession > (existing?.colors_used_single_max || 0)
+          ) {
             updates.colors_used_single_max = activity.colorsInSession;
           }
           // Check for quick or marathon coloring
@@ -707,14 +1342,9 @@ export class BadgeService {
 
       // Upsert the stats
       if (existing) {
-        await supa
-          .from('user_coloring_stats')
-          .update(updates)
-          .eq('user_id', userId);
+        await supa.from('user_coloring_stats').update(updates).eq('user_id', userId);
       } else {
-        await supa
-          .from('user_coloring_stats')
-          .insert(updates);
+        await supa.from('user_coloring_stats').insert(updates);
       }
 
       // Check for coloring time-based badges
@@ -751,7 +1381,9 @@ export class BadgeService {
       if (lastDate) {
         const lastDateObj = new Date(lastDate);
         const todayObj = new Date(today);
-        const diffDays = Math.floor((todayObj.getTime() - lastDateObj.getTime()) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor(
+          (todayObj.getTime() - lastDateObj.getTime()) / (1000 * 60 * 60 * 24)
+        );
 
         if (diffDays === 0) {
           // Same day, keep current streak
@@ -773,7 +1405,6 @@ export class BadgeService {
           last_coloring_date: today,
         })
         .eq('user_id', userId);
-
     } catch (error) {
       logger.error('[BadgeService] Error updating coloring streak:', error);
     }
@@ -824,12 +1455,14 @@ export class BadgeService {
   /**
    * Get badge progress for a user
    */
-  static async getBadgeProgress(userId: string): Promise<{
-    badge: Badge;
-    current: number;
-    target: number;
-    percentage: number;
-  }[]> {
+  static async getBadgeProgress(userId: string): Promise<
+    {
+      badge: Badge;
+      current: number;
+      target: number;
+      percentage: number;
+    }[]
+  > {
     const stats = await this.getUserStats(userId);
     const existingBadges = await this.getUserBadges(userId);
     const existingBadgeIds = new Set(existingBadges.map(b => b.badgeId));

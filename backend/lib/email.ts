@@ -1,4 +1,4 @@
-import { logger } from "./utils.js";
+import { logger, escapeHtml } from './utils.js';
 import { Resend } from 'resend';
 
 // Validate API key at startup
@@ -122,7 +122,7 @@ export async function sendVerificationEmail(email: string, code: string, name?: 
                   <td align="center">
                     <div class="container">
                       <div class="logo">🌟</div>
-                      <h1 class="title">${name ? `Merhaba ${name}!` : 'Merhaba!'}</h1>
+                      <h1 class="title">${name ? `Merhaba ${escapeHtml(name)}!` : 'Merhaba!'}</h1>
                       <p class="subtitle">Renkioo'ya hoş geldiniz!</p>
 
                       <p class="text">Hesabınızı doğrulamak için aşağıdaki kodu uygulamaya girin:</p>
@@ -209,11 +209,7 @@ export async function storeVerificationCode(
 /**
  * Send password reset code to user's email
  */
-export async function sendPasswordResetEmail(
-  email: string,
-  code: string,
-  name?: string
-) {
+export async function sendPasswordResetEmail(email: string, code: string, name?: string) {
   try {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
@@ -273,7 +269,7 @@ export async function sendPasswordResetEmail(
                   <td align="center">
                     <div class="container">
                       <div style="font-size: 48px; margin-bottom: 20px;">🔒</div>
-                      <h1 style="font-size: 28px; margin: 0 0 10px 0;">${name ? `Merhaba ${name}!` : 'Merhaba!'}</h1>
+                      <h1 style="font-size: 28px; margin: 0 0 10px 0;">${name ? `Merhaba ${escapeHtml(name)}!` : 'Merhaba!'}</h1>
                       <p style="font-size: 16px; margin: 20px 0;">Şifrenizi sıfırlamak için aşağıdaki kodu kullanın:</p>
                       <div class="code">${code}</div>
                       <p style="font-size: 14px; opacity: 0.85; margin: 20px 0;">

@@ -1,131 +1,100 @@
 /**
  * Secure Supabase Client with RLS Context Support
  *
- * This module provides a wrapper around Supabase client that automatically
- * sets the current user context for Row Level Security (RLS) policies.
+ * This module provides per-request Supabase clients that set the current
+ * user context for Row Level Security (RLS) policies.
  *
  * How it works:
- * 1. Before each query, we set `app.current_user_id` session variable
- * 2. RLS policies use `current_setting('app.current_user_id')` to check ownership
- * 3. This provides database-level security on top of backend JWT validation
+ * 1. Each request gets its own Supabase client instance (no shared state)
+ * 2. Before returning, we await `set_user_context` RPC to set RLS context
+ * 3. RLS policies use `current_setting('app.current_user_id')` to check ownership
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { logger } from './utils.js';
 
-let _secureClient: SupabaseClient | null = null;
-
-function getSecureSupabaseClient(): SupabaseClient {
-  if (_secureClient) return _secureClient;
-
+function getSupabaseConfig() {
   const url = process.env.SUPABASE_URL;
-  // Support both naming conventions
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
 
   if (!url || !key) {
-    console.error('[Supabase] Missing env vars. SUPABASE_URL:', !!url, 'SUPABASE_SERVICE_ROLE:', !!key);
+    console.error(
+      '[Supabase] Missing env vars. SUPABASE_URL:',
+      !!url,
+      'SUPABASE_SERVICE_ROLE:',
+      !!key
+    );
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
 
-  _secureClient = createClient(url, key, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+  return { url, key };
+}
+
+// Shared client for non-user-scoped operations (legacy code, admin queries)
+let _sharedClient: SupabaseClient | null = null;
+
+function getSharedClient(): SupabaseClient {
+  if (_sharedClient) return _sharedClient;
+
+  const { url, key } = getSupabaseConfig();
+  _sharedClient = createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  return _secureClient;
+  return _sharedClient;
 }
 
 // Base Supabase client (used by legacy code) - lazy loaded via Proxy
 export const supa = new Proxy({} as SupabaseClient, {
   get(_, prop) {
-    return (getSecureSupabaseClient() as any)[prop];
-  }
+    return (getSharedClient() as unknown as Record<string | symbol, unknown>)[prop];
+  },
 });
 
 /**
- * Execute a query with user context set for RLS
+ * Create a per-request Supabase client with RLS user context set.
+ *
+ * Each call creates an independent client instance to avoid race conditions
+ * between concurrent requests. The RLS context is awaited before returning.
  *
  * @param userId - Current authenticated user ID
- * @param callback - Database operation to execute
- * @returns Result from the callback
- *
- * @example
- * const profile = await withUserContext(userId, async (client) => {
- *   return await client.from('users').select('*').eq('id', userId).single();
- * });
+ * @returns Supabase client with user context already set
  */
-export async function withUserContext<T>(
-  userId: string,
-  callback: (client: SupabaseClient) => Promise<T>
-): Promise<T> {
-  // Set the user context for this session
-  const { error: setError } = await supa.rpc('set_user_context', { user_id: userId });
+async function createSecureClient(userId: string): Promise<SupabaseClient> {
+  const { url, key } = getSupabaseConfig();
 
-  if (setError) {
-    console.error('[Supabase] Failed to set user context:', setError);
-    // Continue anyway - backend validation is primary, RLS is secondary
-  }
+  const client = createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 
-  try {
-    // Execute the query with context set
-    return await callback(supa);
-  } finally {
-    // Clear the context after query (optional, as session is short-lived)
-    try {
-      await supa.rpc('clear_user_context');
-    } catch {
-      // Ignore errors on cleanup
-    }
-  }
-}
+  // Await the RLS context - no fire-and-forget
+  const { error } = await client.rpc('set_user_context', { user_id: userId });
 
-/**
- * Create a Supabase client wrapper that automatically sets user context
- *
- * @param userId - Current authenticated user ID
- * @returns Supabase client with user context pre-configured
- *
- * @example
- * const client = createSecureClient(ctx.userId);
- * const { data } = await client.from('analyses').select('*');
- */
-export function createSecureClient(userId: string): SupabaseClient {
-  // Create a proxy that intercepts .from() calls to set context
-  const client = supa;
-
-  const originalFrom = client.from.bind(client);
-
-  // @ts-ignore - Monkey patching for context injection
-  client.from = function(table: string) {
-    // Set context before query (fire and forget for performance)
-    // This is intentionally non-blocking - RLS context is set async
-    supa.rpc('set_user_context', { user_id: userId }).then(
-      () => {
-        // Context set successfully (debug logging only)
-        if (process.env.NODE_ENV === 'development') {
-          logger.debug('[Supabase] RLS context set for user:', userId.substring(0, 8) + '...');
-        }
-      },
-      (err: Error) => {
-        // Log context set failures - these are non-critical but should be monitored
-        logger.warn('[Supabase] RLS context set failed:', err?.message);
-      }
+  if (error) {
+    logger.warn(
+      '[Supabase] RLS context set failed for user:',
+      userId.substring(0, 8) + '...',
+      error.message
     );
-
-    return originalFrom(table);
-  };
+    // Continue - backend auth validation is primary, RLS is defense-in-depth
+  }
 
   return client;
 }
 
 /**
- * Helper to get a secure client from tRPC context
+ * Get a secure Supabase client from tRPC context.
+ *
+ * Returns an independent client with user RLS context properly set.
+ * Must be awaited.
  *
  * @param ctx - tRPC context with userId
- * @returns Secure Supabase client
+ * @returns Promise<SupabaseClient> with RLS context set
+ *
+ * @example
+ * const supabase = await getSecureClient(ctx);
+ * const { data } = await supabase.from('analyses').select('*');
  */
-export function getSecureClient(ctx: { userId: string }): SupabaseClient {
+export async function getSecureClient(ctx: { userId: string }): Promise<SupabaseClient> {
   return createSecureClient(ctx.userId);
 }
