@@ -77,7 +77,7 @@ const ControlledInput = (props: React.ComponentProps<typeof Input>) => {
 
 // Default story
 export const Default: Story = {
-  render: (args) => <ControlledInput {...args} />,
+  render: args => <ControlledInput {...args} />,
   args: {
     label: 'E-posta',
     placeholder: 'ornek@email.com',
@@ -86,7 +86,7 @@ export const Default: Story = {
 
 // With error
 export const WithError: Story = {
-  render: (args) => <ControlledInput {...args} />,
+  render: args => <ControlledInput {...args} />,
   args: {
     label: 'E-posta',
     placeholder: 'ornek@email.com',
@@ -96,7 +96,7 @@ export const WithError: Story = {
 
 // Password input
 export const Password: Story = {
-  render: (args) => <ControlledInput {...args} />,
+  render: args => <ControlledInput {...args} />,
   args: {
     label: 'Şifre',
     placeholder: '••••••••',
@@ -123,38 +123,35 @@ export const WithValue: Story = {
 };
 
 // Form example
-export const FormExample: Story = {
-  render: () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
+function FormExampleRender() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
 
-    return (
-      <View style={styles.form}>
-        <Input
-          label="Ad Soyad"
-          placeholder="Adınızı girin"
-          value={name}
-          onChangeText={setName}
-        />
-        <Input
-          label="E-posta"
-          placeholder="ornek@email.com"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <Input
-          label="Şifre"
-          placeholder="En az 6 karakter"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </View>
-    );
-  },
+  return (
+    <View style={styles.form}>
+      <Input label="Ad Soyad" placeholder="Adınızı girin" value={name} onChangeText={setName} />
+      <Input
+        label="E-posta"
+        placeholder="ornek@email.com"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <Input
+        label="Şifre"
+        placeholder="En az 6 karakter"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+    </View>
+  );
+}
+
+export const FormExample: Story = {
+  render: () => <FormExampleRender />,
 };
 
 // All states
