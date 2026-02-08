@@ -1,10 +1,26 @@
-import { logger } from "../../../lib/utils.js";
-import { protectedProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure.js";
+import { logger } from '../../../lib/utils.js';
+import { protectedProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { getSecureClient } from '../../../lib/supabase-secure.js';
 
 const saveAnalysisInputSchema = z.object({
-  taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
+  taskType: z.enum([
+    'DAP',
+    'HTP',
+    'Family',
+    'Cactus',
+    'Tree',
+    'Garden',
+    'BenderGestalt2',
+    'ReyOsterrieth',
+    'Aile',
+    'Kaktus',
+    'Agac',
+    'Bahce',
+    'Bender',
+    'Rey',
+    'Luscher',
+  ]),
   childAge: z.number().optional(),
   childName: z.string().optional(),
   originalImageUrl: z.string().optional(),
@@ -12,22 +28,22 @@ const saveAnalysisInputSchema = z.object({
   drawingDescription: z.string().optional(),
   childQuote: z.string().optional(),
   analysisResult: z.any(), // JSONB - flexible structure
-  aiModel: z.string().optional().default("gpt-4-vision-preview"),
+  aiModel: z.string().optional().default('gpt-4-vision-preview'),
   aiConfidence: z.number().min(0).max(1).optional(),
   processingTimeMs: z.number().optional(),
-  language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
+  language: z.enum(['tr', 'en', 'ru', 'tk', 'uz']).optional().default('tr'),
 });
 
 export const saveAnalysisProcedure = protectedProcedure
   .input(saveAnalysisInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    logger.info("[saveAnalysis] Saving analysis for user:", userId);
+    logger.info('[saveAnalysis] Saving analysis for user:', userId);
 
-    const supabase = getSecureClient(ctx);
+    const supabase = await getSecureClient(ctx);
 
     const { data, error } = await supabase
-      .from("analyses")
+      .from('analyses')
       .insert({
         user_id: userId,
         task_type: input.taskType,
@@ -47,10 +63,10 @@ export const saveAnalysisProcedure = protectedProcedure
       .single();
 
     if (error) {
-      logger.error("[saveAnalysis] Error:", error);
+      logger.error('[saveAnalysis] Error:', error);
       throw new Error(error.message);
     }
 
-    logger.info("[saveAnalysis] Analysis saved successfully:", data.id);
+    logger.info('[saveAnalysis] Analysis saved successfully:', data.id);
     return data;
   });
