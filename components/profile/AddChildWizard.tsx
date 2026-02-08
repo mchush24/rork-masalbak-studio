@@ -14,7 +14,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { X, ChevronRight, ChevronLeft, Check, Baby, User, Calendar } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 import { AvatarDisplay, AvatarPicker } from '@/components/AvatarPicker';
 
 interface AddChildWizardProps {
@@ -31,22 +38,46 @@ const STEP_INFO: Record<WizardStep, { title: string; subtitle: string; icon: Rea
   avatar: {
     title: 'Avatar Seçin',
     subtitle: 'Çocuğunuz için bir karakter seçin',
-    icon: <Baby size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />,
+    icon: (
+      <Baby
+        size={iconSizes.action}
+        color={Colors.secondary.lavender}
+        strokeWidth={iconStroke.standard}
+      />
+    ),
   },
   name: {
     title: 'İsim Girin',
     subtitle: 'Çocuğunuzun adını yazın',
-    icon: <User size={iconSizes.action} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />,
+    icon: (
+      <User
+        size={iconSizes.action}
+        color={Colors.secondary.sky}
+        strokeWidth={iconStroke.standard}
+      />
+    ),
   },
   age: {
     title: 'Yaş Seçin',
     subtitle: 'Çocuğunuzun yaşını seçin',
-    icon: <Calendar size={iconSizes.action} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />,
+    icon: (
+      <Calendar
+        size={iconSizes.action}
+        color={Colors.secondary.grass}
+        strokeWidth={iconStroke.standard}
+      />
+    ),
   },
   confirm: {
     title: 'Onaylayın',
     subtitle: 'Bilgileri kontrol edin',
-    icon: <Check size={iconSizes.action} color={Colors.semantic.success} strokeWidth={iconStroke.standard} />,
+    icon: (
+      <Check
+        size={iconSizes.action}
+        color={Colors.semantic.success}
+        strokeWidth={iconStroke.standard}
+      />
+    ),
   },
 };
 
@@ -113,7 +144,10 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
         return (
           <Animated.View entering={FadeInRight} exiting={FadeOutLeft} style={styles.stepContent}>
             <Pressable
-              style={({ pressed }) => [styles.avatarSelector, pressed && styles.avatarSelectorPressed]}
+              style={({ pressed }) => [
+                styles.avatarSelector,
+                pressed && styles.avatarSelectorPressed,
+              ]}
               onPress={() => setShowAvatarPicker(true)}
             >
               <AvatarDisplay avatarId={selectedAvatar} size={100} />
@@ -150,7 +184,7 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.ageGrid}
             >
-              {AGE_OPTIONS.map((age) => (
+              {AGE_OPTIONS.map(age => (
                 <Pressable
                   key={age}
                   style={({ pressed }) => [
@@ -161,10 +195,7 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
                   onPress={() => setChildAge(age)}
                 >
                   <Text
-                    style={[
-                      styles.ageButtonText,
-                      childAge === age && styles.ageButtonTextSelected,
-                    ]}
+                    style={[styles.ageButtonText, childAge === age && styles.ageButtonTextSelected]}
                   >
                     {age}
                   </Text>
@@ -187,9 +218,7 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
                 <Text style={styles.confirmAge}>{childAge} yaşında</Text>
               </View>
             </View>
-            <Text style={styles.confirmHint}>
-              Bilgiler doğruysa "Tamamla" butonuna basın
-            </Text>
+            <Text style={styles.confirmHint}>{'Bilgiler doğruysa "Tamamla" butonuna basın'}</Text>
           </Animated.View>
         );
     }
@@ -198,7 +227,7 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <Pressable style={styles.overlay} onPress={handleClose}>
-        <Pressable style={styles.container} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={styles.container} onPress={e => e.stopPropagation()}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
@@ -209,7 +238,11 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
               </View>
             </View>
             <Pressable style={styles.closeButton} onPress={handleClose}>
-              <X size={iconSizes.action} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+              <X
+                size={iconSizes.action}
+                color={Colors.neutral.medium}
+                strokeWidth={iconStroke.standard}
+              />
             </Pressable>
           </View>
 
@@ -228,9 +261,7 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
           </View>
 
           {/* Content */}
-          <View style={styles.content}>
-            {renderStepContent()}
-          </View>
+          <View style={styles.content}>{renderStepContent()}</View>
 
           {/* Footer */}
           <View style={styles.footer}>
@@ -239,7 +270,11 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
                 style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
                 onPress={handleBack}
               >
-                <ChevronLeft size={iconSizes.small} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                <ChevronLeft
+                  size={iconSizes.small}
+                  color={Colors.neutral.medium}
+                  strokeWidth={iconStroke.standard}
+                />
                 <Text style={styles.backButtonText}>Geri</Text>
               </Pressable>
             )}
@@ -263,7 +298,9 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
                 }
                 style={styles.nextButtonGradient}
               >
-                <Text style={[styles.nextButtonText, !canProceed() && styles.nextButtonTextDisabled]}>
+                <Text
+                  style={[styles.nextButtonText, !canProceed() && styles.nextButtonTextDisabled]}
+                >
                   {isLastStep ? 'Tamamla' : 'Devam'}
                 </Text>
                 {!isLastStep && (
@@ -290,7 +327,7 @@ export function AddChildWizard({ visible, onClose, onComplete }: AddChildWizardP
       <AvatarPicker
         visible={showAvatarPicker}
         selectedAvatarId={selectedAvatar}
-        onSelect={(avatarId) => {
+        onSelect={avatarId => {
           setSelectedAvatar(avatarId);
           setShowAvatarPicker(false);
         }}

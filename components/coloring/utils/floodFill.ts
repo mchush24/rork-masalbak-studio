@@ -96,7 +96,7 @@ export function getPixelColor(
 ): [number, number, number, number] {
   const index = (y * width + x) * 4;
   return [
-    imageData[index],     // R
+    imageData[index], // R
     imageData[index + 1], // G
     imageData[index + 2], // B
     imageData[index + 3], // A
@@ -181,7 +181,10 @@ export function scanlineFill(
 
   // Stack for scanlines to process
   // Each entry: [x, y, direction] where direction is 1 (down) or -1 (up)
-  const stack: Array<[number, number, number]> = [[startX, startY, 1], [startX, startY - 1, -1]];
+  const stack: [number, number, number][] = [
+    [startX, startY, 1],
+    [startX, startY - 1, -1],
+  ];
   let pixelsFilled = 0;
 
   // Process stack
@@ -200,7 +203,7 @@ export function scanlineFill(
     const entry = stack.pop();
     if (!entry) break;
 
-    let [x, y, direction] = entry;
+    const [x, y, _direction] = entry;
 
     // Skip if out of bounds
     if (y < 0 || y >= height) continue;

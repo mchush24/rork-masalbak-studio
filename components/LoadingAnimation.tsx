@@ -1,17 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, StyleSheet, Dimensions, Platform } from 'react-native';
-
-const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { spacing, typography, colors, textShadows } from '@/lib/design-tokens';
 import { shadows } from '@/constants/design-system';
 
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedG = Animated.createAnimatedComponent(G);
 
-type AnimationType = 'drawing' | 'painting' | 'story' | 'analysis' | 'thinking' | 'uploading' | 'magic';
+type AnimationType =
+  | 'drawing'
+  | 'painting'
+  | 'story'
+  | 'analysis'
+  | 'thinking'
+  | 'uploading'
+  | 'magic';
 
 // Rotating tips for each animation type
 const LOADING_TIPS: Record<AnimationType, string[]> = {
@@ -45,11 +52,7 @@ const LOADING_TIPS: Record<AnimationType, string[]> = {
     'Verileriniz şifreli olarak korunuyor.',
     'Neredeyse bitti!',
   ],
-  magic: [
-    'Sihirli dokunuşlar ekleniyor...',
-    'Yaratıcılık devrede!',
-    'Bir şeyler harika olacak...',
-  ],
+  magic: ['Sihirli dokunuşlar ekleniyor...', 'Yaratıcılık devrede!', 'Bir şeyler harika olacak...'],
 };
 
 interface LoadingAnimationProps {
@@ -92,7 +95,7 @@ export function LoadingAnimation({
         useNativeDriver: USE_NATIVE_DRIVER,
       }).start(() => {
         // Change tip
-        setCurrentTipIndex((prev) => (prev + 1) % tips.length);
+        setCurrentTipIndex(prev => (prev + 1) % tips.length);
         // Fade in
         Animated.timing(tipOpacity, {
           toValue: 1,
@@ -172,6 +175,7 @@ export function LoadingAnimation({
         ]),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rotate = rotation.interpolate({
@@ -268,15 +272,8 @@ export function LoadingAnimation({
 
               {/* Paint brush */}
               <G transform={`translate(${center - 20}, ${center - 20}) rotate(-45 20 20)`}>
-                <Path
-                  d="M15 5L25 5L25 20L20 25L15 20L15 5Z"
-                  fill="#8B4513"
-                />
-                <Path
-                  d="M12 20L28 20L25 30Q20 35 15 30Z"
-                  fill="#4A90A4"
-                  opacity={0.9}
-                />
+                <Path d="M15 5L25 5L25 20L20 25L15 20L15 5Z" fill="#8B4513" />
+                <Path d="M12 20L28 20L25 30Q20 35 15 30Z" fill="#4A90A4" opacity={0.9} />
               </G>
             </Svg>
           </Animated.View>
@@ -289,13 +286,22 @@ export function LoadingAnimation({
             <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
               {/* Sparkles */}
               <AnimatedG opacity={opacity1}>
-                <Path d="M30 20L32 25L35 23L33 28L38 30L33 32L35 37L32 35L30 40L28 35L25 37L27 32L22 30L27 28L25 23L28 25Z" fill="#FFD700" />
+                <Path
+                  d="M30 20L32 25L35 23L33 28L38 30L33 32L35 37L32 35L30 40L28 35L25 37L27 32L22 30L27 28L25 23L28 25Z"
+                  fill="#FFD700"
+                />
               </AnimatedG>
               <AnimatedG opacity={opacity2}>
-                <Path d="M85 25L87 28L90 27L88 30L92 32L88 34L90 37L87 36L85 40L83 36L80 37L82 34L78 32L82 30L80 27L83 28Z" fill="#FFA07A" />
+                <Path
+                  d="M85 25L87 28L90 27L88 30L92 32L88 34L90 37L87 36L85 40L83 36L80 37L82 34L78 32L82 30L80 27L83 28Z"
+                  fill="#FFA07A"
+                />
               </AnimatedG>
               <AnimatedG opacity={opacity3}>
-                <Path d="M75 80L77 83L80 82L78 85L82 87L78 89L80 92L77 91L75 95L73 91L70 92L72 89L68 87L72 85L70 82L73 83Z" fill="#C7CEEA" />
+                <Path
+                  d="M75 80L77 83L80 82L78 85L82 87L78 89L80 92L77 91L75 95L73 91L70 92L72 89L68 87L72 85L70 82L73 83Z"
+                  fill="#C7CEEA"
+                />
               </AnimatedG>
 
               {/* Book */}
@@ -307,8 +313,18 @@ export function LoadingAnimation({
                   strokeWidth={2}
                 />
                 <Path d="M25 5L25 40" stroke="#8E44AD" strokeWidth={2} />
-                <Path d="M10 15L20 15M10 20L20 20M10 25L20 25" stroke="white" strokeWidth={1.5} opacity={0.6} />
-                <Path d="M30 15L40 15M30 20L40 20M30 25L40 25" stroke="white" strokeWidth={1.5} opacity={0.6} />
+                <Path
+                  d="M10 15L20 15M10 20L20 20M10 25L20 25"
+                  stroke="white"
+                  strokeWidth={1.5}
+                  opacity={0.6}
+                />
+                <Path
+                  d="M30 15L40 15M30 20L40 20M30 25L40 25"
+                  stroke="white"
+                  strokeWidth={1.5}
+                  opacity={0.6}
+                />
               </G>
             </Svg>
           </Animated.View>
@@ -330,16 +346,8 @@ export function LoadingAnimation({
                   {/* Kaleidoscope petals */}
                   {[0, 60, 120, 180, 240, 300].map((angle, i) => (
                     <G key={i} transform={`rotate(${angle})`}>
-                      <Path
-                        d="M0,-20 Q5,-15 0,-10 Q-5,-15 0,-20"
-                        fill="#667eea"
-                        opacity={0.5}
-                      />
-                      <Path
-                        d="M0,-15 L3,-8 L-3,-8 Z"
-                        fill="#f093fb"
-                        opacity={0.6}
-                      />
+                      <Path d="M0,-20 Q5,-15 0,-10 Q-5,-15 0,-20" fill="#667eea" opacity={0.5} />
+                      <Path d="M0,-15 L3,-8 L-3,-8 Z" fill="#f093fb" opacity={0.6} />
                     </G>
                   ))}
                 </G>
@@ -455,10 +463,14 @@ export function LoadingAnimation({
                 height: 2,
                 backgroundColor: '#fff',
                 opacity: opacity1,
-                transform: [{ translateY: rotation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, size],
-                }) }],
+                transform: [
+                  {
+                    translateY: rotation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, size],
+                    }),
+                  },
+                ],
               }}
             />
           </View>
@@ -472,7 +484,7 @@ export function LoadingAnimation({
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={getGradientColors() as any}
+        colors={getGradientColors() as unknown as string[]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}

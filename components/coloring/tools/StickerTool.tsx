@@ -121,11 +121,11 @@ export const STICKER_LIBRARY: StickerConfig[] = [
   { id: 'lightning', emoji: '⚡', name: 'Şimşek', category: 'weather' },
 ];
 
-export const STICKER_CATEGORIES: Array<{
+export const STICKER_CATEGORIES: {
   id: StickerCategory;
   name: string;
   emoji: string;
-}> = [
+}[] = [
   { id: 'nature', name: 'Doğa', emoji: '🌿' },
   { id: 'animals', name: 'Hayvanlar', emoji: '🐾' },
   { id: 'shapes', name: 'Şekiller', emoji: '⭐' },
@@ -155,16 +155,11 @@ export function StickerPicker({
 
   // Filter stickers by category
   const filteredStickers = useMemo(() => {
-    return STICKER_LIBRARY.filter((s) => s.category === selectedCategory);
+    return STICKER_LIBRARY.filter(s => s.category === selectedCategory);
   }, [selectedCategory]);
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Header */}
@@ -182,7 +177,7 @@ export function StickerPicker({
             style={styles.categoryTabs}
             contentContainerStyle={styles.categoryTabsContent}
           >
-            {STICKER_CATEGORIES.map((category) => (
+            {STICKER_CATEGORIES.map(category => (
               <Pressable
                 key={category.id}
                 onPress={() => setSelectedCategory(category.id)}
@@ -205,12 +200,9 @@ export function StickerPicker({
           </ScrollView>
 
           {/* Sticker Grid */}
-          <ScrollView
-            style={styles.stickerGrid}
-            contentContainerStyle={styles.stickerGridContent}
-          >
+          <ScrollView style={styles.stickerGrid} contentContainerStyle={styles.stickerGridContent}>
             <View style={styles.gridRow}>
-              {filteredStickers.map((sticker) => (
+              {filteredStickers.map(sticker => (
                 <Pressable
                   key={sticker.id}
                   onPress={() => {
@@ -256,9 +248,7 @@ export function StickerPreview({ sticker, onPress, size = 50 }: StickerPreviewPr
       ]}
     >
       {sticker ? (
-        <Text style={[styles.previewEmoji, { fontSize: size * 0.6 }]}>
-          {sticker.emoji}
-        </Text>
+        <Text style={[styles.previewEmoji, { fontSize: size * 0.6 }]}>{sticker.emoji}</Text>
       ) : (
         <Text style={styles.previewPlaceholder}>+</Text>
       )}
@@ -282,9 +272,9 @@ interface PlacedStickerComponentProps {
 
 export function PlacedStickerComponent({
   sticker,
-  onDrag,
-  onResize,
-  onRotate,
+  onDrag: _onDrag,
+  onResize: _onResize,
+  onRotate: _onRotate,
   onDelete,
   isSelected = false,
   onSelect,
@@ -309,17 +299,11 @@ export function PlacedStickerComponent({
           top: sticker.y - sticker.size / 2,
           width: sticker.size,
           height: sticker.size,
-          transform: [
-            { rotate: `${sticker.rotation}deg` },
-            { scale: scaleAnim },
-          ],
+          transform: [{ rotate: `${sticker.rotation}deg` }, { scale: scaleAnim }],
         },
       ]}
     >
-      <Pressable
-        onPress={() => onSelect?.(sticker.id)}
-        style={styles.stickerTouchable}
-      >
+      <Pressable onPress={() => onSelect?.(sticker.id)} style={styles.stickerTouchable}>
         <Text style={[styles.placedStickerEmoji, { fontSize: sticker.size * 0.8 }]}>
           {sticker.emoji}
         </Text>
@@ -332,10 +316,7 @@ export function PlacedStickerComponent({
           <View style={[styles.handle, styles.handleTopRight]} />
           <View style={[styles.handle, styles.handleBottomLeft]} />
           <View style={[styles.handle, styles.handleBottomRight]} />
-          <Pressable
-            onPress={() => onDelete?.(sticker.id)}
-            style={styles.deleteHandle}
-          >
+          <Pressable onPress={() => onDelete?.(sticker.id)} style={styles.deleteHandle}>
             <Text style={styles.deleteX}>×</Text>
           </Pressable>
         </>
@@ -365,17 +346,11 @@ export function StickerSizeSlider({
     <View style={styles.sizeSliderContainer}>
       <Text style={styles.sizeLabel}>📐 Boyut</Text>
       <View style={styles.sizeButtons}>
-        <Pressable
-          onPress={() => onChange(Math.max(min, value - 10))}
-          style={styles.sizeButton}
-        >
+        <Pressable onPress={() => onChange(Math.max(min, value - 10))} style={styles.sizeButton}>
           <Text style={styles.sizeButtonText}>−</Text>
         </Pressable>
         <Text style={styles.sizeValue}>{value}px</Text>
-        <Pressable
-          onPress={() => onChange(Math.min(max, value + 10))}
-          style={styles.sizeButton}
-        >
+        <Pressable onPress={() => onChange(Math.min(max, value + 10))} style={styles.sizeButton}>
           <Text style={styles.sizeButtonText}>+</Text>
         </Pressable>
       </View>

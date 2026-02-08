@@ -11,18 +11,8 @@
  */
 
 import React, { useMemo, useEffect, useState } from 'react';
-import {
-  Circle,
-  Group,
-  Skia,
-} from '@shopify/react-native-skia';
-import {
-  TextureType,
-  TextureConfig,
-  getShaderByType,
-  hexToRgb,
-  TEXTURE_PRESETS,
-} from './TextureShaders';
+import { Circle, Group, Skia } from '@shopify/react-native-skia';
+import { TextureType, getShaderByType, hexToRgb } from './TextureShaders';
 
 // ============================================================================
 // TYPES
@@ -98,9 +88,7 @@ export function TexturedCircle({
         uniforms.scale = 1.0;
       }
 
-      return shader.makeShader(
-        Object.values(uniforms).flat()
-      );
+      return shader.makeShader(Object.values(uniforms).flat());
     } catch (error) {
       console.warn('[TexturedCircle] Failed to create shader:', error);
       return null;
@@ -108,7 +96,7 @@ export function TexturedCircle({
   }, [shader, texture, r, g, b, intensity, radius, time]);
 
   // Create paint with shader (must be called unconditionally to satisfy React hooks rules)
-  const paint = useMemo(() => {
+  const _paint = useMemo(() => {
     if (!shaderInstance) return null;
     const p = Skia.Paint();
     p.setShader(shaderInstance);
@@ -140,7 +128,7 @@ export function AnimatedGlitterCircle({
   y,
   radius,
   color,
-  intensity = 0.8,
+  intensity: _intensity = 0.8,
 }: Omit<SingleTexturedCircleProps, 'texture' | 'time'>) {
   // Animation time state
   const [time, setTime] = useState(0);
@@ -153,7 +141,7 @@ export function AnimatedGlitterCircle({
     const animate = (currentTime: number) => {
       const delta = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
-      setTime((t) => t + delta * 0.5);
+      setTime(t => t + delta * 0.5);
       animationId = requestAnimationFrame(animate);
     };
 
@@ -181,19 +169,19 @@ export function AnimatedGlitterCircle({
  */
 export function TexturedFillLayer({
   fills,
-  canvasWidth,
-  canvasHeight,
+  canvasWidth: _canvasWidth,
+  canvasHeight: _canvasHeight,
   animated = true,
 }: TexturedFillProps) {
   // Animation time for glitter effects
-  const [time, setTime] = useState(0);
+  const [_time, setTime] = useState(0);
 
   // Animation loop for glitter textures
   useEffect(() => {
     if (!animated) return;
 
     // Check if any fills need animation
-    const hasAnimated = fills.some((f) => f.texture === 'glitter');
+    const hasAnimated = fills.some(f => f.texture === 'glitter');
     if (!hasAnimated) return;
 
     let animationId: number;
@@ -202,7 +190,7 @@ export function TexturedFillLayer({
     const animate = (currentTime: number) => {
       const delta = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
-      setTime((t) => t + delta * 0.5); // Slow animation
+      setTime(t => t + delta * 0.5); // Slow animation
       animationId = requestAnimationFrame(animate);
     };
 
@@ -224,7 +212,7 @@ export function TexturedFillLayer({
       dots: [],
     };
 
-    fills.forEach((fill) => {
+    fills.forEach(fill => {
       const texture = fill.texture || 'solid';
       groups[texture].push(fill);
     });
@@ -235,18 +223,12 @@ export function TexturedFillLayer({
   return (
     <Group blendMode="multiply" opacity={0.8}>
       {/* Render solid fills first (most common, fastest) */}
-      {groupedFills.solid.map((fill) => (
-        <Circle
-          key={fill.id}
-          cx={fill.x}
-          cy={fill.y}
-          r={fill.radius}
-          color={fill.color}
-        />
+      {groupedFills.solid.map(fill => (
+        <Circle key={fill.id} cx={fill.x} cy={fill.y} r={fill.radius} color={fill.color} />
       ))}
 
       {/* Render textured fills */}
-      {groupedFills.scale.map((fill) => (
+      {groupedFills.scale.map(fill => (
         <TexturedCircle
           key={fill.id}
           x={fill.x}
@@ -258,7 +240,7 @@ export function TexturedFillLayer({
         />
       ))}
 
-      {groupedFills.dots.map((fill) => (
+      {groupedFills.dots.map(fill => (
         <TexturedCircle
           key={fill.id}
           x={fill.x}
@@ -272,7 +254,7 @@ export function TexturedFillLayer({
 
       {/* Render animated glitter fills last (most expensive) */}
       {animated
-        ? groupedFills.glitter.map((fill) => (
+        ? groupedFills.glitter.map(fill => (
             <AnimatedGlitterCircle
               key={fill.id}
               x={fill.x}
@@ -282,7 +264,7 @@ export function TexturedFillLayer({
               intensity={fill.intensity}
             />
           ))
-        : groupedFills.glitter.map((fill) => (
+        : groupedFills.glitter.map(fill => (
             <TexturedCircle
               key={fill.id}
               x={fill.x}
@@ -309,12 +291,12 @@ export interface TextureSelectorProps {
 }
 
 // This is a data-only export for UI components to use
-export const TEXTURE_OPTIONS: Array<{
+export const TEXTURE_OPTIONS: {
   type: TextureType;
   name: string;
   emoji: string;
   description: string;
-}> = [
+}[] = [
   { type: 'solid', name: 'Düz', emoji: '🎨', description: 'Düz renk' },
   { type: 'glitter', name: 'Simli', emoji: '✨', description: 'Parıltılı efekt' },
   { type: 'scale', name: 'Pul', emoji: '🐟', description: 'Balık pulu deseni' },

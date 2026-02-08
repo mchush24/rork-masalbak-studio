@@ -1,10 +1,5 @@
-import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ViewStyle,
-  StyleProp,
-} from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RenkooColors } from '@/constants/colors';
@@ -15,7 +10,6 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { useEffect } from 'react';
 
 interface OrganicContainerProps {
   children: React.ReactNode;
@@ -55,6 +49,7 @@ export const OrganicContainer: React.FC<OrganicContainerProps> = ({
       -1,
       true
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated]);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
@@ -124,11 +119,7 @@ export const OrganicContainer: React.FC<OrganicContainerProps> = ({
     // Glass variant (default)
     return (
       <>
-        <BlurView
-          intensity={intensity}
-          tint="light"
-          style={[styles.blurView, shapeStyle]}
-        />
+        <BlurView intensity={intensity} tint="light" style={[styles.blurView, shapeStyle]} />
         <View style={[styles.glassBorder, shapeStyle]} />
         <View style={[styles.glassOverlay, shapeStyle]} />
         <View style={styles.content}>{children}</View>
@@ -144,12 +135,7 @@ export const OrganicContainer: React.FC<OrganicContainerProps> = ({
       {/* Glow effect */}
       {glowColor && (
         <Animated.View
-          style={[
-            styles.glow,
-            animatedGlowStyle,
-            shapeStyle,
-            { backgroundColor: glowColor },
-          ]}
+          style={[styles.glow, animatedGlowStyle, shapeStyle, { backgroundColor: glowColor }]}
         />
       )}
 

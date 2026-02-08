@@ -24,7 +24,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius } from '@/constants/design-system';
+import { typography, spacing } from '@/constants/design-system';
 import { IooEmptyState, EMPTY_STATE_PRESETS, IooMood } from '@/components/IooEmptyState';
 import { EnhancedRefreshControl } from './EnhancedRefresh';
 import { SkeletonListItem, SkeletonCard } from './SkeletonLoader';
@@ -63,12 +63,14 @@ interface SmartListProps<T extends ListData> extends Omit<FlatListProps<T>, 'dat
   /** Number of skeleton items */
   skeletonCount?: number;
   /** Empty state preset or custom */
-  emptyState?: keyof typeof EMPTY_STATE_PRESETS | {
-    title: string;
-    message?: string;
-    mood?: IooMood;
-    action?: { label: string; onPress: () => void };
-  };
+  emptyState?:
+    | keyof typeof EMPTY_STATE_PRESETS
+    | {
+        title: string;
+        message?: string;
+        mood?: IooMood;
+        action?: { label: string; onPress: () => void };
+      };
   /** Animate items on scroll */
   animateItems?: boolean;
   /** Item animation delay */
@@ -83,7 +85,7 @@ interface SmartListProps<T extends ListData> extends Omit<FlatListProps<T>, 'dat
   ListFooterComponent?: ReactElement | null;
 }
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+const _AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 export function SmartList<T extends ListData>({
   data,
@@ -110,26 +112,30 @@ export function SmartList<T extends ListData>({
   ...flatListProps
 }: SmartListProps<T>) {
   // Animated render item wrapper
-  const animatedRenderItem: ListRenderItem<T> = useCallback(({ item, index, separators }) => {
-    if (!animateItems) {
-      return renderItem({ item, index, separators });
-    }
+  const animatedRenderItem: ListRenderItem<T> = useCallback(
+    ({ item, index, separators }) => {
+      if (!animateItems) {
+        return renderItem({ item, index, separators });
+      }
 
-    return (
-      <Animated.View
-        entering={FadeInDown.delay(index * itemAnimationDelay).springify()}
-        layout={Layout.springify()}
-      >
-        {renderItem({ item, index, separators })}
-      </Animated.View>
-    );
-  }, [renderItem, animateItems, itemAnimationDelay]);
+      return (
+        <Animated.View
+          entering={FadeInDown.delay(index * itemAnimationDelay).springify()}
+          layout={Layout.springify()}
+        >
+          {renderItem({ item, index, separators })}
+        </Animated.View>
+      );
+    },
+    [renderItem, animateItems, itemAnimationDelay]
+  );
 
   // Skeleton loading
   const renderSkeleton = useMemo(() => {
     if (!isLoading) return null;
 
-    const Skeleton = SkeletonComponent || (skeletonType === 'card' ? SkeletonCard : SkeletonListItem);
+    const Skeleton =
+      SkeletonComponent || (skeletonType === 'card' ? SkeletonCard : SkeletonListItem);
 
     return (
       <View style={styles.skeletonContainer}>
@@ -142,36 +148,7 @@ export function SmartList<T extends ListData>({
     );
   }, [isLoading, skeletonType, SkeletonComponent, skeletonCount]);
 
-  // Error state
-  if (error && !isLoading) {
-    return (
-      <View style={[styles.container, containerStyle]}>
-        <ErrorState
-          type={errorType}
-          description={error.message}
-          onRetry={onRetry}
-        />
-      </View>
-    );
-  }
-
-  // Loading state
-  if (isLoading && (!data || data.length === 0)) {
-    return (
-      <View style={[styles.container, containerStyle]}>
-        {ListHeaderComponent}
-        {renderSkeleton}
-      </View>
-    );
-  }
-
-  // Empty state
-  const isEmpty = !data || data.length === 0;
-  const emptyStateConfig = typeof emptyState === 'string'
-    ? EMPTY_STATE_PRESETS[emptyState]
-    : emptyState;
-
-  // Footer with load more
+  // Footer with load more (must be before early returns to satisfy hooks rules)
   const renderFooter = useCallback(() => {
     if (isLoadingMore) {
       return (
@@ -193,26 +170,47 @@ export function SmartList<T extends ListData>({
     return ListFooterComponent || null;
   }, [isLoadingMore, hasMore, onLoadMore, ListFooterComponent]);
 
-  // Handle end reached for pagination
+  // Handle end reached for pagination (must be before early returns to satisfy hooks rules)
   const handleEndReached = useCallback(() => {
     if (hasMore && !isLoadingMore && onLoadMore) {
       onLoadMore();
     }
   }, [hasMore, isLoadingMore, onLoadMore]);
 
+  // Error state
+  if (error && !isLoading) {
+    return (
+      <View style={[styles.container, containerStyle]}>
+        <ErrorState type={errorType} description={error.message} onRetry={onRetry} />
+      </View>
+    );
+  }
+
+  // Loading state
+  if (isLoading && (!data || data.length === 0)) {
+    return (
+      <View style={[styles.container, containerStyle]}>
+        {ListHeaderComponent}
+        {renderSkeleton}
+      </View>
+    );
+  }
+
+  // Empty state
+  const isEmpty = !data || data.length === 0;
+  const emptyStateConfig =
+    typeof emptyState === 'string' ? EMPTY_STATE_PRESETS[emptyState] : emptyState;
+
   // Refresh control
   const refreshControl = onRefresh ? (
-    <EnhancedRefreshControl
-      onRefresh={onRefresh}
-      refreshing={isRefreshing}
-    />
+    <EnhancedRefreshControl onRefresh={onRefresh} refreshing={isRefreshing} />
   ) : undefined;
 
   return (
     <FlatList
       data={data}
       renderItem={animatedRenderItem}
-      keyExtractor={(item) => item.id}
+      keyExtractor={item => item.id}
       style={[styles.list, containerStyle]}
       contentContainerStyle={[
         styles.contentContainer,
@@ -258,10 +256,7 @@ export function SmartGrid<T extends ListData>({
       {...props}
       numColumns={numColumns}
       columnWrapperStyle={{ gap }}
-      contentContainerStyle={[
-        { gap },
-        props.contentStyle,
-      ]}
+      contentContainerStyle={[{ gap }, props.contentStyle]}
       skeletonType="card"
     />
   );
@@ -300,7 +295,7 @@ export function SmartSectionList<T extends ListData>({
 }: SmartSectionListProps<T>) {
   // Flatten sections for FlatList
   const flatData = useMemo(() => {
-    const items: Array<{ type: 'header' | 'item'; section?: SectionData<T>; item?: T; id: string }> = [];
+    const items: { type: 'header' | 'item'; section?: SectionData<T>; item?: T; id: string }[] = [];
 
     sections.forEach((section, sectionIndex) => {
       items.push({
@@ -308,7 +303,7 @@ export function SmartSectionList<T extends ListData>({
         section,
         id: `header-${sectionIndex}`,
       });
-      section.data.forEach((item) => {
+      section.data.forEach(item => {
         items.push({
           type: 'item',
           item,
@@ -320,31 +315,34 @@ export function SmartSectionList<T extends ListData>({
     return items;
   }, [sections]);
 
-  const renderFlatItem: ListRenderItem<typeof flatData[0]> = useCallback(({ item, index, separators }) => {
-    if (item.type === 'header' && item.section) {
-      if (renderSectionHeader) {
-        return renderSectionHeader(item.section);
+  const renderFlatItem: ListRenderItem<(typeof flatData)[0]> = useCallback(
+    ({ item, index, separators }) => {
+      if (item.type === 'header' && item.section) {
+        if (renderSectionHeader) {
+          return renderSectionHeader(item.section);
+        }
+        return (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>{item.section.title}</Text>
+          </View>
+        );
       }
-      return (
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeaderText}>{item.section.title}</Text>
-        </View>
-      );
-    }
 
-    if (item.type === 'item' && item.item) {
-      return renderItem({ item: item.item as T, index, separators });
-    }
+      if (item.type === 'item' && item.item) {
+        return renderItem({ item: item.item as T, index, separators });
+      }
 
-    return null;
-  }, [renderItem, renderSectionHeader]);
+      return null;
+    },
+    [renderItem, renderSectionHeader]
+  );
 
-  const isEmpty = sections.every((s) => s.data.length === 0);
+  const isEmpty = sections.every(s => s.data.length === 0);
 
   return (
     <SmartList
-      data={flatData as any}
-      renderItem={renderFlatItem as any}
+      data={flatData as unknown as ListData[]}
+      renderItem={renderFlatItem as unknown as ListRenderItem<ListData>}
       isLoading={isLoading}
       error={error}
       onRetry={onRetry}

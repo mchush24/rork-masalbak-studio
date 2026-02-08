@@ -16,19 +16,11 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  Platform,
-  Share,
-} from 'react-native';
-import { Clipboard } from 'react-native';
-import { Copy, Share2, RefreshCw, Home, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react-native';
-import { RenkooColors, Colors, ProfessionalColors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Share } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import { Copy, Share2, Home, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { RenkooColors, Colors } from '@/constants/colors';
+import { typography, spacing, radius } from '@/constants/design-system';
 import { ErrorState, ErrorType } from '@/components/ui/ErrorState';
 import { analytics } from '@/lib/analytics';
 import * as Sentry from '@sentry/react-native';
@@ -69,24 +61,45 @@ interface State {
 
 function categorizeError(error: Error): ErrorType {
   const message = error.message.toLowerCase();
-  const name = error.name.toLowerCase();
+  const _name = error.name.toLowerCase();
 
-  if (message.includes('network') || message.includes('fetch') || message.includes('connection') || message.includes('offline')) {
+  if (
+    message.includes('network') ||
+    message.includes('fetch') ||
+    message.includes('connection') ||
+    message.includes('offline')
+  ) {
     return 'network';
   }
   if (message.includes('timeout') || message.includes('timed out') || message.includes('aborted')) {
     return 'timeout';
   }
-  if (message.includes('401') || message.includes('unauthorized') || message.includes('auth') || message.includes('token')) {
+  if (
+    message.includes('401') ||
+    message.includes('unauthorized') ||
+    message.includes('auth') ||
+    message.includes('token')
+  ) {
     return 'auth';
   }
   if (message.includes('404') || message.includes('not found') || message.includes('missing')) {
     return 'notfound';
   }
-  if (message.includes('500') || message.includes('server') || message.includes('internal') || message.includes('502') || message.includes('503')) {
+  if (
+    message.includes('500') ||
+    message.includes('server') ||
+    message.includes('internal') ||
+    message.includes('502') ||
+    message.includes('503')
+  ) {
     return 'server';
   }
-  if (message.includes('permission') || message.includes('denied') || message.includes('forbidden') || message.includes('403')) {
+  if (
+    message.includes('permission') ||
+    message.includes('denied') ||
+    message.includes('forbidden') ||
+    message.includes('403')
+  ) {
     return 'permission';
   }
   return 'generic';
@@ -221,7 +234,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return;
     }
 
-    this.setState((prev) => ({
+    this.setState(prev => ({
       hasError: false,
       error: null,
       errorInfo: null,
@@ -257,7 +270,7 @@ ${errorInfo?.componentStack || 'N/A'}
 `.trim();
 
     try {
-      Clipboard.setString(errorReport);
+      await Clipboard.setStringAsync(errorReport);
       this.setState({ copied: true });
       setTimeout(() => this.setState({ copied: false }), 2000);
     } catch (e) {
@@ -266,7 +279,7 @@ ${errorInfo?.componentStack || 'N/A'}
   };
 
   handleShareError = async () => {
-    const { error, errorInfo, errorId } = this.state;
+    const { error, errorInfo: _errorInfo, errorId } = this.state;
     const { boundary = 'unknown' } = this.props;
 
     if (!error) return;
@@ -308,11 +321,12 @@ Platform: ${Platform.OS}
   };
 
   toggleDebugDetails = () => {
-    this.setState((prev) => ({ showDebugDetails: !prev.showDebugDetails }));
+    this.setState(prev => ({ showDebugDetails: !prev.showDebugDetails }));
   };
 
   render() {
-    const { hasError, error, errorInfo, retryCount, errorId, showDebugDetails, copied } = this.state;
+    const { hasError, error, errorInfo, retryCount, errorId, showDebugDetails, copied } =
+      this.state;
     const { children, fallback, boundary, onNavigateHome, showDetails } = this.props;
 
     if (hasError) {
@@ -342,19 +356,14 @@ Platform: ${Platform.OS}
           {retryCount > 0 && canRetry && (
             <View style={styles.retryProgressContainer}>
               <View style={styles.retryProgressBar}>
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3].map(i => (
                   <View
                     key={i}
-                    style={[
-                      styles.retryDot,
-                      i <= retryCount && styles.retryDotActive,
-                    ]}
+                    style={[styles.retryDot, i <= retryCount && styles.retryDotActive]}
                   />
                 ))}
               </View>
-              <Text style={styles.retryInfo}>
-                Deneme {retryCount}/3
-              </Text>
+              <Text style={styles.retryInfo}>Deneme {retryCount}/3</Text>
             </View>
           )}
 
@@ -362,14 +371,9 @@ Platform: ${Platform.OS}
           {!canRetry && (
             <View style={styles.maxRetryContainer}>
               <AlertTriangle size={20} color={Colors.semantic.error} />
-              <Text style={styles.maxRetryText}>
-                Birden fazla deneme başarısız oldu.
-              </Text>
+              <Text style={styles.maxRetryText}>Birden fazla deneme başarısız oldu.</Text>
               {onNavigateHome && (
-                <Pressable
-                  onPress={this.handleNavigateHome}
-                  style={styles.homeButton}
-                >
+                <Pressable onPress={this.handleNavigateHome} style={styles.homeButton}>
                   <Home size={16} color={Colors.neutral.white} />
                   <Text style={styles.homeButtonText}>Ana Sayfaya Dön</Text>
                 </Pressable>
@@ -388,10 +392,7 @@ Platform: ${Platform.OS}
                 {copied ? 'Kopyalandı!' : 'Kopyala'}
               </Text>
             </Pressable>
-            <Pressable
-              onPress={this.handleShareError}
-              style={styles.actionButton}
-            >
+            <Pressable onPress={this.handleShareError} style={styles.actionButton}>
               <Share2 size={14} color={Colors.neutral.medium} />
               <Text style={styles.actionButtonText}>Paylaş</Text>
             </Pressable>
@@ -400,13 +401,8 @@ Platform: ${Platform.OS}
           {/* Debug Details Toggle (Dev or showDetails) */}
           {(__DEV__ || showDetails) && error && (
             <View style={styles.debugSection}>
-              <Pressable
-                onPress={this.toggleDebugDetails}
-                style={styles.debugToggle}
-              >
-                <Text style={styles.debugToggleText}>
-                  Teknik Detaylar
-                </Text>
+              <Pressable onPress={this.toggleDebugDetails} style={styles.debugToggle}>
+                <Text style={styles.debugToggleText}>Teknik Detaylar</Text>
                 {showDebugDetails ? (
                   <ChevronUp size={16} color={Colors.neutral.medium} />
                 ) : (
@@ -423,9 +419,7 @@ Platform: ${Platform.OS}
                     {error.name}: {error.message}
                   </Text>
                   {errorInfo?.componentStack && (
-                    <Text style={styles.debugStack}>
-                      {errorInfo.componentStack.slice(0, 500)}
-                    </Text>
+                    <Text style={styles.debugStack}>{errorInfo.componentStack.slice(0, 500)}</Text>
                   )}
                 </ScrollView>
               )}
@@ -473,7 +467,12 @@ export function ComponentErrorBoundary({
   fallback = <View style={styles.componentFallback} />,
 }: WrapperProps & { fallback?: ReactNode }) {
   return (
-    <ErrorBoundary boundary="component" onError={onError} fallback={fallback} enableReporting={false}>
+    <ErrorBoundary
+      boundary="component"
+      onError={onError}
+      fallback={fallback}
+      enableReporting={false}
+    >
       {children}
     </ErrorBoundary>
   );

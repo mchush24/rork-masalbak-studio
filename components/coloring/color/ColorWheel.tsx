@@ -18,16 +18,9 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, Pressable, Text, Animated } from 'react-native';
+import { View, StyleSheet, Text, Animated } from 'react-native';
 import { shadows } from '@/constants/design-system';
-import {
-  Canvas,
-  Circle,
-  Skia,
-  Paint,
-  Group,
-  vec,
-} from '@shopify/react-native-skia';
+import { Canvas, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export interface ColorWheelProps {
@@ -48,14 +41,40 @@ function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
   const q = v * (1 - f * s);
   const t = v * (1 - (1 - f) * s);
 
-  let r = 0, g = 0, b = 0;
+  let r = 0,
+    g = 0,
+    b = 0;
   switch (i % 6) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    case 5: r = v; g = p; b = q; break;
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break;
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break;
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break;
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break;
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break;
+    case 5:
+      r = v;
+      g = p;
+      b = q;
+      break;
   }
 
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
@@ -65,16 +84,21 @@ function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
  * Convert RGB to Hex
  */
 function rgbToHex(r: number, g: number, b: number): string {
-  return '#' + [r, g, b].map(x => {
-    const hex = x.toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  }).join('');
+  return (
+    '#' +
+    [r, g, b]
+      .map(x => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      })
+      .join('')
+  );
 }
 
 /**
  * Convert hex to HSV
  */
-function hexToHsv(hex: string): [number, number, number] {
+function _hexToHsv(hex: string): [number, number, number] {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
   const g = parseInt(hex.slice(3, 5), 16) / 255;
   const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -115,71 +139,76 @@ export function ColorWheel({
   const centerY = radius;
 
   // Calculate selector position from HSV
-  const getSelectorPosition = useCallback((hue: number, sat: number) => {
-    const angle = (hue * Math.PI) / 180;
-    const distance = sat * (radius - 20);
-    return {
-      x: centerX + distance * Math.cos(angle),
-      y: centerY + distance * Math.sin(angle),
-    };
-  }, [centerX, centerY, radius]);
+  const getSelectorPosition = useCallback(
+    (hue: number, sat: number) => {
+      const angle = (hue * Math.PI) / 180;
+      const distance = sat * (radius - 20);
+      return {
+        x: centerX + distance * Math.cos(angle),
+        y: centerY + distance * Math.sin(angle),
+      };
+    },
+    [centerX, centerY, radius]
+  );
 
   // Handle touch on color wheel
-  const handleTouch = useCallback((x: number, y: number) => {
-    const dx = x - centerX;
-    const dy = y - centerY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const maxDistance = radius - 20;
+  const handleTouch = useCallback(
+    (x: number, y: number) => {
+      const dx = x - centerX;
+      const dy = y - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const maxDistance = radius - 20;
 
-    // Only respond if within wheel bounds
-    if (distance > maxDistance) return;
+      // Only respond if within wheel bounds
+      if (distance > maxDistance) return;
 
-    // Calculate hue from angle
-    let angle = Math.atan2(dy, dx);
-    if (angle < 0) angle += 2 * Math.PI;
-    const hue = (angle * 180) / Math.PI;
+      // Calculate hue from angle
+      let angle = Math.atan2(dy, dx);
+      if (angle < 0) angle += 2 * Math.PI;
+      const hue = (angle * 180) / Math.PI;
 
-    // Calculate saturation from distance
-    const saturation = Math.min(distance / maxDistance, 1);
+      // Calculate saturation from distance
+      const saturation = Math.min(distance / maxDistance, 1);
 
-    setSelectedHue(hue);
-    setSelectedSaturation(saturation);
+      setSelectedHue(hue);
+      setSelectedSaturation(saturation);
 
-    // Convert to RGB and hex
-    const [r, g, b] = hsvToRgb(hue, saturation, value);
-    const hexColor = rgbToHex(r, g, b);
+      // Convert to RGB and hex
+      const [r, g, b] = hsvToRgb(hue, saturation, value);
+      const hexColor = rgbToHex(r, g, b);
 
-    // Trigger pulse animation
-    Animated.sequence([
-      Animated.timing(pulseAnim, {
-        toValue: 1.2,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(pulseAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
+      // Trigger pulse animation
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-    onColorSelect(hexColor);
-  }, [centerX, centerY, radius, value, onColorSelect, pulseAnim]);
+      onColorSelect(hexColor);
+    },
+    [centerX, centerY, radius, value, onColorSelect, pulseAnim]
+  );
 
   // Pan gesture for color wheel
   const panGesture = Gesture.Pan()
-    .onBegin((e) => {
+    .onBegin(e => {
       handleTouch(e.x, e.y);
     })
-    .onUpdate((e) => {
+    .onUpdate(e => {
       handleTouch(e.x, e.y);
     });
 
   // Tap gesture for direct color selection
-  const tapGesture = Gesture.Tap()
-    .onEnd((e) => {
-      handleTouch(e.x, e.y);
-    });
+  const tapGesture = Gesture.Tap().onEnd(e => {
+    handleTouch(e.x, e.y);
+  });
 
   const composedGesture = Gesture.Race(panGesture, tapGesture);
 
@@ -189,7 +218,7 @@ export function ColorWheel({
   // Create HSV color wheel using manual rendering
   // (Skia doesn't have built-in HSV shader, so we render it with circles)
   const wheelColors = useMemo(() => {
-    const colors: Array<{ x: number; y: number; color: string }> = [];
+    const colors: { x: number; y: number; color: string }[] = [];
     const steps = 60; // Number of hue steps
     const satSteps = 10; // Number of saturation steps
 
@@ -225,13 +254,7 @@ export function ColorWheel({
 
             {/* Render color dots */}
             {wheelColors.map((dot, index) => (
-              <Circle
-                key={index}
-                cx={dot.x}
-                cy={dot.y}
-                r={3}
-                color={dot.color}
-              />
+              <Circle key={index} cx={dot.x} cy={dot.y} r={3} color={dot.color} />
             ))}
 
             {/* Outer ring */}
@@ -279,21 +302,12 @@ export function ColorWheel({
 
       {/* Current color display */}
       <View style={styles.colorDisplay}>
-        <View
-          style={[
-            styles.colorBox,
-            { backgroundColor: selectedColor || '#FF6B6B' },
-          ]}
-        />
-        <Text style={styles.colorText}>
-          {selectedColor?.toUpperCase() || '#FF6B6B'}
-        </Text>
+        <View style={[styles.colorBox, { backgroundColor: selectedColor || '#FF6B6B' }]} />
+        <Text style={styles.colorText}>{selectedColor?.toUpperCase() || '#FF6B6B'}</Text>
       </View>
 
       {/* Helper text */}
-      <Text style={styles.helperText}>
-        Renk tekerlğinde dokunarak renk seç
-      </Text>
+      <Text style={styles.helperText}>Renk tekerlğinde dokunarak renk seç</Text>
     </View>
   );
 }
