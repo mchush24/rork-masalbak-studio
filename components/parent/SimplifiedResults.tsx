@@ -5,14 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Star,
@@ -31,7 +24,7 @@ import {
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface StrengthItem {
   id: string;
@@ -83,7 +76,7 @@ const ICON_COMPONENTS = {
 
 export function SimplifiedResults({
   childName,
-  childAge,
+  childAge: _childAge,
   testType,
   date,
   overallMessage,
@@ -124,7 +117,7 @@ export function SimplifiedResults({
           <View style={styles.resultBadge}>
             <Sparkles size={24} color={Colors.primary.sunset} />
           </View>
-          <Text style={styles.headerTitle}>{childName}'ın Sonuçları</Text>
+          <Text style={styles.headerTitle}>{childName}&apos;ın Sonuçları</Text>
           <Text style={styles.headerSubtitle}>
             {getTestTypeLabel(testType)} • {date}
           </Text>
@@ -165,10 +158,7 @@ export function SimplifiedResults({
       </View>
 
       {/* Strengths Section */}
-      <Pressable
-        style={styles.sectionHeader}
-        onPress={() => toggleSection('strengths')}
-      >
+      <Pressable style={styles.sectionHeader} onPress={() => toggleSection('strengths')}>
         <View style={styles.sectionTitleContainer}>
           <Star size={20} color={Colors.primary.sunset} />
           <Text style={styles.sectionTitle}>Güçlü Yönler</Text>
@@ -185,7 +175,7 @@ export function SimplifiedResults({
 
       {expandedSection === 'strengths' && (
         <View style={styles.sectionContent}>
-          {strengths.map((strength) => {
+          {strengths.map(strength => {
             const IconComponent = ICON_COMPONENTS[strength.icon];
             return (
               <View key={strength.id} style={styles.strengthCard}>
@@ -203,10 +193,7 @@ export function SimplifiedResults({
       )}
 
       {/* Development Areas Section */}
-      <Pressable
-        style={styles.sectionHeader}
-        onPress={() => toggleSection('development')}
-      >
+      <Pressable style={styles.sectionHeader} onPress={() => toggleSection('development')}>
         <View style={styles.sectionTitleContainer}>
           <BookOpen size={20} color={Colors.primary.sky} />
           <Text style={styles.sectionTitle}>Gelişim Alanları</Text>
@@ -220,7 +207,7 @@ export function SimplifiedResults({
 
       {expandedSection === 'development' && (
         <View style={styles.sectionContent}>
-          {developmentAreas.map((area) => {
+          {developmentAreas.map(area => {
             const levelConfig = LEVEL_CONFIG[area.level];
             return (
               <View key={area.id} style={styles.developmentCard}>
@@ -243,11 +230,15 @@ export function SimplifiedResults({
                         styles.progressFill,
                         {
                           backgroundColor: levelConfig.color,
-                          width: area.level === 'excellent' ? '100%'
-                               : area.level === 'good' ? '75%'
-                               : area.level === 'developing' ? '50%'
-                               : '25%'
-                        }
+                          width:
+                            area.level === 'excellent'
+                              ? '100%'
+                              : area.level === 'good'
+                                ? '75%'
+                                : area.level === 'developing'
+                                  ? '50%'
+                                  : '25%',
+                        },
                       ]}
                     />
                   </View>
@@ -259,10 +250,7 @@ export function SimplifiedResults({
       )}
 
       {/* Recommendations Section */}
-      <Pressable
-        style={styles.sectionHeader}
-        onPress={() => toggleSection('recommendations')}
-      >
+      <Pressable style={styles.sectionHeader} onPress={() => toggleSection('recommendations')}>
         <View style={styles.sectionTitleContainer}>
           <Lightbulb size={20} color={Colors.primary.mint} />
           <Text style={styles.sectionTitle}>Öneriler</Text>
@@ -276,7 +264,7 @@ export function SimplifiedResults({
 
       {expandedSection === 'recommendations' && (
         <View style={styles.sectionContent}>
-          {recommendations.map((rec) => {
+          {recommendations.map(rec => {
             const isExpanded = expandedRecommendation === rec.id;
             return (
               <Pressable
@@ -320,8 +308,8 @@ export function SimplifiedResults({
       <View style={styles.infoNote}>
         <Info size={16} color={Colors.primary.sky} />
         <Text style={styles.infoNoteText}>
-          Bu sonuçlar yapay zeka destekli analize dayanmaktadır.
-          Detaylı değerlendirme için bir uzmana danışmanızı öneririz.
+          Bu sonuçlar yapay zeka destekli analize dayanmaktadır. Detaylı değerlendirme için bir
+          uzmana danışmanızı öneririz.
         </Text>
       </View>
 

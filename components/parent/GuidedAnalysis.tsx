@@ -5,14 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Camera,
@@ -30,7 +23,7 @@ import {
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface AnalysisStep {
   id: string;
@@ -175,10 +168,14 @@ export function GuidedAnalysis({
         <View style={styles.headerContent}>
           <View style={styles.childInfo}>
             <Text style={styles.childName}>{childName}</Text>
-            <Text style={styles.testInfo}>{childAge} yaş • {getTestTypeLabel(testType)}</Text>
+            <Text style={styles.testInfo}>
+              {childAge} yaş • {getTestTypeLabel(testType)}
+            </Text>
           </View>
           <View style={styles.stepIndicator}>
-            <Text style={styles.stepText}>{currentStep + 1}/{ANALYSIS_STEPS.length}</Text>
+            <Text style={styles.stepText}>
+              {currentStep + 1}/{ANALYSIS_STEPS.length}
+            </Text>
           </View>
         </View>
 
@@ -213,10 +210,7 @@ export function GuidedAnalysis({
         </View>
 
         {/* Tips Section */}
-        <Pressable
-          style={styles.tipsContainer}
-          onPress={() => setShowTips(!showTips)}
-        >
+        <Pressable style={styles.tipsContainer} onPress={() => setShowTips(!showTips)}>
           <View style={styles.tipsHeader}>
             <Info size={18} color={Colors.primary.sky} />
             <Text style={styles.tipsTitle}>Faydalı İpuçları</Text>
@@ -246,17 +240,17 @@ export function GuidedAnalysis({
                   <Image size={48} color={Colors.primary.sunset} />
                   <Text style={styles.imagePlaceholderText}>Görsel yüklendi</Text>
                 </View>
-                <Pressable
-                  style={styles.changeImageButton}
-                  onPress={handleSelectImage}
-                >
+                <Pressable style={styles.changeImageButton} onPress={handleSelectImage}>
                   <Text style={styles.changeImageText}>Değiştir</Text>
                 </Pressable>
               </View>
             ) : (
               <View style={styles.captureButtons}>
                 <Pressable
-                  style={({ pressed }) => [styles.captureButton, pressed && styles.captureButtonPressed]}
+                  style={({ pressed }) => [
+                    styles.captureButton,
+                    pressed && styles.captureButtonPressed,
+                  ]}
                   onPress={handleTakePhoto}
                 >
                   <View style={styles.captureButtonIcon}>
@@ -267,7 +261,10 @@ export function GuidedAnalysis({
                 </Pressable>
 
                 <Pressable
-                  style={({ pressed }) => [styles.captureButton, pressed && styles.captureButtonPressed]}
+                  style={({ pressed }) => [
+                    styles.captureButton,
+                    pressed && styles.captureButtonPressed,
+                  ]}
                   onPress={handleSelectImage}
                 >
                   <View style={styles.captureButtonIcon}>
@@ -289,7 +286,7 @@ export function GuidedAnalysis({
             </View>
             <Text style={styles.readyTitle}>Analiz İçin Hazır!</Text>
             <Text style={styles.readyDescription}>
-              {childName}'ın çizimi yüklendi. Analizi başlatmak için aşağıdaki butona tıklayın.
+              {childName}&apos;ın çizimi yüklendi. Analizi başlatmak için aşağıdaki butona tıklayın.
             </Text>
           </View>
         )}
@@ -308,9 +305,7 @@ export function GuidedAnalysis({
           onPress={handleBack}
         >
           <ChevronLeft size={20} color={Colors.neutral.dark} />
-          <Text style={styles.backButtonText}>
-            {currentStep === 0 ? 'İptal' : 'Geri'}
-          </Text>
+          <Text style={styles.backButtonText}>{currentStep === 0 ? 'İptal' : 'Geri'}</Text>
         </Pressable>
 
         <Pressable
@@ -322,18 +317,21 @@ export function GuidedAnalysis({
           onPress={handleNext}
           disabled={isAnalyzeStep && !imageUri}
         >
-          <Text style={[
-            styles.nextButtonText,
-            (!isAnalyzeStep || imageUri) && styles.nextButtonTextEnabled,
-          ]}>
+          <Text
+            style={[
+              styles.nextButtonText,
+              (!isAnalyzeStep || imageUri) && styles.nextButtonTextEnabled,
+            ]}
+          >
             {isLastStep ? 'Analizi Başlat' : 'Devam Et'}
           </Text>
           {!isLastStep && (
-            <ChevronRight size={20} color={!isAnalyzeStep || imageUri ? '#FFFFFF' : Colors.neutral.medium} />
+            <ChevronRight
+              size={20}
+              color={!isAnalyzeStep || imageUri ? '#FFFFFF' : Colors.neutral.medium}
+            />
           )}
-          {isLastStep && (
-            <Play size={18} color={imageUri ? '#FFFFFF' : Colors.neutral.medium} />
-          )}
+          {isLastStep && <Play size={18} color={imageUri ? '#FFFFFF' : Colors.neutral.medium} />}
         </Pressable>
       </View>
     </View>

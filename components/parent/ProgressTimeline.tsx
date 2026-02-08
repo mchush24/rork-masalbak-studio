@@ -5,14 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   TrendingUp,
@@ -29,7 +22,7 @@ import {
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ProgressEntry {
   id: string;
@@ -83,29 +76,34 @@ export function ProgressTimeline({
 }: ProgressTimelineProps) {
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  const filteredEntries = selectedFilter === 'all'
-    ? entries
-    : entries.filter(e => e.testType === selectedFilter);
+  const filteredEntries =
+    selectedFilter === 'all' ? entries : entries.filter(e => e.testType === selectedFilter);
 
   const testTypes = Array.from(new Set(entries.map(e => e.testType)));
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return TrendingUp;
-      case 'down': return TrendingDown;
-      default: return Minus;
+      case 'up':
+        return TrendingUp;
+      case 'down':
+        return TrendingDown;
+      default:
+        return Minus;
     }
   };
 
   const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return '#10B981';
-      case 'down': return '#EF4444';
-      default: return '#6B7280';
+      case 'up':
+        return '#10B981';
+      case 'down':
+        return '#EF4444';
+      default:
+        return '#6B7280';
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const _formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('tr-TR', {
       day: 'numeric',
@@ -137,7 +135,7 @@ export function ProgressTimeline({
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>{childName}'ın Gelişim Yolculuğu</Text>
+          <Text style={styles.headerTitle}>{childName}&apos;ın Gelişim Yolculuğu</Text>
           <Text style={styles.headerSubtitle}>{childAge} yaş</Text>
         </View>
 
@@ -177,17 +175,24 @@ export function ProgressTimeline({
           style={[styles.filterChip, selectedFilter === 'all' && styles.filterChipActive]}
           onPress={() => setSelectedFilter('all')}
         >
-          <Text style={[styles.filterChipText, selectedFilter === 'all' && styles.filterChipTextActive]}>
+          <Text
+            style={[styles.filterChipText, selectedFilter === 'all' && styles.filterChipTextActive]}
+          >
             Tümü
           </Text>
         </Pressable>
-        {testTypes.map((type) => (
+        {testTypes.map(type => (
           <Pressable
             key={type}
             style={[styles.filterChip, selectedFilter === type && styles.filterChipActive]}
             onPress={() => setSelectedFilter(type)}
           >
-            <Text style={[styles.filterChipText, selectedFilter === type && styles.filterChipTextActive]}>
+            <Text
+              style={[
+                styles.filterChipText,
+                selectedFilter === type && styles.filterChipTextActive,
+              ]}
+            >
               {TEST_TYPE_LABELS[type] || type}
             </Text>
           </Pressable>
@@ -215,10 +220,7 @@ export function ProgressTimeline({
 
               {/* Entry Card */}
               <Pressable
-                style={({ pressed }) => [
-                  styles.entryCard,
-                  pressed && styles.entryCardPressed,
-                ]}
+                style={({ pressed }) => [styles.entryCard, pressed && styles.entryCardPressed]}
                 onPress={() => onEntryPress?.(entry.id)}
               >
                 {/* Entry Header */}
@@ -234,7 +236,9 @@ export function ProgressTimeline({
 
                 {/* Test Type Badge */}
                 <View style={styles.testTypeBadge}>
-                  <Text style={styles.testTypeText}>{TEST_TYPE_LABELS[entry.testType] || entry.testType}</Text>
+                  <Text style={styles.testTypeText}>
+                    {TEST_TYPE_LABELS[entry.testType] || entry.testType}
+                  </Text>
                 </View>
 
                 {/* Milestone (if any) */}
@@ -286,8 +290,7 @@ export function ProgressTimeline({
           <Text style={styles.emptySubtitle}>
             {selectedFilter !== 'all'
               ? 'Bu test türünde henüz analiz yapılmamış'
-              : 'İlk analizi yaparak yolculuğa başlayın'
-            }
+              : 'İlk analizi yaparak yolculuğa başlayın'}
           </Text>
         </View>
       )}
@@ -311,8 +314,8 @@ export function ProgressTimeline({
         <View style={styles.encouragementContent}>
           <Text style={styles.encouragementTitle}>Harika gidiyorsunuz!</Text>
           <Text style={styles.encouragementText}>
-            {childName}'ın gelişimini düzenli olarak takip etmeniz çok değerli.
-            Her çizim, onun iç dünyasına açılan bir pencere.
+            {childName}&apos;ın gelişimini düzenli olarak takip etmeniz çok değerli. Her çizim, onun
+            iç dünyasına açılan bir pencere.
           </Text>
         </View>
       </View>

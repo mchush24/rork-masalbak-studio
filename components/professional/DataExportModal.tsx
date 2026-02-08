@@ -33,8 +33,7 @@ import {
 import { UIColors as Colors } from '@/constants/color-aliases';
 import { SavedAnalysis } from '@/types/analysis';
 import { dataExportService, ExportOptions, ExportResult } from '@/lib/export';
-import { format, subDays, subMonths, subYears } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { subDays, subMonths, subYears } from 'date-fns';
 
 interface DataExportModalProps {
   visible: boolean;
@@ -45,11 +44,7 @@ interface DataExportModalProps {
 type ExportFormat = 'csv' | 'json' | 'statistics';
 type DateRange = 'all' | 'week' | 'month' | '3months' | 'year';
 
-export function DataExportModal({
-  visible,
-  onClose,
-  analyses,
-}: DataExportModalProps) {
+export function DataExportModal({ visible, onClose, analyses }: DataExportModalProps) {
   const [exportFormat, setExportFormat] = useState<ExportFormat>('csv');
   const [dateRange, setDateRange] = useState<DateRange>('all');
   const [includeNotes, setIncludeNotes] = useState(true);
@@ -57,7 +52,10 @@ export function DataExportModal({
   const [isExporting, setIsExporting] = useState(false);
   const [exportResult, setExportResult] = useState<ExportResult | null>(null);
 
-  const formatLabels: Record<ExportFormat, { label: string; description: string; icon: React.ReactNode }> = {
+  const formatLabels: Record<
+    ExportFormat,
+    { label: string; description: string; icon: React.ReactNode }
+  > = {
     csv: {
       label: 'CSV',
       description: 'Excel ve diğer programlarla uyumlu',
@@ -113,7 +111,7 @@ export function DataExportModal({
     const range = getDateRange();
     if (!range) return analyses.length;
 
-    return analyses.filter((a) => {
+    return analyses.filter(a => {
       const date = new Date(a.createdAt);
       return date >= range.start && date <= range.end;
     }).length;
@@ -202,9 +200,7 @@ export function DataExportModal({
             </View>
             <Text style={styles.successTitle}>Dışa Aktarma Tamamlandı!</Text>
             <Text style={styles.successFileName}>{exportResult.fileName}</Text>
-            <Text style={styles.successFileSize}>
-              {formatFileSize(exportResult.size)}
-            </Text>
+            <Text style={styles.successFileSize}>{formatFileSize(exportResult.size)}</Text>
 
             <View style={styles.successActions}>
               <Pressable style={styles.shareButton} onPress={handleShare}>
@@ -223,7 +219,7 @@ export function DataExportModal({
             <Animated.View entering={FadeIn.delay(100)} style={styles.section}>
               <Text style={styles.sectionTitle}>Format</Text>
               <View style={styles.formatOptions}>
-                {(Object.keys(formatLabels) as ExportFormat[]).map((format) => (
+                {(Object.keys(formatLabels) as ExportFormat[]).map(format => (
                   <Pressable
                     key={format}
                     style={[
@@ -261,7 +257,7 @@ export function DataExportModal({
                 <Text style={styles.sectionTitle}>Tarih Aralığı</Text>
               </View>
               <View style={styles.dateRangeOptions}>
-                {(Object.keys(dateRangeLabels) as DateRange[]).map((range) => (
+                {(Object.keys(dateRangeLabels) as DateRange[]).map(range => (
                   <Pressable
                     key={range}
                     style={[
@@ -281,9 +277,7 @@ export function DataExportModal({
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.countText}>
-                {getFilteredCount()} analiz seçildi
-              </Text>
+              <Text style={styles.countText}>{getFilteredCount()} analiz seçildi</Text>
             </Animated.View>
 
             {/* Options */}
@@ -303,9 +297,7 @@ export function DataExportModal({
                       false: Colors.neutral.lighter,
                       true: Colors.primary.purple + '50',
                     }}
-                    thumbColor={
-                      includeNotes ? Colors.primary.purple : Colors.neutral.gray
-                    }
+                    thumbColor={includeNotes ? Colors.primary.purple : Colors.neutral.gray}
                   />
                 </View>
 
@@ -313,7 +305,7 @@ export function DataExportModal({
                   <View style={styles.optionRow}>
                     <View style={styles.optionInfo}>
                       <Eye size={18} color={Colors.neutral.gray} />
-                      <Text style={styles.optionLabel}>Resim URL'lerini dahil et</Text>
+                      <Text style={styles.optionLabel}>{"Resim URL'lerini dahil et"}</Text>
                     </View>
                     <Switch
                       value={includeImages}
@@ -322,9 +314,7 @@ export function DataExportModal({
                         false: Colors.neutral.lighter,
                         true: Colors.primary.purple + '50',
                       }}
-                      thumbColor={
-                        includeImages ? Colors.primary.purple : Colors.neutral.gray
-                      }
+                      thumbColor={includeImages ? Colors.primary.purple : Colors.neutral.gray}
                     />
                   </View>
                 )}
@@ -335,8 +325,8 @@ export function DataExportModal({
             <View style={styles.infoNote}>
               <Info size={14} color={Colors.neutral.gray} />
               <Text style={styles.infoNoteText}>
-                Dışa aktarılan veriler cihazınıza kaydedilecek ve paylaşılabilecektir.
-                Hassas verileri korumak için dikkatli olun.
+                Dışa aktarılan veriler cihazınıza kaydedilecek ve paylaşılabilecektir. Hassas
+                verileri korumak için dikkatli olun.
               </Text>
             </View>
 

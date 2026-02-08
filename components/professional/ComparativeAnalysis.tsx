@@ -5,14 +5,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   BarChart2,
@@ -23,13 +16,11 @@ import {
   Calendar,
   ChevronDown,
   CheckCircle,
-  ArrowRight,
-  Filter,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { ProfessionalColors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface AnalysisDataPoint {
   id: string;
@@ -88,23 +79,26 @@ export function ComparativeAnalysis({
 
   // Filter and group analyses
   const groupedData = useMemo((): ComparisonGroup[] => {
-    let filtered = selectedTestType
+    const filtered = selectedTestType
       ? analyses.filter(a => a.testType === selectedTestType)
       : analyses;
 
     switch (comparisonMode) {
       case 'client': {
         // Group by client
-        const byClient = filtered.reduce((acc, analysis) => {
-          if (!acc[analysis.clientId]) {
-            acc[analysis.clientId] = {
-              label: analysis.clientName,
-              data: [],
-            };
-          }
-          acc[analysis.clientId].data.push(analysis);
-          return acc;
-        }, {} as Record<string, { label: string; data: AnalysisDataPoint[] }>);
+        const byClient = filtered.reduce(
+          (acc, analysis) => {
+            if (!acc[analysis.clientId]) {
+              acc[analysis.clientId] = {
+                label: analysis.clientName,
+                data: [],
+              };
+            }
+            acc[analysis.clientId].data.push(analysis);
+            return acc;
+          },
+          {} as Record<string, { label: string; data: AnalysisDataPoint[] }>
+        );
 
         return Object.values(byClient).map(group => ({
           ...group,
@@ -115,20 +109,23 @@ export function ComparativeAnalysis({
 
       case 'time': {
         // Group by month
-        const byMonth = filtered.reduce((acc, analysis) => {
-          const date = new Date(analysis.date);
-          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-          const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
+        const byMonth = filtered.reduce(
+          (acc, analysis) => {
+            const date = new Date(analysis.date);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
 
-          if (!acc[monthKey]) {
-            acc[monthKey] = {
-              label: monthLabel,
-              data: [],
-            };
-          }
-          acc[monthKey].data.push(analysis);
-          return acc;
-        }, {} as Record<string, { label: string; data: AnalysisDataPoint[] }>);
+            if (!acc[monthKey]) {
+              acc[monthKey] = {
+                label: monthLabel,
+                data: [],
+              };
+            }
+            acc[monthKey].data.push(analysis);
+            return acc;
+          },
+          {} as Record<string, { label: string; data: AnalysisDataPoint[] }>
+        );
 
         const sorted = Object.entries(byMonth).sort(([a], [b]) => a.localeCompare(b));
         return sorted.map(([_, group], index, arr) => {
@@ -136,7 +133,9 @@ export function ComparativeAnalysis({
           let trend: 'up' | 'down' | 'stable' = 'stable';
 
           if (index > 0) {
-            const prevAvg = arr[index - 1][1].data.reduce((sum, d) => sum + d.percentile, 0) / arr[index - 1][1].data.length;
+            const prevAvg =
+              arr[index - 1][1].data.reduce((sum, d) => sum + d.percentile, 0) /
+              arr[index - 1][1].data.length;
             if (avg > prevAvg + 5) trend = 'up';
             else if (avg < prevAvg - 5) trend = 'down';
           }
@@ -151,16 +150,19 @@ export function ComparativeAnalysis({
 
       case 'group': {
         // Group by test type
-        const byTest = filtered.reduce((acc, analysis) => {
-          if (!acc[analysis.testType]) {
-            acc[analysis.testType] = {
-              label: analysis.testType,
-              data: [],
-            };
-          }
-          acc[analysis.testType].data.push(analysis);
-          return acc;
-        }, {} as Record<string, { label: string; data: AnalysisDataPoint[] }>);
+        const byTest = filtered.reduce(
+          (acc, analysis) => {
+            if (!acc[analysis.testType]) {
+              acc[analysis.testType] = {
+                label: analysis.testType,
+                data: [],
+              };
+            }
+            acc[analysis.testType].data.push(analysis);
+            return acc;
+          },
+          {} as Record<string, { label: string; data: AnalysisDataPoint[] }>
+        );
 
         return Object.values(byTest).map(group => ({
           ...group,
@@ -192,7 +194,9 @@ export function ComparativeAnalysis({
 
   const calculateTrend = (data: AnalysisDataPoint[]): 'up' | 'down' | 'stable' => {
     if (data.length < 2) return 'stable';
-    const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sorted = [...data].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
     const firstHalf = sorted.slice(0, Math.floor(sorted.length / 2));
     const secondHalf = sorted.slice(Math.floor(sorted.length / 2));
 
@@ -206,17 +210,23 @@ export function ComparativeAnalysis({
 
   const getTrendIcon = (trend?: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return TrendingUp;
-      case 'down': return TrendingDown;
-      default: return Minus;
+      case 'up':
+        return TrendingUp;
+      case 'down':
+        return TrendingDown;
+      default:
+        return Minus;
     }
   };
 
   const getTrendColor = (trend?: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return '#10B981';
-      case 'down': return '#EF4444';
-      default: return '#6B7280';
+      case 'up':
+        return '#10B981';
+      case 'down':
+        return '#EF4444';
+      default:
+        return '#6B7280';
     }
   };
 
@@ -243,7 +253,7 @@ export function ComparativeAnalysis({
       {/* Mode Dropdown */}
       {showModeSelector && (
         <View style={styles.modeDropdown}>
-          {COMPARISON_MODES.map((mode) => {
+          {COMPARISON_MODES.map(mode => {
             const Icon = mode.icon;
             const isSelected = mode.id === comparisonMode;
             return (
@@ -255,7 +265,14 @@ export function ComparativeAnalysis({
                   setShowModeSelector(false);
                 }}
               >
-                <Icon size={18} color={isSelected ? ProfessionalColors.trust.primary : ProfessionalColors.text.secondary} />
+                <Icon
+                  size={18}
+                  color={
+                    isSelected
+                      ? ProfessionalColors.trust.primary
+                      : ProfessionalColors.text.secondary
+                  }
+                />
                 <Text style={[styles.modeOptionText, isSelected && styles.modeOptionTextSelected]}>
                   {mode.label}
                 </Text>
@@ -276,7 +293,7 @@ export function ComparativeAnalysis({
             Tümü
           </Text>
         </Pressable>
-        {testTypes.map((type) => (
+        {testTypes.map(type => (
           <Pressable
             key={type}
             style={[
@@ -286,14 +303,18 @@ export function ComparativeAnalysis({
             ]}
             onPress={() => setSelectedTestType(type)}
           >
-            <View style={[
-              styles.filterDot,
-              { backgroundColor: TEST_TYPE_COLORS[type] || TEST_TYPE_COLORS.default }
-            ]} />
-            <Text style={[
-              styles.filterChipText,
-              selectedTestType === type && styles.filterChipTextActive
-            ]}>
+            <View
+              style={[
+                styles.filterDot,
+                { backgroundColor: TEST_TYPE_COLORS[type] || TEST_TYPE_COLORS.default },
+              ]}
+            />
+            <Text
+              style={[
+                styles.filterChipText,
+                selectedTestType === type && styles.filterChipTextActive,
+              ]}
+            >
               {type}
             </Text>
           </Pressable>
@@ -319,7 +340,9 @@ export function ComparativeAnalysis({
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{overallStats.range.min}-{overallStats.range.max}</Text>
+            <Text style={styles.statValue}>
+              {overallStats.range.min}-{overallStats.range.max}
+            </Text>
             <Text style={styles.statLabel}>Aralık</Text>
           </View>
         </View>
@@ -365,8 +388,12 @@ export function ComparativeAnalysis({
               </View>
 
               {/* Individual data points */}
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dataPointsContainer}>
-                {group.data.slice(0, 5).map((point) => (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.dataPointsContainer}
+              >
+                {group.data.slice(0, 5).map(point => (
                   <Pressable
                     key={point.id}
                     style={styles.dataPoint}
@@ -374,7 +401,10 @@ export function ComparativeAnalysis({
                   >
                     <Text style={styles.dataPointScore}>{point.percentile}%</Text>
                     <Text style={styles.dataPointDate}>
-                      {new Date(point.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                      {new Date(point.date).toLocaleDateString('tr-TR', {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
                     </Text>
                   </Pressable>
                 ))}
