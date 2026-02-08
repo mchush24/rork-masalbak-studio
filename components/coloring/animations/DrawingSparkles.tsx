@@ -70,14 +70,16 @@ export function DrawingSparkles({
     }).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Get current animation progress
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const progress = (animValue as any).__getValue();
 
   return (
     <Group>
-      {particles.map((particle) => {
+      {particles.map(particle => {
         // Calculate particle position based on progress
         const currentX = particle.x + particle.vx * progress * 30;
         const currentY = particle.y + particle.vy * progress * 30;
@@ -117,7 +119,7 @@ export function SparkleTrail({
   color,
   enabled = true,
 }: {
-  points: Array<{ x: number; y: number }>;
+  points: { x: number; y: number }[];
   color: string;
   enabled?: boolean;
 }) {
@@ -169,14 +171,7 @@ export function SparkleBurst({
   }[intensity];
 
   return (
-    <DrawingSparkles
-      x={x}
-      y={y}
-      color={color}
-      type="burst"
-      count={count}
-      onComplete={onComplete}
-    />
+    <DrawingSparkles x={x} y={y} color={color} type="burst" count={count} onComplete={onComplete} />
   );
 }
 
@@ -208,8 +203,10 @@ export function StarSparkles({
     }).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const progress = (animValue as any).__getValue();
 
   // Create 5-pointed star pattern
@@ -229,7 +226,7 @@ export function StarSparkles({
 
   return (
     <Group>
-      {starPoints.map((point) => (
+      {starPoints.map(point => (
         <Circle
           key={point.id}
           cx={point.x}
@@ -272,13 +269,8 @@ export function FloatingSparkles({
 
   return (
     <Group>
-      {particles.map((particle) => (
-        <FloatingParticle
-          key={particle.id}
-          particle={particle}
-          color={color}
-          bounds={bounds}
-        />
+      {particles.map(particle => (
+        <FloatingParticle key={particle.id} particle={particle} color={color} bounds={bounds} />
       ))}
     </Group>
   );
@@ -287,8 +279,9 @@ export function FloatingSparkles({
 function FloatingParticle({
   particle,
   color,
-  bounds,
+  bounds: _bounds,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   particle: any;
   color: string;
   bounds: { width: number; height: number };
@@ -310,8 +303,10 @@ function FloatingParticle({
     float.start();
 
     return () => float.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const progress = (floatAnim as any).__getValue();
 
   // Float upward and fade
@@ -319,13 +314,7 @@ function FloatingParticle({
   const opacity = Math.max(0, 1 - progress);
 
   return (
-    <Circle
-      cx={particle.x}
-      cy={currentY}
-      r={particle.size}
-      color={color}
-      opacity={opacity * 0.6}
-    />
+    <Circle cx={particle.x} cy={currentY} r={particle.size} color={color} opacity={opacity * 0.6} />
   );
 }
 
@@ -436,7 +425,7 @@ export function RainbowSparkles({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % colors.length);
+      setCurrentIndex(prev => (prev + 1) % colors.length);
     }, 100);
 
     const timeout = setTimeout(() => {
@@ -448,14 +437,8 @@ export function RainbowSparkles({
       clearInterval(interval);
       clearTimeout(timeout);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <SparkleBurst
-      x={x}
-      y={y}
-      color={colors[currentIndex]}
-      intensity="high"
-    />
-  );
+  return <SparkleBurst x={x} y={y} color={colors[currentIndex]} intensity="high" />;
 }

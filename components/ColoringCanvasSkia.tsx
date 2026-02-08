@@ -75,12 +75,16 @@
  * - Child-friendly design principles
  */
 
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { ColoringProvider, useColoring } from './coloring/ColoringContext';
 import { detectDeviceCapabilities } from './coloring/utils/deviceCapability';
-import { BrushPathBuilder } from './coloring/tools/BrushTool';
-import { BrushStroke } from './coloring/tools/BrushTool';
-import { PremiumBrushes, PremiumBrushesCompact, BRUSH_CONFIGS, BrushType as PremiumBrushType, BrushConfig } from './coloring/tools/PremiumBrushes';
+import { BrushPathBuilder, BrushStroke } from './coloring/tools/BrushTool';
+import {
+  PremiumBrushes,
+  BRUSH_CONFIGS,
+  BrushType as PremiumBrushType,
+  BrushConfig,
+} from './coloring/tools/PremiumBrushes';
 import { ToolSettings } from './coloring/tools/ToolSettings';
 import { performFill } from './coloring/tools/FillTool';
 import { AdaptiveFillAnimation } from './coloring/animations/FillSpreadAnimation';
@@ -89,22 +93,26 @@ import { OpacitySlider } from './coloring/color/OpacitySlider';
 import { GradientPicker, GradientConfig } from './coloring/color/GradientPicker';
 import { FavoriteColors } from './coloring/color/FavoriteColors';
 import { ReferenceImagePicker } from './coloring/color/ReferenceImagePicker';
-import { ColorHarmony, ColorHarmonyCompact } from './coloring/color/ColorHarmony';
+import { ColorHarmony } from './coloring/color/ColorHarmony';
 import { AdaptiveColorSplash } from './coloring/color/ColorSplashAnimation';
 import { SoundManager } from './coloring/sound/SoundManager';
 import { ToolChangeAnimation, ToolGlowAnimation } from './coloring/animations/ToolChangeAnimation';
-import { SparkleBurst, DrawingSparkles } from './coloring/animations/DrawingSparkles';
+import { SparkleBurst } from './coloring/animations/DrawingSparkles';
 import { SaveCelebration } from './coloring/animations/SaveCelebration';
 import { Tooltip, TOOLTIPS, useTooltip } from './coloring/tutorial/TooltipSystem';
-import { ProgressCelebration, useProgressTracker, MilestoneType } from './coloring/tutorial/ProgressCelebration';
+import { ProgressCelebration, useProgressTracker } from './coloring/tutorial/ProgressCelebration';
 import { FirstUseGuide, shouldShowFirstUseGuide } from './coloring/tutorial/FirstUseGuide';
 import { AISuggestions } from './coloring/ai/AISuggestions';
 // New Phase 7 imports: Paint Tube UI, Texture Effects, Sticker Tool
-import { TexturedFillLayer, TEXTURE_OPTIONS } from './coloring/effects/TexturedFill';
-import { TextureType } from './coloring/effects/TextureShaders';
-import { PaintTubeRow, CompactPaintTubeSelector, PaintTubeColor, DEFAULT_PAINT_COLORS } from './coloring/ui/PaintTubeRow';
-import { TextureSelector, GlitterToggle } from './coloring/ui/TextureSelector';
-import { StickerPicker, StickerPreview, PlacedStickerComponent, StickerSizeSlider, StickerConfig, PlacedSticker as PlacedStickerType, STICKER_LIBRARY } from './coloring/tools/StickerTool';
+import { PaintTubeColor } from './coloring/ui/PaintTubeRow';
+import { GlitterToggle } from './coloring/ui/TextureSelector';
+import {
+  StickerPicker,
+  StickerPreview,
+  StickerSizeSlider,
+  StickerConfig,
+  PlacedSticker as PlacedStickerType,
+} from './coloring/tools/StickerTool';
 import {
   View,
   StyleSheet,
@@ -115,21 +123,17 @@ import {
   ScrollView,
   Animated,
   Platform,
-} from "react-native";
+} from 'react-native';
 import {
   Canvas,
   Image as SkiaImage,
   Circle as SkiaCircle,
   useImage,
-  Skia,
-  Path as SkiaPath,
   Group,
-  vec,
-  BlendMode,
-} from "@shopify/react-native-skia";
-import { LinearGradient } from "expo-linear-gradient";
-import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography, zIndex } from "@/constants/design-system";
+} from '@shopify/react-native-skia';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '@/constants/colors';
+import { spacing, radius, shadows, typography, zIndex } from '@/constants/design-system';
 import {
   ArrowLeft,
   X,
@@ -138,16 +142,12 @@ import {
   Paintbrush,
   PaintBucket,
   Eraser,
-  ZoomIn,
-  ZoomOut,
   Sticker,
-  Sparkles,
-} from "lucide-react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import * as Haptics from "expo-haptics";
-import { captureRef } from "react-native-view-shot";
+} from 'lucide-react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { captureRef } from 'react-native-view-shot';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const TOOL_PANEL_WIDTH = 100;
 const CANVAS_SIZE = Math.min(SCREEN_WIDTH - TOOL_PANEL_WIDTH - 48, SCREEN_HEIGHT - 180);
 
@@ -157,67 +157,15 @@ type ColoringCanvasSkiaProps = {
   onClose?: () => void;
 };
 
-type FillPoint = {
-  id: string;
-  x: number;
-  y: number;
-  color: string;
-  radius: number;
-};
-
-type BrushStroke = {
-  id: string;
-  path: ReturnType<typeof Skia.Path.Make>; // Skia Path object
-  color: string;
-  width: number;
-  isEraser?: boolean; // Flag for eraser strokes
-};
-
 type ColorPalette = {
   id: string;
-  type: "solid" | "gradient";
+  type: 'solid' | 'gradient';
   colors: string[];
   name: string;
   emoji?: string;
 };
 
-type ToolType = "brush" | "fill" | "eraser" | "sticker";
-
-// Enhanced Color Palettes - Expanded selection for better creativity
-const COLOR_PALETTES: ColorPalette[] = [
-  // Primary Colors
-  { id: "red", type: "solid", colors: ["#FF6B6B"], name: "Kırmızı", emoji: "🔴" },
-  { id: "orange", type: "solid", colors: ["#FFA500"], name: "Turuncu", emoji: "🟠" },
-  { id: "yellow", type: "solid", colors: ["#FFD93D"], name: "Sarı", emoji: "🟡" },
-  { id: "green", type: "solid", colors: ["#6BCB77"], name: "Yeşil", emoji: "🟢" },
-  { id: "blue", type: "solid", colors: ["#4D96FF"], name: "Mavi", emoji: "🔵" },
-  { id: "purple", type: "solid", colors: ["#9D4EDD"], name: "Mor", emoji: "🟣" },
-  { id: "pink", type: "solid", colors: ["#FF69B4"], name: "Pembe", emoji: "💗" },
-
-  // Additional Colors
-  { id: "brown", type: "solid", colors: ["#8B4513"], name: "Kahverengi", emoji: "🟤" },
-  { id: "black", type: "solid", colors: ["#2C2C2C"], name: "Siyah", emoji: "⚫" },
-  { id: "white", type: "solid", colors: ["#FFFFFF"], name: "Beyaz", emoji: "⚪" },
-  { id: "gray", type: "solid", colors: ["#9E9E9E"], name: "Gri", emoji: "🔘" },
-
-  // Pastel Colors for softer look
-  { id: "pastel-pink", type: "solid", colors: ["#FFB3D9"], name: "Pastel Pembe", emoji: "🌸" },
-  { id: "pastel-blue", type: "solid", colors: ["#B3D9FF"], name: "Pastel Mavi", emoji: "💙" },
-  { id: "pastel-yellow", type: "solid", colors: ["#FFF9B3"], name: "Pastel Sarı", emoji: "⭐" },
-  { id: "pastel-green", type: "solid", colors: ["#B3FFD9"], name: "Pastel Yeşil", emoji: "🍃" },
-  { id: "pastel-purple", type: "solid", colors: ["#E6B3FF"], name: "Pastel Mor", emoji: "🦄" },
-
-  // Vibrant/Neon Colors
-  { id: "neon-pink", type: "solid", colors: ["#FF1493"], name: "Neon Pembe", emoji: "💖" },
-  { id: "neon-green", type: "solid", colors: ["#00FF00"], name: "Neon Yeşil", emoji: "💚" },
-  { id: "neon-blue", type: "solid", colors: ["#00D4FF"], name: "Neon Mavi", emoji: "🔷" },
-  { id: "neon-orange", type: "solid", colors: ["#FF6600"], name: "Neon Turuncu", emoji: "🧡" },
-];
-
-// Tool settings
-const BRUSH_WIDTH = 15;
-const FILL_TOLERANCE = 30; // Color tolerance for flood fill
-const ERASER_WIDTH = 25;
+type ToolType = 'brush' | 'fill' | 'eraser' | 'sticker';
 
 // Main component wrapped with ColoringProvider
 export function ColoringCanvasSkia(props: ColoringCanvasSkiaProps) {
@@ -242,14 +190,14 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     strokeLayer,
     setStrokeLayer,
     stickerLayer,
-    setStickerLayer,
+    setStickerLayer: _setStickerLayer,
     addSticker,
-    removeSticker,
-    updateSticker,
+    removeSticker: _removeSticker,
+    updateSticker: _updateSticker,
     selectedTexture,
     setSelectedTexture,
-    history,
-    historyIndex,
+    history: _history,
+    historyIndex: _historyIndex,
     canUndo,
     canRedo,
     saveToHistory,
@@ -270,13 +218,13 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
   const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [selectedSticker, setSelectedSticker] = useState<StickerConfig | null>(null);
   const [stickerSize, setStickerSize] = useState(40);
-  const [selectedStickerOnCanvas, setSelectedStickerOnCanvas] = useState<string | null>(null);
+  const [_selectedStickerOnCanvas, _setSelectedStickerOnCanvas] = useState<string | null>(null);
 
   // Texture state for fill
-  const [showTextureSelector, setShowTextureSelector] = useState(false);
+  const [_showTextureSelector, _setShowTextureSelector] = useState(false);
 
   // Selected color from paint tube
-  const [selectedPaintColor, setSelectedPaintColor] = useState<PaintTubeColor | null>(null);
+  const [_selectedPaintColor, _setSelectedPaintColor] = useState<PaintTubeColor | null>(null);
 
   // Phase 3: Advanced color state
   const [customColor, setCustomColor] = useState('#FF6B6B');
@@ -302,8 +250,10 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
   // Phase 4: Animation & sound state
   const [showCelebration, setShowCelebration] = useState(false);
-  const [sparkles, setSparkles] = useState<Array<{ x: number; y: number; color: string; id: string }>>([]);
-  const [drawingSparklesEnabled, setDrawingSparklesEnabled] = useState(true); // Can be toggled for performance
+  const [sparkles, setSparkles] = useState<{ x: number; y: number; color: string; id: string }[]>(
+    []
+  );
+  const [drawingSparklesEnabled, _setDrawingSparklesEnabled] = useState(true); // Can be toggled for performance
 
   // Phase 5: Tutorial & UX state
   const [showFirstUseGuide, setShowFirstUseGuide] = useState(false);
@@ -313,8 +263,15 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
   // Phase 6: Premium Brushes state
   const [selectedPremiumBrush, setSelectedPremiumBrush] = useState<PremiumBrushType>('standard');
-  const [currentBrushConfig, setCurrentBrushConfig] = useState<BrushConfig>(BRUSH_CONFIGS.standard);
-  const { tracker, currentMilestone, showCelebration: showProgress, hideCelebration } = useProgressTracker();
+  const [_currentBrushConfig, setCurrentBrushConfig] = useState<BrushConfig>(
+    BRUSH_CONFIGS.standard
+  );
+  const {
+    tracker,
+    currentMilestone,
+    showCelebration: showProgress,
+    hideCelebration,
+  } = useProgressTracker();
   const firstBrushTooltip = useTooltip(TOOLTIPS.FIRST_BRUSH.id);
   const firstFillTooltip = useTooltip(TOOLTIPS.FIRST_FILL.id);
   const advancedColorTooltip = useTooltip(TOOLTIPS.ADVANCED_COLOR_PICKER.id);
@@ -331,7 +288,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
   // Current drawing state
   const [isDrawing, setIsDrawing] = useState(false);
-  const [pathUpdateKey, setPathUpdateKey] = useState(0); // Forces re-render during drawing on web
+  const [_pathUpdateKey, setPathUpdateKey] = useState(0); // Forces re-render during drawing on web
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
 
   // Canvas ref for snapshot
@@ -357,12 +314,12 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       enabled: true,
       volume: 0.7,
       hapticEnabled: true,
-    }).catch((error) => {
+    }).catch(error => {
       console.warn('[ColoringCanvas] SoundManager initialization failed:', error);
     });
 
     // Phase 5: Check if first-use guide should be shown
-    shouldShowFirstUseGuide().then((shouldShow) => {
+    shouldShowFirstUseGuide().then(shouldShow => {
       if (shouldShow) {
         // Delay guide to let UI settle
         setTimeout(() => {
@@ -414,7 +371,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     .numberOfTaps(1)
     .maxDuration(300)
     .enabled(selectedTool === 'fill')
-    .onStart((event) => {
+    .onStart(event => {
       console.log(`[Gesture] Fill TAP START at (${event.x.toFixed(0)}, ${event.y.toFixed(0)})`);
     })
     .onEnd((event, success) => {
@@ -477,9 +434,11 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     .minDistance(5) // Prevent accidental micro-strokes
     .maxPointers(1) // Single finger only for drawing
     .enabled(selectedTool === 'brush' || selectedTool === 'eraser')
-    .onBegin((event) => {
+    .onBegin(event => {
       const { x, y } = event;
-      console.log(`[Gesture] Drawing START at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
+      console.log(
+        `[Gesture] Drawing START at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`
+      );
 
       // Haptic feedback from context
       triggerHaptic();
@@ -487,35 +446,35 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       setIsDrawing(true);
       lastPoint.current = { x, y };
 
-      if (selectedTool === "brush") {
+      if (selectedTool === 'brush') {
         // Start new brush stroke with advanced path builder
         brushBuilder.start(x, y, event);
-      } else if (selectedTool === "eraser") {
+      } else if (selectedTool === 'eraser') {
         // Start eraser stroke
         brushBuilder.start(x, y);
       }
     })
-    .onUpdate((event) => {
+    .onUpdate(event => {
       const { x, y } = event;
 
       if (!lastPoint.current) return;
 
       // Add point with smooth interpolation and pressure
-      if (selectedTool === "brush" || selectedTool === "eraser") {
+      if (selectedTool === 'brush' || selectedTool === 'eraser') {
         brushBuilder.addPoint(x, y, event);
         lastPoint.current = { x, y };
 
         // CRITICAL: Force re-render to show live drawing preview
         // Without this, React doesn't know the path changed
-        setPathUpdateKey((k) => k + 1);
+        setPathUpdateKey(k => k + 1);
       }
     })
-    .onEnd((event) => {
+    .onEnd(event => {
       console.log(`[Gesture] Drawing END - Tool: ${selectedTool}`);
 
       const { x, y } = event;
 
-      if (selectedTool === "brush") {
+      if (selectedTool === 'brush') {
         // Finalize brush stroke with pressure modifiers
         brushBuilder.end(x, y, event);
 
@@ -534,14 +493,14 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
         // Phase 5: Track stroke for progress
         tracker.recordStroke(getCurrentColorWithOpacity());
-      } else if (selectedTool === "eraser") {
+      } else if (selectedTool === 'eraser') {
         // Finalize eraser stroke
         brushBuilder.end(x, y);
 
         const eraserStroke = {
           id: `eraser-${Date.now()}`,
           path: brushBuilder.copyPath(),
-          color: "white",
+          color: 'white',
           width: brushSettings.size * 1.5, // Eraser is slightly larger
           opacity: 1,
           isEraser: true,
@@ -587,23 +546,19 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     // Haptic feedback from context
     triggerHaptic();
 
-    Alert.alert(
-      "Tümünü Sil?",
-      "Tüm boyamalar silinecek. Emin misin?",
-      [
-        { text: "Hayır", style: "cancel" },
-        {
-          text: "Evet, Sil",
-          style: "destructive",
-          onPress: () => {
-            triggerHaptic();
-            setFillLayer([]);
-            setStrokeLayer([]);
-            // Clear history through context (already handled)
-          },
+    Alert.alert('Tümünü Sil?', 'Tüm boyamalar silinecek. Emin misin?', [
+      { text: 'Hayır', style: 'cancel' },
+      {
+        text: 'Evet, Sil',
+        style: 'destructive',
+        onPress: () => {
+          triggerHaptic();
+          setFillLayer([]);
+          setStrokeLayer([]);
+          // Clear history through context (already handled)
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleColorChange = (palette: ColorPalette) => {
@@ -702,26 +657,19 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     const currentColor = getCurrentColorWithOpacity();
 
     // Perform fill with optimized algorithm
-    const fillResult = performFill(
-      x,
-      y,
-      currentColor,
-      CANVAS_SIZE,
-      CANVAS_SIZE,
-      {
-        tolerance: 30,
-        maxDuration: 30,
-        downscale: 2,
-        useAlpha: false,
-      }
-    );
+    const fillResult = performFill(x, y, currentColor, CANVAS_SIZE, CANVAS_SIZE, {
+      tolerance: 30,
+      maxDuration: 30,
+      downscale: 2,
+      useAlpha: false,
+    });
 
     console.log(
       `[Fill Tool] Method: ${fillResult.method}, Fills: ${fillResult.fills.length}, Success: ${fillResult.success}, Texture: ${selectedTexture}`
     );
 
     // Add texture to each fill point
-    const fillsWithTexture = fillResult.fills.map((fill) => ({
+    const fillsWithTexture = fillResult.fills.map(fill => ({
       ...fill,
       texture: selectedTexture,
       intensity: selectedTexture === 'glitter' ? 0.8 : 0.5,
@@ -755,11 +703,11 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     // Phase 4: Add sparkle burst on fill
     if (drawingSparklesEnabled && deviceCapabilities.tier !== 'basic') {
       const sparkleId = `sparkle-${Date.now()}`;
-      setSparkles((prev) => [...prev, { x, y, color: currentColor, id: sparkleId }]);
+      setSparkles(prev => [...prev, { x, y, color: currentColor, id: sparkleId }]);
 
       // Remove sparkle after animation
       setTimeout(() => {
-        setSparkles((prev) => prev.filter((s) => s.id !== sparkleId));
+        setSparkles(prev => prev.filter(s => s.id !== sparkleId));
       }, 800);
     }
   };
@@ -768,174 +716,214 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
    * Web-specific touch handler (fallback for gesture handler issues on web)
    * Handles fill and sticker placement on web platform
    */
-  const handleWebCanvasClick = useCallback((e: any) => {
-    if (Platform.OS !== 'web') return;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWebCanvasClick = useCallback(
+    (e: any) => {
+      if (Platform.OS !== 'web') return;
 
-    // Get position from the event
-    const rect = e.currentTarget?.getBoundingClientRect?.();
-    if (!rect) {
-      console.log('[Web Click] No rect found');
-      return;
-    }
+      // Get position from the event
+      const rect = e.currentTarget?.getBoundingClientRect?.();
+      if (!rect) {
+        console.log('[Web Click] No rect found');
+        return;
+      }
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-    console.log(`[Web Click] Tool: ${selectedTool}, Position: (${x.toFixed(0)}, ${y.toFixed(0)})`);
+      console.log(
+        `[Web Click] Tool: ${selectedTool}, Position: (${x.toFixed(0)}, ${y.toFixed(0)})`
+      );
 
-    if (selectedTool === 'fill') {
-      triggerHaptic();
-      handleFloodFill(x, y);
-    } else if (selectedTool === 'sticker' && selectedSticker) {
-      triggerHaptic();
-      const newSticker: PlacedStickerType = {
-        id: `sticker-${Date.now()}`,
-        stickerId: selectedSticker.id,
-        emoji: selectedSticker.emoji,
-        x,
-        y,
-        size: stickerSize,
-        rotation: 0,
-      };
-      addSticker(newSticker);
-      saveToHistory();
-      SoundManager.playColorSelect();
-    }
-  }, [selectedTool, selectedSticker, stickerSize, triggerHaptic, addSticker, saveToHistory]);
+      if (selectedTool === 'fill') {
+        triggerHaptic();
+        handleFloodFill(x, y);
+      } else if (selectedTool === 'sticker' && selectedSticker) {
+        triggerHaptic();
+        const newSticker: PlacedStickerType = {
+          id: `sticker-${Date.now()}`,
+          stickerId: selectedSticker.id,
+          emoji: selectedSticker.emoji,
+          x,
+          y,
+          size: stickerSize,
+          rotation: 0,
+        };
+        addSticker(newSticker);
+        saveToHistory();
+        SoundManager.playColorSelect();
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [selectedTool, selectedSticker, stickerSize, triggerHaptic, addSticker, saveToHistory]
+  );
 
   /**
    * Web-specific pointer event handlers for brush/eraser drawing
    * Provides full drawing support on web platform
    */
-  const handleWebPointerDown = useCallback((e: any) => {
-    if (Platform.OS !== 'web') return;
-    if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWebPointerDown = useCallback(
+    (e: any) => {
+      if (Platform.OS !== 'web') return;
+      if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
 
-    const rect = e.currentTarget?.getBoundingClientRect?.();
-    if (!rect) return;
+      const rect = e.currentTarget?.getBoundingClientRect?.();
+      if (!rect) return;
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-    console.log(`[Web Pointer] DOWN at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
+      console.log(
+        `[Web Pointer] DOWN at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`
+      );
 
-    triggerHaptic();
-    setIsDrawing(true);
-    lastPoint.current = { x, y };
+      triggerHaptic();
+      setIsDrawing(true);
+      lastPoint.current = { x, y };
 
-    if (selectedTool === 'brush') {
-      brushBuilder.start(x, y);
-    } else if (selectedTool === 'eraser') {
-      brushBuilder.start(x, y);
-    }
-  }, [selectedTool, triggerHaptic]);
-
-  const handleWebPointerMove = useCallback((e: any) => {
-    if (Platform.OS !== 'web') return;
-    if (!isDrawing) return;
-    if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
-
-    const rect = e.currentTarget?.getBoundingClientRect?.();
-    if (!rect) return;
-
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    if (!lastPoint.current) return;
-
-    brushBuilder.addPoint(x, y);
-    lastPoint.current = { x, y };
-
-    // Force re-render for live preview (increment key to trigger re-render)
-    setPathUpdateKey((k) => k + 1);
-  }, [isDrawing, selectedTool]);
-
-  const handleWebPointerUp = useCallback((e: any) => {
-    if (Platform.OS !== 'web') return;
-    if (!isDrawing) return;
-    if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
-
-    const rect = e.currentTarget?.getBoundingClientRect?.();
-    if (!rect) return;
-
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    console.log(`[Web Pointer] UP at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
-
-    // Helper to apply opacity inline (to avoid dependency issues)
-    const applyOpacityInline = (hexColor: string, opacity: number): string => {
-      if (opacity === 1) return hexColor;
-      const alpha = Math.round(opacity * 255);
-      const alphaHex = alpha.toString(16).padStart(2, '0');
-      return hexColor + alphaHex;
-    };
-
-    // Calculate current color at the time of pointer up
-    const currentColor = (() => {
-      if (useGradient && selectedGradient) {
-        const color = selectedGradient.colors[0];
-        return applyOpacityInline(color, colorOpacity);
+      if (selectedTool === 'brush') {
+        brushBuilder.start(x, y);
+      } else if (selectedTool === 'eraser') {
+        brushBuilder.start(x, y);
       }
-      const baseColor = customColor || getCurrentColor();
-      return applyOpacityInline(baseColor, colorOpacity);
-    })();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [selectedTool, triggerHaptic]
+  );
 
-    if (selectedTool === 'brush') {
-      brushBuilder.end(x, y);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWebPointerMove = useCallback(
+    (e: any) => {
+      if (Platform.OS !== 'web') return;
+      if (!isDrawing) return;
+      if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
 
-      const newStroke = {
-        id: `stroke-${Date.now()}`,
-        path: brushBuilder.copyPath(),
-        color: currentColor,
-        width: brushSettings.size,
-        opacity: brushSettings.opacity,
-        isEraser: false,
+      const rect = e.currentTarget?.getBoundingClientRect?.();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (!lastPoint.current) return;
+
+      brushBuilder.addPoint(x, y);
+      lastPoint.current = { x, y };
+
+      // Force re-render for live preview (increment key to trigger re-render)
+      setPathUpdateKey(k => k + 1);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [isDrawing, selectedTool]
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWebPointerUp = useCallback(
+    (e: any) => {
+      if (Platform.OS !== 'web') return;
+      if (!isDrawing) return;
+      if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
+
+      const rect = e.currentTarget?.getBoundingClientRect?.();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      console.log(`[Web Pointer] UP at (${x.toFixed(0)}, ${y.toFixed(0)}) - Tool: ${selectedTool}`);
+
+      // Helper to apply opacity inline (to avoid dependency issues)
+      const applyOpacityInline = (hexColor: string, opacity: number): string => {
+        if (opacity === 1) return hexColor;
+        const alpha = Math.round(opacity * 255);
+        const alphaHex = alpha.toString(16).padStart(2, '0');
+        return hexColor + alphaHex;
       };
 
-      setStrokeLayer([...strokeLayer, newStroke]);
-      saveToHistory();
-      brushBuilder.reset();
+      // Calculate current color at the time of pointer up
+      const currentColor = (() => {
+        if (useGradient && selectedGradient) {
+          const color = selectedGradient.colors[0];
+          return applyOpacityInline(color, colorOpacity);
+        }
+        const baseColor = customColor || getCurrentColor();
+        return applyOpacityInline(baseColor, colorOpacity);
+      })();
 
-      // Phase 5: Track stroke for progress
-      tracker.recordStroke(currentColor);
-    } else if (selectedTool === 'eraser') {
-      brushBuilder.end(x, y);
+      if (selectedTool === 'brush') {
+        brushBuilder.end(x, y);
 
-      const eraserStroke = {
-        id: `eraser-${Date.now()}`,
-        path: brushBuilder.copyPath(),
-        color: 'white',
-        width: brushSettings.size * 1.5,
-        opacity: 1,
-        isEraser: true,
-      };
+        const newStroke = {
+          id: `stroke-${Date.now()}`,
+          path: brushBuilder.copyPath(),
+          color: currentColor,
+          width: brushSettings.size,
+          opacity: brushSettings.opacity,
+          isEraser: false,
+        };
 
-      setStrokeLayer([...strokeLayer, eraserStroke]);
-      saveToHistory();
-      brushBuilder.reset();
-    }
+        setStrokeLayer([...strokeLayer, newStroke]);
+        saveToHistory();
+        brushBuilder.reset();
 
-    setIsDrawing(false);
-    lastPoint.current = null;
-  }, [isDrawing, selectedTool, brushSettings, saveToHistory, tracker, useGradient, selectedGradient, customColor, colorOpacity, getCurrentColor, strokeLayer, setStrokeLayer]);
+        // Phase 5: Track stroke for progress
+        tracker.recordStroke(currentColor);
+      } else if (selectedTool === 'eraser') {
+        brushBuilder.end(x, y);
 
-  const handleWebPointerLeave = useCallback((e: any) => {
-    if (Platform.OS !== 'web') return;
-    if (!isDrawing) return;
+        const eraserStroke = {
+          id: `eraser-${Date.now()}`,
+          path: brushBuilder.copyPath(),
+          color: 'white',
+          width: brushSettings.size * 1.5,
+          opacity: 1,
+          isEraser: true,
+        };
 
-    // Treat leaving canvas as pointer up
-    handleWebPointerUp(e);
-  }, [isDrawing, handleWebPointerUp]);
+        setStrokeLayer([...strokeLayer, eraserStroke]);
+        saveToHistory();
+        brushBuilder.reset();
+      }
+
+      setIsDrawing(false);
+      lastPoint.current = null;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [
+      isDrawing,
+      selectedTool,
+      brushSettings,
+      saveToHistory,
+      tracker,
+      useGradient,
+      selectedGradient,
+      customColor,
+      colorOpacity,
+      getCurrentColor,
+      strokeLayer,
+      setStrokeLayer,
+    ]
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleWebPointerLeave = useCallback(
+    (e: any) => {
+      if (Platform.OS !== 'web') return;
+      if (!isDrawing) return;
+
+      // Treat leaving canvas as pointer up
+      handleWebPointerUp(e);
+    },
+    [isDrawing, handleWebPointerUp]
+  );
 
   /**
    * 3. NAVIGATION - Pinch Gesture (zoom)
    * 2-finger pinch for zooming
    */
-  const navigationPinchGesture = Gesture.Pinch()
-    .onUpdate((e) => {
-      scale.setValue(Math.max(1, Math.min(e.scale, 3)));
-    });
+  const navigationPinchGesture = Gesture.Pinch().onUpdate(e => {
+    scale.setValue(Math.max(1, Math.min(e.scale, 3)));
+  });
 
   /**
    * 4. NAVIGATION - Pan Gesture (2-finger pan for navigation)
@@ -943,7 +931,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
    */
   const navigationPanGesture = Gesture.Pan()
     .minPointers(2) // Require 2 fingers for navigation pan
-    .onUpdate((e) => {
+    .onUpdate(e => {
       translateX.setValue(e.translationX);
       translateY.setValue(e.translationY);
     });
@@ -971,7 +959,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       console.log('[Save] Capturing canvas...');
 
       if (!canvasRef.current) {
-        Alert.alert("Hata", "Canvas bulunamadı. Lütfen tekrar deneyin.");
+        Alert.alert('Hata', 'Canvas bulunamadı. Lütfen tekrar deneyin.');
         return;
       }
 
@@ -999,11 +987,9 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       setShowCelebration(true);
     } catch (error) {
       console.error('[Save] Error capturing canvas:', error);
-      Alert.alert(
-        "Hata",
-        "Boyama kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin.",
-        [{ text: "Tamam" }]
-      );
+      Alert.alert('Hata', 'Boyama kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin.', [
+        { text: 'Tamam' },
+      ]);
     }
   };
 
@@ -1015,7 +1001,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["#8B4513", "#A0522D", "#8B4513"]}
+        colors={['#8B4513', '#A0522D', '#8B4513']}
         style={styles.frameContainer}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -1029,11 +1015,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                 style={[
                   styles.canvasContainer,
                   {
-                    transform: [
-                      { scale },
-                      { translateX },
-                      { translateY },
-                    ],
+                    transform: [{ scale }, { translateX }, { translateY }],
                   },
                 ]}
                 // @ts-ignore - Web-specific pointer event handlers
@@ -1067,7 +1049,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
                   {/* Layer 2: Fill Layer - Color Fills */}
                   <Group blendMode="multiply" opacity={0.8}>
-                    {fillLayer.map((fill) => (
+                    {fillLayer.map(fill => (
                       <SkiaCircle
                         key={fill.id}
                         cx={fill.x}
@@ -1080,7 +1062,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
                   {/* Layer 3: Stroke Layer - Brush Strokes + Eraser (Phase 1: Advanced) */}
                   <Group>
-                    {strokeLayer.map((stroke) => (
+                    {strokeLayer.map(stroke => (
                       <BrushStroke
                         key={stroke.id}
                         path={stroke.path}
@@ -1094,7 +1076,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                   </Group>
 
                   {/* Current Path Preview - Real-time feedback with advanced settings */}
-                  {isDrawing && selectedTool === "brush" && brushBuilder.getPath() && (
+                  {isDrawing && selectedTool === 'brush' && brushBuilder.getPath() && (
                     <BrushStroke
                       path={brushBuilder.getPath()}
                       color={getCurrentColorWithOpacity()}
@@ -1106,7 +1088,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                   )}
 
                   {/* Eraser Preview */}
-                  {isDrawing && selectedTool === "eraser" && brushBuilder.getPath() && (
+                  {isDrawing && selectedTool === 'eraser' && brushBuilder.getPath() && (
                     <BrushStroke
                       path={brushBuilder.getPath()}
                       color="white"
@@ -1140,7 +1122,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                   )}
 
                   {/* Phase 4: Drawing Sparkles */}
-                  {sparkles.map((sparkle) => (
+                  {sparkles.map(sparkle => (
                     <SparkleBurst
                       key={sparkle.id}
                       x={sparkle.x}
@@ -1148,7 +1130,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                       color={sparkle.color}
                       intensity="high"
                       onComplete={() => {
-                        setSparkles((prev) => prev.filter((s) => s.id !== sparkle.id));
+                        setSparkles(prev => prev.filter(s => s.id !== sparkle.id));
                       }}
                     />
                   ))}
@@ -1156,7 +1138,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
                 {/* Phase 7: Sticker Layer (rendered as View overlay) */}
                 <View style={styles.stickerOverlay} pointerEvents="none">
-                  {stickerLayer.map((sticker) => (
+                  {stickerLayer.map(sticker => (
                     <View
                       key={sticker.id}
                       style={[
@@ -1168,9 +1150,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
                         },
                       ]}
                     >
-                      <Text style={{ fontSize: sticker.size * 0.8 }}>
-                        {sticker.emoji}
-                      </Text>
+                      <Text style={{ fontSize: sticker.size * 0.8 }}>{sticker.emoji}</Text>
                     </View>
                   ))}
                 </View>
@@ -1193,56 +1173,44 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
             {/* Tool Selector - Phase 4: With animations */}
             <Animated.View style={[styles.toolSelector, { opacity: toolOpacity }]}>
-              <ToolChangeAnimation isActive={selectedTool === "brush"} animationType="bounce">
+              <ToolChangeAnimation isActive={selectedTool === 'brush'} animationType="bounce">
                 <Pressable
-                  onPress={() => handleToolChange("brush")}
-                  style={[
-                    styles.toolButton,
-                    selectedTool === "brush" && styles.toolButtonActive,
-                  ]}
+                  onPress={() => handleToolChange('brush')}
+                  style={[styles.toolButton, selectedTool === 'brush' && styles.toolButtonActive]}
                 >
                   <Paintbrush size={20} color={Colors.neutral.white} />
-                  {selectedTool === "brush" && <ToolGlowAnimation isActive={true} />}
+                  {selectedTool === 'brush' && <ToolGlowAnimation isActive={true} />}
                 </Pressable>
               </ToolChangeAnimation>
 
-              <ToolChangeAnimation isActive={selectedTool === "fill"} animationType="bounce">
+              <ToolChangeAnimation isActive={selectedTool === 'fill'} animationType="bounce">
                 <Pressable
-                  onPress={() => handleToolChange("fill")}
-                  style={[
-                    styles.toolButton,
-                    selectedTool === "fill" && styles.toolButtonActive,
-                  ]}
+                  onPress={() => handleToolChange('fill')}
+                  style={[styles.toolButton, selectedTool === 'fill' && styles.toolButtonActive]}
                 >
                   <PaintBucket size={20} color={Colors.neutral.white} />
-                  {selectedTool === "fill" && <ToolGlowAnimation isActive={true} />}
+                  {selectedTool === 'fill' && <ToolGlowAnimation isActive={true} />}
                 </Pressable>
               </ToolChangeAnimation>
 
-              <ToolChangeAnimation isActive={selectedTool === "eraser"} animationType="bounce">
+              <ToolChangeAnimation isActive={selectedTool === 'eraser'} animationType="bounce">
                 <Pressable
-                  onPress={() => handleToolChange("eraser")}
-                  style={[
-                    styles.toolButton,
-                    selectedTool === "eraser" && styles.toolButtonActive,
-                  ]}
+                  onPress={() => handleToolChange('eraser')}
+                  style={[styles.toolButton, selectedTool === 'eraser' && styles.toolButtonActive]}
                 >
                   <Eraser size={20} color={Colors.neutral.white} />
-                  {selectedTool === "eraser" && <ToolGlowAnimation isActive={true} />}
+                  {selectedTool === 'eraser' && <ToolGlowAnimation isActive={true} />}
                 </Pressable>
               </ToolChangeAnimation>
 
               {/* Sticker Tool Button */}
-              <ToolChangeAnimation isActive={selectedTool === "sticker"} animationType="bounce">
+              <ToolChangeAnimation isActive={selectedTool === 'sticker'} animationType="bounce">
                 <Pressable
-                  onPress={() => handleToolChange("sticker")}
-                  style={[
-                    styles.toolButton,
-                    selectedTool === "sticker" && styles.toolButtonActive,
-                  ]}
+                  onPress={() => handleToolChange('sticker')}
+                  style={[styles.toolButton, selectedTool === 'sticker' && styles.toolButtonActive]}
                 >
                   <Sticker size={20} color={Colors.neutral.white} />
-                  {selectedTool === "sticker" && <ToolGlowAnimation isActive={true} />}
+                  {selectedTool === 'sticker' && <ToolGlowAnimation isActive={true} />}
                 </Pressable>
               </ToolChangeAnimation>
             </Animated.View>
@@ -1252,7 +1220,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
               <View style={styles.textureSelector}>
                 <GlitterToggle
                   isGlitterEnabled={selectedTexture === 'glitter'}
-                  onToggle={(enabled) => setSelectedTexture(enabled ? 'glitter' : 'solid')}
+                  onToggle={enabled => setSelectedTexture(enabled ? 'glitter' : 'solid')}
                 />
               </View>
             )}
@@ -1312,7 +1280,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
             {/* Color Palettes */}
             <ScrollView style={styles.paletteScroll} showsVerticalScrollIndicator={false}>
-              {colorPalettes.map((palette) => (
+              {colorPalettes.map(palette => (
                 <Pressable
                   key={palette.id}
                   onPress={() => handleColorChange(palette)}
@@ -1362,27 +1330,21 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
         {/* Save Button */}
         <Pressable onPress={handleSave} style={styles.saveButton}>
-          <LinearGradient
-            colors={["#6BCB77", "#4CAF50"]}
-            style={styles.saveButtonGradient}
-          >
+          <LinearGradient colors={['#6BCB77', '#4CAF50']} style={styles.saveButtonGradient}>
             <Text style={styles.saveButtonText}>💾 Kaydet ve Paylaş</Text>
           </LinearGradient>
         </Pressable>
       </LinearGradient>
 
       {/* Phase 1: Tool Settings Panel */}
-      <ToolSettings
-        visible={showToolSettings}
-        onClose={() => setShowToolSettings(false)}
-      />
+      <ToolSettings visible={showToolSettings} onClose={() => setShowToolSettings(false)} />
 
       {/* Phase 6: AI Color Suggestions */}
       {imageBase64ForAI && (
         <AISuggestions
           imageBase64={imageBase64ForAI}
           ageGroup={5}
-          onColorSelect={(color) => {
+          onColorSelect={color => {
             setCustomColor(color);
             setUseGradient(false);
             SoundManager.playColorSelect();
@@ -1410,20 +1372,17 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
             </View>
 
             {/* Color Picker Content */}
-            <ScrollView
-              style={styles.colorPickerContent}
-              showsVerticalScrollIndicator={false}
-            >
+            <ScrollView style={styles.colorPickerContent} showsVerticalScrollIndicator={false}>
               {/* Reference Image Picker */}
               <View style={styles.colorPickerSection}>
                 <Text style={styles.sectionLabel}>📸 Referans Görsel</Text>
                 <ReferenceImagePicker
-                  onColorSelect={(color) => {
+                  onColorSelect={color => {
                     setCustomColor(color);
                     setUseGradient(false);
                     SoundManager.playColorSelect();
                   }}
-                  onPaletteExtract={(colors) => {
+                  onPaletteExtract={colors => {
                     console.log('[ColorPicker] Extracted palette:', colors);
                   }}
                 />
@@ -1461,7 +1420,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
               <View style={styles.colorPickerSection}>
                 <ColorHarmony
                   baseColor={customColor}
-                  onColorSelect={(color) => {
+                  onColorSelect={color => {
                     setCustomColor(color);
                     setUseGradient(false);
                     SoundManager.playColorSelect();
@@ -1505,7 +1464,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
               style={styles.colorPickerApplyButton}
             >
               <LinearGradient
-                colors={["#FF9B7A", "#FF6B6B"]}
+                colors={['#FF9B7A', '#FF6B6B']}
                 style={styles.colorPickerApplyGradient}
               >
                 <Text style={styles.colorPickerApplyText}>✓ Uygula</Text>
@@ -1578,7 +1537,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       <StickerPicker
         visible={showStickerPicker}
         onClose={() => setShowStickerPicker(false)}
-        onStickerSelect={(sticker) => {
+        onStickerSelect={sticker => {
           setSelectedSticker(sticker);
           SoundManager.playColorSelect();
         }}
@@ -1591,33 +1550,33 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2C1810",
+    backgroundColor: '#2C1810',
   },
   frameContainer: {
     flex: 1,
-    padding: spacing["4"],
+    padding: spacing['4'],
     borderRadius: radius.xl,
-    margin: spacing["2"],
+    margin: spacing['2'],
   },
   contentContainer: {
     flex: 1,
-    flexDirection: "row",
-    gap: spacing["3"],
+    flexDirection: 'row',
+    gap: spacing['3'],
   },
   canvasArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   canvasContainer: {
     width: CANVAS_SIZE,
     height: CANVAS_SIZE,
     borderRadius: radius.lg,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: Colors.neutral.white,
     ...shadows.xl,
     borderWidth: 4,
-    borderColor: "#654321",
+    borderColor: '#654321',
   },
   canvas: {
     width: CANVAS_SIZE,
@@ -1625,60 +1584,60 @@ const styles = StyleSheet.create({
   },
   toolPanel: {
     width: TOOL_PANEL_WIDTH,
-    backgroundColor: "#654321",
+    backgroundColor: '#654321',
     borderRadius: radius.xl,
-    padding: spacing["2"],
-    gap: spacing["3"],
+    padding: spacing['2'],
+    gap: spacing['3'],
     ...shadows.lg,
   },
   topActions: {
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   backButton: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
     borderRadius: radius.lg,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4D96FF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#4D96FF',
     ...shadows.md,
   },
   closeButton: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
     borderRadius: radius.lg,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FF6B6B",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FF6B6B',
     ...shadows.md,
   },
   toolSelector: {
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   toolButton: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
     borderRadius: radius.lg,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#8B4513",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#8B4513',
     ...shadows.md,
   },
   toolButtonActive: {
-    backgroundColor: "#FFD700",
+    backgroundColor: '#FFD700',
     borderWidth: 2,
     borderColor: Colors.neutral.white,
     ...shadows.xl,
   },
   toolButtonDisabled: {
-    backgroundColor: "#888",
+    backgroundColor: '#888',
     opacity: 0.4,
   },
   settingsButton: {
-    backgroundColor: "#9D4EDD",
+    backgroundColor: '#9D4EDD',
   },
   advancedColorButton: {
-    backgroundColor: "#FF9B7A",
+    backgroundColor: '#FF9B7A',
   },
   settingsEmoji: {
     fontSize: 24,
@@ -1687,14 +1646,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   paletteButton: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
     borderRadius: radius.lg,
-    overflow: "hidden",
-    marginBottom: spacing["2"],
+    overflow: 'hidden',
+    marginBottom: spacing['2'],
     ...shadows.md,
     borderWidth: 2,
-    borderColor: "transparent",
+    borderColor: 'transparent',
   },
   paletteButtonSelected: {
     borderColor: Colors.neutral.white,
@@ -1702,18 +1661,18 @@ const styles = StyleSheet.create({
     ...shadows.lg,
   },
   paletteColorBox: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   selectedIndicator: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.2)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
   selectedCheck: {
     fontSize: typography.size.xl,
@@ -1721,17 +1680,17 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
   },
   bottomActions: {
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   saveButton: {
-    marginTop: spacing["3"],
+    marginTop: spacing['3'],
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.xl,
   },
   saveButtonGradient: {
-    paddingVertical: spacing["4"],
-    alignItems: "center",
+    paddingVertical: spacing['4'],
+    alignItems: 'center',
   },
   saveButtonText: {
     fontSize: typography.size.xl,

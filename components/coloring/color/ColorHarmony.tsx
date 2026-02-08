@@ -20,20 +20,9 @@
  */
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Animated,
-  Dimensions,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { shadows, textShadows } from '@/constants/design-system';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ============================================================================
 // TYPES
@@ -74,9 +63,9 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return { h: 0, s: 0, l: 0 };
 
-  let r = parseInt(result[1], 16) / 255;
-  let g = parseInt(result[2], 16) / 255;
-  let b = parseInt(result[3], 16) / 255;
+  const r = parseInt(result[1], 16) / 255;
+  const g = parseInt(result[2], 16) / 255;
+  const b = parseInt(result[3], 16) / 255;
 
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
@@ -202,11 +191,7 @@ function generateAnalogous(baseColor: string): HarmonyResult {
     nameTr: 'Benzer',
     description: 'Adjacent colors create a harmonious, unified look',
     descriptionTr: 'Yan yana renkler uyumlu ve birleşik bir görünüm yaratır',
-    colors: [
-      rotateHue(baseColor, -30),
-      baseColor,
-      rotateHue(baseColor, 30),
-    ],
+    colors: [rotateHue(baseColor, -30), baseColor, rotateHue(baseColor, 30)],
     emoji: '🌈',
   };
 }
@@ -221,11 +206,7 @@ function generateTriadic(baseColor: string): HarmonyResult {
     nameTr: 'Üçlü',
     description: 'Three colors evenly spaced create vibrant combinations',
     descriptionTr: 'Eşit aralıklı üç renk canlı kombinasyonlar yaratır',
-    colors: [
-      baseColor,
-      rotateHue(baseColor, 120),
-      rotateHue(baseColor, 240),
-    ],
+    colors: [baseColor, rotateHue(baseColor, 120), rotateHue(baseColor, 240)],
     emoji: '🔺',
   };
 }
@@ -240,11 +221,7 @@ function generateSplitComplementary(baseColor: string): HarmonyResult {
     nameTr: 'Bölünmüş Tamamlayıcı',
     description: 'Base color plus two colors adjacent to its complement',
     descriptionTr: 'Ana renk ve tamamlayıcısının yanındaki iki renk',
-    colors: [
-      baseColor,
-      rotateHue(baseColor, 150),
-      rotateHue(baseColor, 210),
-    ],
+    colors: [baseColor, rotateHue(baseColor, 150), rotateHue(baseColor, 210)],
     emoji: '✨',
   };
 }
@@ -308,11 +285,7 @@ export function getAllHarmonies(baseColor: string): HarmonyResult[] {
 // MAIN COMPONENT
 // ============================================================================
 
-export function ColorHarmony({
-  baseColor,
-  onColorSelect,
-  onHarmonySelect,
-}: ColorHarmonyProps) {
+export function ColorHarmony({ baseColor, onColorSelect, onHarmonySelect }: ColorHarmonyProps) {
   const [selectedHarmony, setSelectedHarmony] = useState<HarmonyType>('complementary');
   const harmonies = useMemo(() => getAllHarmonies(baseColor), [baseColor]);
   const temperature = useMemo(() => getColorTemperature(baseColor), [baseColor]);
@@ -321,7 +294,7 @@ export function ColorHarmony({
 
   // Initialize scale animations
   useEffect(() => {
-    harmonies.forEach((harmony) => {
+    harmonies.forEach(harmony => {
       if (!scaleAnims[harmony.type]) {
         scaleAnims[harmony.type] = new Animated.Value(0);
       }
@@ -332,6 +305,7 @@ export function ColorHarmony({
         useNativeDriver: true,
       }).start();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [harmonies]);
 
   // Handle harmony type selection
@@ -347,7 +321,7 @@ export function ColorHarmony({
     onColorSelect(color);
   };
 
-  const currentHarmony = harmonies.find((h) => h.type === selectedHarmony);
+  const currentHarmony = harmonies.find(h => h.type === selectedHarmony);
 
   return (
     <View style={styles.container}>
@@ -375,7 +349,7 @@ export function ColorHarmony({
         style={styles.harmonyTypesScroll}
         contentContainerStyle={styles.harmonyTypesContent}
       >
-        {harmonies.map((harmony) => (
+        {harmonies.map(harmony => (
           <TouchableOpacity
             key={harmony.type}
             style={[
@@ -401,18 +375,14 @@ export function ColorHarmony({
       {/* Selected Harmony Colors */}
       {currentHarmony && (
         <View style={styles.harmonySection}>
-          <Text style={styles.harmonyDescription}>
-            {currentHarmony.descriptionTr}
-          </Text>
+          <Text style={styles.harmonyDescription}>{currentHarmony.descriptionTr}</Text>
 
           <View style={styles.harmonyColors}>
             {currentHarmony.colors.map((color, index) => (
               <Animated.View
                 key={`${currentHarmony.type}-${index}`}
                 style={{
-                  transform: [
-                    { scale: scaleAnims[currentHarmony.type] || new Animated.Value(1) },
-                  ],
+                  transform: [{ scale: scaleAnims[currentHarmony.type] || new Animated.Value(1) }],
                 }}
               >
                 <TouchableOpacity
@@ -421,9 +391,7 @@ export function ColorHarmony({
                   activeOpacity={0.8}
                 >
                   <View style={styles.harmonyColorLabel}>
-                    <Text style={styles.harmonyColorHex}>
-                      {color.toUpperCase()}
-                    </Text>
+                    <Text style={styles.harmonyColorHex}>{color.toUpperCase()}</Text>
                   </View>
                 </TouchableOpacity>
               </Animated.View>
@@ -438,10 +406,7 @@ export function ColorHarmony({
         <View style={styles.suggestionsRow}>
           {/* Lighter */}
           <TouchableOpacity
-            style={[
-              styles.suggestionBox,
-              { backgroundColor: adjustLightness(baseColor, 15) },
-            ]}
+            style={[styles.suggestionBox, { backgroundColor: adjustLightness(baseColor, 15) }]}
             onPress={() => handleColorSelect(adjustLightness(baseColor, 15))}
           >
             <Text style={styles.suggestionText}>Açık</Text>
@@ -460,10 +425,7 @@ export function ColorHarmony({
 
           {/* Darker */}
           <TouchableOpacity
-            style={[
-              styles.suggestionBox,
-              { backgroundColor: adjustLightness(baseColor, -15) },
-            ]}
+            style={[styles.suggestionBox, { backgroundColor: adjustLightness(baseColor, -15) }]}
             onPress={() => handleColorSelect(adjustLightness(baseColor, -15))}
           >
             <Text style={styles.suggestionText}>Koyu</Text>
@@ -471,10 +433,7 @@ export function ColorHarmony({
 
           {/* More Saturated */}
           <TouchableOpacity
-            style={[
-              styles.suggestionBox,
-              { backgroundColor: adjustSaturation(baseColor, 20) },
-            ]}
+            style={[styles.suggestionBox, { backgroundColor: adjustSaturation(baseColor, 20) }]}
             onPress={() => handleColorSelect(adjustSaturation(baseColor, 20))}
           >
             <Text style={styles.suggestionText}>Canlı</Text>
@@ -482,10 +441,7 @@ export function ColorHarmony({
 
           {/* Less Saturated */}
           <TouchableOpacity
-            style={[
-              styles.suggestionBox,
-              { backgroundColor: adjustSaturation(baseColor, -20) },
-            ]}
+            style={[styles.suggestionBox, { backgroundColor: adjustSaturation(baseColor, -20) }]}
             onPress={() => handleColorSelect(adjustSaturation(baseColor, -20))}
           >
             <Text style={styles.suggestionText}>Pastel</Text>
@@ -510,13 +466,7 @@ export function ColorHarmonyCompact({
   const triadic1 = rotateHue(baseColor, 120);
   const triadic2 = rotateHue(baseColor, 240);
 
-  const suggestedColors = [
-    complementary,
-    analogous1,
-    analogous2,
-    triadic1,
-    triadic2,
-  ];
+  const suggestedColors = [complementary, analogous1, analogous2, triadic1, triadic2];
 
   return (
     <View style={styles.compactContainer}>
