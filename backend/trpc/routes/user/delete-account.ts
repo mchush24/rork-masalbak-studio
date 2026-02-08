@@ -1,8 +1,8 @@
-import { logger } from "../../../lib/utils.js";
-import { protectedProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure.js";
-import bcrypt from "bcryptjs";
+import { logger } from '../../../lib/utils.js';
+import { protectedProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { getSecureClient } from '../../../lib/supabase-secure.js';
+import bcrypt from 'bcryptjs';
 
 const deleteAccountInputSchema = z.object({
   confirmEmail: z.string().email(),
@@ -13,110 +13,113 @@ export const deleteAccountProcedure = protectedProcedure
   .input(deleteAccountInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId;
-    logger.info("[deleteAccount] User requesting account deletion:", userId);
+    logger.info('[deleteAccount] User requesting account deletion:', userId);
 
-    const supabase = getSecureClient(ctx);
+    const supabase = await getSecureClient(ctx);
 
     // First, verify user email matches
     const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("email, password_hash")
-      .eq("id", userId)
+      .from('users')
+      .select('email, password_hash')
+      .eq('id', userId)
       .single();
 
     if (userError || !userData) {
-      logger.error("[deleteAccount] User not found:", userError);
-      throw new Error("User not found");
+      logger.error('[deleteAccount] User not found:', userError);
+      throw new Error('User not found');
     }
 
     if (userData.email !== input.confirmEmail) {
-      logger.error("[deleteAccount] Email mismatch");
-      throw new Error("Email does not match");
+      logger.error('[deleteAccount] Email mismatch');
+      throw new Error('Email does not match');
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(input.confirmPassword, userData.password_hash);
 
     if (!isPasswordValid) {
-      logger.error("[deleteAccount] Invalid password");
-      throw new Error("Invalid password");
+      logger.error('[deleteAccount] Invalid password');
+      throw new Error('Invalid password');
     }
 
-    logger.info("[deleteAccount] Verification successful, proceeding with cascade delete");
+    logger.info('[deleteAccount] Verification successful, proceeding with cascade delete');
 
     // Cascade delete: Delete all user data
     // Order matters: delete child records first, then parent
+    // Collect errors but continue - partial cleanup is better than no cleanup
+    const errors: string[] = [];
 
     // 1. Delete analyses
-    const { error: analysesError } = await supabase
-      .from("analyses")
-      .delete()
-      .eq("user_id", userId);
+    const { error: analysesError } = await supabase.from('analyses').delete().eq('user_id', userId);
 
     if (analysesError) {
-      logger.error("[deleteAccount] Error deleting analyses:", analysesError);
-      // Continue anyway - best effort
+      logger.error('[deleteAccount] Error deleting analyses:', analysesError);
+      errors.push('analyses');
     }
 
-    // 2. Delete storybooks
+    // 2. Delete storybooks (uses user_id_fk)
     const { error: storybooksError } = await supabase
-      .from("storybooks")
+      .from('storybooks')
       .delete()
-      .eq("user_id_fk", userId);
+      .eq('user_id_fk', userId);
 
     if (storybooksError) {
-      logger.error("[deleteAccount] Error deleting storybooks:", storybooksError);
-      // Continue anyway
+      logger.error('[deleteAccount] Error deleting storybooks:', storybooksError);
+      errors.push('storybooks');
     }
 
-    // 3. Delete colorings
+    // 3. Delete colorings (uses user_id_fk)
     const { error: coloringsError } = await supabase
-      .from("colorings")
+      .from('colorings')
       .delete()
-      .eq("user_id_fk", userId);
+      .eq('user_id_fk', userId);
 
     if (coloringsError) {
-      logger.error("[deleteAccount] Error deleting colorings:", coloringsError);
-      // Continue anyway
+      logger.error('[deleteAccount] Error deleting colorings:', coloringsError);
+      errors.push('colorings');
     }
 
     // 4. Delete verification codes
     const { error: verificationError } = await supabase
-      .from("verification_codes")
+      .from('verification_codes')
       .delete()
-      .eq("user_id", userId);
+      .eq('email', userData.email);
 
     if (verificationError) {
-      logger.error("[deleteAccount] Error deleting verification codes:", verificationError);
-      // Continue anyway
+      logger.error('[deleteAccount] Error deleting verification codes:', verificationError);
+      errors.push('verification_codes');
     }
 
     // 5. Delete user settings
     const { error: settingsError } = await supabase
-      .from("user_settings")
+      .from('user_settings')
       .delete()
-      .eq("user_id", userId);
+      .eq('user_id', userId);
 
     if (settingsError) {
-      logger.error("[deleteAccount] Error deleting settings:", settingsError);
-      // Continue anyway
+      logger.error('[deleteAccount] Error deleting settings:', settingsError);
+      errors.push('user_settings');
     }
 
     // 6. Finally, delete the user record
-    const { error: deleteUserError } = await supabase
-      .from("users")
-      .delete()
-      .eq("id", userId);
+    const { error: deleteUserError } = await supabase.from('users').delete().eq('id', userId);
 
     if (deleteUserError) {
-      logger.error("[deleteAccount] Error deleting user:", deleteUserError);
-      throw new Error("Failed to delete account. Please contact support.");
+      logger.error('[deleteAccount] Error deleting user:', deleteUserError);
+      throw new Error('Failed to delete account. Please contact support.');
     }
 
-    logger.info("[deleteAccount] ✅ Account deleted successfully:", userId);
+    if (errors.length > 0) {
+      logger.warn(
+        '[deleteAccount] Account deleted with partial cleanup failures:',
+        errors.join(', ')
+      );
+    } else {
+      logger.info('[deleteAccount] Account deleted successfully:', userId);
+    }
 
     return {
       success: true,
-      message: "Your account and all associated data have been permanently deleted",
+      message: 'Your account and all associated data have been permanently deleted',
     };
   });

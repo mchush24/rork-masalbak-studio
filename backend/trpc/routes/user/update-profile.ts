@@ -1,22 +1,20 @@
-import { logger } from "../../../lib/utils.js";
-import { protectedProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { getSecureClient } from "../../../lib/supabase-secure.js";
-
-
+import { logger } from '../../../lib/utils.js';
+import { protectedProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { getSecureClient } from '../../../lib/supabase-secure.js';
 
 const childSchema = z.object({
   name: z.string().min(1).max(50),
   age: z.number().min(0).max(18),
   birthDate: z.string().max(20).optional(), // ISO date format
-  gender: z.enum(["male", "female", "other"]).optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
   avatarId: z.string().max(50).optional(),
 });
 
 const updateProfileInputSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   avatarUrl: z.string().max(500).optional(), // Can be avatar ID or URL
-  language: z.enum(["tr", "en", "de", "ru"]).optional(),
+  language: z.enum(['tr', 'en', 'de', 'ru']).optional(),
   children: z.array(childSchema).max(10).optional(), // Max 10 children
   preferences: z.record(z.string().max(50), z.unknown()).optional(),
 });
@@ -25,14 +23,14 @@ export const updateProfileProcedure = protectedProcedure
   .input(updateProfileInputSchema)
   .mutation(async ({ ctx, input }) => {
     const userId = ctx.userId; // Get from authenticated context
-    logger.info("[updateProfile] Updating profile:", userId);
+    logger.info('[updateProfile] Updating profile:', userId);
 
-    const supabase = getSecureClient(ctx);
+    const supabase = await getSecureClient(ctx);
 
     const updates = input;
 
     // Prepare update object
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
@@ -43,17 +41,17 @@ export const updateProfileProcedure = protectedProcedure
     if (updates.preferences !== undefined) updateData.preferences = updates.preferences;
 
     const { data, error } = await supabase
-      .from("users")
+      .from('users')
       .update(updateData)
-      .eq("id", userId)
+      .eq('id', userId)
       .select()
       .single();
 
     if (error) {
-      logger.error("[updateProfile] Error:", error);
+      logger.error('[updateProfile] Error:', error);
       throw new Error(error.message);
     }
 
-    logger.info("[updateProfile] Profile updated successfully");
+    logger.info('[updateProfile] Profile updated successfully');
     return data;
   });

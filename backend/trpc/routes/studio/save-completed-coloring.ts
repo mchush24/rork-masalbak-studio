@@ -1,14 +1,14 @@
-import { logger } from "../../../lib/utils.js";
+import { logger } from '../../../lib/utils.js';
 /**
  * Save Completed Coloring
  *
  * Saves a user's completed coloring with the colored image
  */
 
-import { z } from "zod";
-import { protectedProcedure } from "../../create-context.js";
-import { getSecureClient } from "../../../lib/supabase-secure.js";
-import { BadgeService } from "../../../lib/badge-service.js";
+import { z } from 'zod';
+import { protectedProcedure } from '../../create-context.js';
+import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { BadgeService } from '../../../lib/badge-service.js';
 
 export const saveCompletedColoringProcedure = protectedProcedure
   .input(
@@ -23,18 +23,18 @@ export const saveCompletedColoringProcedure = protectedProcedure
 
     logger.info(`[SaveCompletedColoring] User ${userId} saving coloring ${coloringId}`);
 
-    const supabase = getSecureClient(ctx);
+    const supabase = await getSecureClient(ctx);
 
     // 1. Verify the coloring belongs to this user
     const { data: coloring, error: fetchError } = await supabase
-      .from("colorings")
-      .select("*")
-      .eq("id", coloringId)
-      .eq("user_id_fk", userId)
+      .from('colorings')
+      .select('*')
+      .eq('id', coloringId)
+      .eq('user_id_fk', userId)
       .single();
 
     if (fetchError || !coloring) {
-      logger.error("[SaveCompletedColoring] Coloring not found or access denied:", fetchError);
+      logger.error('[SaveCompletedColoring] Coloring not found or access denied:', fetchError);
       throw new Error("Coloring not found or you don't have permission to update it");
     }
 
@@ -48,9 +48,8 @@ export const saveCompletedColoringProcedure = protectedProcedure
       const filename = `images/completed_coloring_${coloringId}_${Date.now()}.png`;
 
       // Upload to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from(process.env.SUPABASE_BUCKET || "renkioo")
+      const { error: uploadError } = await supabase.storage
+        .from(process.env.SUPABASE_BUCKET || 'renkioo')
         .upload(filename, imageBuffer, {
           contentType: 'image/png',
           cacheControl: '3600',
@@ -58,39 +57,38 @@ export const saveCompletedColoringProcedure = protectedProcedure
         });
 
       if (uploadError) {
-        logger.error("[SaveCompletedColoring] Upload error:", uploadError);
-        throw new Error("Failed to upload completed image");
+        logger.error('[SaveCompletedColoring] Upload error:', uploadError);
+        throw new Error('Failed to upload completed image');
       }
 
       // Get public URL
-      const { data: urlData } = supabase
-        .storage
-        .from(process.env.SUPABASE_BUCKET || "renkioo")
+      const { data: urlData } = supabase.storage
+        .from(process.env.SUPABASE_BUCKET || 'renkioo')
         .getPublicUrl(filename);
 
       const completedImageUrl = urlData.publicUrl;
 
-      logger.info("[SaveCompletedColoring] Image uploaded:", completedImageUrl);
+      logger.info('[SaveCompletedColoring] Image uploaded:', completedImageUrl);
 
       // 3. Update the coloring record
       const { data: updatedColoring, error: updateError } = await supabase
-        .from("colorings")
+        .from('colorings')
         .update({
           completed_image_url: completedImageUrl,
           is_completed: true,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", coloringId)
-        .eq("user_id_fk", userId)
+        .eq('id', coloringId)
+        .eq('user_id_fk', userId)
         .select()
         .single();
 
       if (updateError) {
-        logger.error("[SaveCompletedColoring] Update error:", updateError);
-        throw new Error("Failed to update coloring record");
+        logger.error('[SaveCompletedColoring] Update error:', updateError);
+        throw new Error('Failed to update coloring record');
       }
 
-      logger.info("[SaveCompletedColoring] ✅ Successfully saved completed coloring");
+      logger.info('[SaveCompletedColoring] ✅ Successfully saved completed coloring');
 
       // Record activity and check badges in background (fire-and-forget with logging)
       const badgeStartTime = Date.now();
@@ -100,7 +98,11 @@ export const saveCompletedColoringProcedure = protectedProcedure
         .then(() => {
           const duration = Date.now() - badgeStartTime;
           if (duration > 2000) {
-            logger.warn('[saveCompletedColoring] Badge check took longer than expected:', duration, 'ms');
+            logger.warn(
+              '[saveCompletedColoring] Badge check took longer than expected:',
+              duration,
+              'ms'
+            );
           }
         })
         .catch(err => {
@@ -114,7 +116,7 @@ export const saveCompletedColoringProcedure = protectedProcedure
         completedImageUrl,
       };
     } catch (error) {
-      logger.error("[SaveCompletedColoring] Error:", error);
-      throw new Error("Failed to save completed coloring");
+      logger.error('[SaveCompletedColoring] Error:', error);
+      throw new Error('Failed to save completed coloring');
     }
   });
