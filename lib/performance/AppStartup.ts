@@ -5,8 +5,8 @@
  * and performance tracking
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { InteractionManager, Platform } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
+import { InteractionManager } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
 // ============================================
@@ -29,12 +29,12 @@ export interface StartupMetrics {
     essential: number;
     deferred: number;
   };
-  tasks: Array<{
+  tasks: {
     id: string;
     name: string;
     duration: number;
     success: boolean;
-  }>;
+  }[];
   errors: string[];
 }
 
@@ -72,7 +72,7 @@ class StartupManager {
    * Register multiple tasks
    */
   registerAll(tasks: StartupTask[]): void {
-    tasks.forEach((task) => this.register(task));
+    tasks.forEach(task => this.register(task));
   }
 
   /**
@@ -90,7 +90,7 @@ class StartupManager {
     await this.runPhase('critical');
 
     // Phase 2: Essential tasks (after first render)
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       InteractionManager.runAfterInteractions(() => resolve());
     });
     await this.runPhase('essential');
@@ -114,7 +114,7 @@ class StartupManager {
     this.setPhase(phase);
     const phaseStart = Date.now();
 
-    const phaseTasks = Array.from(this.tasks.values()).filter((t) => t.phase === phase);
+    const phaseTasks = Array.from(this.tasks.values()).filter(t => t.phase === phase);
 
     for (const task of phaseTasks) {
       if (this.completedTasks.has(task.id)) continue;
@@ -161,7 +161,7 @@ class StartupManager {
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error');
         if (attempt < maxRetries) {
-          await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         }
       }
     }
@@ -261,8 +261,9 @@ export function useAppStartup(options: UseAppStartupOptions): UseAppStartupResul
     const runStartup = async () => {
       try {
         // Keep splash screen visible
-        await SplashScreen.preventAutoHideAsync().catch((err) => {
-          if (__DEV__) console.warn('[Startup] SplashScreen.preventAutoHideAsync failed:', err?.message);
+        await SplashScreen.preventAutoHideAsync().catch(err => {
+          if (__DEV__)
+            console.warn('[Startup] SplashScreen.preventAutoHideAsync failed:', err?.message);
         });
 
         // Register tasks
@@ -284,7 +285,7 @@ export function useAppStartup(options: UseAppStartupOptions): UseAppStartupResul
 
         // Hide splash screen
         if (hideSplashOnComplete) {
-          await SplashScreen.hideAsync().catch((err) => {
+          await SplashScreen.hideAsync().catch(err => {
             if (__DEV__) console.warn('[Startup] SplashScreen.hideAsync failed:', err?.message);
           });
         }
@@ -303,7 +304,7 @@ export function useAppStartup(options: UseAppStartupOptions): UseAppStartupResul
         onError?.([message]);
 
         // Still hide splash screen to show error state
-        await SplashScreen.hideAsync().catch((e) => {
+        await SplashScreen.hideAsync().catch(e => {
           if (__DEV__) console.warn('[Startup] Error recovery splash hide failed:', e?.message);
         });
       }

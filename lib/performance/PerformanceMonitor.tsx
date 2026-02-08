@@ -6,14 +6,7 @@
  */
 
 import React, { useEffect, useState, useCallback, useRef, memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  InteractionManager,
-  Platform,
-} from 'react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { View, Text, StyleSheet, InteractionManager, Platform } from 'react-native';
 import { zIndex } from '@/constants/design-system';
 
 interface PerformanceMetrics {
@@ -25,7 +18,7 @@ interface PerformanceMetrics {
 }
 
 // Global metrics store
-let globalMetrics: PerformanceMetrics = {
+const globalMetrics: PerformanceMetrics = {
   fps: 60,
   memoryUsage: 0,
   jsThreadBlocked: false,
@@ -36,7 +29,7 @@ let globalMetrics: PerformanceMetrics = {
 // FPS tracking
 let frameCount = 0;
 let lastFpsUpdate = Date.now();
-let fpsHistory: number[] = [];
+const fpsHistory: number[] = [];
 
 /**
  * Track FPS
@@ -50,10 +43,10 @@ function updateFps() {
     const fps = Math.round((frameCount * 1000) / elapsed);
     fpsHistory.push(fps);
     if (fpsHistory.length > 60) fpsHistory.shift();
-    
+
     globalMetrics.fps = fps;
     globalMetrics.lastUpdate = now;
-    
+
     frameCount = 0;
     lastFpsUpdate = now;
   }
@@ -101,7 +94,7 @@ export function usePerformanceMetrics() {
   }, []);
 
   const checkJsThread = useCallback(() => {
-    return new Promise<boolean>((resolve) => {
+    return new Promise<boolean>(resolve => {
       const start = Date.now();
       InteractionManager.runAfterInteractions(() => {
         const blocked = Date.now() - start > 100;
@@ -203,10 +196,7 @@ export function withPerformanceTracking<P extends object>(
 /**
  * Profile a function execution time
  */
-export function profileFunction<T extends (...args: any[]) => any>(
-  fn: T,
-  name: string
-): T {
+export function profileFunction<T extends (...args: unknown[]) => unknown>(fn: T, name: string): T {
   return ((...args: Parameters<T>): ReturnType<T> => {
     const start = Date.now();
     const result = fn(...args);

@@ -10,10 +10,9 @@
  * - Resize/quality optimization
  */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
-  Image,
   ImageProps,
   ImageSourcePropType,
   StyleSheet,
@@ -26,7 +25,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  interpolate,
   Easing,
 } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
@@ -35,6 +33,7 @@ import { Colors } from '@/constants/colors';
 import { radius } from '@/constants/design-system';
 
 // Cache directory
+// eslint-disable-next-line import/namespace
 const IMAGE_CACHE_DIR = `${FileSystem.cacheDirectory}images/`;
 
 // Ensure cache directory exists
@@ -51,7 +50,7 @@ function getCacheKey(uri: string): string {
   let hash = 0;
   for (let i = 0; i < uri.length; i++) {
     const char = uri.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
   return `img_${Math.abs(hash)}`;
@@ -231,7 +230,7 @@ export function OptimizedImage({
   fallback,
   containerStyle,
   fadeDuration = 300,
-  priority = 'normal',
+  priority: _priority = 'normal',
   style,
   onLoad,
   onError,
@@ -250,9 +249,7 @@ export function OptimizedImage({
   }, [source]);
 
   // Use cached URI
-  const { cachedUri, isLoading: isCaching } = useCachedImage(
-    enableCache && uri ? uri : undefined
-  );
+  const { cachedUri, isLoading: _isCaching } = useCachedImage(enableCache && uri ? uri : undefined);
 
   // Final source
   const finalSource = useMemo(() => {
@@ -263,20 +260,26 @@ export function OptimizedImage({
   }, [source, uri, enableCache, cachedUri]);
 
   // Handle load complete
-  const handleLoad = useCallback((event: any) => {
-    setIsLoaded(true);
-    opacity.value = withTiming(1, {
-      duration: fadeDuration,
-      easing: Easing.out(Easing.ease),
-    });
-    onLoad?.(event);
-  }, [fadeDuration, opacity, onLoad]);
+  const handleLoad = useCallback(
+    (event: unknown) => {
+      setIsLoaded(true);
+      opacity.value = withTiming(1, {
+        duration: fadeDuration,
+        easing: Easing.out(Easing.ease),
+      });
+      onLoad?.(event);
+    },
+    [fadeDuration, opacity, onLoad]
+  );
 
   // Handle error
-  const handleError = useCallback((event: any) => {
-    setHasError(true);
-    onError?.(event);
-  }, [onError]);
+  const handleError = useCallback(
+    (event: unknown) => {
+      setHasError(true);
+      onError?.(event);
+    },
+    [onError]
+  );
 
   // Animated style for fade in
   const animatedStyle = useAnimatedStyle(() => ({
@@ -294,11 +297,7 @@ export function OptimizedImage({
       {showPlaceholder && !isLoaded && (
         <View style={[styles.placeholder, { backgroundColor: placeholderColor }]}>
           {Platform.OS !== 'web' && (
-            <BlurView
-              intensity={blurIntensity}
-              tint="light"
-              style={StyleSheet.absoluteFill}
-            />
+            <BlurView intensity={blurIntensity} tint="light" style={StyleSheet.absoluteFill} />
           )}
         </View>
       )}
@@ -323,19 +322,14 @@ interface AvatarImageProps {
   style?: ViewStyle;
 }
 
-export function AvatarImage({
-  source,
-  size = 48,
-  fallbackText,
-  style,
-}: AvatarImageProps) {
+export function AvatarImage({ source, size = 48, fallbackText, style }: AvatarImageProps) {
   const [hasError, setHasError] = useState(false);
 
   const initials = useMemo(() => {
     if (!fallbackText) return '?';
     return fallbackText
       .split(' ')
-      .map((n) => n[0])
+      .map(n => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -354,12 +348,7 @@ export function AvatarImage({
           style,
         ]}
       >
-        <Animated.Text
-          style={[
-            styles.avatarFallbackText,
-            { fontSize: size * 0.4 },
-          ]}
-        >
+        <Animated.Text style={[styles.avatarFallbackText, { fontSize: size * 0.4 }]}>
           {initials}
         </Animated.Text>
       </View>
@@ -413,11 +402,7 @@ export function Thumbnail({
         style,
       ]}
     >
-      <OptimizedImage
-        source={source}
-        style={styles.thumbnailImage}
-        resizeMode="cover"
-      />
+      <OptimizedImage source={source} style={styles.thumbnailImage} resizeMode="cover" />
     </View>
   );
 }
@@ -444,11 +429,7 @@ export function getOptimizedDimensions(
 }
 
 // Utility: Build optimized image URL (for services that support it)
-export function buildOptimizedUrl(
-  baseUrl: string,
-  width: number,
-  quality: number = 80
-): string {
+export function buildOptimizedUrl(baseUrl: string, width: number, quality: number = 80): string {
   // This is a placeholder - implement based on your image service
   // Examples: Cloudinary, Imgix, Supabase Storage transforms
 

@@ -5,7 +5,13 @@
  * Tracks renders, API calls, and memory usage
  */
 
-import { InteractionManager, Platform } from 'react-native';
+import { InteractionManager } from 'react-native';
+
+// ============================================
+// React Hook for Performance Tracking
+// ============================================
+
+import { useEffect, useRef } from 'react';
 
 // ============================================
 // Types
@@ -189,7 +195,7 @@ class PerformanceMonitorImpl {
         this.apiCalls.length > 0
           ? this.apiCalls.reduce((sum, c) => sum + c.duration, 0) / this.apiCalls.length
           : 0,
-      slowCalls: this.apiCalls.filter((c) => c.duration > 1000).length,
+      slowCalls: this.apiCalls.filter(c => c.duration > 1000).length,
     };
 
     return {
@@ -273,12 +279,6 @@ class PerformanceMonitorImpl {
 // ============================================
 
 export const PerformanceMonitor = new PerformanceMonitorImpl();
-
-// ============================================
-// React Hook for Performance Tracking
-// ============================================
-
-import { useEffect, useRef } from 'react';
 
 /**
  * Hook to track component render performance

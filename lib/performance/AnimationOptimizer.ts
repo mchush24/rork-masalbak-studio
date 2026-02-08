@@ -97,8 +97,9 @@ export function useOptimizedAnimation(
       isAnimating.value = true;
 
       if (finalType === 'spring') {
-        const config = OPTIMIZED_SPRING[finalPreset as keyof typeof OPTIMIZED_SPRING] || OPTIMIZED_SPRING.normal;
-        value.value = withSpring(toValue, config, (finished) => {
+        const config =
+          OPTIMIZED_SPRING[finalPreset as keyof typeof OPTIMIZED_SPRING] || OPTIMIZED_SPRING.normal;
+        value.value = withSpring(toValue, config, finished => {
           if (finished) {
             isAnimating.value = false;
             if (options.onComplete) {
@@ -107,8 +108,9 @@ export function useOptimizedAnimation(
           }
         });
       } else {
-        const config = OPTIMIZED_TIMING[finalPreset as keyof typeof OPTIMIZED_TIMING] || OPTIMIZED_TIMING.normal;
-        value.value = withTiming(toValue, config, (finished) => {
+        const config =
+          OPTIMIZED_TIMING[finalPreset as keyof typeof OPTIMIZED_TIMING] || OPTIMIZED_TIMING.normal;
+        value.value = withTiming(toValue, config, finished => {
           if (finished) {
             isAnimating.value = false;
             if (options.onComplete) {
@@ -118,17 +120,20 @@ export function useOptimizedAnimation(
         });
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [type, preset, reduceMotion, options.onComplete]
   );
 
   const cancel = useCallback(() => {
     cancelAnimation(value);
     isAnimating.value = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const reset = useCallback(() => {
     cancel();
     value.value = initialValue;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue, cancel]);
 
   return {
@@ -149,7 +154,7 @@ export function useAnimationCleanup(animations: SharedValue<number>[]) {
 
   useEffect(() => {
     return () => {
-      animationsRef.current.forEach((anim) => {
+      animationsRef.current.forEach(anim => {
         cancelAnimation(anim);
       });
     };
@@ -159,9 +164,7 @@ export function useAnimationCleanup(animations: SharedValue<number>[]) {
 /**
  * Creates an optimized animated style with memoization
  */
-export function createOptimizedStyle<T extends object>(
-  styleCreator: () => T
-): () => T {
+export function useOptimizedStyle<T extends object>(styleCreator: () => T): () => T {
   return useAnimatedStyle(styleCreator);
 }
 
@@ -169,7 +172,7 @@ export function createOptimizedStyle<T extends object>(
  * Batch multiple animation updates for better performance
  */
 export function batchAnimations(
-  animations: Array<{ value: SharedValue<number>; toValue: number; config?: any }>
+  animations: { value: SharedValue<number>; toValue: number; config?: unknown }[]
 ) {
   'worklet';
   animations.forEach(({ value, toValue, config }) => {
