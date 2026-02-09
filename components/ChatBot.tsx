@@ -1096,6 +1096,8 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
   },
   indicatorDot: {
     position: 'absolute',
@@ -1167,6 +1169,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   headerTitle: {
     fontSize: typography.size.lg,

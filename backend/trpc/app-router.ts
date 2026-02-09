@@ -26,6 +26,7 @@ import { setPasswordProcedure } from './routes/auth/set-password.js';
 import { updateBiometricProcedure } from './routes/auth/update-biometric.js';
 import { checkEmailProcedure } from './routes/auth/check-email.js';
 import { refreshTokenProcedure } from './routes/auth/refresh-token.js';
+import { logoutProcedure } from './routes/auth/logout.js';
 import { getProfileProcedure } from './routes/user/get-profile.js';
 import { updateProfileProcedure } from './routes/user/update-profile.js';
 import { getUserStatsProcedure } from './routes/user/get-user-stats.js';
@@ -66,6 +67,7 @@ export const appRouter = createTRPCRouter({
     updateBiometric: updateBiometricProcedure,
     checkEmail: checkEmailProcedure,
     refreshToken: refreshTokenProcedure,
+    logout: logoutProcedure,
   }),
   user: createTRPCRouter({
     getProfile: getProfileProcedure,

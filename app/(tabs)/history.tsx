@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,7 +10,7 @@ import {
   Alert,
   Linking,
   Share,
-} from "react-native";
+} from 'react-native';
 import {
   Brain,
   BookOpen,
@@ -22,15 +22,15 @@ import {
   ChevronRight,
   Clock,
   Share2,
-} from "lucide-react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
-import { Colors } from "@/constants/colors";
-import { useLanguage } from "@/lib/contexts/LanguageContext";
+} from 'lucide-react-native';
+import { Swipeable } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { trpc } from '@/lib/trpc';
+import { Colors } from '@/constants/colors';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 import {
   layout,
   typography,
@@ -39,38 +39,59 @@ import {
   shadows,
   iconSizes,
   iconStroke,
-} from "@/constants/design-system";
-import { Image } from "expo-image";
-import { IooEmptyState, EMPTY_STATE_PRESETS } from "@/components/IooEmptyState";
-import { HistoryStatsCard, HistorySearchBar, HistoryFilters, type DateFilter, type TestTypeFilter } from "@/components/history";
-import type { TypedAnalysis, TypedStorybook, Coloring } from "@/types/history";
+} from '@/constants/design-system';
+import { Image } from 'expo-image';
+import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
+import {
+  HistoryStatsCard,
+  HistorySearchBar,
+  HistoryFilters,
+  type DateFilter,
+  type TestTypeFilter,
+} from '@/components/history';
+import type { TypedAnalysis, TypedStorybook, Coloring } from '@/types/history';
 
-type TabType = "analyses" | "stories" | "colorings";
+type TabType = 'analyses' | 'stories' | 'colorings';
 
-type TaskType = "DAP" | "HTP" | "Family" | "Cactus" | "Tree" | "Garden" | "BenderGestalt2" | "ReyOsterrieth" | "Aile" | "Kaktus" | "Agac" | "Bahce" | "Bender" | "Rey" | "Luscher";
+type TaskType =
+  | 'DAP'
+  | 'HTP'
+  | 'Family'
+  | 'Cactus'
+  | 'Tree'
+  | 'Garden'
+  | 'BenderGestalt2'
+  | 'ReyOsterrieth'
+  | 'Aile'
+  | 'Kaktus'
+  | 'Agac'
+  | 'Bahce'
+  | 'Bender'
+  | 'Rey'
+  | 'Luscher';
 
 export default function HistoryScreen() {
   // Constants - defined inside component
-  const TAB_ANALYSES: TabType = "analyses";
-  const TAB_STORIES: TabType = "stories";
-  const TAB_COLORINGS: TabType = "colorings";
+  const TAB_ANALYSES: TabType = 'analyses';
+  const TAB_STORIES: TabType = 'stories';
+  const TAB_COLORINGS: TabType = 'colorings';
 
   const TASK_TYPE_LABELS: Record<TaskType, string> = {
-    DAP: "İnsan Çizimi",
-    HTP: "Ev-Ağaç-İnsan",
-    Family: "Aile Çizimi",
-    Aile: "Aile Çizimi",
-    Cactus: "Kaktüs Testi",
-    Kaktus: "Kaktüs Testi",
-    Tree: "Ağaç Testi",
-    Agac: "Ağaç Testi",
-    Garden: "Bahçe Testi",
-    Bahce: "Bahçe Testi",
-    BenderGestalt2: "Bender Gestalt",
-    Bender: "Bender Gestalt",
-    ReyOsterrieth: "Rey Figure",
-    Rey: "Rey Figure",
-    Luscher: "Luscher Renk",
+    DAP: 'İnsan Çizimi',
+    HTP: 'Ev-Ağaç-İnsan',
+    Family: 'Aile Çizimi',
+    Aile: 'Aile Çizimi',
+    Cactus: 'Kaktüs Testi',
+    Kaktus: 'Kaktüs Testi',
+    Tree: 'Ağaç Testi',
+    Agac: 'Ağaç Testi',
+    Garden: 'Bahçe Testi',
+    Bahce: 'Bahçe Testi',
+    BenderGestalt2: 'Bender Gestalt',
+    Bender: 'Bender Gestalt',
+    ReyOsterrieth: 'Rey Figure',
+    Rey: 'Rey Figure',
+    Luscher: 'Luscher Renk',
   };
 
   const insets = useSafeAreaInsets();
@@ -80,9 +101,9 @@ export default function HistoryScreen() {
   const [activeTab, setActiveTab] = useState<TabType>(TAB_ANALYSES);
   const [refreshing, setRefreshing] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
-  const [testTypeFilter, setTestTypeFilter] = useState<TestTypeFilter>("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [testTypeFilter, setTestTypeFilter] = useState<TestTypeFilter>('all');
 
   // Fetch analyses
   const {
@@ -94,8 +115,8 @@ export default function HistoryScreen() {
       limit: 50,
       offset: 0,
       favoritedOnly: filterFavorites || undefined,
-      sortBy: "created_at",
-      sortOrder: "desc",
+      sortBy: 'created_at',
+      sortOrder: 'desc',
     },
     { enabled: !!user?.userId && activeTab === TAB_ANALYSES }
   );
@@ -105,20 +126,18 @@ export default function HistoryScreen() {
     data: storybooks,
     isLoading: storiesLoading,
     refetch: refetchStories,
-  } = trpc.studio.listStorybooks.useQuery(
-    undefined,
-    { enabled: !!user?.userId && activeTab === TAB_STORIES }
-  );
+  } = trpc.studio.listStorybooks.useQuery(undefined, {
+    enabled: !!user?.userId && activeTab === TAB_STORIES,
+  });
 
   // Fetch colorings
   const {
     data: colorings,
     isLoading: coloringsLoading,
     refetch: refetchColorings,
-  } = trpc.studio.listColorings.useQuery(
-    undefined,
-    { enabled: !!user?.userId && activeTab === TAB_COLORINGS }
-  );
+  } = trpc.studio.listColorings.useQuery(undefined, {
+    enabled: !!user?.userId && activeTab === TAB_COLORINGS,
+  });
 
   // Mutations
   const updateAnalysisMutation = trpc.analysis.update.useMutation();
@@ -141,8 +160,8 @@ export default function HistoryScreen() {
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Bugün";
-    if (diffDays === 1) return "Dün";
+    if (diffDays === 0) return 'Bugün';
+    if (diffDays === 1) return 'Dün';
     if (diffDays < 7) return `${diffDays} gün önce`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} hafta önce`;
     if (diffDays < 365) return `${Math.floor(diffDays / 30)} ay önce`;
@@ -157,26 +176,26 @@ export default function HistoryScreen() {
         favorited: !currentFavorited,
       });
       refetchAnalyses();
-    } catch (error) {
-      Alert.alert("Hata", "Favori durumu değiştirilemedi");
+    } catch (_error) {
+      Alert.alert('Hata', 'Favori durumu değiştirilemedi');
     }
   };
 
   const handleDeleteAnalysis = (analysisId: string) => {
     Alert.alert(
       t.history.deleteConfirm,
-      "Bu analizi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+      'Bu analizi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
       [
-        { text: "İptal", style: "cancel" },
+        { text: 'İptal', style: 'cancel' },
         {
           text: t.history.delete,
-          style: "destructive",
+          style: 'destructive',
           onPress: async () => {
             try {
               await deleteAnalysisMutation.mutateAsync({ analysisId });
               refetchAnalyses();
-            } catch (error) {
-              Alert.alert("Hata", "Analiz silinemedi");
+            } catch (_error) {
+              Alert.alert('Hata', 'Analiz silinemedi');
             }
           },
         },
@@ -184,26 +203,26 @@ export default function HistoryScreen() {
     );
   };
 
-  const handleViewAnalysis = (analysisId: string) => {
-    Alert.alert("Analiz Detayı", "Analiz detay ekranı yakında eklenecek!");
+  const handleViewAnalysis = (_analysisId: string) => {
+    Alert.alert('Analiz Detayı', 'Analiz detay ekranı yakında eklenecek!');
   };
 
   const handleShareAnalysis = async (analysis: TypedAnalysis) => {
     try {
       const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type;
       const message = `Renkioo - ${testLabel} Analizi\n\nTarih: ${formatDate(analysis.created_at)}${
-        analysis.child_age ? `\nYaş: ${analysis.child_age}` : ""
+        analysis.child_age ? `\nYaş: ${analysis.child_age}` : ''
       }${
         analysis.analysis_result?.insights?.[0]
           ? `\n\nÖzet: ${analysis.analysis_result.insights[0].summary}`
-          : ""
+          : ''
       }\n\nRenkioo ile çocuğunuzun çizimlerini analiz edin!`;
 
       await Share.share({
         message,
         title: `${testLabel} Analizi`,
       });
-    } catch (error) {
+    } catch (_error) {
       // User cancelled share
     }
   };
@@ -214,10 +233,10 @@ export default function HistoryScreen() {
       t.history.deleteConfirm,
       `"${storybookTitle}" adlı masalı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
       [
-        { text: "Vazgeç", style: "cancel" },
+        { text: 'Vazgeç', style: 'cancel' },
         {
           text: t.history.delete,
-          style: "destructive",
+          style: 'destructive',
           onPress: async () => {
             await deleteStorybookMutation.mutateAsync({ storybookId });
             refetchStories();
@@ -229,12 +248,12 @@ export default function HistoryScreen() {
 
   const handleStorybookPress = (storybook: TypedStorybook) => {
     router.push({
-      pathname: "/storybook",
+      pathname: '/storybook',
       params: {
         storybookId: storybook.id,
         title: storybook.title,
         pages: JSON.stringify(storybook.pages),
-        pdfUrl: storybook.pdf_url || "",
+        pdfUrl: storybook.pdf_url || '',
         voiceUrls: JSON.stringify(storybook.voice_urls || []),
       },
     });
@@ -246,23 +265,23 @@ export default function HistoryScreen() {
       let pdfUrlToOpen = coloring.pdf_url;
 
       // If PDF doesn't exist, generate it first
-      if (!pdfUrlToOpen || pdfUrlToOpen.trim() === "") {
+      if (!pdfUrlToOpen || pdfUrlToOpen.trim() === '') {
         Alert.alert(
-          "PDF Oluşturuluyor",
-          "PDF dosyası henüz oluşturulmamış. Şimdi oluşturulacak, biraz zaman alabilir.",
+          'PDF Oluşturuluyor',
+          'PDF dosyası henüz oluşturulmamış. Şimdi oluşturulacak, biraz zaman alabilir.',
           [
-            { text: "İptal", style: "cancel" },
+            { text: 'İptal', style: 'cancel' },
             {
-              text: "Oluştur",
+              text: 'Oluştur',
               onPress: async () => {
                 try {
                   // Show loading indicator
-                  Alert.alert("Lütfen Bekleyin", "PDF oluşturuluyor...");
+                  Alert.alert('Lütfen Bekleyin', 'PDF oluşturuluyor...');
 
                   const result = await generateColoringPDFMutation.mutateAsync({
                     pages: [coloring.coloring_image_url],
-                    title: coloring.title || "Boyama Sayfası",
-                    size: "A4",
+                    title: coloring.title || 'Boyama Sayfası',
+                    size: 'A4',
                   });
 
                   pdfUrlToOpen = result.pdf_url;
@@ -275,11 +294,15 @@ export default function HistoryScreen() {
                   if (supported) {
                     await Linking.openURL(pdfUrlToOpen);
                   } else {
-                    Alert.alert("Başarılı", "PDF oluşturuldu ancak otomatik açılamadı. Lütfen geçmişten tekrar deneyin.");
+                    Alert.alert(
+                      'Başarılı',
+                      'PDF oluşturuldu ancak otomatik açılamadı. Lütfen geçmişten tekrar deneyin.'
+                    );
                   }
                 } catch (error: unknown) {
-                  const errorMessage = error instanceof Error ? error.message : "PDF oluşturulamadı";
-                  Alert.alert("Hata", errorMessage);
+                  const errorMessage =
+                    error instanceof Error ? error.message : 'PDF oluşturulamadı';
+                  Alert.alert('Hata', errorMessage);
                 }
               },
             },
@@ -293,10 +316,10 @@ export default function HistoryScreen() {
       if (supported) {
         await Linking.openURL(pdfUrlToOpen);
       } else {
-        Alert.alert("Hata", "PDF açılamadı");
+        Alert.alert('Hata', 'PDF açılamadı');
       }
-    } catch (error) {
-      Alert.alert("Hata", "PDF indirilemedi");
+    } catch (_error) {
+      Alert.alert('Hata', 'PDF indirilemedi');
     }
   };
 
@@ -305,10 +328,10 @@ export default function HistoryScreen() {
       t.history.deleteConfirm,
       `"${coloringTitle}" adlı boyamayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
       [
-        { text: "Vazgeç", style: "cancel" },
+        { text: 'Vazgeç', style: 'cancel' },
         {
           text: t.history.delete,
-          style: "destructive",
+          style: 'destructive',
           onPress: async () => {
             await deleteColoringMutation.mutateAsync({ coloringId });
             refetchColorings();
@@ -319,7 +342,7 @@ export default function HistoryScreen() {
   };
 
   // Get current data based on active tab
-  const rawAnalyses = analysesData?.analyses || [];
+  const rawAnalyses = useMemo(() => analysesData?.analyses || [], [analysesData?.analyses]);
   const storybooksList = storybooks || [];
   const coloringsList = colorings || [];
 
@@ -330,31 +353,30 @@ export default function HistoryScreen() {
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter((analysis) => {
-        const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType]?.toLowerCase() || "";
+      result = result.filter(analysis => {
+        const testLabel = TASK_TYPE_LABELS[analysis.task_type as TaskType]?.toLowerCase() || '';
         return (
-          testLabel.includes(query) ||
-          (analysis.task_type?.toLowerCase() || "").includes(query)
+          testLabel.includes(query) || (analysis.task_type?.toLowerCase() || '').includes(query)
         );
       });
     }
 
     // Date filter
-    if (dateFilter !== "all") {
+    if (dateFilter !== 'all') {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const startOfWeek = new Date(startOfToday);
       startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      result = result.filter((analysis) => {
+      result = result.filter(analysis => {
         const analysisDate = new Date(analysis.created_at);
         switch (dateFilter) {
-          case "today":
+          case 'today':
             return analysisDate >= startOfToday;
-          case "week":
+          case 'week':
             return analysisDate >= startOfWeek;
-          case "month":
+          case 'month':
             return analysisDate >= startOfMonth;
           default:
             return true;
@@ -363,20 +385,20 @@ export default function HistoryScreen() {
     }
 
     // Test type filter
-    if (testTypeFilter !== "all") {
-      result = result.filter((analysis) => {
+    if (testTypeFilter !== 'all') {
+      result = result.filter(analysis => {
         // Handle both English and Turkish variants
-        const type = analysis.task_type || "";
+        const type = analysis.task_type || '';
         const normalizedFilter = testTypeFilter;
 
         // Map Turkish variants to English
         const typeMapping: Record<string, string> = {
-          Aile: "Family",
-          Kaktus: "Cactus",
-          Agac: "Tree",
-          Bahce: "Garden",
-          Bender: "BenderGestalt2",
-          Rey: "ReyOsterrieth",
+          Aile: 'Family',
+          Kaktus: 'Cactus',
+          Agac: 'Tree',
+          Bahce: 'Garden',
+          Bender: 'BenderGestalt2',
+          Rey: 'ReyOsterrieth',
         };
 
         const normalizedType = typeMapping[type] || type;
@@ -385,6 +407,7 @@ export default function HistoryScreen() {
     }
 
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawAnalyses, searchQuery, dateFilter, testTypeFilter]);
 
   const analyses = filteredAnalyses;
@@ -396,15 +419,11 @@ export default function HistoryScreen() {
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const thisWeekCount = rawAnalyses.filter((a) =>
-      new Date(a.created_at) >= startOfWeek
-    ).length;
+    const thisWeekCount = rawAnalyses.filter(a => new Date(a.created_at) >= startOfWeek).length;
 
-    const thisMonthCount = rawAnalyses.filter((a) =>
-      new Date(a.created_at) >= startOfMonth
-    ).length;
+    const thisMonthCount = rawAnalyses.filter(a => new Date(a.created_at) >= startOfMonth).length;
 
-    const favoriteCount = rawAnalyses.filter((a) => a.favorited).length;
+    const favoriteCount = rawAnalyses.filter(a => a.favorited).length;
 
     return {
       totalCount: rawAnalyses.length,
@@ -418,7 +437,7 @@ export default function HistoryScreen() {
   const groupedAnalyses = useMemo(() => {
     const groups: { [key: string]: typeof analyses } = {};
 
-    analyses.forEach((analysis) => {
+    analyses.forEach(analysis => {
       const date = new Date(analysis.created_at);
       const today = new Date();
       const yesterday = new Date(today);
@@ -427,15 +446,15 @@ export default function HistoryScreen() {
       let groupKey: string;
 
       if (date.toDateString() === today.toDateString()) {
-        groupKey = "Bugün";
+        groupKey = 'Bugün';
       } else if (date.toDateString() === yesterday.toDateString()) {
-        groupKey = "Dün";
+        groupKey = 'Dün';
       } else {
         // Format as "15 Ocak 2024"
-        groupKey = date.toLocaleDateString("tr-TR", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
+        groupKey = date.toLocaleDateString('tr-TR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         });
       }
 
@@ -448,13 +467,23 @@ export default function HistoryScreen() {
     return Object.entries(groups);
   }, [analyses]);
 
-  const isLoading = activeTab === TAB_ANALYSES ? analysesLoading : activeTab === TAB_STORIES ? storiesLoading : coloringsLoading;
-  const isEmpty = activeTab === TAB_ANALYSES ? analyses.length === 0 : activeTab === TAB_STORIES ? storybooksList.length === 0 : coloringsList.length === 0;
+  const isLoading =
+    activeTab === TAB_ANALYSES
+      ? analysesLoading
+      : activeTab === TAB_STORIES
+        ? storiesLoading
+        : coloringsLoading;
+  const isEmpty =
+    activeTab === TAB_ANALYSES
+      ? analyses.length === 0
+      : activeTab === TAB_STORIES
+        ? storybooksList.length === 0
+        : coloringsList.length === 0;
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[Colors.background.primary, Colors.primary.soft, Colors.neutral.lightest]}
+        colors={Colors.background.pageGradient}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         {/* Header */}
@@ -487,7 +516,11 @@ export default function HistoryScreen() {
             ]}
             onPress={() => setActiveTab(TAB_ANALYSES)}
           >
-            <Brain size={iconSizes.small} color={activeTab === TAB_ANALYSES ? Colors.neutral.white : Colors.neutral.dark} strokeWidth={iconStroke.standard} />
+            <Brain
+              size={iconSizes.small}
+              color={activeTab === TAB_ANALYSES ? Colors.neutral.white : Colors.neutral.dark}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={[styles.tabText, activeTab === TAB_ANALYSES && styles.tabTextActive]}>
               {t.history.analyses}
             </Text>
@@ -501,7 +534,11 @@ export default function HistoryScreen() {
             ]}
             onPress={() => setActiveTab(TAB_STORIES)}
           >
-            <BookOpen size={iconSizes.small} color={activeTab === TAB_STORIES ? Colors.neutral.white : Colors.neutral.dark} strokeWidth={iconStroke.standard} />
+            <BookOpen
+              size={iconSizes.small}
+              color={activeTab === TAB_STORIES ? Colors.neutral.white : Colors.neutral.dark}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={[styles.tabText, activeTab === TAB_STORIES && styles.tabTextActive]}>
               {t.history.stories}
             </Text>
@@ -515,15 +552,19 @@ export default function HistoryScreen() {
             ]}
             onPress={() => setActiveTab(TAB_COLORINGS)}
           >
-            <Palette size={iconSizes.small} color={activeTab === TAB_COLORINGS ? Colors.neutral.white : Colors.neutral.dark} strokeWidth={iconStroke.standard} />
+            <Palette
+              size={iconSizes.small}
+              color={activeTab === TAB_COLORINGS ? Colors.neutral.white : Colors.neutral.dark}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={[styles.tabText, activeTab === TAB_COLORINGS && styles.tabTextActive]}>
               {t.history.colorings}
             </Text>
           </Pressable>
         </View>
 
-        {/* Search and Filters (only for analyses) */}
-        {activeTab === TAB_ANALYSES && (
+        {/* Search and Filters (only for analyses, hidden when no data) */}
+        {activeTab === TAB_ANALYSES && rawAnalyses.length > 0 && (
           <View style={styles.filtersContainer}>
             <HistorySearchBar
               value={searchQuery}
@@ -577,19 +618,23 @@ export default function HistoryScreen() {
             <>
               {activeTab === TAB_ANALYSES && (
                 <IooEmptyState
-                  title={filterFavorites ? "Favori analiz yok" : EMPTY_STATE_PRESETS.noAnalysis.title}
-                  message={filterFavorites
-                    ? "Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz"
-                    : EMPTY_STATE_PRESETS.noAnalysis.message}
-                  mood={filterFavorites ? "curious" : EMPTY_STATE_PRESETS.noAnalysis.mood}
+                  title={
+                    filterFavorites ? 'Favori analiz yok' : EMPTY_STATE_PRESETS.noAnalysis.title
+                  }
+                  message={
+                    filterFavorites
+                      ? 'Analizleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz'
+                      : EMPTY_STATE_PRESETS.noAnalysis.message
+                  }
+                  mood={filterFavorites ? 'curious' : EMPTY_STATE_PRESETS.noAnalysis.mood}
                 />
               )}
               {activeTab === TAB_STORIES && (
                 <IooEmptyState
                   {...EMPTY_STATE_PRESETS.noStories}
                   action={{
-                    label: "Masal Oluştur",
-                    onPress: () => router.push("/(tabs)/stories"),
+                    label: 'Masal Oluştur',
+                    onPress: () => router.push('/(tabs)/stories'),
                   }}
                 />
               )}
@@ -598,7 +643,7 @@ export default function HistoryScreen() {
                   {...EMPTY_STATE_PRESETS.noColorings}
                   action={{
                     label: "Studio'ya Git",
-                    onPress: () => router.push("/(tabs)/studio"),
+                    onPress: () => router.push('/(tabs)/studio'),
                   }}
                 />
               )}
@@ -606,7 +651,9 @@ export default function HistoryScreen() {
           )}
 
           {/* Analyses List - Timeline Grouped */}
-          {!isLoading && activeTab === TAB_ANALYSES && analyses.length > 0 &&
+          {!isLoading &&
+            activeTab === TAB_ANALYSES &&
+            analyses.length > 0 &&
             groupedAnalyses.map(([dateGroup, groupAnalyses]) => (
               <View key={dateGroup} style={styles.timelineGroup}>
                 {/* Timeline Date Header */}
@@ -617,7 +664,7 @@ export default function HistoryScreen() {
                 </View>
 
                 {/* Analyses in this group */}
-                {groupAnalyses.map((analysis) => (
+                {groupAnalyses.map(analysis => (
                   <View key={analysis.id} style={styles.analysisCard}>
                     <Pressable
                       onPress={() => handleViewAnalysis(analysis.id)}
@@ -639,19 +686,28 @@ export default function HistoryScreen() {
                               colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
                               style={styles.cardIcon}
                             >
-                              <Brain size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                              <Brain
+                                size={iconSizes.small}
+                                color={Colors.neutral.white}
+                                strokeWidth={iconStroke.standard}
+                              />
                             </LinearGradient>
                           )}
                           <View style={styles.cardHeaderText}>
                             <Text style={styles.cardTitle}>
-                              {TASK_TYPE_LABELS[analysis.task_type as TaskType] || analysis.task_type}
+                              {TASK_TYPE_LABELS[analysis.task_type as TaskType] ||
+                                analysis.task_type}
                             </Text>
                             <View style={styles.cardMeta}>
-                              <Clock size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                              <Clock
+                                size={iconSizes.inline}
+                                color={Colors.neutral.medium}
+                                strokeWidth={iconStroke.standard}
+                              />
                               <Text style={styles.cardMetaText}>
-                                {new Date(analysis.created_at).toLocaleTimeString("tr-TR", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
+                                {new Date(analysis.created_at).toLocaleTimeString('tr-TR', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
                                 })}
                               </Text>
                               {analysis.child_age && (
@@ -663,17 +719,22 @@ export default function HistoryScreen() {
                             </View>
                           </View>
                         </View>
-                        <ChevronRight size={iconSizes.small} color={Colors.neutral.light} strokeWidth={iconStroke.standard} />
+                        <ChevronRight
+                          size={iconSizes.small}
+                          color={Colors.neutral.light}
+                          strokeWidth={iconStroke.standard}
+                        />
                       </View>
 
-                      {analysis.analysis_result?.insights?.length > 0 && analysis.analysis_result.insights[0] && (
-                        <View style={styles.insightsPreview}>
-                          <Text style={styles.insightText} numberOfLines={2}>
-                            {analysis.analysis_result.insights[0]?.title}:{" "}
-                            {analysis.analysis_result.insights[0]?.summary}
-                          </Text>
-                        </View>
-                      )}
+                      {analysis.analysis_result?.insights?.length > 0 &&
+                        analysis.analysis_result.insights[0] && (
+                          <View style={styles.insightsPreview}>
+                            <Text style={styles.insightText} numberOfLines={2}>
+                              {analysis.analysis_result.insights[0]?.title}:{' '}
+                              {analysis.analysis_result.insights[0]?.summary}
+                            </Text>
+                          </View>
+                        )}
                     </Pressable>
 
                     <View style={styles.cardActions}>
@@ -684,7 +745,7 @@ export default function HistoryScreen() {
                         <Heart
                           size={iconSizes.small}
                           color={analysis.favorited ? Colors.semantic.error : Colors.neutral.medium}
-                          fill={analysis.favorited ? Colors.semantic.error : "none"}
+                          fill={analysis.favorited ? Colors.semantic.error : 'none'}
                           strokeWidth={iconStroke.standard}
                         />
                       </Pressable>
@@ -692,13 +753,21 @@ export default function HistoryScreen() {
                         onPress={() => handleShareAnalysis(analysis)}
                         style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
                       >
-                        <Share2 size={iconSizes.small} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                        <Share2
+                          size={iconSizes.small}
+                          color={Colors.neutral.medium}
+                          strokeWidth={iconStroke.standard}
+                        />
                       </Pressable>
                       <Pressable
                         onPress={() => handleDeleteAnalysis(analysis.id)}
                         style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
                       >
-                        <Trash2 size={iconSizes.small} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                        <Trash2
+                          size={iconSizes.small}
+                          color={Colors.neutral.medium}
+                          strokeWidth={iconStroke.standard}
+                        />
                       </Pressable>
                     </View>
                   </View>
@@ -707,22 +776,32 @@ export default function HistoryScreen() {
             ))}
 
           {/* Stories List */}
-          {!isLoading && activeTab === TAB_STORIES && storybooksList.length > 0 &&
-            (storybooksList as TypedStorybook[]).map((storybook) => {
+          {!isLoading &&
+            activeTab === TAB_STORIES &&
+            storybooksList.length > 0 &&
+            (storybooksList as TypedStorybook[]).map(storybook => {
               const renderRightActions = () => (
                 <View style={styles.swipeDeleteContainer}>
                   <Pressable
                     style={styles.deleteButton}
                     onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
                   >
-                    <Trash2 size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                    <Trash2
+                      size={iconSizes.action}
+                      color={Colors.neutral.white}
+                      strokeWidth={iconStroke.standard}
+                    />
                     <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
                   </Pressable>
                 </View>
               );
 
               return (
-                <Swipeable key={storybook.id} renderRightActions={renderRightActions} overshootRight={false}>
+                <Swipeable
+                  key={storybook.id}
+                  renderRightActions={renderRightActions}
+                  overshootRight={false}
+                >
                   <Pressable
                     style={({ pressed }) => [styles.storyCard, pressed && { opacity: 0.8 }]}
                     onPress={() => handleStorybookPress(storybook)}
@@ -747,10 +826,18 @@ export default function HistoryScreen() {
                           {storybook.title}
                         </Text>
                         <View style={styles.storyMeta}>
-                          <Calendar size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
-                          <Text style={styles.storyMetaText}>{formatDate(storybook.created_at)}</Text>
+                          <Calendar
+                            size={iconSizes.inline}
+                            color={Colors.neutral.medium}
+                            strokeWidth={iconStroke.standard}
+                          />
+                          <Text style={styles.storyMetaText}>
+                            {formatDate(storybook.created_at)}
+                          </Text>
                           <Text style={styles.cardMetaDot}>•</Text>
-                          <Text style={styles.storyMetaText}>{storybook.pages?.length || 0} sayfa</Text>
+                          <Text style={styles.storyMetaText}>
+                            {storybook.pages?.length || 0} sayfa
+                          </Text>
                         </View>
                       </View>
                     </LinearGradient>
@@ -762,21 +849,29 @@ export default function HistoryScreen() {
           {/* Colorings Grid */}
           {!isLoading && activeTab === TAB_COLORINGS && coloringsList.length > 0 && (
             <View style={styles.coloringsGrid}>
-              {(coloringsList as Coloring[]).map((coloring) => {
+              {(coloringsList as Coloring[]).map(coloring => {
                 const renderRightActions = () => (
                   <View style={styles.swipeDeleteContainer}>
                     <Pressable
                       style={styles.deleteButton}
                       onPress={() => handleDeleteColoring(coloring.id, coloring.title)}
                     >
-                      <Trash2 size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                      <Trash2
+                        size={iconSizes.small}
+                        color={Colors.neutral.white}
+                        strokeWidth={iconStroke.standard}
+                      />
                       <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
                     </Pressable>
                   </View>
                 );
 
                 return (
-                  <Swipeable key={coloring.id} renderRightActions={renderRightActions} overshootRight={false}>
+                  <Swipeable
+                    key={coloring.id}
+                    renderRightActions={renderRightActions}
+                    overshootRight={false}
+                  >
                     <View style={styles.coloringCard}>
                       <LinearGradient
                         colors={[Colors.neutral.lightest, Colors.neutral.white]}
@@ -791,7 +886,11 @@ export default function HistoryScreen() {
                             />
                           ) : (
                             <View style={styles.coloringImagePlaceholder}>
-                              <Palette size={iconSizes.hero} color={Colors.neutral.light} strokeWidth={iconStroke.thin} />
+                              <Palette
+                                size={iconSizes.hero}
+                                color={Colors.neutral.light}
+                                strokeWidth={iconStroke.thin}
+                              />
                             </View>
                           )}
                         </View>
@@ -801,12 +900,21 @@ export default function HistoryScreen() {
                             {coloring.title}
                           </Text>
                           <View style={styles.cardMeta}>
-                            <Calendar size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
-                            <Text style={styles.cardMetaText}>{formatDate(coloring.created_at)}</Text>
+                            <Calendar
+                              size={iconSizes.inline}
+                              color={Colors.neutral.medium}
+                              strokeWidth={iconStroke.standard}
+                            />
+                            <Text style={styles.cardMetaText}>
+                              {formatDate(coloring.created_at)}
+                            </Text>
                           </View>
 
                           <Pressable
-                            style={({ pressed }) => [styles.downloadButton, pressed && { opacity: 0.7 }]}
+                            style={({ pressed }) => [
+                              styles.downloadButton,
+                              pressed && { opacity: 0.7 },
+                            ]}
                             onPress={() => handleDownloadPDF(coloring)}
                             disabled={generateColoringPDFMutation.isPending}
                           >
@@ -818,9 +926,13 @@ export default function HistoryScreen() {
                                 <ActivityIndicator size="small" color={Colors.neutral.white} />
                               ) : (
                                 <>
-                                  <Download size={iconSizes.inline} color={Colors.neutral.white} strokeWidth={iconStroke.bold} />
+                                  <Download
+                                    size={iconSizes.inline}
+                                    color={Colors.neutral.white}
+                                    strokeWidth={iconStroke.bold}
+                                  />
                                   <Text style={styles.downloadButtonText}>
-                                    {coloring.pdf_url ? "İndir" : "PDF Oluştur"}
+                                    {coloring.pdf_url ? 'İndir' : 'PDF Oluştur'}
                                   </Text>
                                 </>
                               )}
@@ -850,27 +962,27 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: layout.screenPadding,
-    paddingVertical: spacing["4"],
-    gap: spacing["4"],
+    paddingVertical: spacing['4'],
+    gap: spacing['4'],
   },
   headerTitleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["4"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['4'],
   },
   headerIcon: {
     width: layout.icon.mega,
     height: layout.icon.mega,
     borderRadius: radius.xl,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     ...shadows.lg,
   },
   headerTextContainer: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: typography.size["3xl"],
+    fontSize: typography.size['3xl'],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
@@ -878,23 +990,23 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    marginTop: spacing["1"],
+    marginTop: spacing['1'],
     fontWeight: typography.weight.medium,
   },
   tabsContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: layout.screenPadding,
-    gap: spacing["2"],
-    marginBottom: spacing["4"],
+    gap: spacing['2'],
+    marginBottom: spacing['4'],
   },
   tab: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing["2"],
-    paddingVertical: spacing["3"],
-    paddingHorizontal: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing['2'],
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['3'],
     borderRadius: radius.lg,
     backgroundColor: Colors.neutral.white,
     ...shadows.sm,
@@ -912,7 +1024,7 @@ const styles = StyleSheet.create({
   },
   filtersContainer: {
     paddingHorizontal: layout.screenPadding,
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   scrollView: {
     flex: 1,
@@ -921,18 +1033,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.screenPadding,
   },
   loadingContainer: {
-    paddingVertical: spacing["10"],
-    alignItems: "center",
-    gap: spacing["3"],
+    paddingVertical: spacing['10'],
+    alignItems: 'center',
+    gap: spacing['3'],
   },
   loadingText: {
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
   },
   emptyContainer: {
-    paddingVertical: spacing["10"],
-    alignItems: "center",
-    gap: spacing["3"],
+    paddingVertical: spacing['10'],
+    alignItems: 'center',
+    gap: spacing['3'],
   },
   emptyTitle: {
     fontSize: typography.size.xl,
@@ -942,18 +1054,18 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
-    textAlign: "center",
-    paddingHorizontal: spacing["8"],
+    textAlign: 'center',
+    paddingHorizontal: spacing['8'],
   },
   // Timeline Styles
   timelineGroup: {
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   timelineHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing["3"],
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing['3'],
+    gap: spacing['2'],
   },
   timelineDot: {
     width: 10,
@@ -975,43 +1087,43 @@ const styles = StyleSheet.create({
   analysisCard: {
     backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
-    marginBottom: spacing["3"],
-    marginLeft: spacing["4"],
+    marginBottom: spacing['3'],
+    marginLeft: spacing['4'],
     ...shadows.md,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   cardThumbnail: {
     width: 44,
     height: 44,
     borderRadius: radius.lg,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: Colors.neutral.lightest,
   },
   cardThumbnailImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   cardPressable: {
-    padding: spacing["5"],
+    padding: spacing['5'],
   },
   cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing['3'],
   },
   cardHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['3'],
     flex: 1,
   },
   cardIcon: {
     width: 40,
     height: 40,
     borderRadius: radius.lg,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardHeaderText: {
     flex: 1,
@@ -1020,12 +1132,12 @@ const styles = StyleSheet.create({
     fontSize: typography.size.md,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   cardMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["1"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['1'],
   },
   cardMetaText: {
     fontSize: typography.size.xs,
@@ -1036,7 +1148,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.light,
   },
   insightsPreview: {
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   insightText: {
     fontSize: typography.size.sm,
@@ -1044,47 +1156,47 @@ const styles = StyleSheet.create({
     lineHeight: typography.size.sm * 1.5,
   },
   cardActions: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderTopWidth: 1,
     borderTopColor: Colors.neutral.lightest,
-    paddingHorizontal: spacing["5"],
-    paddingVertical: spacing["3"],
-    gap: spacing["4"],
+    paddingHorizontal: spacing['5'],
+    paddingVertical: spacing['3'],
+    gap: spacing['4'],
   },
   actionButton: {
-    padding: spacing["2"],
+    padding: spacing['2'],
   },
   // Story Card Styles
   storyCard: {
-    borderRadius: radius["2xl"],
-    overflow: "hidden",
-    marginBottom: spacing["4"],
+    borderRadius: radius['2xl'],
+    overflow: 'hidden',
+    marginBottom: spacing['4'],
     ...shadows.lg,
   },
   cardGradient: {
-    borderRadius: radius["2xl"],
-    overflow: "hidden",
+    borderRadius: radius['2xl'],
+    overflow: 'hidden',
   },
   storyImageContainer: {
-    position: "relative",
-    width: "100%",
+    position: 'relative',
+    width: '100%',
     height: 200,
     backgroundColor: Colors.background.primary,
   },
   storyImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   storyImagePlaceholder: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.neutral.lightest,
   },
   storyContent: {
-    padding: spacing["4"],
-    gap: spacing["2"],
+    padding: spacing['4'],
+    gap: spacing['2'],
   },
   storyTitle: {
     fontSize: typography.size.xl,
@@ -1093,9 +1205,9 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.snug * typography.size.xl,
   },
   storyMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
   },
   storyMetaText: {
     fontSize: typography.size.sm,
@@ -1104,55 +1216,55 @@ const styles = StyleSheet.create({
   },
   // Coloring Card Styles
   coloringsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing["4"],
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing['4'],
   },
   coloringCard: {
-    width: "48%",
-    marginBottom: spacing["2"],
+    width: '48%',
+    marginBottom: spacing['2'],
   },
   coloringGradient: {
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.md,
   },
   coloringImageContainer: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
     backgroundColor: Colors.neutral.lightest,
   },
   coloringImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   coloringImagePlaceholder: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.neutral.lightest,
   },
   coloringContent: {
-    padding: spacing["3"],
+    padding: spacing['3'],
   },
   coloringTitle: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
     minHeight: typography.size.base * 2 * 1.5,
   },
   downloadButton: {
-    marginTop: spacing["2"],
+    marginTop: spacing['2'],
   },
   downloadButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing["2"],
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing['2'],
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
     borderRadius: radius.lg,
   },
   downloadButtonText: {
@@ -1162,20 +1274,20 @@ const styles = StyleSheet.create({
   },
   // Swipe Delete
   swipeDeleteContainer: {
-    justifyContent: "center",
-    alignItems: "flex-end",
-    marginBottom: spacing["4"],
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginBottom: spacing['4'],
   },
   deleteButton: {
     backgroundColor: Colors.semantic.error,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     width: 90,
-    height: "100%",
-    borderTopRightRadius: radius["2xl"],
-    borderBottomRightRadius: radius["2xl"],
-    paddingHorizontal: spacing["3"],
-    gap: spacing["1"],
+    height: '100%',
+    borderTopRightRadius: radius['2xl'],
+    borderBottomRightRadius: radius['2xl'],
+    paddingHorizontal: spacing['3'],
+    gap: spacing['1'],
   },
   deleteButtonText: {
     color: Colors.neutral.white,

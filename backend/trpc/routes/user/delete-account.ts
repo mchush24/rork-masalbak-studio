@@ -90,7 +90,18 @@ export const deleteAccountProcedure = protectedProcedure
       errors.push('verification_codes');
     }
 
-    // 5. Delete user settings
+    // 5. Delete refresh tokens
+    const { error: refreshTokensError } = await supabase
+      .from('refresh_tokens')
+      .delete()
+      .eq('user_id', userId);
+
+    if (refreshTokensError) {
+      logger.error('[deleteAccount] Error deleting refresh tokens:', refreshTokensError);
+      errors.push('refresh_tokens');
+    }
+
+    // 7. Delete user settings
     const { error: settingsError } = await supabase
       .from('user_settings')
       .delete()
@@ -101,7 +112,7 @@ export const deleteAccountProcedure = protectedProcedure
       errors.push('user_settings');
     }
 
-    // 6. Finally, delete the user record
+    // 8. Finally, delete the user record
     const { error: deleteUserError } = await supabase.from('users').delete().eq('id', userId);
 
     if (deleteUserError) {

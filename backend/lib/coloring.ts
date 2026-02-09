@@ -1,9 +1,9 @@
-import sharp from "sharp";
-import puppeteer from "puppeteer";
-import { uploadBuffer } from "./supabase.js";
-import { escapeHtml, logger } from "./utils.js";
+import sharp from 'sharp';
+import { launch } from 'puppeteer';
+import { uploadBuffer } from './supabase.js';
+import { escapeHtml, logger } from './utils.js';
 
-const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
+const BUCKET = process.env.SUPABASE_BUCKET || 'renkioo';
 
 /**
  * Clean and enhance line art for coloring pages
@@ -14,17 +14,17 @@ const BUCKET = process.env.SUPABASE_BUCKET || "renkioo";
  * - Clean, connected outlines
  * - High resolution for print quality
  */
-async function toLineArt(input: string|Buffer) {
-  logger.info("[Coloring] 🎨 Processing image for coloring page...");
+async function toLineArt(input: string | Buffer) {
+  logger.info('[Coloring] 🎨 Processing image for coloring page...');
 
   let buf: Buffer;
-  if (typeof input === "string") {
-    if (input.startsWith("data:image/")) {
+  if (typeof input === 'string') {
+    if (input.startsWith('data:image/')) {
       // data:image/png;base64,xxxxx format
-      buf = Buffer.from(input.split(",").pop()||"", "base64");
+      buf = Buffer.from(input.split(',').pop() || '', 'base64');
     } else {
       // Just base64 string (no data: prefix)
-      buf = Buffer.from(input, "base64");
+      buf = Buffer.from(input, 'base64');
     }
   } else {
     buf = input;
@@ -37,7 +37,7 @@ async function toLineArt(input: string|Buffer) {
       // Step 1: High resolution for print quality (300dpi A4)
       .resize(2480, 2480, {
         fit: 'contain',
-        background: { r: 255, g: 255, b: 255 }
+        background: { r: 255, g: 255, b: 255 },
       })
       // Step 2: Convert to grayscale
       .grayscale()
@@ -54,67 +54,72 @@ async function toLineArt(input: string|Buffer) {
       // Step 8: Final cleanup
       .median(2)
       // Step 9: Output as high-quality PNG
-      .toFormat("png", { quality: 100 })
+      .toFormat('png', { quality: 100 })
       .toBuffer();
 
-    logger.info("[Coloring] ✅ Professional line art ready: Clean black outlines");
+    logger.info('[Coloring] ✅ Professional line art ready: Clean black outlines');
     return out;
   } catch (error) {
-    logger.error("[Coloring] ❌ Sharp conversion failed:", error);
-    console.warn("[Coloring] Falling back to original image");
+    logger.error('[Coloring] ❌ Sharp conversion failed:', error);
+    console.warn('[Coloring] Falling back to original image');
     return buf;
   }
 }
 
-export async function makeColoringPDF(pages: string[], title: string, size: "A4"|"A3") {
-  logger.info("[Coloring] Starting PDF generation:", title);
-  
+export async function makeColoringPDF(pages: string[], title: string, size: 'A4' | 'A3') {
+  logger.info('[Coloring] Starting PDF generation:', title);
+
   const lineUrls: string[] = [];
   for (const dataUri of pages) {
     try {
-      logger.info("[Coloring] Converting image to line art");
+      logger.info('[Coloring] Converting image to line art');
       const line = await toLineArt(dataUri);
       const url = await uploadBuffer(
-        BUCKET, 
-        `images/line_${Date.now()}_${Math.floor(Math.random()*1e6)}.png`, 
-        line, 
-        "image/png"
+        BUCKET,
+        `images/line_${Date.now()}_${Math.floor(Math.random() * 1e6)}.png`,
+        line,
+        'image/png'
       );
       lineUrls.push(url);
     } catch (err) {
-      logger.error("[Coloring] Line art conversion failed:", err);
+      logger.error('[Coloring] Line art conversion failed:', err);
       throw err;
     }
   }
-  
-  logger.info("[Coloring] Generating PDF");
+
+  logger.info('[Coloring] Generating PDF');
   const html = htmlDoc(title, lineUrls);
-  const browser = await puppeteer.launch({ 
-    headless: true, 
-    args: ["--no-sandbox","--disable-setuid-sandbox"] 
-  });
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
-  const pdf = await page.pdf({ 
-    format: size, 
-    printBackground: true, 
-    margin: { top: "15mm", bottom: "15mm", left: "15mm", right: "15mm" } 
-  });
-  await browser.close();
-  
+  let browser;
+  let pdf: Uint8Array;
+  try {
+    browser = await launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    pdf = await page.pdf({
+      format: size,
+      printBackground: true,
+      margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' },
+    });
+  } finally {
+    if (browser) await browser.close().catch(() => {});
+  }
+
   const pdfUrl = await uploadBuffer(
-    BUCKET, 
-    `pdf/coloring_${Date.now()}.pdf`, 
-    Buffer.from(pdf), 
-    "application/pdf"
+    BUCKET,
+    `pdf/coloring_${Date.now()}.pdf`,
+    Buffer.from(pdf),
+    'application/pdf'
   );
-  
-  logger.info("[Coloring] PDF generated:", pdfUrl);
+
+  logger.info('[Coloring] PDF generated:', pdfUrl);
   return { pdfUrl, pageCount: lineUrls.length };
 }
 
 function htmlDoc(title: string, imgs: string[]) {
-  const items = imgs.map(u => `<div class="page"><img src="${u}" /></div>`).join("");
+  const items = imgs.map(u => `<div class="page"><img src="${u}" /></div>`).join('');
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     @page {
       margin: 10mm;

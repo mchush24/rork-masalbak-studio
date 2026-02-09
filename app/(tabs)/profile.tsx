@@ -331,7 +331,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={Colors.background.profile} style={styles.gradientContainer}>
+      <LinearGradient colors={Colors.background.pageGradient} style={styles.gradientContainer}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
@@ -513,34 +513,27 @@ export default function ProfileScreen() {
             )
           )}
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.profile.stats}</Text>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => router.push('/history' as Href)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.menuIcon}
+          <View style={styles.settingsSection}>
+            <Text style={styles.settingsGroupTitle}>{t.profile.stats}</Text>
+            <View style={styles.settingsGroup}>
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => router.push('/history' as Href)}
               >
-                <History size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.profile.stats}</Text>
-                <View style={styles.menuRight}>
-                  <Text style={styles.menuValue}>
-                    {(stats?.totalAnalyses || 0) +
-                      (stats?.totalStorybooks || 0) +
-                      (stats?.totalColorings || 0)}
-                  </Text>
-                  <ChevronRight size={20} color={Colors.neutral.light} />
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
+                >
+                  <History size={18} color={Colors.secondary.grass} />
                 </View>
-              </View>
-            </Pressable>
+                <Text style={styles.compactMenuLabel}>{t.profile.stats}</Text>
+                <Text style={styles.compactMenuValue}>
+                  {(stats?.totalAnalyses || 0) +
+                    (stats?.totalStorybooks || 0) +
+                    (stats?.totalColorings || 0)}
+                </Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+            </View>
           </View>
 
           {/* Rozetler (Badges) Section */}
@@ -601,309 +594,226 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.settings.title}</Text>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowLanguageModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                style={styles.menuIcon}
+          {/* HESAP Group */}
+          <View style={styles.settingsSection}>
+            <Text style={styles.settingsGroupTitle}>HESAP</Text>
+            <View style={styles.settingsGroup}>
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowLanguageModal(true)}
               >
-                <Globe size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.language} / Language</Text>
-                <View style={styles.menuRight}>
-                  <Text style={styles.menuValue}>
-                    {userSettings?.language
-                      ? LANGUAGES[userSettings.language as Language].nativeName
-                      : 'Türkçe'}
-                  </Text>
-                  <ChevronRight size={20} color={Colors.neutral.light} />
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(120, 200, 232, 0.15)' }]}
+                >
+                  <Globe size={18} color={Colors.secondary.sky} />
                 </View>
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowRoleModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.menuIcon}
+                <Text style={styles.compactMenuLabel}>{t.settings.language}</Text>
+                <Text style={styles.compactMenuValue}>
+                  {userSettings?.language
+                    ? LANGUAGES[userSettings.language as Language].nativeName
+                    : 'Türkçe'}
+                </Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowRoleModal(true)}
               >
-                <Users size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Kullanıcı Rolü</Text>
-                <View style={styles.menuRight}>
-                  <Text style={styles.menuValue}>{roleConfig.displayName}</Text>
-                  <ChevronRight size={20} color={Colors.neutral.light} />
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
+                >
+                  <Users size={18} color={Colors.secondary.grass} />
                 </View>
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                style={styles.menuIcon}
+                <Text style={styles.compactMenuLabel}>Kullanıcı Rolü</Text>
+                <Text style={styles.compactMenuValue}>{roleConfig.displayName}</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
               >
-                <Crown size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.subscription}</Text>
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
+                >
+                  <Crown size={18} color={Colors.secondary.lavender} />
+                </View>
+                <Text style={styles.compactMenuLabel}>{t.settings.subscription}</Text>
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>Yakında</Text>
                 </View>
-              </View>
-            </Pressable>
+              </Pressable>
+            </View>
+          </View>
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowNotificationsModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.sunshine, Colors.secondary.sunshineLight]}
-                style={styles.menuIcon}
+          {/* TERCİHLER Group */}
+          <View style={styles.settingsSection}>
+            <Text style={styles.settingsGroupTitle}>TERCİHLER</Text>
+            <View style={styles.settingsGroup}>
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowNotificationsModal(true)}
               >
-                <Bell size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.notifications}</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowPrivacyModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.menuIcon}
-              >
-                <Lock size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.privacy}</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowThemeModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                style={styles.menuIcon}
-              >
-                <Sun size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.theme}</Text>
-                <View style={styles.menuRight}>
-                  <Text style={styles.menuValue}>
-                    {userSettings?.theme === 'light'
-                      ? 'Açık'
-                      : userSettings?.theme === 'dark'
-                        ? 'Koyu'
-                        : 'Otomatik'}
-                  </Text>
-                  <ChevronRight size={20} color={Colors.neutral.light} />
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}
+                >
+                  <Bell size={18} color={Colors.secondary.sunshine} />
                 </View>
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowSoundModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                style={styles.menuIcon}
+                <Text style={styles.compactMenuLabel}>{t.settings.notifications}</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowThemeModal(true)}
               >
-                <Volume2 size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Ses Ayarları</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowHapticModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                style={styles.menuIcon}
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
+                >
+                  <Sun size={18} color={Colors.secondary.lavender} />
+                </View>
+                <Text style={styles.compactMenuLabel}>{t.settings.theme}</Text>
+                <Text style={styles.compactMenuValue}>
+                  {userSettings?.theme === 'light'
+                    ? 'Açık'
+                    : userSettings?.theme === 'dark'
+                      ? 'Koyu'
+                      : 'Otomatik'}
+                </Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowSoundModal(true)}
               >
-                <Vibrate size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Titreşim Ayarları</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowAppLockModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.menuIcon}
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(120, 200, 232, 0.15)' }]}
+                >
+                  <Volume2 size={18} color={Colors.secondary.sky} />
+                </View>
+                <Text style={styles.compactMenuLabel}>Ses Ayarları</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowHapticModal(true)}
               >
-                <Shield size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Uygulama Kilidi</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowGeneralModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.neutral.medium, Colors.neutral.light]}
-                style={styles.menuIcon}
-              >
-                <Settings
-                  size={iconSizes.action}
-                  color={Colors.neutral.white}
-                  strokeWidth={iconStroke.standard}
-                />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.general}</Text>
-                <ChevronRight
-                  size={iconSizes.small}
-                  color={Colors.neutral.light}
-                  strokeWidth={iconStroke.standard}
-                />
-              </View>
-            </Pressable>
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
+                >
+                  <Vibrate size={18} color={Colors.secondary.lavender} />
+                </View>
+                <Text style={styles.compactMenuLabel}>Titreşim Ayarları</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+            </View>
           </View>
 
-          {/* Data & Security Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Veri ve Güvenlik</Text>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() => setShowDataExportModal(true)}
-            >
-              <LinearGradient
-                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                style={styles.menuIcon}
+          {/* GÜVENLİK Group */}
+          <View style={styles.settingsSection}>
+            <Text style={styles.settingsGroupTitle}>GÜVENLİK</Text>
+            <View style={styles.settingsGroup}>
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowPrivacyModal(true)}
               >
-                <Download
-                  size={iconSizes.action}
-                  color={Colors.neutral.white}
-                  strokeWidth={iconStroke.standard}
-                />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>Verilerimi İndir</Text>
-                <ChevronRight
-                  size={iconSizes.small}
-                  color={Colors.neutral.light}
-                  strokeWidth={iconStroke.standard}
-                />
-              </View>
-            </Pressable>
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
+                >
+                  <Lock size={18} color={Colors.secondary.grass} />
+                </View>
+                <Text style={styles.compactMenuLabel}>{t.settings.privacy}</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowAppLockModal(true)}
+              >
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
+                >
+                  <Shield size={18} color={Colors.secondary.grass} />
+                </View>
+                <Text style={styles.compactMenuLabel}>Uygulama Kilidi</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+              <View style={styles.compactMenuDivider} />
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowGeneralModal(true)}
+              >
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(160, 174, 192, 0.15)' }]}
+                >
+                  <Settings size={18} color={Colors.neutral.medium} />
+                </View>
+                <Text style={styles.compactMenuLabel}>{t.settings.general}</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+            </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.settings.help}</Text>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
-              onPress={() =>
-                showAlert(
-                  '💡 ' + t.settings.help,
-                  '📧 E-posta: destek@renkioo.com\n\n' +
-                    '📱 Uygulama Versiyonu: 1.0.0\n\n' +
-                    '🌐 Web: www.renkioo.com\n\n' +
-                    'Sorularınız için bize ulaşın!'
-                )
-              }
-            >
-              <LinearGradient
-                colors={[Colors.secondary.sunshine, Colors.secondary.sunshineLight]}
-                style={styles.menuIcon}
+          {/* VERİ Group */}
+          <View style={styles.settingsSection}>
+            <Text style={styles.settingsGroupTitle}>VERİ</Text>
+            <View style={styles.settingsGroup}>
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() => setShowDataExportModal(true)}
               >
-                <HelpCircle size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuLabel}>{t.settings.help}</Text>
-                <ChevronRight size={20} color={Colors.neutral.light} />
-              </View>
-            </Pressable>
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(120, 200, 232, 0.15)' }]}
+                >
+                  <Download size={18} color={Colors.secondary.sky} />
+                </View>
+                <Text style={styles.compactMenuLabel}>Verilerimi İndir</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+            </View>
           </View>
 
-          <View style={styles.section}>
+          {/* DESTEK Group */}
+          <View style={styles.settingsSection}>
+            <Text style={styles.settingsGroupTitle}>DESTEK</Text>
+            <View style={styles.settingsGroup}>
+              <Pressable
+                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                onPress={() =>
+                  showAlert(
+                    t.settings.help,
+                    'E-posta: destek@renkioo.com\n\n' +
+                      'Uygulama Versiyonu: 1.0.0\n\n' +
+                      'Web: www.renkioo.com\n\n' +
+                      'Sorularınız için bize ulaşın!'
+                  )
+                }
+              >
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}
+                >
+                  <HelpCircle size={18} color={Colors.secondary.sunshine} />
+                </View>
+                <Text style={styles.compactMenuLabel}>{t.settings.help}</Text>
+                <ChevronRight size={16} color={Colors.neutral.light} />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Logout Button */}
+          <View style={styles.settingsSection}>
             <Pressable
-              style={({ pressed }) => [
-                styles.menuItem,
-                styles.logoutButton,
-                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-              ]}
+              style={({ pressed }) => [styles.logoutCompactButton, pressed && { opacity: 0.7 }]}
               onPress={handleLogout}
             >
-              <LinearGradient
-                colors={[Colors.semantic.error, Colors.semantic.errorLight]}
-                style={styles.menuIcon}
+              <View
+                style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 138, 128, 0.15)' }]}
               >
-                <LogOut size={24} color={Colors.neutral.white} />
-              </LinearGradient>
-              <View style={styles.menuContent}>
-                <Text style={[styles.menuLabel, styles.logoutText]}>{t.profile.logout}</Text>
+                <LogOut size={18} color={Colors.semantic.error} />
               </View>
+              <Text style={styles.logoutCompactText}>{t.profile.logout}</Text>
             </Pressable>
           </View>
 
@@ -1542,46 +1452,70 @@ const styles = StyleSheet.create({
     marginBottom: spacing['4'],
     paddingHorizontal: spacing['1'],
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  // Compact Settings Styles
+  settingsSection: {
+    marginBottom: spacing['4'],
+  },
+  settingsGroupTitle: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.medium,
+    textTransform: 'uppercase' as const,
+    letterSpacing: typography.letterSpacing.wider,
+    marginBottom: spacing['2'],
+    paddingHorizontal: spacing['1'],
+  },
+  settingsGroup: {
     backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
-    padding: isSmallDevice ? spacing['4'] : spacing['5'],
-    marginBottom: spacing['3'],
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    ...shadows.md,
+    overflow: 'hidden',
+    ...shadows.sm,
   },
-  menuIcon: {
-    width: isSmallDevice ? layout.icon.huge : layout.icon.huge + 8,
-    height: isSmallDevice ? layout.icon.huge : layout.icon.huge + 8,
-    borderRadius: radius.lg,
+  compactMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['4'],
+    backgroundColor: Colors.neutral.white,
+  },
+  compactMenuDivider: {
+    height: 1,
+    backgroundColor: Colors.neutral.lightest,
+    marginLeft: 56,
+  },
+  compactMenuIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: isSmallDevice ? spacing['3'] : spacing['4'],
+    marginRight: spacing['3'],
   },
-  menuContent: {
+  compactMenuLabel: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  menuLabel: {
-    fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.darkest,
-    letterSpacing: typography.letterSpacing.tight,
-  },
-  menuRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['2'],
-  },
-  menuValue: {
     fontSize: typography.size.base,
-    color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
+    color: Colors.neutral.darkest,
+  },
+  compactMenuValue: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    marginRight: spacing['2'],
+  },
+  logoutCompactButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['4'],
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius.xl,
+    ...shadows.sm,
+  },
+  logoutCompactText: {
+    flex: 1,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.medium,
+    color: Colors.semantic.error,
   },
   badge: {
     backgroundColor: Colors.secondary.sunshineLight,
@@ -1606,13 +1540,6 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     fontWeight: typography.weight.medium,
-  },
-  logoutButton: {
-    borderColor: Colors.semantic.errorLight,
-    borderWidth: 2,
-  },
-  logoutText: {
-    color: Colors.semantic.error,
   },
   // Modal Styles
   modalOverlay: {

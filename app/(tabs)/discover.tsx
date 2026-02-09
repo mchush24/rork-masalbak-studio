@@ -24,24 +24,18 @@ import {
   Pressable,
   Platform,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import {
-  Compass,
-  Sparkles,
-  ChevronRight,
-  ImageIcon,
-  BookOpen,
-  Heart,
-  Filter,
-} from 'lucide-react-native';
+import { Compass, Sparkles, ChevronRight, ImageIcon, Heart, Filter } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { useRouter, Href } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { trpc } from '@/lib/trpc';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
+import { spacing, radius } from '@/constants/design-system';
 import { IooEmptyState } from '@/components/IooEmptyState';
 import {
   ExpertTipCard,
@@ -51,7 +45,101 @@ import {
   SocialFeedSkeleton,
 } from '@/components/social-feed';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
+
+// Showcase data displayed when backend returns empty results
+const SHOWCASE_GALLERY = [
+  {
+    id: 'showcase-1',
+    image_url: '',
+    thumbnail_url: null,
+    child_age: 5,
+    theme: 'family',
+    content_type: 'drawing',
+    likes_count: 24,
+  },
+  {
+    id: 'showcase-2',
+    image_url: '',
+    thumbnail_url: null,
+    child_age: 7,
+    theme: 'nature',
+    content_type: 'coloring',
+    likes_count: 18,
+  },
+  {
+    id: 'showcase-3',
+    image_url: '',
+    thumbnail_url: null,
+    child_age: 4,
+    theme: 'animals',
+    content_type: 'drawing',
+    likes_count: 31,
+  },
+  {
+    id: 'showcase-4',
+    image_url: '',
+    thumbnail_url: null,
+    child_age: 6,
+    theme: 'fantasy',
+    content_type: 'coloring',
+    likes_count: 15,
+  },
+  {
+    id: 'showcase-5',
+    image_url: '',
+    thumbnail_url: null,
+    child_age: 8,
+    theme: 'emotions',
+    content_type: 'drawing',
+    likes_count: 27,
+  },
+  {
+    id: 'showcase-6',
+    image_url: '',
+    thumbnail_url: null,
+    child_age: 5,
+    theme: 'seasons',
+    content_type: 'coloring',
+    likes_count: 12,
+  },
+];
+
+const SHOWCASE_STORIES = [
+  {
+    id: 'showcase-s1',
+    title: 'Renklerle İfade',
+    content:
+      'Kızım boyama yaparken duygularını ifade etmeye başladı. Renk seçimleri ile iç dünyasını anlamamıza yardımcı oldu.',
+    child_age: 6,
+    author_type: 'parent',
+    images: [],
+    likes_count: 42,
+    is_featured: true,
+  },
+  {
+    id: 'showcase-s2',
+    title: 'Masal Dünyası',
+    content:
+      'Oğlum kendi masallarını oluşturmaya bayılıyor. Her gece yatmadan önce birlikte yeni bir hikaye yazıyoruz.',
+    child_age: 5,
+    author_type: 'parent',
+    images: [],
+    likes_count: 35,
+    is_featured: false,
+  },
+  {
+    id: 'showcase-s3',
+    title: 'Çizimle Gelişim',
+    content:
+      'Çocuğumun çizimlerindeki gelişimi izlemek çok güzel. Her hafta daha detaylı ve anlamlı çizimler yapıyor.',
+    child_age: 7,
+    author_type: 'parent',
+    images: [],
+    likes_count: 29,
+    is_featured: false,
+  },
+];
 
 // Section header component - memoized to prevent unnecessary re-renders
 const SectionHeader = memo(function SectionHeader({
@@ -61,7 +149,7 @@ const SectionHeader = memo(function SectionHeader({
   onSeeAll,
 }: {
   title: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ size: number; color: string }>;
   iconColor?: string;
   onSeeAll?: () => void;
 }) {
@@ -87,20 +175,22 @@ const SectionHeader = memo(function SectionHeader({
 });
 
 // Empty state component - memoized, uses unified IooEmptyState
-const DiscoverEmptyState = memo(function DiscoverEmptyState({ title, message }: { title: string; message: string }) {
+const DiscoverEmptyState = memo(function DiscoverEmptyState({
+  title,
+  message,
+}: {
+  title: string;
+  message: string;
+}) {
   return (
     <View style={styles.emptyState}>
-      <IooEmptyState
-        title={title}
-        message={message}
-        compact
-      />
+      <IooEmptyState title={title} message={message} compact />
     </View>
   );
 });
 
 export default function DiscoverScreen() {
-  const router = useRouter();
+  const _router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch discover feed data
@@ -108,7 +198,7 @@ export default function DiscoverScreen() {
     data: feedData,
     isLoading,
     refetch,
-    error,
+    error: _error,
   } = trpc.socialFeed.getDiscoverFeed.useQuery({});
 
   // Like mutations
@@ -128,44 +218,47 @@ export default function DiscoverScreen() {
     setRefreshing(false);
   }, [refetch]);
 
-  const handleGalleryLike = useCallback((id: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    setLikedGalleryItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
+  const handleGalleryLike = useCallback(
+    (id: string) => {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
-      return newSet;
-    });
-    likeMutation.mutate({ galleryId: id });
-  }, [likeMutation]);
+      setLikedGalleryItems(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(id)) {
+          newSet.delete(id);
+        } else {
+          newSet.add(id);
+        }
+        return newSet;
+      });
+      likeMutation.mutate({ galleryId: id });
+    },
+    [likeMutation]
+  );
 
-  const handleStoryLike = useCallback((id: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    setLikedStories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
+  const handleStoryLike = useCallback(
+    (id: string) => {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
-      return newSet;
-    });
-    storyLikeMutation.mutate({ storyId: id });
-  }, [storyLikeMutation]);
+      setLikedStories(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(id)) {
+          newSet.delete(id);
+        } else {
+          newSet.add(id);
+        }
+        return newSet;
+      });
+      storyLikeMutation.mutate({ storyId: id });
+    },
+    [storyLikeMutation]
+  );
 
   if (isLoading && !feedData) {
     return (
-      <LinearGradient
-        colors={['#FAF5FF', '#FDF2F8', '#FFF7ED']}
-        style={styles.container}
-      >
+      <LinearGradient colors={Colors.background.pageGradient} style={styles.container}>
         <SafeAreaView style={styles.safeArea} edges={['top']}>
           <View style={styles.header}>
             <View style={styles.headerTitle}>
@@ -180,10 +273,7 @@ export default function DiscoverScreen() {
   }
 
   return (
-    <LinearGradient
-      colors={['#FAF5FF', '#FDF2F8', '#FFF7ED']}
-      style={styles.container}
-    >
+    <LinearGradient colors={Colors.background.pageGradient} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
@@ -196,6 +286,11 @@ export default function DiscoverScreen() {
             onPress={() => {
               if (Platform.OS !== 'web') {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              if (Platform.OS === 'web') {
+                alert('Filtre özelliği yakında eklenecek');
+              } else {
+                Alert.alert('Yakında', 'Filtre özelliği yakında eklenecek');
               }
             }}
           >
@@ -223,23 +318,14 @@ export default function DiscoverScreen() {
             ) : (
               <View style={styles.tipPlaceholder}>
                 <Sparkles size={24} color="#FFA726" />
-                <Text style={styles.tipPlaceholderText}>
-                  Günün ilhamı yükleniyor...
-                </Text>
+                <Text style={styles.tipPlaceholderText}>Günün ilhamı yükleniyor...</Text>
               </View>
             )}
           </Animated.View>
 
           {/* Activity Suggestions */}
-          <Animated.View
-            entering={FadeInDown.delay(200).duration(500)}
-            style={styles.section}
-          >
-            <SectionHeader
-              title="Bugünkü Aktiviteler"
-              icon={Sparkles}
-              iconColor="#66BB6A"
-            />
+          <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.section}>
+            <SectionHeader title="Bugünkü Aktiviteler" icon={Sparkles} iconColor="#66BB6A" />
 
             {feedData?.suggestions && feedData.suggestions.length > 0 ? (
               <ScrollView
@@ -248,11 +334,7 @@ export default function DiscoverScreen() {
                 contentContainerStyle={styles.activitiesContainer}
               >
                 {feedData.suggestions.map((activity, index) => (
-                  <ActivityCard
-                    key={activity.id}
-                    activity={activity}
-                    index={index}
-                  />
+                  <ActivityCard key={activity.id} activity={activity} index={index} />
                 ))}
               </ScrollView>
             ) : (
@@ -264,77 +346,93 @@ export default function DiscoverScreen() {
           </Animated.View>
 
           {/* Community Gallery */}
-          <Animated.View
-            entering={FadeInDown.delay(300).duration(500)}
-            style={styles.section}
-          >
+          <Animated.View entering={FadeInDown.delay(300).duration(500)} style={styles.section}>
             <SectionHeader
               title="Topluluk Galerisi"
               icon={ImageIcon}
               iconColor="#AB47BC"
               onSeeAll={() => {
-                // Navigate to full gallery
+                if (Platform.OS === 'web') {
+                  alert('Yakında tüm galeri görüntülenebilecek');
+                } else {
+                  Alert.alert('Yakında', 'Tüm galeri yakında görüntülenebilecek');
+                }
               }}
             />
 
-            {feedData?.gallery && feedData.gallery.length > 0 ? (
-              <View style={styles.galleryGrid}>
-                {feedData.gallery.map((item, index) => (
-                  <CommunityGalleryCard
-                    key={item.id}
-                    item={item}
-                    index={index}
-                    isLiked={likedGalleryItems.has(item.id)}
-                    onLike={handleGalleryLike}
-                    onPress={(id) => {
-                      // Navigate to detail
-                    }}
-                  />
-                ))}
-              </View>
-            ) : (
-              <DiscoverEmptyState
-                title="Paylaşım Yok"
-                message="Henüz topluluk paylaşımı yok"
-              />
-            )}
+            {(() => {
+              const galleryItems =
+                feedData?.gallery && feedData.gallery.length > 0
+                  ? feedData.gallery
+                  : SHOWCASE_GALLERY;
+              const isShowcase = !(feedData?.gallery && feedData.gallery.length > 0);
+              return (
+                <>
+                  {isShowcase && (
+                    <View style={styles.showcaseBadge}>
+                      <Text style={styles.showcaseBadgeText}>Örnek İçerik</Text>
+                    </View>
+                  )}
+                  <View style={styles.galleryGrid}>
+                    {galleryItems.map((item, index) => (
+                      <CommunityGalleryCard
+                        key={item.id}
+                        item={item}
+                        index={index}
+                        isLiked={likedGalleryItems.has(item.id)}
+                        onLike={handleGalleryLike}
+                        onPress={() => {}}
+                      />
+                    ))}
+                  </View>
+                </>
+              );
+            })()}
           </Animated.View>
 
           {/* Success Stories */}
-          <Animated.View
-            entering={FadeInDown.delay(400).duration(500)}
-            style={styles.section}
-          >
+          <Animated.View entering={FadeInDown.delay(400).duration(500)} style={styles.section}>
             <SectionHeader
               title="Başarı Hikayeleri"
               icon={Heart}
               iconColor="#EC407A"
               onSeeAll={() => {
-                // Navigate to all stories
+                if (Platform.OS === 'web') {
+                  alert('Yakında tüm hikayeler görüntülenebilecek');
+                } else {
+                  Alert.alert('Yakında', 'Tüm hikayeler yakında görüntülenebilecek');
+                }
               }}
             />
 
-            {feedData?.stories && feedData.stories.length > 0 ? (
-              <View style={styles.storiesContainer}>
-                {feedData.stories.map((story, index) => (
-                  <SuccessStoryCard
-                    key={story.id}
-                    story={story}
-                    index={index}
-                    isLiked={likedStories.has(story.id)}
-                    onLike={handleStoryLike}
-                    onShare={(id) => {
-                      // Share story
-                    }}
-                  />
-                ))}
-              </View>
-            ) : (
-              <DiscoverEmptyState
-                title="Hikaye Yok"
-                message="Henüz başarı hikayesi paylaşılmamış"
-              />
-            )}
+            {(() => {
+              const storyItems =
+                feedData?.stories && feedData.stories.length > 0
+                  ? feedData.stories
+                  : SHOWCASE_STORIES;
+              const isShowcase = !(feedData?.stories && feedData.stories.length > 0);
+              return (
+                <>
+                  {isShowcase && (
+                    <View style={styles.showcaseBadge}>
+                      <Text style={styles.showcaseBadgeText}>Örnek İçerik</Text>
+                    </View>
+                  )}
+                  <View style={styles.storiesContainer}>
+                    {storyItems.map((story, index) => (
+                      <SuccessStoryCard
+                        key={story.id}
+                        story={story}
+                        index={index}
+                        isLiked={likedStories.has(story.id)}
+                        onLike={handleStoryLike}
+                        onShare={() => {}}
+                      />
+                    ))}
+                  </View>
+                </>
+              );
+            })()}
           </Animated.View>
 
           {/* Bottom padding */}
@@ -450,6 +548,20 @@ const styles = StyleSheet.create({
   },
   storiesContainer: {
     gap: spacing.md,
+  },
+  showcaseBadge: {
+    alignSelf: 'flex-start',
+    marginLeft: spacing.md,
+    marginBottom: spacing.sm,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  showcaseBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#8B5CF6',
   },
   emptyState: {
     alignItems: 'center',

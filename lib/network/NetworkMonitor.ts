@@ -11,10 +11,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import NetInfo, {
-  NetInfoState,
-  NetInfoStateType,
-} from '@react-native-community/netinfo';
+import NetInfo, { NetInfoState, NetInfoStateType } from '@react-native-community/netinfo';
 import { AppState, AppStateStatus } from 'react-native';
 import { analytics } from '@/lib/analytics';
 
@@ -40,7 +37,7 @@ interface PendingRequest {
 }
 
 // Network quality thresholds (based on RTT)
-const QUALITY_THRESHOLDS = {
+const _QUALITY_THRESHOLDS = {
   excellent: 100, // < 100ms
   good: 300, // < 300ms
   moderate: 1000, // < 1000ms
@@ -49,7 +46,9 @@ const QUALITY_THRESHOLDS = {
 
 // Estimate network quality
 function estimateQuality(state: NetInfoState): NetworkQuality {
-  if (!state.isConnected || !state.isInternetReachable) {
+  // Note: isInternetReachable can be null (unknown) on web and during init.
+  // Only treat as offline when explicitly false or not connected.
+  if (!state.isConnected || state.isInternetReachable === false) {
     return 'offline';
   }
 
@@ -102,7 +101,7 @@ class NetworkMonitorClass {
     this.updateStatus(initialState);
 
     // Subscribe to changes
-    this.unsubscribeNetInfo = NetInfo.addEventListener((state) => {
+    this.unsubscribeNetInfo = NetInfo.addEventListener(state => {
       this.updateStatus(state);
     });
 
@@ -133,7 +132,8 @@ class NetworkMonitorClass {
     };
 
     // Track offline/online transitions
-    const isNowOnline = this.currentStatus.isConnected && this.currentStatus.isInternetReachable !== false;
+    const isNowOnline =
+      this.currentStatus.isConnected && this.currentStatus.isInternetReachable !== false;
     const wasOnline = previousStatus?.isConnected && previousStatus?.isInternetReachable !== false;
 
     if (!isNowOnline && wasOnline) {
@@ -162,7 +162,7 @@ class NetworkMonitorClass {
 
   private notifyListeners(): void {
     if (!this.currentStatus) return;
-    this.listeners.forEach((listener) => listener(this.currentStatus!));
+    this.listeners.forEach(listener => listener(this.currentStatus!));
   }
 
   // Subscribe to network changes
@@ -185,8 +185,7 @@ class NetworkMonitorClass {
   // Check if online
   isOnline(): boolean {
     return (
-      this.currentStatus?.isConnected === true &&
-      this.currentStatus?.isInternetReachable !== false
+      this.currentStatus?.isConnected === true && this.currentStatus?.isInternetReachable !== false
     );
   }
 
@@ -195,9 +194,7 @@ class NetworkMonitorClass {
     try {
       const state = await Promise.race([
         NetInfo.fetch(),
-        new Promise<null>((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-        ),
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs)),
       ]);
 
       if (state === null) return false;
@@ -208,11 +205,7 @@ class NetworkMonitorClass {
   }
 
   // Add pending request (for offline support)
-  addPendingRequest(
-    id: string,
-    fn: () => Promise<void>,
-    maxRetries = 3
-  ): void {
+  addPendingRequest(id: string, fn: () => Promise<void>, maxRetries = 3): void {
     this.pendingRequests.set(id, {
       id,
       fn,
@@ -235,7 +228,7 @@ class NetworkMonitorClass {
     try {
       await request.fn();
       this.pendingRequests.delete(id);
-    } catch (error) {
+    } catch (_error) {
       request.retryCount++;
       if (request.retryCount >= request.maxRetries) {
         this.pendingRequests.delete(id);
@@ -275,9 +268,7 @@ export const networkMonitor = NetworkMonitorClass.getInstance();
 
 // Hook for network status
 export function useNetworkStatus(): NetworkStatus | null {
-  const [status, setStatus] = useState<NetworkStatus | null>(
-    networkMonitor.getStatus()
-  );
+  const [status, setStatus] = useState<NetworkStatus | null>(networkMonitor.getStatus());
 
   useEffect(() => {
     networkMonitor.initialize();

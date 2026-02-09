@@ -1,9 +1,10 @@
-import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import { initTRPC, TRPCError } from "@trpc/server";
-import superjson from "superjson";
-import { verifyToken, TokenExpiredError, InvalidTokenError } from "../lib/auth/jwt.js";
-import { logger } from "../lib/utils.js";
-import { supa } from "../lib/supabase.js";
+import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+import { initTRPC, TRPCError } from '@trpc/server';
+import superjson from 'superjson';
+import { verifyToken, TokenExpiredError, InvalidTokenError } from '../lib/auth/jwt.js';
+import { logger } from '../lib/utils.js';
+import { supa } from '../lib/supabase.js';
+import { recordRequest } from '../lib/monitoring.js';
 
 // Generate a simple request ID for tracing
 function generateRequestId(): string {
@@ -13,9 +14,9 @@ function generateRequestId(): string {
 // Get client IP for audit logging
 function getClientIP(req: Request): string {
   return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    'unknown'
   );
 }
 
@@ -82,13 +83,30 @@ const t = initTRPC.context<Context>().create({
 });
 
 export const createTRPCRouter = t.router;
-export const publicProcedure = t.procedure;
+
+// Monitoring middleware - tracks latency, errors, request counts per procedure
+const monitoringMiddleware = t.middleware(async ({ path, next }) => {
+  const start = Date.now();
+  try {
+    const result = await next();
+    recordRequest(path, Date.now() - start, !result.ok);
+    return result;
+  } catch (error) {
+    recordRequest(path, Date.now() - start, true);
+    throw error;
+  }
+});
+
+// All procedures derive from baseProcedure to get monitoring
+const baseProcedure = t.procedure.use(monitoringMiddleware);
+
+export const publicProcedure = baseProcedure;
 
 /**
  * Protected procedure - requires authentication
  * Throws UNAUTHORIZED error if user is not authenticated
  */
-export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   if (!ctx.userId) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
@@ -118,11 +136,7 @@ async function checkUserExists(userId: string): Promise<boolean> {
   }
 
   // Query database
-  const { data, error } = await supa
-    .from('users')
-    .select('id')
-    .eq('id', userId)
-    .single();
+  const { data, error } = await supa.from('users').select('id').eq('id', userId).single();
 
   const exists = !error && !!data;
 
@@ -146,7 +160,7 @@ async function checkUserExists(userId: string): Promise<boolean> {
  * Verified procedure - requires authentication AND user must exist in database
  * Use this for sensitive operations where user deletion should invalidate access
  */
-export const verifiedProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const verifiedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   if (!ctx.userId) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',

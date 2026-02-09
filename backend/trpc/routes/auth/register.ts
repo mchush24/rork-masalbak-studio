@@ -1,10 +1,10 @@
-import { logger } from "../../../lib/utils.js";
-import { publicProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { supabase } from "../../../lib/supabase.js";
-import { sendVerificationEmail, generateVerificationCode } from "../../../lib/email.js";
-import { hashPassword, validatePasswordStrength } from "../../../lib/password.js";
-import { authRateLimit } from "../../middleware/rate-limit.js";
+import { logger } from '../../../lib/utils.js';
+import { publicProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { supabase } from '../../../lib/supabase.js';
+import { sendVerificationEmail, generateVerificationCode } from '../../../lib/email.js';
+import { hashPassword, validatePasswordStrength } from '../../../lib/password.js';
+import { authRateLimit } from '../../middleware/rate-limit.js';
 
 const registerInputSchema = z.object({
   email: z.string().email(),
@@ -24,7 +24,7 @@ export const registerProcedure = publicProcedure
   .input(registerInputSchema)
   .output(registerResponseSchema)
   .mutation(async ({ input }) => {
-    logger.info("[Auth] 📧 Registering user:", input.email);
+    logger.info('[Auth] 📧 Registering user:', input.email);
 
     try {
       // Check if user already exists
@@ -35,37 +35,37 @@ export const registerProcedure = publicProcedure
         .single();
 
       if (existingUser && !checkError) {
-        logger.info("[Auth] ✅ User already exists:", existingUser.id);
+        logger.info('[Auth] ✅ User already exists:', existingUser.id);
 
         // User exists - send verification code for login
         const isLogin = existingUser.onboarding_completed;
-        logger.info(`[Auth] 📧 ${isLogin ? 'Login' : 'Resume onboarding'} - sending verification code`);
+        logger.info(
+          `[Auth] 📧 ${isLogin ? 'Login' : 'Resume onboarding'} - sending verification code`
+        );
 
         const verificationCode = generateVerificationCode();
         const expiresAt = new Date();
         expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
         // Store verification code in database
-        logger.info("[Auth] 💾 Storing verification code for existing user");
-        const { error: insertError } = await supabase
-          .from('verification_codes')
-          .insert([
-            {
-              email: input.email,
-              code: verificationCode,
-              expires_at: expiresAt.toISOString(),
-              created_at: new Date().toISOString(),
-            },
-          ]);
+        logger.info('[Auth] 💾 Storing verification code for existing user');
+        const { error: insertError } = await supabase.from('verification_codes').insert([
+          {
+            email: input.email,
+            code: verificationCode,
+            expires_at: expiresAt.toISOString(),
+            created_at: new Date().toISOString(),
+          },
+        ]);
 
         if (insertError) {
-          logger.error("[Auth] ❌ DB Error:", insertError);
-          throw new Error(`Failed to store code: ${insertError.message}`);
+          logger.error('[Auth] ❌ DB Error:', insertError);
+          throw new Error('Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.');
         }
-        logger.info("[Auth] ✅ Code stored in DB");
+        logger.info('[Auth] ✅ Code stored in DB');
 
         // Send email
-        logger.info("[Auth] 📧 Sending verification email to:", input.email);
+        logger.info('[Auth] 📧 Sending verification email to:', input.email);
         await sendVerificationEmail(input.email, verificationCode, existingUser.name);
 
         return {
@@ -81,32 +81,30 @@ export const registerProcedure = publicProcedure
       expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
       // Store verification code in database
-      logger.info("[Auth] 💾 Storing verification code for new user");
-      const { error: insertError2 } = await supabase
-        .from('verification_codes')
-        .insert([
-          {
-            email: input.email,
-            code: verificationCode,
-            expires_at: expiresAt.toISOString(),
-            created_at: new Date().toISOString(),
-          },
-        ]);
+      logger.info('[Auth] 💾 Storing verification code for new user');
+      const { error: insertError2 } = await supabase.from('verification_codes').insert([
+        {
+          email: input.email,
+          code: verificationCode,
+          expires_at: expiresAt.toISOString(),
+          created_at: new Date().toISOString(),
+        },
+      ]);
 
       if (insertError2) {
-        logger.error("[Auth] ❌ DB Error:", insertError2);
-        throw new Error(`Failed to store code: ${insertError2.message}`);
+        logger.error('[Auth] ❌ DB Error:', insertError2);
+        throw new Error('Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.');
       }
-      logger.info("[Auth] ✅ Code stored in DB");
+      logger.info('[Auth] ✅ Code stored in DB');
 
       // Send verification email
-      logger.info("[Auth] 📧 Sending verification email to:", input.email);
+      logger.info('[Auth] 📧 Sending verification email to:', input.email);
       await sendVerificationEmail(input.email, verificationCode, input.name);
 
       // Hash password if provided
       let passwordHash: string | undefined;
       if (input.password) {
-        logger.info("[Auth] 🔐 Hashing password for new user");
+        logger.info('[Auth] 🔐 Hashing password for new user');
         const strength = validatePasswordStrength(input.password);
         if (!strength.isValid) {
           throw new Error(strength.feedback.join(', '));
@@ -132,11 +130,11 @@ export const registerProcedure = publicProcedure
         .single();
 
       if (createError) {
-        logger.error("[Auth] ❌ Error creating user:", createError);
-        throw new Error(`Failed to create user: ${createError.message}`);
+        logger.error('[Auth] ❌ Error creating user:', createError);
+        throw new Error('Kayıt oluşturulamadı. Lütfen tekrar deneyin.');
       }
 
-      logger.info("[Auth] ✅ User created successfully:", newUser.id);
+      logger.info('[Auth] ✅ User created successfully:', newUser.id);
 
       return {
         userId: newUser.id,
@@ -144,9 +142,11 @@ export const registerProcedure = publicProcedure
         isNewUser: true,
       };
     } catch (error) {
-      logger.error("[Auth] ❌ Registration error:", error);
-      throw new Error(
-        `Registration failed: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      logger.error('[Auth] ❌ Registration error:', error);
+      // Re-throw user-facing errors as-is, wrap unknown errors
+      if (error instanceof Error && !error.message.includes('Failed to')) {
+        throw error;
+      }
+      throw new Error('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.');
     }
   });

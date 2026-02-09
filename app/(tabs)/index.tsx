@@ -39,7 +39,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, Href } from 'expo-router';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
-import { Colors, RenkooColors, EtherealColors, ProfessionalColors } from '@/constants/colors';
+import { Colors, RenkooColors, ProfessionalColors } from '@/constants/colors';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { spacing, shadows } from '@/constants/design-system';
 import { GreetingService } from '@/lib/services/greeting-service';
@@ -250,22 +250,17 @@ export default function HomeScreen() {
     totalActivities: 0,
   };
 
-  // Get gradient colors based on role
-  const getBackgroundGradient = (): [string, string] => {
-    if (isProfessional) {
-      return ['#FAFAFA', '#FFFFFF'];
-    }
-    return [EtherealColors.core.celestial, '#FFFFFF'];
-  };
+  // Unified page background for all roles
+  const backgroundGradient = Colors.background.pageGradient;
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       <LinearGradient
-        colors={getBackgroundGradient()}
+        colors={backgroundGradient}
         start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 0.4 }}
+        end={{ x: 0, y: 1 }}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         <ScrollView
@@ -330,7 +325,7 @@ export default function HomeScreen() {
                   {mascotSettings.showOnDashboard && (
                     <View style={styles.mascotContainer}>
                       <IooMascot
-                        size={isSmallDevice ? 'medium' : 'large'}
+                        size={isSmallDevice ? 'xs' : 'small'}
                         animated
                         showGlow={mascotSettings.prominence === 'high'}
                         mood="happy"
@@ -352,11 +347,15 @@ export default function HomeScreen() {
                       !mascotSettings.showOnDashboard && { flex: 1 },
                     ]}
                   >
-                    <Text style={styles.heroGreeting}>{greeting.title}</Text>
-                    <Text style={styles.heroSubtitle}>{greeting.subtitle}</Text>
+                    <Text style={styles.heroGreeting} numberOfLines={1}>
+                      {greeting.title}
+                    </Text>
+                    <Text style={styles.heroSubtitle} numberOfLines={2}>
+                      {greeting.subtitle}
+                    </Text>
                     {mascotSettings.showOnDashboard && mascotSettings.prominence === 'high' && (
                       <View style={styles.mascotIntro}>
-                        <Text style={styles.mascotIntroText}>
+                        <Text style={styles.mascotIntroText} numberOfLines={3}>
                           Ben <Text style={styles.mascotName}>Ioo</Text>, çocuğunuzun gelişim
                           yolculuğunda yanınızdayım
                         </Text>
@@ -893,6 +892,7 @@ const styles = StyleSheet.create({
     gap: spacing['1'],
     marginLeft: -spacing['2'],
     marginRight: spacing['2'],
+    maxWidth: 110,
   },
   chatHint: {
     flexDirection: 'row',
@@ -910,6 +910,7 @@ const styles = StyleSheet.create({
   },
   heroTextContainer: {
     flex: 1,
+    overflow: 'hidden',
   },
   heroGreeting: {
     fontSize: 22,
@@ -928,12 +929,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 12,
     flexShrink: 1,
+    overflow: 'hidden',
   },
   mascotIntroText: {
     fontSize: 12,
     color: Colors.neutral.dark,
     lineHeight: 18,
-    flexWrap: 'wrap',
   },
   mascotName: {
     fontWeight: '700',

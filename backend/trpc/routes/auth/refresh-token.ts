@@ -9,6 +9,11 @@ import {
 } from '../../../lib/auth/jwt.js';
 import { logger } from '../../../lib/utils.js';
 import { supa } from '../../../lib/supabase.js';
+import {
+  isTokenRevoked,
+  revokeToken,
+  storeRefreshToken,
+} from '../../../lib/auth/refresh-tokens.js';
 import { authRateLimit } from '../../middleware/rate-limit.js';
 
 /**
@@ -29,6 +34,17 @@ export const refreshTokenProcedure = publicProcedure
       // Verify the refresh token
       const payload = verifyRefreshToken(input.refreshToken);
 
+      // Check if token has been revoked
+      const revoked = await isTokenRevoked(input.refreshToken);
+      if (revoked) {
+        logger.warn('[Auth] Revoked refresh token used:', payload.userId.substring(0, 8) + '...');
+        return {
+          success: false,
+          error: 'token_revoked',
+          message: 'Oturum sonlandırılmış. Lütfen tekrar giriş yapın.',
+        };
+      }
+
       // Verify user still exists in database
       const { data: user, error } = await supa
         .from('users')
@@ -48,10 +64,16 @@ export const refreshTokenProcedure = publicProcedure
         };
       }
 
+      // Revoke old refresh token (rotation: old token becomes invalid)
+      revokeToken(input.refreshToken).catch(() => {});
+
       // Generate new token pair
       const tokenPayload = { userId: user.id, email: user.email };
       const accessToken = generateAccessToken(tokenPayload);
       const refreshToken = generateRefreshToken(tokenPayload);
+
+      // Store new refresh token
+      storeRefreshToken(user.id, refreshToken).catch(() => {});
 
       logger.info('[Auth] Token refreshed for user:', user.id.substring(0, 8) + '...');
 

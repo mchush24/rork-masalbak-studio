@@ -8,10 +8,11 @@
  * - Başarı Hikayeleri (Success Stories)
  */
 
-import { z } from "zod";
-import { createLogger } from "../../lib/logger.js";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../create-context.js";
-import { supa } from "../../lib/supabase.js";
+import { z } from 'zod';
+import { createLogger } from '../../lib/logger.js';
+import { createTRPCRouter, publicProcedure, protectedProcedure } from '../create-context.js';
+import { supa } from '../../lib/supabase.js';
+import { dailyTipCache, discoverFeedCache } from '../../lib/cache.js';
 
 const log = createLogger('SocialFeedAPI');
 
@@ -47,18 +48,9 @@ const galleryThemeSchema = z.enum([
   'other',
 ]);
 
-const galleryContentTypeSchema = z.enum([
-  'coloring',
-  'drawing',
-  'story_illustration',
-]);
+const galleryContentTypeSchema = z.enum(['coloring', 'drawing', 'story_illustration']);
 
-const authorTypeSchema = z.enum([
-  'parent',
-  'teacher',
-  'therapist',
-  'caregiver',
-]);
+const authorTypeSchema = z.enum(['parent', 'teacher', 'therapist', 'caregiver']);
 
 // ============================================
 // Types
@@ -128,43 +120,46 @@ export const socialFeedRouter = createTRPCRouter({
   getDailyTip: publicProcedure.query(async () => {
     log.debug('Fetching daily tip');
 
-    const { data, error } = await supa
-      .from('expert_tips')
-      .select('*')
-      .eq('is_featured', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      log.error('Error fetching daily tip', error);
-      throw error;
-    }
-
-    if (!data) {
-      // Fallback: get any tip
-      const { data: fallback } = await supa
+    return dailyTipCache.getOrFetch('daily', async () => {
+      const { data, error } = await supa
         .from('expert_tips')
         .select('*')
+        .eq('is_featured', true)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
 
-      return { tip: fallback as ExpertTip | null };
-    }
+      if (error && error.code !== 'PGRST116') {
+        log.error('Error fetching daily tip', error);
+        throw error;
+      }
 
-    return { tip: data as ExpertTip };
+      if (!data) {
+        const { data: fallback } = await supa
+          .from('expert_tips')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        return { tip: fallback as ExpertTip | null };
+      }
+
+      return { tip: data as ExpertTip };
+    });
   }),
 
   /**
    * Uzman ipuçlarını listele
    */
   listExpertTips: publicProcedure
-    .input(z.object({
-      category: expertTipCategorySchema.optional(),
-      limit: z.number().min(1).max(50).default(10),
-      cursor: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        category: expertTipCategorySchema.optional(),
+        limit: z.number().min(1).max(50).default(10),
+        cursor: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       log.debug('Listing expert tips', { category: input.category, limit: input.limit });
 
@@ -209,9 +204,11 @@ export const socialFeedRouter = createTRPCRouter({
    * Günlük aktivite önerilerini getir
    */
   getDailySuggestions: publicProcedure
-    .input(z.object({
-      childAge: z.number().min(1).max(18).optional(),
-    }))
+    .input(
+      z.object({
+        childAge: z.number().min(1).max(18).optional(),
+      })
+    )
     .query(async ({ input }) => {
       log.debug('Fetching daily suggestions', { childAge: input.childAge });
 
@@ -222,9 +219,7 @@ export const socialFeedRouter = createTRPCRouter({
         .order('display_order', { ascending: true });
 
       if (input.childAge) {
-        query = query
-          .lte('age_min', input.childAge)
-          .gte('age_max', input.childAge);
+        query = query.lte('age_min', input.childAge).gte('age_max', input.childAge);
       }
 
       const { data, error } = await query;
@@ -241,11 +236,13 @@ export const socialFeedRouter = createTRPCRouter({
    * Tüm aktiviteleri listele
    */
   listActivities: publicProcedure
-    .input(z.object({
-      category: activityCategorySchema.optional(),
-      childAge: z.number().min(1).max(18).optional(),
-      limit: z.number().min(1).max(50).default(10),
-    }))
+    .input(
+      z.object({
+        category: activityCategorySchema.optional(),
+        childAge: z.number().min(1).max(18).optional(),
+        limit: z.number().min(1).max(50).default(10),
+      })
+    )
     .query(async ({ input }) => {
       log.debug('Listing activities', { category: input.category, childAge: input.childAge });
 
@@ -260,9 +257,7 @@ export const socialFeedRouter = createTRPCRouter({
       }
 
       if (input.childAge) {
-        query = query
-          .lte('age_min', input.childAge)
-          .gte('age_max', input.childAge);
+        query = query.lte('age_min', input.childAge).gte('age_max', input.childAge);
       }
 
       const { data, error } = await query;
@@ -283,18 +278,22 @@ export const socialFeedRouter = createTRPCRouter({
    * Topluluk galerisini listele
    */
   listGallery: publicProcedure
-    .input(z.object({
-      theme: galleryThemeSchema.optional(),
-      contentType: galleryContentTypeSchema.optional(),
-      limit: z.number().min(1).max(50).default(20),
-      cursor: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        theme: galleryThemeSchema.optional(),
+        contentType: galleryContentTypeSchema.optional(),
+        limit: z.number().min(1).max(50).default(20),
+        cursor: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       log.debug('Listing gallery', { theme: input.theme, contentType: input.contentType });
 
       let query = supa
         .from('community_gallery')
-        .select('id, image_url, thumbnail_url, child_age, theme, content_type, likes_count, created_at')
+        .select(
+          'id, image_url, thumbnail_url, child_age, theme, content_type, likes_count, created_at'
+        )
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(input.limit + 1);
@@ -334,9 +333,11 @@ export const socialFeedRouter = createTRPCRouter({
    * Galeri öğesini beğen
    */
   likeGalleryItem: protectedProcedure
-    .input(z.object({
-      galleryId: z.string().uuid(),
-    }))
+    .input(
+      z.object({
+        galleryId: z.string().uuid(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.userId;
       log.debug('Liking gallery item', { galleryId: input.galleryId, userId });
@@ -366,12 +367,10 @@ export const socialFeedRouter = createTRPCRouter({
       }
 
       // Like
-      const { error } = await supa
-        .from('gallery_likes')
-        .insert({
-          gallery_id: input.galleryId,
-          user_id: userId,
-        });
+      const { error } = await supa.from('gallery_likes').insert({
+        gallery_id: input.galleryId,
+        user_id: userId,
+      });
 
       if (error) {
         log.error('Error liking gallery item', error);
@@ -385,13 +384,15 @@ export const socialFeedRouter = createTRPCRouter({
    * Galeriye öğe ekle
    */
   submitToGallery: protectedProcedure
-    .input(z.object({
-      imageUrl: z.string().url(),
-      thumbnailUrl: z.string().url().optional(),
-      childAge: z.number().min(1).max(18),
-      theme: galleryThemeSchema,
-      contentType: galleryContentTypeSchema,
-    }))
+    .input(
+      z.object({
+        imageUrl: z.string().url(),
+        thumbnailUrl: z.string().url().optional(),
+        childAge: z.number().min(1).max(18),
+        theme: galleryThemeSchema,
+        contentType: galleryContentTypeSchema,
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.userId;
       log.info('Submitting to gallery', { userId, theme: input.theme });
@@ -426,9 +427,11 @@ export const socialFeedRouter = createTRPCRouter({
    * Kullanıcının kendi beğenilerini kontrol et
    */
   getUserGalleryLikes: protectedProcedure
-    .input(z.object({
-      galleryIds: z.array(z.string().uuid()),
-    }))
+    .input(
+      z.object({
+        galleryIds: z.array(z.string().uuid()),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const userId = ctx.userId;
 
@@ -460,17 +463,24 @@ export const socialFeedRouter = createTRPCRouter({
    * Başarı hikayelerini listele
    */
   listStories: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(20).default(10),
-      cursor: z.string().optional(),
-      featuredOnly: z.boolean().default(false),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(20).default(10),
+        cursor: z.string().optional(),
+        featuredOnly: z.boolean().default(false),
+      })
+    )
     .query(async ({ input }) => {
-      log.debug('Listing success stories', { limit: input.limit, featuredOnly: input.featuredOnly });
+      log.debug('Listing success stories', {
+        limit: input.limit,
+        featuredOnly: input.featuredOnly,
+      });
 
       let query = supa
         .from('success_stories')
-        .select('id, title, content, child_age, author_type, images, likes_count, is_featured, created_at')
+        .select(
+          'id, title, content, child_age, author_type, images, likes_count, is_featured, created_at'
+        )
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(input.limit + 1);
@@ -506,9 +516,11 @@ export const socialFeedRouter = createTRPCRouter({
    * Hikaye beğen
    */
   likeStory: protectedProcedure
-    .input(z.object({
-      storyId: z.string().uuid(),
-    }))
+    .input(
+      z.object({
+        storyId: z.string().uuid(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.userId;
       log.debug('Liking story', { storyId: input.storyId, userId });
@@ -538,12 +550,10 @@ export const socialFeedRouter = createTRPCRouter({
       }
 
       // Like
-      const { error } = await supa
-        .from('story_likes')
-        .insert({
-          story_id: input.storyId,
-          user_id: userId,
-        });
+      const { error } = await supa.from('story_likes').insert({
+        story_id: input.storyId,
+        user_id: userId,
+      });
 
       if (error) {
         log.error('Error liking story', error);
@@ -557,13 +567,15 @@ export const socialFeedRouter = createTRPCRouter({
    * Hikaye paylaş
    */
   submitStory: protectedProcedure
-    .input(z.object({
-      title: z.string().max(200).optional(),
-      content: z.string().min(50).max(2000),
-      childAge: z.number().min(1).max(18),
-      authorType: authorTypeSchema,
-      images: z.array(z.string().url()).max(3).optional(),
-    }))
+    .input(
+      z.object({
+        title: z.string().max(200).optional(),
+        content: z.string().min(50).max(2000),
+        childAge: z.number().min(1).max(18),
+        authorType: authorTypeSchema,
+        images: z.array(z.string().url()).max(3).optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.userId;
       log.info('Submitting story', { userId, authorType: input.authorType });
@@ -598,9 +610,11 @@ export const socialFeedRouter = createTRPCRouter({
    * Kullanıcının kendi beğenilerini kontrol et (hikayeler)
    */
   getUserStoryLikes: protectedProcedure
-    .input(z.object({
-      storyIds: z.array(z.string().uuid()),
-    }))
+    .input(
+      z.object({
+        storyIds: z.array(z.string().uuid()),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const userId = ctx.userId;
 
@@ -632,69 +646,78 @@ export const socialFeedRouter = createTRPCRouter({
    * Keşfet ekranı için tüm verileri getir
    */
   getDiscoverFeed: publicProcedure
-    .input(z.object({
-      childAge: z.number().min(1).max(18).optional(),
-    }))
+    .input(
+      z.object({
+        childAge: z.number().min(1).max(18).optional(),
+      })
+    )
     .query(async ({ input }) => {
       log.debug('Fetching discover feed', { childAge: input.childAge });
 
-      // Parallel fetches with graceful failure handling
-      const results = await Promise.allSettled([
-        // Daily tip
-        supa
-          .from('expert_tips')
-          .select('*')
-          .eq('is_featured', true)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single(),
-
-        // Daily suggestions
-        (() => {
-          let query = supa
-            .from('activity_suggestions')
+      const cacheKey = `feed:${input.childAge || 'all'}`;
+      return discoverFeedCache.getOrFetch(cacheKey, async () => {
+        // Parallel fetches with graceful failure handling
+        const results = await Promise.allSettled([
+          // Daily tip
+          supa
+            .from('expert_tips')
             .select('*')
-            .eq('is_daily', true)
-            .order('display_order', { ascending: true })
-            .limit(5);
+            .eq('is_featured', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single(),
 
-          if (input.childAge) {
-            query = query
-              .lte('age_min', input.childAge)
-              .gte('age_max', input.childAge);
-          }
+          // Daily suggestions
+          (() => {
+            let query = supa
+              .from('activity_suggestions')
+              .select('*')
+              .eq('is_daily', true)
+              .order('display_order', { ascending: true })
+              .limit(5);
 
-          return query;
-        })(),
+            if (input.childAge) {
+              query = query.lte('age_min', input.childAge).gte('age_max', input.childAge);
+            }
 
-        // Gallery (first 8)
-        supa
-          .from('community_gallery')
-          .select('id, image_url, thumbnail_url, child_age, theme, content_type, likes_count, created_at')
-          .eq('is_approved', true)
-          .order('created_at', { ascending: false })
-          .limit(8),
+            return query;
+          })(),
 
-        // Stories (first 3)
-        supa
-          .from('success_stories')
-          .select('id, title, content, child_age, author_type, images, likes_count, is_featured, created_at')
-          .eq('is_approved', true)
-          .order('created_at', { ascending: false })
-          .limit(3),
-      ]);
+          // Gallery (first 8)
+          supa
+            .from('community_gallery')
+            .select(
+              'id, image_url, thumbnail_url, child_age, theme, content_type, likes_count, created_at'
+            )
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
+            .limit(8),
 
-      // Extract results with fallbacks
-      const dailyTipResult = results[0].status === 'fulfilled' ? results[0].value : { data: null };
-      const suggestionsResult = results[1].status === 'fulfilled' ? results[1].value : { data: [] };
-      const galleryResult = results[2].status === 'fulfilled' ? results[2].value : { data: [] };
-      const storiesResult = results[3].status === 'fulfilled' ? results[3].value : { data: [] };
+          // Stories (first 3)
+          supa
+            .from('success_stories')
+            .select(
+              'id, title, content, child_age, author_type, images, likes_count, is_featured, created_at'
+            )
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
+            .limit(3),
+        ]);
 
-      return {
-        dailyTip: (dailyTipResult.data as ExpertTip) || null,
-        suggestions: (suggestionsResult.data as ActivitySuggestion[]) || [],
-        gallery: (galleryResult.data as GalleryItem[]) || [],
-        stories: (storiesResult.data as SuccessStory[]) || [],
-      };
+        // Extract results with fallbacks
+        const dailyTipResult =
+          results[0].status === 'fulfilled' ? results[0].value : { data: null };
+        const suggestionsResult =
+          results[1].status === 'fulfilled' ? results[1].value : { data: [] };
+        const galleryResult = results[2].status === 'fulfilled' ? results[2].value : { data: [] };
+        const storiesResult = results[3].status === 'fulfilled' ? results[3].value : { data: [] };
+
+        return {
+          dailyTip: (dailyTipResult.data as ExpertTip) || null,
+          suggestions: (suggestionsResult.data as ActivitySuggestion[]) || [],
+          gallery: (galleryResult.data as GalleryItem[]) || [],
+          stories: (storiesResult.data as SuccessStory[]) || [],
+        };
+      });
     }),
 });

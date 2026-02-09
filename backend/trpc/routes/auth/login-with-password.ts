@@ -1,11 +1,12 @@
-import { logger } from "../../../lib/utils.js";
-import { publicProcedure } from "../../create-context.js";
-import { z } from "zod";
-import { supabase } from "../../../lib/supabase.js";
-import { verifyPassword } from "../../../lib/password.js";
-import { generateAccessToken, generateRefreshToken } from "../../../lib/auth/jwt.js";
-import { TRPCError } from "@trpc/server";
-import { authRateLimit } from "../../middleware/rate-limit.js";
+import { logger } from '../../../lib/utils.js';
+import { publicProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import { supabase } from '../../../lib/supabase.js';
+import { verifyPassword } from '../../../lib/password.js';
+import { generateAccessToken, generateRefreshToken } from '../../../lib/auth/jwt.js';
+import { storeRefreshToken } from '../../../lib/auth/refresh-tokens.js';
+import { TRPCError } from '@trpc/server';
+import { authRateLimit } from '../../middleware/rate-limit.js';
 
 const loginInputSchema = z.object({
   email: z.string().email(),
@@ -29,11 +30,11 @@ export const loginWithPasswordProcedure = publicProcedure
   .input(loginInputSchema)
   .output(loginResponseSchema)
   .mutation(async ({ input }) => {
-    logger.info("[Auth] 🔐 Login attempt:", input.email);
+    logger.info('[Auth] 🔐 Login attempt:', input.email);
 
     try {
       // Debug: Check Supabase client
-      logger.info("[Auth] 🔍 Supabase client status:", supabase ? 'OK' : 'NULL');
+      logger.info('[Auth] 🔍 Supabase client status:', supabase ? 'OK' : 'NULL');
 
       // Get user from database
       const { data: user, error } = await supabase
@@ -43,10 +44,15 @@ export const loginWithPasswordProcedure = publicProcedure
         .single();
 
       // Debug: Log query result
-      logger.info("[Auth] 🔍 Query result - error:", error?.message, "user:", user ? 'found' : 'null');
+      logger.info(
+        '[Auth] 🔍 Query result - error:',
+        error?.message,
+        'user:',
+        user ? 'found' : 'null'
+      );
 
       if (error || !user) {
-        logger.error("[Auth] ❌ User not found:", input.email, "Error:", error?.message);
+        logger.error('[Auth] ❌ User not found:', input.email, 'Error:', error?.message);
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Email veya şifre hatalı',
@@ -55,7 +61,7 @@ export const loginWithPasswordProcedure = publicProcedure
 
       // Check if user needs to set password (migration case)
       if (!user.password_hash || user.password_reset_required) {
-        logger.info("[Auth] ⚠️ User needs password setup:", input.email);
+        logger.info('[Auth] ⚠️ User needs password setup:', input.email);
         return {
           success: false,
           userId: user.id,
@@ -65,13 +71,10 @@ export const loginWithPasswordProcedure = publicProcedure
       }
 
       // Verify password
-      const isValidPassword = await verifyPassword(
-        input.password,
-        user.password_hash
-      );
+      const isValidPassword = await verifyPassword(input.password, user.password_hash);
 
       if (!isValidPassword) {
-        logger.error("[Auth] ❌ Invalid password for:", input.email);
+        logger.error('[Auth] ❌ Invalid password for:', input.email);
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Email veya şifre hatalı',
@@ -95,7 +98,10 @@ export const loginWithPasswordProcedure = publicProcedure
         email: user.email,
       });
 
-      logger.info("[Auth] ✅ Login successful:", user.email);
+      // Store refresh token hash for revocation support
+      storeRefreshToken(user.id, refreshToken).catch(() => {});
+
+      logger.info('[Auth] ✅ Login successful:', user.email);
 
       return {
         success: true,
@@ -109,7 +115,7 @@ export const loginWithPasswordProcedure = publicProcedure
     } catch (error) {
       if (error instanceof TRPCError) throw error;
 
-      logger.error("[Auth] ❌ Login error:", error);
+      logger.error('[Auth] ❌ Login error:', error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Giriş sırasında bir hata oluştu',

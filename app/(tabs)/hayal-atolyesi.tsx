@@ -88,7 +88,7 @@ export default function HayalAtolyesiScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[Colors.secondary.mint, Colors.secondary.mintLight, Colors.neutral.white]}
+        colors={Colors.background.pageGradient}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         <ScrollView

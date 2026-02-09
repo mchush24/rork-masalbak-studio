@@ -30,7 +30,8 @@ export const updateBiometricProcedure = protectedProcedure
         .eq('id', userId);
 
       if (error) {
-        throw new Error(`Failed to update biometric: ${error.message}`);
+        logger.error('[Auth] ❌ DB Error:', error);
+        throw new Error('Biyometrik ayarı güncellenemedi. Lütfen tekrar deneyin.');
       }
 
       logger.info('[Auth] ✅ Biometric updated successfully');

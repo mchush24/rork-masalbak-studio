@@ -25,7 +25,7 @@ import Animated, {
   Easing,
   interpolate,
 } from 'react-native-reanimated';
-import { IooMood, IooSize, SIZE_MAP, getPixelSize } from '@/constants/ioo-config';
+import { IooMood, IooSize, getPixelSize } from '@/constants/ioo-config';
 
 // Re-export types for backwards compatibility
 export type { IooMood, IooSize } from '@/constants/ioo-config';
@@ -38,11 +38,9 @@ interface IooProps {
   onPress?: () => void;
 }
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
-
 export const IooMascotImage = memo(function IooMascotImage({
   size = 'medium',
-  mood = 'happy',
+  mood: _mood = 'happy',
   animated = true,
   showGlow = true,
   onPress,
@@ -121,6 +119,7 @@ export const IooMascotImage = memo(function IooMascotImage({
         true
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated, showGlow]);
 
   // Main container animation - breathing + floating + tilt
@@ -137,9 +136,7 @@ export const IooMascotImage = memo(function IooMascotImage({
   // Outer glow animation
   const glowStyle = useAnimatedStyle(() => ({
     opacity: glowOpacity.value,
-    transform: [
-      { scale: interpolate(glowOpacity.value, [0.25, 0.6], [1, 1.1]) },
-    ],
+    transform: [{ scale: interpolate(glowOpacity.value, [0.25, 0.6], [1, 1.1]) }],
   }));
 
   // Shadow animation - moves opposite for parallax depth effect
@@ -167,7 +164,9 @@ export const IooMascotImage = memo(function IooMascotImage({
         ]}
       />
 
-      <Animated.View style={[styles.container, { width: dimensions, height: dimensions }, containerStyle]}>
+      <Animated.View
+        style={[styles.container, { width: dimensions, height: dimensions }, containerStyle]}
+      >
         {/* Subtle ambient glow behind the 3D model */}
         {showGlow && (
           <Animated.View
@@ -215,11 +214,13 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   container: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   // Ground shadow for 3D grounding effect
   groundShadow: {
@@ -245,6 +246,7 @@ const styles = StyleSheet.create({
   },
   mascotImage: {
     zIndex: 10,
+    backgroundColor: 'transparent',
   },
   pressed: {
     opacity: 0.9,

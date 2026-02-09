@@ -10,25 +10,16 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Platform,
-  Image,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withSequence,
-  FadeIn,
   FadeInUp,
 } from 'react-native-reanimated';
-import { Heart, ImageIcon } from 'lucide-react-native';
+import { Heart } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
 
@@ -52,16 +43,19 @@ interface CommunityGalleryCardProps {
   onPress?: (id: string) => void;
 }
 
-// Theme labels
-const THEME_LABELS: Record<string, { label: string; color: string }> = {
-  family: { label: 'Aile', color: '#EC407A' },
-  nature: { label: 'Doga', color: '#66BB6A' },
-  animals: { label: 'Hayvanlar', color: '#FB8C00' },
-  fantasy: { label: 'Hayal', color: '#AB47BC' },
-  emotions: { label: 'Duygular', color: '#5C6BC0' },
-  seasons: { label: 'Mevsimler', color: '#26A69A' },
-  holidays: { label: 'Tatil', color: '#EF5350' },
-  other: { label: 'Diger', color: '#78909C' },
+// Theme labels with emoji for fallback placeholders
+const THEME_LABELS: Record<
+  string,
+  { label: string; color: string; emoji: string; gradient: [string, string] }
+> = {
+  family: { label: 'Aile', color: '#EC407A', emoji: '👨‍👩‍👧', gradient: ['#FCE4EC', '#F8BBD0'] },
+  nature: { label: 'Doga', color: '#66BB6A', emoji: '🌿', gradient: ['#E8F5E9', '#C8E6C9'] },
+  animals: { label: 'Hayvanlar', color: '#FB8C00', emoji: '🐾', gradient: ['#FFF3E0', '#FFE0B2'] },
+  fantasy: { label: 'Hayal', color: '#AB47BC', emoji: '🦄', gradient: ['#F3E5F5', '#E1BEE7'] },
+  emotions: { label: 'Duygular', color: '#5C6BC0', emoji: '🎭', gradient: ['#E8EAF6', '#C5CAE9'] },
+  seasons: { label: 'Mevsimler', color: '#26A69A', emoji: '🍂', gradient: ['#E0F2F1', '#B2DFDB'] },
+  holidays: { label: 'Tatil', color: '#EF5350', emoji: '🎉', gradient: ['#FFEBEE', '#FFCDD2'] },
+  other: { label: 'Diger', color: '#78909C', emoji: '🎨', gradient: ['#ECEFF1', '#CFD8DC'] },
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -75,7 +69,8 @@ export function CommunityGalleryCard({
 }: CommunityGalleryCardProps) {
   const [liked, setLiked] = useState(isLiked);
   const [likesCount, setLikesCount] = useState(item.likes_count);
-  const [imageError, setImageError] = useState(false);
+  const imageSource = item.thumbnail_url || item.image_url;
+  const [imageError, setImageError] = useState(!imageSource);
 
   // Heart animation
   const heartScale = useSharedValue(1);
@@ -89,14 +84,11 @@ export function CommunityGalleryCard({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    heartScale.value = withSequence(
-      withSpring(1.3, { damping: 5 }),
-      withSpring(1, { damping: 5 })
-    );
+    heartScale.value = withSequence(withSpring(1.3, { damping: 5 }), withSpring(1, { damping: 5 }));
 
     const newLiked = !liked;
     setLiked(newLiked);
-    setLikesCount(prev => newLiked ? prev + 1 : prev - 1);
+    setLikesCount(prev => (newLiked ? prev + 1 : prev - 1));
     onLike?.(item.id);
   };
 
@@ -108,23 +100,21 @@ export function CommunityGalleryCard({
   };
 
   const themeStyle = item.theme ? THEME_LABELS[item.theme] : THEME_LABELS.other;
-  const imageSource = item.thumbnail_url || item.image_url;
 
   return (
     <AnimatedPressable
-      entering={FadeInUp.delay(index * 50).duration(400).springify()}
+      entering={FadeInUp.delay(index * 50)
+        .duration(400)
+        .springify()}
       onPress={handlePress}
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.containerPressed,
-      ]}
+      style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
     >
       {/* Image */}
       <View style={styles.imageContainer}>
         {imageError ? (
-          <View style={styles.imagePlaceholder}>
-            <ImageIcon size={32} color="#D1D5DB" />
-          </View>
+          <LinearGradient colors={themeStyle.gradient} style={styles.imagePlaceholder}>
+            <Text style={styles.placeholderEmoji}>{themeStyle.emoji}</Text>
+          </LinearGradient>
         ) : (
           <Image
             source={{ uri: imageSource }}
@@ -167,9 +157,7 @@ export function CommunityGalleryCard({
               fill={liked ? '#EC4899' : 'transparent'}
             />
           </Animated.View>
-          <Text style={[styles.likesCount, liked && styles.likesCountActive]}>
-            {likesCount}
-          </Text>
+          <Text style={[styles.likesCount, liked && styles.likesCountActive]}>{likesCount}</Text>
         </Pressable>
 
         {/* Content type indicator */}
@@ -209,9 +197,11 @@ const styles = StyleSheet.create({
   },
   imagePlaceholder: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  placeholderEmoji: {
+    fontSize: 40,
   },
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,

@@ -1,696 +1,480 @@
-# Renkioo Backend Architecture - Comprehensive Design
+# Renkioo Backend Architecture & Roadmap
 
-## 📋 Executive Summary
-
-Bu belge, Renkioo Studio uygulamasının tam backend entegrasyonu için gerekli mimariyi tanımlar.
-
-### Mevcut Durum Analizi
-
-#### ✅ Entegre Edilmiş Özellikler (60%)
-1. **Çizim Analizi** (index.tsx + advanced-analysis.tsx)
-   - `trpc.studio.analyzeDrawing` ✅
-   - OpenAI GPT-4 Vision entegrasyonu ✅
-
-2. **Masal Oluşturma** (stories.tsx)
-   - `trpc.studio.createStorybook` ✅
-   - `trpc.studio.listStorybooks` ✅
-
-3. **Boyama PDF** (studio.tsx)
-   - `trpc.studio.generateColoringPDF` ✅
-   - `trpc.studio.generateColoringFromDrawing` ✅
-
-4. **Kullanıcı Kayıt** (register.tsx)
-   - `trpc.auth.register` ✅
-   - `trpc.auth.completeOnboarding` ✅
-
-#### ❌ Eksik/Yarım Özellikler (40%)
-1. **Kullanıcı Profil Yönetimi** (profile.tsx)
-   - Sadece localStorage kullanıyor
-   - Backend'de profil güncelleme yok
-   - Çocuk bilgisi yönetimi yok
-
-2. **Geçmiş ve İstatistikler**
-   - Analiz geçmişi kaydedilmiyor
-   - Boyama geçmişi gösterilmiyor (`listColorings` kullanılmıyor)
-   - Kullanıcı istatistikleri yok
-
-3. **Oturum Yönetimi**
-   - Gerçek auth yok (Supabase Auth kullanılmıyor)
-   - Token yönetimi yok
-   - Session persistence zayıf
-
-4. **Dosya Yönetimi**
-   - Supabase Storage entegrasyonu yok
-   - Kullanıcı yükleme geçmişi yok
-   - Dosya boyutu/quota kontrolü yok
+> Son guncelleme: 2026-02-09 | Durum: Production (Railway)
 
 ---
 
-## 🏗️ Kapsamlı Backend Mimarisi
+## 1. Mevcut Mimari
 
-### 1. Database Schema (Supabase PostgreSQL)
+### 1.1 Stack
 
-#### 1.1 Users Table (Genişletilmiş)
-```sql
-CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+| Katman       | Teknoloji                                      | Versiyon |
+| ------------ | ---------------------------------------------- | -------- |
+| Runtime      | Node.js                                        | 22+      |
+| Framework    | Hono                                           | 4.10.4   |
+| API          | tRPC                                           | 11.7.1   |
+| Validation   | Zod                                            | 4.1.12   |
+| Database     | Supabase PostgreSQL                            | -        |
+| Storage      | Supabase Storage (masalbak bucket)             | -        |
+| Auth         | Custom JWT (jsonwebtoken + bcryptjs)           | -        |
+| AI - Analiz  | OpenAI GPT-4o-mini (Vision)                    | -        |
+| AI - Masal   | OpenAI GPT-4 Turbo                             | -        |
+| AI - Chatbot | Anthropic Claude Haiku (fallback: GPT-4o-mini) | -        |
+| AI - Gorsel  | FAL.ai Flux 2.0 Pro ($0.003/gorsel)            | -        |
+| Email        | Resend                                         | -        |
+| Hosting      | Railway                                        | -        |
 
-  -- Auth bilgileri (Supabase Auth ile senkronize)
-  email TEXT UNIQUE NOT NULL,
-  auth_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+### 1.2 Dizin Yapisi
 
-  -- Profil bilgileri
-  name TEXT,
-  avatar_url TEXT,
-  language TEXT DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'ru', 'tk', 'uz')),
-
-  -- Çocuk bilgileri (birden fazla çocuk için JSONB)
-  children JSONB DEFAULT '[]'::jsonb,
-  -- Örnek: [{"name": "Ali", "age": 5, "birthDate": "2019-01-15"}]
-
-  -- Kullanıcı tercihleri
-  preferences JSONB DEFAULT '{}'::jsonb,
-  -- Örnek: {"theme": "light", "notifications": true, "autoSave": true}
-
-  -- Abonelik bilgileri
-  subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'premium')),
-  subscription_expires_at TIMESTAMP WITH TIME ZONE,
-
-  -- Kullanım kotaları
-  quota_used JSONB DEFAULT '{"analyses": 0, "storybooks": 0, "colorings": 0}'::jsonb,
-  quota_reset_at TIMESTAMP WITH TIME ZONE DEFAULT (now() + INTERVAL '1 month'),
-
-  -- Metadata
-  last_seen_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  onboarding_completed BOOLEAN DEFAULT false,
-  onboarding_step TEXT
-);
-
--- Indexes
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_auth_user_id ON users(auth_user_id);
-CREATE INDEX idx_users_subscription ON users(subscription_tier, subscription_expires_at);
-
--- RLS Policies
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view their own profile" ON users
-  FOR SELECT USING (auth.uid() = auth_user_id);
-
-CREATE POLICY "Users can update their own profile" ON users
-  FOR UPDATE USING (auth.uid() = auth_user_id);
+```
+backend/
+├── server.ts                     # Entry point, graceful shutdown
+├── hono.ts                       # Hono app (CORS, security headers, rate limit)
+├── trpc/
+│   ├── app-router.ts             # Ana router (10 alt-router)
+│   ├── create-context.ts         # JWT auth, request context
+│   ├── middleware/
+│   │   └── rate-limit.ts         # tRPC procedure-level rate limiting
+│   └── routes/                   # 49 dosya, ~46 procedure
+│       ├── auth/                 # 10 endpoint
+│       ├── user/                 # 9 endpoint
+│       ├── studio/               # 14 endpoint
+│       ├── analysis/             # 5 endpoint
+│       ├── interactive-story/    # 5 endpoint
+│       ├── badges/               # 3 endpoint
+│       ├── coloring/             # 2 endpoint
+│       ├── chatbot.ts            # 8+ endpoint
+│       ├── analysis-chat.ts      # 3 endpoint
+│       ├── analysis-notes.ts     # CRUD
+│       └── social-feed.ts        # 12 endpoint
+├── lib/                          # 33 modul, ~14,500 satir
+│   ├── auth/jwt.ts               # Access + Refresh token
+│   ├── supabase.ts               # Shared client (legacy)
+│   ├── supabase-secure.ts        # Per-request RLS client
+│   ├── badge-service.ts          # 80+ rozet, 1570 satir
+│   ├── chatbot.ts                # AI asistan, 60+ FAQ, 2000+ satir
+│   ├── circuit-breaker.ts        # AI resilience pattern
+│   ├── generate-interactive-story.ts
+│   ├── generate-story-from-analysis-v2.ts
+│   ├── image-generation.ts       # Flux 2.0 Pro (FAL.ai)
+│   ├── email.ts                  # Resend entegrasyonu
+│   ├── password.ts               # bcrypt hash/verify
+│   └── ...
+├── middleware/
+│   └── rate-limit.ts             # Hono HTTP-level rate limiting
+├── health/
+│   └── index.ts                  # /live, /ready, /health, /metrics
+├── migrations/                   # 20 SQL migration
+└── types/                        # TypeScript tip tanimlari
 ```
 
-#### 1.2 Analyses Table (Yeni)
-```sql
-CREATE TABLE IF NOT EXISTS analyses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+### 1.3 Calisir Durumdaki Ozellikler
 
-  -- İlişkiler
-  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+#### Auth (10 procedure)
 
-  -- Analiz detayları
-  task_type TEXT NOT NULL CHECK (task_type IN ('DAP', 'HTP', 'Family', 'Cactus', 'Tree', 'Garden', 'BenderGestalt2', 'ReyOsterrieth')),
-  child_age INTEGER,
-  child_name TEXT,
+- [x] `auth.register` - Email + verification code (6 digit, 10 dk TTL)
+- [x] `auth.verifyEmail` - Kod dogrulama + JWT uretimi
+- [x] `auth.loginWithPassword` - Sifre ile giris + JWT
+- [x] `auth.refreshToken` - Access token yenileme (30 gun refresh)
+- [x] `auth.requestPasswordReset` - Sifre sifirlama kodu
+- [x] `auth.resetPassword` - Sifre sifirlama
+- [x] `auth.setPassword` - Ilk sifre olusturma
+- [x] `auth.checkEmail` - Email kontrolu
+- [x] `auth.updateBiometric` - Biyometrik giris tercihi
+- [x] `auth.completeOnboarding` - Onboarding tamamlama
 
-  -- Görsel bilgileri
-  original_image_url TEXT,
-  processed_image_url TEXT,
-  drawing_description TEXT,
-  child_quote TEXT,
+#### User (9 procedure)
 
-  -- Analiz sonuçları (JSONB for flexibility)
-  analysis_result JSONB NOT NULL,
-  -- Örnek yapı:
-  -- {
-  --   "insights": [...],
-  --   "homeTips": [...],
-  --   "riskFlags": [...],
-  --   "meta": {...}
-  -- }
+- [x] `user.getProfile` - Profil bilgileri
+- [x] `user.updateProfile` - Profil guncelleme
+- [x] `user.getChildren` - Cocuk profilleri (JSONB)
+- [x] `user.updateChildren` - Cocuk ekleme/duzenleme
+- [x] `user.getSettings` - Dil, tema, bildirim tercihleri
+- [x] `user.updateSettings` - Ayar guncelleme
+- [x] `user.getUserStats` - Analiz/masal/boyama sayilari + streak
+- [x] `user.deleteAccount` - GDPR uyumlu hesap silme (cascade)
+- [x] `user.exportData` - GDPR veri ihracati (JSON)
 
-  -- AI metadata
-  ai_model TEXT DEFAULT 'gpt-4-vision-preview',
-  ai_confidence DECIMAL(3, 2),
-  processing_time_ms INTEGER,
+#### Studio - Cizim Analizi
 
-  -- Kullanıcı etkileşimi
-  favorited BOOLEAN DEFAULT false,
-  notes TEXT,
-  tags TEXT[],
-  shared BOOLEAN DEFAULT false,
+- [x] `studio.analyzeDrawing` - GPT-4 Vision ile cizim analizi
+  - 10+ test tipi: DAP, HTP, Family, Cactus, Tree, Garden, Bender, Rey, Luscher
+  - Max 10 gorsel, her biri 5MB
+  - Travma degerlendirme (24 kategori: ACEs framework)
+  - 5 dil destegi (TR, EN, RU, TK, UZ)
+  - Ebeveyn konusma rehberi + profesyonel yonlendirme
 
-  -- Metadata
-  language TEXT DEFAULT 'tr',
-  cultural_context TEXT
-);
+#### Studio - Masal Olusturma
 
--- Indexes
-CREATE INDEX idx_analyses_user_id ON analyses(user_id);
-CREATE INDEX idx_analyses_created_at ON analyses(created_at DESC);
-CREATE INDEX idx_analyses_task_type ON analyses(task_type);
-CREATE INDEX idx_analyses_favorited ON analyses(favorited) WHERE favorited = true;
+- [x] `studio.createStorybook` - AI masal (GPT-4 Turbo + Flux 2.0)
+- [x] `studio.generateStoryFromDrawing` - Cizimden masal
+- [x] `studio.suggestStoryThemes` - Tema onerileri
+- [x] `studio.getStorybook` / `listStorybooks` / `deleteStorybook`
 
--- RLS
-ALTER TABLE analyses ENABLE ROW LEVEL SECURITY;
+#### Studio - Boyama
 
-CREATE POLICY "Users can view their own analyses" ON analyses
-  FOR SELECT USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
+- [x] `studio.generateColoringPDF` - Boyama PDF uretimi (Puppeteer)
+- [x] `studio.generateColoringFromDrawing` - Cizimden boyama sayfasi
+- [x] `studio.suggestColors` - AI renk paleti
+- [x] `studio.saveCompletedColoring` - Bitirilen boyama kaydi
+- [x] `studio.getColoring` / `listColorings` / `deleteColoring`
 
-CREATE POLICY "Users can insert their own analyses" ON analyses
-  FOR INSERT WITH CHECK (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
+#### Interaktif Masal (5 procedure)
 
-CREATE POLICY "Users can update their own analyses" ON analyses
-  FOR UPDATE USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
+- [x] `interactiveStory.generate` - Dallanan hikaye uretimi
+- [x] `interactiveStory.makeChoice` - Secim yap, sonraki bolum
+- [x] `interactiveStory.getSession` - Oturum devam ettirme
+- [x] `interactiveStory.generateParentReport` - Kisilik raporu (7 ozellik)
+- [x] `interactiveStory.list` - Hikayeleri listele
 
-CREATE POLICY "Users can delete their own analyses" ON analyses
-  FOR DELETE USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
-```
+#### Rozet Sistemi (3 procedure)
 
-#### 1.3 Storybooks Table (Genişletilmiş)
-```sql
--- Mevcut tabloya eklenecek kolonlar
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS favorited BOOLEAN DEFAULT false;
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS tags TEXT[];
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS shared BOOLEAN DEFAULT false;
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'tr';
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS source_drawing_url TEXT;
-ALTER TABLE storybooks ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
+- [x] `badges.list` - Kazanilan rozetler
+- [x] `badges.getProgress` - Ilerleme takibi
+- [x] `badges.checkNew` - Yeni rozet kontrolu
+- [x] BadgeService: 80+ rozet, otomatik odullendirme
 
--- Additional indexes
-CREATE INDEX IF NOT EXISTS idx_storybooks_favorited ON storybooks(favorited) WHERE favorited = true;
-CREATE INDEX IF NOT EXISTS idx_storybooks_language ON storybooks(language);
-```
+#### Chatbot (8+ procedure)
 
-#### 1.4 Colorings Table (Genişletilmiş)
-```sql
--- Mevcut tabloya eklenecek kolonlar
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS favorited BOOLEAN DEFAULT false;
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS tags TEXT[];
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS original_drawing_url TEXT;
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS coloring_image_url TEXT;
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS style TEXT DEFAULT 'simple' CHECK (style IN ('simple', 'detailed', 'educational'));
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS age_group INTEGER;
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS completed BOOLEAN DEFAULT false;
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS completion_time_seconds INTEGER;
-ALTER TABLE colorings ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
+- [x] `chatbot.sendMessage` - AI asistan (FAQ + Claude/GPT fallback)
+- [x] `chatbot.getFAQs` - 60+ FAQ (kategorili)
+- [x] `chatbot.search` - FAQ arama
+- [x] `chatbot.getProactiveSuggestion` - Ekran bazli oneri
+- [x] Duygu algilama, intent siniflandirma, circuit breaker
 
--- Additional indexes
-CREATE INDEX IF NOT EXISTS idx_colorings_favorited ON colorings(favorited) WHERE favorited = true;
-CREATE INDEX IF NOT EXISTS idx_colorings_style ON colorings(style);
-```
+#### Social Feed (12 procedure)
 
-#### 1.5 Activity_Logs Table (Yeni - Analytics)
-```sql
-CREATE TABLE IF NOT EXISTS activity_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+- [x] `socialFeed.getDiscoverFeed` - Birlesik kesif akisi
+- [x] `socialFeed.getDailyTip` / `listExpertTips` - Uzman ipuclari
+- [x] `socialFeed.getDailySuggestions` / `listActivities` - Aktivite onerileri
+- [x] `socialFeed.listGallery` / `submitToGallery` / `likeGalleryItem`
+- [x] `socialFeed.listStories` / `submitStory` / `likeStory`
+- [x] Moderasyon destegi (is_approved flag)
 
-  -- İlişkiler
-  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+#### Diger
 
-  -- Event bilgileri
-  event_type TEXT NOT NULL CHECK (event_type IN (
-    'analysis_created', 'storybook_created', 'coloring_created',
-    'analysis_viewed', 'storybook_viewed', 'coloring_viewed',
-    'profile_updated', 'settings_changed', 'login', 'logout',
-    'subscription_purchased', 'feature_used'
-  )),
-  event_category TEXT NOT NULL CHECK (event_category IN ('auth', 'content', 'engagement', 'monetization')),
+- [x] `analysisChat.sendMessage` - Analiz uzerine soru-cevap
+- [x] `analysisNotes.*` - Ebeveyn not sistemi
+- [x] `coloring.recordActivity` / `getStats` - Boyama istatistikleri
 
-  -- Event metadata
-  event_data JSONB DEFAULT '{}'::jsonb,
-  -- Örnek: {"feature": "advanced_analysis", "taskType": "DAP", "processingTime": 2500}
+### 1.4 Guvenlik Mekanizmalari
 
-  -- Session tracking
-  session_id TEXT,
-  device_info JSONB,
-  -- Örnek: {"platform": "ios", "version": "1.0.0", "device": "iPhone 13"}
+| Mekanizma            | Durum     | Detay                                                    |
+| -------------------- | --------- | -------------------------------------------------------- |
+| JWT Auth             | Calisiyor | Access (7 gun) + Refresh (30 gun), issuer/audience check |
+| Password Hash        | Calisiyor | bcrypt 12 round                                          |
+| Rate Limiting (HTTP) | Calisiyor | General: 100/15dk, Auth: 5/15dk, AI: 10/saat             |
+| Rate Limiting (tRPC) | Calisiyor | Auth: 5/15dk, AI-anon: 10/saat, AI-auth: 20/saat         |
+| Security Headers     | Calisiyor | OWASP uyumlu (X-Frame, CSP, HSTS, XSS, nosniff)          |
+| CORS                 | Calisiyor | Allowlist + wildcard, localhost dev                      |
+| Input Validation     | Calisiyor | Tum endpoint'lerde Zod schema                            |
+| RLS                  | Kismen    | supabase-secure.ts ile per-request context               |
+| Env Validation       | Calisiyor | Startup'ta 15+ degisken kontrolu                         |
+| Circuit Breaker      | Calisiyor | AI provider'lar icin (3 hata -> open)                    |
+| Graceful Shutdown    | Calisiyor | SIGTERM/SIGINT, 10sn timeout                             |
 
-  -- Geo/Performance
-  ip_address INET,
-  user_agent TEXT,
-  performance_metrics JSONB
-);
+### 1.5 Veritabani Tablolari
 
--- Indexes
-CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id);
-CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at DESC);
-CREATE INDEX idx_activity_logs_event_type ON activity_logs(event_type);
-CREATE INDEX idx_activity_logs_event_category ON activity_logs(event_category);
+#### Core
 
--- RLS (admin-only or aggregate analytics)
-ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+- `users` - Profil, cocuk bilgileri (JSONB), abonelik, kota
+- `verification_codes` - Email dogrulama kodlari (10 dk TTL)
+- `user_settings` - Tema, dil, bildirim, gizlilik tercihleri
+- `analyses` - Cizim analiz sonuclari (JSONB), FK: `user_id`
+- `storybooks` - Masallar (pages JSONB), FK: `user_id_fk`
+- `colorings` - Boyama sayfalari, FK: `user_id_fk`
 
-CREATE POLICY "Users can view their own logs" ON activity_logs
-  FOR SELECT USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
-```
+#### Gamification
 
-#### 1.6 User_Settings Table (Yeni)
-```sql
-CREATE TABLE IF NOT EXISTS user_settings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+- `user_badges` - Kazanilan rozetler
+- `user_activity` - Gunluk aktivite takibi (streak)
+- `user_coloring_stats` - Boyama metrikleri
 
-  user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+#### Interactive Story
 
-  -- Genel ayarlar
-  theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark', 'auto')),
-  language TEXT DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'ru', 'tk', 'uz')),
+- `interactive_story_sessions` - Hikaye oturumlari
+- `parent_choice_reports` - Kisilik raporlari
+- `choice_analytics` - Secim verileri
 
-  -- Bildirim tercihleri
-  notifications_enabled BOOLEAN DEFAULT true,
-  email_notifications BOOLEAN DEFAULT true,
-  push_notifications BOOLEAN DEFAULT true,
+#### Social
 
-  -- Gizlilik ayarları
-  profile_visibility TEXT DEFAULT 'private' CHECK (profile_visibility IN ('public', 'private')),
-  data_sharing_consent BOOLEAN DEFAULT false,
-  analytics_consent BOOLEAN DEFAULT true,
+- `expert_tips` - Uzman ipuclari
+- `activity_suggestions` - Aktivite onerileri
+- `community_gallery` - Topluluk galerisi (moderasyonlu)
+- `success_stories` - Basari hikayeleri
+- `gallery_likes` / `story_likes` - Begeni tablolari
 
-  -- Uygulama davranışları
-  auto_save BOOLEAN DEFAULT true,
-  show_tips BOOLEAN DEFAULT true,
-  child_lock_enabled BOOLEAN DEFAULT false,
+#### Chatbot
 
-  -- Özel ayarlar (JSONB for extensibility)
-  custom_settings JSONB DEFAULT '{}'::jsonb
-);
+- `chatbot_faqs` - FAQ veritabani
+- `chatbot_embeddings` - Semantik arama vektorleri
+- `chatbot_unanswered_queries` - Cevaplanamayan soru analitigi
 
--- Indexes
-CREATE INDEX idx_user_settings_user_id ON user_settings(user_id);
+#### Diger
 
--- RLS
-ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view their own settings" ON user_settings
-  FOR SELECT USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
-
-CREATE POLICY "Users can update their own settings" ON user_settings
-  FOR ALL USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
-```
+- `analysis_chat_threads` - Analiz uzerine sohbet gecmisi
 
 ---
 
-### 2. Backend API Routes (tRPC)
+## 2. Bilinen Sorunlar
 
-#### 2.1 User Management Routes
+### 2.1 Kritik (P0) - TUMU COZULDU
 
-**File:** `backend/trpc/routes/user/get-profile.ts`
-```typescript
-import { publicProcedure } from "../../create-context";
-import { z } from "zod";
-import { supabase } from "@/backend/lib/supabase";
+**~~BUG-01: `user_id` vs `user_id_fk` tutarsizligi~~** DOGRULANDI
 
-export const getProfileProcedure = publicProcedure
-  .input(z.object({ userId: z.string().uuid() }))
-  .query(async ({ input }) => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", input.userId)
-      .single();
+- Tum sorgular dogru kolonu kullaniyor (analyses→user_id, storybooks/colorings→user_id_fk)
 
-    if (error) throw new Error(error.message);
-    return data;
-  });
+**~~BUG-02: Verification code race condition~~** DUZELTILDI
+
+- Token uretimi kod silinmeden onceye tasindi + brute-force korunasi eklendi
+
+**~~BUG-03: Error message leakage~~** DUZELTILDI
+
+- 6 dosyada 7 hata mesaji sanitize edildi (Turkce, kullanici dostu)
+
+### 2.2 Yuksek Oncelik (P1) - COGU COZULDU
+
+**~~PERF-01: BadgeService N+1 sorgu~~** DUZELTILDI
+
+- getUserStats(): 6 sequential → Promise.all (paralel)
+- checkAndAwardBadges(): N ayrı INSERT → 1 batch upsert
+- recordActivity(): Badge kontrolleri parallelized
+
+**~~PERF-02: TTS audio uretimi sirayla~~** DUZELTILDI
+
+- `story.ts`: for-loop → Promise.all (paralel uretim)
+
+**~~PERF-03: Puppeteer memory leak~~** DUZELTILDI
+
+- `story.ts` ve `coloring.ts`: try-finally ile browser.close() garanti
+
+**~~SEC-01: Refresh token revocation yok~~** DUZELTILDI
+
+- `refresh_tokens` tablosu, token rotation, logout endpoint, sifre degisiminde revoke
+
+**SEC-02: Rate limiting in-memory** (ERTELENDI)
+
+- Tek instance'da yeterli, scale-up'ta Upstash Redis'e gecilecek
+
+### 2.3 Orta Oncelik (P2)
+
+**ARCH-01: Iki farkli Supabase client**
+
+- `supabase.ts` -> `supabase` (eski, dogrudan export)
+- `supabase-secure.ts` -> `supa` (Proxy) + `getSecureClient()` (RLS)
+- Route'lar hangisini kullanacagini karistiriyor
+
+**~~ARCH-02: Health check placeholder'lari~~** DUZELTILDI
+
+- `checkDatabase()` gercek Supabase ping yapiyor
+- `checkExternalAPIs()` gercek OpenAI ping yapiyor
+- `checkDisk()` placeholder kaldirildi
+
+**PERF-04: OpenAI streaming kullanilmiyor**
+
+- 15 dosyada OpenAI cagrisi var, hicbiri stream kullanmiyor
+- Kullanici tam yaniti beklemek zorunda
+
+**PERF-05: Eksik DB index'ler**
+
+- `user_activity(user_id, activity_date)` - streak sorgulari icin
+- `gallery_likes(gallery_id, user_id)` - composit index
+- `story_likes(story_id, user_id)` - composit index
+
+**~~SEC-03: CSRF korumasii yok~~** DUZELTILDI
+
+- Content-Type application/json zorlamasi + JWT Bearer auth (cookie-free)
+
+**~~SEC-04: Request body size limit yok~~** DUZELTILDI
+
+- Genel 1MB, tRPC 10MB body limit eklendi
+
+---
+
+## 3. Roadmap
+
+### Faz 1: Kritik Bug Fix (1-2 gun) - TAMAMLANDI (2026-02-09)
+
+- [x] `user_id` / `user_id_fk` tutarsizligi dogrulandı - tüm sorgular dogru
+- [x] Verification code race condition fix
+  - `verify-email.ts`: Token üretimi kod silinmeden önceye taşındı
+- [x] Error message sanitization (7 mesaj, 6 dosya)
+  - `register.ts`, `set-password.ts`, `update-biometric.ts`, `complete-onboarding.ts`
+- [x] Puppeteer `try-finally` eklendi
+  - `coloring.ts` ve `story.ts` PDF üretiminde browser.close() garanti
+- [x] TTS `Promise.all()` fix
+  - `story.ts` ses üretimi paralel (for-loop → Promise.all)
+
+### Faz 2: Guvenlik Sertlestirme (3-5 gun) - TAMAMLANDI (2026-02-09)
+
+- [x] Request body size limit
+  - Hono middleware: genel 1MB, tRPC 10MB (base64 görseller)
+- [x] Verification code brute-force koruması
+  - Exponential backoff: 3 başarısız → 1dk, 6 → 5dk, 9+ → 15dk lockout
+- [x] Refresh token revocation
+  - `refresh_tokens` tablosu (migration 023)
+  - `lib/auth/refresh-tokens.ts` utility modülü
+  - Login, verify-email, refresh-token'da token hash kaydı
+  - Token rotation: refresh'te eski token revoke
+  - `auth.logout` endpoint (tek cihaz / tüm cihazlar)
+  - Şifre sıfırlamada tüm tokenlar revoke
+  - delete-account cascade'e eklendi
+- [x] CSRF koruması
+  - Content-Type: application/json zorlaması (POST requests)
+  - JWT Bearer auth zaten cookie-based degil → doğal CSRF koruması
+- [ ] Rate limiting Redis migrasyonu (Upstash) - ERTELENDI
+  - Tek Railway instance'da in-memory yeterli
+  - `trpc/middleware/rate-limit.ts` satirlar 298-322'de hazir migration notu
+  - Scale-up aninda `@upstash/ratelimit` ile geçiş yapılacak
+
+### Faz 3: Performans Optimizasyonu (1 hafta) - BUYUK OLCUDE TAMAMLANDI (2026-02-09)
+
+- [x] BadgeService N+1 fix
+  - `getUserStats()`: 6 sequential → 6 parallel (Promise.all) ~5x hız
+  - `checkAndAwardBadges()`: N ayrı INSERT → 1 batch upsert
+  - `recordActivity()`: Time/special badge checks parallelized
+- [ ] OpenAI streaming response - ERTELENDI
+  - `analyzeDrawing`, `createStorybook`, `interactiveStory.generate`
+  - tRPC subscription veya SSE altyapisi gerekli
+- [x] DB index'leri eklendi (migration 024)
+  - `community_gallery(created_at DESC) WHERE is_approved = true`
+  - `success_stories(created_at DESC) WHERE is_approved = true`
+  - `analyses(user_id, created_at DESC)`
+  - `storybooks(user_id_fk, created_at DESC)`
+  - `colorings(user_id_fk, created_at DESC)`
+  - `refresh_tokens(user_id) WHERE revoked_at IS NULL`
+  - Not: `user_activity`, `gallery_likes`, `story_likes` composite indexleri zaten mevcut
+- [x] Supabase client standardizasyonu - ANALIZ TAMAMLANDI
+  - Public route'lar doğru şekilde shared client kullanıyor
+  - Protected route'lar (social-feed.ts) service role ile çalışıyor - RLS bypass
+  - Tam standardizasyon için RLS policy migrasyonu gerekli (P2)
+- [x] Response caching eklendi
+  - `lib/cache.ts`: Reusable TTLCache utility
+  - `getDailyTip`: 1 saat cache
+  - `getDiscoverFeed`: 5 dakika cache (childAge bazlı key)
+
+### Faz 4: Altyapi Iyilestirme (1-2 hafta) - KISMEN TAMAMLANDI (2026-02-09)
+
+- [ ] Background job queue - ERTELENDI
+  - BullMQ veya Upstash QStash (harici servis gerekli)
+  - Puppeteer PDF uretimi -> worker queue
+  - Uzun AI operasyonlari -> async job + polling/webhook
+- [ ] Redis caching layer - ERTELENDI
+  - In-memory TTLCache ile baslangic yapildi (Faz 3)
+  - Scale-up'ta Upstash Redis'e gecilecek
+- [x] Health check tamamlama
+  - `checkDatabase()`: Gercek Supabase ping (SELECT from users)
+  - `checkExternalAPIs()`: Gercek OpenAI API ping (GET /v1/models, 5sn timeout)
+  - `checkDisk()` placeholder kaldirildi
+- [x] Monitoring genisletme
+  - `lib/monitoring.ts`: Per-procedure request count, error count, avg latency
+  - tRPC monitoring middleware (tum procedure'lara otomatik)
+  - `/metrics` endpoint'e Prometheus-uyumlu trpc_requests_total, trpc_errors_total, trpc_latency_avg_ms eklendi
+  - AI API maliyet takibi → P2 (loglama altyapisi gerekli)
+
+### Faz 5: Eksik Ozellikler (2-4 hafta)
+
+- [ ] File upload endpoint
+  - `storage.uploadFile` - base64 -> Supabase Storage
+  - Avatar yukleme
+  - Dosya boyutu / kota kontrolu
+- [ ] Activity logging (analytics)
+  - `activity_logs` tablosu olustur
+  - `analytics.logEvent` / `analytics.getUserStats` procedure
+  - Kullanici davranis takibi
+- [ ] Quota management
+  - `users.quota_used` alani var ama enforce edilmiyor
+  - Free: 5 analiz/ay, 3 masal/ay
+  - Pro: 50 analiz/ay, 20 masal/ay
+  - Premium: Sinirsiz
+- [ ] Subscription tier enforcement
+  - Middleware seviyesinde tier kontrolu
+  - Kota asildiginda bilgilendirme
+- [ ] Push notification altyapisi
+  - Expo push notifications
+  - Badge kazanma bildirimleri
+  - Gunluk aktivite hatirlticilari
+
+### Faz 6: Olceklendirme (Gelecek)
+
+- [ ] Multi-instance deployment
+  - Redis-backed session + rate limiting (Faz 2 ile tamamlanir)
+  - Stateless backend tasarimi (zaten buyuk olcude oyle)
+- [ ] CDN entegrasyonu
+  - Supabase Storage onunde CDN
+  - Statik icerik caching
+- [ ] Database read replicas
+  - Analitik sorgulari icin ayri read replica
+- [ ] OpenTelemetry
+  - Distributed tracing
+  - AI operasyon izleme
+
+---
+
+## 4. AI Entegrasyonlari
+
+| Servis    | Kullanim         | Model                  | Maliyet            |
+| --------- | ---------------- | ---------------------- | ------------------ |
+| OpenAI    | Cizim analizi    | GPT-4o-mini (Vision)   | ~$0.01/analiz      |
+| OpenAI    | Masal uretimi    | GPT-4 Turbo            | ~$0.03/masal       |
+| OpenAI    | Embeddings       | text-embedding-3-small | ~$0.001/sorgu      |
+| Anthropic | Chatbot fallback | Claude 3.5 Haiku       | ~$0.005/mesaj      |
+| FAL.ai    | Gorsel uretimi   | Flux 2.0 Pro           | $0.003/gorsel      |
+| Resend    | Email            | -                      | Ucretsiz (100/gun) |
+
+---
+
+## 5. Environment Variables
+
+### Zorunlu
+
+```
+SUPABASE_URL                   # Supabase proje URL
+SUPABASE_SERVICE_ROLE_KEY      # Backend admin key
+OPENAI_API_KEY                 # GPT-4, embeddings
+JWT_SECRET                     # Min 32 karakter
+PORT                           # Default: 3000
 ```
 
-**File:** `backend/trpc/routes/user/update-profile.ts`
-```typescript
-export const updateProfileProcedure = publicProcedure
-  .input(z.object({
-    userId: z.string().uuid(),
-    name: z.string().optional(),
-    children: z.array(z.object({
-      name: z.string(),
-      age: z.number(),
-      birthDate: z.string().optional(),
-    })).optional(),
-    preferences: z.record(z.any()).optional(),
-  }))
-  .mutation(async ({ input }) => {
-    const { userId, ...updates } = input;
+### Opsiyonel
 
-    const { data, error } = await supabase
-      .from("users")
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", userId)
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return data;
-  });
 ```
-
-#### 2.2 Analysis History Routes
-
-**File:** `backend/trpc/routes/analysis/list-analyses.ts`
-```typescript
-export const listAnalysesProcedure = publicProcedure
-  .input(z.object({
-    userId: z.string().uuid(),
-    limit: z.number().default(20),
-    offset: z.number().default(0),
-    taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth"]).optional(),
-    favoritedOnly: z.boolean().optional(),
-  }))
-  .query(async ({ input }) => {
-    let query = supabase
-      .from("analyses")
-      .select("*", { count: "exact" })
-      .eq("user_id", input.userId)
-      .order("created_at", { ascending: false })
-      .range(input.offset, input.offset + input.limit - 1);
-
-    if (input.taskType) {
-      query = query.eq("task_type", input.taskType);
-    }
-
-    if (input.favoritedOnly) {
-      query = query.eq("favorited", true);
-    }
-
-    const { data, error, count } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      analyses: data,
-      total: count || 0,
-      hasMore: (input.offset + input.limit) < (count || 0),
-    };
-  });
-```
-
-**File:** `backend/trpc/routes/analysis/save-analysis.ts`
-```typescript
-export const saveAnalysisProcedure = publicProcedure
-  .input(z.object({
-    userId: z.string().uuid(),
-    taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth"]),
-    childAge: z.number().optional(),
-    childName: z.string().optional(),
-    originalImageUrl: z.string().optional(),
-    drawingDescription: z.string().optional(),
-    childQuote: z.string().optional(),
-    analysisResult: z.any(),
-    aiModel: z.string().optional(),
-    aiConfidence: z.number().optional(),
-    processingTimeMs: z.number().optional(),
-  }))
-  .mutation(async ({ input }) => {
-    const { data, error } = await supabase
-      .from("analyses")
-      .insert({
-        user_id: input.userId,
-        task_type: input.taskType,
-        child_age: input.childAge,
-        child_name: input.childName,
-        original_image_url: input.originalImageUrl,
-        drawing_description: input.drawingDescription,
-        child_quote: input.childQuote,
-        analysis_result: input.analysisResult,
-        ai_model: input.aiModel || "gpt-4-vision-preview",
-        ai_confidence: input.aiConfidence,
-        processing_time_ms: input.processingTimeMs,
-      })
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return data;
-  });
-```
-
-#### 2.3 Analytics Routes
-
-**File:** `backend/trpc/routes/analytics/log-event.ts`
-```typescript
-export const logEventProcedure = publicProcedure
-  .input(z.object({
-    userId: z.string().uuid().optional(),
-    eventType: z.enum([
-      "analysis_created", "storybook_created", "coloring_created",
-      "analysis_viewed", "storybook_viewed", "coloring_viewed",
-      "profile_updated", "settings_changed", "login", "logout",
-      "subscription_purchased", "feature_used"
-    ]),
-    eventCategory: z.enum(["auth", "content", "engagement", "monetization"]),
-    eventData: z.record(z.any()).optional(),
-    sessionId: z.string().optional(),
-    deviceInfo: z.record(z.any()).optional(),
-  }))
-  .mutation(async ({ input }) => {
-    await supabase.from("activity_logs").insert({
-      user_id: input.userId,
-      event_type: input.eventType,
-      event_category: input.eventCategory,
-      event_data: input.eventData,
-      session_id: input.sessionId,
-      device_info: input.deviceInfo,
-    });
-
-    return { success: true };
-  });
-```
-
-**File:** `backend/trpc/routes/analytics/get-user-stats.ts`
-```typescript
-export const getUserStatsProcedure = publicProcedure
-  .input(z.object({ userId: z.string().uuid() }))
-  .query(async ({ input }) => {
-    // Aggregate statistics
-    const [analysesCount, storybooksCount, coloringsCount] = await Promise.all([
-      supabase.from("analyses").select("*", { count: "exact", head: true }).eq("user_id", input.userId),
-      supabase.from("storybooks").select("*", { count: "exact", head: true }).eq("user_id", input.userId),
-      supabase.from("colorings").select("*", { count: "exact", head: true }).eq("user_id", input.userId),
-    ]);
-
-    return {
-      totalAnalyses: analysesCount.count || 0,
-      totalStorybooks: storybooksCount.count || 0,
-      totalColorings: coloringsCount.count || 0,
-    };
-  });
+ANTHROPIC_API_KEY              # Claude fallback (chatbot)
+FAL_API_KEY                    # Flux 2.0 gorsel uretimi
+RESEND_API_KEY                 # Email dogrulama
+RESEND_FROM_EMAIL              # Gonderen email
+NODE_ENV                       # production | development
+ALLOWED_ORIGINS                # CORS whitelist (virgul ayirmali)
+LOG_LEVEL                      # debug | info | warn | error
+ENABLE_CHATBOT_EMBEDDINGS      # true | false
 ```
 
 ---
 
-### 3. File Storage Strategy (Supabase Storage)
+## 6. Guvenlik Skoru (Subat 2026)
 
-#### 3.1 Bucket Structure
-```
-masalbak/
-├── drawings/
-│   ├── {userId}/
-│   │   ├── {analysisId}/
-│   │   │   ├── original.png
-│   │   │   └── processed.png
-├── storybooks/
-│   ├── {userId}/
-│   │   ├── {storybookId}/
-│   │   │   ├── page-1.png
-│   │   │   ├── page-2.png
-│   │   │   └── storybook.pdf
-├── colorings/
-│   ├── {userId}/
-│   │   ├── {coloringId}/
-│   │   │   ├── original.png
-│   │   │   └── coloring.png
-├── avatars/
-│   └── {userId}.png
-```
-
-#### 3.2 Upload Route
-**File:** `backend/trpc/routes/storage/upload-file.ts`
-```typescript
-export const uploadFileProcedure = publicProcedure
-  .input(z.object({
-    userId: z.string().uuid(),
-    fileBase64: z.string(),
-    fileName: z.string(),
-    bucket: z.enum(["drawings", "storybooks", "colorings", "avatars"]),
-    folder: z.string().optional(),
-  }))
-  .mutation(async ({ input }) => {
-    const { userId, fileBase64, fileName, bucket, folder } = input;
-
-    // Convert base64 to buffer
-    const buffer = Buffer.from(fileBase64, "base64");
-
-    // Upload to Supabase Storage
-    const filePath = folder
-      ? `${bucket}/${userId}/${folder}/${fileName}`
-      : `${bucket}/${userId}/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from("masalbak")
-      .upload(filePath, buffer, {
-        contentType: "image/png",
-        upsert: true,
-      });
-
-    if (error) throw new Error(error.message);
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from("masalbak")
-      .getPublicUrl(filePath);
-
-    return { url: publicUrl, path: filePath };
-  });
-```
+| Kategori           | Skor       | Not                                      |
+| ------------------ | ---------- | ---------------------------------------- |
+| SQL Injection      | 10/10      | Tum sorgular Supabase ORM                |
+| Input Validation   | 9/10       | Zod her yerde                            |
+| Security Headers   | 9/10       | OWASP uyumlu                             |
+| CORS               | 9/10       | Allowlist + wildcard                     |
+| Secrets Management | 8/10       | Env validation, maskeleme                |
+| Authentication     | 9/10       | JWT + refresh token revocation + logout  |
+| Logging            | 8/10       | Yapilandirilmis, hata mesajlari sanitize |
+| Authorization      | 7/10       | Protected procedure, FK dogrulandi       |
+| Rate Limiting      | 7/10       | In-memory + brute-force korunasi         |
+| Error Handling     | 8/10       | Sanitize edildi, Turkce mesajlar         |
+| **Genel**          | **8.5/10** | Faz 1-4 sonrasi (Subat 2026)             |
 
 ---
 
-### 4. Authentication Enhancement (Supabase Auth)
+## 7. Performans Metrikleri (Tahmini)
 
-#### 4.1 Auth Routes
-**File:** `backend/trpc/routes/auth/login.ts`
-```typescript
-export const loginProcedure = publicProcedure
-  .input(z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
-  }))
-  .mutation(async ({ input }) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: input.email,
-      password: input.password,
-    });
-
-    if (error) throw new Error(error.message);
-
-    // Get or create user profile
-    const { data: profile } = await supabase
-      .from("users")
-      .select("*")
-      .eq("auth_user_id", data.user.id)
-      .single();
-
-    return {
-      session: data.session,
-      user: profile,
-    };
-  });
-```
-
-**File:** `backend/trpc/routes/auth/signup.ts`
-```typescript
-export const signupProcedure = publicProcedure
-  .input(z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
-    name: z.string().optional(),
-  }))
-  .mutation(async ({ input }) => {
-    // Create auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: input.email,
-      password: input.password,
-    });
-
-    if (authError) throw new Error(authError.message);
-
-    // Create user profile
-    const { data: profile, error: profileError } = await supabase
-      .from("users")
-      .insert({
-        email: input.email,
-        name: input.name,
-        auth_user_id: authData.user!.id,
-      })
-      .select()
-      .single();
-
-    if (profileError) throw new Error(profileError.message);
-
-    return {
-      session: authData.session,
-      user: profile,
-    };
-  });
-```
-
----
-
-### 5. Migration Plan
-
-#### Phase 1: Database Setup (Week 1)
-- [ ] Create all new tables in Supabase
-- [ ] Set up RLS policies
-- [ ] Configure Supabase Storage buckets
-- [ ] Test database connections
-
-#### Phase 2: Core Backend (Week 2)
-- [ ] Implement user profile management routes
-- [ ] Implement analysis history routes
-- [ ] Implement analytics routes
-- [ ] Implement file upload routes
-
-#### Phase 3: Authentication (Week 3)
-- [ ] Integrate Supabase Auth
-- [ ] Update useAuth hook
-- [ ] Implement session management
-- [ ] Add auth middleware
-
-#### Phase 4: Frontend Integration (Week 4)
-- [ ] Update profile.tsx with backend
-- [ ] Add analysis history view
-- [ ] Add coloring history view
-- [ ] Add user statistics dashboard
-
-#### Phase 5: Testing & Polish (Week 5)
-- [ ] End-to-end testing
-- [ ] Performance optimization
-- [ ] Error handling refinement
-- [ ] Documentation
-
----
-
-## 📊 Implementation Priority
-
-### 🔴 Critical (Do First)
-1. **User Profile Backend** - Profil yönetimi
-2. **Analysis History** - Analiz geçmişi kaydetme
-3. **Supabase Auth Integration** - Gerçek authentication
-
-### 🟡 High Priority
-4. **File Upload Management** - Supabase Storage
-5. **User Statistics** - Kullanım istatistikleri
-6. **Coloring History** - Boyama geçmişi
-
-### 🟢 Medium Priority
-7. **Analytics Tracking** - Kullanıcı davranış analizi
-8. **Settings Management** - Ayarlar backend'i
-9. **Quota Management** - Kullanım kotaları
-
-### 🔵 Nice to Have
-10. **Share Functionality** - İçerik paylaşımı
-11. **Favorites System** - Favori işaretleme
-12. **Tags System** - Etiketleme sistemi
-
----
-
-## 🎯 Next Steps
-
-Hangi özelliği önce uygulamak istersiniz?
-
-1. **User Profile Management** (Recommended)
-2. **Analysis History**
-3. **Supabase Auth Integration**
-4. **Other (specify)**
+| Metrik                   | Simdi               | Faz 3 Sonrasi          |
+| ------------------------ | ------------------- | ---------------------- |
+| Badge kontrolu           | 2-5 sn (100+ sorgu) | 100-200 ms             |
+| Masal uretimi            | ~60 sn (sirayl TTS) | ~10 sn                 |
+| PDF uretimi              | 3-5 sn (blocking)   | 500ms-1sn              |
+| API response (cached)    | 200-500 ms          | 50-100 ms              |
+| OpenAI algilanan bekleme | Tam yanit bekleme   | Streaming (%30 azalma) |

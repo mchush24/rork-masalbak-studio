@@ -3,6 +3,7 @@ import { publicProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { supabase } from '../../../lib/supabase.js';
 import { hashPassword, validatePasswordStrength } from '../../../lib/password.js';
+import { revokeAllUserTokens } from '../../../lib/auth/refresh-tokens.js';
 import { TRPCError } from '@trpc/server';
 import { authRateLimit } from '../../middleware/rate-limit.js';
 
@@ -86,6 +87,9 @@ export const resetPasswordProcedure = publicProcedure
         .from('password_reset_tokens')
         .update({ used_at: new Date().toISOString() })
         .eq('id', resetToken.id);
+
+      // Revoke all existing refresh tokens (force re-login on all devices)
+      revokeAllUserTokens(user.id).catch(() => {});
 
       logger.info('[Auth] ✅ Password reset successful for:', input.email);
 

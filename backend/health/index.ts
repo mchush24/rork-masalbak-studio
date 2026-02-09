@@ -6,6 +6,8 @@
  */
 
 import { Hono } from 'hono';
+import { createClient } from '@supabase/supabase-js';
+import { getPrometheusMetrics } from '../lib/monitoring.js';
 
 // ============================================
 // Types
@@ -38,13 +40,42 @@ export interface ReadinessStatus {
 const startTime = Date.now();
 
 /**
- * Check database connectivity
+ * Check database connectivity via real Supabase query
  */
 async function checkDatabase(): Promise<CheckResult> {
   const start = Date.now();
   try {
-    // Placeholder - implement actual database check
-    // Example: await db.query('SELECT 1');
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
+
+    if (!url || !key) {
+      return {
+        status: 'fail',
+        message: 'Supabase config missing',
+        duration: Date.now() - start,
+        lastCheck: new Date().toISOString(),
+      };
+    }
+
+    const client = createClient(url, key, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    // Real DB ping: select 1 row from users (lightweight)
+    const { error } = await client
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .limit(1);
+
+    if (error) {
+      return {
+        status: 'fail',
+        message: `DB query failed: ${error.code}`,
+        duration: Date.now() - start,
+        lastCheck: new Date().toISOString(),
+      };
+    }
+
     return {
       status: 'pass',
       message: 'Database connection OK',
@@ -62,19 +93,37 @@ async function checkDatabase(): Promise<CheckResult> {
 }
 
 /**
- * Check external API connectivity (e.g., OpenAI)
+ * Check external API connectivity (OpenAI, FAL.ai)
  */
 async function checkExternalAPIs(): Promise<CheckResult> {
   const start = Date.now();
   try {
-    // Check if API keys are configured
-    const hasOpenAI = !!process.env.OPENAI_API_KEY;
-    const hasSupabase = !!process.env.SUPABASE_URL;
+    const missing: string[] = [];
+    if (!process.env.OPENAI_API_KEY) missing.push('OPENAI_API_KEY');
+    if (!process.env.SUPABASE_URL) missing.push('SUPABASE_URL');
+    if (!process.env.FAL_KEY) missing.push('FAL_KEY');
 
-    if (!hasOpenAI || !hasSupabase) {
+    if (missing.length > 0) {
+      return {
+        status:
+          missing.includes('OPENAI_API_KEY') || missing.includes('SUPABASE_URL') ? 'fail' : 'warn',
+        message: `Missing keys: ${missing.join(', ')}`,
+        duration: Date.now() - start,
+        lastCheck: new Date().toISOString(),
+      };
+    }
+
+    // Real OpenAI connectivity check (lightweight models endpoint)
+    const openaiResponse = await fetch('https://api.openai.com/v1/models', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!openaiResponse.ok) {
       return {
         status: 'warn',
-        message: 'Some API keys not configured',
+        message: `OpenAI API returned ${openaiResponse.status}`,
         duration: Date.now() - start,
         lastCheck: new Date().toISOString(),
       };
@@ -82,13 +131,13 @@ async function checkExternalAPIs(): Promise<CheckResult> {
 
     return {
       status: 'pass',
-      message: 'External APIs configured',
+      message: 'All external APIs reachable',
       duration: Date.now() - start,
       lastCheck: new Date().toISOString(),
     };
   } catch (error) {
     return {
-      status: 'fail',
+      status: 'warn',
       message: error instanceof Error ? error.message : 'API check failed',
       duration: Date.now() - start,
       lastCheck: new Date().toISOString(),
@@ -119,18 +168,6 @@ function checkMemory(): CheckResult {
   };
 }
 
-/**
- * Check disk space (if applicable)
- */
-function checkDisk(): CheckResult {
-  // Placeholder - implement actual disk check if needed
-  return {
-    status: 'pass',
-    message: 'Disk check not implemented',
-    lastCheck: new Date().toISOString(),
-  };
-}
-
 // ============================================
 // Health Check Router
 // ============================================
@@ -141,7 +178,7 @@ export const healthRouter = new Hono();
  * Liveness probe - Is the process running?
  * Used by Kubernetes/Docker to determine if the container should be restarted
  */
-healthRouter.get('/live', (c) => {
+healthRouter.get('/live', c => {
   return c.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -152,7 +189,7 @@ healthRouter.get('/live', (c) => {
  * Readiness probe - Is the service ready to accept traffic?
  * Used by load balancers to determine if the instance should receive requests
  */
-healthRouter.get('/ready', async (c) => {
+healthRouter.get('/ready', async c => {
   const dbCheck = await checkDatabase();
   const apiCheck = await checkExternalAPIs();
 
@@ -173,11 +210,8 @@ healthRouter.get('/ready', async (c) => {
  * Full health check - Detailed status of all components
  * Used for monitoring dashboards and debugging
  */
-healthRouter.get('/health', async (c) => {
-  const [dbCheck, apiCheck] = await Promise.all([
-    checkDatabase(),
-    checkExternalAPIs(),
-  ]);
+healthRouter.get('/health', async c => {
+  const [dbCheck, apiCheck] = await Promise.all([checkDatabase(), checkExternalAPIs()]);
   const memoryCheck = checkMemory();
 
   const checks = {
@@ -187,8 +221,8 @@ healthRouter.get('/health', async (c) => {
   };
 
   // Determine overall status
-  const hasFailure = Object.values(checks).some((check) => check.status === 'fail');
-  const hasWarning = Object.values(checks).some((check) => check.status === 'warn');
+  const hasFailure = Object.values(checks).some(check => check.status === 'fail');
+  const hasWarning = Object.values(checks).some(check => check.status === 'warn');
 
   let overallStatus: HealthStatus['status'] = 'healthy';
   if (hasFailure) {
@@ -212,9 +246,11 @@ healthRouter.get('/health', async (c) => {
 /**
  * Metrics endpoint - Prometheus-compatible metrics
  */
-healthRouter.get('/metrics', (c) => {
+healthRouter.get('/metrics', c => {
   const uptime = Math.round((Date.now() - startTime) / 1000);
   const memory = process.memoryUsage();
+
+  const procedureMetrics = getPrometheusMetrics();
 
   const metrics = [
     `# HELP process_uptime_seconds Process uptime in seconds`,
@@ -233,6 +269,7 @@ healthRouter.get('/metrics', (c) => {
     `# HELP nodejs_version Node.js version`,
     `# TYPE nodejs_version gauge`,
     `nodejs_version{version="${process.version}"} 1`,
+    ...(procedureMetrics ? ['', procedureMetrics] : []),
   ].join('\n');
 
   return c.text(metrics, 200, {
@@ -243,7 +280,7 @@ healthRouter.get('/metrics', (c) => {
 /**
  * Version endpoint
  */
-healthRouter.get('/version', (c) => {
+healthRouter.get('/version', c => {
   return c.json({
     version: process.env.npm_package_version || '1.0.0',
     node: process.version,

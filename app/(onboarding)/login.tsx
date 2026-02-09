@@ -14,7 +14,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { Eye, EyeOff, Mail, Zap } from 'lucide-react-native';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils/error';
@@ -28,7 +28,6 @@ import {
   typography,
   iconSizes,
   iconStroke,
-  textShadows,
 } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
@@ -187,9 +186,11 @@ export default function LoginScreen() {
     }
   };
 
+  const isEnabled = !!(email && password && !isLoading);
+
   return (
     <LinearGradient
-      colors={[Colors.secondary.lavender, '#818CF8', Colors.secondary.sky]}
+      colors={['#F8F9FE', '#EEE9FE', '#E8E4F8']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -211,10 +212,9 @@ export default function LoginScreen() {
               style={{
                 fontSize: typography.size['2xl'],
                 fontWeight: '800',
-                color: 'white',
+                color: Colors.neutral.darkest,
                 marginBottom: spacing.xs,
                 textAlign: 'center',
-                ...textShadows.hero,
               }}
             >
               Tekrar Hoş Geldiniz!
@@ -222,7 +222,7 @@ export default function LoginScreen() {
             <Text
               style={{
                 fontSize: typography.size.base,
-                color: 'rgba(255,255,255,0.95)',
+                color: Colors.neutral.medium,
                 marginBottom: spacing.xl,
                 textAlign: 'center',
                 fontWeight: '500',
@@ -239,7 +239,9 @@ export default function LoginScreen() {
                 borderRadius: radius.xl,
                 padding: spacing.xs,
                 marginBottom: spacing.md,
-                ...shadows.lg,
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                ...shadows.sm,
               }}
             >
               <View
@@ -251,9 +253,9 @@ export default function LoginScreen() {
               >
                 <View
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
                     backgroundColor: '#F3F4F6',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -292,7 +294,9 @@ export default function LoginScreen() {
                 borderRadius: radius.xl,
                 padding: spacing.xs,
                 marginBottom: spacing.sm,
-                ...shadows.lg,
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                ...shadows.sm,
               }}
             >
               <View
@@ -304,16 +308,16 @@ export default function LoginScreen() {
               >
                 <View
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
                     backgroundColor: '#F3F4F6',
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginRight: spacing.sm,
                   }}
                 >
-                  <Eye
+                  <Lock
                     size={iconSizes.action}
                     color={Colors.secondary.lavender}
                     strokeWidth={iconStroke.standard}
@@ -368,8 +372,7 @@ export default function LoginScreen() {
               <Text
                 style={{
                   fontSize: typography.size.sm,
-                  color: 'white',
-                  textDecorationLine: 'underline',
+                  color: Colors.secondary.lavender,
                   fontWeight: '600',
                 }}
               >
@@ -377,49 +380,45 @@ export default function LoginScreen() {
               </Text>
             </Pressable>
 
-            {/* Login Button */}
+            {/* Login Button - Purple gradient */}
             <Pressable
               onPress={handleLogin}
-              disabled={!email || !password || isLoading}
+              disabled={!isEnabled}
               style={({ pressed }) => [
                 {
-                  backgroundColor:
-                    email && password && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
-                  paddingVertical: spacing.md + spacing.xs,
                   borderRadius: radius['2xl'],
-                  ...shadows.lg,
+                  overflow: 'hidden',
                   marginBottom: spacing.lg,
                   transform: [{ scale: pressed ? 0.97 : 1 }],
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: spacing.sm,
+                  opacity: isEnabled ? 1 : 0.6,
                 },
               ]}
             >
-              {isLoading ? (
-                <ActivityIndicator color="#6366F1" />
-              ) : (
-                <>
+              <LinearGradient
+                colors={isEnabled ? ['#7C3AED', '#6D28D9'] : ['#D1D5DB', '#D1D5DB']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  paddingVertical: spacing.md + spacing.xs,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
                   <Text
                     style={{
                       fontSize: typography.size.md,
                       fontWeight: '700',
-                      color: email && password ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                      color: '#FFFFFF',
                       textAlign: 'center',
                     }}
                   >
                     Giriş Yap
                   </Text>
-                  {email && password && (
-                    <Zap
-                      size={iconSizes.small}
-                      color={Colors.secondary.lavender}
-                      strokeWidth={iconStroke.bold}
-                    />
-                  )}
-                </>
-              )}
+                )}
+              </LinearGradient>
             </Pressable>
 
             {/* Register Link */}
@@ -430,13 +429,15 @@ export default function LoginScreen() {
               <Text
                 style={{
                   fontSize: typography.size.sm,
-                  color: 'white',
+                  color: Colors.neutral.dark,
                   textAlign: 'center',
-                  fontWeight: '600',
+                  fontWeight: '500',
                 }}
               >
                 Hesabınız yok mu?{' '}
-                <Text style={{ textDecorationLine: 'underline' }}>Kayıt olun</Text>
+                <Text style={{ fontWeight: '700', color: Colors.secondary.lavender }}>
+                  Kayıt olun
+                </Text>
               </Text>
             </Pressable>
           </Animated.View>

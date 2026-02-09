@@ -869,27 +869,43 @@ export class BadgeService {
       // Get user stats
       const stats = await this.getUserStats(userId);
 
-      const newBadges: UserBadgeResult[] = [];
-
-      // Check each badge
+      // Check all badges in-memory (no DB calls - uses pre-fetched stats)
+      const earnedBadgeIds: string[] = [];
       for (const badge of BADGES) {
         if (existingBadgeIds.has(badge.id)) continue;
-
         const earned = await this.checkBadgeRequirement(userId, badge, stats);
-
-        if (earned) {
-          const awarded = await this.awardBadge(userId, badge.id);
-          if (awarded) {
-            newBadges.push({
-              badgeId: badge.id,
-              badge,
-              unlockedAt: new Date(),
-            });
-          }
-        }
+        if (earned) earnedBadgeIds.push(badge.id);
       }
 
-      if (newBadges.length > 0) {
+      // Batch insert all earned badges in one query (ON CONFLICT = skip duplicates)
+      const newBadges: UserBadgeResult[] = [];
+      if (earnedBadgeIds.length > 0) {
+        const now = new Date().toISOString();
+        const rows = earnedBadgeIds.map(badgeId => ({
+          user_id: userId,
+          badge_id: badgeId,
+          unlocked_at: now,
+        }));
+
+        const { data: inserted, error } = await supa
+          .from('user_badges')
+          .upsert(rows, { onConflict: 'user_id,badge_id', ignoreDuplicates: true })
+          .select('badge_id');
+
+        if (error) {
+          logger.error('[BadgeService] Batch badge insert error:', error);
+        }
+
+        const insertedIds = new Set((inserted || []).map(r => r.badge_id));
+        for (const badgeId of earnedBadgeIds) {
+          if (insertedIds.has(badgeId)) {
+            const badge = BADGES.find(b => b.id === badgeId);
+            if (badge) {
+              newBadges.push({ badgeId, badge, unlockedAt: new Date() });
+            }
+          }
+        }
+
         logger.info(`[BadgeService] Awarded ${newBadges.length} new badges to user ${userId}`);
       }
 
@@ -942,7 +958,7 @@ export class BadgeService {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      // Upsert activity record
+      // SELECT + UPDATE/INSERT (Supabase upsert overwrites, can't increment)
       const { data: existing } = await supa
         .from('user_activity')
         .select('*')
@@ -951,7 +967,6 @@ export class BadgeService {
         .single();
 
       if (existing) {
-        // Update counts
         const updates: Record<string, number> = {};
         if (type === 'analysis') updates.analyses_count = (existing.analyses_count || 0) + 1;
         if (type === 'story') updates.stories_count = (existing.stories_count || 0) + 1;
@@ -959,26 +974,18 @@ export class BadgeService {
 
         await supa.from('user_activity').update(updates).eq('id', existing.id);
       } else {
-        // Insert new record
-        const counts = {
-          analyses_count: type === 'analysis' ? 1 : 0,
-          stories_count: type === 'story' ? 1 : 0,
-          colorings_count: type === 'coloring' ? 1 : 0,
-        };
-
         await supa.from('user_activity').insert({
           user_id: userId,
           activity_date: today,
-          ...counts,
+          analyses_count: type === 'analysis' ? 1 : 0,
+          stories_count: type === 'story' ? 1 : 0,
+          colorings_count: type === 'coloring' ? 1 : 0,
           first_activity_at: new Date().toISOString(),
         });
       }
 
-      // Check for time-based secret badges
-      await this.checkTimeBadges(userId);
-
-      // Check special day badges
-      await this.checkSpecialDayBadges(userId);
+      // Check time and special day badges in parallel (was sequential)
+      await Promise.all([this.checkTimeBadges(userId), this.checkSpecialDayBadges(userId)]);
 
       logger.info(`[BadgeService] Recorded ${type} activity for user ${userId}`);
     } catch (error) {
@@ -1013,49 +1020,31 @@ export class BadgeService {
     undoAndContinue: number;
   }> {
     try {
-      // Get analysis count
-      const { count: analysesCount } = await supa
-        .from('analyses')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+      // Parallel fetch all stats in a single Promise.all (was 6 sequential queries)
+      const [
+        { count: analysesCount },
+        { count: storiesCount },
+        { count: coloringsCount },
+        { data: testTypes },
+        { data: userData },
+        { data: coloringStats },
+      ] = await Promise.all([
+        supa.from('analyses').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+        supa
+          .from('storybooks')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id_fk', userId),
+        supa.from('colorings').select('*', { count: 'exact', head: true }).eq('user_id_fk', userId),
+        supa.from('analyses').select('task_type').eq('user_id', userId),
+        supa.from('users').select('children, name, current_streak').eq('id', userId).single(),
+        supa.from('user_coloring_stats').select('*').eq('user_id', userId).single(),
+      ]);
 
-      // Get story count (storybooks uses user_id_fk as foreign key)
-      const { count: storiesCount } = await supa
-        .from('storybooks')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id_fk', userId);
-
-      // Get coloring count (colorings uses user_id_fk as foreign key)
-      const { count: coloringsCount } = await supa
-        .from('colorings')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id_fk', userId);
-
-      // Get unique test types
-      const { data: testTypes } = await supa
-        .from('analyses')
-        .select('task_type')
-        .eq('user_id', userId);
       const uniqueTestTypes = new Set(testTypes?.map(t => t.task_type) || []).size;
-
-      // Get user data for children and profile
-      const { data: userData } = await supa
-        .from('users')
-        .select('children, name, current_streak')
-        .eq('id', userId)
-        .single();
-
       const children = userData?.children || [];
       const childrenCount = Array.isArray(children) ? children.length : 0;
       const profileComplete = !!(userData?.name && childrenCount > 0);
       const consecutiveDays = userData?.current_streak || 0;
-
-      // Phase 2: Get coloring-specific stats from user_coloring_stats table
-      const { data: coloringStats } = await supa
-        .from('user_coloring_stats')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
 
       return {
         totalAnalyses: analysesCount || 0,

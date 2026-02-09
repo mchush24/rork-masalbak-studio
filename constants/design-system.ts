@@ -5,10 +5,10 @@
  * İlham: Apple HIG, Material Design, Duolingo, Khan Academy Kids
  */
 
-import { Dimensions, Platform } from "react-native";
-import { Colors } from "./colors";
+import { Dimensions, Platform } from 'react-native';
+import { Colors } from './colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ============================================
 // LAYOUT SYSTEM
@@ -92,11 +92,11 @@ export const layout = {
 export const typography = {
   // Font families
   family: {
-    regular: "System",
-    medium: "System",
-    semibold: "System",
-    bold: "System",
-    extrabold: "System",
+    regular: 'System',
+    medium: 'System',
+    semibold: 'System',
+    bold: 'System',
+    extrabold: 'System',
   },
 
   /**
@@ -129,13 +129,13 @@ export const typography = {
     /** 24px - Section headers, modal titles */
     xl: 24,
     /** 28px - Page subtitles */
-    "2xl": 28,
+    '2xl': 28,
     /** 32px - Page titles */
-    "3xl": 32,
+    '3xl': 32,
     /** 40px - Hero sections, feature highlights */
-    "4xl": 40,
+    '4xl': 40,
     /** 48px - Large feature text */
-    "5xl": 48,
+    '5xl': 48,
     /** 56px - Main hero headlines */
     hero: 56,
   },
@@ -149,17 +149,17 @@ export const typography = {
    */
   weight: {
     /** 400 - Regular body text */
-    regular: "400" as const,
+    regular: '400' as const,
     /** 500 - Slightly emphasized text */
-    medium: "500" as const,
+    medium: '500' as const,
     /** 600 - Labels, subtitles, emphasized */
-    semibold: "600" as const,
+    semibold: '600' as const,
     /** 700 - Headlines, buttons, important */
-    bold: "700" as const,
+    bold: '700' as const,
     /** 800 - Extra emphasis, hero text */
-    extrabold: "800" as const,
+    extrabold: '800' as const,
     /** 900 - Maximum emphasis */
-    black: "900" as const,
+    black: '900' as const,
   },
 
   /**
@@ -200,13 +200,13 @@ export const typography = {
     /** 36px - for xl (24px) text */
     xl: 36,
     /** 42px - for 2xl (28px) text */
-    "2xl": 42,
+    '2xl': 42,
     /** 48px - for 3xl (32px) text */
-    "3xl": 48,
+    '3xl': 48,
     /** 56px - for 4xl (40px) text - tight line height for headlines */
-    "4xl": 56,
+    '4xl': 56,
     /** 64px - for 5xl (48px) text */
-    "5xl": 64,
+    '5xl': 64,
     /** 72px - for hero (56px) text */
     hero: 72,
   },
@@ -236,22 +236,28 @@ export const typography = {
 // SPACING SYSTEM (8pt grid)
 // ============================================
 export const spacing = {
-  "0": 0,
-  "1": 4,
-  "1.5": 6,
-  "2": 8,
-  "2.5": 10,
-  "3": 12,
-  "4": 16,
-  "5": 20,
-  "6": 24,
-  "7": 28,
-  "8": 32,
-  "10": 40,
-  "12": 48,
-  "16": 64,
-  "20": 80,
-  "24": 96,
+  '0': 0,
+  '1': 4,
+  '1.5': 6,
+  '2': 8,
+  '2.5': 10,
+  '3': 12,
+  '4': 16,
+  '5': 20,
+  '6': 24,
+  '7': 28,
+  '8': 32,
+  '10': 40,
+  '12': 48,
+  '16': 64,
+  '20': 80,
+  '24': 96,
+  // Named aliases for convenience
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
 } as const;
 
 // ============================================
@@ -264,8 +270,8 @@ export const radius = {
   md: 12,
   lg: 16,
   xl: 20,
-  "2xl": 24,
-  "3xl": 32,
+  '2xl': 24,
+  '3xl': 32,
   full: 9999,
 } as const;
 
@@ -278,7 +284,7 @@ export const createShadow = (
   blur: number,
   opacity: number,
   elevation: number,
-  color: string = "#000"
+  color: string = '#000'
 ) => {
   const nativeShadow = {
     shadowColor: color,
@@ -289,8 +295,10 @@ export const createShadow = (
   };
 
   // On web, use boxShadow instead of deprecated shadow* props
-  if (Platform.OS === "web") {
-    const alpha = Math.round(opacity * 255).toString(16).padStart(2, "0");
+  if (Platform.OS === 'web') {
+    const alpha = Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, '0');
     return {
       boxShadow: `0px ${offsetY}px ${blur}px ${color}${alpha}`,
       elevation,
@@ -301,22 +309,23 @@ export const createShadow = (
 };
 
 export const shadows = {
-  none: Platform.OS === "web"
-    ? { boxShadow: "none", elevation: 0 }
-    : {
-        shadowColor: "transparent",
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0,
-        shadowRadius: 0,
-        elevation: 0,
-      },
+  none:
+    Platform.OS === 'web'
+      ? { boxShadow: 'none', elevation: 0 }
+      : {
+          shadowColor: 'transparent',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0,
+          shadowRadius: 0,
+          elevation: 0,
+        },
   xs: createShadow(1, 2, 0.05, 1),
   sm: createShadow(2, 4, 0.08, 2),
   md: createShadow(4, 8, 0.12, 4),
   lg: createShadow(8, 16, 0.15, 8),
   xl: createShadow(12, 24, 0.2, 12),
   colored: (color: string) => {
-    if (Platform.OS === "web") {
+    if (Platform.OS === 'web') {
       return {
         boxShadow: `0px 4px 12px ${color}4D`, // 0.3 opacity = 4D in hex
         elevation: 6,
@@ -336,13 +345,8 @@ export const shadows = {
 // TEXT SHADOWS
 // React Native Web uses textShadow CSS property
 // ============================================
-export const createTextShadow = (
-  offsetX: number,
-  offsetY: number,
-  blur: number,
-  color: string
-) => {
-  if (Platform.OS === "web") {
+export const createTextShadow = (offsetX: number, offsetY: number, blur: number, color: string) => {
+  if (Platform.OS === 'web') {
     return {
       textShadow: `${offsetX}px ${offsetY}px ${blur}px ${color}`,
     };
@@ -355,13 +359,18 @@ export const createTextShadow = (
 };
 
 export const textShadows = {
-  none: Platform.OS === "web"
-    ? { textShadow: "none" }
-    : { textShadowColor: "transparent", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 0 },
-  sm: createTextShadow(0, 1, 2, "rgba(0,0,0,0.1)"),
-  md: createTextShadow(0, 2, 4, "rgba(0,0,0,0.15)"),
-  lg: createTextShadow(0, 2, 8, "rgba(0,0,0,0.2)"),
-  hero: createTextShadow(0, 2, 10, "rgba(0,0,0,0.2)"),
+  none:
+    Platform.OS === 'web'
+      ? { textShadow: 'none' }
+      : {
+          textShadowColor: 'transparent',
+          textShadowOffset: { width: 0, height: 0 },
+          textShadowRadius: 0,
+        },
+  sm: createTextShadow(0, 1, 2, 'rgba(0,0,0,0.1)'),
+  md: createTextShadow(0, 2, 4, 'rgba(0,0,0,0.15)'),
+  lg: createTextShadow(0, 2, 8, 'rgba(0,0,0,0.2)'),
+  hero: createTextShadow(0, 2, 10, 'rgba(0,0,0,0.2)'),
 };
 
 // ============================================
@@ -401,21 +410,21 @@ export const animation = {
 // ============================================
 export const glassmorphism = {
   light: {
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     ...shadows.md,
   },
   medium: {
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     ...shadows.lg,
   },
   dark: {
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     ...shadows.md,
   },
 } as const;
@@ -424,34 +433,36 @@ export const glassmorphism = {
 // NEUMORPHISM STYLES
 // ============================================
 export const neumorphism = {
-  raised: Platform.OS === "web"
-    ? {
-        backgroundColor: Colors.background.primary,
-        boxShadow: "4px 4px 8px #0000001A", // 0.1 opacity
-        elevation: 4,
-      }
-    : {
-        backgroundColor: Colors.background.primary,
-        shadowColor: "#000",
-        shadowOffset: { width: 4, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-      },
-  pressed: Platform.OS === "web"
-    ? {
-        backgroundColor: Colors.background.primary,
-        boxShadow: "-2px -2px 4px #0000000D", // 0.05 opacity
-        elevation: 1,
-      }
-    : {
-        backgroundColor: Colors.background.primary,
-        shadowColor: "#000",
-        shadowOffset: { width: -2, height: -2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 1,
-      },
+  raised:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: Colors.background.primary,
+          boxShadow: '4px 4px 8px #0000001A', // 0.1 opacity
+          elevation: 4,
+        }
+      : {
+          backgroundColor: Colors.background.primary,
+          shadowColor: '#000',
+          shadowOffset: { width: 4, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 4,
+        },
+  pressed:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: Colors.background.primary,
+          boxShadow: '-2px -2px 4px #0000000D', // 0.05 opacity
+          elevation: 1,
+        }
+      : {
+          backgroundColor: Colors.background.primary,
+          shadowColor: '#000',
+          shadowOffset: { width: -2, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+          elevation: 1,
+        },
 };
 
 // ============================================
@@ -541,25 +552,25 @@ export const interaction = {
 // ============================================
 export const cardVariants = {
   hero: {
-    padding: spacing["8"],
-    borderRadius: radius["2xl"],
+    padding: spacing['8'],
+    borderRadius: radius['2xl'],
     minHeight: layout.card.hero.minHeight,
     ...shadows.xl,
   },
   feature: {
-    padding: spacing["6"],
+    padding: spacing['6'],
     borderRadius: radius.xl,
     minHeight: layout.card.feature.minHeight,
     ...shadows.lg,
   },
   small: {
-    padding: spacing["4"],
+    padding: spacing['4'],
     borderRadius: radius.lg,
     minHeight: layout.card.small.minHeight,
     ...shadows.md,
   },
   flat: {
-    padding: spacing["4"],
+    padding: spacing['4'],
     borderRadius: radius.md,
     ...shadows.none,
     borderWidth: 1,
@@ -572,26 +583,26 @@ export const cardVariants = {
 // ============================================
 export const badgeStyles = {
   default: {
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["1"],
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['1'],
     borderRadius: radius.full,
     backgroundColor: Colors.neutral.lighter,
   },
   primary: {
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["1"],
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['1'],
     borderRadius: radius.full,
     backgroundColor: Colors.primary.sunset,
   },
   success: {
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["1"],
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['1'],
     borderRadius: radius.full,
     backgroundColor: Colors.semantic.success,
   },
-  gradient: (colors: string[]) => ({
-    paddingHorizontal: spacing["3"],
-    paddingVertical: spacing["1"],
+  gradient: (_colors: string[]) => ({
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing['1'],
     borderRadius: radius.full,
   }),
 } as const;
@@ -601,8 +612,8 @@ export const badgeStyles = {
 // ============================================
 export const chipStyles = {
   default: {
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['2'],
     borderRadius: radius.full,
     backgroundColor: Colors.neutral.white,
     borderWidth: 1,
@@ -610,8 +621,8 @@ export const chipStyles = {
     ...shadows.sm,
   },
   selected: {
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['2'],
     borderRadius: radius.full,
     backgroundColor: Colors.primary.sunset,
     ...shadows.md,
@@ -624,13 +635,13 @@ export const chipStyles = {
 export const emptyState = {
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing["8"],
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing['8'],
   },
   iconSize: layout.icon.mega,
   iconColor: Colors.neutral.light,
-  titleSize: typography.size["2xl"],
+  titleSize: typography.size['2xl'],
   descriptionSize: typography.size.base,
 } as const;
 

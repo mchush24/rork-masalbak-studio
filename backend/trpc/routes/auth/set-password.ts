@@ -47,7 +47,8 @@ export const setPasswordProcedure = protectedProcedure
         .eq('id', userId);
 
       if (error) {
-        throw new Error(`Failed to set password: ${error.message}`);
+        logger.error('[Auth] ❌ DB Error:', error);
+        throw new Error('Şifre kaydedilemedi. Lütfen tekrar deneyin.');
       }
 
       logger.info('[Auth] ✅ Password set successfully');

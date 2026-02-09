@@ -4,6 +4,7 @@ import { trpcServer } from '@hono/trpc-server';
 import { cors } from 'hono/cors';
 import { secureHeaders } from 'hono/secure-headers';
 import { requestId } from 'hono/request-id';
+import { bodyLimit } from 'hono/body-limit';
 import { appRouter } from './trpc/app-router.js';
 import { createContext } from './trpc/create-context.js';
 import { generalRateLimiter } from './middleware/rate-limit.js';
@@ -128,6 +129,29 @@ app.use(
     maxAge: 86400, // Cache preflight for 24 hours (reduce preflight requests)
   })
 );
+
+// ============================================
+// BODY SIZE LIMITS - Prevent large payload abuse
+// ============================================
+// General limit: 1MB for most endpoints
+app.use('*', bodyLimit({ maxSize: 1 * 1024 * 1024 }));
+// tRPC endpoints: 10MB (base64 image uploads in analyze-drawing)
+app.use('/api/trpc/*', bodyLimit({ maxSize: 10 * 1024 * 1024 }));
+
+// ============================================
+// CSRF Protection - Defense in Depth
+// ============================================
+// JWT Bearer auth (not cookies) makes this API inherently CSRF-safe.
+// This middleware adds extra protection by rejecting non-JSON POST requests.
+app.use('/api/trpc/*', async (c, next) => {
+  if (c.req.method === 'POST') {
+    const contentType = c.req.header('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return c.json({ error: 'Content-Type must be application/json' }, 415);
+    }
+  }
+  await next();
+});
 
 // Apply rate limiting to all tRPC endpoints
 app.use('/api/trpc/*', generalRateLimiter);

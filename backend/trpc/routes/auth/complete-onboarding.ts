@@ -23,7 +23,8 @@ export const completeOnboardingProcedure = protectedProcedure
 
       if (error) {
         logger.error('[Auth] ❌ Error completing onboarding:', error);
-        throw new Error(`Failed to complete onboarding: ${error.message}`);
+        logger.error('[Auth] ❌ DB Error:', error);
+        throw new Error('Kurulum tamamlanamadı. Lütfen tekrar deneyin.');
       }
 
       logger.info('[Auth] ✅ Onboarding completed successfully');
@@ -31,8 +32,6 @@ export const completeOnboardingProcedure = protectedProcedure
       return { success: true };
     } catch (error) {
       logger.error('[Auth] ❌ Onboarding error:', error);
-      throw new Error(
-        `Onboarding failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new Error('Kurulum sırasında bir hata oluştu. Lütfen tekrar deneyin.');
     }
   });
