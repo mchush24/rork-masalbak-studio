@@ -22,7 +22,7 @@ export const getProfileProcedure = protectedProcedure.query(async ({ ctx }) => {
     if (resetAt <= new Date()) {
       const newResetAt = new Date();
       newResetAt.setMonth(newResetAt.getMonth() + 1);
-      const freshQuota = { analyses: 0, storybooks: 0, colorings: 0 };
+      const freshQuota = { tokens: 0 };
 
       Promise.resolve(
         supa
