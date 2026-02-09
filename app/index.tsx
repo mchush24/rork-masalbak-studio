@@ -210,7 +210,7 @@ export default function PremiumHomeScreen() {
 
   const handleLogin = useCallback(() => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/(onboarding)/welcome' as Href);
+    router.push('/(onboarding)/login' as Href);
   }, [router]);
 
   const handleCtaPressIn = useCallback(() => {
