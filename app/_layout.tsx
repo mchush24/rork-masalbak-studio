@@ -115,6 +115,20 @@ const webStyles = StyleSheet.create({
 
 SplashScreen.preventAutoHideAsync();
 
+// Valid routes for crash recovery (static, defined outside component)
+const VALID_RECOVERY_ROUTES = [
+  '/(tabs)',
+  '/(tabs)/index',
+  '/(tabs)/discover',
+  '/(tabs)/hayal-atolyesi',
+  '/(tabs)/history',
+  '/(tabs)/profile',
+  '/(tabs)/quick-analysis',
+  '/(tabs)/advanced-analysis',
+  '/(tabs)/stories',
+  '/chatbot',
+];
+
 function RootLayoutNav() {
   const { isAuthenticated, hasCompletedOnboarding, isLoading } = useAuth();
   const segments = useSegments();
@@ -204,26 +218,12 @@ function RootLayoutNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, hasCompletedOnboarding, isLoading]);
 
-  // Valid routes for crash recovery
-  const validRecoveryRoutes = [
-    '/(tabs)',
-    '/(tabs)/index',
-    '/(tabs)/discover',
-    '/(tabs)/hayal-atolyesi',
-    '/(tabs)/history',
-    '/(tabs)/profile',
-    '/(tabs)/quick-analysis',
-    '/(tabs)/advanced-analysis',
-    '/(tabs)/stories',
-    '/chatbot',
-  ];
-
   // Handle crash recovery with route validation
   const handleCrashRecover = useCallback(
     (session: SessionState) => {
       if (session.lastScreen) {
         // Validate route before navigating
-        const isValidRoute = validRecoveryRoutes.some(
+        const isValidRoute = VALID_RECOVERY_ROUTES.some(
           route => session.lastScreen === route || session.lastScreen?.startsWith(route + '/')
         );
 
@@ -238,17 +238,16 @@ function RootLayoutNav() {
         // Fallback to tabs for invalid or unknown routes
         router.replace('/(tabs)');
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [router]
   );
 
-  // ChatBot: show when authenticated and in tabs (onboarding check removed for now)
-  const showChatBot = isAuthenticated && segments[0] === '(tabs)';
+  // Ioo Assistant: show when authenticated and in tabs
+  const showAssistant = isAuthenticated && segments[0] === '(tabs)';
 
   if (__DEV__) {
-    console.log('[_layout] ChatBot visibility:', {
-      showChatBot,
+    console.log('[_layout] Ioo Assistant visibility:', {
+      showAssistant,
       isAuthenticated,
       segment: segments[0],
     });
@@ -295,7 +294,7 @@ function RootLayoutNav() {
         <Stack.Screen name="mascot-demo" options={{ animation: 'fade' }} />
       </Stack>
 
-      {showChatBot && (
+      {showAssistant && (
         <ComponentErrorBoundary fallback={null}>
           <ChatBot />
         </ComponentErrorBoundary>

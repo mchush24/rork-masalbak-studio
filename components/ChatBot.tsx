@@ -1,7 +1,8 @@
 /**
- * 🤖 ChatBot Component
+ * Ioo Assistant (ChatBot)
  *
- * Floating yardım asistanı butonu ve chat modal'ı
+ * Unified floating assistant: Ioo mascot button + chat modal
+ * Integrates context-aware tips from AssistantEngine
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
@@ -14,44 +15,32 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
   Animated,
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  X,
-  Send,
-  Bot,
-  Sparkles,
-  HelpCircle,
-  ChevronRight,
-  MessageSquare,
-} from 'lucide-react-native';
+import { X, Send, Sparkles, HelpCircle, ChevronRight } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
 import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import { useChild } from '@/lib/contexts/ChildContext';
 import type { Child } from '@/lib/hooks/useAuth';
-import { useRouter, usePathname } from 'expo-router';
+import { useRouter, usePathname, Href } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
 import { QuickReplyChips, QUICK_REPLIES, QuickReply } from './chat/QuickReplyChips';
 import { TypingBubble } from './chat/TypingIndicator';
 import { AnimatedMessage } from './chat/AnimatedMessage';
 import { InlineFeedback } from './chat/FeedbackButtons';
-import {
-  getContextEngine,
-  getResponseGenerator,
-  SmartQuickReply,
-} from './chat/SmartContextEngine';
+import { getContextEngine, getResponseGenerator } from './chat/SmartContextEngine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getKeyboardBehavior, getKeyboardVerticalOffset } from '@/lib/platform';
+import { Ioo } from '@/components/Ioo';
+import { assistantEngine, ScreenContext } from '@/lib/coaching/AssistantEngine';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Conversation limits
 const MAX_MESSAGES = 50; // Keep last 50 messages in memory
@@ -63,9 +52,12 @@ const limitMessages = (messages: Message[]): Message[] => {
   return messages.slice(-MAX_MESSAGES);
 };
 
-// Map route paths to screen names for proactive suggestions
+// Map route paths to screen names for proactive suggestions and tips
 const getScreenName = (pathname: string): string => {
-  if (pathname.includes('/stories')) return 'stories';
+  if (pathname.includes('/quick-analysis')) return 'quick_analysis';
+  if (pathname.includes('/advanced-analysis')) return 'advanced_analysis';
+  if (pathname.includes('/stories')) return 'story';
+  if (pathname.includes('/hayal-atolyesi')) return 'hayal_atolyesi';
   if (pathname.includes('/analysis')) return 'analysis';
   if (pathname.includes('/coloring')) return 'coloring';
   if (pathname.includes('/profile')) return 'profile';
@@ -132,7 +124,7 @@ export function ChatBot() {
       // Close chat and navigate
       setIsOpen(false);
       setTimeout(() => {
-        router.push(action.target as any);
+        router.push(action.target as Href);
       }, 300);
     }
   };
@@ -167,7 +159,7 @@ export function ChatBot() {
     );
     pulse.start();
     return () => pulse.stop();
-  }, []);
+  }, [pulseAnim]);
 
   // Bounce animation when opened
   useEffect(() => {
@@ -181,7 +173,7 @@ export function ChatBot() {
     } else {
       bounceAnim.setValue(0);
     }
-  }, [isOpen]);
+  }, [isOpen, bounceAnim]);
 
   // Check first visit on mount
   useEffect(() => {
@@ -200,10 +192,14 @@ export function ChatBot() {
   }, []);
 
   // Smart welcome message - uses context engine for intelligent responses
+  // Also integrates AssistantEngine tips as the first message
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const generateSmartWelcome = async () => {
         try {
+          // Check for a context-aware tip from AssistantEngine
+          const tip = await assistantEngine.getTipForScreen(currentScreen as ScreenContext);
+
           const smartResponse = await responseGenerator.generateWelcome({
             screen: currentScreen,
             child: selectedChild,
@@ -219,16 +215,35 @@ export function ChatBot() {
             target: sr.target,
           }));
 
-          setMessages([
-            {
-              id: 'welcome',
+          const initialMessages: Message[] = [];
+
+          // If there's a tip, show it as the first message
+          if (tip) {
+            initialMessages.push({
+              id: 'tip-' + tip.id,
               role: 'assistant',
-              content: smartResponse.message,
+              content: `💡 **${tip.title}**\n\n${tip.message}`,
               source: 'faq',
               timestamp: new Date(),
-              quickReplies,
-            },
-          ]);
+              quickReplies: [
+                { id: 'dismiss-tip', label: 'Anladım', emoji: '👍', action: 'custom' },
+              ],
+            });
+            // Mark tip as shown
+            assistantEngine.dismissTip(tip.id, false);
+          }
+
+          // Then the welcome message
+          initialMessages.push({
+            id: 'welcome',
+            role: 'assistant',
+            content: smartResponse.message,
+            source: 'faq',
+            timestamp: new Date(),
+            quickReplies,
+          });
+
+          setMessages(initialMessages);
           setShowFAQ(false);
 
           // Update context engine
@@ -252,7 +267,8 @@ export function ChatBot() {
 
       generateSmartWelcome();
     }
-  }, [isOpen, currentScreen, selectedChild, isFirstVisit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- messages.length intentionally omitted to avoid re-triggering on every message change
+  }, [isOpen, currentScreen, selectedChild, isFirstVisit, contextEngine, responseGenerator]);
 
   // Handle pending question from proactive suggestion
   useEffect(() => {
@@ -260,7 +276,7 @@ export function ChatBot() {
       handleFAQClick(pendingQuestion);
       setPendingQuestion(null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, pendingQuestion, messages.length]);
 
   // Proactive suggestion handlers
@@ -286,20 +302,30 @@ export function ChatBot() {
     contextEngine.recordClickedReply(reply.id);
 
     // Hide quick replies from the message that was clicked
-    setMessages(prev => prev.map(msg => ({
-      ...msg,
-      hideQuickReplies: true,
-    })));
+    setMessages(prev =>
+      prev.map(msg => ({
+        ...msg,
+        hideQuickReplies: true,
+      }))
+    );
 
     if (reply.action === 'navigate' && reply.target) {
       setIsOpen(false);
       setTimeout(() => {
-        router.push(reply.target as any);
+        router.push(reply.target as Href);
       }, 300);
       return;
     }
 
     if (reply.action === 'custom') {
+      // Dismiss tip - just hide quick replies, tip already dismissed
+      if (reply.id === 'dismiss-tip') {
+        setMessages(prev =>
+          prev.map(msg => (msg.id.startsWith('tip-') ? { ...msg, hideQuickReplies: true } : msg))
+        );
+        return;
+      }
+
       // Main menu - regenerate smart welcome
       if (reply.id === 'main-menu') {
         const smartResponse = await responseGenerator.generateWelcome({
@@ -314,14 +340,16 @@ export function ChatBot() {
           action: sr.action,
           target: sr.target,
         }));
-        setMessages([{
-          id: 'welcome-' + Date.now(),
-          role: 'assistant',
-          content: smartResponse.message,
-          source: 'faq',
-          timestamp: new Date(),
-          quickReplies,
-        }]);
+        setMessages([
+          {
+            id: 'welcome-' + Date.now(),
+            role: 'assistant',
+            content: smartResponse.message,
+            source: 'faq',
+            timestamp: new Date(),
+            quickReplies,
+          },
+        ]);
         setShowFAQ(false);
         return;
       }
@@ -343,7 +371,7 @@ export function ChatBot() {
           };
           setIsOpen(false);
           setTimeout(() => {
-            router.push(routes[unfinished.type!] as any);
+            router.push(routes[unfinished.type!] as Href);
           }, 300);
         }
         return;
@@ -369,14 +397,16 @@ export function ChatBot() {
           action: sr.action,
           target: sr.target,
         }));
-        setMessages([{
-          id: 'welcome-' + Date.now(),
-          role: 'assistant',
-          content: smartResponse.message,
-          source: 'faq',
-          timestamp: new Date(),
-          quickReplies,
-        }]);
+        setMessages([
+          {
+            id: 'welcome-' + Date.now(),
+            role: 'assistant',
+            content: smartResponse.message,
+            source: 'faq',
+            timestamp: new Date(),
+            quickReplies,
+          },
+        ]);
         return;
       }
 
@@ -568,92 +598,95 @@ export function ChatBot() {
   };
 
   // Handle FAQ question click
-  const handleFAQClick = useCallback((question: string) => {
-    setInputText(question);
-    // Auto-send after a brief delay
-    setTimeout(() => {
-      setInputText('');
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        role: 'user',
-        content: question,
-        timestamp: new Date(),
-      };
-      setMessages(prev => limitMessages([...prev, userMessage]));
-      setShowFAQ(false);
-      setIsLoading(true);
+  const handleFAQClick = useCallback(
+    (question: string) => {
+      setInputText(question);
+      // Auto-send after a brief delay
+      setTimeout(() => {
+        setInputText('');
+        const userMessage: Message = {
+          id: Date.now().toString(),
+          role: 'user',
+          content: question,
+          timestamp: new Date(),
+        };
+        setMessages(prev => limitMessages([...prev, userMessage]));
+        setShowFAQ(false);
+        setIsLoading(true);
 
-      sendMessageMutation
-        .mutateAsync({
-          message: question,
-          conversationHistory: [],
-          childAge: selectedChild?.age,
-          childName: selectedChild?.name,
-          // Faz 6: Analytics için ekran bilgisi
-          currentScreen,
-        })
-        .then(response => {
-          // Faz 5: Determine quick replies based on detected topic
-          let quickReplies: QuickReply[] = QUICK_REPLIES.afterAnswer;
-          if (response.detectedTopic === 'story_creation') {
-            quickReplies = QUICK_REPLIES.storyHelp;
-          } else if (response.detectedTopic === 'coloring') {
-            quickReplies = QUICK_REPLIES.coloringHelp;
-          } else if (response.detectedTopic === 'analysis') {
-            quickReplies = QUICK_REPLIES.analysisHelp;
-          } else if (response.detectedTopic?.startsWith('parenting_')) {
-            const parentingType = response.detectedTopic.replace('parenting_', '');
-            switch (parentingType) {
-              case 'behavioral':
-                quickReplies = QUICK_REPLIES.parentingBehavioral;
-                break;
-              case 'emotional':
-                quickReplies = QUICK_REPLIES.parentingEmotional;
-                break;
-              case 'developmental':
-                quickReplies = QUICK_REPLIES.parentingDevelopmental;
-                break;
-              case 'social':
-                quickReplies = QUICK_REPLIES.parentingSocial;
-                break;
-              case 'physical':
-                quickReplies = QUICK_REPLIES.parentingPhysical;
-                break;
-              default:
-                quickReplies = QUICK_REPLIES.parentingConcern;
+        sendMessageMutation
+          .mutateAsync({
+            message: question,
+            conversationHistory: [],
+            childAge: selectedChild?.age,
+            childName: selectedChild?.name,
+            // Faz 6: Analytics için ekran bilgisi
+            currentScreen,
+          })
+          .then(response => {
+            // Faz 5: Determine quick replies based on detected topic
+            let quickReplies: QuickReply[] = QUICK_REPLIES.afterAnswer;
+            if (response.detectedTopic === 'story_creation') {
+              quickReplies = QUICK_REPLIES.storyHelp;
+            } else if (response.detectedTopic === 'coloring') {
+              quickReplies = QUICK_REPLIES.coloringHelp;
+            } else if (response.detectedTopic === 'analysis') {
+              quickReplies = QUICK_REPLIES.analysisHelp;
+            } else if (response.detectedTopic?.startsWith('parenting_')) {
+              const parentingType = response.detectedTopic.replace('parenting_', '');
+              switch (parentingType) {
+                case 'behavioral':
+                  quickReplies = QUICK_REPLIES.parentingBehavioral;
+                  break;
+                case 'emotional':
+                  quickReplies = QUICK_REPLIES.parentingEmotional;
+                  break;
+                case 'developmental':
+                  quickReplies = QUICK_REPLIES.parentingDevelopmental;
+                  break;
+                case 'social':
+                  quickReplies = QUICK_REPLIES.parentingSocial;
+                  break;
+                case 'physical':
+                  quickReplies = QUICK_REPLIES.parentingPhysical;
+                  break;
+                default:
+                  quickReplies = QUICK_REPLIES.parentingConcern;
+              }
             }
-          }
 
-          setMessages(prev => [
-            ...prev,
-            {
-              id: (Date.now() + 1).toString(),
-              role: 'assistant',
-              content: response.message,
-              source: response.source,
-              timestamp: new Date(),
-              actions: response.actions as ChatAction[] | undefined,
-              quickReplies,
-            },
-          ]);
-        })
-        .catch(() => {
-          setMessages(prev => [
-            ...prev,
-            {
-              id: (Date.now() + 1).toString(),
-              role: 'assistant',
-              content: 'Üzgünüm, bir hata oluştu. 🙏',
-              source: 'ai',
-              timestamp: new Date(),
-            },
-          ]);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }, 100);
-  }, [selectedChild, currentScreen, sendMessageMutation]);
+            setMessages(prev => [
+              ...prev,
+              {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: response.message,
+                source: response.source,
+                timestamp: new Date(),
+                actions: response.actions as ChatAction[] | undefined,
+                quickReplies,
+              },
+            ]);
+          })
+          .catch(() => {
+            setMessages(prev => [
+              ...prev,
+              {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: 'Üzgünüm, bir hata oluştu. 🙏',
+                source: 'ai',
+                timestamp: new Date(),
+              },
+            ]);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      }, 100);
+    },
+    [selectedChild, currentScreen, sendMessageMutation]
+  );
 
   // Close and reset
   const handleClose = () => {
@@ -671,7 +704,7 @@ export function ChatBot() {
 
   return (
     <>
-      {/* Floating Chat Button with Child Indicator */}
+      {/* Floating Ioo Button with Child Indicator */}
       <Animated.View
         style={[
           styles.floatingButton,
@@ -688,16 +721,18 @@ export function ChatBot() {
             pressed && styles.floatingButtonPressed,
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Yardım asistanını aç"
-          accessibilityHint="Sorularınız için chatbot'u açar"
+          accessibilityLabel="Ioo asistanını aç"
+          accessibilityHint="Sorularınız için Ioo asistanını açar"
         >
           <LinearGradient
-            colors={['#0D9488', '#14B8A6', '#2DD4BF']}
+            colors={['#A78BFA', '#8B5CF6', '#7C3AED']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.floatingButtonGradient}
           >
-            <MessageSquare size={26} color="#FFF" strokeWidth={2} />
+            <View style={styles.floatingIooWrapper}>
+              <Ioo mood="happy" size="xs" animated />
+            </View>
           </LinearGradient>
         </Pressable>
 
@@ -705,11 +740,13 @@ export function ChatBot() {
         {selectedChild ? (
           <View style={styles.childBadge}>
             <LinearGradient
-              colors={selectedChild.gender === 'female'
-                ? ['#F472B6', '#EC4899']
-                : selectedChild.gender === 'male'
-                ? ['#60A5FA', '#3B82F6']
-                : ['#FB923C', '#F97316']}
+              colors={
+                selectedChild.gender === 'female'
+                  ? ['#F472B6', '#EC4899']
+                  : selectedChild.gender === 'male'
+                    ? ['#60A5FA', '#3B82F6']
+                    : ['#FB923C', '#F97316']
+              }
               style={styles.childBadgeGradient}
             >
               <Text style={styles.childBadgeText}>
@@ -728,19 +765,14 @@ export function ChatBot() {
           screen={currentScreen}
           onQuestionPress={handleProactiveQuestionPress}
           onOpenChat={handleProactiveOpenChat}
-          position="bottom-left"
+          position="bottom-right"
           delay={2000}
           idleTimeout={45000}
         />
       )}
 
       {/* Chat Modal */}
-      <Modal
-        visible={isOpen}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={handleClose}
-      >
+      <Modal visible={isOpen} animationType="slide" transparent={true} onRequestClose={handleClose}>
         <KeyboardAvoidingView
           behavior={getKeyboardBehavior()}
           keyboardVerticalOffset={getKeyboardVerticalOffset(64)}
@@ -764,18 +796,15 @@ export function ChatBot() {
             ]}
           >
             {/* Header */}
-            <LinearGradient
-              colors={['#0D9488', '#14B8A6']}
-              style={styles.header}
-            >
+            <LinearGradient colors={['#8B5CF6', '#A78BFA']} style={styles.header}>
               <View style={styles.headerContent}>
                 <View style={styles.headerLeft}>
                   <View style={styles.botAvatar}>
-                    <Bot size={24} color="#0D9488" />
+                    <Ioo mood="happy" size="xs" />
                   </View>
                   <View>
-                    <Text style={styles.headerTitle}>Renkioo Asistan</Text>
-                    <Text style={styles.headerSubtitle}>Size yardımcı olmak için buradayım</Text>
+                    <Text style={styles.headerTitle}>Ioo</Text>
+                    <Text style={styles.headerSubtitle}>Gelişim asistanınız</Text>
                   </View>
                 </View>
                 <Pressable
@@ -800,9 +829,7 @@ export function ChatBot() {
                         {selectedChild?.name?.[0]?.toUpperCase() || '?'}
                       </Text>
                     </View>
-                    <Text style={styles.childName}>
-                      {selectedChild?.name || 'Çocuk Seç'}
-                    </Text>
+                    <Text style={styles.childName}>{selectedChild?.name || 'Çocuk Seç'}</Text>
                     <ChevronRight
                       size={16}
                       color="rgba(255,255,255,0.8)"
@@ -825,24 +852,28 @@ export function ChatBot() {
                             selectedChild?.name === child.name && styles.childOptionSelected,
                           ]}
                         >
-                          <View style={[
-                            styles.childOptionAvatar,
-                            selectedChild?.name === child.name && styles.childOptionAvatarSelected,
-                          ]}>
+                          <View
+                            style={[
+                              styles.childOptionAvatar,
+                              selectedChild?.name === child.name &&
+                                styles.childOptionAvatarSelected,
+                            ]}
+                          >
                             <Text style={styles.childOptionAvatarText}>
                               {child.name?.[0]?.toUpperCase()}
                             </Text>
                           </View>
                           <View style={styles.childOptionInfo}>
-                            <Text style={[
-                              styles.childOptionName,
-                              selectedChild?.name === child.name && styles.childOptionNameSelected,
-                            ]}>
+                            <Text
+                              style={[
+                                styles.childOptionName,
+                                selectedChild?.name === child.name &&
+                                  styles.childOptionNameSelected,
+                              ]}
+                            >
                               {child.name}
                             </Text>
-                            <Text style={styles.childOptionAge}>
-                              {child.age} yaşında
-                            </Text>
+                            <Text style={styles.childOptionAge}>{child.age} yaşında</Text>
                           </View>
                           {selectedChild?.name === child.name && (
                             <View style={styles.checkmark}>
@@ -864,7 +895,7 @@ export function ChatBot() {
               contentContainerStyle={styles.messagesContent}
               showsVerticalScrollIndicator={false}
             >
-              {messages.map((message, index) => (
+              {messages.map(message => (
                 <View key={message.id} style={styles.messageWrapper}>
                   {/* Message Row: Icon + Bubble */}
                   <AnimatedMessage
@@ -872,50 +903,48 @@ export function ChatBot() {
                     delay={0}
                     style={[
                       styles.messageBubble,
-                      message.role === 'user'
-                        ? styles.userBubble
-                        : styles.assistantBubble,
+                      message.role === 'user' ? styles.userBubble : styles.assistantBubble,
                     ]}
                   >
                     {message.role === 'assistant' && (
                       <View style={styles.assistantIcon}>
-                        <Bot size={16} color="#0D9488" />
+                        <Ioo mood="happy" size="xs" />
                       </View>
                     )}
                     <View
                       style={[
                         styles.messageContent,
-                        message.role === 'user'
-                          ? styles.userContent
-                          : styles.assistantContent,
+                        message.role === 'user' ? styles.userContent : styles.assistantContent,
                       ]}
                     >
                       <Text
-                        style={[
-                          styles.messageText,
-                          message.role === 'user' && styles.userText,
-                        ]}
+                        style={[styles.messageText, message.role === 'user' && styles.userText]}
                       >
                         {message.content}
                       </Text>
                       {message.source === 'ai' && message.role === 'assistant' && (
                         <View style={styles.aiIndicator}>
-                          <Sparkles size={10} color="#0D9488" />
+                          <Sparkles size={10} color="#8B5CF6" />
                           <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
                         </View>
                       )}
                       {/* Feedback Buttons for assistant messages */}
-                      {message.role === 'assistant' && message.id !== 'welcome' && !message.id.startsWith('welcome-') && (
-                        <View style={styles.feedbackContainer}>
-                          <InlineFeedback
-                            messageId={message.id}
-                            onFeedback={(id, feedback) => {
-                              console.log(`[ChatBot] Feedback for ${id}: ${feedback}`);
-                              contextEngine.recordFeedback(id, feedback as 'positive' | 'negative');
-                            }}
-                          />
-                        </View>
-                      )}
+                      {message.role === 'assistant' &&
+                        message.id !== 'welcome' &&
+                        !message.id.startsWith('welcome-') && (
+                          <View style={styles.feedbackContainer}>
+                            <InlineFeedback
+                              messageId={message.id}
+                              onFeedback={(id, feedback) => {
+                                console.log(`[ChatBot] Feedback for ${id}: ${feedback}`);
+                                contextEngine.recordFeedback(
+                                  id,
+                                  feedback as 'positive' | 'negative'
+                                );
+                              }}
+                            />
+                          </View>
+                        )}
                       {/* Action Buttons */}
                       {message.actions && message.actions.length > 0 && (
                         <View style={styles.actionsContainer}>
@@ -928,11 +957,9 @@ export function ChatBot() {
                               ]}
                               onPress={() => handleActionPress(action)}
                             >
-                              {action.icon && (
-                                <Text style={styles.actionIcon}>{action.icon}</Text>
-                              )}
+                              {action.icon && <Text style={styles.actionIcon}>{action.icon}</Text>}
                               <Text style={styles.actionLabel}>{action.label}</Text>
-                              <ChevronRight size={14} color="#0D9488" />
+                              <ChevronRight size={14} color="#8B5CF6" />
                             </Pressable>
                           ))}
                         </View>
@@ -942,31 +969,31 @@ export function ChatBot() {
 
                   {/* Quick Reply Chips - BELOW the message in separate row */}
                   {message.role === 'assistant' &&
-                   message.quickReplies &&
-                   message.quickReplies.length > 0 &&
-                   !message.hideQuickReplies && (
-                    <View style={styles.quickRepliesContainer}>
-                      <QuickReplyChips
-                        replies={message.quickReplies}
-                        onSelect={handleQuickReply}
-                        visible={!isLoading}
-                      />
-                    </View>
-                  )}
+                    message.quickReplies &&
+                    message.quickReplies.length > 0 &&
+                    !message.hideQuickReplies && (
+                      <View style={styles.quickRepliesContainer}>
+                        <QuickReplyChips
+                          replies={message.quickReplies}
+                          onSelect={handleQuickReply}
+                          visible={!isLoading}
+                        />
+                      </View>
+                    )}
                 </View>
               ))}
 
               {/* Animated Typing Indicator */}
               <TypingBubble
                 visible={isLoading}
-                avatarComponent={<Bot size={16} color="#0D9488" />}
+                avatarComponent={<Ioo mood="curious" size="xs" />}
               />
 
               {/* FAQ Section */}
               {showFAQ && faqQuery.data && (
                 <View style={styles.faqSection}>
                   <View style={styles.faqHeader}>
-                    <HelpCircle size={18} color="#0D9488" />
+                    <HelpCircle size={18} color="#8B5CF6" />
                     <Text style={styles.faqTitle}>Sık Sorulan Sorular</Text>
                   </View>
                   {faqQuery.data.categories.slice(0, 3).map(category => (
@@ -977,14 +1004,11 @@ export function ChatBot() {
                       {category.questions.slice(0, 2).map((faqItem, idx) => (
                         <Pressable
                           key={faqItem.id || idx}
-                          style={({ pressed }) => [
-                            styles.faqItem,
-                            pressed && { opacity: 0.7 },
-                          ]}
+                          style={({ pressed }) => [styles.faqItem, pressed && { opacity: 0.7 }]}
                           onPress={() => handleFAQClick(faqItem.question)}
                         >
                           <Text style={styles.faqQuestion}>{faqItem.question}</Text>
-                          <ChevronRight size={16} color="#0D9488" />
+                          <ChevronRight size={16} color="#8B5CF6" />
                         </Pressable>
                       ))}
                     </View>
@@ -1023,7 +1047,7 @@ export function ChatBot() {
                 <LinearGradient
                   colors={
                     inputText.trim() && !isLoading
-                      ? ['#0D9488', '#14B8A6']
+                      ? ['#8B5CF6', '#A78BFA']
                       : [Colors.neutral.light, Colors.neutral.medium]
                   }
                   style={styles.sendButtonGradient}
@@ -1044,10 +1068,10 @@ export function ChatBot() {
 // ============================================
 
 const styles = StyleSheet.create({
-  // Floating Button - Minimalist Design
+  // Floating Button - Ioo Design
   floatingButton: {
     position: 'absolute',
-    left: 20,
+    right: 20,
     zIndex: zIndex.floating,
   },
   floatingButtonInner: {
@@ -1067,6 +1091,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
+  floatingIooWrapper: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   indicatorDot: {
     position: 'absolute',
     top: 2,
@@ -1081,7 +1111,7 @@ const styles = StyleSheet.create({
   childBadge: {
     position: 'absolute',
     top: -4,
-    right: -4,
+    left: -4,
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -1117,8 +1147,8 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    paddingVertical: spacing["4"],
-    paddingHorizontal: spacing["4"],
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['4'],
   },
   headerContent: {
     flexDirection: 'row',
@@ -1128,7 +1158,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   botAvatar: {
     width: 44,
@@ -1161,19 +1191,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContent: {
-    padding: spacing["4"],
-    gap: spacing["3"],
+    padding: spacing['4'],
+    gap: spacing['3'],
   },
   // Outer wrapper for message + quick replies (column layout)
   messageWrapper: {
     flexDirection: 'column',
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   // Inner row for icon + bubble
   messageBubble: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   userBubble: {
     justifyContent: 'flex-end',
@@ -1185,17 +1215,17 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(13, 148, 136, 0.1)',
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   messageContent: {
     maxWidth: '80%',
-    padding: spacing["3"],
+    padding: spacing['3'],
     borderRadius: radius.xl,
   },
   userContent: {
-    backgroundColor: '#0D9488',
+    backgroundColor: '#8B5CF6',
     borderBottomRightRadius: 4,
   },
   assistantContent: {
@@ -1215,47 +1245,47 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: spacing["2"],
+    marginTop: spacing['2'],
     opacity: 0.6,
   },
   aiIndicatorText: {
     fontSize: 10,
-    color: '#0D9488',
+    color: '#8B5CF6',
   },
 
   // Feedback Buttons
   feedbackContainer: {
-    marginTop: spacing["2"],
-    paddingTop: spacing["1"],
+    marginTop: spacing['2'],
+    paddingTop: spacing['1'],
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
 
   // Quick Replies - positioned below message
   quickRepliesContainer: {
-    marginTop: spacing["1"],
+    marginTop: spacing['1'],
     marginLeft: 36, // Align with message content (after avatar)
-    paddingRight: spacing["2"],
+    paddingRight: spacing['2'],
   },
 
   // Action Buttons
   actionsContainer: {
-    marginTop: spacing["3"],
-    gap: spacing["2"],
+    marginTop: spacing['3'],
+    gap: spacing['2'],
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["2"],
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
-    backgroundColor: 'rgba(13, 148, 136, 0.08)',
+    gap: spacing['2'],
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(13, 148, 136, 0.2)',
+    borderColor: 'rgba(139, 92, 246, 0.2)',
   },
   actionButtonPressed: {
-    backgroundColor: 'rgba(13, 148, 136, 0.15)',
+    backgroundColor: 'rgba(139, 92, 246, 0.15)',
     transform: [{ scale: 0.98 }],
   },
   actionIcon: {
@@ -1265,14 +1295,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
-    color: '#0D9488',
+    color: '#8B5CF6',
   },
 
   // Typing indicator
   typingIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["2"],
+    gap: spacing['2'],
   },
   typingText: {
     fontSize: typography.size.sm,
@@ -1281,17 +1311,17 @@ const styles = StyleSheet.create({
 
   // FAQ Section
   faqSection: {
-    marginTop: spacing["4"],
+    marginTop: spacing['4'],
     backgroundColor: '#FFF',
     borderRadius: radius.xl,
-    padding: spacing["4"],
+    padding: spacing['4'],
     ...shadows.sm,
   },
   faqHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["2"],
-    marginBottom: spacing["3"],
+    gap: spacing['2'],
+    marginBottom: spacing['3'],
   },
   faqTitle: {
     fontSize: typography.size.sm,
@@ -1299,23 +1329,23 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
   },
   faqCategory: {
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   faqCategoryTitle: {
     fontSize: typography.size.xs,
     fontWeight: typography.weight.medium,
     color: Colors.neutral.medium,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   faqItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
-    backgroundColor: 'rgba(13, 148, 136, 0.05)',
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
+    backgroundColor: 'rgba(139, 92, 246, 0.05)',
     borderRadius: radius.lg,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   faqQuestion: {
     flex: 1,
@@ -1327,8 +1357,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: spacing["2"],
-    padding: spacing["3"],
+    gap: spacing['2'],
+    padding: spacing['3'],
     backgroundColor: '#FFF',
     borderTopWidth: 1,
     borderTopColor: Colors.neutral.lightest,
@@ -1339,8 +1369,8 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     backgroundColor: '#F1F3F4',
     borderRadius: radius.xl,
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["3"],
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['3'],
     fontSize: typography.size.sm,
     color: Colors.neutral.darkest,
   },
@@ -1360,17 +1390,17 @@ const styles = StyleSheet.create({
 
   // Child Selector
   childSelectorContainer: {
-    marginTop: spacing["3"],
+    marginTop: spacing['3'],
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.2)',
-    paddingTop: spacing["3"],
+    paddingTop: spacing['3'],
   },
   childSelectorButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["2"],
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
+    gap: spacing['2'],
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: radius.lg,
   },
@@ -1385,7 +1415,7 @@ const styles = StyleSheet.create({
   childAvatarText: {
     fontSize: 14,
     fontWeight: '700' as const,
-    color: '#0D9488',
+    color: '#8B5CF6',
   },
   childName: {
     flex: 1,
@@ -1394,7 +1424,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   childDropdown: {
-    marginTop: spacing["2"],
+    marginTop: spacing['2'],
     backgroundColor: '#FFF',
     borderRadius: radius.lg,
     overflow: 'hidden',
@@ -1403,13 +1433,13 @@ const styles = StyleSheet.create({
   childOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing["3"],
-    padding: spacing["3"],
+    gap: spacing['3'],
+    padding: spacing['3'],
     borderBottomWidth: 1,
     borderBottomColor: Colors.neutral.lightest,
   },
   childOptionSelected: {
-    backgroundColor: 'rgba(13, 148, 136, 0.08)',
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
   },
   childOptionAvatar: {
     width: 40,
@@ -1420,7 +1450,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   childOptionAvatarSelected: {
-    backgroundColor: '#0D9488',
+    backgroundColor: '#8B5CF6',
   },
   childOptionAvatarText: {
     fontSize: 16,
@@ -1436,7 +1466,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
   },
   childOptionNameSelected: {
-    color: '#0D9488',
+    color: '#8B5CF6',
   },
   childOptionAge: {
     fontSize: typography.size.xs,
@@ -1446,7 +1476,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#0D9488',
+    backgroundColor: '#8B5CF6',
     justifyContent: 'center',
     alignItems: 'center',
   },

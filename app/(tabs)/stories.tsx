@@ -53,7 +53,6 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useChild } from '@/lib/contexts/ChildContext';
 import { ChildSelectorChip } from '@/components/ChildSelectorChip';
 import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
-import { IooAssistant } from '@/components/coaching/IooAssistant';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -1794,9 +1793,6 @@ export default function StoriesScreen() {
           </View>
         </Modal>
       </LinearGradient>
-
-      {/* Ioo Assistant */}
-      <IooAssistant screen="story" position="bottom-right" compact />
     </View>
   );
 }

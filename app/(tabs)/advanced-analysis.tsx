@@ -45,7 +45,7 @@ import type { TaskType } from '@/types/AssessmentSchema';
 import { trpc } from '@/lib/trpc';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { IooAssistant } from '@/components/coaching/IooAssistant';
+
 import { AnalysisStepper, AnalysisStep } from '@/components/analysis/AnalysisStepper';
 import { AnalysisLoadingOverlay } from '@/components/analysis/AnalysisLoadingOverlay';
 
@@ -1116,9 +1116,6 @@ export default function AdvancedAnalysisScreen() {
           </Animated.View>
         </>
       )}
-
-      {/* Ioo Assistant */}
-      {!loading && <IooAssistant screen="advanced_analysis" position="bottom-right" compact />}
     </View>
   );
 }

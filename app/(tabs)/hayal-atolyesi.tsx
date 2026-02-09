@@ -17,7 +17,6 @@ import { layout, typography, spacing, radius, shadows } from '@/constants/design
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useCameraPermissions } from 'expo-camera';
-import { IooAssistant } from '@/components/coaching/IooAssistant';
 
 export default function HayalAtolyesiScreen() {
   const insets = useSafeAreaInsets();
@@ -281,9 +280,6 @@ export default function HayalAtolyesiScreen() {
           )}
         </ScrollView>
       </LinearGradient>
-
-      {/* Ioo Assistant */}
-      <IooAssistant screen="hayal_atolyesi" position="bottom-right" compact />
     </View>
   );
 }
