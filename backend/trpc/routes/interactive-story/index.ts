@@ -8,6 +8,7 @@ import { logger } from '../../../lib/utils.js';
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../../create-context.js';
 import { authenticatedAiRateLimit } from '../../middleware/rate-limit.js';
+import { storybookQuota } from '../../middleware/quota.js';
 import {
   generateInteractiveStory,
   generateNextSegment,
@@ -71,6 +72,7 @@ export const interactiveStoryRouter = createTRPCRouter({
    */
   generate: protectedProcedure
     .use(authenticatedAiRateLimit)
+    .use(storybookQuota)
     .input(generateInteractiveStorySchema)
     .mutation(async ({ ctx, input }) => {
       logger.info('[Interactive Story API] 🚀 Generating new interactive story');

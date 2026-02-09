@@ -1,10 +1,11 @@
-import { logger } from "../../../lib/utils.js";
-import { protectedProcedure } from "../../create-context.js";
-import { z } from "zod";
-import OpenAI from "openai";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
-import { BadgeService } from "../../../lib/badge-service.js";
-import { extractJSON } from "../../../lib/json-extractor.js";
+import { logger } from '../../../lib/utils.js';
+import { protectedProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import OpenAI from 'openai';
+import { authenticatedAiRateLimit } from '../../middleware/rate-limit.js';
+import { analysisQuota } from '../../middleware/quota.js';
+import { BadgeService } from '../../../lib/badge-service.js';
+import { extractJSON } from '../../../lib/json-extractor.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -18,24 +19,56 @@ const imageItemSchema = z.object({
 });
 
 const analysisInputSchema = z.object({
-  taskType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
+  taskType: z.enum([
+    'DAP',
+    'HTP',
+    'Family',
+    'Cactus',
+    'Tree',
+    'Garden',
+    'BenderGestalt2',
+    'ReyOsterrieth',
+    'Aile',
+    'Kaktus',
+    'Agac',
+    'Bahce',
+    'Bender',
+    'Rey',
+    'Luscher',
+  ]),
   childAge: z.number().min(0).max(18).optional(),
-  childGender: z.enum(["male", "female"]).optional(), // Child's gender for developmental context
+  childGender: z.enum(['male', 'female']).optional(), // Child's gender for developmental context
   imageBase64: z.string().max(5_000_000).optional(), // Geriye uyumluluk için - tek görsel (~3.75MB)
   images: z.array(imageItemSchema).max(10).optional(), // Çoklu görsel desteği (max 10)
-  language: z.enum(["tr", "en", "ru", "tk", "uz"]).optional().default("tr"),
-  userRole: z.enum(["parent", "teacher"]).optional().default("parent"),
+  language: z.enum(['tr', 'en', 'ru', 'tk', 'uz']).optional().default('tr'),
+  userRole: z.enum(['parent', 'teacher']).optional().default('parent'),
   culturalContext: z.string().max(500).optional(),
   featuresJson: z.record(z.string().max(100), z.unknown()).optional(), // Stricter typing
 });
 
 const analysisResponseSchema = z.object({
   meta: z.object({
-    testType: z.enum(["DAP", "HTP", "Family", "Cactus", "Tree", "Garden", "BenderGestalt2", "ReyOsterrieth", "Aile", "Kaktus", "Agac", "Bahce", "Bender", "Rey", "Luscher"]),
+    testType: z.enum([
+      'DAP',
+      'HTP',
+      'Family',
+      'Cactus',
+      'Tree',
+      'Garden',
+      'BenderGestalt2',
+      'ReyOsterrieth',
+      'Aile',
+      'Kaktus',
+      'Agac',
+      'Bahce',
+      'Bender',
+      'Rey',
+      'Luscher',
+    ]),
     age: z.number().optional(),
-    language: z.enum(["tr", "en", "ru", "tk", "uz"]),
+    language: z.enum(['tr', 'en', 'ru', 'tk', 'uz']),
     confidence: z.number().min(0).max(1),
-    uncertaintyLevel: z.enum(["low", "mid", "high"]),
+    uncertaintyLevel: z.enum(['low', 'mid', 'high']),
     dataQualityNotes: z.array(z.string()),
   }),
   insights: z.array(
@@ -43,7 +76,7 @@ const analysisResponseSchema = z.object({
       title: z.string(),
       summary: z.string(),
       evidence: z.array(z.string()),
-      strength: z.enum(["weak", "moderate", "strong"]),
+      strength: z.enum(['weak', 'moderate', 'strong']),
     })
   ),
   homeTips: z.array(
@@ -56,60 +89,126 @@ const analysisResponseSchema = z.object({
   riskFlags: z.array(
     z.object({
       type: z.enum([
-        "self_harm",
-        "harm_others",
-        "sexual_inappropriate",
-        "violence",
-        "severe_distress",
-        "trend_regression",
+        'self_harm',
+        'harm_others',
+        'sexual_inappropriate',
+        'violence',
+        'severe_distress',
+        'trend_regression',
       ]),
       summary: z.string(),
-      action: z.literal("consider_consulting_a_specialist"),
+      action: z.literal('consider_consulting_a_specialist'),
     })
   ),
   // Trauma/concerning content assessment based on ACEs (Adverse Childhood Experiences) framework
-  traumaAssessment: z.nullable(z.object({
-    hasTraumaticContent: z.boolean(),
-    // Expanded to 24 categories based on ACEs + pediatric psychology
-    contentTypes: z.array(z.enum([
-      // Original categories
-      "war", "violence", "disaster", "loss", "loneliness", "fear", "abuse", "family_separation", "death",
-      // ACEs Framework categories
-      "neglect", "bullying", "domestic_violence_witness", "parental_addiction", "parental_mental_illness",
-      // Pediatric psychology categories
-      "medical_trauma", "anxiety", "depression", "low_self_esteem", "anger", "school_stress", "social_rejection",
-      // Additional categories
-      "displacement", "poverty", "cyberbullying",
-      // Legacy/compatibility
-      "weapons", "injury", "natural_disaster", "conflict",
-      // No concerning content
-      "none"
-    ])),
-    primaryConcern: z.enum([
-      "war", "violence", "disaster", "loss", "loneliness", "fear", "abuse", "family_separation", "death",
-      "neglect", "bullying", "domestic_violence_witness", "parental_addiction", "parental_mental_illness",
-      "medical_trauma", "anxiety", "depression", "low_self_esteem", "anger", "school_stress", "social_rejection",
-      "displacement", "poverty", "cyberbullying", "other", "none"
-    ]).optional(),
-    therapeuticApproach: z.string().optional(), // Recommended bibliotherapy approach
-    ageAppropriateness: z.enum(["age_appropriate", "borderline", "concerning"]),
-    detailLevel: z.enum(["minimal", "moderate", "excessive"]),
-    emotionalIntensity: z.enum(["low", "moderate", "high"]),
-    urgencyLevel: z.enum(["monitor", "discuss_with_child", "consider_professional", "seek_help_urgently"]),
-  })).optional(),
+  traumaAssessment: z
+    .nullable(
+      z.object({
+        hasTraumaticContent: z.boolean(),
+        // Expanded to 24 categories based on ACEs + pediatric psychology
+        contentTypes: z.array(
+          z.enum([
+            // Original categories
+            'war',
+            'violence',
+            'disaster',
+            'loss',
+            'loneliness',
+            'fear',
+            'abuse',
+            'family_separation',
+            'death',
+            // ACEs Framework categories
+            'neglect',
+            'bullying',
+            'domestic_violence_witness',
+            'parental_addiction',
+            'parental_mental_illness',
+            // Pediatric psychology categories
+            'medical_trauma',
+            'anxiety',
+            'depression',
+            'low_self_esteem',
+            'anger',
+            'school_stress',
+            'social_rejection',
+            // Additional categories
+            'displacement',
+            'poverty',
+            'cyberbullying',
+            // Legacy/compatibility
+            'weapons',
+            'injury',
+            'natural_disaster',
+            'conflict',
+            // No concerning content
+            'none',
+          ])
+        ),
+        primaryConcern: z
+          .enum([
+            'war',
+            'violence',
+            'disaster',
+            'loss',
+            'loneliness',
+            'fear',
+            'abuse',
+            'family_separation',
+            'death',
+            'neglect',
+            'bullying',
+            'domestic_violence_witness',
+            'parental_addiction',
+            'parental_mental_illness',
+            'medical_trauma',
+            'anxiety',
+            'depression',
+            'low_self_esteem',
+            'anger',
+            'school_stress',
+            'social_rejection',
+            'displacement',
+            'poverty',
+            'cyberbullying',
+            'other',
+            'none',
+          ])
+          .optional(),
+        therapeuticApproach: z.string().optional(), // Recommended bibliotherapy approach
+        ageAppropriateness: z.enum(['age_appropriate', 'borderline', 'concerning']),
+        detailLevel: z.enum(['minimal', 'moderate', 'excessive']),
+        emotionalIntensity: z.enum(['low', 'moderate', 'high']),
+        urgencyLevel: z.enum([
+          'monitor',
+          'discuss_with_child',
+          'consider_professional',
+          'seek_help_urgently',
+        ]),
+      })
+    )
+    .optional(),
   // NEW: Parent conversation guide
-  conversationGuide: z.nullable(z.object({
-    openingQuestions: z.array(z.string()),
-    followUpQuestions: z.array(z.string()),
-    whatToAvoid: z.array(z.string()),
-    therapeuticResponses: z.array(z.string()),
-  })).optional(),
+  conversationGuide: z
+    .nullable(
+      z.object({
+        openingQuestions: z.array(z.string()),
+        followUpQuestions: z.array(z.string()),
+        whatToAvoid: z.array(z.string()),
+        therapeuticResponses: z.array(z.string()),
+      })
+    )
+    .optional(),
   // NEW: Professional help resources
-  professionalGuidance: z.nullable(z.object({
-    whenToSeekHelp: z.array(z.string()),
-    whoToContact: z.array(z.string()),
-    preparationTips: z.array(z.string()),
-  })).optional(),
+  professionalGuidance: z
+    .nullable(
+      z.object({
+        whenToSeekHelp: z.array(z.string()),
+        whoToContact: z.array(z.string()),
+        preparationTips: z.array(z.string()),
+      })
+    )
+    .optional(),
   trendNote: z.string(),
   disclaimer: z.string(),
 });
@@ -120,35 +219,39 @@ export type AnalysisResponse = z.infer<typeof analysisResponseSchema>;
 // Helper function to generate disclaimer based on language
 function getDisclaimer(language: string): string {
   const disclaimers: Record<string, string> = {
-    tr: "Bu içerik bilgi amaçlıdır, tanı koymaz. Endişeleriniz varsa uzmanla görüşebilirsiniz.",
-    en: "This content is for informational purposes only and does not constitute a diagnosis. If you have concerns, please consult a specialist.",
-    ru: "Этот контент предназначен только для информационных целей и не является диагнозом. Если у вас есть опасения, проконсультируйтесь со специалистом.",
-    tk: "Bu mazmun diňe maglumat maksady bilen berilýär we anyklaýyş däl. Aladalaryňyz bar bolsa, hünärmen bilen maslahatlaşyň.",
+    tr: 'Bu içerik bilgi amaçlıdır, tanı koymaz. Endişeleriniz varsa uzmanla görüşebilirsiniz.',
+    en: 'This content is for informational purposes only and does not constitute a diagnosis. If you have concerns, please consult a specialist.',
+    ru: 'Этот контент предназначен только для информационных целей и не является диагнозом. Если у вас есть опасения, проконсультируйтесь со специалистом.',
+    tk: 'Bu mazmun diňe maglumat maksady bilen berilýär we anyklaýyş däl. Aladalaryňyz bar bolsa, hünärmen bilen maslahatlaşyň.',
     uz: "Ushbu kontent faqat ma'lumot maqsadida va tashxis emas. Agar tashvishlaringiz bo'lsa, mutaxassis bilan maslahatlashing.",
   };
   return disclaimers[language] || disclaimers.tr;
 }
 
 // Exported for testing
-export async function analyzeDrawing(input: AnalysisInput, openaiClient = openai): Promise<AnalysisResponse> {
-  logger.info("[Drawing Analysis] 🎯 Starting analysis");
-  logger.info("[Drawing Analysis] 📝 Task type:", input.taskType);
-  logger.info("[Drawing Analysis] 👶 Child age:", input.childAge);
-  logger.info("[Drawing Analysis] 👶 Child gender:", input.childGender);
-  logger.info("[Drawing Analysis] 🖼️  Has single image:", !!input.imageBase64);
-  logger.info("[Drawing Analysis] 🖼️  Has multiple images:", input.images?.length || 0);
+export async function analyzeDrawing(
+  input: AnalysisInput,
+  openaiClient = openai
+): Promise<AnalysisResponse> {
+  logger.info('[Drawing Analysis] 🎯 Starting analysis');
+  logger.info('[Drawing Analysis] 📝 Task type:', input.taskType);
+  logger.info('[Drawing Analysis] 👶 Child age:', input.childAge);
+  logger.info('[Drawing Analysis] 👶 Child gender:', input.childGender);
+  logger.info('[Drawing Analysis] 🖼️  Has single image:', !!input.imageBase64);
+  logger.info('[Drawing Analysis] 🖼️  Has multiple images:', input.images?.length || 0);
 
   try {
-    const language = input.language || "tr";
-    const userRole = input.userRole || "parent";
-    const culturalContext = input.culturalContext || "";
+    const language = input.language || 'tr';
+    const userRole = input.userRole || 'parent';
+    const culturalContext = input.culturalContext || '';
 
     // Görsel listesini oluştur (çoklu veya tekli)
-    const imageList = input.images && input.images.length > 0
-      ? input.images
-      : input.imageBase64
-        ? [{ id: "main", label: "Ana Çizim", base64: input.imageBase64 }]
-        : [];
+    const imageList =
+      input.images && input.images.length > 0
+        ? input.images
+        : input.imageBase64
+          ? [{ id: 'main', label: 'Ana Çizim', base64: input.imageBase64 }]
+          : [];
 
     // SYSTEM prompt - role definition
     const systemPrompt = `Rolün: Çocuk çizimleri için projektif tarama asistanısın. Klinik tanı koymazsın.
@@ -280,16 +383,21 @@ Bayrak varsa: "uzmanla görüş" öner; panik yaratma.
 
 Yerelleştirme:
 - Kullanıcı dili ${language}'dir. Çıktıları bu dilde üret.
-- Hedef okuyucu: ${userRole === "parent" ? "ebeveyn" : "öğretmen"}. Jargon minimum.
+- Hedef okuyucu: ${userRole === 'parent' ? 'ebeveyn' : 'öğretmen'}. Jargon minimum.
 - Cümleler net ve anlaşılır olsun ama yeterince detaylı bilgi ver.
 
 Çıktı formatı: **yalnızca** geçerli JSON döndür. Ek cümle yok.
 Şema zorunludur; fazladan alan ekleme.`;
 
     // USER prompt - input data
-    const childGenderText = input.childGender === 'male' ? 'Erkek' : input.childGender === 'female' ? 'Kız' : 'bilinmiyor';
+    const childGenderText =
+      input.childGender === 'male'
+        ? 'Erkek'
+        : input.childGender === 'female'
+          ? 'Kız'
+          : 'bilinmiyor';
     const userPrompt = `language: ${language}
-child_age: ${input.childAge || "bilinmiyor"}
+child_age: ${input.childAge || 'bilinmiyor'}
 child_gender: ${childGenderText}
 test_type: ${input.taskType}
 context: {
@@ -297,16 +405,22 @@ context: {
   "cultural_context": "${culturalContext}"
 }
 
-${imageList.length > 0 ? `
+${
+  imageList.length > 0
+    ? `
 GÖRSEL ANALİZ TALİMATLARI:
-${imageList.length > 1 ? `
+${
+  imageList.length > 1
+    ? `
 ⚠️ ÖNEMLİ: Bu analiz ${imageList.length} AYRI görsel içeriyor. Her görseli AYRI AYRI analiz et ve BİRLİKTE yorumla.
 
 Gönderilen Görseller:
 ${imageList.map((img, idx) => `${idx + 1}. ${img.label} (ID: ${img.id})`).join('\n')}
 
 Her görseli ayrı değerlendir, sonra tüm görselleri BİRLİKTE yorumlayarak bütünsel bir analiz sun.
-` : ''}
+`
+    : ''
+}
 
 Her görsel için:
 1. İlk olarak görselde GERÇEKTEN ne gördüğünü tanımla
@@ -318,15 +432,21 @@ Her görsel için:
 7. Semboller: Güneş, bulut, yağmur, kalp, yıldız, vb. var mı?
 8. Genel duygu: Resmin atmosferi neşeli/hüzünlü/endişeli/sakin/hareketli?
 
-${imageList.length > 1 ? `
+${
+  imageList.length > 1
+    ? `
 ÇOKLU GÖRSEL ANALİZİ İÇİN:
 - HTP (Ev-Ağaç-İnsan): Ev=aile/güvenlik, Ağaç=benlik/enerji, İnsan=sosyal kimlik. Üçünü birlikte yorumla.
 - Bender/Rey: Kopya=motor beceri, Hatırlama=görsel bellek. Her iki aşamayı karşılaştır.
 - Her görseldeki ortak temaları ve farklılıkları belirle.
-` : ''}
+`
+    : ''
+}
 
 BU GÖRSELLERDEKİ SPESIFIK DETAYLARI kullanarak içgörü üret.
-` : ''}
+`
+    : ''
+}
 
 features_json:
 ${JSON.stringify(input.featuresJson || {}, null, 2)}
@@ -356,7 +476,7 @@ JSON Şeması:
 {
   "meta": {
     "testType": "${input.taskType}",
-    "age": ${input.childAge || "null"},
+    "age": ${input.childAge || 'null'},
     "language": "${language}",
     "confidence": number, // 0..1
     "uncertaintyLevel": "low|mid|high",
@@ -416,7 +536,7 @@ JSON Şeması:
 }`;
 
     const messageContent: OpenAI.Chat.ChatCompletionContentPart[] = [
-      { type: "text", text: userPrompt }
+      { type: 'text', text: userPrompt },
     ];
 
     // Add images (çoklu veya tekli)
@@ -427,13 +547,13 @@ JSON Şeması:
         // Her görsel için etiket ekle (çoklu görsel varsa)
         if (imageList.length > 1) {
           messageContent.push({
-            type: "text",
-            text: `\n--- ${img.label} (${img.id}) ---`
+            type: 'text',
+            text: `\n--- ${img.label} (${img.id}) ---`,
           });
         }
 
         messageContent.push({
-          type: "image_url",
+          type: 'image_url',
           image_url: {
             url: `data:image/jpeg;base64,${img.base64}`,
           },
@@ -443,27 +563,27 @@ JSON Şeması:
       }
     }
 
-    logger.info("[Drawing Analysis] 🤖 Calling OpenAI API...");
+    logger.info('[Drawing Analysis] 🤖 Calling OpenAI API...');
 
     const completion = await openaiClient.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: 'gpt-4o-mini',
       max_tokens: 4000,
       temperature: 0.7,
       messages: [
         {
-          role: "system",
+          role: 'system',
           content: systemPrompt,
         },
         {
-          role: "user",
+          role: 'user',
           content: messageContent,
         },
       ],
     });
 
-    const responseText = completion.choices[0]?.message?.content || "";
+    const responseText = completion.choices[0]?.message?.content || '';
 
-    logger.info("[Drawing Analysis] 📝 Response received, length:", responseText.length);
+    logger.info('[Drawing Analysis] 📝 Response received, length:', responseText.length);
 
     // Extract JSON using robust extractor
     const fallbackResponse = {
@@ -472,26 +592,29 @@ JSON Şeması:
         age: input.childAge,
         language: language,
         confidence: 0.3,
-        uncertaintyLevel: "high" as const,
-        dataQualityNotes: ["Yanıt beklenmeyen formatta geldi"],
+        uncertaintyLevel: 'high' as const,
+        dataQualityNotes: ['Yanıt beklenmeyen formatta geldi'],
       },
       insights: [
         {
-          title: "Analiz tamamlanamadı",
-          summary: responseText || "Yanıt işlenemedi. Lütfen tekrar deneyin.",
-          evidence: ["parse_error"],
-          strength: "weak" as const,
+          title: 'Analiz tamamlanamadı',
+          summary: responseText || 'Yanıt işlenemedi. Lütfen tekrar deneyin.',
+          evidence: ['parse_error'],
+          strength: 'weak' as const,
         },
       ],
       homeTips: [
         {
-          title: "Tekrar deneyin",
-          steps: ["Analizi tekrar çalıştırın", "Sorun devam ederse destek ekibiyle iletişime geçin"],
-          why: "Yanıt beklenmeyen bir formatta geldi",
+          title: 'Tekrar deneyin',
+          steps: [
+            'Analizi tekrar çalıştırın',
+            'Sorun devam ederse destek ekibiyle iletişime geçin',
+          ],
+          why: 'Yanıt beklenmeyen bir formatta geldi',
         },
       ],
       riskFlags: [],
-      trendNote: "",
+      trendNote: '',
       disclaimer: getDisclaimer(language),
     };
 
@@ -499,26 +622,28 @@ JSON Şeması:
     const parsedResponse = extraction.success ? extraction.data : fallbackResponse;
 
     if (extraction.success) {
-      logger.info("[Drawing Analysis] 🔍 Parsed response keys:", Object.keys(parsedResponse as object));
+      logger.info(
+        '[Drawing Analysis] 🔍 Parsed response keys:',
+        Object.keys(parsedResponse as object)
+      );
     } else {
-      logger.error("[Drawing Analysis] ⚠️ JSON extraction failed:", extraction.error);
-      logger.error("[Drawing Analysis] 📄 Raw response:", responseText.substring(0, 500));
+      logger.error('[Drawing Analysis] ⚠️ JSON extraction failed:', extraction.error);
+      logger.error('[Drawing Analysis] 📄 Raw response:', responseText.substring(0, 500));
     }
 
     const result = analysisResponseSchema.parse(parsedResponse);
 
-    logger.info("[Drawing Analysis] ✅ Analysis complete!");
+    logger.info('[Drawing Analysis] ✅ Analysis complete!');
     return result;
   } catch (error) {
-    logger.error("[Drawing Analysis] ❌ Error:", error);
-    throw new Error(
-      `Analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`
-    );
+    logger.error('[Drawing Analysis] ❌ Error:', error);
+    throw new Error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
 export const analyzeDrawingProcedure = protectedProcedure
   .use(authenticatedAiRateLimit)
+  .use(analysisQuota)
   .input(analysisInputSchema)
   .output(analysisResponseSchema)
   .mutation(async ({ ctx, input }) => {

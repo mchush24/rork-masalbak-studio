@@ -10,6 +10,7 @@
 
 import { supa } from './supabase.js';
 import { logger } from './utils.js';
+import { sendPushNotification } from './push-notifications.js';
 
 // Badge definitions (imported from frontend constants)
 // We duplicate the essential types here to avoid import issues
@@ -907,6 +908,15 @@ export class BadgeService {
         }
 
         logger.info(`[BadgeService] Awarded ${newBadges.length} new badges to user ${userId}`);
+
+        // Send push notification for new badges (fire-and-forget)
+        for (const { badge } of newBadges) {
+          sendPushNotification(userId, {
+            title: 'Yeni Rozet Kazandın! 🏆',
+            body: `"${badge.name}" rozetini kazandın!`,
+            data: { type: 'badge_earned', badgeId: badge.id },
+          }).catch(err => logger.error('[BadgeService] Push notification error:', err));
+        }
       }
 
       return {

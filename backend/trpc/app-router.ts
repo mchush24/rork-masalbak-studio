@@ -36,6 +36,12 @@ import { getChildrenProcedure } from './routes/user/get-children.js';
 import { updateChildrenProcedure } from './routes/user/update-children.js';
 import { deleteAccountProcedure } from './routes/user/delete-account.js';
 import { exportDataProcedure } from './routes/user/export-data.js';
+import { getQuotaProcedure } from './routes/user/get-quota.js';
+import { uploadAvatarProcedure } from './routes/user/upload-avatar.js';
+import {
+  registerPushTokenProcedure,
+  unregisterPushTokenProcedure,
+} from './routes/user/register-push-token.js';
 import { saveAnalysisProcedure } from './routes/analysis/save-analysis.js';
 import { listAnalysesProcedure } from './routes/analysis/list-analyses.js';
 import { getAnalysisProcedure } from './routes/analysis/get-analysis.js';
@@ -79,6 +85,10 @@ export const appRouter = createTRPCRouter({
     updateChildren: updateChildrenProcedure,
     deleteAccount: deleteAccountProcedure,
     exportData: exportDataProcedure,
+    getQuota: getQuotaProcedure,
+    uploadAvatar: uploadAvatarProcedure,
+    registerPushToken: registerPushTokenProcedure,
+    unregisterPushToken: unregisterPushTokenProcedure,
   }),
   analysis: createTRPCRouter({
     save: saveAnalysisProcedure,
