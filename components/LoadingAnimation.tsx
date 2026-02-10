@@ -484,7 +484,7 @@ export function LoadingAnimation({
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={getGradientColors() as unknown as string[]}
+        colors={[...getGradientColors()] as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}

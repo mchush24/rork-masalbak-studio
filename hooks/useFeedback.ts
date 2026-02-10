@@ -6,7 +6,15 @@ import { useCallback } from 'react';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
-type FeedbackType = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' | 'selection';
+type FeedbackType =
+  | 'light'
+  | 'medium'
+  | 'heavy'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'selection'
+  | 'tap';
 
 export function useFeedback() {
   const feedback = useCallback((type: FeedbackType = 'light') => {
@@ -33,6 +41,9 @@ export function useFeedback() {
         break;
       case 'selection':
         Haptics.selectionAsync();
+        break;
+      case 'tap':
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         break;
     }
   }, []);

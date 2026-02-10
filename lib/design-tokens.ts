@@ -10,7 +10,6 @@
 import { Platform } from 'react-native';
 import {
   spacing as dsSpacing,
-  radius,
   shadows as dsShadows,
   typography as dsTypography,
   animation,
@@ -25,13 +24,13 @@ export { radius as borderRadius } from '@/constants/design-system';
 
 // Spacing - legacy format (xs, sm, md, lg, xl)
 export const spacing = {
-  xs: dsSpacing['1'],      // 4
-  sm: dsSpacing['2'],      // 8
-  md: dsSpacing['4'],      // 16
-  lg: dsSpacing['6'],      // 24
-  xl: dsSpacing['8'],      // 32
-  xxl: dsSpacing['12'],    // 48
-  xxxl: dsSpacing['16'],   // 64
+  xs: dsSpacing['1'], // 4
+  sm: dsSpacing['2'], // 8
+  md: dsSpacing['4'], // 16
+  lg: dsSpacing['6'], // 24
+  xl: dsSpacing['8'], // 32
+  xxl: dsSpacing['12'], // 48
+  xxxl: dsSpacing['16'], // 64
 } as const;
 
 // Animations - legacy format
@@ -48,7 +47,8 @@ export const animations = {
 } as const;
 
 // Shadows with Platform.select for web support
-export const shadows = Platform.select({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const shadows = Platform.select<any>({
   web: {
     sm: {
       boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',

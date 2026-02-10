@@ -472,7 +472,13 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.miniStatDivider} />
                 <View style={styles.miniStatItem}>
-                  <Text style={styles.miniStatNumber}>{stats.totalActivities || 0}</Text>
+                  <Text style={styles.miniStatNumber}>
+                    {'totalActivities' in stats
+                      ? stats.totalActivities
+                      : (stats.totalStorybooks || 0) +
+                        (stats.totalColorings || 0) +
+                        (stats.totalAnalyses || 0)}
+                  </Text>
                   <Text style={styles.miniStatLabel}>Aktivite</Text>
                 </View>
                 <View style={styles.miniStatDivider} />
@@ -492,7 +498,7 @@ export default function HomeScreen() {
             <DashboardSummaryCards
               stats={{
                 totalAnalyses: stats.totalAnalyses || 0,
-                weeklyAnalyses: stats.totalActivities || 0,
+                weeklyAnalyses: ('totalActivities' in stats ? stats.totalActivities : 0) || 0,
                 monthlyAnalyses: (stats.totalAnalyses || 0) + (stats.totalStorybooks || 0),
                 childrenCount: children.length,
                 pendingReviews: 0,

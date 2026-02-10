@@ -10,9 +10,11 @@ import {
   useAnimatedStyle,
   withSpring,
   withTiming,
-  SpringConfig,
+  WithSpringConfig,
 } from 'react-native-reanimated';
 import { ViewStyle } from 'react-native';
+
+type SpringConfig = WithSpringConfig;
 
 export interface ScaleAnimationConfig {
   /** Scale value when pressed (default: 0.96) */
@@ -48,9 +50,7 @@ const DEFAULT_SPRING_CONFIG: SpringConfig = {
   mass: 0.5,
 };
 
-export function useScaleAnimation(
-  config: ScaleAnimationConfig = {}
-): ScaleAnimationReturn {
+export function useScaleAnimation(config: ScaleAnimationConfig = {}): ScaleAnimationReturn {
   const {
     pressedScale = 0.96,
     hoverScale = 1.02,

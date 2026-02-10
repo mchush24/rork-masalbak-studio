@@ -61,7 +61,7 @@ const DRAFT_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 class StatePersistenceManager {
   private static instance: StatePersistenceManager;
   private currentSession: SessionState | null = null;
-  private autoSaveInterval: NodeJS.Timeout | null = null;
+  private autoSaveInterval: ReturnType<typeof setTimeout> | null = null;
   private isInitialized = false;
   private crashRecoveryState: CrashRecoveryState | null = null;
 
@@ -134,7 +134,7 @@ class StatePersistenceManager {
         lastSession,
         pendingDrafts: drafts,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         hadCrash: false,
         pendingDrafts: [],
@@ -241,8 +241,8 @@ class StatePersistenceManager {
     try {
       const keys = await AsyncStorage.getAllKeys();
       return keys
-        .filter((key) => key.startsWith(STORAGE_KEYS.DRAFT_PREFIX))
-        .map((key) => key.replace(STORAGE_KEYS.DRAFT_PREFIX, ''));
+        .filter(key => key.startsWith(STORAGE_KEYS.DRAFT_PREFIX))
+        .map(key => key.replace(STORAGE_KEYS.DRAFT_PREFIX, ''));
     } catch {
       return [];
     }
@@ -252,9 +252,7 @@ class StatePersistenceManager {
   async getDraftsByType<T>(type: string): Promise<Draft<T>[]> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const draftKeys = keys.filter((key) =>
-        key.startsWith(`${STORAGE_KEYS.DRAFT_PREFIX}${type}_`)
-      );
+      const draftKeys = keys.filter(key => key.startsWith(`${STORAGE_KEYS.DRAFT_PREFIX}${type}_`));
 
       const drafts: Draft<T>[] = [];
       for (const key of draftKeys) {
@@ -277,9 +275,7 @@ class StatePersistenceManager {
   async cleanExpiredDrafts(): Promise<number> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const draftKeys = keys.filter((key) =>
-        key.startsWith(STORAGE_KEYS.DRAFT_PREFIX)
-      );
+      const draftKeys = keys.filter(key => key.startsWith(STORAGE_KEYS.DRAFT_PREFIX));
 
       let cleaned = 0;
       for (const key of draftKeys) {
@@ -302,10 +298,7 @@ class StatePersistenceManager {
   // Save navigation state
   async saveNavigationState(state: unknown): Promise<void> {
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.NAVIGATION_STATE,
-        JSON.stringify(state)
-      );
+      await AsyncStorage.setItem(STORAGE_KEYS.NAVIGATION_STATE, JSON.stringify(state));
     } catch (error) {
       console.warn('[StatePersistence] Save navigation failed:', error);
     }
@@ -389,7 +382,7 @@ export function useStatePersistence() {
 export function useDraft<T>(type: string, id: string) {
   const [draft, setDraft] = useState<Draft<T> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     async function load() {
@@ -404,7 +397,7 @@ export function useDraft<T>(type: string, id: string) {
   const save = useCallback(
     async (data: T) => {
       await statePersistence.saveDraft(type, id, data);
-      setDraft((prev) =>
+      setDraft(prev =>
         prev
           ? { ...prev, data, updatedAt: Date.now() }
           : {

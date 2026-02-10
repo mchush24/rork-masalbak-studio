@@ -1,12 +1,40 @@
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert, Animated, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Animated,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { Eye, EyeOff, Mail, KeyRound, Shield, Zap, ArrowLeft, Sparkles, Heart } from 'lucide-react-native';
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  KeyRound,
+  Shield,
+  Zap,
+  ArrowLeft,
+  Sparkles,
+  Heart,
+} from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { getErrorMessage } from '@/lib/utils/error';
-import { spacing, borderRadius, shadows, typography, colors, textShadows } from '@/lib/design-tokens';
+import {
+  spacing,
+  borderRadius,
+  shadows,
+  typography,
+  colors,
+  textShadows,
+} from '@/lib/design-tokens';
 import { SuccessModal } from '@/components/SuccessModal';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -73,6 +101,7 @@ export default function ForgotPasswordScreen() {
         ])
       ).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
   // Password strength indicator
@@ -205,7 +234,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <LinearGradient
-      colors={colors.gradients.vibrant}
+      colors={colors.gradients.vibrant as unknown as [string, string, ...string[]]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -220,7 +249,12 @@ export default function ForgotPasswordScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Header with back button */}
-          <View style={{ paddingTop: Platform.OS === 'ios' ? (isSmallDevice ? 50 : 60) : 40, paddingHorizontal: spacing.lg }}>
+          <View
+            style={{
+              paddingTop: Platform.OS === 'ios' ? (isSmallDevice ? 50 : 60) : 40,
+              paddingHorizontal: spacing.lg,
+            }}
+          >
             <Pressable
               onPress={handleBack}
               style={{
@@ -302,7 +336,13 @@ export default function ForgotPasswordScreen() {
                     ...shadows.lg,
                   }}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: spacing.sm,
+                    }}
+                  >
                     <View
                       style={{
                         width: 40,
@@ -353,7 +393,15 @@ export default function ForgotPasswordScreen() {
                   ]}
                 >
                   {isLoading ? (
-                    <Text style={{ fontSize: typography.fontSize.md, fontWeight: 'bold', color: '#6366F1' }}>...</Text>
+                    <Text
+                      style={{
+                        fontSize: typography.fontSize.md,
+                        fontWeight: 'bold',
+                        color: '#6366F1',
+                      }}
+                    >
+                      ...
+                    </Text>
                   ) : (
                     <>
                       <Text
@@ -432,7 +480,9 @@ export default function ForgotPasswordScreen() {
                   }}
                 >
                   <Mail size={14} color="white" />
-                  <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
+                  <Text
+                    style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}
+                  >
                     {email}
                   </Text>
                 </View>
@@ -468,8 +518,15 @@ export default function ForgotPasswordScreen() {
                   />
 
                   {/* Progress dots */}
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm }}>
-                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      gap: spacing.sm,
+                      marginTop: spacing.sm,
+                    }}
+                  >
+                    {[0, 1, 2, 3, 4, 5].map(index => (
                       <View
                         key={index}
                         style={{
@@ -508,10 +565,18 @@ export default function ForgotPasswordScreen() {
                     <Sparkles size={18} color="white" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: typography.fontSize.sm, color: 'white', fontWeight: '600' }}>
+                    <Text
+                      style={{
+                        fontSize: typography.fontSize.sm,
+                        color: 'white',
+                        fontWeight: '600',
+                      }}
+                    >
                       Kod 10 dakika geçerlidir
                     </Text>
-                    <Text style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.7)' }}>
+                    <Text
+                      style={{ fontSize: typography.fontSize.xs, color: 'rgba(255,255,255,0.7)' }}
+                    >
                       Spam klasörünü de kontrol edin
                     </Text>
                   </View>
@@ -604,7 +669,13 @@ export default function ForgotPasswordScreen() {
                     ...shadows.lg,
                   }}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: spacing.sm,
+                    }}
+                  >
                     <View
                       style={{
                         width: 40,
@@ -633,8 +704,15 @@ export default function ForgotPasswordScreen() {
                         fontWeight: '500',
                       }}
                     />
-                    <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
-                      {showPassword ? <EyeOff size={22} color="#6366F1" /> : <Eye size={22} color="#6366F1" />}
+                    <Pressable
+                      onPress={() => setShowPassword(!showPassword)}
+                      style={{ padding: spacing.sm }}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={22} color="#6366F1" />
+                      ) : (
+                        <Eye size={22} color="#6366F1" />
+                      )}
                     </Pressable>
                   </View>
                 </View>
@@ -642,20 +720,30 @@ export default function ForgotPasswordScreen() {
                 {/* Password Strength Indicator */}
                 {newPassword.length > 0 && (
                   <View style={{ marginBottom: spacing.md }}>
-                    <View style={{ flexDirection: 'row', gap: spacing.xs, marginBottom: spacing.xs }}>
-                      {[1, 2, 3].map((level) => (
+                    <View
+                      style={{ flexDirection: 'row', gap: spacing.xs, marginBottom: spacing.xs }}
+                    >
+                      {[1, 2, 3].map(level => (
                         <View
                           key={level}
                           style={{
                             flex: 1,
                             height: 4,
                             borderRadius: 2,
-                            backgroundColor: level <= strength.level ? strength.color : 'rgba(255,255,255,0.3)',
+                            backgroundColor:
+                              level <= strength.level ? strength.color : 'rgba(255,255,255,0.3)',
                           }}
                         />
                       ))}
                     </View>
-                    <Text style={{ fontSize: typography.fontSize.xs, color: strength.color, fontWeight: '600', textAlign: 'right' }}>
+                    <Text
+                      style={{
+                        fontSize: typography.fontSize.xs,
+                        color: strength.color,
+                        fontWeight: '600',
+                        textAlign: 'right',
+                      }}
+                    >
                       {strength.text}
                     </Text>
                   </View>
@@ -671,13 +759,22 @@ export default function ForgotPasswordScreen() {
                     ...shadows.lg,
                   }}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: spacing.sm,
+                    }}
+                  >
                     <View
                       style={{
                         width: 40,
                         height: 40,
                         borderRadius: 20,
-                        backgroundColor: newPassword === confirmPassword && confirmPassword.length > 0 ? '#D1FAE5' : '#F3F4F6',
+                        backgroundColor:
+                          newPassword === confirmPassword && confirmPassword.length > 0
+                            ? '#D1FAE5'
+                            : '#F3F4F6',
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginRight: spacing.sm,
@@ -703,8 +800,15 @@ export default function ForgotPasswordScreen() {
                         fontWeight: '500',
                       }}
                     />
-                    <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: spacing.sm }}>
-                      {showConfirmPassword ? <EyeOff size={22} color="#6366F1" /> : <Eye size={22} color="#6366F1" />}
+                    <Pressable
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{ padding: spacing.sm }}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={22} color="#6366F1" />
+                      ) : (
+                        <Eye size={22} color="#6366F1" />
+                      )}
                     </Pressable>
                   </View>
                 </View>
@@ -714,7 +818,10 @@ export default function ForgotPasswordScreen() {
                   disabled={!newPassword || !confirmPassword || isLoading}
                   style={({ pressed }) => [
                     {
-                      backgroundColor: newPassword && confirmPassword && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+                      backgroundColor:
+                        newPassword && confirmPassword && !isLoading
+                          ? 'white'
+                          : 'rgba(255,255,255,0.25)',
                       paddingVertical: spacing.md + spacing.xs,
                       borderRadius: borderRadius.xxxl,
                       ...shadows.lg,
@@ -727,19 +834,30 @@ export default function ForgotPasswordScreen() {
                   ]}
                 >
                   {isLoading ? (
-                    <Text style={{ fontSize: typography.fontSize.md, fontWeight: 'bold', color: '#6366F1' }}>...</Text>
+                    <Text
+                      style={{
+                        fontSize: typography.fontSize.md,
+                        fontWeight: 'bold',
+                        color: '#6366F1',
+                      }}
+                    >
+                      ...
+                    </Text>
                   ) : (
                     <>
                       <Text
                         style={{
                           fontSize: typography.fontSize.md,
                           fontWeight: '700',
-                          color: newPassword && confirmPassword ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                          color:
+                            newPassword && confirmPassword ? '#6366F1' : 'rgba(255,255,255,0.6)',
                         }}
                       >
                         Şifreyi Kaydet
                       </Text>
-                      {newPassword && confirmPassword && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+                      {newPassword && confirmPassword && (
+                        <Zap size={18} color="#6366F1" strokeWidth={2.5} />
+                      )}
                     </>
                   )}
                 </Pressable>

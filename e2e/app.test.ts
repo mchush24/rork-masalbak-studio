@@ -6,7 +6,8 @@
  * 2. Run tests: npx detox test --configuration ios.sim.debug
  */
 
-import { device, element, by, expect } from 'detox';
+// eslint-disable-next-line import/no-unresolved
+import { device, element, by, expect, waitFor } from 'detox';
 
 describe('App Launch', () => {
   beforeAll(async () => {

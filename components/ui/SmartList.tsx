@@ -22,7 +22,7 @@ import {
   ViewStyle,
   ListRenderItem,
 } from 'react-native';
-import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
+import Animated, { FadeInDown, Layout as ReanimatedLayout } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 import { typography, spacing } from '@/constants/design-system';
 import { IooEmptyState, EMPTY_STATE_PRESETS, IooMood } from '@/components/IooEmptyState';
@@ -95,7 +95,7 @@ export function SmartList<T extends ListData>({
   errorType = 'generic',
   onRetry,
   onRefresh,
-  isRefreshing = false,
+  isRefreshing: _isRefreshing = false,
   onLoadMore,
   hasMore = false,
   isLoadingMore = false,
@@ -121,7 +121,7 @@ export function SmartList<T extends ListData>({
       return (
         <Animated.View
           entering={FadeInDown.delay(index * itemAnimationDelay).springify()}
-          layout={Layout.springify()}
+          layout={ReanimatedLayout.springify()}
         >
           {renderItem({ item, index, separators })}
         </Animated.View>
@@ -202,9 +202,7 @@ export function SmartList<T extends ListData>({
     typeof emptyState === 'string' ? EMPTY_STATE_PRESETS[emptyState] : emptyState;
 
   // Refresh control
-  const refreshControl = onRefresh ? (
-    <EnhancedRefreshControl onRefresh={onRefresh} refreshing={isRefreshing} />
-  ) : undefined;
+  const refreshControl = onRefresh ? <EnhancedRefreshControl onRefresh={onRefresh} /> : undefined;
 
   return (
     <FlatList
@@ -228,7 +226,7 @@ export function SmartList<T extends ListData>({
             title={emptyStateConfig.title}
             message={emptyStateConfig.message}
             mood={emptyStateConfig.mood}
-            action={emptyStateConfig.action}
+            action={'action' in emptyStateConfig ? emptyStateConfig.action : undefined}
           />
         ) : null
       }

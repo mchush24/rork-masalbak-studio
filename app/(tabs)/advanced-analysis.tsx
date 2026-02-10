@@ -948,7 +948,8 @@ export default function AdvancedAnalysisScreen() {
                   </Pressable>
                 </View>
 
-                <ResultCard data={result} onDetails={() => {}} />
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <ResultCard data={result as any} onDetails={() => {}} />
 
                 <View style={styles.disclaimerCard}>
                   <View style={styles.disclaimerHeader}>

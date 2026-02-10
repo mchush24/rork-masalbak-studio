@@ -73,6 +73,26 @@ export const UIColors = {
     focus: Colors.secondary.lavender,
   },
 
+  // Secondary colors
+  secondary: {
+    lavender: Colors.secondary.lavender,
+    lavenderLight: Colors.secondary.lavenderLight,
+    sky: Colors.secondary.sky,
+    skyLight: Colors.secondary.skyLight,
+    grass: Colors.secondary.grass,
+    grassLight: Colors.secondary.grassLight,
+    sunshine: Colors.secondary.sunshine,
+    sunshineLight: Colors.secondary.sunshineLight,
+    rose: Colors.secondary.rose,
+    roseLight: Colors.secondary.roseLight,
+    mint: Colors.secondary.mint,
+    mintLight: Colors.secondary.mintLight,
+    peach: Colors.secondary.peach,
+    peachLight: Colors.secondary.peachLight,
+    coral: Colors.secondary.coral,
+    coralLight: Colors.secondary.coralLight,
+  },
+
   // Status colors
   status: {
     success: Colors.semantic.success,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Form Validation System
  * Phase 4: Advanced Features
@@ -75,10 +76,7 @@ const DEFAULT_ERROR_MESSAGES: Record<string, string> = {
 };
 
 // Format Zod error to user-friendly message
-function formatZodError(
-  issue: ZodIssue,
-  customMessages?: Record<string, string>
-): string {
+function formatZodError(issue: ZodIssue, customMessages?: Record<string, string>): string {
   const messages = { ...DEFAULT_ERROR_MESSAGES, ...customMessages };
 
   // Check for custom message first
@@ -87,45 +85,48 @@ function formatZodError(
   }
 
   // Map error codes to messages
-  switch (issue.code) {
+  // Use `any` cast because Zod v4 changed issue type shapes
+  const iss = issue as any;
+  switch (iss.code) {
     case 'invalid_type':
-      if (issue.received === 'undefined' || issue.received === 'null') {
+      if (iss.received === 'undefined' || iss.received === 'null') {
         return messages.required;
       }
       return messages.invalid_type;
 
     case 'too_small':
-      if (issue.type === 'string') {
-        if (issue.minimum === 1) {
+      if (iss.type === 'string') {
+        if (iss.minimum === 1) {
           return messages.required;
         }
-        return `En az ${issue.minimum} karakter olmalı`;
+        return `En az ${iss.minimum} karakter olmalı`;
       }
-      if (issue.type === 'number') {
-        return `En az ${issue.minimum} olmalı`;
+      if (iss.type === 'number') {
+        return `En az ${iss.minimum} olmalı`;
       }
-      if (issue.type === 'array') {
-        return `En az ${issue.minimum} öğe seçin`;
+      if (iss.type === 'array') {
+        return `En az ${iss.minimum} öğe seçin`;
       }
       return messages.too_small;
 
     case 'too_big':
-      if (issue.type === 'string') {
-        return `En fazla ${issue.maximum} karakter olabilir`;
+      if (iss.type === 'string') {
+        return `En fazla ${iss.maximum} karakter olabilir`;
       }
-      if (issue.type === 'number') {
-        return `En fazla ${issue.maximum} olabilir`;
+      if (iss.type === 'number') {
+        return `En fazla ${iss.maximum} olabilir`;
       }
-      if (issue.type === 'array') {
-        return `En fazla ${issue.maximum} öğe seçilebilir`;
+      if (iss.type === 'array') {
+        return `En fazla ${iss.maximum} öğe seçilebilir`;
       }
       return messages.too_big;
 
     case 'invalid_string':
-      if (issue.validation === 'email') {
+    case 'invalid_format':
+      if (iss.validation === 'email' || iss.format === 'email') {
         return messages.invalid_email;
       }
-      if (issue.validation === 'url') {
+      if (iss.validation === 'url' || iss.format === 'url') {
         return messages.invalid_url;
       }
       return messages.invalid_string;
@@ -134,7 +135,7 @@ function formatZodError(
       return messages.invalid_date;
 
     case 'custom':
-      return issue.message || messages.custom;
+      return iss.message || messages.custom;
 
     default:
       return issue.message || messages.custom;
@@ -148,7 +149,7 @@ function parseZodErrors(
 ): Record<string, FieldError> {
   const errors: Record<string, FieldError> = {};
 
-  error.issues.forEach((issue) => {
+  error.issues.forEach(issue => {
     const path = issue.path.join('.');
     if (!errors[path]) {
       errors[path] = {
@@ -184,7 +185,7 @@ export function useForm<T extends Record<string, unknown>>({
   // Check if form is valid
   const isValid = useMemo(() => {
     try {
-      schema.parse(values);
+      (schema as any).parse(values);
       return true;
     } catch {
       return false;
@@ -198,7 +199,7 @@ export function useForm<T extends Record<string, unknown>>({
         // Create partial schema for single field
         const fieldSchema = (schema as z.ZodObject<z.ZodRawShape>).shape?.[name];
         if (fieldSchema) {
-          fieldSchema.parse(value);
+          (fieldSchema as any).parse(value);
         }
         return null;
       } catch (error) {
@@ -215,7 +216,7 @@ export function useForm<T extends Record<string, unknown>>({
   // Validate entire form
   const validateForm = useCallback((): Record<string, FieldError> => {
     try {
-      schema.parse(values);
+      (schema as any).parse(values);
       return {};
     } catch (error) {
       if (error instanceof ZodError) {
@@ -228,25 +229,21 @@ export function useForm<T extends Record<string, unknown>>({
   // Set field value
   const setValue = useCallback(
     (name: string, value: unknown) => {
-      setValues((prev) => ({ ...prev, [name]: value }));
+      setValues(prev => ({ ...prev, [name]: value }));
 
       // Mark as dirty if different from initial
       const isDirty = value !== initialValuesRef.current[name as keyof T];
-      setDirty((prev) => ({ ...prev, [name]: isDirty }));
+      setDirty(prev => ({ ...prev, [name]: isDirty }));
 
       // Validate on change if mode is 'onChange' or 'all'
       // Or if submitted and revalidateOnChange is true
-      if (
-        mode === 'onChange' ||
-        mode === 'all' ||
-        (submitCount > 0 && revalidateOnChange)
-      ) {
+      if (mode === 'onChange' || mode === 'all' || (submitCount > 0 && revalidateOnChange)) {
         const error = validateField(name, value);
-        setErrors((prev) => {
+        setErrors(prev => {
           if (error) {
             return { ...prev, [name]: error };
           }
-          const { [name]: removed, ...rest } = prev;
+          const { [name]: _removed, ...rest } = prev;
           return rest;
         });
       }
@@ -257,16 +254,16 @@ export function useForm<T extends Record<string, unknown>>({
   // Set field touched
   const setFieldTouched = useCallback(
     (name: string, isTouched = true) => {
-      setTouched((prev) => ({ ...prev, [name]: isTouched }));
+      setTouched(prev => ({ ...prev, [name]: isTouched }));
 
       // Validate on blur if mode is 'onBlur' or 'all'
       if ((mode === 'onBlur' || mode === 'all') && isTouched) {
         const error = validateField(name, values[name as keyof T]);
-        setErrors((prev) => {
+        setErrors(prev => {
           if (error) {
             return { ...prev, [name]: error };
           }
-          const { [name]: removed, ...rest } = prev;
+          const { [name]: _removed, ...rest } = prev;
           return rest;
         });
       }
@@ -275,42 +272,36 @@ export function useForm<T extends Record<string, unknown>>({
   );
 
   // Set multiple values at once
-  const setMultipleValues = useCallback(
-    (newValues: Partial<T>) => {
-      setValues((prev) => ({ ...prev, ...newValues }));
+  const setMultipleValues = useCallback((newValues: Partial<T>) => {
+    setValues(prev => ({ ...prev, ...newValues }));
 
-      // Update dirty state
-      Object.keys(newValues).forEach((key) => {
-        const isDirty = newValues[key as keyof T] !== initialValuesRef.current[key as keyof T];
-        setDirty((prev) => ({ ...prev, [key]: isDirty }));
-      });
-    },
-    []
-  );
+    // Update dirty state
+    Object.keys(newValues).forEach(key => {
+      const isDirty = newValues[key as keyof T] !== initialValuesRef.current[key as keyof T];
+      setDirty(prev => ({ ...prev, [key]: isDirty }));
+    });
+  }, []);
 
   // Reset form
-  const reset = useCallback(
-    (newValues?: T) => {
-      const resetValues = newValues || initialValuesRef.current;
-      setValues(resetValues);
-      setErrors({});
-      setTouched({});
-      setDirty({});
-      setIsSubmitting(false);
-      if (newValues) {
-        initialValuesRef.current = newValues;
-      }
-    },
-    []
-  );
+  const reset = useCallback((newValues?: T) => {
+    const resetValues = newValues || initialValuesRef.current;
+    setValues(resetValues);
+    setErrors({});
+    setTouched({});
+    setDirty({});
+    setIsSubmitting(false);
+    if (newValues) {
+      initialValuesRef.current = newValues;
+    }
+  }, []);
 
   // Handle submit
   const handleSubmit = useCallback(async () => {
-    setSubmitCount((c) => c + 1);
+    setSubmitCount(c => c + 1);
 
     // Mark all fields as touched
     const allTouched: Record<string, boolean> = {};
-    Object.keys(values).forEach((key) => {
+    Object.keys(values).forEach(key => {
       allTouched[key] = true;
     });
     setTouched(allTouched);
@@ -413,7 +404,7 @@ export function useFieldValidation<T>(
   const validate = useCallback(
     (value: unknown): FieldError | null => {
       try {
-        schema.parse(value);
+        (schema as any).parse(value);
         return null;
       } catch (error) {
         if (error instanceof ZodError && error.issues[0]) {
@@ -432,7 +423,7 @@ export function useFieldValidation<T>(
   const isValid = useCallback(
     (value: unknown): boolean => {
       try {
-        schema.parse(value);
+        (schema as any).parse(value);
         return true;
       } catch {
         return false;
@@ -467,15 +458,10 @@ export const commonSchemas = {
     .max(50, 'İsim en fazla 50 karakter olabilir'),
 
   // Phone (Turkish format)
-  phone: z
-    .string()
-    .regex(/^(\+90|0)?[0-9]{10}$/, 'Geçerli bir telefon numarası girin'),
+  phone: z.string().regex(/^(\+90|0)?[0-9]{10}$/, 'Geçerli bir telefon numarası girin'),
 
   // Age
-  age: z
-    .number()
-    .min(1, 'Geçerli bir yaş girin')
-    .max(18, 'Yaş 1-18 arasında olmalı'),
+  age: z.number().min(1, 'Geçerli bir yaş girin').max(18, 'Yaş 1-18 arasında olmalı'),
 
   // Child age (for the app)
   childAge: z
@@ -497,11 +483,8 @@ export const commonSchemas = {
 };
 
 // Create password confirmation schema
-export function createPasswordConfirmSchema(passwordFieldName = 'password') {
-  return z.string().refine(
-    (val) => val.length > 0,
-    { message: 'Şifre tekrarı zorunludur' }
-  );
+export function createPasswordConfirmSchema(_passwordFieldName = 'password') {
+  return z.string().refine(val => val.length > 0, { message: 'Şifre tekrarı zorunludur' });
 }
 
 // Create form schema helper

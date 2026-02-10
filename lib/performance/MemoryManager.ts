@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Memory Manager
  * Phase 19: Performance Optimization
@@ -24,8 +25,8 @@ function generateComponentId(): string {
  */
 export function useMemoryManager() {
   const componentId = useRef(generateComponentId());
-  const timeouts = useRef<NodeJS.Timeout[]>([]);
-  const intervals = useRef<NodeJS.Timeout[]>([]);
+  const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const intervals = useRef<ReturnType<typeof setTimeout>[]>([]);
   const subscriptions = useRef<(() => void)[]>([]);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function useMemoryManager() {
 
     return () => {
       mountedComponents.delete(id);
-      
+
       // Clear all timeouts
       timeouts.current.forEach(clearTimeout);
       timeouts.current = [];
@@ -44,7 +45,7 @@ export function useMemoryManager() {
       intervals.current = [];
 
       // Call all cleanup subscriptions
-      subscriptions.current.forEach((cleanup) => cleanup());
+      subscriptions.current.forEach(cleanup => cleanup());
       subscriptions.current = [];
 
       // Run any registered cleanup callbacks
@@ -56,27 +57,33 @@ export function useMemoryManager() {
     };
   }, []);
 
-  const safeTimeout = useCallback((callback: () => void, delay: number): NodeJS.Timeout => {
-    const timeout = setTimeout(() => {
-      if (mountedComponents.has(componentId.current)) {
-        callback();
-      }
-    }, delay);
-    timeouts.current.push(timeout);
-    return timeout;
-  }, []);
+  const safeTimeout = useCallback(
+    (callback: () => void, delay: number): ReturnType<typeof setTimeout> => {
+      const timeout = setTimeout(() => {
+        if (mountedComponents.has(componentId.current)) {
+          callback();
+        }
+      }, delay);
+      timeouts.current.push(timeout);
+      return timeout;
+    },
+    []
+  );
 
-  const safeInterval = useCallback((callback: () => void, interval: number): NodeJS.Timeout => {
-    const id = setInterval(() => {
-      if (mountedComponents.has(componentId.current)) {
-        callback();
-      } else {
-        clearInterval(id);
-      }
-    }, interval);
-    intervals.current.push(id);
-    return id;
-  }, []);
+  const safeInterval = useCallback(
+    (callback: () => void, interval: number): ReturnType<typeof setTimeout> => {
+      const id = setInterval(() => {
+        if (mountedComponents.has(componentId.current)) {
+          callback();
+        } else {
+          clearInterval(id);
+        }
+      }, interval);
+      intervals.current.push(id);
+      return id;
+    },
+    []
+  );
 
   const addCleanup = useCallback((cleanup: () => void) => {
     subscriptions.current.push(cleanup);
@@ -124,7 +131,7 @@ export function debounce<T extends (...args: any[]) => void>(
   func: T,
   wait: number
 ): T & { cancel: () => void } {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   const debounced = ((...args: Parameters<T>) => {
     if (timeout) clearTimeout(timeout);
@@ -147,10 +154,7 @@ export function debounce<T extends (...args: any[]) => void>(
 /**
  * Throttle function for rate limiting
  */
-export function throttle<T extends (...args: any[]) => void>(
-  func: T,
-  limit: number
-): T {
+export function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
   let inThrottle = false;
 
   return ((...args: Parameters<T>) => {
@@ -167,10 +171,7 @@ export function throttle<T extends (...args: any[]) => void>(
 /**
  * Memoize expensive computations
  */
-export function memoize<T extends (...args: any[]) => any>(
-  func: T,
-  maxCacheSize: number = 100
-): T {
+export function memoize<T extends (...args: any[]) => any>(func: T, maxCacheSize: number = 100): T {
   const cache = new Map<string, ReturnType<T>>();
 
   return ((...args: Parameters<T>): ReturnType<T> => {
@@ -197,7 +198,7 @@ export function memoize<T extends (...args: any[]) => any>(
  * Run heavy computation after interactions complete
  */
 export function runAfterInteractions<T>(task: () => T): Promise<T> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     InteractionManager.runAfterInteractions(() => {
       resolve(task());
     });

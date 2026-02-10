@@ -9,8 +9,8 @@
  * 5. AI fallback - Claude Haiku veya GPT-4o-mini
  */
 
-import Anthropic from "@anthropic-ai/sdk";
-import OpenAI from "openai";
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 // Circuit breaker for AI provider resilience
 import {
@@ -19,34 +19,15 @@ import {
   withRetry,
   isRetryableError,
   isRateLimitError,
-} from "./circuit-breaker.js";
+} from './circuit-breaker.js';
 
 // New modules for parenting support
-import {
-  detectUserIntent,
-  isParentingConcern,
-  detectEmotion,
-  detectSeverity,
-  UserIntent,
-} from './chatbot-intent';
-import {
-  findParentingFAQ,
-  getParentingFollowUps,
-  ParentingFAQItem,
-} from './chatbot-parenting';
-import {
-  buildEmpatheticResponse,
-  wrapWithEmpathy,
-  getParentingQuickReplies,
-  getSuggestedQuestions as getEmpathySuggestions,
-} from './chatbot-empathy';
+import { detectUserIntent } from './chatbot-intent';
+import { findParentingFAQ, getParentingFollowUps } from './chatbot-parenting';
+import { buildEmpatheticResponse } from './chatbot-empathy';
 
 // Faz 6: Analytics for unanswered queries
-import {
-  logUnansweredQuery,
-  normalizeTextForAnalytics,
-  UnansweredReason,
-} from './chatbot-analytics';
+import { logUnansweredQuery, normalizeTextForAnalytics } from './chatbot-analytics';
 
 import { createLogger } from './logger.js';
 const log = createLogger('Chatbot');
@@ -62,13 +43,13 @@ function hasOpenAIKey(): boolean {
 
 // Circuit breakers for AI providers
 const anthropicCircuit = new CircuitBreaker({
-  name: "anthropic-chatbot",
+  name: 'anthropic-chatbot',
   failureThreshold: 3,
   resetTimeout: 60000, // 1 minute
 });
 
 const openaiCircuit = new CircuitBreaker({
-  name: "openai-chatbot",
+  name: 'openai-chatbot',
   failureThreshold: 3,
   resetTimeout: 60000,
 });
@@ -125,7 +106,15 @@ interface FAQItem {
   priority?: number;
 }
 
-type FAQCategory = 'story' | 'drawing' | 'analysis' | 'interactive' | 'account' | 'general' | 'coloring' | 'technical';
+type FAQCategory =
+  | 'story'
+  | 'drawing'
+  | 'analysis'
+  | 'interactive'
+  | 'account'
+  | 'general'
+  | 'coloring'
+  | 'technical';
 
 // ============================================
 // TURKCE SYNONYM VERITABANI
@@ -133,35 +122,35 @@ type FAQCategory = 'story' | 'drawing' | 'analysis' | 'interactive' | 'account' 
 
 const TURKISH_SYNONYMS: Record<string, string[]> = {
   // Fiiller
-  'olustur': ['yap', 'yarat', 'hazirla', 'uret', 'meydana getir'],
-  'indir': ['yukle', 'kaydet', 'al', 'download'],
-  'yukle': ['upload', 'ekle', 'gonderi', 'at'],
-  'sil': ['kaldir', 'cikar', 'temizle', 'yoket'],
-  'degistir': ['duzenle', 'edit', 'guncelle', 'ayarla'],
-  'paylas': ['gonder', 'ilet', 'share'],
-  'bak': ['gor', 'incele', 'kontrol et', 'gozden gecir'],
+  olustur: ['yap', 'yarat', 'hazirla', 'uret', 'meydana getir'],
+  indir: ['yukle', 'kaydet', 'al', 'download'],
+  yukle: ['upload', 'ekle', 'gonderi', 'at'],
+  sil: ['kaldir', 'cikar', 'temizle', 'yoket'],
+  degistir: ['duzenle', 'edit', 'guncelle', 'ayarla'],
+  paylas: ['gonder', 'ilet', 'share'],
+  bak: ['gor', 'incele', 'kontrol et', 'gozden gecir'],
 
   // Isimler
-  'masal': ['hikaye', 'oyku', 'story', 'tale'],
-  'cizim': ['resim', 'sekil', 'gorsel', 'drawing', 'picture'],
-  'cocuk': ['yavru', 'evlat', 'kid', 'child', 'bebek', 'minnik'],
-  'analiz': ['degerlendirme', 'inceleme', 'rapor', 'analysis'],
-  'hesap': ['profil', 'kullanici', 'account', 'uyelik'],
-  'fiyat': ['ucret', 'maliyet', 'para', 'price', 'cost'],
-  'sorun': ['problem', 'hata', 'bug', 'sikinti', 'error', 'issue'],
-  'yardim': ['destek', 'support', 'help', 'asistan'],
+  masal: ['hikaye', 'oyku', 'story', 'tale'],
+  cizim: ['resim', 'sekil', 'gorsel', 'drawing', 'picture'],
+  cocuk: ['yavru', 'evlat', 'kid', 'child', 'bebek', 'minnik'],
+  analiz: ['degerlendirme', 'inceleme', 'rapor', 'analysis'],
+  hesap: ['profil', 'kullanici', 'account', 'uyelik'],
+  fiyat: ['ucret', 'maliyet', 'para', 'price', 'cost'],
+  sorun: ['problem', 'hata', 'bug', 'sikinti', 'error', 'issue'],
+  yardim: ['destek', 'support', 'help', 'asistan'],
 
   // Sifatlar
-  'ucretsiz': ['bedava', 'free', 'parasiz', 'gratuit'],
-  'guvenli': ['emniyetli', 'safe', 'secure', 'korunakli'],
-  'hizli': ['cabuk', 'seri', 'fast', 'quick'],
-  'kolay': ['basit', 'simple', 'easy', 'zahmetsiz'],
+  ucretsiz: ['bedava', 'free', 'parasiz', 'gratuit'],
+  guvenli: ['emniyetli', 'safe', 'secure', 'korunakli'],
+  hizli: ['cabuk', 'seri', 'fast', 'quick'],
+  kolay: ['basit', 'simple', 'easy', 'zahmetsiz'],
 
   // Sorular
-  'nasil': ['ne sekilde', 'ne yapmaliyim', 'how', 'hangi yolla'],
-  'neden': ['nicin', 'sebep', 'why', 'ne icin'],
+  nasil: ['ne sekilde', 'ne yapmaliyim', 'how', 'hangi yolla'],
+  neden: ['nicin', 'sebep', 'why', 'ne icin'],
   'ne zaman': ['nezaman', 'when', 'hangi tarih'],
-  'nerede': ['where', 'hangi yer', 'nerden'],
+  nerede: ['where', 'hangi yer', 'nerden'],
 };
 
 // ============================================
@@ -358,7 +347,17 @@ Ayarlar > Tercihler bolumunden varsayilan dili secebilirsiniz.`,
   // ============================================
   {
     id: 'analysis_001',
-    keywords: ['analiz', 'cizim', 'degerlendirme', 'psikoloji', 'ne anlama', 'anlam', 'nedir', 'ne', 'resim'],
+    keywords: [
+      'analiz',
+      'cizim',
+      'degerlendirme',
+      'psikoloji',
+      'ne anlama',
+      'anlam',
+      'nedir',
+      'ne',
+      'resim',
+    ],
     question: 'Cizim analizi ne anlama geliyor?',
     answer: `**Cizim Analizi:**
 
@@ -662,7 +661,16 @@ Premium'a gecis icin Ayarlar > Abonelik bolumune bakin.`,
   // ============================================
   {
     id: 'coloring_001',
-    keywords: ['boyama', 'boya', 'renklendirme', 'coloring', 'nasil', 'yapilir', 'calisir', 'color'],
+    keywords: [
+      'boyama',
+      'boya',
+      'renklendirme',
+      'coloring',
+      'nasil',
+      'yapilir',
+      'calisir',
+      'color',
+    ],
     question: 'Boyama ozelligi nasil calisir?',
     answer: `**Boyama Ozelligi:**
 
@@ -806,7 +814,18 @@ Birden fazla cocuk ekleyebilirsiniz! Her cocuk icin ayri hikayeler ve analizler 
   },
   {
     id: 'account_002',
-    keywords: ['ucretsiz', 'ucret', 'fiyat', 'maliyet', 'premium', 'abonelik', 'bedava', 'free', 'parasiz', 'para'],
+    keywords: [
+      'ucretsiz',
+      'ucret',
+      'fiyat',
+      'maliyet',
+      'premium',
+      'abonelik',
+      'bedava',
+      'free',
+      'parasiz',
+      'para',
+    ],
     question: 'Uygulama ucretsiz mi?',
     answer: `**Fiyatlandirma:**
 
@@ -1370,7 +1389,10 @@ async function getAIResponse(
       temperature: 0.7,
     });
 
-    return response.choices[0]?.message?.content || 'Uzgunum, su an yanit veremedim. Lutfen tekrar deneyin.';
+    return (
+      response.choices[0]?.message?.content ||
+      'Uzgunum, su an yanit veremedim. Lutfen tekrar deneyin.'
+    );
   }
 
   // Try Anthropic first (primary provider)
@@ -1455,10 +1477,22 @@ async function getEmbeddingsModule() {
 export async function processChat(
   userMessage: string,
   conversationHistory: { role: 'user' | 'assistant'; content: string }[] = [],
-  options: { useEmbeddings?: boolean; sessionId?: string; userId?: string; childAge?: number; childName?: string; currentScreen?: string } = {}
+  options: {
+    useEmbeddings?: boolean;
+    sessionId?: string;
+    userId?: string;
+    childAge?: number;
+    childName?: string;
+    currentScreen?: string;
+  } = {}
 ): Promise<ChatResponse> {
   const startTime = Date.now();
-  const { useEmbeddings = process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true', childAge, childName, currentScreen } = options;
+  const {
+    useEmbeddings = process.env.ENABLE_CHATBOT_EMBEDDINGS === 'true',
+    childAge,
+    childName,
+    currentScreen,
+  } = options;
   const normalizedMessage = normalizeTextForAnalytics(userMessage);
 
   // 0. DETECT USER INTENT & EMOTION (NEW!)
@@ -1468,14 +1502,15 @@ export async function processChat(
     emotion: userIntent.emotion,
     severity: userIntent.severity,
     needsEmpathy: userIntent.needsEmpathy,
-    confidence: userIntent.confidence.toFixed(2)
+    confidence: userIntent.confidence.toFixed(2),
   });
 
   // 0.1 Check for PARENTING CONCERN first (highest priority)
-  if (userIntent.type === 'parenting_concern' ||
-      userIntent.type === 'child_development' ||
-      userIntent.type === 'emotional_support') {
-
+  if (
+    userIntent.type === 'parenting_concern' ||
+    userIntent.type === 'child_development' ||
+    userIntent.type === 'emotional_support'
+  ) {
     const parentingFAQ = findParentingFAQ(userMessage);
 
     if (parentingFAQ) {
@@ -1489,13 +1524,22 @@ export async function processChat(
         faq: parentingFAQ,
         includeValidation: userIntent.needsEmpathy,
         includeReassurance: true,
-        includeProfessionalReferral: parentingFAQ.suggestProfessional || userIntent.needsProfessionalReferral,
+        includeProfessionalReferral:
+          parentingFAQ.suggestProfessional || userIntent.needsProfessionalReferral,
         childAge,
         childName,
       });
 
       // Log interaction
-      logInteraction(options, userMessage, empatheticResponse.fullResponse, 'faq', parentingFAQ.id, 95, startTime);
+      logInteraction(
+        options,
+        userMessage,
+        empatheticResponse.fullResponse,
+        'faq',
+        parentingFAQ.id,
+        95,
+        startTime
+      );
 
       // Get parenting-specific follow-ups
       const suggestedQuestions = getParentingFollowUps(parentingFAQ.category);
@@ -1516,10 +1560,21 @@ export async function processChat(
   const faqMatch = findFAQMatch(userMessage);
 
   if (faqMatch && faqMatch.confidence >= 40) {
-    log.info('FAQ match found', { question: faqMatch.faq.question, confidence: faqMatch.confidence.toFixed(1) + '%' });
+    log.info('FAQ match found', {
+      question: faqMatch.faq.question,
+      confidence: faqMatch.confidence.toFixed(1) + '%',
+    });
 
     // Log interaction (async, non-blocking)
-    logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
+    logInteraction(
+      options,
+      userMessage,
+      faqMatch.faq.answer,
+      'faq',
+      faqMatch.faq.id,
+      faqMatch.confidence,
+      startTime
+    );
 
     // Faz 3A: Konu tespiti
     const detectedTopic = detectConversationTopic([
@@ -1566,10 +1621,21 @@ export async function processChat(
           const bestMatch = results[0];
           const confidence = bestMatch.combinedScore * 100;
 
-          log.debug('Embedding match found', { question: bestMatch.question, score: bestMatch.combinedScore.toFixed(3) });
+          log.debug('Embedding match found', {
+            question: bestMatch.question,
+            score: bestMatch.combinedScore.toFixed(3),
+          });
 
           // Log interaction
-          logInteraction(options, userMessage, bestMatch.answer, 'embedding', bestMatch.id, confidence, startTime);
+          logInteraction(
+            options,
+            userMessage,
+            bestMatch.answer,
+            'embedding',
+            bestMatch.id,
+            confidence,
+            startTime
+          );
 
           // Faz 3A: Konu tespiti
           const detectedTopic = detectConversationTopic([
@@ -1603,9 +1669,20 @@ export async function processChat(
 
   // 3. Try lower confidence FAQ match
   if (faqMatch && faqMatch.confidence >= 30) {
-    log.debug('Low confidence FAQ match', { question: faqMatch.faq.question, confidence: faqMatch.confidence.toFixed(1) + '%' });
+    log.debug('Low confidence FAQ match', {
+      question: faqMatch.faq.question,
+      confidence: faqMatch.confidence.toFixed(1) + '%',
+    });
 
-    logInteraction(options, userMessage, faqMatch.faq.answer, 'faq', faqMatch.faq.id, faqMatch.confidence, startTime);
+    logInteraction(
+      options,
+      userMessage,
+      faqMatch.faq.answer,
+      'faq',
+      faqMatch.faq.id,
+      faqMatch.confidence,
+      startTime
+    );
 
     // Faz 6: Log low confidence match for review
     if (faqMatch.confidence < 40) {
@@ -1622,7 +1699,7 @@ export async function processChat(
         currentScreen,
         childAge,
         conversationLength: conversationHistory.length,
-      }).catch((err) => logger.debug('[Chatbot] Non-blocking log failed:', err?.message));
+      }).catch(err => log.debug('[Chatbot] Non-blocking log failed:', err?.message));
     }
 
     // Faz 3A: Konu tespiti
@@ -1669,7 +1746,7 @@ export async function processChat(
       childAge,
       conversationLength: conversationHistory.length,
       aiResponse,
-    }).catch((err) => logger.debug('[Chatbot] Non-blocking log failed:', err?.message));
+    }).catch(err => log.debug('[Chatbot] Non-blocking log failed:', err?.message));
 
     // Faz 3A: Konu tespiti
     const detectedTopic = detectConversationTopic([
@@ -1692,7 +1769,8 @@ export async function processChat(
   } catch (error) {
     log.error('AI error', error);
 
-    const errorResponse = 'Uzgunum, su an teknik bir sorun yasiyorum. Lutfen biraz sonra tekrar deneyin veya sik sorulan sorulara goz atin.';
+    const errorResponse =
+      'Uzgunum, su an teknik bir sorun yasiyorum. Lutfen biraz sonra tekrar deneyin veya sik sorulan sorulara goz atin.';
     logInteraction(options, userMessage, errorResponse, 'ai', undefined, undefined, startTime);
 
     // Faz 6: Log error case
@@ -1707,7 +1785,7 @@ export async function processChat(
       currentScreen,
       childAge,
       conversationLength: conversationHistory.length,
-    }).catch((err) => logger.debug('[Chatbot] Non-blocking log failed:', err?.message));
+    }).catch(err => log.debug('[Chatbot] Non-blocking log failed:', err?.message));
 
     return {
       message: errorResponse,
@@ -1730,16 +1808,18 @@ async function logInteraction(
   // Sadece embedding modulu yukluyse logla
   const embeddings = await getEmbeddingsModule();
   if (embeddings) {
-    embeddings.logChatbotInteraction({
-      sessionId: options.sessionId,
-      userId: options.userId,
-      message,
-      response: response.substring(0, 500), // Truncate for storage
-      source,
-      matchedFaqId,
-      confidence,
-      responseTimeMs: startTime ? Date.now() - startTime : undefined,
-    }).catch((err) => logger.debug('[Chatbot] Logging error (ignored):', err?.message));
+    embeddings
+      .logChatbotInteraction({
+        sessionId: options.sessionId,
+        userId: options.userId,
+        message,
+        response: response.substring(0, 500), // Truncate for storage
+        source,
+        matchedFaqId,
+        confidence,
+        responseTimeMs: startTime ? Date.now() - startTime : undefined,
+      })
+      .catch(err => log.debug('[Chatbot] Logging error (ignored):', err?.message));
   }
 }
 
@@ -1749,11 +1829,7 @@ async function logInteraction(
 
 function getSuggestedQuestions(category: FAQCategory): string[] {
   const suggestions: Record<FAQCategory, string[]> = {
-    story: [
-      'Interaktif masal nedir?',
-      'PDF nasil indirilir?',
-      'Masal ne kadar surede hazir olur?',
-    ],
+    story: ['Interaktif masal nedir?', 'PDF nasil indirilir?', 'Masal ne kadar surede hazir olur?'],
     interactive: [
       'Nasil masal olusturabilirim?',
       'Ebeveyn raporu ne ise yarar?',
@@ -1764,31 +1840,11 @@ function getSuggestedQuestions(category: FAQCategory): string[] {
       'Sonuclar ne kadar guvenilir?',
       'Renk tercihleri ne anlama geliyor?',
     ],
-    drawing: [
-      'Cizim analizi ne demek?',
-      'Nasil cizim yuklerim?',
-      'Cizim formatlari neler?',
-    ],
-    account: [
-      'Nasil cocuk profili eklerim?',
-      'Verilerim guvende mi?',
-      'Uygulama ucretsiz mi?',
-    ],
-    coloring: [
-      'Boyama araclari neler?',
-      'Yazdirabilirim miyim?',
-      'Hazir sablonlar var mi?',
-    ],
-    technical: [
-      'Uygulama yavas calisiyor',
-      'Giris yapamiyorum',
-      'Nasil guncellerim?',
-    ],
-    general: [
-      'Nasil masal olusturabilirim?',
-      'Cizim analizi ne demek?',
-      'Interaktif masal nedir?',
-    ],
+    drawing: ['Cizim analizi ne demek?', 'Nasil cizim yuklerim?', 'Cizim formatlari neler?'],
+    account: ['Nasil cocuk profili eklerim?', 'Verilerim guvende mi?', 'Uygulama ucretsiz mi?'],
+    coloring: ['Boyama araclari neler?', 'Yazdirabilirim miyim?', 'Hazir sablonlar var mi?'],
+    technical: ['Uygulama yavas calisiyor', 'Giris yapamiyorum', 'Nasil guncellerim?'],
+    general: ['Nasil masal olusturabilirim?', 'Cizim analizi ne demek?', 'Interaktif masal nedir?'],
   };
 
   return suggestions[category] || suggestions.general;
@@ -1807,9 +1863,7 @@ function getGeneralSuggestions(): string[] {
 // ============================================
 
 // Pre-computed FAQ map for O(1) lookups instead of O(n) array.find()
-const FAQ_MAP: Map<string, FAQItem> = new Map(
-  FAQ_DATABASE.map(faq => [faq.id, faq])
-);
+const FAQ_MAP: Map<string, FAQItem> = new Map(FAQ_DATABASE.map(faq => [faq.id, faq]));
 
 // ============================================
 // GET ALL FAQ QUESTIONS (for UI)
@@ -1875,9 +1929,11 @@ export function searchFAQ(query: string): FAQItem[] {
     const answerNorm = normalizeText(faq.answer);
     const keywordsNorm = faq.keywords.map(normalizeText).join(' ');
 
-    return questionNorm.includes(normalized) ||
-           answerNorm.includes(normalized) ||
-           keywordsNorm.includes(normalized);
+    return (
+      questionNorm.includes(normalized) ||
+      answerNorm.includes(normalized) ||
+      keywordsNorm.includes(normalized)
+    );
   });
 }
 
@@ -1907,12 +1963,12 @@ export function detectConversationTopic(
 
   // Konu tespiti için keyword grupları
   const topicKeywords: Record<string, string[]> = {
-    'story_creation': ['masal', 'hikaye', 'olustur', 'yarat', 'tema', 'baslik'],
-    'drawing_analysis': ['analiz', 'cizim', 'resim', 'degerlendirme', 'renk', 'psikoloji'],
-    'interactive_story': ['interaktif', 'secim', 'macera', 'ebeveyn raporu'],
-    'coloring': ['boyama', 'boya', 'renk', 'firca', 'kalem'],
-    'account_settings': ['hesap', 'profil', 'ayar', 'sifre', 'abonelik'],
-    'technical_support': ['hata', 'sorun', 'calısmiyor', 'yavas', 'giris'],
+    story_creation: ['masal', 'hikaye', 'olustur', 'yarat', 'tema', 'baslik'],
+    drawing_analysis: ['analiz', 'cizim', 'resim', 'degerlendirme', 'renk', 'psikoloji'],
+    interactive_story: ['interaktif', 'secim', 'macera', 'ebeveyn raporu'],
+    coloring: ['boyama', 'boya', 'renk', 'firca', 'kalem'],
+    account_settings: ['hesap', 'profil', 'ayar', 'sifre', 'abonelik'],
+    technical_support: ['hata', 'sorun', 'calısmiyor', 'yavas', 'giris'],
   };
 
   let bestTopic: string | undefined;
@@ -1939,32 +1995,28 @@ export function detectConversationTopic(
  */
 export function getContextualFollowUps(topic: string): string[] {
   const followUps: Record<string, string[]> = {
-    'story_creation': [
+    story_creation: [
       'PDF olarak nasıl indirebilirim?',
       'Masal uzunluğunu ayarlayabilir miyim?',
       'Sesli dinleyebilir miyim?',
     ],
-    'drawing_analysis': [
+    drawing_analysis: [
       'Sonuçlar ne kadar güvenilir?',
       'Renk tercihleri ne anlama geliyor?',
       'Endişelenmem gereken bir şey var mı?',
     ],
-    'interactive_story': [
+    interactive_story: [
       'Ebeveyn raporu ne işe yarar?',
       'Farklı seçimlerle tekrar oynayabilir miyim?',
       'Kaç yaş için uygun?',
     ],
-    'coloring': [
-      'Yazdırabilir miyim?',
-      'Hangi araçlar var?',
-      'Hazır şablonlar var mı?',
-    ],
-    'account_settings': [
+    coloring: ['Yazdırabilir miyim?', 'Hangi araçlar var?', 'Hazır şablonlar var mı?'],
+    account_settings: [
       'Verilerim güvende mi?',
       'Birden fazla cihazda kullanabilir miyim?',
       'Premium özellikleri neler?',
     ],
-    'technical_support': [
+    technical_support: [
       'Uygulamayı nasıl güncellerim?',
       'İnternet olmadan kullanabilir miyim?',
       'Destek ile nasıl iletişime geçerim?',
@@ -2006,20 +2058,18 @@ export function getActionsForCategory(category: FAQCategory, faqId?: string): Ch
       { type: 'navigate', label: 'Destek', target: '/(tabs)/profile', icon: '🔧' },
       { type: 'link', label: 'E-posta Gönder', target: 'mailto:destek@renkioo.com', icon: '✉️' },
     ],
-    drawing: [
-      { type: 'navigate', label: 'Çizim Yükle', target: '/(tabs)/analysis', icon: '📷' },
-    ],
-    general: [
-      { type: 'navigate', label: 'Ana Sayfa', target: '/(tabs)', icon: '🏠' },
-    ],
+    drawing: [{ type: 'navigate', label: 'Çizim Yükle', target: '/(tabs)/analysis', icon: '📷' }],
+    general: [{ type: 'navigate', label: 'Ana Sayfa', target: '/(tabs)', icon: '🏠' }],
   };
 
   // Bazı özel FAQ'lar için spesifik aksiyonlar
   const specificActions: Record<string, ChatAction[]> = {
-    'story_002': [{ type: 'navigate', label: 'PDF İndir', target: '/(tabs)/stories', icon: '📄' }],
-    'story_009': [{ type: 'navigate', label: 'Sesli Masal Dinle', target: '/(tabs)/stories', icon: '🔊' }],
-    'coloring_002': [{ type: 'navigate', label: 'Yazdır', target: '/(tabs)/coloring', icon: '🖨️' }],
-    'account_001': [{ type: 'navigate', label: 'Çocuk Ekle', target: '/(tabs)/profile', icon: '➕' }],
+    story_002: [{ type: 'navigate', label: 'PDF İndir', target: '/(tabs)/stories', icon: '📄' }],
+    story_009: [
+      { type: 'navigate', label: 'Sesli Masal Dinle', target: '/(tabs)/stories', icon: '🔊' },
+    ],
+    coloring_002: [{ type: 'navigate', label: 'Yazdır', target: '/(tabs)/coloring', icon: '🖨️' }],
+    account_001: [{ type: 'navigate', label: 'Çocuk Ekle', target: '/(tabs)/profile', icon: '➕' }],
   };
 
   if (faqId && specificActions[faqId]) {
@@ -2038,17 +2088,35 @@ export function detectActionsFromMessage(message: string): ChatAction[] {
 
   // Masal oluşturma niyeti
   if (normalized.includes('masal olustur') || normalized.includes('hikaye yap')) {
-    actions.push({ type: 'create', label: 'Şimdi Masal Oluştur', target: '/(tabs)/stories', icon: '✨' });
+    actions.push({
+      type: 'create',
+      label: 'Şimdi Masal Oluştur',
+      target: '/(tabs)/stories',
+      icon: '✨',
+    });
   }
 
   // Analiz niyeti
   if (normalized.includes('analiz') && (normalized.includes('yap') || normalized.includes('et'))) {
-    actions.push({ type: 'create', label: 'Çizim Analiz Et', target: '/(tabs)/analysis', icon: '🔍' });
+    actions.push({
+      type: 'create',
+      label: 'Çizim Analiz Et',
+      target: '/(tabs)/analysis',
+      icon: '🔍',
+    });
   }
 
   // Boyama niyeti
-  if (normalized.includes('boyama') && (normalized.includes('baslat') || normalized.includes('ac'))) {
-    actions.push({ type: 'navigate', label: 'Boyamaya Başla', target: '/(tabs)/coloring', icon: '🎨' });
+  if (
+    normalized.includes('boyama') &&
+    (normalized.includes('baslat') || normalized.includes('ac'))
+  ) {
+    actions.push({
+      type: 'navigate',
+      label: 'Boyamaya Başla',
+      target: '/(tabs)/coloring',
+      icon: '🎨',
+    });
   }
 
   return actions;
@@ -2064,7 +2132,7 @@ const PROACTIVE_SUGGESTIONS: ProactiveSuggestion[] = [
     id: 'home_welcome',
     screen: 'home',
     trigger: 'first_visit',
-    message: 'Renkioo\'ya hoş geldiniz! Size nasıl yardımcı olabilirim?',
+    message: "Renkioo'ya hoş geldiniz! Size nasıl yardımcı olabilirim?",
     questions: ['Nasıl masal oluştururum?', 'Çizim analizi ne demek?', 'Uygulama ücretsiz mi?'],
     priority: 10,
   },
@@ -2083,14 +2151,19 @@ const PROACTIVE_SUGGESTIONS: ProactiveSuggestion[] = [
     screen: 'stories',
     trigger: 'enter',
     message: 'Masal oluşturmaya hazır mısınız?',
-    questions: ['Nasıl masal oluşturabilirim?', 'Masal ne kadar sürede hazır olur?', 'PDF indirebilir miyim?'],
+    questions: [
+      'Nasıl masal oluşturabilirim?',
+      'Masal ne kadar sürede hazır olur?',
+      'PDF indirebilir miyim?',
+    ],
     priority: 8,
   },
   {
     id: 'stories_first',
     screen: 'stories',
     trigger: 'first_visit',
-    message: 'İlk masalınızı oluşturmaya hazır mısınız? Çocuğunuzun çiziminden kişiselleştirilmiş bir masal yaratabiliriz!',
+    message:
+      'İlk masalınızı oluşturmaya hazır mısınız? Çocuğunuzun çiziminden kişiselleştirilmiş bir masal yaratabiliriz!',
     questions: ['Nasıl başlarım?', 'Tema nasıl seçilir?', 'İnteraktif masal nedir?'],
     priority: 10,
   },
@@ -2109,14 +2182,19 @@ const PROACTIVE_SUGGESTIONS: ProactiveSuggestion[] = [
     screen: 'analysis',
     trigger: 'enter',
     message: 'Çocuğunuzun çizimini analiz etmek ister misiniz?',
-    questions: ['Çizim analizi ne demek?', 'Sonuçlar güvenilir mi?', 'Renk tercihleri ne anlama geliyor?'],
+    questions: [
+      'Çizim analizi ne demek?',
+      'Sonuçlar güvenilir mi?',
+      'Renk tercihleri ne anlama geliyor?',
+    ],
     priority: 8,
   },
   {
     id: 'analysis_first',
     screen: 'analysis',
     trigger: 'first_visit',
-    message: 'Çizim analizi, çocuğunuzun duygusal dünyasını anlamanıza yardımcı olur. Merak ettiğiniz bir şey var mı?',
+    message:
+      'Çizim analizi, çocuğunuzun duygusal dünyasını anlamanıza yardımcı olur. Merak ettiğiniz bir şey var mı?',
     questions: ['Bu ne işe yarıyor?', 'Endişelenmeli miyim?', 'Sonuçları nasıl yorumlamalıyım?'],
     priority: 10,
   },
@@ -2134,8 +2212,13 @@ const PROACTIVE_SUGGESTIONS: ProactiveSuggestion[] = [
     id: 'coloring_first',
     screen: 'coloring',
     trigger: 'first_visit',
-    message: 'Çocuğunuzun çiziminden boyama sayfası oluşturabilir veya hazır şablonları kullanabilirsiniz!',
-    questions: ['Nasıl çalışır?', 'Çizimimden boyama sayfası yapabilir miyim?', 'Kaydetme nasıl çalışır?'],
+    message:
+      'Çocuğunuzun çiziminden boyama sayfası oluşturabilir veya hazır şablonları kullanabilirsiniz!',
+    questions: [
+      'Nasıl çalışır?',
+      'Çizimimden boyama sayfası yapabilir miyim?',
+      'Kaydetme nasıl çalışır?',
+    ],
     priority: 10,
   },
 
@@ -2145,14 +2228,19 @@ const PROACTIVE_SUGGESTIONS: ProactiveSuggestion[] = [
     screen: 'profile',
     trigger: 'enter',
     message: 'Hesap ayarlarınızla ilgili yardıma ihtiyacınız var mı?',
-    questions: ['Çocuk profili nasıl eklerim?', 'Şifremi nasıl değiştiririm?', 'Verilerim güvende mi?'],
+    questions: [
+      'Çocuk profili nasıl eklerim?',
+      'Şifremi nasıl değiştiririm?',
+      'Verilerim güvende mi?',
+    ],
     priority: 6,
   },
   {
     id: 'profile_first',
     screen: 'profile',
     trigger: 'first_visit',
-    message: 'Profilinizi tamamlayın ve çocuğunuzu ekleyin. Böylece içerikler yaşına göre uyarlanır!',
+    message:
+      'Profilinizi tamamlayın ve çocuğunuzu ekleyin. Böylece içerikler yaşına göre uyarlanır!',
     questions: ['Çocuk profili ekle', 'Neden çocuk yaşı önemli?', 'Premium özellikleri neler?'],
     priority: 10,
   },
@@ -2165,9 +2253,9 @@ export function getProactiveSuggestion(
   screen: string,
   trigger: 'enter' | 'idle' | 'error' | 'first_visit'
 ): ProactiveSuggestion | null {
-  const suggestions = PROACTIVE_SUGGESTIONS
-    .filter(s => s.screen === screen && s.trigger === trigger)
-    .sort((a, b) => b.priority - a.priority);
+  const suggestions = PROACTIVE_SUGGESTIONS.filter(
+    s => s.screen === screen && s.trigger === trigger
+  ).sort((a, b) => b.priority - a.priority);
 
   return suggestions[0] || null;
 }

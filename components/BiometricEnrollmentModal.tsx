@@ -34,16 +34,11 @@ export function BiometricEnrollmentModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onSkip}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onSkip}>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <LinearGradient
-            colors={colors.gradients.accessible}
+            colors={colors.gradients.accessible as unknown as [string, string, ...string[]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.gradient}
@@ -52,14 +47,12 @@ export function BiometricEnrollmentModal({
             <Text style={styles.icon}>{getBiometricIcon()}</Text>
 
             {/* Title */}
-            <Text style={styles.title}>
-              {getBiometricName()} ile Hızlı Giriş
-            </Text>
+            <Text style={styles.title}>{getBiometricName()} ile Hızlı Giriş</Text>
 
             {/* Description */}
             <Text style={styles.description}>
-              Bir sonraki girişinizde şifre girmeden {getBiometricName()} ile
-              hızlıca giriş yapabilirsiniz.
+              Bir sonraki girişinizde şifre girmeden {getBiometricName()} ile hızlıca giriş
+              yapabilirsiniz.
             </Text>
 
             {/* Benefits */}
@@ -72,14 +65,9 @@ export function BiometricEnrollmentModal({
             {/* Buttons */}
             <Pressable
               onPress={onEnroll}
-              style={({ pressed }) => [
-                styles.enrollButton,
-                pressed && styles.buttonPressed,
-              ]}
+              style={({ pressed }) => [styles.enrollButton, pressed && styles.buttonPressed]}
             >
-              <Text style={styles.enrollButtonText}>
-                {getBiometricName()}&apos;yi Etkinleştir
-              </Text>
+              <Text style={styles.enrollButtonText}>{getBiometricName()}&apos;yi Etkinleştir</Text>
             </Pressable>
 
             <Pressable onPress={onSkip} style={styles.skipButton}>

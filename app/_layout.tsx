@@ -38,6 +38,7 @@ import { networkMonitor } from '@/lib/network';
 import { statePersistence, SessionState } from '@/lib/persistence';
 import { globalErrorHandler } from '@/lib/error';
 import { analytics } from '@/lib/analytics';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 // Initialize Sentry for error tracking (before app renders)
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -133,6 +134,9 @@ function RootLayoutNav() {
   const { isAuthenticated, hasCompletedOnboarding, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Register push notification token after auth
+  usePushNotifications();
 
   // Initialize core services
   useEffect(() => {

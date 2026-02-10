@@ -11,21 +11,8 @@
  * - Haptic feedback
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-} from 'react-native';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -39,13 +26,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  CheckCircle,
-  AlertCircle,
-  AlertTriangle,
-  Info,
-  X,
-} from 'lucide-react-native';
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
@@ -90,13 +71,17 @@ interface ToastContextType {
 const ToastContext = createContext<ToastContextType | null>(null);
 
 // Toast configuration per type
-const TOAST_CONFIG: Record<ToastType, {
-  icon: React.ComponentType<any>;
-  backgroundColor: string;
-  borderColor: string;
-  iconColor: string;
-  textColor: string;
-}> = {
+const TOAST_CONFIG: Record<
+  ToastType,
+  {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    icon: React.ComponentType<any>;
+    backgroundColor: string;
+    borderColor: string;
+    iconColor: string;
+    textColor: string;
+  }
+> = {
   success: {
     icon: CheckCircle,
     backgroundColor: '#ECFDF5',
@@ -139,7 +124,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
   const IconComponent = config.icon;
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Auto-dismiss timer
   useEffect(() => {
@@ -177,11 +162,11 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
 
   // Swipe gesture
   const panGesture = Gesture.Pan()
-    .onUpdate((event) => {
+    .onUpdate(event => {
       translateX.value = event.translationX;
       opacity.value = 1 - Math.abs(event.translationX) / SWIPE_THRESHOLD;
     })
-    .onEnd((event) => {
+    .onEnd(event => {
       if (Math.abs(event.translationX) > SWIPE_THRESHOLD) {
         translateX.value = withTiming(
           event.translationX > 0 ? SCREEN_WIDTH : -SCREEN_WIDTH,
@@ -215,10 +200,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       >
         <View style={styles.toastContent}>
           <IconComponent size={22} color={config.iconColor} />
-          <Text
-            style={[styles.toastMessage, { color: config.textColor }]}
-            numberOfLines={2}
-          >
+          <Text style={[styles.toastMessage, { color: config.textColor }]} numberOfLines={2}>
             {toast.message}
           </Text>
         </View>
@@ -241,10 +223,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
           )}
           <Pressable
             onPress={handleDismiss}
-            style={({ pressed }) => [
-              styles.dismissButton,
-              pressed && { opacity: 0.6 },
-            ]}
+            style={({ pressed }) => [styles.dismissButton, pressed && { opacity: 0.6 }]}
             hitSlop={8}
           >
             <X size={18} color={config.textColor} />
@@ -273,37 +252,40 @@ export function ToastProvider({
   const insets = useSafeAreaInsets();
   const idCounter = useRef(0);
 
-  const show = useCallback((options: ToastOptions): string => {
-    const id = options.id || `toast-${++idCounter.current}`;
-    const newToast: Toast = {
-      id,
-      message: options.message,
-      type: options.type || 'info',
-      duration: options.duration ?? 4000,
-      position: options.position || defaultPosition,
-      action: options.action,
-      createdAt: Date.now(),
-    };
+  const show = useCallback(
+    (options: ToastOptions): string => {
+      const id = options.id || `toast-${++idCounter.current}`;
+      const newToast: Toast = {
+        id,
+        message: options.message,
+        type: options.type || 'info',
+        duration: options.duration ?? 4000,
+        position: options.position || defaultPosition,
+        action: options.action,
+        createdAt: Date.now(),
+      };
 
-    setToasts((prev) => {
-      const filtered = prev.filter((t) => t.id !== id);
-      const updated = [newToast, ...filtered];
-      return updated.slice(0, maxToasts);
-    });
+      setToasts(prev => {
+        const filtered = prev.filter(t => t.id !== id);
+        const updated = [newToast, ...filtered];
+        return updated.slice(0, maxToasts);
+      });
 
-    return id;
-  }, [defaultPosition, maxToasts]);
+      return id;
+    },
+    [defaultPosition, maxToasts]
+  );
 
   const hide = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
   const hideAll = useCallback(() => {
     setToasts([]);
   }, []);
 
-  const topToasts = toasts.filter((t) => t.position === 'top');
-  const bottomToasts = toasts.filter((t) => t.position === 'bottom');
+  const topToasts = toasts.filter(t => t.position === 'top');
+  const bottomToasts = toasts.filter(t => t.position === 'bottom');
 
   return (
     <ToastContext.Provider value={{ show, hide, hideAll }}>
@@ -312,14 +294,10 @@ export function ToastProvider({
       {/* Top Toasts */}
       {topToasts.length > 0 && (
         <View
-          style={[
-            styles.toastWrapper,
-            styles.topWrapper,
-            { top: insets.top + spacing['2'] },
-          ]}
+          style={[styles.toastWrapper, styles.topWrapper, { top: insets.top + spacing['2'] }]}
           pointerEvents="box-none"
         >
-          {topToasts.map((toast) => (
+          {topToasts.map(toast => (
             <ToastItem key={toast.id} toast={toast} onDismiss={hide} />
           ))}
         </View>
@@ -335,7 +313,7 @@ export function ToastProvider({
           ]}
           pointerEvents="box-none"
         >
-          {bottomToasts.map((toast) => (
+          {bottomToasts.map(toast => (
             <ToastItem key={toast.id} toast={toast} onDismiss={hide} />
           ))}
         </View>

@@ -203,7 +203,8 @@ export function scanlineFill(
     const entry = stack.pop();
     if (!entry) break;
 
-    const [x, y, _direction] = entry;
+    // eslint-disable-next-line prefer-const
+    let [x, y, _direction] = entry;
 
     // Skip if out of bounds
     if (y < 0 || y >= height) continue;

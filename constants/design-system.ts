@@ -237,6 +237,7 @@ export const typography = {
 // ============================================
 export const spacing = {
   '0': 0,
+  '0.5': 2,
   '1': 4,
   '1.5': 6,
   '2': 8,
@@ -271,7 +272,9 @@ export const radius = {
   lg: 16,
   xl: 20,
   '2xl': 24,
+  xxl: 24,
   '3xl': 32,
+  xxxl: 32,
   full: 9999,
 } as const;
 

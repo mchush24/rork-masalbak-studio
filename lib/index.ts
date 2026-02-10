@@ -7,32 +7,12 @@
  */
 
 // Analytics
-export {
-  analytics,
-  useAnalytics,
-  useScreenTracking,
-  useTimedEvent,
-} from './analytics';
-export type {
-  EventCategory,
-  AnalyticsEvent,
-  UserProperties,
-  ScreenView,
-} from './analytics';
+export { analytics, useAnalytics, useScreenTracking, useTimedEvent } from './analytics';
+export type { EventCategory, AnalyticsEvent, UserProperties, ScreenView } from './analytics';
 
 // Error Handling
-export {
-  globalErrorHandler,
-  useGlobalErrorHandler,
-  withErrorHandling,
-  createError,
-} from './error';
-export type {
-  ErrorSeverity,
-  ErrorCategory,
-  ProcessedError,
-  RecoveryOption,
-} from './error';
+export { globalErrorHandler, useGlobalErrorHandler, withErrorHandling, createError } from './error';
+export type { ErrorSeverity, ErrorCategory, ProcessedError, RecoveryOption } from './error';
 
 // Forms
 export {
@@ -42,11 +22,7 @@ export {
   createPasswordConfirmSchema,
   createFormSchema,
 } from './forms';
-export type {
-  FieldError,
-  FieldState,
-  FormState,
-} from './forms';
+export type { FieldError, FieldState, FormState } from './forms';
 
 // Media
 export {
@@ -67,17 +43,13 @@ export {
   useNetworkAwareOperation,
   useOfflineIndicator,
 } from './network';
-export type {
-  NetworkQuality,
-  NetworkStatus,
-} from './network';
+export type { NetworkQuality, NetworkStatus } from './network';
 
 // Performance
 export {
   useRenderTracking,
   useInteractionTracking,
   useAPITracking,
-  usePerformanceMetrics,
   usePerformanceOverlay,
   measureTime,
   measureTimeAsync,
@@ -87,14 +59,5 @@ export {
 } from './performance';
 
 // Persistence
-export {
-  statePersistence,
-  useStatePersistence,
-  useDraft,
-  useCrashRecovery,
-} from './persistence';
-export type {
-  SessionState,
-  Draft,
-  CrashRecoveryState,
-} from './persistence';
+export { statePersistence, useStatePersistence, useDraft, useCrashRecovery } from './persistence';
+export type { SessionState, Draft, CrashRecoveryState } from './persistence';

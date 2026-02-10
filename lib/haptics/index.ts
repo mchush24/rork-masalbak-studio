@@ -3,6 +3,6 @@
  * Phase 2: Haptic System Enhancement
  */
 
-export { hapticService, HapticService } from './HapticService';
-export type { HapticPattern } from './HapticService';
-export { useHaptics, useHapticFeedback } from './useHaptics';
+export { hapticService, HapticService, hapticService as hapticManager } from './HapticService';
+export type { HapticPattern, HapticPattern as HapticType } from './HapticService';
+export { useHaptics, useHapticFeedback, useHaptics as useHaptic } from './useHaptics';

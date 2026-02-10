@@ -8,11 +8,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -27,8 +23,9 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface SkeletonBoxProps {
   width: number | string;
-  height: number;
+  height: number | string;
   borderRadius?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style?: any;
 }
 
@@ -36,21 +33,14 @@ function SkeletonBox({ width, height, borderRadius: br = 8, style }: SkeletonBox
   const shimmerAnim = useSharedValue(0);
 
   React.useEffect(() => {
-    shimmerAnim.value = withRepeat(
-      withTiming(1, { duration: 1500 }),
-      -1,
-      false
-    );
+    shimmerAnim.value = withRepeat(withTiming(1, { duration: 1500 }), -1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(
-          shimmerAnim.value,
-          [0, 1],
-          [-100, SCREEN_WIDTH]
-        ),
+        translateX: interpolate(shimmerAnim.value, [0, 1], [-100, SCREEN_WIDTH]),
       },
     ],
   }));
@@ -59,6 +49,7 @@ function SkeletonBox({ width, height, borderRadius: br = 8, style }: SkeletonBox
     <View
       style={[
         {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           width: width as any,
           height,
           borderRadius: br,

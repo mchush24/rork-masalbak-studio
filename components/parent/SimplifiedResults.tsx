@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Star,
@@ -23,8 +23,6 @@ import {
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
-
-const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface StrengthItem {
   id: string;
@@ -138,14 +136,14 @@ export function SimplifiedResults({
           style={({ pressed }) => [styles.actionButton, pressed && styles.actionButtonPressed]}
           onPress={onShare}
         >
-          <Share2 size={18} color={Colors.primary.sky} />
+          <Share2 size={18} color={Colors.secondary.sky} />
           <Text style={styles.actionButtonText}>Paylaş</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [styles.actionButton, pressed && styles.actionButtonPressed]}
           onPress={onSaveReport}
         >
-          <Download size={18} color={Colors.primary.mint} />
+          <Download size={18} color={Colors.secondary.mint} />
           <Text style={styles.actionButtonText}>Kaydet</Text>
         </Pressable>
         <Pressable
@@ -195,7 +193,7 @@ export function SimplifiedResults({
       {/* Development Areas Section */}
       <Pressable style={styles.sectionHeader} onPress={() => toggleSection('development')}>
         <View style={styles.sectionTitleContainer}>
-          <BookOpen size={20} color={Colors.primary.sky} />
+          <BookOpen size={20} color={Colors.secondary.sky} />
           <Text style={styles.sectionTitle}>Gelişim Alanları</Text>
         </View>
         {expandedSection === 'development' ? (
@@ -252,7 +250,7 @@ export function SimplifiedResults({
       {/* Recommendations Section */}
       <Pressable style={styles.sectionHeader} onPress={() => toggleSection('recommendations')}>
         <View style={styles.sectionTitleContainer}>
-          <Lightbulb size={20} color={Colors.primary.mint} />
+          <Lightbulb size={20} color={Colors.secondary.mint} />
           <Text style={styles.sectionTitle}>Öneriler</Text>
         </View>
         {expandedSection === 'recommendations' ? (
@@ -274,7 +272,7 @@ export function SimplifiedResults({
               >
                 <View style={styles.recommendationHeader}>
                   <View style={styles.recommendationIcon}>
-                    <Lightbulb size={18} color={Colors.primary.mint} />
+                    <Lightbulb size={18} color={Colors.secondary.mint} />
                   </View>
                   <View style={styles.recommendationContent}>
                     <Text style={styles.recommendationTitle}>{rec.title}</Text>
@@ -292,7 +290,7 @@ export function SimplifiedResults({
                     <Text style={styles.activitiesTitle}>Önerilen Aktiviteler:</Text>
                     {rec.activities.map((activity, index) => (
                       <View key={index} style={styles.activityItem}>
-                        <Check size={14} color={Colors.primary.mint} />
+                        <Check size={14} color={Colors.secondary.mint} />
                         <Text style={styles.activityText}>{activity}</Text>
                       </View>
                     ))}
@@ -306,7 +304,7 @@ export function SimplifiedResults({
 
       {/* Info Note */}
       <View style={styles.infoNote}>
-        <Info size={16} color={Colors.primary.sky} />
+        <Info size={16} color={Colors.secondary.sky} />
         <Text style={styles.infoNoteText}>
           Bu sonuçlar yapay zeka destekli analize dayanmaktadır. Detaylı değerlendirme için bir
           uzmana danışmanızı öneririz.
@@ -591,7 +589,7 @@ const styles = StyleSheet.create({
   infoNoteText: {
     flex: 1,
     fontSize: 12,
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
     lineHeight: 18,
   },
   bottomSpacer: {

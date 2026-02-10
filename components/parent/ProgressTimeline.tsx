@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   TrendingUp,
@@ -21,8 +21,6 @@ import {
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
-
-const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ProgressEntry {
   id: string;
@@ -129,7 +127,7 @@ export function ProgressTimeline({
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <LinearGradient
-        colors={[Colors.primary.mint, Colors.primary.sky]}
+        colors={[Colors.secondary.mint, Colors.secondary.sky]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.header}
@@ -262,7 +260,7 @@ export function ProgressTimeline({
                   <View style={styles.highlightsContainer}>
                     {entry.highlights.slice(0, 2).map((highlight, idx) => (
                       <View key={idx} style={styles.highlightItem}>
-                        <Sparkles size={12} color={Colors.primary.mint} />
+                        <Sparkles size={12} color={Colors.secondary.mint} />
                         <Text style={styles.highlightText} numberOfLines={1}>
                           {highlight}
                         </Text>
@@ -274,7 +272,7 @@ export function ProgressTimeline({
                 {/* View Details */}
                 <View style={styles.viewDetails}>
                   <Text style={styles.viewDetailsText}>Detayları Gör</Text>
-                  <ChevronRight size={14} color={Colors.primary.sky} />
+                  <ChevronRight size={14} color={Colors.secondary.sky} />
                 </View>
               </Pressable>
             </View>
@@ -302,7 +300,7 @@ export function ProgressTimeline({
           onPress={onViewAllPress}
         >
           <Text style={styles.viewAllButtonText}>Tüm Geçmişi Gör</Text>
-          <ChevronRight size={18} color={Colors.primary.sky} />
+          <ChevronRight size={18} color={Colors.secondary.sky} />
         </Pressable>
       )}
 
@@ -393,8 +391,8 @@ const styles = StyleSheet.create({
     marginRight: spacing['2'],
   },
   filterChipActive: {
-    backgroundColor: Colors.primary.sky,
-    borderColor: Colors.primary.sky,
+    backgroundColor: Colors.secondary.sky,
+    borderColor: Colors.secondary.sky,
   },
   filterChipText: {
     fontSize: 13,
@@ -536,7 +534,7 @@ const styles = StyleSheet.create({
   viewDetailsText: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
   },
   emptyState: {
     alignItems: 'center',
@@ -565,7 +563,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: Colors.primary.sky,
+    borderColor: Colors.secondary.sky,
   },
   viewAllButtonPressed: {
     backgroundColor: '#F0F9FF',
@@ -573,7 +571,7 @@ const styles = StyleSheet.create({
   viewAllButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
   },
   encouragementCard: {
     flexDirection: 'row',

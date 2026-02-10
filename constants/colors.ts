@@ -231,6 +231,7 @@ export const Colors = {
     peach: '#FFB299', // Hover ve açık tonlar
     blush: '#FFC4B0', // Çok açık ton, arka planlar için
     soft: '#FFF5F2', // Çok yumuşak arka plan
+    softPeach: '#FFE8E0', // Yumuşak şeftali tonu
   },
 
   // İkincil Renkler - "Bahçe" teması
@@ -258,6 +259,12 @@ export const Colors = {
     // Turkuaz (yenilik, teknoloji)
     mint: '#6FEDD6', // Boyama, yaratıcılık
     mintLight: '#A3F5E8', // Açık ton
+
+    // Şeftali ve mercan tonları
+    peach: '#FFB299', // Şeftali tonu
+    peachLight: '#FFD1C0', // Açık şeftali
+    coral: '#FF6B6B', // Mercan
+    coralLight: '#FF9B9B', // Açık mercan
   },
 
   // Nötr Tonlar - WCAG AA uyumlu
@@ -269,6 +276,7 @@ export const Colors = {
     lighter: '#E2E8F0', // Kenarlıklar
     lightest: '#F7FAFC', // Arka plan
     white: '#FFFFFF', // Beyaz
+    darker: '#2D3748', // Alias for darkest
   },
 
   // Arka Plan Renkleri - Gradient & Solid
@@ -679,6 +687,12 @@ export const ProfessionalColors = {
     700: '#404040',
     800: '#262626',
     900: '#171717',
+    // Named aliases for convenience
+    black: '#171717',
+    darkGray: '#404040',
+    gray: '#737373',
+    grayLight: '#D4D4D4',
+    white: '#FAFAFA',
   },
 
   // Text hierarchy - clear readability

@@ -33,8 +33,8 @@ import { Colors } from '@/constants/colors';
 import { radius } from '@/constants/design-system';
 
 // Cache directory
-// eslint-disable-next-line import/namespace
-const IMAGE_CACHE_DIR = `${FileSystem.cacheDirectory}images/`;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const IMAGE_CACHE_DIR = `${(FileSystem as any).cacheDirectory}images/`;
 
 // Ensure cache directory exists
 async function ensureCacheDir() {
@@ -175,7 +175,7 @@ export function useCachedImage(uri: string | undefined) {
 
     async function loadCached() {
       try {
-        const cached = await imageCache.getCachedUri(uri);
+        const cached = await imageCache.getCachedUri(uri!);
         if (mounted) {
           setCachedUri(cached);
           setIsLoading(false);
@@ -267,7 +267,8 @@ export function OptimizedImage({
         duration: fadeDuration,
         easing: Easing.out(Easing.ease),
       });
-      onLoad?.(event);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onLoad?.(event as any);
     },
     [fadeDuration, opacity, onLoad]
   );
@@ -276,7 +277,8 @@ export function OptimizedImage({
   const handleError = useCallback(
     (event: unknown) => {
       setHasError(true);
-      onError?.(event);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError?.(event as any);
     },
     [onError]
   );

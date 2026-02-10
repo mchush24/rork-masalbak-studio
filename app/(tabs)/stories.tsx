@@ -46,6 +46,9 @@ import {
 } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { QuotaExceededModal } from '@/components/quota/QuotaExceededModal';
+import { useQuota } from '@/hooks/useQuota';
+import { useToastHelpers } from '@/components/ui/Toast';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -84,6 +87,11 @@ export default function StoriesScreen() {
   const [storyTitle, setStoryTitle] = useState('');
   const [storyImage, setStoryImage] = useState<string | null>(null);
   const [loadingStory, setLoadingStory] = useState(false);
+
+  // Quota
+  const { shouldShowLowWarning, refetch: refetchQuota } = useQuota();
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const { warning: showWarningToast } = useToastHelpers();
 
   // Theme suggestion states
   type ThemeSuggestion = {
@@ -482,6 +490,11 @@ export default function StoriesScreen() {
       return;
     }
 
+    // Low quota warning (session-based, once)
+    if (shouldShowLowWarning()) {
+      showWarningToast('Jetonlarınız azalıyor');
+    }
+
     // Determine final title: selected theme > manual title > auto-generated
     let finalTitle: string;
     if (selectedThemeIndex !== null && themeSuggestions[selectedThemeIndex]) {
@@ -669,11 +682,18 @@ export default function StoriesScreen() {
         params: { id: result.sessionId },
       });
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
-      Alert.alert('Hata', errorMessage, [
-        { text: 'Vazgeç', style: 'cancel' },
-        { text: 'Tekrar Dene', onPress: () => proceedWithInteractiveStory(title) },
-      ]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const trpcCode = (e as any)?.data?.code || (e as any)?.code;
+      if (trpcCode === 'FORBIDDEN' || (e instanceof Error && e.message.includes('quota'))) {
+        setShowQuotaModal(true);
+        refetchQuota();
+      } else {
+        const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
+        Alert.alert('Hata', errorMessage, [
+          { text: 'Vazgeç', style: 'cancel' },
+          { text: 'Tekrar Dene', onPress: () => proceedWithInteractiveStory(title) },
+        ]);
+      }
     } finally {
       setLoadingStory(false);
     }
@@ -943,11 +963,18 @@ export default function StoriesScreen() {
 
       // Note: Navigation is handled above for both therapeutic and normal modes
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
-      Alert.alert('Hata', errorMessage, [
-        { text: 'Vazgeç', style: 'cancel' },
-        { text: 'Tekrar Dene', onPress: handleStorybook },
-      ]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const trpcCode = (e as any)?.data?.code || (e as any)?.code;
+      if (trpcCode === 'FORBIDDEN' || (e instanceof Error && e.message.includes('quota'))) {
+        setShowQuotaModal(true);
+        refetchQuota();
+      } else {
+        const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
+        Alert.alert('Hata', errorMessage, [
+          { text: 'Vazgeç', style: 'cancel' },
+          { text: 'Tekrar Dene', onPress: handleStorybook },
+        ]);
+      }
     } finally {
       setLoadingStory(false);
     }
@@ -1793,6 +1820,8 @@ export default function StoriesScreen() {
           </View>
         </Modal>
       </LinearGradient>
+
+      <QuotaExceededModal visible={showQuotaModal} onClose={() => setShowQuotaModal(false)} />
     </View>
   );
 }

@@ -39,7 +39,8 @@ app.use(
     xPermittedCrossDomainPolicies: 'none',
     // Content Security Policy
     contentSecurityPolicy: isDev
-      ? false
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (false as any)
       : {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],

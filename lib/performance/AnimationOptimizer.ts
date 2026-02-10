@@ -165,7 +165,7 @@ export function useAnimationCleanup(animations: SharedValue<number>[]) {
  * Creates an optimized animated style with memoization
  */
 export function useOptimizedStyle<T extends object>(styleCreator: () => T): () => T {
-  return useAnimatedStyle(styleCreator);
+  return useAnimatedStyle(styleCreator) as unknown as () => T;
 }
 
 /**

@@ -10,14 +10,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  RefreshControl,
-  RefreshControlProps,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, RefreshControl, RefreshControlProps } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -27,13 +20,15 @@ import Animated, {
   withTiming,
   Easing,
   interpolate,
-  runOnJS,
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius } from '@/constants/design-system';
+import { typography, spacing } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 
-interface EnhancedRefreshControlProps extends Omit<RefreshControlProps, 'onRefresh'> {
+interface EnhancedRefreshControlProps extends Omit<
+  RefreshControlProps,
+  'onRefresh' | 'refreshing'
+> {
   /** Called when refresh is triggered */
   onRefresh: () => Promise<void>;
   /** Refresh message */
@@ -89,11 +84,7 @@ interface UseRefreshOptions {
   refreshingMessage?: string;
 }
 
-export function useEnhancedRefresh({
-  onRefresh,
-  message,
-  refreshingMessage,
-}: UseRefreshOptions) {
+export function useEnhancedRefresh({ onRefresh, message, refreshingMessage }: UseRefreshOptions) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { success } = useHapticFeedback();
 
@@ -111,7 +102,6 @@ export function useEnhancedRefresh({
   const refreshControl = (
     <EnhancedRefreshControl
       onRefresh={onRefresh}
-      refreshing={isRefreshing}
       message={message}
       refreshingMessage={refreshingMessage}
     />
@@ -142,10 +132,7 @@ export function AnimatedRefreshIndicator({
 
   React.useEffect(() => {
     if (refreshing) {
-      rotation.value = withRepeat(
-        withTiming(360, { duration: 1000, easing: Easing.linear }),
-        -1
-      );
+      rotation.value = withRepeat(withTiming(360, { duration: 1000, easing: Easing.linear }), -1);
       scale.value = withSpring(1);
     } else {
       rotation.value = 0;
@@ -154,10 +141,7 @@ export function AnimatedRefreshIndicator({
   }, [refreshing, progress, rotation, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` },
-    ],
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
     opacity: interpolate(scale.value, [0, 0.5, 1], [0, 0.5, 1]),
   }));
 
@@ -165,13 +149,8 @@ export function AnimatedRefreshIndicator({
     <Animated.View style={[styles.indicator, { width: size, height: size }, animatedStyle]}>
       <View style={styles.indicatorRing}>
         {/* Animated dots */}
-        {[0, 1, 2, 3].map((i) => (
-          <AnimatedDot
-            key={i}
-            index={i}
-            size={size / 6}
-            refreshing={refreshing}
-          />
+        {[0, 1, 2, 3].map(i => (
+          <AnimatedDot key={i} index={i} size={size / 6} refreshing={refreshing} />
         ))}
       </View>
     </Animated.View>
@@ -200,10 +179,7 @@ function AnimatedDot({ index, size, refreshing }: AnimatedDotProps) {
         true
       );
       opacity.value = withRepeat(
-        withSequence(
-          withTiming(1, { duration: 300 }),
-          withTiming(0.5, { duration: 300 })
-        ),
+        withSequence(withTiming(1, { duration: 300 }), withTiming(0.5, { duration: 300 })),
         -1,
         true
       );
@@ -241,7 +217,8 @@ function AnimatedDot({ index, size, refreshing }: AnimatedDotProps) {
           height: size,
           borderRadius: size / 2,
           backgroundColor: dotColors[index],
-          ...positions[index],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ...(positions[index] as any),
         },
         animatedStyle,
       ]}

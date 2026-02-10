@@ -37,9 +37,7 @@ export interface ShakeAnimationReturn {
   isShaking: { value: boolean };
 }
 
-export function useShakeAnimation(
-  config: ShakeAnimationConfig = {}
-): ShakeAnimationReturn {
+export function useShakeAnimation(config: ShakeAnimationConfig = {}): ShakeAnimationReturn {
   const {
     intensity = 10,
     duration = 80,
@@ -92,20 +90,20 @@ export function useShakeAnimation(
     // Create alternating shake values: [intensity, -intensity, intensity, -intensity, ...]
     const shakeSequence: ReturnType<typeof withTiming>[] = [];
     for (let i = 0; i < shakeCount; i++) {
-      shakeSequence.push(
-        withTiming(intensity, timingConfig),
-        withTiming(-intensity, timingConfig)
-      );
+      shakeSequence.push(withTiming(intensity, timingConfig), withTiming(-intensity, timingConfig));
     }
     // Return to center
     shakeSequence.push(withTiming(0, timingConfig));
 
-    translateX.value = withSequence(...shakeSequence);
+    translateX.value = withSequence(...shakeSequence) as number;
 
     // Reset isShaking after animation completes
-    setTimeout(() => {
-      isShaking.value = false;
-    }, duration * (shakeCount * 2 + 1));
+    setTimeout(
+      () => {
+        isShaking.value = false;
+      },
+      duration * (shakeCount * 2 + 1)
+    );
   }, [translateX, isShaking, intensity, duration, shakeCount, hapticEnabled, hapticType]);
 
   return {

@@ -159,7 +159,7 @@ export const analysisChatRouter = createTRPCRouter({
 
     // Get or create conversation
     let conversationId = input.conversationId;
-    let messages: { role: string; content: string }[] = [];
+    let messages: { role: 'user' | 'assistant'; content: string }[] = [];
 
     if (conversationId) {
       const { data: conversation, error: convError } = await supabase

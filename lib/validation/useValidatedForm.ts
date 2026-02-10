@@ -64,7 +64,8 @@ export function useValidatedForm<T extends FieldValues>({
 
   const form = useForm<T>({
     ...formOptions,
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema as any) as any,
   });
 
   const clearSubmitError = useCallback(() => {
@@ -76,7 +77,8 @@ export function useValidatedForm<T extends FieldValues>({
     setIsSubmitting(true);
 
     try {
-      await form.handleSubmit(async (data) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await form.handleSubmit(async (data: any) => {
         await onSubmit(data);
       })();
     } catch (error) {
@@ -95,7 +97,7 @@ export function useValidatedForm<T extends FieldValues>({
     submitError,
     handleFormSubmit,
     clearSubmitError,
-  };
+  } as UseValidatedFormReturn<T>;
 }
 
 /**

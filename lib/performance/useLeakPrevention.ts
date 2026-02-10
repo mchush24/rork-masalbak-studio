@@ -5,7 +5,7 @@
  * in React Native applications
  */
 
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
 // ============================================
@@ -88,10 +88,10 @@ function makeCancellable<T>(promise: Promise<T>): CancellablePromise<T> {
 
   const wrappedPromise = new Promise<T>((resolve, reject) => {
     promise
-      .then((val) => {
+      .then(val => {
         if (!isCancelled) resolve(val);
       })
-      .catch((error) => {
+      .catch(error => {
         if (!isCancelled) reject(error);
       });
   });
@@ -121,7 +121,7 @@ export function useCancellablePromise() {
   useEffect(() => {
     return () => {
       // Cancel all pending promises on unmount
-      pendingPromises.current.forEach((p) => p.cancel());
+      pendingPromises.current.forEach(p => p.cancel());
       pendingPromises.current = [];
     };
   }, []);
@@ -131,12 +131,12 @@ export function useCancellablePromise() {
     pendingPromises.current.push(cancellable);
 
     return cancellable.promise.finally(() => {
-      pendingPromises.current = pendingPromises.current.filter((p) => p !== cancellable);
+      pendingPromises.current = pendingPromises.current.filter(p => p !== cancellable);
     });
   }, []);
 
   const cancel = useCallback(() => {
-    pendingPromises.current.forEach((p) => p.cancel());
+    pendingPromises.current.forEach(p => p.cancel());
     pendingPromises.current = [];
   }, []);
 
@@ -164,7 +164,7 @@ export function useEventListenerCleanup() {
 
   useEffect(() => {
     return () => {
-      cleanupFns.current.forEach((cleanup) => cleanup());
+      cleanupFns.current.forEach(cleanup => cleanup());
       cleanupFns.current = [];
     };
   }, []);
@@ -209,7 +209,7 @@ export function useSubscriptionCleanup() {
 
   useEffect(() => {
     return () => {
-      subscriptions.current.forEach((unsub) => unsub());
+      subscriptions.current.forEach(unsub => unsub());
       subscriptions.current = [];
     };
   }, []);
@@ -246,7 +246,7 @@ export function useAppStateAwareEffect(
   options: { pauseInBackground?: boolean } = {}
 ) {
   const { pauseInBackground = true } = options;
-  const cleanupRef = useRef<(() => void) | void>();
+  const cleanupRef = useRef<(() => void) | void>(undefined);
   const appState = useRef(AppState.currentState);
 
   useEffect(() => {
@@ -314,12 +314,10 @@ export function useCachedCallback<T extends (...args: unknown[]) => unknown>(
 
   useEffect(() => {
     callbackRef.current = callback;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callback, ...deps]);
 
-  return useCallback(
-    ((...args: Parameters<T>) => callbackRef.current(...args)) as T,
-    []
-  );
+  return useCallback(((...args: Parameters<T>) => callbackRef.current(...args)) as T, []);
 }
 
 // ============================================
@@ -374,7 +372,7 @@ export class WeakCache<K extends object, V> {
   private finalizationRegistry: FinalizationRegistry<K>;
 
   constructor() {
-    this.finalizationRegistry = new FinalizationRegistry((key) => {
+    this.finalizationRegistry = new FinalizationRegistry(key => {
       this.cache.delete(key);
     });
   }

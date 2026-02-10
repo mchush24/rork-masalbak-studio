@@ -23,23 +23,25 @@
  */
 export type IooMood =
   // Core moods (must be supported by all implementations)
-  | 'happy'      // Default, cheerful expression
-  | 'excited'    // Very happy, bouncy
-  | 'curious'    // Tilted head, interested look
-  | 'sleepy'     // Drowsy, half-closed eyes
-  | 'love'       // Heart eyes or loving expression
+  | 'happy' // Default, cheerful expression
+  | 'excited' // Very happy, bouncy
+  | 'curious' // Tilted head, interested look
+  | 'sleepy' // Drowsy, half-closed eyes
+  | 'love' // Heart eyes or loving expression
 
   // Extended moods (supported by full implementations)
-  | 'neutral'    // Calm, no particular emotion
-  | 'calm'       // Peaceful, relaxed
-  | 'thinking'   // Contemplative, looking up
-  | 'concerned'  // Worried, empathetic
-  | 'sad'        // Unhappy, supportive mood
+  | 'neutral' // Calm, no particular emotion
+  | 'calm' // Peaceful, relaxed
+  | 'thinking' // Contemplative, looking up
+  | 'concerned' // Worried, empathetic
+  | 'sad' // Unhappy, supportive mood
+  | 'loving' // Affectionate, warm expression
+  | 'angry' // Frustrated, upset expression
 
   // Special moods (for specific use cases)
-  | 'talking'    // Animated mouth for speech
-  | 'surprised'  // Wide eyes, open mouth
-  | 'wink';      // Playful wink
+  | 'talking' // Animated mouth for speech
+  | 'surprised' // Wide eyes, open mouth
+  | 'wink'; // Playful wink
 
 /**
  * Core moods that all implementations must support
@@ -60,6 +62,8 @@ export const MOOD_DESCRIPTIONS: Record<IooMood, string> = {
   thinking: 'Contemplative, looking upward',
   concerned: 'Worried, empathetic expression',
   sad: 'Unhappy, supportive mood',
+  loving: 'Affectionate, warm expression',
+  angry: 'Frustrated, upset expression',
   talking: 'Animated mouth for speech animations',
   surprised: 'Wide eyes, startled look',
   wink: 'Playful winking expression',
@@ -70,16 +74,16 @@ export const MOOD_DESCRIPTIONS: Record<IooMood, string> = {
  */
 export const MOOD_ALIASES: Record<string, IooMood> = {
   // Common aliases
-  'default': 'happy',
-  'normal': 'neutral',
-  'tired': 'sleepy',
-  'wonder': 'curious',
-  'loving': 'love',
-  'worried': 'concerned',
-  'unhappy': 'sad',
-  'amazed': 'surprised',
-  'playful': 'wink',
-  'speaking': 'talking',
+  default: 'happy',
+  normal: 'neutral',
+  tired: 'sleepy',
+  wonder: 'curious',
+  loving: 'love',
+  worried: 'concerned',
+  unhappy: 'sad',
+  amazed: 'surprised',
+  playful: 'wink',
+  speaking: 'talking',
 };
 
 // ============================================================================
@@ -90,16 +94,16 @@ export const MOOD_ALIASES: Record<string, IooMood> = {
  * Standard size options for Ioo mascot
  */
 export type IooSize =
-  | 'xs'      // 50px - Icon size
-  | 'tiny'    // 60-70px - Very small, badges
-  | 'sm'      // 70px - Small
-  | 'small'   // 100px - Standard small
-  | 'md'      // 100px - Medium alias
-  | 'medium'  // 140px - Standard medium (default)
-  | 'lg'      // 180px - Large
-  | 'large'   // 200px - Standard large
-  | 'hero'    // 280px - Hero sections
-  | 'giant';  // 350-360px - Full screen
+  | 'xs' // 50px - Icon size
+  | 'tiny' // 60-70px - Very small, badges
+  | 'sm' // 70px - Small
+  | 'small' // 100px - Standard small
+  | 'md' // 100px - Medium alias
+  | 'medium' // 140px - Standard medium (default)
+  | 'lg' // 180px - Large
+  | 'large' // 200px - Standard large
+  | 'hero' // 280px - Hero sections
+  | 'giant'; // 350-360px - Full screen
 
 /**
  * Size to pixel mapping - unified across all components
@@ -230,14 +234,14 @@ export const IOO_COLORS = {
  * Standard animation durations
  */
 export const ANIMATION_DURATIONS = {
-  breathe: 2000,      // Breathing cycle
-  float: 2000,        // Floating up/down
-  blink: 70,          // Eye blink
+  breathe: 2000, // Breathing cycle
+  float: 2000, // Floating up/down
+  blink: 70, // Eye blink
   blinkInterval: [3000, 5500], // Min/max time between blinks
-  wave: 200,          // Hand wave movement
-  glow: 1500,         // Glow pulse
-  bounce: 300,        // Touch bounce
-  wiggle: 50,         // Wiggle per frame
+  wave: 200, // Hand wave movement
+  glow: 1500, // Glow pulse
+  bounce: 300, // Touch bounce
+  wiggle: 50, // Wiggle per frame
 };
 
 /**
@@ -246,8 +250,8 @@ export const ANIMATION_DURATIONS = {
 export const ANIMATION_SCALES = {
   breatheMin: 0.97,
   breatheMax: 1.03,
-  floatDistance: 6,     // pixels
-  bounceDistance: 10,   // pixels
+  floatDistance: 6, // pixels
+  bounceDistance: 10, // pixels
 };
 
 /**

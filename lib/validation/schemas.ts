@@ -21,10 +21,7 @@ const passwordSchema = z
   .min(6, 'Şifre en az 6 karakter olmalıdır')
   .max(100, 'Şifre çok uzun');
 
-const nameSchema = z
-  .string()
-  .min(2, 'İsim en az 2 karakter olmalıdır')
-  .max(50, 'İsim çok uzun');
+const nameSchema = z.string().min(2, 'İsim en az 2 karakter olmalıdır').max(50, 'İsim çok uzun');
 
 // ============================================
 // Authentication Schemas
@@ -85,14 +82,8 @@ export const userProfileSchema = z.object({
 export type UserProfileFormData = z.infer<typeof userProfileSchema>;
 
 export const childProfileSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Çocuğun adı gereklidir')
-    .max(30, 'İsim çok uzun'),
-  age: z
-    .number()
-    .min(3, 'Yaş en az 3 olmalıdır')
-    .max(12, 'Yaş en fazla 12 olabilir'),
+  name: z.string().min(1, 'Çocuğun adı gereklidir').max(30, 'İsim çok uzun'),
+  age: z.number().min(3, 'Yaş en az 3 olmalıdır').max(12, 'Yaş en fazla 12 olabilir'),
   gender: z.enum(['male', 'female', 'other']).optional(),
   birthDate: z.string().optional(),
   avatarId: z.string().optional(),
@@ -147,7 +138,8 @@ export type PrivacySettingsFormData = z.infer<typeof privacySettingsSchema>;
  * Get error message from Zod validation error
  */
 export function getFirstError(error: z.ZodError): string {
-  return error.errors[0]?.message || 'Doğrulama hatası';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (error as any).errors?.[0]?.message || error.issues?.[0]?.message || 'Doğrulama hatası';
 }
 
 /**

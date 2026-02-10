@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Camera,
@@ -22,8 +22,6 @@ import {
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
-
-const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface AnalysisStep {
   id: string;
@@ -160,7 +158,7 @@ export function GuidedAnalysis({
     <View style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={[Colors.primary.sky, Colors.primary.mint]}
+        colors={[Colors.secondary.sky, Colors.secondary.mint]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.header}
@@ -212,7 +210,7 @@ export function GuidedAnalysis({
         {/* Tips Section */}
         <Pressable style={styles.tipsContainer} onPress={() => setShowTips(!showTips)}>
           <View style={styles.tipsHeader}>
-            <Info size={18} color={Colors.primary.sky} />
+            <Info size={18} color={Colors.secondary.sky} />
             <Text style={styles.tipsTitle}>Faydalı İpuçları</Text>
             <View style={[styles.tipsToggle, showTips && styles.tipsToggleActive]}>
               <Text style={styles.tipsToggleText}>{showTips ? 'Gizle' : 'Göster'}</Text>
@@ -268,7 +266,7 @@ export function GuidedAnalysis({
                   onPress={handleSelectImage}
                 >
                   <View style={styles.captureButtonIcon}>
-                    <Upload size={32} color={Colors.primary.mint} />
+                    <Upload size={32} color={Colors.secondary.mint} />
                   </View>
                   <Text style={styles.captureButtonTitle}>Galeriden Seç</Text>
                   <Text style={styles.captureButtonHint}>Mevcut fotoğraf</Text>
@@ -293,7 +291,7 @@ export function GuidedAnalysis({
 
         {/* Help Link */}
         <Pressable style={styles.helpLink}>
-          <HelpCircle size={16} color={Colors.primary.sky} />
+          <HelpCircle size={16} color={Colors.secondary.sky} />
           <Text style={styles.helpLinkText}>Yardıma mı ihtiyacınız var?</Text>
         </Pressable>
       </ScrollView>
@@ -443,7 +441,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
   },
   tipsToggle: {
     backgroundColor: 'rgba(56, 189, 248, 0.2)',
@@ -452,12 +450,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tipsToggleActive: {
-    backgroundColor: Colors.primary.sky,
+    backgroundColor: Colors.secondary.sky,
   },
   tipsToggleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
   },
   tipsList: {
     marginTop: spacing['3'],
@@ -472,7 +470,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.primary.sky,
+    backgroundColor: Colors.secondary.sky,
     marginTop: 7,
   },
   tipText: {
@@ -588,7 +586,7 @@ const styles = StyleSheet.create({
   },
   helpLinkText: {
     fontSize: 14,
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
     fontWeight: '500',
   },
   bottomActions: {

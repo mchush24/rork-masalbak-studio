@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -5,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
-  Dimensions,
   Share,
   Alert,
   ActivityIndicator,
@@ -21,10 +21,7 @@ import {
   Download,
   Brain,
   Smile,
-  Frown,
-  Meh,
   MessageCircle,
-  StickyNote,
 } from 'lucide-react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -35,12 +32,10 @@ import { AnalysisChatSheet } from '@/components/analysis-chat';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 export default function AnalysisResultScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { isSmallScreen, screenPadding } = useResponsive();
+  const { screenPadding } = useResponsive();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isFavorited, setIsFavorited] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -58,14 +53,16 @@ export default function AnalysisResultScreen() {
   // Validate ID parameter
   useEffect(() => {
     if (!analysisId) {
-      Alert.alert('Hata', 'Geçersiz analiz ID', [
-        { text: 'Tamam', onPress: () => router.back() }
-      ]);
+      Alert.alert('Hata', 'Geçersiz analiz ID', [{ text: 'Tamam', onPress: () => router.back() }]);
     }
   }, [analysisId, router]);
 
   // Fetch analysis from backend (only when authenticated and ID is valid)
-  const { data: analysisData, isLoading, error } = trpc.analysis.get.useQuery(
+  const {
+    data: analysisData,
+    isLoading,
+    error,
+  } = trpc.analysis.get.useQuery(
     { analysisId: analysisId! },
     { enabled: !!analysisId && isAuthenticated && !authLoading }
   );
@@ -118,7 +115,7 @@ export default function AnalysisResultScreen() {
       const formattedDate = new Date(analysisData.created_at).toLocaleDateString('tr-TR', {
         day: 'numeric',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
       });
 
       // Generate HTML for PDF
@@ -290,33 +287,53 @@ export default function AnalysisResultScreen() {
               <div class="summary-text">${insights[0]?.summary || 'Analiz tamamlandı'}</div>
             </div>
 
-            ${insights.length > 0 ? `
+            ${
+              insights.length > 0
+                ? `
               <div class="section">
                 <div class="section-title">Gözlemler</div>
-                ${insights.map((insight: any) => `
+                ${insights
+                  .map(
+                    (insight: any) => `
                   <div class="insight-item">
                     <div class="insight-title">${insight.title || 'İçgörü'}</div>
                     <div class="insight-text">${insight.summary || ''}</div>
                   </div>
-                `).join('')}
+                `
+                  )
+                  .join('')}
               </div>
-            ` : ''}
+            `
+                : ''
+            }
 
-            ${homeTips.length > 0 ? `
+            ${
+              homeTips.length > 0
+                ? `
               <div class="section">
                 <div class="section-title">Öneriler</div>
-                ${homeTips.map((tip: any) => `
+                ${homeTips
+                  .map(
+                    (tip: any) => `
                   <div class="tip-item">
                     <div class="tip-title">${tip.title || 'Öneri'}</div>
-                    ${tip.steps?.length > 0 ? `
+                    ${
+                      tip.steps?.length > 0
+                        ? `
                       <div class="tip-steps">
                         ${tip.steps.map((step: string) => `• ${step}`).join('<br>')}
                       </div>
-                    ` : ''}
+                    `
+                        : ''
+                    }
                   </div>
-                `).join('')}
+                `
+                  )
+                  .join('')}
               </div>
-            ` : ''}
+            `
+                : ''
+            }
 
             <div class="footer">
               <div class="disclaimer">
@@ -414,13 +431,14 @@ export default function AnalysisResultScreen() {
   const formattedDate = new Date(analysisData.created_at).toLocaleDateString('tr-TR', {
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   });
 
   // Calculate emotional indicators from insights
   const emotionalIndicators = insights.slice(0, 4).map((insight: any, index: number) => {
     const colors = ['#7ED99C', '#FFD56B', '#A78BFA', '#78C8E8'];
-    const strengthValue = insight.strength === 'strong' ? 85 : insight.strength === 'moderate' ? 70 : 55;
+    const strengthValue =
+      insight.strength === 'strong' ? 85 : insight.strength === 'moderate' ? 70 : 55;
     return {
       label: insight.title || `İçgörü ${index + 1}`,
       value: strengthValue,
@@ -444,16 +462,15 @@ export default function AnalysisResultScreen() {
             <ArrowLeft size={24} color="white" strokeWidth={2} />
           </Pressable>
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>RENK<Text style={styles.logoAccent}>İOO</Text></Text>
+            <Text style={styles.logoText}>
+              RENK<Text style={styles.logoAccent}>İOO</Text>
+            </Text>
           </View>
           <View style={{ width: 40 }} />
         </View>
 
         <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingHorizontal: screenPadding },
-          ]}
+          contentContainerStyle={[styles.scrollContent, { paddingHorizontal: screenPadding }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Title Section */}
@@ -522,7 +539,10 @@ export default function AnalysisResultScreen() {
                   <View style={[styles.bulletPoint, { backgroundColor: '#7ED99C' }]} />
                   <Text style={styles.insightText}>{tip.title}</Text>
                   {tip.steps?.map((step: string, stepIdx: number) => (
-                    <Text key={stepIdx} style={styles.stepText}>  • {step}</Text>
+                    <Text key={stepIdx} style={styles.stepText}>
+                      {' '}
+                      • {step}
+                    </Text>
                   ))}
                 </View>
               ))}
@@ -532,11 +552,7 @@ export default function AnalysisResultScreen() {
           {/* Shareable Card Section */}
           <View style={styles.shareCardSection}>
             <Text style={styles.shareCardTitle}>Paylaş veya Kaydet</Text>
-            <AnalysisShareCard
-              summary={summary}
-              mood="happy"
-              onSave={handleSave}
-            />
+            <AnalysisShareCard summary={summary} mood="happy" onSave={handleSave} />
           </View>
         </ScrollView>
 
@@ -575,7 +591,7 @@ export default function AnalysisResultScreen() {
 
         {/* Analysis Chat Sheet */}
         <AnalysisChatSheet
-          analysisId={analysisId}
+          analysisId={analysisId!}
           analysisResult={analysisResult}
           childAge={analysisData.child_age}
           childName={analysisData.child_name}

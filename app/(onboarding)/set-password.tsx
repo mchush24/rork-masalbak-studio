@@ -85,7 +85,7 @@ export default function SetPasswordScreen() {
 
   return (
     <LinearGradient
-      colors={colors.gradients.accessible}
+      colors={colors.gradients.accessible as unknown as [string, string, ...string[]]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}

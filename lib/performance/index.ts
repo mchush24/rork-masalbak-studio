@@ -14,7 +14,7 @@ export { useOptimizedAnimation, useAnimationCleanup } from './AnimationOptimizer
 export { OptimizedImage, useImagePreloader } from './ImageOptimizer';
 export { useMemoryManager, useComponentCleanup } from './MemoryManager';
 export { useDeferredLoad, useCriticalPath } from './StartupOptimizer';
-export { PerformanceMonitor, usePerformanceMetrics } from './PerformanceMonitor';
+export { PerformanceMonitor } from './PerformanceMonitor';
 export { VirtualizedList, useVirtualization } from './VirtualizedList';
 
 // Phase 4: Enhanced Performance Tracking

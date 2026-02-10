@@ -42,6 +42,9 @@ import { AgePickerModal } from '@/components/AgePickerModal';
 
 import { AnalysisStepper, AnalysisStep } from '@/components/analysis/AnalysisStepper';
 import { AnalysisLoadingOverlay } from '@/components/analysis/AnalysisLoadingOverlay';
+import { QuotaExceededModal } from '@/components/quota/QuotaExceededModal';
+import { useQuota } from '@/hooks/useQuota';
+import { useToastHelpers } from '@/components/ui/Toast';
 
 // New schema types matching backend
 type AnalysisMeta = {
@@ -103,6 +106,11 @@ export default function AnalyzeScreen() {
   const [showAgePickerModal, setShowAgePickerModal] = useState(false);
   const [selectedAge, setSelectedAge] = useState<number | null>(null);
 
+  // Quota
+  const { shouldShowLowWarning, refetch: refetchQuota } = useQuota();
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const { warning: showWarningToast } = useToastHelpers();
+
   // tRPC mutations
   const analyzeMutation = trpc.studio.analyzeDrawing.useMutation();
 
@@ -118,7 +126,7 @@ export default function AnalyzeScreen() {
 
   // Show welcome modal for first-time users
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
     if (!isCheckingFirstTime && isFirstTime) {
       // Small delay for smooth appearance
       timer = setTimeout(() => {
@@ -137,7 +145,7 @@ export default function AnalyzeScreen() {
 
   // Show age picker when image is selected for the first time
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
     if (selectedImage && !ageCollected && !isCheckingAge) {
       // Small delay for smooth transition
       timer = setTimeout(() => {
@@ -190,6 +198,11 @@ export default function AnalyzeScreen() {
 
   // ✅ YENİ: İyileştirilmiş handleAnalysis
   const handleAnalysis = async () => {
+    // Low quota warning (session-based, once)
+    if (shouldShowLowWarning()) {
+      showWarningToast('Jetonlarınız azalıyor');
+    }
+
     try {
       setError(null); // Önceki hataları temizle
       setAnalyzing(true);
@@ -224,6 +237,16 @@ export default function AnalyzeScreen() {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (err) {
+      // Check for quota exceeded error
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const trpcCode = (err as any)?.data?.code || (err as any)?.code;
+      if (trpcCode === 'FORBIDDEN' || (err instanceof Error && err.message.includes('quota'))) {
+        setShowQuotaModal(true);
+        refetchQuota();
+        setAnalyzing(false);
+        return;
+      }
+
       const message = err instanceof Error ? err.message : 'Bilinmeyen hata oluştu';
       setError(message);
 
@@ -648,6 +671,8 @@ export default function AnalyzeScreen() {
           </ScrollView>
         </LinearGradient>
       )}
+
+      <QuotaExceededModal visible={showQuotaModal} onClose={() => setShowQuotaModal(false)} />
     </View>
   );
 }

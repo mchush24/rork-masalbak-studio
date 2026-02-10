@@ -13,58 +13,138 @@ jest.mock('@/components/Ioo', () => ({
   Ioo: () => null,
 }));
 
+// Mock RoleContext hooks
+jest.mock('@/lib/contexts/RoleContext', () => ({
+  useIsProfessional: () => false,
+  useMascotSettings: () => ({
+    showOnEmptyStates: false,
+    prominence: 'hidden',
+  }),
+}));
+
+// Mock haptics
+jest.mock('@/lib/haptics', () => ({
+  useHapticFeedback: () => ({
+    tapMedium: jest.fn(),
+  }),
+}));
+
+// Mock expo-linear-gradient
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native');
+  return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    LinearGradient: (props: any) => <View {...props} />,
+  };
+});
+
 describe('EmptyState', () => {
-  describe('rendering by type', () => {
-    it('renders no-analysis type', () => {
-      render(<EmptyState type="no-analysis" />);
+  describe('rendering by illustration type', () => {
+    it('renders no-analysis illustration', () => {
+      render(
+        <EmptyState
+          illustration="no-analysis"
+          title="Henüz Analiz Yok"
+          description="Çocuğunuzun bir çizimini yükleyerek duygusal analiz yapabilirsiniz."
+        />
+      );
 
       expect(screen.getByText('Henüz Analiz Yok')).toBeTruthy();
     });
 
-    it('renders no-stories type', () => {
-      render(<EmptyState type="no-stories" />);
+    it('renders no-stories illustration', () => {
+      render(
+        <EmptyState
+          illustration="no-stories"
+          title="Henüz Hikaye Yok"
+          description="İnteraktif hikayelerle çocuğunuzun hayal dünyasını keşfedin."
+        />
+      );
 
       expect(screen.getByText('Henüz Hikaye Yok')).toBeTruthy();
     });
 
-    it('renders no-coloring type', () => {
-      render(<EmptyState type="no-coloring" />);
+    it('renders no-coloring illustration', () => {
+      render(
+        <EmptyState
+          illustration="no-coloring"
+          title="Henüz Boyama Yok"
+          description="Boyama sayfaları ile yaratıcılığınızı ortaya koyun."
+        />
+      );
 
       expect(screen.getByText('Henüz Boyama Yok')).toBeTruthy();
     });
 
-    it('renders no-history type', () => {
-      render(<EmptyState type="no-history" />);
+    it('renders no-history illustration', () => {
+      render(
+        <EmptyState
+          illustration="no-history"
+          title="Geçmiş Boş"
+          description="Henüz bir aktivite yok. Keşfetmeye başlayın!"
+        />
+      );
 
       expect(screen.getByText('Geçmiş Boş')).toBeTruthy();
     });
 
-    it('renders welcome type', () => {
-      render(<EmptyState type="welcome" />);
+    it('renders welcome illustration', () => {
+      render(
+        <EmptyState
+          illustration="welcome"
+          title="Hoş Geldin!"
+          description="Çocuğunuzun duygusal dünyasını keşfetmeye hazır mısınız?"
+        />
+      );
 
       expect(screen.getByText('Hoş Geldin!')).toBeTruthy();
     });
 
-    it('renders search-empty type', () => {
-      render(<EmptyState type="search-empty" />);
+    it('renders search-empty illustration', () => {
+      render(
+        <EmptyState
+          illustration="search-empty"
+          title="Sonuç Bulunamadı"
+          description="Farklı bir şey aramayı dene."
+        />
+      );
 
       expect(screen.getByText('Sonuç Bulunamadı')).toBeTruthy();
     });
 
-    it('renders error type', () => {
-      render(<EmptyState type="error" />);
+    it('renders error illustration', () => {
+      render(
+        <EmptyState
+          illustration="error"
+          title="Bir Hata Oluştu"
+          description="Bir hata oluştu. Lütfen tekrar deneyin."
+        />
+      );
 
       expect(screen.getByText('Bir Hata Oluştu')).toBeTruthy();
     });
 
-    it('renders no-children type', () => {
-      render(<EmptyState type="no-children" />);
+    it('renders no-children illustration', () => {
+      render(
+        <EmptyState
+          illustration="no-children"
+          title="Çocuk Profili Ekle"
+          description="Çocuğunuzun profilini oluşturarak kişiselleştirilmiş deneyim elde edin."
+        />
+      );
 
       expect(screen.getByText('Çocuk Profili Ekle')).toBeTruthy();
     });
 
-    it('renders no-badges type', () => {
-      render(<EmptyState type="no-badges" />);
+    it('renders no-badges illustration', () => {
+      render(
+        <EmptyState
+          illustration="no-badges"
+          title="Henüz Rozet Yok"
+          description="Aktiviteleri tamamlayarak rozetler kazan."
+        />
+      );
 
       expect(screen.getByText('Henüz Rozet Yok')).toBeTruthy();
     });
@@ -72,7 +152,13 @@ describe('EmptyState', () => {
 
   describe('custom content', () => {
     it('renders custom title', () => {
-      render(<EmptyState type="no-analysis" title="Custom Empty Title" />);
+      render(
+        <EmptyState
+          illustration="no-analysis"
+          title="Custom Empty Title"
+          description="Default description"
+        />
+      );
 
       expect(screen.getByText('Custom Empty Title')).toBeTruthy();
     });
@@ -80,7 +166,8 @@ describe('EmptyState', () => {
     it('renders custom description', () => {
       render(
         <EmptyState
-          type="no-analysis"
+          illustration="no-analysis"
+          title="Default Title"
           description="This is a custom description"
         />
       );
@@ -94,7 +181,9 @@ describe('EmptyState', () => {
       const onAction = jest.fn();
       render(
         <EmptyState
-          type="no-analysis"
+          illustration="no-analysis"
+          title="Henüz Analiz Yok"
+          description="Analiz yapın."
           actionLabel="Start Analysis"
           onAction={onAction}
         />
@@ -110,8 +199,12 @@ describe('EmptyState', () => {
       const onSecondaryAction = jest.fn();
       render(
         <EmptyState
-          type="no-analysis"
-          secondaryActionLabel="Learn More"
+          illustration="no-analysis"
+          title="Henüz Analiz Yok"
+          description="Analiz yapın."
+          actionLabel="Start Analysis"
+          onAction={() => {}}
+          secondaryLabel="Learn More"
           onSecondaryAction={onSecondaryAction}
         />
       );
@@ -123,17 +216,31 @@ describe('EmptyState', () => {
     });
 
     it('does not show action button when onAction is not provided', () => {
-      render(<EmptyState type="no-analysis" actionLabel="Start" />);
+      render(
+        <EmptyState
+          illustration="no-analysis"
+          title="Henüz Analiz Yok"
+          description="Analiz yapın."
+          actionLabel="Start"
+        />
+      );
 
       // Button should not be rendered if onAction is not provided
       const button = screen.queryByText('Start');
-      expect(button).toBeTruthy(); // Label shows but may not be pressable
+      expect(button).toBeNull();
     });
   });
 
   describe('compact mode', () => {
     it('renders in compact mode', () => {
-      render(<EmptyState type="no-analysis" compact />);
+      render(
+        <EmptyState
+          illustration="no-analysis"
+          title="Henüz Analiz Yok"
+          description="Analiz yapın."
+          compact
+        />
+      );
 
       expect(screen.getByText('Henüz Analiz Yok')).toBeTruthy();
     });
@@ -143,7 +250,9 @@ describe('EmptyState', () => {
     it('accepts custom style prop', () => {
       render(
         <EmptyState
-          type="no-analysis"
+          illustration="no-analysis"
+          title="Henüz Analiz Yok"
+          description="Analiz yapın."
           style={{ marginTop: 20 }}
         />
       );
@@ -165,13 +274,13 @@ describe('EmptyState presets', () => {
     const { NoStoriesEmpty } = await import('../EmptyState');
     render(<NoStoriesEmpty />);
 
-    expect(screen.getByText('Henüz Hikaye Yok')).toBeTruthy();
+    expect(screen.getByText('Hikaye Zamanı!')).toBeTruthy();
   });
 
   it('NoColoringEmpty renders correctly', async () => {
     const { NoColoringEmpty } = await import('../EmptyState');
     render(<NoColoringEmpty />);
 
-    expect(screen.getByText('Henüz Boyama Yok')).toBeTruthy();
+    expect(screen.getByText('Renklere Hazır mısın?')).toBeTruthy();
   });
 });

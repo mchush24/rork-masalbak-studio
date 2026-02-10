@@ -37,7 +37,10 @@ interface SkeletonProps {
   dark?: boolean;
 }
 
-const VARIANT_STYLES: Record<SkeletonVariant, { width: number | string; height: number; borderRadius: number }> = {
+const VARIANT_STYLES: Record<
+  SkeletonVariant,
+  { width: number | string; height: number; borderRadius: number }
+> = {
   text: { width: '100%', height: 16, borderRadius: 4 },
   title: { width: '60%', height: 24, borderRadius: 6 },
   avatar: { width: 48, height: 48, borderRadius: 24 },
@@ -103,11 +106,7 @@ export function Skeleton({
     return {
       transform: [
         {
-          translateX: interpolate(
-            shimmerPosition.value,
-            [-1, 1],
-            [-200, 200]
-          ),
+          translateX: interpolate(shimmerPosition.value, [-1, 1], [-200, 200]),
         },
       ],
     };
@@ -126,7 +125,8 @@ export function Skeleton({
       style={[
         styles.container,
         {
-          width: finalWidth,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          width: finalWidth as any,
           height: finalHeight,
           borderRadius: finalBorderRadius,
           backgroundColor: baseColor,

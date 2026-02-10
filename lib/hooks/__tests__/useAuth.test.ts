@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * useAuth Hook Tests
  *
@@ -164,7 +165,7 @@ describe('useAuth', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(typeof result.current.register).toBe('function');
+      expect(typeof (result.current as any).register).toBe('function');
     });
   });
 
@@ -207,7 +208,7 @@ describe('useAuth', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(typeof result.current.addChild).toBe('function');
+      expect(typeof (result.current as any).addChild).toBe('function');
     });
 
     it('exposes updateChild function', async () => {
@@ -217,7 +218,7 @@ describe('useAuth', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(typeof result.current.updateChild).toBe('function');
+      expect(typeof (result.current as any).updateChild).toBe('function');
     });
   });
 });

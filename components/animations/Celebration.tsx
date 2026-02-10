@@ -17,7 +17,6 @@ import Animated, {
   withSpring,
   withDelay,
   withSequence,
-  runOnJS,
   Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -71,10 +70,8 @@ function ConfettiPieceComponent({ piece, duration }: { piece: ConfettiPiece; dur
       easing: Easing.linear,
     });
 
-    opacity.value = withDelay(
-      duration * 0.7,
-      withTiming(0, { duration: duration * 0.3 })
-    );
+    opacity.value = withDelay(duration * 0.7, withTiming(0, { duration: duration * 0.3 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -133,13 +130,14 @@ export function Confetti({ active, onComplete, originX, originY }: ConfettiProps
     if (active) {
       generatePieces();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   if (pieces.length === 0) return null;
 
   return (
     <View style={styles.confettiContainer} pointerEvents="none">
-      {pieces.map((piece) => (
+      {pieces.map(piece => (
         <ConfettiPieceComponent
           key={piece.id}
           piece={piece}
@@ -201,6 +199,7 @@ function StarComponent({ star, colors }: { star: Star; colors: string[] }) {
       star.delay,
       withTiming(360, { duration: 2000, easing: Easing.linear })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -213,13 +212,7 @@ function StarComponent({ star, colors }: { star: Star; colors: string[] }) {
   }));
 
   return (
-    <Animated.View
-      style={[
-        styles.star,
-        { left: star.x, top: star.y },
-        animatedStyle,
-      ]}
-    >
+    <Animated.View style={[styles.star, { left: star.x, top: star.y }, animatedStyle]}>
       <View style={[styles.starInner, { backgroundColor: colors[0] }]} />
     </Animated.View>
   );
@@ -229,7 +222,7 @@ export function Stars({ active, onComplete, originX, originY }: StarsProps) {
   const [stars, setStars] = useState<Star[]>([]);
 
   const generateStars = useCallback(() => {
-    const { count, colors, scale } = celebration.stars;
+    const { count, colors: _colors, scale } = celebration.stars;
     const x = originX ?? SCREEN_WIDTH / 2;
     const y = originY ?? SCREEN_HEIGHT / 3;
 
@@ -254,18 +247,15 @@ export function Stars({ active, onComplete, originX, originY }: StarsProps) {
     if (active) {
       generateStars();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   if (stars.length === 0) return null;
 
   return (
     <View style={styles.starsContainer} pointerEvents="none">
-      {stars.map((star) => (
-        <StarComponent
-          key={star.id}
-          star={star}
-          colors={celebration.stars.colors}
-        />
+      {stars.map(star => (
+        <StarComponent key={star.id} star={star} colors={[...celebration.stars.colors]} />
       ))}
     </View>
   );
@@ -308,26 +298,18 @@ export function Sparkle({ active, x, y, onComplete }: SparkleProps) {
         onComplete?.();
       }, 800);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotate.value}deg` },
-    ],
+    transform: [{ scale: scale.value }, { rotate: `${rotate.value}deg` }],
     opacity: opacity.value,
   }));
 
   if (!active) return null;
 
   return (
-    <Animated.View
-      style={[
-        styles.sparkle,
-        { left: x - 15, top: y - 15 },
-        animatedStyle,
-      ]}
-    >
+    <Animated.View style={[styles.sparkle, { left: x - 15, top: y - 15 }, animatedStyle]}>
       <View style={styles.sparkleInner} />
     </Animated.View>
   );

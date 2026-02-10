@@ -11,6 +11,7 @@
  * - Connection pooling and retry logic
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import type { Context, MiddlewareHandler } from 'hono';
 
 // ============================================
@@ -50,7 +51,7 @@ interface RateLimitStore {
 
 class InMemoryStore implements RateLimitStore {
   private store = new Map<string, { count: number; resetAt: number }>();
-  private cleanupInterval: NodeJS.Timeout;
+  private cleanupInterval: ReturnType<typeof setInterval>;
 
   constructor() {
     // Cleanup expired entries every minute
@@ -132,6 +133,7 @@ class RedisStore implements RateLimitStore {
   private async connect(redisUrl: string): Promise<void> {
     try {
       // Dynamic import to make Redis optional
+      // eslint-disable-next-line import/no-unresolved
       const { createClient } = await import('redis');
       this.client = createClient({ url: redisUrl });
 
@@ -329,7 +331,7 @@ export const authRateLimiterRedis = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   limit: 5,
   keyPrefix: 'rl:auth:',
-  handler: (c) =>
+  handler: c =>
     c.json(
       {
         error: 'Too many authentication attempts. Please try again in 15 minutes.',
@@ -347,7 +349,7 @@ export const aiRateLimiterRedis = createRateLimiter({
   windowMs: 60 * 60 * 1000,
   limit: 10,
   keyPrefix: 'rl:ai:',
-  handler: (c) =>
+  handler: c =>
     c.json(
       {
         error: 'AI request limit exceeded. Please try again in 1 hour.',

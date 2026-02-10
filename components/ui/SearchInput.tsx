@@ -26,7 +26,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
   FadeIn,
   FadeOut,
   SlideInDown,
@@ -48,7 +47,7 @@ interface Suggestion {
   type?: 'recent' | 'trending' | 'suggestion';
 }
 
-interface SearchInputProps extends Omit<TextInputProps, 'onChangeText'> {
+interface SearchInputProps extends Omit<TextInputProps, 'onChangeText' | 'style'> {
   /** Current search value */
   value: string;
   /** Called when search value changes (debounced) */
@@ -102,10 +101,10 @@ export function SearchInput({
   const [isFocused, setIsFocused] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const inputRef = useRef<TextInput>(null);
-  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Animation values
-  const scale = useSharedValue(1);
+  const _scale = useSharedValue(1);
   const borderWidth = useSharedValue(1);
 
   // Sync with external value
@@ -114,18 +113,21 @@ export function SearchInput({
   }, [value]);
 
   // Debounced search
-  const handleTextChange = useCallback((text: string) => {
-    setLocalValue(text);
-    onChangeText?.(text);
+  const handleTextChange = useCallback(
+    (text: string) => {
+      setLocalValue(text);
+      onChangeText?.(text);
 
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
 
-    debounceTimer.current = setTimeout(() => {
-      onSearch(text);
-    }, debounceDelay);
-  }, [onSearch, onChangeText, debounceDelay]);
+      debounceTimer.current = setTimeout(() => {
+        onSearch(text);
+      }, debounceDelay);
+    },
+    [onSearch, onChangeText, debounceDelay]
+  );
 
   // Clear search
   const handleClear = useCallback(() => {
@@ -151,19 +153,25 @@ export function SearchInput({
   }, []);
 
   // Suggestion press
-  const handleSuggestionPress = useCallback((suggestion: Suggestion) => {
-    tapLight();
-    setLocalValue(suggestion.text);
-    onSearch(suggestion.text);
-    onSuggestionPress?.(suggestion);
-    Keyboard.dismiss();
-  }, [tapLight, onSearch, onSuggestionPress]);
+  const handleSuggestionPress = useCallback(
+    (suggestion: Suggestion) => {
+      tapLight();
+      setLocalValue(suggestion.text);
+      onSearch(suggestion.text);
+      onSuggestionPress?.(suggestion);
+      Keyboard.dismiss();
+    },
+    [tapLight, onSearch, onSuggestionPress]
+  );
 
   // Filter press
-  const handleFilterPress = useCallback((filter: FilterChip) => {
-    tapLight();
-    onFilterPress?.(filter);
-  }, [tapLight, onFilterPress]);
+  const handleFilterPress = useCallback(
+    (filter: FilterChip) => {
+      tapLight();
+      onFilterPress?.(filter);
+    },
+    [tapLight, onFilterPress]
+  );
 
   // Animated styles
   const containerAnimatedStyle = useAnimatedStyle(() => ({
@@ -194,10 +202,7 @@ export function SearchInput({
           inputContainerStyle,
         ]}
       >
-        <Search
-          size={20}
-          color={isFocused ? Colors.primary.sunset : Colors.neutral.medium}
-        />
+        <Search size={20} color={isFocused ? Colors.primary.sunset : Colors.neutral.medium} />
         <TextInput
           ref={inputRef}
           style={styles.input}
@@ -216,11 +221,7 @@ export function SearchInput({
 
         {/* Loading / Clear Button */}
         {isLoading ? (
-          <Animated.View
-            entering={FadeIn}
-            exiting={FadeOut}
-            style={styles.iconButton}
-          >
+          <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.iconButton}>
             <Loader2 size={18} color={Colors.primary.sunset} />
           </Animated.View>
         ) : localValue.length > 0 ? (
@@ -228,10 +229,7 @@ export function SearchInput({
             entering={FadeIn}
             exiting={FadeOut}
             onPress={handleClear}
-            style={({ pressed }) => [
-              styles.clearButton,
-              pressed && { opacity: 0.6 },
-            ]}
+            style={({ pressed }) => [styles.clearButton, pressed && { opacity: 0.6 }]}
             hitSlop={8}
           >
             <X size={18} color={Colors.neutral.medium} />
@@ -241,14 +239,11 @@ export function SearchInput({
 
       {/* Filter Chips */}
       {filters.length > 0 && (
-        <Animated.View
-          entering={FadeIn.delay(100)}
-          style={styles.filtersContainer}
-        >
+        <Animated.View entering={FadeIn.delay(100)} style={styles.filtersContainer}>
           <FlatList
             horizontal
             data={filters}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersList}
             renderItem={({ item }) => (
@@ -260,12 +255,7 @@ export function SearchInput({
                   pressed && { opacity: 0.7 },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.filterChipText,
-                    item.active && styles.filterChipTextActive,
-                  ]}
-                >
+                <Text style={[styles.filterChipText, item.active && styles.filterChipTextActive]}>
                   {item.label}
                 </Text>
               </Pressable>
@@ -304,7 +294,10 @@ export function SearchInput({
 }
 
 // Pre-built search with recent searches
-interface SearchWithHistoryProps extends Omit<SearchInputProps, 'suggestions' | 'onSuggestionPress'> {
+interface SearchWithHistoryProps extends Omit<
+  SearchInputProps,
+  'suggestions' | 'onSuggestionPress'
+> {
   /** Recent search history */
   recentSearches?: string[];
   /** Called when a recent search is selected */
@@ -325,22 +318,18 @@ export function SearchWithHistory({
     type: 'recent',
   }));
 
-  const handleSuggestionPress = useCallback((suggestion: Suggestion) => {
-    onRecentSelect?.(suggestion.text);
-  }, [onRecentSelect]);
+  const handleSuggestionPress = useCallback(
+    (suggestion: Suggestion) => {
+      onRecentSelect?.(suggestion.text);
+    },
+    [onRecentSelect]
+  );
 
   return (
     <View>
-      <SearchInput
-        {...props}
-        suggestions={suggestions}
-        onSuggestionPress={handleSuggestionPress}
-      />
+      <SearchInput {...props} suggestions={suggestions} onSuggestionPress={handleSuggestionPress} />
       {recentSearches.length > 0 && onClearHistory && (
-        <Pressable
-          onPress={onClearHistory}
-          style={styles.clearHistoryButton}
-        >
+        <Pressable onPress={onClearHistory} style={styles.clearHistoryButton}>
           <Text style={styles.clearHistoryText}>Geçmişi Temizle</Text>
         </Pressable>
       )}

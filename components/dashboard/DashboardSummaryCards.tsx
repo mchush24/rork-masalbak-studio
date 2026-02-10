@@ -5,13 +5,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Brain,
@@ -81,7 +75,12 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         value: `${stats.trendPercent > 0 ? '+' : ''}${stats.trendPercent}%`,
         icon: TrendingUp,
         gradient: ['#60A5FA', '#3B82F6'],
-        subtitle: stats.recentTrend === 'up' ? 'Yükselişte' : stats.recentTrend === 'down' ? 'Düşüşte' : 'Sabit',
+        subtitle:
+          stats.recentTrend === 'up'
+            ? 'Yükselişte'
+            : stats.recentTrend === 'down'
+              ? 'Düşüşte'
+              : 'Sabit',
         isPercentage: true,
       },
     ],
@@ -91,7 +90,10 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Toplam Değerlendirme',
         value: stats.totalAnalyses,
         icon: FileText,
-        gradient: [ProfessionalColors.roles.teacher.gradient[0], ProfessionalColors.roles.teacher.gradient[1]],
+        gradient: [
+          ProfessionalColors.roles.teacher.gradient[0],
+          ProfessionalColors.roles.teacher.gradient[1],
+        ],
         subtitle: 'Tamamlanan',
       },
       {
@@ -126,7 +128,10 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Vaka Sayısı',
         value: stats.totalAnalyses,
         icon: FileText,
-        gradient: [ProfessionalColors.roles.expert.gradient[0], ProfessionalColors.roles.expert.gradient[1]],
+        gradient: [
+          ProfessionalColors.roles.expert.gradient[0],
+          ProfessionalColors.roles.expert.gradient[1],
+        ],
         subtitle: 'Toplam değerlendirme',
       },
       {
@@ -172,7 +177,7 @@ export function DashboardSummaryCards({
     return (
       <View style={styles.container}>
         <View style={styles.grid}>
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4].map(i => (
             <View key={i} style={[styles.card, styles.cardLoading]}>
               <View style={styles.loadingPulse} />
             </View>
@@ -185,15 +190,12 @@ export function DashboardSummaryCards({
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
-        {cards.map((card) => {
+        {cards.map(card => {
           const IconComponent = card.icon;
           return (
             <Pressable
               key={card.id}
-              style={({ pressed }) => [
-                styles.card,
-                pressed && styles.cardPressed,
-              ]}
+              style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
               onPress={() => onCardPress?.(card.id)}
             >
               <LinearGradient
@@ -206,13 +208,15 @@ export function DashboardSummaryCards({
                   <View style={styles.iconContainer}>
                     <IconComponent size={20} color="#FFF" strokeWidth={2} />
                   </View>
-                  {card.highlight && (
-                    <View style={styles.highlightDot} />
-                  )}
+                  {'highlight' in card && card.highlight && <View style={styles.highlightDot} />}
                 </View>
                 <View style={styles.cardContent}>
                   <Text style={styles.cardValue}>
-                    {card.isPercentage ? card.value : card.value.toLocaleString('tr-TR')}
+                    {'isPercentage' in card && card.isPercentage
+                      ? card.value
+                      : typeof card.value === 'number'
+                        ? card.value.toLocaleString('tr-TR')
+                        : card.value}
                   </Text>
                   <Text style={styles.cardTitle}>{card.title}</Text>
                   <Text style={styles.cardSubtitle}>{card.subtitle}</Text>

@@ -15,7 +15,6 @@ import {
 import {
   Settings,
   Globe,
-  Crown,
   HelpCircle,
   LogOut,
   ChevronRight,
@@ -50,6 +49,9 @@ import { useRole, ROLE_CONFIGS, type UserRole } from '@/lib/contexts/RoleContext
 import { AvatarPicker, AvatarDisplay } from '@/components/AvatarPicker';
 import { BadgeGrid, BadgeUnlockModal } from '@/components/badges';
 import { type BadgeRarity } from '@/constants/badges';
+import { TokenUsageCard } from '@/components/quota/TokenUsageCard';
+import { useQuota } from '@/hooks/useQuota';
+import * as FileSystem from 'expo-file-system/legacy';
 import { showConfirmDialog, showAlert, isWeb } from '@/lib/platform';
 import {
   layout,
@@ -150,6 +152,9 @@ export default function ProfileScreen() {
   const { data: badgeProgress, refetch: refetchBadgeProgress } =
     trpc.badges.getBadgeProgress.useQuery(undefined, { enabled: !!user?.userId });
 
+  // Quota data
+  const { refetch: refetchQuota } = useQuota();
+
   // Sync user's backend language setting with local language context
   React.useEffect(() => {
     if (userSettings?.language && userSettings.language !== language) {
@@ -161,10 +166,17 @@ export default function ProfileScreen() {
   // Mutations
   const updateSettingsMutation = trpc.user.updateSettings.useMutation();
   const updateProfileMutation = trpc.user.updateProfile.useMutation();
+  const uploadAvatarMutation = trpc.user.uploadAvatar.useMutation();
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refetchStats(), refetchSettings(), refetchBadges(), refetchBadgeProgress()]);
+    await Promise.all([
+      refetchStats(),
+      refetchSettings(),
+      refetchBadges(),
+      refetchBadgeProgress(),
+      refetchQuota(),
+    ]);
     setRefreshing(false);
   };
 
@@ -215,6 +227,24 @@ export default function ProfileScreen() {
       showAlert(t.common.success, 'Avatar güncellendi!');
     } catch {
       showAlert(t.common.error, 'Avatar güncellenemedi. Lütfen tekrar deneyin.');
+    }
+  };
+
+  const handlePhotoAvatarSelected = async (uri: string) => {
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const imageData = `data:image/jpeg;base64,${base64}`;
+      const result = await uploadAvatarMutation.mutateAsync({ imageData });
+      // Update profile with the returned URL
+      await updateProfileMutation.mutateAsync({
+        avatarUrl: result.avatarUrl,
+      });
+      await refreshUserFromBackend();
+      showAlert(t.common.success, 'Profil fotoğrafı güncellendi!');
+    } catch {
+      showAlert(t.common.error, 'Fotoğraf yüklenemedi. Lütfen tekrar deneyin.');
     }
   };
 
@@ -629,21 +659,12 @@ export default function ProfileScreen() {
                 <Text style={styles.compactMenuValue}>{roleConfig.displayName}</Text>
                 <ChevronRight size={16} color={Colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
-              <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
-              >
-                <View
-                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
-                >
-                  <Crown size={18} color={Colors.secondary.lavender} />
-                </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.subscription}</Text>
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>Yakında</Text>
-                </View>
-              </Pressable>
             </View>
+          </View>
+
+          {/* Token Usage / Subscription Card */}
+          <View style={styles.settingsSection}>
+            <TokenUsageCard />
           </View>
 
           {/* TERCİHLER Group */}
@@ -1213,6 +1234,7 @@ export default function ProfileScreen() {
           visible={showAvatarPicker}
           selectedAvatarId={user?.avatarUrl}
           onSelect={handleAvatarChange}
+          onPhotoSelected={handlePhotoAvatarSelected}
           onClose={() => setShowAvatarPicker(false)}
         />
 
@@ -1811,7 +1833,7 @@ const styles = StyleSheet.create({
   addChildPromptHint: {
     fontSize: typography.size.xs,
     color: Colors.neutral.light,
-    fontWeight: typography.weight.normal,
+    fontWeight: typography.weight.regular,
     marginTop: -spacing['2'],
   },
   childCardContent: {

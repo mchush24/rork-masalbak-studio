@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  TextInput,
-  Text,
-  StyleSheet,
-  TextInputProps,
-  ViewStyle,
-  Pressable,
-  Platform,
-} from "react-native";
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   withTiming,
   withSequence,
   interpolateColor,
   FadeIn,
   FadeOut,
   SlideInDown,
-} from "react-native-reanimated";
-import { Check, AlertCircle } from "lucide-react-native";
-import { Colors } from "@/constants/colors";
-import { spacing, typography, radius, semantic } from "@/constants/tokens";
-import { shadows } from "@/constants/design-system";
-import { useHaptic } from "@/lib/haptics";
+} from 'react-native-reanimated';
+import { Check, AlertCircle } from 'lucide-react-native';
+import { Colors } from '@/constants/colors';
+import { spacing, typography, radius, semantic } from '@/constants/tokens';
+import { shadows } from '@/constants/design-system';
+import { useHaptic } from '@/lib/haptics';
 
-export type InputSize = "sm" | "md" | "lg";
-export type InputState = "default" | "error" | "success";
+export type InputSize = 'sm' | 'md' | 'lg';
+export type InputState = 'default' | 'error' | 'success';
 
-interface InputProps extends Omit<TextInputProps, "style"> {
+interface InputProps extends Omit<TextInputProps, 'style'> {
   /** Input label */
   label?: string;
 
@@ -71,7 +61,7 @@ export function Input({
   error,
   success,
   helperText,
-  size = "md",
+  size = 'md',
   fullWidth = true,
   leftIcon,
   rightIcon,
@@ -81,21 +71,21 @@ export function Input({
   ...textInputProps
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const { error: errorHaptic, success: successHaptic, tap } = useHaptic();
+  const { error: errorHaptic, success: successHaptic, tapLight: tap } = useHaptic();
 
   // Animation values
   const focusProgress = useSharedValue(0);
   const shakeX = useSharedValue(0);
   const borderColorProgress = useSharedValue(0);
-  const labelScale = useSharedValue(1);
+  const _labelScale = useSharedValue(1);
   const glowOpacity = useSharedValue(0);
 
   // Determine state from props
-  const state: InputState = controlledState || (error ? "error" : success ? "success" : "default");
+  const state: InputState = controlledState || (error ? 'error' : success ? 'success' : 'default');
 
   // Handle state changes with animations
   useEffect(() => {
-    if (state === "error") {
+    if (state === 'error') {
       errorHaptic();
       // Shake animation
       shakeX.value = withSequence(
@@ -106,7 +96,7 @@ export function Input({
         withTiming(0, { duration: 50 })
       );
       borderColorProgress.value = withTiming(1, { duration: 200 });
-    } else if (state === "success") {
+    } else if (state === 'success') {
       successHaptic();
       borderColorProgress.value = withTiming(2, { duration: 200 });
     } else {
@@ -125,11 +115,7 @@ export function Input({
     const borderColor = interpolateColor(
       borderColorProgress.value,
       [0, 1, 2],
-      [
-        isFocused ? Colors.primary.sunset : Colors.neutral.medium,
-        semantic.error,
-        semantic.success,
-      ]
+      [isFocused ? Colors.primary.sunset : Colors.neutral.medium, semantic.error, semantic.success]
     );
 
     return {
@@ -156,10 +142,7 @@ export function Input({
   return (
     <View style={[styles.container, fullWidth && styles.fullWidth, containerStyle]}>
       {label && (
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          style={styles.labelContainer}
-        >
+        <Animated.View entering={FadeIn.duration(200)} style={styles.labelContainer}>
           <Text style={styles.label}>
             {label}
             {required && <Text style={styles.required}> *</Text>}
@@ -174,8 +157,8 @@ export function Input({
           animatedBorderStyle,
           animatedGlowStyle,
           isFocused && styles.inputContainerFocused,
-          state === "error" && styles.inputContainerError,
-          state === "success" && styles.inputContainerSuccess,
+          state === 'error' && styles.inputContainerError,
+          state === 'success' && styles.inputContainerSuccess,
           textInputProps.editable === false && styles.inputContainerDisabled,
         ]}
       >
@@ -190,16 +173,18 @@ export function Input({
             rightIcon ? styles.inputWithRightIcon : undefined,
           ]}
           placeholderTextColor={Colors.neutral.light}
-          onFocus={(e) => {
+          onFocus={e => {
             setIsFocused(true);
             tap();
             textInputProps.onFocus?.(e);
           }}
-          onBlur={(e) => {
+          onBlur={e => {
             setIsFocused(false);
             textInputProps.onBlur?.(e);
           }}
-          accessibilityLabel={textInputProps.accessibilityLabel || label || textInputProps.placeholder}
+          accessibilityLabel={
+            textInputProps.accessibilityLabel || label || textInputProps.placeholder
+          }
           accessibilityHint={error ? `Hata: ${error}` : textInputProps.accessibilityHint}
           accessibilityState={{
             disabled: textInputProps.editable === false,
@@ -207,11 +192,8 @@ export function Input({
         />
 
         {/* Success/Error icon */}
-        {state === "success" && !rightIcon && (
-          <Animated.View
-            entering={FadeIn.springify()}
-            style={styles.stateIconContainer}
-          >
+        {state === 'success' && !rightIcon && (
+          <Animated.View entering={FadeIn.springify()} style={styles.stateIconContainer}>
             <Check size={18} color={semantic.success} />
           </Animated.View>
         )}
@@ -229,9 +211,7 @@ export function Input({
           {message.icon && (
             <message.icon size={14} color={message.color} style={styles.messageIcon} />
           )}
-          <Text style={[styles.message, { color: message.color }]}>
-            {message.text}
-          </Text>
+          <Text style={[styles.message, { color: message.color }]}>{message.text}</Text>
         </Animated.View>
       )}
     </View>
@@ -243,7 +223,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   fullWidth: {
-    width: "100%",
+    width: '100%',
   },
   labelContainer: {
     marginBottom: spacing.xs,
@@ -258,8 +238,8 @@ const styles = StyleSheet.create({
     color: semantic.error,
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.neutral.white,
     borderRadius: radius.md,
     borderWidth: 2,
@@ -283,11 +263,11 @@ const styles = StyleSheet.create({
   },
   inputContainerError: {
     borderColor: semantic.error,
-    backgroundColor: "#FEF2F2",
+    backgroundColor: '#FEF2F2',
   },
   inputContainerSuccess: {
     borderColor: semantic.success,
-    backgroundColor: "#F0FDF4",
+    backgroundColor: '#F0FDF4',
   },
   inputContainerDisabled: {
     backgroundColor: Colors.background.primary,
@@ -295,12 +275,12 @@ const styles = StyleSheet.create({
   },
   stateIconContainer: {
     marginLeft: spacing.xs,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   messageContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: spacing.xs,
   },
   messageIcon: {
@@ -330,13 +310,13 @@ const styles = StyleSheet.create({
   },
   leftIconContainer: {
     marginRight: spacing.xs,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   rightIconContainer: {
     marginLeft: spacing.xs,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   message: {
     marginTop: spacing.xs,

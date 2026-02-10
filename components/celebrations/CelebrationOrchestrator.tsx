@@ -9,49 +9,34 @@
  * - Haptic patterns
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-} from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, Dimensions, Platform } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withDelay,
-  withSequence,
-  withTiming,
-  runOnJS,
-  FadeIn,
-  FadeOut,
-  SlideInUp,
-  ZoomIn,
-  BounceIn,
-} from 'react-native-reanimated';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { Modal, View, Text, StyleSheet, Pressable, Platform } from 'react-native';
+import Animated, { FadeIn, FadeOut, SlideInUp, ZoomIn, BounceIn } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Trophy, Flame, Award, Zap, Shield, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, textShadows, zIndex } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  textShadows,
+  zIndex,
+} from '@/constants/design-system';
 import { hapticManager, type HapticType } from '@/lib/haptics';
 import { soundManager, type SoundName } from '@/lib/audio';
 import { ConfettiAnimation, SparkleAnimation } from '@/components/animations/MicroInteractions';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 // Celebration types with priority (higher = more important)
 export type CelebrationType =
-  | 'XP_GAIN'           // Priority 1 - Small
-  | 'STREAK_FIRE'       // Priority 2 - Medium
-  | 'STREAK_MILESTONE'  // Priority 3 - Medium
-  | 'BADGE_UNLOCK'      // Priority 4 - Large
-  | 'LEVEL_UP'          // Priority 5 - Very Large
-  | 'FIRST_ANALYSIS'    // Priority 4 - Special
-  | 'STREAK_SAVE';      // Priority 2 - Security
+  | 'XP_GAIN' // Priority 1 - Small
+  | 'STREAK_FIRE' // Priority 2 - Medium
+  | 'STREAK_MILESTONE' // Priority 3 - Medium
+  | 'BADGE_UNLOCK' // Priority 4 - Large
+  | 'LEVEL_UP' // Priority 5 - Very Large
+  | 'FIRST_ANALYSIS' // Priority 4 - Special
+  | 'STREAK_SAVE'; // Priority 2 - Security
 
 interface CelebrationConfig {
   type: CelebrationType;
@@ -171,8 +156,7 @@ export function CelebrationProvider({ children }: CelebrationProviderProps) {
 
   // Add celebration to queue
   const addToQueue = useCallback((data: CelebrationData) => {
-    setQueue((prev) => {
-      const config = CELEBRATION_CONFIGS[data.type];
+    setQueue(prev => {
       const newQueue = [...prev, data];
       // Sort by priority (highest first)
       return newQueue.sort((a, b) => {
@@ -187,20 +171,21 @@ export function CelebrationProvider({ children }: CelebrationProviderProps) {
   useEffect(() => {
     if (!currentCelebration && queue.length > 0 && !isAnimating) {
       const next = queue[0];
-      setQueue((prev) => prev.slice(1));
+      setQueue(prev => prev.slice(1));
       setCurrentCelebration(next);
       setIsAnimating(true);
 
       // Play sound and haptic
       const config = CELEBRATION_CONFIGS[next.type];
       soundManager.play(config.sound as SoundName);
-      hapticManager.trigger(config.haptic as HapticType);
+      hapticManager.play(config.haptic as HapticType);
 
       // Auto-dismiss after duration
       timeoutRef.current = setTimeout(() => {
         dismissCelebration();
       }, config.duration);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queue, currentCelebration, isAnimating]);
 
   const dismissCelebration = useCallback(() => {
@@ -213,46 +198,61 @@ export function CelebrationProvider({ children }: CelebrationProviderProps) {
   }, [currentCelebration]);
 
   // Celebration triggers
-  const celebrate = useCallback((data: Omit<CelebrationData, 'id'>) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    addToQueue({ ...data, id });
-  }, [addToQueue]);
+  const celebrate = useCallback(
+    (data: Omit<CelebrationData, 'id'>) => {
+      const id = `${Date.now()}-${Math.random()}`;
+      addToQueue({ ...data, id });
+    },
+    [addToQueue]
+  );
 
-  const celebrateXP = useCallback((amount: number) => {
-    celebrate({
-      type: 'XP_GAIN',
-      title: `+${amount} XP`,
-      value: amount,
-    });
-  }, [celebrate]);
+  const celebrateXP = useCallback(
+    (amount: number) => {
+      celebrate({
+        type: 'XP_GAIN',
+        title: `+${amount} XP`,
+        value: amount,
+      });
+    },
+    [celebrate]
+  );
 
-  const celebrateStreak = useCallback((days: number) => {
-    const isMilestone = days % 7 === 0;
-    celebrate({
-      type: isMilestone ? 'STREAK_MILESTONE' : 'STREAK_FIRE',
-      title: isMilestone ? `${days} Gün!` : `${days} Gün Serisi!`,
-      subtitle: isMilestone ? 'Harika bir tutarlılık!' : 'Devam et!',
-      value: days,
-    });
-  }, [celebrate]);
+  const celebrateStreak = useCallback(
+    (days: number) => {
+      const isMilestone = days % 7 === 0;
+      celebrate({
+        type: isMilestone ? 'STREAK_MILESTONE' : 'STREAK_FIRE',
+        title: isMilestone ? `${days} Gün!` : `${days} Gün Serisi!`,
+        subtitle: isMilestone ? 'Harika bir tutarlılık!' : 'Devam et!',
+        value: days,
+      });
+    },
+    [celebrate]
+  );
 
-  const celebrateBadge = useCallback((badgeName: string, badgeIcon?: string) => {
-    celebrate({
-      type: 'BADGE_UNLOCK',
-      title: badgeName,
-      subtitle: 'Yeni rozet kazandın!',
-      icon: badgeIcon,
-    });
-  }, [celebrate]);
+  const celebrateBadge = useCallback(
+    (badgeName: string, badgeIcon?: string) => {
+      celebrate({
+        type: 'BADGE_UNLOCK',
+        title: badgeName,
+        subtitle: 'Yeni rozet kazandın!',
+        icon: badgeIcon,
+      });
+    },
+    [celebrate]
+  );
 
-  const celebrateLevelUp = useCallback((newLevel: number, newTitle?: string) => {
-    celebrate({
-      type: 'LEVEL_UP',
-      title: `Seviye ${newLevel}!`,
-      subtitle: newTitle || 'Yeni bir seviyeye ulaştın!',
-      value: newLevel,
-    });
-  }, [celebrate]);
+  const celebrateLevelUp = useCallback(
+    (newLevel: number, newTitle?: string) => {
+      celebrate({
+        type: 'LEVEL_UP',
+        title: `Seviye ${newLevel}!`,
+        subtitle: newTitle || 'Yeni bir seviyeye ulaştın!',
+        value: newLevel,
+      });
+    },
+    [celebrate]
+  );
 
   const celebrateFirstAnalysis = useCallback(() => {
     celebrate({
@@ -284,10 +284,7 @@ export function CelebrationProvider({ children }: CelebrationProviderProps) {
     <CelebrationContext.Provider value={value}>
       {children}
       {currentCelebration && (
-        <CelebrationDisplay
-          celebration={currentCelebration}
-          onDismiss={dismissCelebration}
-        />
+        <CelebrationDisplay celebration={currentCelebration} onDismiss={dismissCelebration} />
       )}
     </CelebrationContext.Provider>
   );
@@ -308,15 +305,13 @@ function CelebrationDisplay({ celebration, onDismiss }: CelebrationDisplayProps)
     );
   }
 
-  return (
-    <ToastCelebration celebration={celebration} config={config} onDismiss={onDismiss} />
-  );
+  return <ToastCelebration celebration={celebration} config={config} onDismiss={onDismiss} />;
 }
 
 // Toast-style celebration (XP gain, streak fire)
 function ToastCelebration({
   celebration,
-  config,
+  config: _config,
   onDismiss,
 }: {
   celebration: CelebrationData;
@@ -354,10 +349,7 @@ function ToastCelebration({
 
   return (
     <View style={styles.toastContainer} pointerEvents="box-none">
-      <Animated.View
-        entering={SlideInUp.springify().damping(15)}
-        exiting={FadeOut.duration(200)}
-      >
+      <Animated.View entering={SlideInUp.springify().damping(15)} exiting={FadeOut.duration(200)}>
         <Pressable onPress={onDismiss}>
           <LinearGradient
             colors={getGradient()}
@@ -433,10 +425,7 @@ function FullScreenCelebration({
         >
           {showConfetti && <ConfettiAnimation count={50} duration={3000} />}
 
-          <Animated.View
-            entering={ZoomIn.springify().damping(12)}
-            style={styles.fullScreenCard}
-          >
+          <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.fullScreenCard}>
             <LinearGradient
               colors={getGradient()}
               start={{ x: 0, y: 0 }}
@@ -444,10 +433,7 @@ function FullScreenCelebration({
               style={styles.fullScreenGradient}
             >
               {/* Icon with sparkle */}
-              <Animated.View
-                entering={BounceIn.delay(200)}
-                style={styles.iconContainer}
-              >
+              <Animated.View entering={BounceIn.delay(200)} style={styles.iconContainer}>
                 <SparkleAnimation size={140} color={Colors.secondary.sunshine} />
                 <View style={styles.iconInner}>{getIcon()}</View>
               </Animated.View>
@@ -460,18 +446,12 @@ function FullScreenCelebration({
               )}
 
               {/* Text */}
-              <Animated.Text
-                entering={FadeIn.delay(400)}
-                style={styles.fullScreenTitle}
-              >
+              <Animated.Text entering={FadeIn.delay(400)} style={styles.fullScreenTitle}>
                 {celebration.title}
               </Animated.Text>
 
               {celebration.subtitle && (
-                <Animated.Text
-                  entering={FadeIn.delay(600)}
-                  style={styles.fullScreenSubtitle}
-                >
+                <Animated.Text entering={FadeIn.delay(600)} style={styles.fullScreenSubtitle}>
                   {celebration.subtitle}
                 </Animated.Text>
               )}
@@ -479,10 +459,7 @@ function FullScreenCelebration({
               {/* Continue button */}
               <Animated.View entering={FadeIn.delay(800)}>
                 <Pressable
-                  style={({ pressed }) => [
-                    styles.continueButton,
-                    pressed && { opacity: 0.8 },
-                  ]}
+                  style={({ pressed }) => [styles.continueButton, pressed && { opacity: 0.8 }]}
                   onPress={onDismiss}
                 >
                   <Text style={styles.continueButtonText}>Devam</Text>

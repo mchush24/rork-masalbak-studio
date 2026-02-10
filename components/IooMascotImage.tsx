@@ -35,6 +35,7 @@ interface IooProps {
   mood?: IooMood;
   animated?: boolean;
   showGlow?: boolean;
+  showSparkles?: boolean;
   onPress?: () => void;
 }
 

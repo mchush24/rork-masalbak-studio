@@ -7,15 +7,21 @@
 
 import { useCallback, useEffect } from 'react';
 import { useGamification } from './useGamification';
-import { useDelight } from '@/lib/delight';
+import {
+  checkAnalysisMilestones,
+  checkStreakMilestones,
+  checkAnniversaryMilestone,
+} from '@/lib/delight';
 
 export function useGamificationWithDelight() {
   const gamification = useGamification();
-  const { checkAnalysisCount, checkStreak, checkAnniversary } = useDelight();
+  const checkAnalysisCount = checkAnalysisMilestones;
+  const checkStreak = checkStreakMilestones;
+  const checkAnniversary = checkAnniversaryMilestone;
 
   // Check anniversary on mount
   useEffect(() => {
-    checkAnniversary();
+    checkAnniversary(new Date());
   }, [checkAnniversary]);
 
   // Enhanced recordAnalysis that triggers delight milestones

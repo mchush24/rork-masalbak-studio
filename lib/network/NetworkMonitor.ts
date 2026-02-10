@@ -369,7 +369,7 @@ export function useNetworkAwareOperation<T>(
 export function useOfflineIndicator() {
   const isOnline = useIsOnline();
   const [showIndicator, setShowIndicator] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     if (!isOnline) {

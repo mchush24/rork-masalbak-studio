@@ -1,0 +1,2 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare module "@storybook/react" { import type { ComponentType } from "react"; export interface Meta<T extends ComponentType<any>> { title?: string; component?: T; tags?: string[]; argTypes?: Record<string, any>; parameters?: Record<string, any>; } export type StoryObj<T extends ComponentType<any>> = { args?: Partial<React.ComponentProps<T>>; render?: (args: Partial<React.ComponentProps<T>>) => JSX.Element; parameters?: Record<string, any>; }; }

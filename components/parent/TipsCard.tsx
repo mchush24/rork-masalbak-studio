@@ -5,14 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import {
   Lightbulb,
   Book,
@@ -27,8 +20,6 @@ import {
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface Tip {
   id: string;
@@ -58,7 +49,7 @@ const CATEGORY_CONFIG = {
   activity: {
     label: 'Aktivite',
     icon: Lightbulb,
-    color: Colors.primary.mint,
+    color: Colors.secondary.mint,
     bgColor: '#ECFDF5',
   },
   emotional: {
@@ -70,7 +61,7 @@ const CATEGORY_CONFIG = {
   general: {
     label: 'Genel',
     icon: Book,
-    color: Colors.primary.sky,
+    color: Colors.secondary.sky,
     bgColor: '#F0F9FF',
   },
 };
@@ -116,10 +107,7 @@ export function TipsCard({
               {categoryConfig.label}
             </Text>
           </View>
-          <Pressable
-            style={styles.bookmarkButton}
-            onPress={() => onBookmark?.(tip.id)}
-          >
+          <Pressable style={styles.bookmarkButton} onPress={() => onBookmark?.(tip.id)}>
             {tip.isBookmarked ? (
               <BookmarkCheck size={20} color={categoryConfig.color} />
             ) : (
@@ -145,10 +133,7 @@ export function TipsCard({
               <ExternalLink size={14} color="#FFFFFF" />
             </Pressable>
           )}
-          <Pressable
-            style={styles.shareButton}
-            onPress={() => onShare?.(tip.id)}
-          >
+          <Pressable style={styles.shareButton} onPress={() => onShare?.(tip.id)}>
             <Share2 size={18} color={categoryConfig.color} />
           </Pressable>
         </View>
@@ -175,15 +160,28 @@ export function TipsCard({
               onPress={handlePrev}
               disabled={currentIndex === 0}
             >
-              <ChevronLeft size={18} color={currentIndex === 0 ? Colors.neutral.light : Colors.neutral.dark} />
+              <ChevronLeft
+                size={18}
+                color={currentIndex === 0 ? Colors.neutral.light : Colors.neutral.dark}
+              />
             </Pressable>
-            <Text style={styles.navCounter}>{currentIndex + 1}/{tips.length}</Text>
+            <Text style={styles.navCounter}>
+              {currentIndex + 1}/{tips.length}
+            </Text>
             <Pressable
-              style={[styles.navButton, currentIndex === tips.length - 1 && styles.navButtonDisabled]}
+              style={[
+                styles.navButton,
+                currentIndex === tips.length - 1 && styles.navButtonDisabled,
+              ]}
               onPress={handleNext}
               disabled={currentIndex === tips.length - 1}
             >
-              <ChevronRight size={18} color={currentIndex === tips.length - 1 ? Colors.neutral.light : Colors.neutral.dark} />
+              <ChevronRight
+                size={18}
+                color={
+                  currentIndex === tips.length - 1 ? Colors.neutral.light : Colors.neutral.dark
+                }
+              />
             </Pressable>
           </View>
         </View>
@@ -224,13 +222,7 @@ export function TipsCard({
         {/* Dots Indicator */}
         <View style={styles.dotsContainer}>
           {tips.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                index === currentIndex && styles.dotActive,
-              ]}
-            />
+            <View key={index} style={[styles.dot, index === currentIndex && styles.dotActive]} />
           ))}
         </View>
       </View>
@@ -245,7 +237,7 @@ export function TipsCard({
         <Text style={styles.listTitle}>Faydalı İpuçları</Text>
       </View>
 
-      {tips.map((tip) => {
+      {tips.map(tip => {
         const categoryConfig = CATEGORY_CONFIG[tip.category];
         const CategoryIcon = categoryConfig.icon;
         const isExpanded = expandedTip === tip.id;
@@ -253,10 +245,7 @@ export function TipsCard({
         return (
           <Pressable
             key={tip.id}
-            style={({ pressed }) => [
-              styles.listCard,
-              pressed && styles.listCardPressed,
-            ]}
+            style={({ pressed }) => [styles.listCard, pressed && styles.listCardPressed]}
             onPress={() => setExpandedTip(isExpanded ? null : tip.id)}
           >
             <View style={styles.listCardHeader}>
@@ -264,7 +253,9 @@ export function TipsCard({
                 <CategoryIcon size={18} color={categoryConfig.color} />
               </View>
               <View style={styles.listCardContent}>
-                <View style={[styles.categoryBadgeSmall, { backgroundColor: categoryConfig.bgColor }]}>
+                <View
+                  style={[styles.categoryBadgeSmall, { backgroundColor: categoryConfig.bgColor }]}
+                >
                   <Text style={[styles.categoryTextSmall, { color: categoryConfig.color }]}>
                     {categoryConfig.label}
                   </Text>
@@ -273,7 +264,7 @@ export function TipsCard({
               </View>
               <Pressable
                 style={styles.listBookmarkButton}
-                onPress={(e) => {
+                onPress={e => {
                   e.stopPropagation();
                   onBookmark?.(tip.id);
                 }}

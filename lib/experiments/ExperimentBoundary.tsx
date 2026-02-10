@@ -252,7 +252,8 @@ export function ExperimentDebugger({
             ) : (
               <>
                 <View style={styles.debugBadge}>
-                  <View style={styles.debugBadgeText}>
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  <View style={styles.debugBadgeText as any}>
                     {/* Text content would go here but we avoid using Text for simplicity */}
                   </View>
                 </View>
