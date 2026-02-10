@@ -143,16 +143,16 @@ export default function StoriesScreen() {
     // Original categories
     war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: '#6B7280' },
     violence: { label: 'Şiddet', emoji: '💪', color: '#EF4444' },
-    disaster: { label: 'Doğal Afet', emoji: '🌈', color: '#F59E0B' },
-    loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: '#8B5CF6' },
+    disaster: { label: 'Doğal Afet', emoji: '🌈', color: Colors.semantic.amber },
+    loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: Colors.secondary.violet },
     loneliness: { label: 'Yalnızlık', emoji: '🤗', color: '#3B82F6' },
     fear: { label: 'Korku', emoji: '⭐', color: '#10B981' },
     abuse: { label: 'İstismar', emoji: '🛡️', color: '#EC4899' },
     family_separation: { label: 'Aile Ayrılığı', emoji: '❤️', color: '#F97316' },
-    death: { label: 'Ölüm / Yas', emoji: '🦋', color: '#6366F1' },
+    death: { label: 'Ölüm / Yas', emoji: '🦋', color: Colors.secondary.indigo },
     // ACEs Framework categories
-    neglect: { label: 'İhmal', emoji: '🏠', color: '#8B5CF6' },
-    bullying: { label: 'Akran Zorbalığı', emoji: '🤝', color: '#F59E0B' },
+    neglect: { label: 'İhmal', emoji: '🏠', color: Colors.secondary.violet },
+    bullying: { label: 'Akran Zorbalığı', emoji: '🤝', color: Colors.semantic.amber },
     domestic_violence_witness: {
       label: 'Aile İçi Şiddete Tanıklık',
       emoji: '🏡',
@@ -166,14 +166,14 @@ export default function StoriesScreen() {
     depression: { label: 'Depresyon Belirtileri', emoji: '🌻', color: '#EAB308' },
     low_self_esteem: { label: 'Düşük Öz Saygı', emoji: '✨', color: '#A855F7' },
     anger: { label: 'Öfke', emoji: '🧘', color: '#F97316' },
-    school_stress: { label: 'Okul Stresi', emoji: '📚', color: '#6366F1' },
+    school_stress: { label: 'Okul Stresi', emoji: '📚', color: Colors.secondary.indigo },
     social_rejection: { label: 'Sosyal Dışlanma', emoji: '🌟', color: '#EC4899' },
     // Additional categories
     displacement: { label: 'Göç / Yerinden Edilme', emoji: '🏠', color: '#14B8A6' },
     poverty: { label: 'Ekonomik Zorluk', emoji: '💎', color: '#78716C' },
-    cyberbullying: { label: 'Siber Zorbalık', emoji: '📱', color: '#8B5CF6' },
+    cyberbullying: { label: 'Siber Zorbalık', emoji: '📱', color: Colors.secondary.violet },
     // Fallback
-    other: { label: 'Diğer', emoji: '💜', color: '#9CA3AF' },
+    other: { label: 'Diğer', emoji: '💜', color: Colors.neutral.gray400 },
   };
   const [themeSuggestions, setThemeSuggestions] = useState<ThemeSuggestion[]>([]);
   const [selectedThemeIndex, setSelectedThemeIndex] = useState<number | null>(null);
@@ -1169,7 +1169,7 @@ export default function StoriesScreen() {
         {showCreateForm && loadingStory ? (
           <View style={styles.loadingAnimationContainer}>
             <LinearGradient
-              colors={['#9333EA', '#7C3AED', '#6366F1']}
+              colors={['#9333EA', '#7C3AED', Colors.secondary.indigo]}
               style={styles.storyLoadingGradient}
             >
               {/* Progress Header */}
@@ -2688,12 +2688,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing['4'],
     width: '100%',
     borderLeftWidth: 4,
-    borderLeftColor: '#8B5CF6',
+    borderLeftColor: Colors.secondary.violet,
   },
   therapeuticTitle: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
     marginBottom: spacing['2'],
   },
   therapeuticText: {

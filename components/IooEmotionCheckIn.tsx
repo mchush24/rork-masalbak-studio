@@ -26,6 +26,7 @@ import { Ioo } from './Ioo';
 import { IooEmotionPicker, Emotion, EMOTIONS } from './IooEmotionPicker';
 import { useEmotionTracker } from '@/lib/hooks/useEmotionTracker';
 import { zIndex } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -202,7 +203,7 @@ export function IooEmotionCheckIn({
         >
           {/* Close Button */}
           <Pressable style={styles.closeButton} onPress={handleClose}>
-            <X size={20} color="#9CA3AF" />
+            <X size={20} color={Colors.neutral.gray400} />
           </Pressable>
 
           {/* Step Content */}
@@ -227,7 +228,7 @@ export function IooEmotionCheckIn({
                 {/* Streak Info */}
                 {currentStreak > 0 && (
                   <View style={styles.streakBadge}>
-                    <Flame size={16} color="#FF6B6B" />
+                    <Flame size={16} color={Colors.secondary.coral} />
                     <Text style={styles.streakText}>
                       {currentStreak} gün seri!
                     </Text>
@@ -318,14 +319,14 @@ export function IooEmotionCheckIn({
 
                   {/* XP Earned */}
                   <View style={styles.xpBadge}>
-                    <Star size={16} color="#F59E0B" fill="#F59E0B" />
+                    <Star size={16} color={Colors.semantic.amber} fill={Colors.semantic.amber} />
                     <Text style={styles.xpText}>+{xpEarned} XP</Text>
                   </View>
 
                   {/* Streak Update */}
                   {currentStreak > 0 && (
                     <View style={styles.streakUpdate}>
-                      <Flame size={14} color="#FF6B6B" />
+                      <Flame size={14} color={Colors.secondary.coral} />
                       <Text style={styles.streakUpdateText}>
                         {currentStreak} gün seri devam ediyor!
                       </Text>
@@ -429,7 +430,7 @@ const styles = StyleSheet.create({
   streakText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FF6B6B',
+    color: Colors.secondary.coral,
   },
   startButton: {
     borderRadius: 20,
@@ -444,7 +445,7 @@ const styles = StyleSheet.create({
   startButtonText: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 
   // Confirm Button
@@ -460,7 +461,7 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   buttonPressed: {
     opacity: 0.9,
@@ -507,7 +508,7 @@ const styles = StyleSheet.create({
   xpText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#F59E0B',
+    color: Colors.semantic.amber,
   },
   streakUpdate: {
     flexDirection: 'row',
@@ -518,7 +519,7 @@ const styles = StyleSheet.create({
   streakUpdateText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#FF6B6B',
+    color: Colors.secondary.coral,
   },
   doneButton: {
     backgroundColor: '#10B981',
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
   doneButtonText: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 });
 

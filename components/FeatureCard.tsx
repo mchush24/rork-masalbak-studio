@@ -10,7 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { ChevronRight } from 'lucide-react-native';
-import { RenkooColors } from '@/constants/colors';
+import { RenkooColors, Colors } from '@/constants/colors';
 import { shadows, createShadow } from '@/constants/design-system';
 import Animated, {
   useSharedValue,
@@ -161,7 +161,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
         disabled={isDisabled}
       >
       <LinearGradient
-        colors={isDisabled ? ['#F3F4F6', '#E5E7EB'] : cardConfig.gradient}
+        colors={isDisabled ? [Colors.neutral.gray100, Colors.neutral.gray200] : cardConfig.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[
@@ -211,7 +211,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
                 width: currentSize.iconSize,
                 height: currentSize.iconSize,
                 borderRadius: currentSize.iconSize / 2.5,
-                borderColor: isDisabled ? '#D1D5DB' : cardConfig.border,
+                borderColor: isDisabled ? Colors.neutral.gray300 : cardConfig.border,
               },
               isDisabled && styles.iconContainerDisabled,
             ]}
@@ -250,7 +250,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
           {/* Arrow */}
           {showArrow && !comingSoon && (
             <View style={styles.arrowContainer}>
-              <ChevronRight size={20} color={isDisabled ? '#9CA3AF' : RenkooColors.text.secondary} />
+              <ChevronRight size={20} color={isDisabled ? Colors.neutral.gray400 : RenkooColors.text.secondary} />
             </View>
           )}
         </View>
@@ -261,7 +261,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
             styles.border,
             {
               borderRadius: currentSize.borderRadius,
-              borderColor: isDisabled ? '#D1D5DB' : cardConfig.border,
+              borderColor: isDisabled ? Colors.neutral.gray300 : cardConfig.border,
             },
           ]}
         />
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   newBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -356,13 +356,13 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   subtitleDisabled: {
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
   },
   comingSoonBadge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#F59E0B',
+    backgroundColor: Colors.semantic.amber,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   comingSoonText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },

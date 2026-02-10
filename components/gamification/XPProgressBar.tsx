@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Zap, TrendingUp } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 interface XPProgressBarProps {
   level: number;
@@ -134,7 +135,7 @@ export function XPProgressBar({
             end={{ x: 1, y: 1 }}
           >
             <Animated.View style={{ transform: [{ scale: starAnim }] }}>
-              <Star size={20} color="#FFF" fill="#FFF" />
+              <Star size={20} color={Colors.neutral.white} fill={Colors.neutral.white} />
             </Animated.View>
             <Text style={styles.fullLevelNumber}>{level}</Text>
           </LinearGradient>
@@ -168,7 +169,7 @@ export function XPProgressBar({
           </View>
           <View style={styles.progressLabels}>
             <View style={styles.progressLabelLeft}>
-              <Zap size={12} color="#A78BFA" />
+              <Zap size={12} color={Colors.secondary.lavender} />
               <Text style={styles.progressText}>
                 {xpProgress} XP
               </Text>
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
   levelNumber: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   compactProgress: {
     flex: 1,
@@ -211,13 +212,13 @@ const styles = StyleSheet.create({
   },
   compactProgressBg: {
     height: 6,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 3,
     overflow: 'hidden',
   },
   compactProgressFill: {
     height: '100%',
-    backgroundColor: '#A78BFA',
+    backgroundColor: Colors.secondary.lavender,
     borderRadius: 3,
   },
   compactXpText: {
@@ -227,11 +228,11 @@ const styles = StyleSheet.create({
 
   // Full styles
   fullContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 16,
     gap: 16,
-    ...shadows.colored('#A78BFA'),
+    ...shadows.colored(Colors.secondary.lavender),
   },
   levelSection: {
     flexDirection: 'row',
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   fullLevelNumber: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFF',
+    color: Colors.neutral.white,
     marginTop: -4,
   },
   levelInfo: {
@@ -270,7 +271,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 6,
     overflow: 'hidden',
   },
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#A78BFA',
+    color: Colors.secondary.lavender,
   },
   nextLevelText: {
     fontSize: 11,

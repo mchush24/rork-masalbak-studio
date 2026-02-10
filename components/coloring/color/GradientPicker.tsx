@@ -17,6 +17,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '@/constants/colors';
 
 export interface GradientConfig {
   colors: [string, string];
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
     paddingVertical: 6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
   },
   selectedBadge: {
     position: 'absolute',
@@ -348,7 +349,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedCheck: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#E0E0E0',
@@ -421,7 +422,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   directionIconActive: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   previewContainer: {
     flexDirection: 'row',
@@ -444,7 +445,7 @@ const styles = StyleSheet.create({
   createButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   helperText: {
     fontSize: 12,

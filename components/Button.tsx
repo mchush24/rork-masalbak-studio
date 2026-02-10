@@ -10,7 +10,7 @@ import {
   PressableStateCallbackType,
 } from "react-native";
 import { Colors } from "@/constants/colors";
-import { spacing, typography, radius, shadows, buttonVariants } from "@/constants/tokens";
+import { spacing, typography, radius, shadows, buttonVariants } from "@/constants/design-system";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   },
   button_lg: {
     paddingVertical: spacing.lg,
-    paddingHorizontal: spacing["2xl"],
+    paddingHorizontal: spacing['6'],
     minHeight: 52,
   },
   fullWidth: {

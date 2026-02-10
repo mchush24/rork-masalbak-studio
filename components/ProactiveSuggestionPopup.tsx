@@ -300,7 +300,7 @@ export function ProactiveSuggestionPopup({
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
         >
-          <MessageCircle size={16} color="#FFF" />
+          <MessageCircle size={16} color={Colors.neutral.white} />
           <Text style={styles.openChatText}>Sohbeti Aç</Text>
         </LinearGradient>
       </Pressable>
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: SCREEN_WIDTH - 32,
     maxWidth: 320,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius['2xl'],
     padding: spacing['4'],
     ...shadows.lg,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   openChatText: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 
   // Arrow
@@ -464,13 +464,13 @@ const styles = StyleSheet.create({
     bottom: -8,
     borderTopWidth: 8,
     borderBottomWidth: 0,
-    borderTopColor: '#FFF',
+    borderTopColor: Colors.neutral.white,
   },
   arrowTop: {
     top: -8,
     borderTopWidth: 0,
     borderBottomWidth: 8,
-    borderBottomColor: '#FFF',
+    borderBottomColor: Colors.neutral.white,
   },
 });
 

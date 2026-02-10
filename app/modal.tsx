@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Colors } from '@/constants/colors';
 
 export default function ModalScreen() {
   return (
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   description: {
     textAlign: "center",
     marginBottom: 24,
-    color: "#666",
+    color: Colors.neutral.medium,
     lineHeight: 20,
   },
   closeButton: {

@@ -14,7 +14,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     opacity: 0.3,
   },
   loadingDotDelay1: {

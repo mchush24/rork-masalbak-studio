@@ -6,7 +6,8 @@
  * component - now all consumers share the same state via React Context.
  */
 
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { trpcClient } from '@/lib/trpc';
 import {
@@ -112,6 +113,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Refresh token when app comes back to foreground
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (
+        appStateRef.current.match(/inactive|background/) &&
+        nextAppState === 'active' &&
+        user
+      ) {
+        console.log('[Auth] App resumed, refreshing token...');
+        tryRefreshToken();
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    return () => subscription.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   /**
    * Try to refresh the access token using the stored refresh token.
@@ -330,6 +350,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       console.log('[Auth] Logging out...');
+
+      // Best-effort backend token revocation
+      try {
+        const refreshToken = await secureStorage.getItem(REFRESH_TOKEN_KEY);
+        if (refreshToken) {
+          await trpcClient.auth.logout.mutate({ refreshToken });
+          console.log('[Auth] Backend token revoked');
+        }
+      } catch (revokeError) {
+        console.warn('[Auth] Backend token revocation failed (continuing logout):', getErrorMessage(revokeError));
+      }
 
       await supabaseSignOut();
 

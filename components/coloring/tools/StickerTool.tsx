@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   // Category tabs
   categoryTabs: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
   },
   categoryTabsContent: {
     paddingHorizontal: spacing['2'],
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['2'],
     borderRadius: radius.full,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.neutral.lightest,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['1'],
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
   },
   previewPlaceholder: {
     fontSize: 24,
-    color: '#999',
+    color: Colors.neutral.light,
     fontWeight: 'bold',
   },
 
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     right: -12,
     width: 24,
     height: 24,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: Colors.secondary.coral,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',

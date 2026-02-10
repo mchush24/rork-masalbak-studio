@@ -23,7 +23,7 @@ import {
   Archive,
   MoreHorizontal,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -78,7 +78,7 @@ export function ClientCard({ client, onPress, onLongPress }: ClientCardProps) {
 
   const getAvatarColor = (name: string) => {
     const colors = [
-      Colors.primary.purple,
+      Colors.secondary.lavender,
       Colors.emotion.joy,
       Colors.emotion.trust,
       Colors.emotion.anticipation,
@@ -110,7 +110,7 @@ export function ClientCard({ client, onPress, onLongPress }: ClientCardProps) {
           </Text>
           {client.isArchived && (
             <View style={styles.archivedBadge}>
-              <Archive size={12} color={Colors.neutral.gray} />
+              <Archive size={12} color={Colors.neutral.medium} />
               <Text style={styles.archivedText}>Arşiv</Text>
             </View>
           )}
@@ -119,17 +119,17 @@ export function ClientCard({ client, onPress, onLongPress }: ClientCardProps) {
         <View style={styles.metaRow}>
           {client.age && (
             <View style={styles.metaItem}>
-              <User size={12} color={Colors.neutral.gray} />
+              <User size={12} color={Colors.neutral.medium} />
               <Text style={styles.metaText}>{client.age} yaş</Text>
             </View>
           )}
           <View style={styles.metaItem}>
-            <FileText size={12} color={Colors.neutral.gray} />
+            <FileText size={12} color={Colors.neutral.medium} />
             <Text style={styles.metaText}>{client.analysisCount} analiz</Text>
           </View>
           {client.lastAnalysisDate && (
             <View style={styles.metaItem}>
-              <Calendar size={12} color={Colors.neutral.gray} />
+              <Calendar size={12} color={Colors.neutral.medium} />
               <Text style={styles.metaText}>
                 {format(new Date(client.lastAnalysisDate), 'd MMM', { locale: tr })}
               </Text>
@@ -155,7 +155,7 @@ export function ClientCard({ client, onPress, onLongPress }: ClientCardProps) {
       </View>
 
       {/* Arrow */}
-      <ChevronRight size={20} color={Colors.neutral.gray} />
+      <ChevronRight size={20} color={Colors.neutral.medium} />
     </AnimatedPressable>
   );
 }
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   archivedText: {
     fontSize: 10,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   metaRow: {
     flexDirection: 'row',
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   tagsRow: {
     flexDirection: 'row',
@@ -234,14 +234,14 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tag: {
-    backgroundColor: Colors.primary.purple + '15',
+    backgroundColor: Colors.secondary.lavender + '15',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
   tagText: {
     fontSize: 10,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     fontWeight: '500',
   },
   tagMore: {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   tagMoreText: {
     fontSize: 10,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
 });
 

@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { shadows, zIndex } from '@/constants/design-system';
 import { CursorPosition, CollaboratorInfo } from '@/lib/collab/CollaborationManager';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 3,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
     ...shadows.sm,
   },
   cursorDotDrawing: {
@@ -320,7 +321,7 @@ const styles = StyleSheet.create({
     maxWidth: 100,
   },
   nameLabelText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 10,
     fontWeight: '600',
     textAlign: 'center',
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
   },
 
   // Collaborators list styles
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
     ...shadows.sm,
   },
   currentUserAvatar: {
@@ -360,7 +361,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFD700',
   },
   collaboratorInitial: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -386,7 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   collaboratorCountText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -398,11 +399,11 @@ const styles = StyleSheet.create({
   },
   roomCodeLabel: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 8,
   },
   roomCodeBox: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.neutral.lightest,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
@@ -413,13 +414,13 @@ const styles = StyleSheet.create({
   roomCode: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#333',
+    color: Colors.neutral.darkest,
     letterSpacing: 4,
     fontFamily: 'monospace',
   },
   roomCodeHint: {
     fontSize: 12,
-    color: '#999',
+    color: Colors.neutral.light,
     marginTop: 8,
   },
 });

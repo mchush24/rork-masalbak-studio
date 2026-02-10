@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { UserCheck, ArrowRight, X } from 'lucide-react-native';
 import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -108,7 +109,7 @@ export function ExistingUserModal({
         >
           {/* Header with gradient */}
           <LinearGradient
-            colors={['#6366F1', '#8B5CF6']}
+            colors={[Colors.secondary.indigo, Colors.secondary.violet]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
@@ -173,7 +174,7 @@ export function ExistingUserModal({
 
             <View
               style={{
-                backgroundColor: '#F3F4F6',
+                backgroundColor: Colors.neutral.gray100,
                 borderRadius: borderRadius.lg,
                 padding: spacing.md,
                 marginBottom: spacing.lg,
@@ -195,7 +196,7 @@ export function ExistingUserModal({
             <Pressable
               onPress={handleLogin}
               style={({ pressed }) => ({
-                backgroundColor: '#6366F1',
+                backgroundColor: Colors.secondary.indigo,
                 paddingVertical: spacing.md,
                 paddingHorizontal: spacing.lg,
                 borderRadius: borderRadius.xl,

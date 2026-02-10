@@ -35,7 +35,7 @@ import Animated, {
   SlideInUp,
   SlideOutDown,
 } from 'react-native-reanimated';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows, zIndex } from '@/constants/design-system';
 
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     marginTop: 4,
   },
 
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.light,
   },
   pageDotActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
 
   // Swipeable

@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle, StyleProp } from 'react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 
 // ============================================
 // SPACING SCALE
@@ -106,35 +106,35 @@ export const Shadows = {
     elevation: 0,
   },
   sm: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
   },
   md: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },
   lg: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
   xl: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 8,
   },
   '2xl': {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.15,
     shadowRadius: 24,
@@ -338,7 +338,7 @@ export function Badge({
   style,
 }: BadgeProps) {
   const variantStyles = {
-    primary: { backgroundColor: Colors.primary.purple + '20', color: Colors.primary.purple },
+    primary: { backgroundColor: Colors.secondary.lavender + '20', color: Colors.secondary.lavender },
     secondary: { backgroundColor: Colors.neutral.lighter, color: Colors.neutral.dark },
     success: { backgroundColor: Colors.emotion.trust + '20', color: Colors.emotion.trust },
     warning: { backgroundColor: Colors.emotion.joy + '20', color: Colors.emotion.joy },
@@ -382,7 +382,7 @@ export function Avatar({
   source,
   name,
   size = 48,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   style,
 }: AvatarProps) {
   const initials = name
@@ -502,8 +502,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   chipSelected: {
-    backgroundColor: Colors.primary.purple + '15',
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender + '15',
+    borderColor: Colors.secondary.lavender,
   },
   chipText: {
     fontSize: Typography.size.sm,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.dark,
   },
   chipTextSelected: {
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
 });
 

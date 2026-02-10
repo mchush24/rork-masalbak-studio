@@ -31,6 +31,7 @@ import {
   StoryPage,
 } from "@/types/InteractiveStory";
 import { shadows } from "@/constants/design-system";
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const PAGE_WIDTH = SCREEN_WIDTH * 0.9;
@@ -232,7 +233,7 @@ export function InteractiveStoryReader({
             currentPageIndex === 0 && styles.navButtonDisabled,
           ]}
         >
-          <ChevronLeft size={28} color={currentPageIndex === 0 ? "#D1D5DB" : "#9333EA"} />
+          <ChevronLeft size={28} color={currentPageIndex === 0 ? Colors.neutral.gray300 : "#9333EA"} />
         </Pressable>
 
         {/* Sayfa noktalari */}
@@ -257,7 +258,7 @@ export function InteractiveStoryReader({
               <Text style={styles.nextActionText}>
                 {isEnding ? "Bitir" : "Sec"}
               </Text>
-              <Sparkles size={20} color="#fff" />
+              <Sparkles size={20} color={Colors.neutral.white} />
             </View>
           ) : (
             <ChevronRight size={28} color="#9333EA" />
@@ -308,7 +309,7 @@ const styles = StyleSheet.create({
   },
   pageCard: {
     width: PAGE_WIDTH,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     borderRadius: 24,
     overflow: "hidden",
     ...shadows.md,
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   pageBadgeText: {
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -355,7 +356,7 @@ const styles = StyleSheet.create({
   pageText: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#374151",
+    color: Colors.neutral.gray700,
     textAlign: "center",
   },
   navigation: {
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     alignItems: "center",
     justifyContent: "center",
     ...shadows.sm,
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   nextActionText: {
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
   },
   pageDotActive: {
     backgroundColor: "#9333EA",

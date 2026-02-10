@@ -50,7 +50,7 @@ const isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 const SAMPLE_INSIGHTS = [
   { emotion: 'Mutluluk', level: 85, color: '#FFD93D', icon: '😊' },
   { emotion: 'Güvenlik', level: 72, color: '#6BCB77', icon: '🛡️' },
-  { emotion: 'Yaratıcılık', level: 91, color: '#A78BFA', icon: '✨' },
+  { emotion: 'Yaratıcılık', level: 91, color: Colors.secondary.lavender, icon: '✨' },
 ];
 
 export default function WelcomeScreen() {
@@ -287,7 +287,7 @@ export default function WelcomeScreen() {
               ]}
             >
               <LinearGradient
-                colors={[Colors.secondary.lavender, '#818CF8', '#6366F1']}
+                colors={[Colors.secondary.lavender, '#818CF8', Colors.secondary.indigo]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
   insightBarBg: {
     height: 6,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: Colors.neutral.gray300,
   },
 
   // CTA Section

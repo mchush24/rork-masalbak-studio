@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ioo as IooMascot, IooMood } from '@/components/Ioo';
+import { Colors } from '@/constants/colors';
 
 const MOODS: IooMood[] = ['happy', 'excited', 'sleepy', 'curious', 'talking', 'surprised', 'love', 'thinking'];
 const SIZES = ['tiny', 'small', 'medium', 'large', 'hero', 'giant'] as const;
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: 4,
   },
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 12,
   },
   buttonRow: {
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
@@ -218,11 +219,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.neutral.medium,
     fontWeight: '500',
   },
   buttonTextActive: {
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   sizesRow: {
     flexDirection: 'row',
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   featuresList: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     padding: 16,
     gap: 8,

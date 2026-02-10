@@ -34,7 +34,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useAccessibility, useAccessibleFontSize, useMinimumTouchTarget, useColorBlindSafeColors, ColorBlindMode } from './AccessibilityProvider';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { shadows, zIndex } from '@/constants/design-system';
 
 interface AccessibleButtonProps {
@@ -97,12 +97,12 @@ export function AccessibleButton({
 
   const variantStyles = {
     primary: {
-      backgroundColor: Colors.primary.purple,
-      borderColor: Colors.primary.purple,
+      backgroundColor: Colors.secondary.lavender,
+      borderColor: Colors.secondary.lavender,
     },
     secondary: {
       backgroundColor: 'transparent',
-      borderColor: Colors.primary.purple,
+      borderColor: Colors.secondary.lavender,
       borderWidth: 2,
     },
     ghost: {
@@ -354,7 +354,7 @@ export function AccessibilitySettingsItem({
         <View
           style={[
             styles.toggle,
-            { backgroundColor: value ? Colors.primary.purple : Colors.neutral.light },
+            { backgroundColor: value ? Colors.secondary.lavender : Colors.neutral.light },
           ]}
         >
           <Animated.View
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -100,
     left: 0,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     padding: 12,
     borderRadius: 8,
     zIndex: zIndex.floating,
@@ -513,8 +513,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   colorBlindOptionSelected: {
-    borderColor: Colors.primary.purple,
-    backgroundColor: `${Colors.primary.purple}10`,
+    borderColor: Colors.secondary.lavender,
+    backgroundColor: `${Colors.secondary.lavender}10`,
   },
   colorBlindOptionUnselected: {
     borderColor: Colors.neutral.lighter,
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   colorBlindOptionContent: {
     flex: 1,
@@ -619,7 +619,7 @@ export function ColorBlindModeSelector({
             <View
               style={[
                 styles.colorBlindOptionRadio,
-                { borderColor: isSelected ? Colors.primary.purple : Colors.neutral.light },
+                { borderColor: isSelected ? Colors.secondary.lavender : Colors.neutral.light },
               ]}
             >
               {isSelected && <View style={styles.colorBlindOptionRadioInner} />}

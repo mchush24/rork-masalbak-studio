@@ -725,7 +725,7 @@ export function ChatBot() {
           accessibilityHint="Sorularınız için Ioo asistanını açar"
         >
           <LinearGradient
-            colors={['#A78BFA', '#8B5CF6', '#7C3AED']}
+            colors={['#A78BFA', Colors.secondary.violet, '#7C3AED']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.floatingButtonGradient}
@@ -796,7 +796,7 @@ export function ChatBot() {
             ]}
           >
             {/* Header */}
-            <LinearGradient colors={['#8B5CF6', '#A78BFA']} style={styles.header}>
+            <LinearGradient colors={[Colors.secondary.violet, Colors.secondary.lavender]} style={styles.header}>
               <View style={styles.headerContent}>
                 <View style={styles.headerLeft}>
                   <View style={styles.botAvatar}>
@@ -813,7 +813,7 @@ export function ChatBot() {
                   accessibilityRole="button"
                   accessibilityLabel="Chatbot'u kapat"
                 >
-                  <X size={24} color="#FFF" />
+                  <X size={24} color={Colors.neutral.white} />
                 </Pressable>
               </View>
 
@@ -924,7 +924,7 @@ export function ChatBot() {
                       </Text>
                       {message.source === 'ai' && message.role === 'assistant' && (
                         <View style={styles.aiIndicator}>
-                          <Sparkles size={10} color="#8B5CF6" />
+                          <Sparkles size={10} color={Colors.secondary.violet} />
                           <Text style={styles.aiIndicatorText}>AI yanıtı</Text>
                         </View>
                       )}
@@ -959,7 +959,7 @@ export function ChatBot() {
                             >
                               {action.icon && <Text style={styles.actionIcon}>{action.icon}</Text>}
                               <Text style={styles.actionLabel}>{action.label}</Text>
-                              <ChevronRight size={14} color="#8B5CF6" />
+                              <ChevronRight size={14} color={Colors.secondary.violet} />
                             </Pressable>
                           ))}
                         </View>
@@ -993,7 +993,7 @@ export function ChatBot() {
               {showFAQ && faqQuery.data && (
                 <View style={styles.faqSection}>
                   <View style={styles.faqHeader}>
-                    <HelpCircle size={18} color="#8B5CF6" />
+                    <HelpCircle size={18} color={Colors.secondary.violet} />
                     <Text style={styles.faqTitle}>Sık Sorulan Sorular</Text>
                   </View>
                   {faqQuery.data.categories.slice(0, 3).map(category => (
@@ -1008,7 +1008,7 @@ export function ChatBot() {
                           onPress={() => handleFAQClick(faqItem.question)}
                         >
                           <Text style={styles.faqQuestion}>{faqItem.question}</Text>
-                          <ChevronRight size={16} color="#8B5CF6" />
+                          <ChevronRight size={16} color={Colors.secondary.violet} />
                         </Pressable>
                       ))}
                     </View>
@@ -1047,12 +1047,12 @@ export function ChatBot() {
                 <LinearGradient
                   colors={
                     inputText.trim() && !isLoading
-                      ? ['#8B5CF6', '#A78BFA']
+                      ? [Colors.secondary.violet, Colors.secondary.lavender]
                       : [Colors.neutral.light, Colors.neutral.medium]
                   }
                   style={styles.sendButtonGradient}
                 >
-                  <Send size={20} color="#FFF" />
+                  <Send size={20} color={Colors.neutral.white} />
                 </LinearGradient>
               </Pressable>
             </View>
@@ -1108,7 +1108,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#10B981',
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
   },
   childBadge: {
     position: 'absolute',
@@ -1118,7 +1118,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
     overflow: 'hidden',
     ...shadows.sm,
   },
@@ -1130,7 +1130,7 @@ const styles = StyleSheet.create({
   childBadgeText: {
     fontSize: 11,
     fontWeight: '700' as const,
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 
   // Modal
@@ -1166,7 +1166,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -1174,7 +1174,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   headerSubtitle: {
     fontSize: typography.size.xs,
@@ -1228,11 +1228,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
   },
   userContent: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Colors.secondary.violet,
     borderBottomRightRadius: 4,
   },
   assistantContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderBottomLeftRadius: 4,
     ...shadows.sm,
   },
@@ -1242,7 +1242,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   userText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   aiIndicator: {
     flexDirection: 'row',
@@ -1253,7 +1253,7 @@ const styles = StyleSheet.create({
   },
   aiIndicatorText: {
     fontSize: 10,
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
   },
 
   // Feedback Buttons
@@ -1298,7 +1298,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
   },
 
   // Typing indicator
@@ -1315,7 +1315,7 @@ const styles = StyleSheet.create({
   // FAQ Section
   faqSection: {
     marginTop: spacing['4'],
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['4'],
     ...shadows.sm,
@@ -1362,7 +1362,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: spacing['2'],
     padding: spacing['3'],
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderTopWidth: 1,
     borderTopColor: Colors.neutral.lightest,
   },
@@ -1411,24 +1411,24 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
   childAvatarText: {
     fontSize: 14,
     fontWeight: '700' as const,
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
   },
   childName: {
     flex: 1,
     fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   childDropdown: {
     marginTop: spacing['2'],
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     overflow: 'hidden',
     ...shadows.md,
@@ -1453,12 +1453,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   childOptionAvatarSelected: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Colors.secondary.violet,
   },
   childOptionAvatarText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   childOptionInfo: {
     flex: 1,
@@ -1469,7 +1469,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
   },
   childOptionNameSelected: {
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
   },
   childOptionAge: {
     fontSize: typography.size.xs,
@@ -1479,12 +1479,12 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Colors.secondary.violet,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkmarkText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 14,
     fontWeight: 'bold' as const,
   },

@@ -45,7 +45,7 @@ import {
   BookOpen,
   Shield,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,35 +69,35 @@ const defaultSteps: OnboardingStep[] = [
     title: 'Renkioo\'ya Hoş Geldiniz',
     description: 'Çocuğunuzun duygusal dünyasını keşfetmek için doğru yerdesiniz.',
     icon: Heart,
-    colors: [Colors.primary.purple, Colors.primary.pink] as const,
+    colors: [Colors.secondary.lavender, Colors.secondary.rose] as const,
   },
   {
     id: 'coloring',
     title: 'Boyama Analizi',
     description: 'Çocuğunuzun çizimlerini yükleyin, AI destekli analiz ile duygusal içgörüler kazanın.',
     icon: Palette,
-    colors: [Colors.emotion.joy, Colors.primary.orange] as const,
+    colors: [Colors.emotion.joy, Colors.primary.sunset] as const,
   },
   {
     id: 'stories',
     title: 'Etkileşimli Hikayeler',
     description: 'Kişiselleştirilmiş hikayelerle duygusal zeka geliştirin.',
     icon: BookOpen,
-    colors: [Colors.primary.turquoise, Colors.emotion.trust] as const,
+    colors: [Colors.secondary.mint, Colors.emotion.trust] as const,
   },
   {
     id: 'insights',
     title: 'Gelişim Takibi',
     description: 'Detaylı raporlar ve grafiklerle çocuğunuzun duygusal gelişimini izleyin.',
     icon: Brain,
-    colors: [Colors.primary.purple, Colors.primary.turquoise] as const,
+    colors: [Colors.secondary.lavender, Colors.secondary.mint] as const,
   },
   {
     id: 'privacy',
     title: 'Güvenlik & Gizlilik',
     description: 'Verileriniz şifrelenir ve güvende tutulur. Tam kontrol sizde.',
     icon: Shield,
-    colors: [Colors.emotion.trust, Colors.primary.turquoise] as const,
+    colors: [Colors.emotion.trust, Colors.secondary.mint] as const,
   },
 ];
 
@@ -211,8 +211,8 @@ export function OnboardingFlow({
         >
           <LinearGradient
             colors={isLastStep
-              ? [Colors.emotion.trust, Colors.primary.turquoise]
-              : [Colors.primary.purple, Colors.primary.pink]
+              ? [Colors.emotion.trust, Colors.secondary.mint]
+              : [Colors.secondary.lavender, Colors.secondary.rose]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -502,14 +502,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.light,
   },
   pageDotActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
 
   // Next button
   nextButton: {
     borderRadius: 16,
     overflow: 'hidden',
-    ...shadows.colored(Colors.primary.purple),
+    ...shadows.colored(Colors.secondary.lavender),
   },
   completeButton: {
     shadowColor: Colors.emotion.trust,

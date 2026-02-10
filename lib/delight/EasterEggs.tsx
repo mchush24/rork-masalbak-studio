@@ -15,7 +15,7 @@ import Animated, {
   withTiming,
   withRepeat,
 } from 'react-native-reanimated';
-import { UIColors as _Colors } from '@/constants/color-aliases';
+import { Colors as _Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get('window');

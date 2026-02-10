@@ -7,7 +7,7 @@ import {
   PressableStateCallbackType,
 } from "react-native";
 import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows } from "@/constants/tokens";
+import { spacing, radius, shadows } from "@/constants/design-system";
 
 export type CardVariant = "default" | "elevated" | "outlined" | "filled";
 export type CardPadding = "none" | "sm" | "md" | "lg";
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   padding_lg: {
-    padding: spacing["2xl"],
+    padding: spacing['6'],
   },
   pressed: {
     opacity: 0.9,

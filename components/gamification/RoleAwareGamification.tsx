@@ -12,6 +12,7 @@
 
 import React, { memo, ReactNode } from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { Colors } from '@/constants/colors';
 import { useGamification, useRole, useIsProfessional } from '@/lib/contexts/RoleContext';
 import { XPProgressBar } from './XPProgressBar';
 import { StreakDisplay } from './StreakDisplay';
@@ -331,11 +332,11 @@ const professionalProgressStyles = StyleSheet.create({
   value: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#374151',
+    color: Colors.neutral.gray700,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 3,
     overflow: 'hidden',
   },

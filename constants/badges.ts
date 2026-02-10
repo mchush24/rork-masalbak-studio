@@ -121,26 +121,40 @@ export const BADGE_CATEGORY_ICONS: Record<BadgeCategory, string> = {
 // RARITY CONFIG
 // ============================================
 
-export const BADGE_RARITY_CONFIG: Record<BadgeRarity, { label: string; color: string; bgColor: string }> = {
+export const BADGE_RARITY_CONFIG: Record<BadgeRarity, {
+  label: string;
+  color: string;
+  bgColor: string;
+  gradient: readonly [string, string];
+  glowColor: string;
+}> = {
   common: {
     label: 'Yaygın',
-    color: '#78716C', // Stone
+    color: '#78716C',
     bgColor: '#F5F5F4',
+    gradient: ['#F5F5F4', '#E7E5E4'] as const,
+    glowColor: 'rgba(120, 113, 108, 0.15)',
   },
   rare: {
     label: 'Nadir',
-    color: '#3B82F6', // Blue
+    color: '#3B82F6',
     bgColor: '#EFF6FF',
+    gradient: ['#EFF6FF', '#DBEAFE'] as const,
+    glowColor: 'rgba(59, 130, 246, 0.2)',
   },
   epic: {
     label: 'Epik',
-    color: '#8B5CF6', // Purple
+    color: '#8B5CF6',
     bgColor: '#F5F3FF',
+    gradient: ['#F5F3FF', '#EDE9FE'] as const,
+    glowColor: 'rgba(139, 92, 246, 0.25)',
   },
   legendary: {
     label: 'Efsanevi',
-    color: '#F59E0B', // Amber
+    color: '#F59E0B',
     bgColor: '#FFFBEB',
+    gradient: ['#FFFBEB', '#FEF3C7'] as const,
+    glowColor: 'rgba(245, 158, 11, 0.3)',
   },
 };
 

@@ -240,7 +240,7 @@ export default function LoginScreen() {
                 padding: spacing.xs,
                 marginBottom: spacing.md,
                 borderWidth: 1,
-                borderColor: '#E5E7EB',
+                borderColor: Colors.neutral.gray200,
                 ...shadows.sm,
               }}
             >
@@ -256,7 +256,7 @@ export default function LoginScreen() {
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    backgroundColor: '#F3F4F6',
+                    backgroundColor: Colors.neutral.gray100,
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginRight: spacing.sm,
@@ -272,7 +272,7 @@ export default function LoginScreen() {
                   value={email}
                   onChangeText={setEmail}
                   placeholder="Email adresiniz"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={Colors.neutral.gray400}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -295,7 +295,7 @@ export default function LoginScreen() {
                 padding: spacing.xs,
                 marginBottom: spacing.sm,
                 borderWidth: 1,
-                borderColor: '#E5E7EB',
+                borderColor: Colors.neutral.gray200,
                 ...shadows.sm,
               }}
             >
@@ -311,7 +311,7 @@ export default function LoginScreen() {
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    backgroundColor: '#F3F4F6',
+                    backgroundColor: Colors.neutral.gray100,
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginRight: spacing.sm,
@@ -327,7 +327,7 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Şifreniz"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={Colors.neutral.gray400}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
                   style={{
@@ -395,7 +395,7 @@ export default function LoginScreen() {
               ]}
             >
               <LinearGradient
-                colors={isEnabled ? ['#7C3AED', '#6D28D9'] : ['#D1D5DB', '#D1D5DB']}
+                colors={isEnabled ? ['#7C3AED', '#6D28D9'] : [Colors.neutral.gray300, Colors.neutral.gray300]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -405,13 +405,13 @@ export default function LoginScreen() {
                 }}
               >
                 {isLoading ? (
-                  <ActivityIndicator color="#FFF" />
+                  <ActivityIndicator color={Colors.neutral.white} />
                 ) : (
                   <Text
                     style={{
                       fontSize: typography.size.md,
                       fontWeight: '700',
-                      color: '#FFFFFF',
+                      color: Colors.neutral.white,
                       textAlign: 'center',
                     }}
                   >

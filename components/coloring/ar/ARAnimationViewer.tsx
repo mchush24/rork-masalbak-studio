@@ -23,6 +23,7 @@ import {
 import { Camera, CameraView } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { shadows, textShadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -715,7 +716,7 @@ export function ARButton({ onPress, size = 48 }: ARButtonProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: Colors.neutral.darkest,
   },
   camera: {
     ...StyleSheet.absoluteFillObject,
@@ -750,7 +751,7 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 16,
     borderWidth: 4,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
   },
   sparkle: {
     position: 'absolute',
@@ -790,7 +791,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 20,
     fontWeight: '600',
   },
@@ -798,13 +799,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 18,
     fontWeight: '700',
     ...textShadows.lg,
   },
   subtitle: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 14,
     opacity: 0.9,
     ...textShadows.lg,
@@ -834,7 +835,7 @@ const styles = StyleSheet.create({
   themeSelectorTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -846,7 +847,7 @@ const styles = StyleSheet.create({
   themeItem: {
     width: '23%',
     aspectRatio: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -864,7 +865,7 @@ const styles = StyleSheet.create({
   themeName: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
 
   // Bottom Controls
@@ -886,7 +887,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   controlLabel: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: '500',
   },
@@ -894,7 +895,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     padding: 4,
   },
   captureButtonInner: {
@@ -917,7 +918,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   instructionsText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 13,
     textAlign: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -941,7 +942,7 @@ const styles = StyleSheet.create({
   permissionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
     marginBottom: 12,
   },
   permissionText: {
@@ -957,7 +958,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   permissionButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -972,7 +973,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   arButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontWeight: '800',
   },
 });

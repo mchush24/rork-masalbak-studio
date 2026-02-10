@@ -24,7 +24,7 @@ import {
   SortDesc,
   X,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 import { ClientCard, Client } from './ClientCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -137,13 +137,13 @@ export function ClientList({
       {/* Stats */}
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
-          <Users size={16} color={Colors.primary.purple} />
+          <Users size={16} color={Colors.secondary.lavender} />
           <Text style={styles.statValue}>{activeClientCount}</Text>
           <Text style={styles.statLabel}>Aktif</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Archive size={16} color={Colors.neutral.gray} />
+          <Archive size={16} color={Colors.neutral.medium} />
           <Text style={styles.statValue}>{archivedClientCount}</Text>
           <Text style={styles.statLabel}>Arşiv</Text>
         </View>
@@ -152,17 +152,17 @@ export function ClientList({
       {/* Search */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
-          <Search size={18} color={Colors.neutral.gray} />
+          <Search size={18} color={Colors.neutral.medium} />
           <TextInput
             style={styles.searchInput}
             placeholder="Danışan ara..."
-            placeholderTextColor={Colors.neutral.gray}
+            placeholderTextColor={Colors.neutral.medium}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <Pressable onPress={() => setSearchQuery('')}>
-              <X size={18} color={Colors.neutral.gray} />
+              <X size={18} color={Colors.neutral.medium} />
             </Pressable>
           )}
         </View>
@@ -172,7 +172,7 @@ export function ClientList({
         >
           <Filter
             size={18}
-            color={showFilters ? Colors.neutral.white : Colors.primary.purple}
+            color={showFilters ? Colors.neutral.white : Colors.secondary.lavender}
           />
         </Pressable>
       </View>
@@ -187,7 +187,7 @@ export function ClientList({
           >
             <Archive
               size={14}
-              color={showArchived ? Colors.neutral.white : Colors.neutral.gray}
+              color={showArchived ? Colors.neutral.white : Colors.neutral.medium}
             />
             <Text
               style={[
@@ -276,7 +276,7 @@ export function ClientList({
             <RefreshControl
               refreshing={isLoading}
               onRefresh={onRefresh}
-              tintColor={Colors.primary.purple}
+              tintColor={Colors.secondary.lavender}
             />
           ) : undefined
         }
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 14,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   statDivider: {
     width: 1,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   filtersContainer: {
     marginTop: 12,
@@ -379,11 +379,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lighter,
   },
   filterChipActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   filterChipText: {
     fontSize: 13,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   filterChipTextActive: {
     color: Colors.neutral.white,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   },
   sortLabel: {
     fontSize: 13,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginRight: 4,
   },
   sortChip: {
@@ -409,11 +409,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lighter,
   },
   sortChipActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   sortChipText: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   sortChipTextActive: {
     color: Colors.neutral.white,
@@ -425,10 +425,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.colored(Colors.primary.purple),
+    ...shadows.colored(Colors.secondary.lavender),
   },
 });
 

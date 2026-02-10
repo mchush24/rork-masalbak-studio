@@ -20,6 +20,7 @@ import * as Haptics from "expo-haptics";
 import { Star, FileText, Share2, Home } from "lucide-react-native";
 import { InteractiveCharacter } from "@/types/InteractiveStory";
 import { shadows } from "@/constants/design-system";
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -176,7 +177,7 @@ export function EndingCelebration({
       <Animated.View style={[styles.buttons, { opacity: fadeAnim }]}>
         {/* Rapor Gor */}
         <Pressable style={styles.primaryButton} onPress={onViewReport}>
-          <FileText size={20} color="#fff" />
+          <FileText size={20} color={Colors.neutral.white} />
           <Text style={styles.primaryButtonText}>Raporumu Gor</Text>
         </Pressable>
 
@@ -266,7 +267,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: Colors.neutral.gray400,
   },
   messageBox: {
     backgroundColor: "#F3E8FF",
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     paddingVertical: 16,
     borderRadius: 16,
     gap: 8,
@@ -317,7 +318,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#fff",
+    color: Colors.neutral.white,
   },
 });
 

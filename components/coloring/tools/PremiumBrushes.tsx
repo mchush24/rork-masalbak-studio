@@ -36,6 +36,7 @@ import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Skia, Path, Circle, Group, Blur, BlendMode, Paint } from '@shopify/react-native-skia';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -352,7 +353,7 @@ export function PremiumBrushes({
               <Text style={styles.headerEmoji}>🖌️</Text>
               <Text style={styles.headerTitle}>Fırça Seçimi</Text>
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <Ionicons name="close-circle" size={32} color="#666" />
+                <Ionicons name="close-circle" size={32} color={Colors.neutral.medium} />
               </TouchableOpacity>
             </View>
 
@@ -478,7 +479,7 @@ function BrushPreview({ brush }: { brush: BrushConfig }) {
         };
       case 'marker':
         return {
-          backgroundColor: '#FF6B6B',
+          backgroundColor: Colors.secondary.coral,
           borderRadius: 2,
           width: 50,
           height: 12,
@@ -498,7 +499,7 @@ function BrushPreview({ brush }: { brush: BrushConfig }) {
         };
       case 'pencil':
         return {
-          backgroundColor: '#333',
+          backgroundColor: Colors.neutral.darkest,
           borderRadius: 0,
           width: 50,
           height: 2,
@@ -636,7 +637,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   selectorText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -647,7 +648,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   premiumBadgeText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 9,
     fontWeight: '800',
   },
@@ -662,7 +663,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: SCREEN_HEIGHT * 0.7,
@@ -675,7 +676,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
   },
   headerEmoji: {
     fontSize: 28,
@@ -685,7 +686,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   closeButton: {
     padding: 4,
@@ -725,7 +726,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.xs,
@@ -736,11 +737,11 @@ const styles = StyleSheet.create({
   brushCardName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   brushCardDescription: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 2,
   },
   brushCardRight: {
@@ -763,7 +764,7 @@ const styles = StyleSheet.create({
   lockText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
 
   // Selected Badge
@@ -776,7 +777,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -809,7 +810,7 @@ const styles = StyleSheet.create({
   compactTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 8,
   },
   compactScroll: {
@@ -820,7 +821,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,

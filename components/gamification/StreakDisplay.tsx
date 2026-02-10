@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flame, Snowflake, Calendar } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
+import { Colors } from '@/constants/colors';
 
 interface StreakDisplayProps {
   currentStreak: number;
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   riskBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 
   // Full styles

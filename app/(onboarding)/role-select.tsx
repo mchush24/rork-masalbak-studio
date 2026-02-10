@@ -37,7 +37,7 @@ import {
 } from 'lucide-react-native';
 import { spacing, radius, shadows, typography, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
 import { useRole, UserRole, ROLE_CONFIGS } from '@/lib/contexts/RoleContext';
-import { ProfessionalColors } from '@/constants/colors';
+import { ProfessionalColors, Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -354,11 +354,11 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     padding: spacing.md,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
     position: 'relative',
     ...shadows.md,
   },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 6,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   continueButtonDisabledInner: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     paddingVertical: 16,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',

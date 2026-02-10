@@ -11,7 +11,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useColorScheme, Appearance, ColorSchemeName } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors, DarkColors, EtherealColors, EtherealDarkColors, ThemeConfig } from '@/constants/colors';
+import { Colors, DarkColors, ThemeConfig } from '@/constants/colors';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -29,8 +29,6 @@ interface ThemeContextType {
   isDark: boolean;
   // Theme colors based on current theme
   colors: typeof Colors;
-  // Ethereal colors based on current theme
-  ethereal: typeof EtherealColors;
   // Theme config for navigation
   themeConfig: typeof ThemeConfig.light;
   // Animation duration for transitions
@@ -59,10 +57,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Get colors based on current theme
   const colors = useMemo(() => {
     return isDark ? DarkColors : Colors;
-  }, [isDark]);
-
-  const ethereal = useMemo(() => {
-    return isDark ? EtherealDarkColors : EtherealColors;
   }, [isDark]);
 
   const themeConfig = useMemo(() => {
@@ -121,10 +115,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     toggle,
     isDark,
     colors: colors as typeof Colors,
-    ethereal: ethereal as typeof EtherealColors,
     themeConfig,
     transitionDuration: 300,
-  }), [mode, resolvedTheme, setMode, toggle, isDark, colors, ethereal, themeConfig]);
+  }), [mode, resolvedTheme, setMode, toggle, isDark, colors, themeConfig]);
 
   // Don't render until theme is loaded to prevent flash
   if (!isLoaded) {

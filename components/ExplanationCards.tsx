@@ -69,8 +69,8 @@ const styles = StyleSheet.create({
     borderColor: "#FCA5A5",
   },
   cardDisclaimer: {
-    backgroundColor: "#F3F4F6",
-    borderColor: "#D1D5DB",
+    backgroundColor: Colors.neutral.gray100,
+    borderColor: Colors.neutral.gray300,
   },
   cardHeader: {
     flexDirection: "row",

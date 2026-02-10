@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { spacing, borderRadius, typography } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 interface PasswordStrengthIndicatorProps {
   password: string;
@@ -24,7 +25,7 @@ export function PasswordStrengthIndicator({
   const strength = Math.min(4, score);
 
   // Colors based on strength
-  const colors = ['#EF4444', '#F59E0B', '#EAB308', '#10B981', '#059669'];
+  const colors = ['#EF4444', Colors.semantic.amber, '#EAB308', '#10B981', '#059669'];
   const labels = ['Çok Zayıf', 'Zayıf', 'Orta', 'Güçlü', 'Çok Güçlü'];
 
   if (!password) return null;
@@ -39,7 +40,7 @@ export function PasswordStrengthIndicator({
             style={[
               styles.bar,
               {
-                backgroundColor: index <= strength ? colors[strength] : '#E5E7EB',
+                backgroundColor: index <= strength ? colors[strength] : Colors.neutral.gray200,
               },
             ]}
           />

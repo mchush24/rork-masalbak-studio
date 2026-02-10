@@ -30,6 +30,7 @@ import {
 import { shadows, zIndex } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
   tooltip: {
     position: 'absolute',
     width: 280,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     // Uses design system z-index for tooltips
     zIndex: zIndex.tooltip,
@@ -367,7 +368,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 10,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#FFFFFF',
+    borderBottomColor: Colors.neutral.white,
   },
   arrowBottom: {
     bottom: -10,
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 10,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderTopColor: '#FFFFFF',
+    borderTopColor: Colors.neutral.white,
   },
   arrowLeft: {
     left: -10,
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 10,
     borderTopColor: 'transparent',
     borderBottomColor: 'transparent',
-    borderRightColor: '#FFFFFF',
+    borderRightColor: Colors.neutral.white,
   },
   arrowRight: {
     right: -10,
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 10,
     borderTopColor: 'transparent',
     borderBottomColor: 'transparent',
-    borderLeftColor: '#FFFFFF',
+    borderLeftColor: Colors.neutral.white,
   },
   content: {
     padding: 20,
@@ -408,17 +409,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
     lineHeight: 20,
     marginBottom: 16,
   },
   dismissButton: {
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 12,
@@ -427,6 +428,6 @@ const styles = StyleSheet.create({
   dismissText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

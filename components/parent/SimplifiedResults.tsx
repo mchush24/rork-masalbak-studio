@@ -62,8 +62,8 @@ interface SimplifiedResultsProps {
 const LEVEL_CONFIG = {
   excellent: { label: 'Mükemmel', color: '#059669', bgColor: '#ECFDF5', emoji: '🌟' },
   good: { label: 'İyi', color: '#3B82F6', bgColor: '#EFF6FF', emoji: '✨' },
-  developing: { label: 'Gelişiyor', color: '#F59E0B', bgColor: '#FFFBEB', emoji: '🌱' },
-  emerging: { label: 'Başlangıç', color: '#8B5CF6', bgColor: '#F5F3FF', emoji: '🌸' },
+  developing: { label: 'Gelişiyor', color: Colors.semantic.amber, bgColor: '#FFFBEB', emoji: '🌱' },
+  emerging: { label: 'Başlangıç', color: Colors.secondary.violet, bgColor: '#F5F3FF', emoji: '🌸' },
 };
 
 const ICON_COMPONENTS = {
@@ -106,7 +106,7 @@ export function SimplifiedResults({
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <LinearGradient
-        colors={[Colors.primary.softPeach, '#FFFFFF']}
+        colors={[Colors.primary.softPeach, Colors.neutral.white]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.header}
@@ -319,7 +319,7 @@ export function SimplifiedResults({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
   },
   header: {
     paddingTop: spacing['6'],
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing['3'],
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -390,10 +390,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   actionButtonPressed: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   actionButtonText: {
     fontSize: 13,
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing['4'],
     paddingVertical: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   sectionTitleContainer: {
     flexDirection: 'row',
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   progressBackground: {
     height: '100%',
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -36,6 +36,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useColoring } from '../ColoringContext';
 import { shadows, zIndex } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -273,7 +274,7 @@ export function AISuggestions({
                 </View>
               </View>
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <Ionicons name="close-circle" size={32} color="#666" />
+                <Ionicons name="close-circle" size={32} color={Colors.neutral.medium} />
               </TouchableOpacity>
             </View>
 
@@ -485,7 +486,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   magicButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 10,
     fontWeight: '700',
     marginTop: -4,
@@ -503,7 +504,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: SCREEN_WIDTH * 0.85,
     maxWidth: 380,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
     ...shadows.xl,
@@ -516,7 +517,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -529,11 +530,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 2,
   },
   closeButton: {
@@ -553,7 +554,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 16,
     marginBottom: 8,
   },
@@ -565,12 +566,12 @@ const styles = StyleSheet.create({
   section: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 12,
   },
 
@@ -607,11 +608,11 @@ const styles = StyleSheet.create({
   colorItemName: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   colorItemConfidence: {
     fontSize: 8,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Palettes
@@ -646,12 +647,12 @@ const styles = StyleSheet.create({
   recommendedBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   paletteName: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 8,
   },
   paletteColors: {

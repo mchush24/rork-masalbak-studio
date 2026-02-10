@@ -26,7 +26,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Crown, Sparkles } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 
 interface StaggeredEntranceProps {
   children: React.ReactNode;
@@ -154,7 +154,7 @@ interface AttentionPulseProps {
 export function AttentionPulse({
   children,
   active = false,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   style,
 }: AttentionPulseProps) {
   const pulseOpacity = useSharedValue(0);
@@ -254,7 +254,7 @@ export function NewBadge({ visible = true }: NewBadgeProps) {
         end={{ x: 1, y: 1 }}
         style={styles.newBadgeGradient}
       >
-        <Sparkles size={10} color="#FFFFFF" />
+        <Sparkles size={10} color={Colors.neutral.white} />
         <Animated.Text style={styles.newBadgeText}>YENİ</Animated.Text>
       </LinearGradient>
     </Animated.View>
@@ -299,7 +299,7 @@ export function PremiumIndicator({ visible = true, style }: PremiumIndicatorProp
         style={styles.premiumGradient}
       >
         <Animated.View style={[styles.premiumShimmer, shimmerStyle]} />
-        <Crown size={12} color="#FFFFFF" />
+        <Crown size={12} color={Colors.neutral.white} />
         <Animated.Text style={styles.premiumText}>PRO</Animated.Text>
       </LinearGradient>
     </View>
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   newBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     letterSpacing: 0.5,
   },
 
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   premiumText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     letterSpacing: 0.5,
   },
 

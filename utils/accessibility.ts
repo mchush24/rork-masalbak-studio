@@ -10,6 +10,7 @@
 
 import { AccessibilityInfo, Platform, useColorScheme } from 'react-native';
 import { useState, useEffect } from 'react';
+import { Colors } from '@/constants/colors';
 
 /**
  * Minimum touch target sizes (Apple HIG & Material Design)
@@ -261,10 +262,10 @@ export function meetsContrastRequirement(
  * High contrast color pairs for accessibility
  */
 export const HIGH_CONTRAST_PAIRS = {
-  primary: { text: '#1F2937', background: '#FFFFFF' },
-  secondary: { text: '#374151', background: '#F9FAFB' },
-  accent: { text: '#FFFFFF', background: '#7C3AED' },
-  success: { text: '#FFFFFF', background: '#059669' },
+  primary: { text: '#1F2937', background: Colors.neutral.white },
+  secondary: { text: Colors.neutral.gray700, background: Colors.neutral.gray50 },
+  accent: { text: Colors.neutral.white, background: '#7C3AED' },
+  success: { text: Colors.neutral.white, background: '#059669' },
   warning: { text: '#1F2937', background: '#FBBF24' },
-  error: { text: '#FFFFFF', background: '#DC2626' },
+  error: { text: Colors.neutral.white, background: '#DC2626' },
 } as const;

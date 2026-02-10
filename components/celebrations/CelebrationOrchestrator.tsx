@@ -324,7 +324,7 @@ function ToastCelebration({
         return <Zap size={24} color={Colors.secondary.sunshine} />;
       case 'STREAK_FIRE':
       case 'STREAK_MILESTONE':
-        return <Flame size={24} color="#FF6B6B" />;
+        return <Flame size={24} color={Colors.secondary.coral} />;
       case 'STREAK_SAVE':
         return <Shield size={24} color={Colors.secondary.grass} />;
       default:

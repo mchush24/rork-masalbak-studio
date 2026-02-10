@@ -40,7 +40,7 @@ export interface TextureSelectorProps {
 export function TextureSelector({
   selectedTexture,
   onTextureSelect,
-  currentColor = '#FF6B6B',
+  currentColor = Colors.secondary.coral,
   disabled = false,
   compact = false,
 }: TextureSelectorProps) {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   sparkleText: {
     position: 'absolute',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     fontSize: 10,
     fontWeight: 'bold',
     ...createTextShadow(0, 0, 4, 'rgba(255, 255, 255, 0.8)'),

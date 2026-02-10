@@ -171,7 +171,7 @@ const ILLUSTRATIONS: Record<EmptyStateIllustration, IllustrationConfig> = {
   'no-favorites': {
     icon: Star,
     gradient: ['#FFF9E6', '#FFE8CC', '#FFF9E6'],
-    iconColor: '#F59E0B',
+    iconColor: Colors.semantic.amber,
     parentMessage: 'Favorilerin burada görünecek',
     professionalMessage: 'Favori öğe yok',
     defaultMood: 'curious',
@@ -810,11 +810,11 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: radius.xl,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     marginBottom: spacing['5'],
   },
   professionalIconCompact: {

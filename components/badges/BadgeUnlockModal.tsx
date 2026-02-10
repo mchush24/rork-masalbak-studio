@@ -259,7 +259,7 @@ export function BadgeUnlockModal({
               style={[
                 styles.glow,
                 {
-                  backgroundColor: isUnlocked ? rarityConfig.color : "#D1D5DB",
+                  backgroundColor: isUnlocked ? rarityConfig.color : Colors.neutral.gray300,
                   opacity: glowAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [0.2, isUnlocked ? 0.5 : 0.3],
@@ -276,7 +276,7 @@ export function BadgeUnlockModal({
               ]}
             />
             <LinearGradient
-              colors={isUnlocked ? [rarityConfig.bgColor, "#FFFFFF"] : ["#F3F4F6", "#E5E7EB"]}
+              colors={isUnlocked ? [rarityConfig.bgColor, Colors.neutral.white] : [Colors.neutral.gray100, Colors.neutral.gray200]}
               style={[
                 styles.badgeIconContainer,
                 !isUnlocked && styles.badgeIconLocked,
@@ -287,7 +287,7 @@ export function BadgeUnlockModal({
               </Text>
               {!isUnlocked && (
                 <View style={styles.lockOverlay}>
-                  <Lock size={32} color="#9CA3AF" />
+                  <Lock size={32} color={Colors.neutral.gray400} />
                 </View>
               )}
             </LinearGradient>
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     ...shadows.lg,
   },
   badgeIconLocked: {
-    borderColor: "#E5E7EB",
+    borderColor: Colors.neutral.gray200,
   },
   badgeIcon: {
     fontSize: 56,

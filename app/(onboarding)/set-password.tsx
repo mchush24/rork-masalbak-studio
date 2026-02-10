@@ -24,6 +24,7 @@ import {
   colors,
   textShadows,
 } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 export default function SetPasswordScreen() {
   const params = useLocalSearchParams();
@@ -134,7 +135,7 @@ export default function SetPasswordScreen() {
             value={password}
             onChangeText={setPassword}
             placeholder="Şifreniz (min 6 karakter)"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={Colors.neutral.gray400}
             secureTextEntry={!showPassword}
             style={{
               flex: 1,
@@ -146,9 +147,9 @@ export default function SetPasswordScreen() {
           />
           <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
             {showPassword ? (
-              <EyeOff size={20} color="#9CA3AF" />
+              <EyeOff size={20} color={Colors.neutral.gray400} />
             ) : (
-              <Eye size={20} color="#9CA3AF" />
+              <Eye size={20} color={Colors.neutral.gray400} />
             )}
           </Pressable>
         </View>
@@ -169,7 +170,7 @@ export default function SetPasswordScreen() {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             placeholder="Şifrenizi tekrar girin"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={Colors.neutral.gray400}
             secureTextEntry={!showConfirmPassword}
             style={{
               flex: 1,
@@ -184,9 +185,9 @@ export default function SetPasswordScreen() {
             style={{ padding: spacing.sm }}
           >
             {showConfirmPassword ? (
-              <EyeOff size={20} color="#9CA3AF" />
+              <EyeOff size={20} color={Colors.neutral.gray400} />
             ) : (
-              <Eye size={20} color="#9CA3AF" />
+              <Eye size={20} color={Colors.neutral.gray400} />
             )}
           </Pressable>
         </View>

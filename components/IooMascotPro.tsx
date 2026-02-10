@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#FFFFFF',
     // Soft edge
-    ...createShadow(0, 2, 0.5, 2, '#FFF'),
+    ...createShadow(0, 2, 0.5, 2, '#FFFFFF'),
   },
   highlight2: {
     position: 'absolute',

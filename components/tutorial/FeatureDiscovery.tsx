@@ -34,7 +34,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronRight, ChevronLeft, X, Sparkles } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
@@ -499,7 +499,7 @@ function TourCard({
       <View style={styles.tourNavigation}>
         {currentStep > 0 ? (
           <Pressable style={styles.tourPrevButton} onPress={onPrev}>
-            <ChevronLeft size={20} color={Colors.primary.purple} />
+            <ChevronLeft size={20} color={Colors.secondary.lavender} />
             <Animated.Text style={styles.tourPrevButtonText}>Geri</Animated.Text>
           </Pressable>
         ) : (
@@ -508,7 +508,7 @@ function TourCard({
 
         <Pressable style={styles.tourNextButton} onPress={onNext}>
           <LinearGradient
-            colors={[Colors.primary.purple, Colors.primary.pink]}
+            colors={[Colors.secondary.lavender, Colors.secondary.rose]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.tourNextButtonGradient}
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   spotlightHole: {
     borderRadius: 16,
     borderWidth: 3,
-    borderColor: Colors.primary.purple,
+    borderColor: Colors.secondary.lavender,
     backgroundColor: 'transparent',
   },
   spotlightContent: {
@@ -732,7 +732,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   spotlightButton: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 12,
     borderWidth: 3,
-    borderColor: Colors.primary.purple,
+    borderColor: Colors.secondary.lavender,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   tourCard: {
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lighter,
   },
   tourDotActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     width: 20,
   },
   tourDotCompleted: {
@@ -824,7 +824,7 @@ const styles = StyleSheet.create({
   tourPrevButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
   tourNextButton: {
     borderRadius: 12,

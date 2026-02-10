@@ -377,14 +377,14 @@ export default function HomeScreen() {
               ]}
             >
               <LinearGradient
-                colors={['#A78BFA', '#818CF8', '#6366F1']}
+                colors={['#A78BFA', '#818CF8', Colors.secondary.indigo]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.primaryCtaGradient}
               >
                 <View style={styles.primaryCtaContent}>
                   <View style={styles.primaryCtaIconContainer}>
-                    <Sparkles size={32} color="#FFF" />
+                    <Sparkles size={32} color={Colors.neutral.white} />
                   </View>
                   <View style={styles.primaryCtaTextContainer}>
                     <View style={styles.primaryCtaBadge}>
@@ -414,7 +414,7 @@ export default function HomeScreen() {
                       { backgroundColor: 'rgba(245, 158, 11, 0.15)' },
                     ]}
                   >
-                    <TrendingUp size={16} color="#F59E0B" />
+                    <TrendingUp size={16} color={Colors.semantic.amber} />
                   </View>
                   <Text style={styles.sectionTitlePrimary}>İlerleme</Text>
                 </View>
@@ -459,7 +459,7 @@ export default function HomeScreen() {
                     style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
                     onPress={() => router.push('/profile' as Href)}
                   >
-                    <Trophy size={18} color="#F59E0B" />
+                    <Trophy size={18} color={Colors.semantic.amber} />
                   </Pressable>
                 </View>
               )}
@@ -592,7 +592,7 @@ export default function HomeScreen() {
                 <FeatureCardCompact
                   title="Ödüller"
                   icon={
-                    <Gift size={22} color={RenkooColors.featureCards.reward?.icon || '#F59E0B'} />
+                    <Gift size={22} color={RenkooColors.featureCards.reward?.icon || Colors.semantic.amber} />
                   }
                   type="reward"
                   onPress={() => router.push('/profile' as Href)}
@@ -763,9 +763,9 @@ export default function HomeScreen() {
                   router.push('/advanced-analysis' as Href);
                 }}
               >
-                <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.actionOptionGradient}>
+                <LinearGradient colors={[Colors.secondary.indigo, Colors.secondary.violet]} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
-                    <Brain size={28} color="#FFF" />
+                    <Brain size={28} color={Colors.neutral.white} />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>Detaylı Analiz</Text>
@@ -790,7 +790,7 @@ export default function HomeScreen() {
               >
                 <LinearGradient colors={['#EC4899', '#F472B6']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
-                    <Wand2 size={28} color="#FFF" />
+                    <Wand2 size={28} color={Colors.neutral.white} />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>Hayal Atölyesi</Text>
@@ -815,7 +815,7 @@ export default function HomeScreen() {
               >
                 <LinearGradient colors={['#10B981', '#34D399']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
-                    <FileText size={28} color="#FFF" />
+                    <FileText size={28} color={Colors.neutral.white} />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>Geçmiş Analizler</Text>
@@ -838,9 +838,9 @@ export default function HomeScreen() {
                   router.push('/chatbot' as Href);
                 }}
               >
-                <LinearGradient colors={['#F59E0B', '#FBBF24']} style={styles.actionOptionGradient}>
+                <LinearGradient colors={[Colors.semantic.amber, '#FBBF24']} style={styles.actionOptionGradient}>
                   <View style={styles.actionOptionIcon}>
-                    <MessageCircle size={28} color="#FFF" />
+                    <MessageCircle size={28} color={Colors.neutral.white} />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>{"Ioo'ya Sor"}</Text>
@@ -862,7 +862,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
   },
   gradientContainer: {
     flex: 1,
@@ -1038,7 +1038,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing['4'],
     borderRadius: 24,
     overflow: 'hidden',
-    ...shadows.colored('#6366F1'),
+    ...shadows.colored(Colors.secondary.indigo),
   },
   primaryCtaGradient: {
     padding: spacing['5'],
@@ -1071,13 +1071,13 @@ const styles = StyleSheet.create({
   primaryCtaBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
     letterSpacing: 1,
   },
   primaryCtaTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFF',
+    color: Colors.neutral.white,
     marginBottom: 4,
   },
   primaryCtaSubtitle: {
@@ -1282,7 +1282,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: spacing['5'],
@@ -1346,7 +1346,7 @@ const styles = StyleSheet.create({
   actionOptionTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     marginBottom: 2,
   },
   actionOptionDesc: {

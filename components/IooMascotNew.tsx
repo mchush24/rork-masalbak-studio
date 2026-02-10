@@ -47,6 +47,7 @@ import Svg, {
   FeMergeNode,
 } from 'react-native-svg';
 import { IooMood, IooSize, getPixelSize, IOO_COLORS } from '@/constants/ioo-config';
+import { Colors } from '@/constants/colors';
 
 // Re-export types for backwards compatibility
 export type { IooMood, IooSize } from '@/constants/ioo-config';
@@ -202,8 +203,8 @@ export const IooMascotNew = memo(function IooMascotNew({
         <Svg width={w} height={25}>
           <Defs>
             <RadialGradient id="groundShadow" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor="#000" stopOpacity="0.12" />
-              <Stop offset="100%" stopColor="#000" stopOpacity="0" />
+              <Stop offset="0%" stopColor={Colors.neutral.darkest} stopOpacity="0.12" />
+              <Stop offset="100%" stopColor={Colors.neutral.darkest} stopOpacity="0" />
             </RadialGradient>
           </Defs>
           <Ellipse cx={w / 2} cy={12} rx={w * 0.35} ry={10} fill="url(#groundShadow)" />
@@ -214,7 +215,7 @@ export const IooMascotNew = memo(function IooMascotNew({
         <Defs>
           {/* Fluffy cloud body - pastel rainbow gradient */}
           <RadialGradient id="cloudBody" cx="30%" cy="25%" r="85%">
-            <Stop offset="0%" stopColor="#FFFFFF" />
+            <Stop offset="0%" stopColor={Colors.neutral.white} />
             <Stop offset="20%" stopColor="#FFF8FA" />
             <Stop offset="40%" stopColor="#FFF5F8" />
             <Stop offset="60%" stopColor="#F8F5FF" />
@@ -247,10 +248,10 @@ export const IooMascotNew = memo(function IooMascotNew({
 
           {/* Left lens - rainbow gradient */}
           <RadialGradient id="lensLeft" cx="30%" cy="30%" r="80%">
-            <Stop offset="0%" stopColor="#FF6B6B" stopOpacity="0.75" />
+            <Stop offset="0%" stopColor={Colors.secondary.coral} stopOpacity="0.75" />
             <Stop offset="35%" stopColor="#FFE66D" stopOpacity="0.7" />
             <Stop offset="70%" stopColor="#4ECDC4" stopOpacity="0.75" />
-            <Stop offset="100%" stopColor="#A78BFA" stopOpacity="0.8" />
+            <Stop offset="100%" stopColor={Colors.secondary.lavender} stopOpacity="0.8" />
           </RadialGradient>
 
           {/* Right lens - rainbow gradient (different angle) */}
@@ -271,7 +272,7 @@ export const IooMascotNew = memo(function IooMascotNew({
 
           {/* Fiber optic root glow */}
           <RadialGradient id="fiberRoot" cx="50%" cy="100%" r="100%">
-            <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <Stop offset="0%" stopColor={Colors.neutral.white} stopOpacity="0.9" />
             <Stop offset="50%" stopColor="#E8FFE8" stopOpacity="0.5" />
             <Stop offset="100%" stopColor="#82E0AA" stopOpacity="0" />
           </RadialGradient>
@@ -284,7 +285,7 @@ export const IooMascotNew = memo(function IooMascotNew({
 
           {/* Hand gradient */}
           <RadialGradient id="handGrad" cx="30%" cy="30%" r="80%">
-            <Stop offset="0%" stopColor="#FFFFFF" />
+            <Stop offset="0%" stopColor={Colors.neutral.white} />
             <Stop offset="50%" stopColor="#FFF8FA" />
             <Stop offset="100%" stopColor="#FFE8EE" />
           </RadialGradient>
@@ -329,10 +330,10 @@ export const IooMascotNew = memo(function IooMascotNew({
           <Ellipse cx={cx} cy={cy + h * 0.05} rx={w * 0.25} ry={h * 0.15} fill="url(#innerDepth)" />
 
           {/* Fluffy highlight spots - cotton texture */}
-          <Circle cx={cx - w * 0.22} cy={cy - h * 0.08} r={w * 0.045} fill="#FFFFFF" opacity={0.8} />
-          <Circle cx={cx + w * 0.28} cy={cy + h * 0.05} r={w * 0.035} fill="#FFFFFF" opacity={0.7} />
-          <Circle cx={cx - w * 0.10} cy={cy + h * 0.20} r={w * 0.03} fill="#FFFFFF" opacity={0.6} />
-          <Circle cx={cx + w * 0.08} cy={cy - h * 0.15} r={w * 0.025} fill="#FFFFFF" opacity={0.7} />
+          <Circle cx={cx - w * 0.22} cy={cy - h * 0.08} r={w * 0.045} fill={Colors.neutral.white} opacity={0.8} />
+          <Circle cx={cx + w * 0.28} cy={cy + h * 0.05} r={w * 0.035} fill={Colors.neutral.white} opacity={0.7} />
+          <Circle cx={cx - w * 0.10} cy={cy + h * 0.20} r={w * 0.03} fill={Colors.neutral.white} opacity={0.6} />
+          <Circle cx={cx + w * 0.08} cy={cy - h * 0.15} r={w * 0.025} fill={Colors.neutral.white} opacity={0.7} />
         </G>
 
         {/* ===== FIBER OPTIC GRASS HAIR ===== */}
@@ -369,7 +370,7 @@ export const IooMascotNew = memo(function IooMascotNew({
                 {/* Light trail effect - opacity gradient along blade */}
                 <Path
                   d={`M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`}
-                  stroke="#FFFFFF"
+                  stroke={Colors.neutral.white}
                   strokeWidth={w * blade.thickness * 0.4}
                   strokeLinecap="round"
                   fill="none"
@@ -396,7 +397,7 @@ export const IooMascotNew = memo(function IooMascotNew({
                   cx={endX}
                   cy={endY}
                   r={w * 0.012}
-                  fill="#FFFFFF"
+                  fill={Colors.neutral.white}
                   opacity={0.9}
                 />
               </G>
@@ -409,12 +410,12 @@ export const IooMascotNew = memo(function IooMascotNew({
           {/* Left lens */}
           <Circle cx={cx - w * 0.14} cy={cy - h * 0.05} r={w * 0.13} fill="url(#lensLeft)" />
           {/* Left lens shine */}
-          <Ellipse cx={cx - w * 0.18} cy={cy - h * 0.09} rx={w * 0.04} ry={w * 0.025} fill="#FFFFFF" opacity={0.7} />
+          <Ellipse cx={cx - w * 0.18} cy={cy - h * 0.09} rx={w * 0.04} ry={w * 0.025} fill={Colors.neutral.white} opacity={0.7} />
 
           {/* Right lens */}
           <Circle cx={cx + w * 0.14} cy={cy - h * 0.05} r={w * 0.13} fill="url(#lensRight)" />
           {/* Right lens shine */}
-          <Ellipse cx={cx + w * 0.10} cy={cy - h * 0.09} rx={w * 0.04} ry={w * 0.025} fill="#FFFFFF" opacity={0.7} />
+          <Ellipse cx={cx + w * 0.10} cy={cy - h * 0.09} rx={w * 0.04} ry={w * 0.025} fill={Colors.neutral.white} opacity={0.7} />
 
           {/* Glasses frame - left */}
           <Circle
@@ -460,13 +461,13 @@ export const IooMascotNew = memo(function IooMascotNew({
         <G>
           {/* Left eye */}
           <Ellipse cx={cx - w * 0.14} cy={cy - h * 0.04} rx={w * 0.042} ry={w * 0.058} fill="#2C3E50" />
-          <Circle cx={cx - w * 0.15} cy={cy - h * 0.06} r={w * 0.016} fill="#FFFFFF" />
-          <Circle cx={cx - w * 0.13} cy={cy - h * 0.045} r={w * 0.008} fill="#FFFFFF" opacity={0.6} />
+          <Circle cx={cx - w * 0.15} cy={cy - h * 0.06} r={w * 0.016} fill={Colors.neutral.white} />
+          <Circle cx={cx - w * 0.13} cy={cy - h * 0.045} r={w * 0.008} fill={Colors.neutral.white} opacity={0.6} />
 
           {/* Right eye */}
           <Ellipse cx={cx + w * 0.14} cy={cy - h * 0.04} rx={w * 0.042} ry={w * 0.058} fill="#2C3E50" />
-          <Circle cx={cx + w * 0.13} cy={cy - h * 0.06} r={w * 0.016} fill="#FFFFFF" />
-          <Circle cx={cx + w * 0.15} cy={cy - h * 0.045} r={w * 0.008} fill="#FFFFFF" opacity={0.6} />
+          <Circle cx={cx + w * 0.13} cy={cy - h * 0.06} r={w * 0.016} fill={Colors.neutral.white} />
+          <Circle cx={cx + w * 0.15} cy={cy - h * 0.045} r={w * 0.008} fill={Colors.neutral.white} opacity={0.6} />
         </G>
 
         {/* ===== AYDEDE GÜLÜMSEME (Crescent Smile) - More visible ===== */}
@@ -491,7 +492,7 @@ export const IooMascotNew = memo(function IooMascotNew({
         <Svg width={w * 0.28} height={w * 0.35} viewBox="0 0 45 55">
           <Defs>
             <RadialGradient id="handGradLocal" cx="30%" cy="30%" r="80%">
-              <Stop offset="0%" stopColor="#FFFFFF" />
+              <Stop offset="0%" stopColor={Colors.neutral.white} />
               <Stop offset="50%" stopColor="#FFF8FA" />
               <Stop offset="100%" stopColor="#FFE8EE" />
             </RadialGradient>
@@ -508,7 +509,7 @@ export const IooMascotNew = memo(function IooMascotNew({
           {/* Thumb */}
           <Ellipse cx={4} cy={24} rx={5} ry={7} fill="url(#handGradLocal)" />
           {/* Hand highlight */}
-          <Circle cx={14} cy={18} r={3} fill="#FFFFFF" opacity={0.6} />
+          <Circle cx={14} cy={18} r={3} fill={Colors.neutral.white} opacity={0.6} />
         </Svg>
       </Animated.View>
     </Animated.View>

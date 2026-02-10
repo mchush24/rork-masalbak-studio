@@ -17,6 +17,7 @@ import { View, StyleSheet, Text, Animated, Pressable } from 'react-native';
 import { shadows } from '@/constants/design-system';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Canvas, Rect, LinearGradient as SkiaGradient, vec } from '@shopify/react-native-skia';
+import { Colors } from '@/constants/colors';
 
 export interface OpacitySliderProps {
   value: number; // 0-1
@@ -105,7 +106,7 @@ export function OpacitySlider({
                 style={[
                   styles.checkeredSquare,
                   {
-                    backgroundColor: i % 2 === 0 ? '#E0E0E0' : '#FFFFFF',
+                    backgroundColor: i % 2 === 0 ? '#E0E0E0' : Colors.neutral.white,
                   },
                 ]}
               />
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   trackContainer: {
     width: 40,
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.neutral.white,
     ...shadows.sm,
   },
   valueContainer: {
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
   valueText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FF9B7A',
+    color: Colors.primary.sunset,
     fontFamily: 'monospace',
   },
   presetsContainer: {
@@ -270,17 +271,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
   },
   presetButtonActive: {
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
   },
   presetText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   presetTextActive: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

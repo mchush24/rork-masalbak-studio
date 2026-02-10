@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['1'],
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     paddingHorizontal: spacing['2'],
     paddingVertical: spacing['1'],
     borderRadius: radius.full,

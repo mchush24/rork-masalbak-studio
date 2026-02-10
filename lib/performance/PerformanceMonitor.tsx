@@ -8,6 +8,7 @@
 import React, { useEffect, useState, useCallback, useRef, memo } from 'react';
 import { View, Text, StyleSheet, InteractionManager, Platform } from 'react-native';
 import { zIndex } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 interface PerformanceMetrics {
   fps: number;
@@ -143,7 +144,7 @@ export const PerformanceMonitor = memo(function PerformanceMonitor({
     'bottom-right': { bottom: 100, right: 10 },
   }[position];
 
-  const fpsColor = metrics.fps >= 55 ? '#22C55E' : metrics.fps >= 30 ? '#F59E0B' : '#EF4444';
+  const fpsColor = metrics.fps >= 55 ? '#22C55E' : metrics.fps >= 30 ? Colors.semantic.amber : '#EF4444';
 
   return (
     <View style={[styles.container, positionStyle]} pointerEvents="none">
@@ -158,7 +159,7 @@ export const PerformanceMonitor = memo(function PerformanceMonitor({
       {metrics.renderTime > 0 && (
         <View style={styles.row}>
           <Text style={styles.label}>Render</Text>
-          <Text style={[styles.value, metrics.renderTime > 16 && { color: '#F59E0B' }]}>
+          <Text style={[styles.value, metrics.renderTime > 16 && { color: Colors.semantic.amber }]}>
             {metrics.renderTime}ms
           </Text>
         </View>
@@ -227,13 +228,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 10,
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
     marginRight: 8,
   },
   value: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
   warningBadge: {
@@ -247,6 +248,6 @@ const styles = StyleSheet.create({
   warningText: {
     fontSize: 9,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

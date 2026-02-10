@@ -32,6 +32,7 @@ import {
 import { shadows, zIndex } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -373,14 +374,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: 'transparent',
     borderWidth: 3,
-    borderColor: '#FF9B7A',
-    ...shadows.colored('#FF9B7A'),
+    borderColor: Colors.primary.sunset,
+    ...shadows.colored(Colors.primary.sunset),
   },
   messageCard: {
     position: 'absolute',
     left: 20,
     right: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 24,
     ...shadows.lg,
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
   },
   dotActive: {
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
     width: 24,
   },
   dotCompleted: {
@@ -407,13 +408,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 8,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.neutral.medium,
     lineHeight: 24,
     textAlign: 'center',
     marginBottom: 20,
@@ -426,20 +427,20 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: 12,
     alignItems: 'center',
   },
   skipText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   nextButton: {
     flex: 2,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
     borderRadius: 12,
     alignItems: 'center',
   },
@@ -449,6 +450,6 @@ const styles = StyleSheet.create({
   nextText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

@@ -21,6 +21,7 @@ import { X, Sparkles } from 'lucide-react-native';
 import { Badge, RARITY_COLORS, BadgeRarity } from '@/lib/gamification/badges';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
   xpRewardText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   continueButton: {
     width: '100%',
@@ -354,7 +355,7 @@ const styles = StyleSheet.create({
   continueText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 });
 

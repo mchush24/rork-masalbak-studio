@@ -24,9 +24,8 @@ import {
   FileJson,
   FileSpreadsheet,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
-import { buttonSizes, buttonStyles } from '@/constants/tokens';
+import { Colors } from '@/constants/colors';
+import { typography, spacing, radius, shadows, buttonSizes, buttonStyles } from '@/constants/design-system';
 import { PdfReportService, ReportAnalysis, ReportOptions } from '@/lib/professional/PdfReportService';
 import { DataExportService, ExportFormat } from '@/lib/professional/DataExportService';
 import { useFeedback } from '@/hooks/useFeedback';
@@ -119,7 +118,7 @@ export function ReportExportButton({
             onPress={() => { feedback('tap'); setShowModal(true); }}
             style={styles.iconButton}
           >
-            <Share2 size={20} color={Colors.primary.purple} />
+            <Share2 size={20} color={Colors.secondary.lavender} />
           </Pressable>
         );
       case 'menu':
@@ -166,7 +165,7 @@ export function ReportExportButton({
 
               {isExporting ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={Colors.primary.purple} />
+                  <ActivityIndicator size="large" color={Colors.secondary.lavender} />
                   <Text style={styles.loadingText}>Rapor hazirlaniyor...</Text>
                 </View>
               ) : exportSuccess ? (
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     paddingVertical: buttonSizes.md.paddingVertical,
     paddingHorizontal: buttonSizes.md.paddingHorizontal,
     borderRadius: buttonSizes.md.borderRadius,
@@ -240,7 +239,7 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: spacing['2.5'],
-    backgroundColor: `${Colors.primary.purple}15`,
+    backgroundColor: `${Colors.secondary.lavender}15`,
     borderRadius: radius.md,
   },
   menuButton: {

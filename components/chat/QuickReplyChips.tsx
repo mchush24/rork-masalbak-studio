@@ -18,7 +18,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
-import { buttonStyles } from '@/constants/tokens';
+import { buttonStyles } from '@/constants/design-system';
 
 export interface QuickReply {
   id: string;
@@ -178,7 +178,7 @@ function QuickReplyChip({
         ]}
       >
         <LinearGradient
-          colors={['#FFFFFF', '#F8FAFC']}
+          colors={[Colors.neutral.white, '#F8FAFC']}
           style={styles.chipGradient}
         >
           {reply.emoji && (

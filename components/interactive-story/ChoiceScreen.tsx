@@ -18,6 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { ChoiceCard } from "./ChoiceCard";
 import { ChoicePoint, InteractiveCharacter } from "@/types/InteractiveStory";
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#22C55E",
   },
   progressDotCurrent: {
-    backgroundColor: "#F59E0B",
+    backgroundColor: Colors.semantic.amber,
     width: 20,
   },
   progressText: {
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 44,
   },
   characterName: {
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 18,
     fontWeight: "bold",
   },

@@ -31,6 +31,7 @@ import { AnalysisShareCard } from '@/components/AnalysisShareCard';
 import { AnalysisChatSheet } from '@/components/analysis-chat';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { Colors } from '@/constants/colors';
 
 export default function AnalysisResultScreen() {
   const router = useRouter();
@@ -515,7 +516,7 @@ export default function AnalysisResultScreen() {
           {insights.length > 0 && (
             <View style={[styles.insightsCard, shadows.lg]}>
               <View style={styles.cardHeader}>
-                <Brain size={20} color="#A78BFA" strokeWidth={2} />
+                <Brain size={20} color={Colors.secondary.lavender} strokeWidth={2} />
                 <Text style={styles.cardTitle}>Gözlemler</Text>
               </View>
               {insights.map((insight: any, index: number) => (
@@ -531,12 +532,12 @@ export default function AnalysisResultScreen() {
           {homeTips.length > 0 && (
             <View style={[styles.insightsCard, shadows.lg, { marginBottom: spacing.xl }]}>
               <View style={styles.cardHeader}>
-                <Smile size={20} color="#7ED99C" strokeWidth={2} />
+                <Smile size={20} color={Colors.secondary.grass} strokeWidth={2} />
                 <Text style={styles.cardTitle}>Öneriler</Text>
               </View>
               {homeTips.map((tip: any, index: number) => (
                 <View key={index} style={styles.insightItem}>
-                  <View style={[styles.bulletPoint, { backgroundColor: '#7ED99C' }]} />
+                  <View style={[styles.bulletPoint, { backgroundColor: Colors.secondary.grass }]} />
                   <Text style={styles.insightText}>{tip.title}</Text>
                   {tip.steps?.map((step: string, stepIdx: number) => (
                     <Text key={stepIdx} style={styles.stepText}>
@@ -565,8 +566,8 @@ export default function AnalysisResultScreen() {
             >
               <Heart
                 size={24}
-                color={isFavorited ? '#FF6B6B' : 'rgba(255, 255, 255, 0.7)'}
-                fill={isFavorited ? '#FF6B6B' : 'none'}
+                color={isFavorited ? Colors.secondary.coral : 'rgba(255, 255, 255, 0.7)'}
+                fill={isFavorited ? Colors.secondary.coral : 'none'}
                 strokeWidth={2}
               />
             </Pressable>
@@ -580,11 +581,11 @@ export default function AnalysisResultScreen() {
               onPress={() => setShowChat(true)}
               style={[styles.iconButton, styles.iconButtonChat]}
             >
-              <MessageCircle size={24} color="#A78BFA" strokeWidth={2} />
+              <MessageCircle size={24} color={Colors.secondary.lavender} strokeWidth={2} />
             </Pressable>
           </View>
           <Pressable onPress={() => setShowChat(true)} style={[styles.chatButton, shadows.lg]}>
-            <MessageCircle size={20} color="#FFFFFF" strokeWidth={2} />
+            <MessageCircle size={20} color={Colors.neutral.white} strokeWidth={2} />
             <Text style={styles.chatButtonText}>Ioo ile Konuş</Text>
           </Pressable>
         </View>
@@ -635,7 +636,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   logoAccent: {
-    color: '#FFD56B',
+    color: Colors.secondary.sunshine,
   },
   scrollContent: {
     paddingBottom: spacing.xxxl,
@@ -785,7 +786,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#A78BFA',
+    backgroundColor: Colors.secondary.lavender,
     marginTop: 7,
     marginRight: spacing.sm,
   },
@@ -819,17 +820,17 @@ const styles = StyleSheet.create({
   },
   iconButtonActive: {
     backgroundColor: 'rgba(255, 107, 107, 0.2)',
-    borderColor: '#FF6B6B',
+    borderColor: Colors.secondary.coral,
   },
   iconButtonChat: {
     backgroundColor: 'rgba(167, 139, 250, 0.2)',
-    borderColor: '#A78BFA',
+    borderColor: Colors.secondary.lavender,
   },
   chatButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#A78BFA',
+    backgroundColor: Colors.secondary.lavender,
     borderRadius: borderRadius.xxxl,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
@@ -838,7 +839,7 @@ const styles = StyleSheet.create({
   chatButtonText: {
     fontSize: typography.fontSize.base,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     letterSpacing: -0.3,
   },
   saveButton: {

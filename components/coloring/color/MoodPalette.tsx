@@ -19,6 +19,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: SCREEN_WIDTH * 0.85,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
     ...shadows.lg,

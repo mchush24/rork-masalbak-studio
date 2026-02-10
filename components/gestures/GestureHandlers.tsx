@@ -35,7 +35,7 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import { Heart, Trash2, Share2 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows, zIndex } from '@/constants/design-system';
 import { useFeedback } from '@/hooks/useFeedback';
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.primary.purple + '15',
+    backgroundColor: Colors.secondary.lavender + '15',
     justifyContent: 'center',
     alignItems: 'center',
   },

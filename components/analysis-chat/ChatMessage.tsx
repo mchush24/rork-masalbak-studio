@@ -14,9 +14,9 @@ import type { Insight } from '@/types/analysis';
 
 // Theme colors for consistency
 const THEME = {
-  primary: '#FF9B7A',
+  primary: Colors.primary.sunset,
   primaryDark: '#E88A6A',
-  primaryLight: '#FFB299',
+  primaryLight: Colors.primary.peach,
 };
 
 interface Message {
@@ -136,10 +136,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['3'],
   },
   assistantBubble: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderBottomLeftRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
   },
   assistantBubbleInner: {
     paddingHorizontal: spacing['4'],
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   userText: {
     fontSize: typography.size.base,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     lineHeight: 22,
   },
   assistantText: {
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     gap: spacing['1'],
   },
   suggestionChip: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.full,
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['2'],

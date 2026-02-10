@@ -30,6 +30,7 @@ import * as Haptics from 'expo-haptics';
 
 // Components
 import { Ioo as IooMascot } from '@/components/Ioo';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -466,7 +467,7 @@ const styles = StyleSheet.create({
         boxShadow: '0 0 10px currentColor',
       },
       default: {
-        shadowColor: '#fff',
+        shadowColor: Colors.neutral.white,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.5,
         shadowRadius: 5,
@@ -497,7 +498,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     fontFamily: 'Poppins_700Bold',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     letterSpacing: 5,
   },
 
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? 40 : 52,
     fontWeight: '800',
     fontFamily: 'Poppins_800ExtraBold',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     letterSpacing: -1,
     ...Platform.select({
       web: {
@@ -590,7 +591,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? 22 : 26,
     fontWeight: '800',
     fontFamily: 'Poppins_800ExtraBold',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     letterSpacing: 1,
     ...Platform.select({
       web: {

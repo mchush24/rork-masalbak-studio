@@ -15,7 +15,7 @@ import {
   Modal,
   Platform,
 } from 'react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useExperimentDashboard } from './useExperiment';
 import { Experiment, Variant } from './ExperimentService';
 
@@ -352,14 +352,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   closeButton: {
     padding: 8,
   },
   closeText: {
     fontSize: 16,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
   loadingContainer: {
     flex: 1,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   summaryLabel: {
     fontSize: 12,
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     marginBottom: 12,
   },
   card: {
@@ -433,11 +433,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     flex: 1,
   },
   typeBadge: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
   typeText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   cardDescription: {
     fontSize: 14,
@@ -466,15 +466,15 @@ const styles = StyleSheet.create({
     borderColor: '#3B3F54',
   },
   variantPillActive: {
-    backgroundColor: Colors.primary.purple,
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
+    borderColor: Colors.secondary.lavender,
   },
   variantText: {
     fontSize: 12,
     color: '#9CA3AF',
   },
   variantTextActive: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     fontWeight: '600',
   },
   overrideIndicator: {
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   detailTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   detailContent: {
     padding: 16,
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   variantDetail: {
     flexDirection: 'row',
@@ -556,11 +556,11 @@ const styles = StyleSheet.create({
   variantDetailName: {
     flex: 1,
     fontSize: 14,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   variantDetailWeight: {
     fontSize: 14,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     marginRight: 12,
   },
   variantDetailEvents: {

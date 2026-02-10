@@ -17,7 +17,7 @@ import {
 import { ThumbsUp, ThumbsDown } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius } from '@/constants/design-system';
-import { buttonStyles } from '@/constants/tokens';
+import { buttonStyles } from '@/constants/design-system';
 
 type FeedbackType = 'positive' | 'negative' | null;
 

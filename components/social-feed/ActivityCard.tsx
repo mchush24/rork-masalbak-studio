@@ -44,6 +44,7 @@ import {
 import * as Haptics from 'expo-haptics';
 import { useRouter, Href } from 'expo-router';
 import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 interface ActivityCardProps {
   activity: {
@@ -198,7 +199,7 @@ export const ActivityCard = memo(function ActivityCard({ activity, index = 0, on
           )}
 
           <View style={[styles.actionButton, { backgroundColor: categoryDefaults.iconColor }]}>
-            <Play size={12} color="#FFF" fill="#FFF" />
+            <Play size={12} color={Colors.neutral.white} fill={Colors.neutral.white} />
           </View>
         </View>
       </LinearGradient>

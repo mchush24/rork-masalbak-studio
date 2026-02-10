@@ -71,7 +71,7 @@ const tourSteps = [
       'Analiz sonuçları size çocuğunuzun ihtiyaçlarını gösterir. Böylece tam zamanında, doğru desteği verebilirsiniz.',
     highlight: 'Uzman önerileri ile yol gösterin',
     gradient: ['#F5F3FF', '#EDE9FE', '#E9D5FF'] as const,
-    iconBg: '#C4B5FD',
+    iconBg: Colors.secondary.lavenderLight,
     iconColor: '#7C3AED',
   },
   {
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: isSmallDevice ? 60 : 80,
     right: SCREEN_WIDTH / 2 - (isSmallDevice ? 65 : 75),
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     width: 32,
     height: 32,

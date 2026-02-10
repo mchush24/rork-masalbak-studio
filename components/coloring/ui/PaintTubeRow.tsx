@@ -53,7 +53,7 @@ export interface PaintTubeRowProps {
 
 export const DEFAULT_PAINT_COLORS: PaintTubeColor[] = [
   // Standard Colors
-  { id: 'red', color: '#FF6B6B', name: 'Kırmızı', emoji: '🔴', category: 'Temel' },
+  { id: 'red', color: Colors.secondary.coral, name: 'Kırmızı', emoji: '🔴', category: 'Temel' },
   { id: 'orange', color: '#FFA500', name: 'Turuncu', emoji: '🟠', category: 'Temel' },
   { id: 'yellow', color: '#FFD93D', name: 'Sarı', emoji: '🟡', category: 'Temel' },
   { id: 'green', color: '#6BCB77', name: 'Yeşil', emoji: '🟢', category: 'Temel' },
@@ -85,7 +85,7 @@ export const DEFAULT_PAINT_COLORS: PaintTubeColor[] = [
   // Monochrome
   { id: 'black', color: '#2C2C2C', name: 'Siyah', emoji: '⚫', category: 'Nötr' },
   { id: 'gray', color: '#9E9E9E', name: 'Gri', emoji: '🔘', category: 'Nötr' },
-  { id: 'white', color: '#FFFFFF', name: 'Beyaz', emoji: '⚪', category: 'Nötr' },
+  { id: 'white', color: Colors.neutral.white, name: 'Beyaz', emoji: '⚪', category: 'Nötr' },
 ];
 
 // ============================================================================

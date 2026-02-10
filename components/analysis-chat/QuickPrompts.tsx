@@ -141,7 +141,7 @@ function PromptChip({ prompt, onPress, delay = 0 }: PromptChipProps) {
       case 'professional':
         return ['#F0FDFA', '#CCFBF1'];
       default:
-        return ['#FFFFFF', '#F8FAFC'];
+        return [Colors.neutral.white, '#F8FAFC'];
     }
   };
 
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['3'],
     paddingHorizontal: spacing['4'],
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
     borderRadius: radius.lg,
     gap: spacing['2'],
     minWidth: 120,

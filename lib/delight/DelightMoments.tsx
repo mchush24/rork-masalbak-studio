@@ -24,7 +24,7 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { shadows } from '@/constants/design-system';
 
@@ -58,7 +58,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Your journey begins',
     emoji: '🔍',
     badgeColor: '#8B5CF6',
-    confettiColors: ['#8B5CF6', '#C084FC', '#DDD6FE', '#FFFFFF'],
+    confettiColors: ['#8B5CF6', '#C084FC', '#DDD6FE', Colors.neutral.white],
   },
   tenth_analysis: {
     type: 'tenth_analysis',
@@ -66,7 +66,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Getting the hang of it',
     emoji: '📊',
     badgeColor: '#3B82F6',
-    confettiColors: ['#3B82F6', '#60A5FA', '#93C5FD', '#FFFFFF'],
+    confettiColors: ['#3B82F6', '#60A5FA', '#93C5FD', Colors.neutral.white],
   },
   hundredth_analysis: {
     type: 'hundredth_analysis',
@@ -74,7 +74,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Master Analyst',
     emoji: '🏆',
     badgeColor: '#F59E0B',
-    confettiColors: ['#F59E0B', '#FBBF24', '#FCD34D', '#FFFFFF'],
+    confettiColors: ['#F59E0B', '#FBBF24', '#FCD34D', Colors.neutral.white],
   },
   first_story: {
     type: 'first_story',
@@ -82,7 +82,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'The adventure begins',
     emoji: '📖',
     badgeColor: '#EC4899',
-    confettiColors: ['#EC4899', '#F472B6', '#FBCFE8', '#FFFFFF'],
+    confettiColors: ['#EC4899', '#F472B6', '#FBCFE8', Colors.neutral.white],
   },
   first_coloring: {
     type: 'first_coloring',
@@ -90,7 +90,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Colors of joy',
     emoji: '🎨',
     badgeColor: '#10B981',
-    confettiColors: ['#10B981', '#34D399', '#6EE7B7', '#FFFFFF'],
+    confettiColors: ['#10B981', '#34D399', '#6EE7B7', Colors.neutral.white],
   },
   week_streak: {
     type: 'week_streak',
@@ -98,7 +98,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Consistency is key',
     emoji: '🔥',
     badgeColor: '#EF4444',
-    confettiColors: ['#EF4444', '#F97316', '#FBBF24', '#FFFFFF'],
+    confettiColors: ['#EF4444', '#F97316', '#FBBF24', Colors.neutral.white],
   },
   month_streak: {
     type: 'month_streak',
@@ -106,7 +106,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Incredible dedication',
     emoji: '⚡',
     badgeColor: '#8B5CF6',
-    confettiColors: ['#8B5CF6', '#A855F7', '#D946EF', '#FFFFFF'],
+    confettiColors: ['#8B5CF6', '#A855F7', '#D946EF', Colors.neutral.white],
   },
   year_anniversary: {
     type: 'year_anniversary',
@@ -114,7 +114,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'Thank you for being here',
     emoji: '🎂',
     badgeColor: '#F59E0B',
-    confettiColors: ['#F59E0B', '#EC4899', '#8B5CF6', '#FFFFFF'],
+    confettiColors: ['#F59E0B', '#EC4899', '#8B5CF6', Colors.neutral.white],
   },
   og_user: {
     type: 'og_user',
@@ -122,7 +122,7 @@ const MILESTONES: Record<MilestoneType, Milestone> = {
     subtitle: 'One of the originals',
     emoji: '⭐',
     badgeColor: '#FFD700',
-    confettiColors: ['#FFD700', '#FCD34D', '#FEF3C7', '#FFFFFF'],
+    confettiColors: ['#FFD700', '#FCD34D', '#FEF3C7', Colors.neutral.white],
   },
 };
 
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   milestoneTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   celebrationButton: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     paddingHorizontal: 48,
     paddingVertical: 16,
     borderRadius: 12,
@@ -482,6 +482,6 @@ const styles = StyleSheet.create({
   celebrationButtonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

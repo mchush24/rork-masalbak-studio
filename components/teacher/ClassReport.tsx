@@ -29,7 +29,7 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -74,7 +74,7 @@ interface ClassReportProps {
 
 const PERCENTILE_RANGES = [
   { min: 0, max: 10, label: '0-10', color: '#DC2626' },
-  { min: 10, max: 25, label: '10-25', color: '#F59E0B' },
+  { min: 10, max: 25, label: '10-25', color: Colors.semantic.amber },
   { min: 25, max: 50, label: '25-50', color: '#EAB308' },
   { min: 50, max: 75, label: '50-75', color: '#84CC16' },
   { min: 75, max: 90, label: '75-90', color: '#22C55E' },
@@ -121,7 +121,7 @@ export function ClassReport({
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <LinearGradient
-        colors={[ProfessionalColors.roles.teacher.gradient[0], '#FFFFFF']}
+        colors={[ProfessionalColors.roles.teacher.gradient[0], Colors.neutral.white]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.header}
@@ -381,7 +381,7 @@ export function ClassReport({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
   },
   header: {
     padding: spacing['4'],
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.sm,
@@ -445,11 +445,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     paddingVertical: 12,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   actionButtonPressed: {
@@ -462,13 +462,13 @@ const styles = StyleSheet.create({
     color: ProfessionalColors.roles.teacher.primary,
   },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     marginHorizontal: spacing['4'],
     marginBottom: spacing['3'],
     borderRadius: radius.xl,
     padding: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   sectionHeader: {
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   completionBar: {
     width: '100%',
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 2,
     marginTop: spacing['2'],
     overflow: 'hidden',
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   barContainer: {
     flex: 1,
     width: '100%',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 4,
     justifyContent: 'flex-end',
     overflow: 'hidden',
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
     gap: spacing['3'],
     paddingVertical: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   studentRowWarning: {
     backgroundColor: '#FFFBEB',

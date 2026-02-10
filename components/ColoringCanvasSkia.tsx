@@ -227,7 +227,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
   const [_selectedPaintColor, _setSelectedPaintColor] = useState<PaintTubeColor | null>(null);
 
   // Phase 3: Advanced color state
-  const [customColor, setCustomColor] = useState('#FF6B6B');
+  const [customColor, setCustomColor] = useState(Colors.secondary.coral);
   const [colorOpacity, setColorOpacity] = useState(1);
   const [selectedGradient, setSelectedGradient] = useState<GradientConfig | null>(null);
   const [useGradient, setUseGradient] = useState(false);
@@ -1608,7 +1608,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF6B6B',
+    backgroundColor: Colors.secondary.coral,
     ...shadows.md,
   },
   toolSelector: {
@@ -1637,7 +1637,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9D4EDD',
   },
   advancedColorButton: {
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
   },
   settingsEmoji: {
     fontSize: 24,
@@ -1761,7 +1761,7 @@ const styles = StyleSheet.create({
   colorPickerSection: {
     marginBottom: spacing['4'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
     paddingBottom: spacing['4'],
   },
   currentColorDisplay: {

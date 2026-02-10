@@ -39,7 +39,7 @@ import {
   X,
   Trash2,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 
 const STORAGE_KEYS = {
@@ -242,7 +242,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
     >
       <View style={styles.pinModal}>
         <View style={styles.pinHeader}>
-          <Lock size={32} color={Colors.primary.purple} />
+          <Lock size={32} color={Colors.secondary.lavender} />
           <Text style={styles.pinTitle}>{title}</Text>
         </View>
 
@@ -260,9 +260,9 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
           />
           <Pressable style={styles.eyeButton} onPress={() => setShowPin(!showPin)}>
             {showPin ? (
-              <EyeOff size={20} color={Colors.neutral.gray} />
+              <EyeOff size={20} color={Colors.neutral.medium} />
             ) : (
-              <Eye size={20} color={Colors.neutral.gray} />
+              <Eye size={20} color={Colors.neutral.medium} />
             )}
           </Pressable>
         </Animated.View>
@@ -308,11 +308,11 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerIcon}>
-            <Shield size={24} color={Colors.primary.purple} />
+            <Shield size={24} color={Colors.secondary.lavender} />
           </View>
           <Text style={styles.headerTitle}>Uygulama Kilidi</Text>
           <Pressable style={styles.closeButton} onPress={onClose}>
-            <X size={24} color={Colors.neutral.gray} />
+            <X size={24} color={Colors.neutral.medium} />
           </Pressable>
         </View>
 
@@ -321,7 +321,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
           {/* Enable Lock Toggle */}
           <Pressable style={styles.settingRow} onPress={handleEnableLock}>
             <View style={styles.settingIcon}>
-              <Lock size={20} color={Colors.primary.purple} />
+              <Lock size={20} color={Colors.secondary.lavender} />
             </View>
             <View style={styles.settingInfo}>
               <Text style={styles.settingTitle}>Uygulama Kilidi</Text>
@@ -359,7 +359,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
               {/* Auto-lock Timeout */}
               <View style={styles.timeoutSection}>
                 <View style={styles.timeoutHeader}>
-                  <Clock size={18} color={Colors.neutral.gray} />
+                  <Clock size={18} color={Colors.neutral.medium} />
                   <Text style={styles.timeoutTitle}>Otomatik Kilitleme</Text>
                 </View>
                 <Text style={styles.timeoutDescription}>
@@ -399,7 +399,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
                   setError('');
                 }}
               >
-                <Lock size={16} color={Colors.primary.purple} />
+                <Lock size={16} color={Colors.secondary.lavender} />
                 <Text style={styles.changePinText}>PIN Değiştir</Text>
               </Pressable>
             </Animated.View>
@@ -407,7 +407,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
 
           {/* Privacy Note */}
           <View style={styles.privacyNote}>
-            <Shield size={16} color={Colors.neutral.gray} />
+            <Shield size={16} color={Colors.neutral.medium} />
             <Text style={styles.privacyNoteText}>
               Uygulama kilidi, çocuk verilerini yetkisiz erişime karşı korur.
               KVKK ve GDPR uyumlu veri güvenliği sağlanır.
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: Colors.primary.purple + '15',
+    backgroundColor: Colors.secondary.lavender + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   settingDescription: {
     fontSize: typography.size.sm,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   toggle: {
     width: 50,
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   toggleActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   toggleKnob: {
     width: 24,
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
   timeoutDescription: {
     fontSize: typography.size.sm,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginBottom: spacing['3'],
   },
   timeoutOptions: {
@@ -553,15 +553,15 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.light,
   },
   timeoutOptionActive: {
-    backgroundColor: Colors.primary.purple + '15',
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender + '15',
+    borderColor: Colors.secondary.lavender,
   },
   timeoutOptionText: {
     fontSize: typography.size.sm,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   timeoutOptionTextActive: {
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     fontWeight: typography.weight.semibold,
   },
   changePinButton: {
@@ -572,12 +572,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginTop: 20,
     borderRadius: 12,
-    backgroundColor: Colors.primary.purple + '10',
+    backgroundColor: Colors.secondary.lavender + '10',
   },
   changePinText: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.semibold,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
   privacyNote: {
     flexDirection: 'row',
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   privacyNoteText: {
     flex: 1,
     fontSize: typography.size.xs,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     lineHeight: typography.lineHeightPx.sm,
   },
   // PIN Modal Styles
@@ -668,14 +668,14 @@ const styles = StyleSheet.create({
   pinCancelText: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.semibold,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   pinSubmitButton: {
     flex: 2,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   pinButtonDisabled: {
     opacity: 0.5,

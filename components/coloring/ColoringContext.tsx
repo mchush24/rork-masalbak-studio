@@ -14,6 +14,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
+import { Colors } from '@/constants/colors';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -108,7 +109,7 @@ const DEFAULT_BRUSH_SETTINGS: BrushSettings = {
 
 const DEFAULT_COLOR_PALETTES: ColorPalette[] = [
   // Primary Colors
-  { id: 'red', type: 'solid', colors: ['#FF6B6B'], name: 'Kırmızı', emoji: '🔴' },
+  { id: 'red', type: 'solid', colors: [Colors.secondary.coral], name: 'Kırmızı', emoji: '🔴' },
   { id: 'orange', type: 'solid', colors: ['#FFA500'], name: 'Turuncu', emoji: '🟠' },
   { id: 'yellow', type: 'solid', colors: ['#FFD93D'], name: 'Sarı', emoji: '🟡' },
   { id: 'green', type: 'solid', colors: ['#6BCB77'], name: 'Yeşil', emoji: '🟢' },
@@ -119,7 +120,7 @@ const DEFAULT_COLOR_PALETTES: ColorPalette[] = [
   // Additional Colors
   { id: 'brown', type: 'solid', colors: ['#8B4513'], name: 'Kahverengi', emoji: '🟤' },
   { id: 'black', type: 'solid', colors: ['#2C2C2C'], name: 'Siyah', emoji: '⚫' },
-  { id: 'white', type: 'solid', colors: ['#FFFFFF'], name: 'Beyaz', emoji: '⚪' },
+  { id: 'white', type: 'solid', colors: [Colors.neutral.white], name: 'Beyaz', emoji: '⚪' },
   { id: 'gray', type: 'solid', colors: ['#9E9E9E'], name: 'Gri', emoji: '🔘' },
 
   // Pastel Colors

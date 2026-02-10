@@ -31,6 +31,7 @@ import Animated, {
 import { Lightbulb, ChevronRight, Quote, Sparkles } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -128,9 +129,9 @@ export function ExpertTipCard({ tip, onPress, featured = true }: ExpertTipCardPr
               style={styles.iconGradient}
             >
               {featured ? (
-                <Lightbulb size={20} color="#FFF" fill="#FFF" />
+                <Lightbulb size={20} color={Colors.neutral.white} fill={Colors.neutral.white} />
               ) : (
-                <Quote size={18} color="#FFF" />
+                <Quote size={18} color={Colors.neutral.white} />
               )}
             </LinearGradient>
           </Animated.View>

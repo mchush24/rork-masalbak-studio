@@ -792,6 +792,184 @@ export const getRoleIconSize = (baseSize: number, isProfessional: boolean): numb
   return isProfessional ? Math.round(baseSize * 0.9) : baseSize;
 };
 
+// ============================================
+// BUTTON SYSTEM (migrated from tokens.ts)
+// ============================================
+/**
+ * Button Variants - Color configurations for different button types
+ *
+ * USAGE:
+ * - primary: Main CTA buttons (Kaydet, Devam Et, Başla)
+ * - secondary: Secondary actions (İptal, Geri)
+ * - outline: Tertiary actions with border
+ * - ghost: Text-only buttons, minimal emphasis
+ * - danger: Destructive actions (Sil, Kaldır)
+ * - success: Positive confirmations (Onayla, Tamam)
+ * - muted: Disabled-looking or low-priority actions
+ */
+export const buttonVariants = {
+  primary: {
+    backgroundColor: Colors.primary.sunset,
+    color: Colors.neutral.white,
+  },
+  secondary: {
+    backgroundColor: Colors.secondary.sky,
+    color: Colors.neutral.white,
+  },
+  outline: {
+    backgroundColor: 'transparent',
+    borderColor: Colors.neutral.medium,
+    borderWidth: 1.5,
+    color: Colors.neutral.darkest,
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    color: Colors.primary.sunset,
+  },
+  danger: {
+    backgroundColor: Colors.semantic.error,
+    color: Colors.neutral.white,
+  },
+  success: {
+    backgroundColor: Colors.secondary.grass,
+    color: Colors.neutral.white,
+  },
+  muted: {
+    backgroundColor: Colors.neutral.lighter,
+    color: Colors.neutral.dark,
+  },
+} as const;
+
+/**
+ * Button Sizes - Consistent sizing across all button types
+ *
+ * USAGE GUIDE:
+ * - xs: Icon-only buttons, inline actions (28px height)
+ * - sm: Secondary actions, compact UI (36px height)
+ * - md: Default size, most buttons (44px height - Apple HIG touch target)
+ * - lg: Primary CTAs, prominent actions (52px height)
+ * - xl: Hero CTAs, onboarding buttons (60px height)
+ */
+export const buttonSizes = {
+  xs: {
+    height: 28,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    iconSize: 14,
+    borderRadius: radius.sm,
+  },
+  sm: {
+    height: 36,
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing.sm,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    iconSize: 16,
+    borderRadius: radius.md,
+  },
+  md: {
+    height: 44,
+    paddingHorizontal: spacing['5'],
+    paddingVertical: spacing['3'],
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
+    iconSize: 18,
+    borderRadius: radius.md,
+  },
+  lg: {
+    height: 52,
+    paddingHorizontal: spacing['6'],
+    paddingVertical: spacing['4'],
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    iconSize: 20,
+    borderRadius: radius.lg,
+  },
+  xl: {
+    height: 60,
+    paddingHorizontal: spacing['8'],
+    paddingVertical: spacing['5'],
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.extrabold,
+    iconSize: 24,
+    borderRadius: radius.xl,
+  },
+} as const;
+
+/**
+ * Button Styles - Pre-composed style objects for quick application
+ */
+export const buttonStyles = {
+  /** Standard button base styles */
+  base: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    gap: spacing.sm,
+  },
+
+  /** Shadow for elevated buttons */
+  elevated: shadows.sm,
+
+  /** Shadow for primary/prominent CTAs */
+  prominent: shadows.md,
+
+  /** Pressed state opacity */
+  pressedOpacity: 0.85,
+
+  /** Disabled state opacity */
+  disabledOpacity: 0.5,
+
+  /** Icon button (square) configurations */
+  iconButton: {
+    xs: { width: 28, height: 28, borderRadius: radius.sm },
+    sm: { width: 36, height: 36, borderRadius: radius.md },
+    md: { width: 44, height: 44, borderRadius: radius.md },
+    lg: { width: 52, height: 52, borderRadius: radius.lg },
+  },
+
+  /** Circular button configurations */
+  circularButton: {
+    xs: { width: 28, height: 28, borderRadius: radius.full },
+    sm: { width: 36, height: 36, borderRadius: radius.full },
+    md: { width: 44, height: 44, borderRadius: radius.full },
+    lg: { width: 52, height: 52, borderRadius: radius.full },
+  },
+
+  /** Chip/Tag button styles */
+  chip: {
+    height: 32,
+    paddingHorizontal: spacing['3'],
+    paddingVertical: spacing.xs,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
+    borderRadius: radius.full,
+  },
+} as const;
+
+// ============================================
+// SEMANTIC COLORS (For Specific Use Cases)
+// ============================================
+export const semantic = {
+  success: Colors.semantic.success,
+  successLight: Colors.semantic.successLight,
+  warning: Colors.semantic.warning,
+  warningLight: Colors.semantic.warningLight,
+  error: Colors.semantic.error,
+  errorLight: Colors.semantic.errorLight,
+  info: Colors.semantic.info,
+  infoLight: Colors.semantic.infoLight,
+  risk: Colors.special.risk,
+} as const;
+
+// ============================================
+// TYPE HELPERS
+// ============================================
+export type ButtonVariant = keyof typeof buttonVariants;
+export type ButtonSize = keyof typeof buttonSizes;
+
 export default {
   layout,
   typography,
@@ -815,4 +993,8 @@ export default {
   iconColors,
   getRoleStrokeWidth,
   getRoleIconSize,
+  buttonVariants,
+  buttonSizes,
+  buttonStyles,
+  semantic,
 };

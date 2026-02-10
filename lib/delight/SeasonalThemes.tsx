@@ -20,7 +20,7 @@ import Animated, {
   Easing,
   withDelay,
 } from 'react-native-reanimated';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { zIndex } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -74,46 +74,46 @@ export function getCurrentSeason(): SeasonType {
  */
 export const SEASONAL_COLORS: Record<SeasonType, { primary: string; secondary: string; accent: string; particles: string[] }> = {
   none: {
-    primary: Colors.primary.purple,
-    secondary: Colors.primary.pink,
-    accent: Colors.primary.turquoise,
+    primary: Colors.secondary.lavender,
+    secondary: Colors.secondary.rose,
+    accent: Colors.secondary.mint,
     particles: [],
   },
   new_year: {
     primary: '#FFD700',
     secondary: '#FF6B6B',
     accent: '#4ECDC4',
-    particles: ['#FFD700', '#FF6B6B', '#4ECDC4', '#FFFFFF'],
+    particles: ['#FFD700', '#FF6B6B', '#4ECDC4', Colors.neutral.white],
   },
   valentines: {
     primary: '#FF6B9D',
     secondary: '#C084FC',
     accent: '#FCA5A5',
-    particles: ['#FF6B9D', '#FCA5A5', '#FECDD3', '#FFFFFF'],
+    particles: ['#FF6B9D', '#FCA5A5', '#FECDD3', Colors.neutral.white],
   },
   spring: {
     primary: '#86EFAC',
     secondary: '#FDE68A',
     accent: '#A5B4FC',
-    particles: ['#FBBF24', '#34D399', '#A78BFA', '#FFFFFF'],
+    particles: ['#FBBF24', '#34D399', '#A78BFA', Colors.neutral.white],
   },
   summer: {
     primary: '#FCD34D',
     secondary: '#FB923C',
     accent: '#38BDF8',
-    particles: ['#FCD34D', '#FB923C', '#38BDF8', '#FFFFFF'],
+    particles: ['#FCD34D', '#FB923C', '#38BDF8', Colors.neutral.white],
   },
   halloween: {
     primary: '#F97316',
     secondary: '#8B5CF6',
     accent: '#22C55E',
-    particles: ['#F97316', '#8B5CF6', '#000000', '#FFFFFF'],
+    particles: ['#F97316', '#8B5CF6', '#000000', Colors.neutral.white],
   },
   winter: {
     primary: '#60A5FA',
     secondary: '#A5B4FC',
     accent: '#F0F9FF',
-    particles: ['#FFFFFF', '#E0F2FE', '#BAE6FD', '#A5B4FC'],
+    particles: [Colors.neutral.white, '#E0F2FE', '#BAE6FD', '#A5B4FC'],
   },
 };
 
@@ -179,7 +179,7 @@ const Snowflake = memo(function Snowflake({
 
   return (
     <Animated.View style={[styles.snowflake, { width: size, height: size }, animatedStyle]}>
-      <View style={[styles.snowflakeInner, { backgroundColor: '#FFFFFF' }]} />
+      <View style={[styles.snowflakeInner, { backgroundColor: Colors.neutral.white }]} />
     </Animated.View>
   );
 });

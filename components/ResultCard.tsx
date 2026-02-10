@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import type { AssessmentOutput } from "@/types/AssessmentSchema";
 import { shadows } from "@/constants/design-system";
+import { Colors } from '@/constants/colors';
 
 export const ResultCard: React.FC<{ 
   data: AssessmentOutput; 
@@ -53,7 +54,7 @@ export const ResultCard: React.FC<{
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   evidence: {
-    color: "#666",
+    color: Colors.neutral.medium,
     fontSize: 13,
   },
   divider: {
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   detailsButtonText: {
-    color: "#fff",
+    color: Colors.neutral.white,
     textAlign: "center",
     fontWeight: "700" as const,
   },

@@ -18,7 +18,7 @@ import {
   CheckCircle,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -55,10 +55,10 @@ const COMPARISON_MODES = [
 ] as const;
 
 const TEST_TYPE_COLORS: Record<string, string> = {
-  DAP: '#8B5CF6',
+  DAP: Colors.secondary.violet,
   HTP: '#3B82F6',
   Family: '#10B981',
-  Bender: '#F59E0B',
+  Bender: Colors.semantic.amber,
   default: ProfessionalColors.trust.primary,
 };
 
@@ -434,11 +434,11 @@ export function ComparativeAnalysis({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.md,
   },
   header: {
@@ -467,10 +467,10 @@ const styles = StyleSheet.create({
     color: ProfessionalColors.trust.primary,
   },
   modeDropdown: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     marginBottom: spacing['3'],
     ...shadows.md,
   },
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     gap: spacing['3'],
     padding: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   modeOptionSelected: {
     backgroundColor: ProfessionalColors.trust.background,
@@ -504,9 +504,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
     marginRight: spacing['2'],
   },
   filterChipActive: {
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     marginHorizontal: spacing['2'],
   },
   comparisonContainer: {
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   barBackground: {
     flex: 1,
     height: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 6,
     overflow: 'hidden',
   },
@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   dataPoint: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.md,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   moreIndicator: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: radius.md,
     paddingHorizontal: 10,
     paddingVertical: 6,

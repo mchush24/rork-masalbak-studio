@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Circle, Ellipse, Path } from 'react-native-svg';
 import { IooMood, IooSize, getPixelSize } from '@/constants/ioo-config';
+import { Colors } from '@/constants/colors';
 
 // =============================================================================
 // IOO FINAL - Minimal, Temiz, Profesyonel
@@ -42,9 +43,9 @@ const COLORS = {
   bodyShadow: '#F5D4B8',
 
   // Gözler
-  eyeWhite: '#FFFFFF',
+  eyeWhite: Colors.neutral.white,
   eyeIris: '#2D1F15',
-  eyeHighlight: '#FFFFFF',
+  eyeHighlight: Colors.neutral.white,
 
   // Yanaklar
   cheek: '#FFCACA',
@@ -444,7 +445,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   eye: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.xs,
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
   },
   highlight: {
     position: 'absolute',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
   },
   highlightSmall: {
     position: 'absolute',

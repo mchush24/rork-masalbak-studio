@@ -6,7 +6,7 @@
  */
 
 import { Platform, StyleSheet } from 'react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 
 /**
  * Standardized shadow presets
@@ -14,41 +14,41 @@ import { UIColors as Colors } from '@/constants/color-aliases';
 export const SHADOWS = {
   none: {},
   xs: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
   },
   sm: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },
   md: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 16,
     elevation: 8,
   },
   xl: {
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.2,
     shadowRadius: 24,
     elevation: 12,
   },
-  glow: (color: string = Colors.primary.purple) => ({
+  glow: (color: string = Colors.secondary.lavender) => ({
     shadowColor: color,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
@@ -268,17 +268,17 @@ export function createButtonStyle(options?: {
 
   const variants = {
     primary: {
-      backgroundColor: Colors.primary.purple,
+      backgroundColor: Colors.secondary.lavender,
       borderWidth: 0,
     },
     secondary: {
-      backgroundColor: Colors.primary.pink,
+      backgroundColor: Colors.secondary.rose,
       borderWidth: 0,
     },
     outline: {
       backgroundColor: 'transparent',
       borderWidth: 2,
-      borderColor: Colors.primary.purple,
+      borderColor: Colors.secondary.lavender,
     },
     ghost: {
       backgroundColor: 'transparent',

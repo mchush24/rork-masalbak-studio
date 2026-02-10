@@ -188,7 +188,7 @@ export function GuidedAnalysis({
                 index < currentStep && styles.progressDotCompleted,
               ]}
             >
-              {index < currentStep && <Check size={10} color="#FFFFFF" />}
+              {index < currentStep && <Check size={10} color={Colors.neutral.white} />}
             </View>
           ))}
         </View>
@@ -326,10 +326,10 @@ export function GuidedAnalysis({
           {!isLastStep && (
             <ChevronRight
               size={20}
-              color={!isAnalyzeStep || imageUri ? '#FFFFFF' : Colors.neutral.medium}
+              color={!isAnalyzeStep || imageUri ? Colors.neutral.white : Colors.neutral.medium}
             />
           )}
-          {isLastStep && <Play size={18} color={imageUri ? '#FFFFFF' : Colors.neutral.medium} />}
+          {isLastStep && <Play size={18} color={imageUri ? Colors.neutral.white : Colors.neutral.medium} />}
         </Pressable>
       </View>
     </View>
@@ -339,7 +339,7 @@ export function GuidedAnalysis({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
   },
   header: {
     paddingTop: spacing['6'],
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   childName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   testInfo: {
     fontSize: 14,
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   stepText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   progressDots: {
     flexDirection: 'row',
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
   },
   progressDotCompleted: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
   },
   content: {
     flex: 1,
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     padding: spacing['4'],
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
     borderStyle: 'dashed',
   },
   captureButtonPressed: {
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing['3'],
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   changeImageText: {
     fontSize: 14,
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing['3'],
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     gap: spacing['3'],
     padding: spacing['4'],
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
   },
   backButton: {
     flexDirection: 'row',
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: radius.lg,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   backButtonText: {
     fontSize: 15,
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 14,
     borderRadius: radius.lg,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
   },
   nextButtonEnabled: {
     backgroundColor: Colors.primary.sunset,
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
   },
   nextButtonTextEnabled: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   buttonPressed: {
     opacity: 0.8,

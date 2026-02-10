@@ -25,6 +25,7 @@ import {
   getAccessibilityProps,
 } from '@/utils/accessibility';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 interface AccessibleTouchableProps {
   onPress: () => void;
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     padding: 16,
     ...shadows.sm,
@@ -291,14 +292,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 12,
     gap: 12,
   },
   listItemSelected: {
     backgroundColor: 'rgba(167, 139, 250, 0.1)',
     borderWidth: 1,
-    borderColor: '#A78BFA',
+    borderColor: Colors.secondary.lavender,
   },
   listItemIcon: {
     width: 40,

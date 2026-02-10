@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Smile, Sun, Flower } from 'lucide-react-native';
 import { spacing, borderRadius, typography, shadows } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH - spacing.lg * 2;
@@ -36,13 +37,13 @@ export function AnalysisShareCard({ summary, mood, onSave }: AnalysisShareCardPr
   const getMoodColor = () => {
     switch (mood) {
       case 'happy':
-        return '#7ED99C';
+        return Colors.secondary.grass;
       case 'neutral':
-        return '#FFD56B';
+        return Colors.secondary.sunshine;
       case 'sad':
-        return '#FFB299';
+        return Colors.primary.peach;
       default:
-        return '#7ED99C';
+        return Colors.secondary.grass;
     }
   };
 
@@ -76,17 +77,17 @@ export function AnalysisShareCard({ summary, mood, onSave }: AnalysisShareCardPr
 
           {/* Decorative flowers */}
           <View style={styles.flowerLeft}>
-            <Flower size={28} color="#FF9B7A" fill="#FFB299" strokeWidth={1.5} />
+            <Flower size={28} color={Colors.primary.sunset} fill={Colors.primary.peach} strokeWidth={1.5} />
           </View>
           <View style={styles.flowerRight}>
-            <Flower size={24} color="#A78BFA" fill="#C4B5FD" strokeWidth={1.5} />
+            <Flower size={24} color={Colors.secondary.lavender} fill={Colors.secondary.lavenderLight} strokeWidth={1.5} />
           </View>
 
           {/* Grass */}
           <View style={styles.grassContainer}>
-            <View style={[styles.grass, { backgroundColor: '#7ED99C' }]} />
+            <View style={[styles.grass, { backgroundColor: Colors.secondary.grass }]} />
             <View style={[styles.grass, { backgroundColor: '#A8E8BA', marginLeft: -10 }]} />
-            <View style={[styles.grass, { backgroundColor: '#7ED99C', marginLeft: -10 }]} />
+            <View style={[styles.grass, { backgroundColor: Colors.secondary.grass, marginLeft: -10 }]} />
           </View>
         </View>
 
@@ -97,11 +98,11 @@ export function AnalysisShareCard({ summary, mood, onSave }: AnalysisShareCardPr
 
         {/* Bottom decoration */}
         <View style={styles.bottomDecoration}>
-          <View style={[styles.dot, { backgroundColor: '#FF9B7A' }]} />
-          <View style={[styles.dot, { backgroundColor: '#FFD56B' }]} />
-          <View style={[styles.dot, { backgroundColor: '#7ED99C' }]} />
-          <View style={[styles.dot, { backgroundColor: '#78C8E8' }]} />
-          <View style={[styles.dot, { backgroundColor: '#A78BFA' }]} />
+          <View style={[styles.dot, { backgroundColor: Colors.primary.sunset }]} />
+          <View style={[styles.dot, { backgroundColor: Colors.secondary.sunshine }]} />
+          <View style={[styles.dot, { backgroundColor: Colors.secondary.grass }]} />
+          <View style={[styles.dot, { backgroundColor: Colors.secondary.sky }]} />
+          <View style={[styles.dot, { backgroundColor: Colors.secondary.lavender }]} />
         </View>
 
         {/* Save Button */}
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   logoAccent: {
-    color: '#FF9B7A',
+    color: Colors.primary.sunset,
   },
   decorationContainer: {
     position: 'absolute',
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#FFD56B',
+    backgroundColor: Colors.secondary.sunshine,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 4,
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   saveButton: {
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
     borderRadius: borderRadius.xxxl,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,

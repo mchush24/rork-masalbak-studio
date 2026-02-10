@@ -24,7 +24,7 @@ import {
   Filter,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -409,16 +409,16 @@ export function NormReferenceModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing['4'],
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -463,12 +463,12 @@ const styles = StyleSheet.create({
     padding: spacing['4'],
   },
   tableContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     marginBottom: spacing['3'],
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   tableHeader: {
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   tableContent: {
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
     padding: spacing['3'],
   },
   sourceRow: {
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing['2'],
     marginBottom: spacing['3'],
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     padding: spacing['2'],
     borderRadius: radius.md,
   },
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing['2'],
     paddingHorizontal: spacing['2'],
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: radius.md,
     marginBottom: spacing['1'],
   },
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['2'],
     paddingHorizontal: spacing['2'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   dataRowMatching: {
     backgroundColor: '#EFF6FF',
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
     marginTop: spacing['4'],
     paddingTop: spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
   },
   percentileTitle: {
     fontSize: 14,
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing['2'],
     paddingHorizontal: spacing['2'],
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: radius.md,
     marginBottom: spacing['1'],
   },
@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['2'],
     paddingHorizontal: spacing['2'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   percentileCell: {
     flex: 1,
@@ -628,12 +628,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   legend: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['4'],
     marginTop: spacing['2'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   legendTitle: {
     fontSize: 14,

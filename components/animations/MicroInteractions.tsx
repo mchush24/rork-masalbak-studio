@@ -21,7 +21,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { SymbiosisTheme } from '@/constants/SymbiosisTheme';
+import { Colors, RenkooColors } from '@/constants/colors';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
@@ -68,7 +68,7 @@ const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
 // ============================================
 export function SuccessAnimation({
   size = 80,
-  color = SymbiosisTheme.brand.mint,
+  color = RenkooColors.brand.jellyMint,
   onAnimationEnd,
 }: {
   size?: number;
@@ -167,13 +167,13 @@ export function SuccessAnimation({
           <View
             style={[
               styles.checkmarkLine1,
-              { backgroundColor: '#FFF', width: size * 0.2, height: 3 },
+              { backgroundColor: Colors.neutral.white, width: size * 0.2, height: 3 },
             ]}
           />
           <View
             style={[
               styles.checkmarkLine2,
-              { backgroundColor: '#FFF', width: size * 0.35, height: 3 },
+              { backgroundColor: Colors.neutral.white, width: size * 0.35, height: 3 },
             ]}
           />
         </Animated.View>
@@ -254,13 +254,13 @@ export function ErrorAnimation({
     >
       <View style={styles.xMark}>
         <View
-          style={[styles.xLine, { backgroundColor: '#FFF', width: size * 0.35 }]}
+          style={[styles.xLine, { backgroundColor: Colors.neutral.white, width: size * 0.35 }]}
         />
         <View
           style={[
             styles.xLine,
             styles.xLine2,
-            { backgroundColor: '#FFF', width: size * 0.35 },
+            { backgroundColor: Colors.neutral.white, width: size * 0.35 },
           ]}
         />
       </View>
@@ -273,7 +273,7 @@ export function ErrorAnimation({
 // ============================================
 export function PulseAnimation({
   size = 60,
-  color = SymbiosisTheme.brand.purple.primary,
+  color = Colors.secondary.violet,
   children,
 }: {
   size?: number;
@@ -357,8 +357,8 @@ export function ConfettiAnimation({
       rotate: new Animated.Value(0),
       opacity: new Animated.Value(1),
       color:
-        SymbiosisTheme.gradients.rainbow[
-          Math.floor(Math.random() * SymbiosisTheme.gradients.rainbow.length)
+        Colors.gradients.rainbow[
+          Math.floor(Math.random() * Colors.gradients.rainbow.length)
         ],
       startX: Math.random() * 300 - 150,
       size: Math.random() * 8 + 4,
@@ -437,7 +437,7 @@ export function ConfettiAnimation({
 // ============================================
 export function SparkleAnimation({
   size = 100,
-  color = SymbiosisTheme.brand.gold,
+  color = RenkooColors.brand.starGold,
 }: {
   size?: number;
   color?: string;
@@ -518,7 +518,7 @@ export function SparkleAnimation({
 // ============================================
 export function HeartBeatAnimation({
   size = 60,
-  color = SymbiosisTheme.brand.pink.primary,
+  color = RenkooColors.brand.jellyPink,
 }: {
   size?: number;
   color?: string;

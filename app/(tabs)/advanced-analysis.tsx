@@ -48,6 +48,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 import { AnalysisStepper, AnalysisStep } from '@/components/analysis/AnalysisStepper';
 import { AnalysisLoadingOverlay } from '@/components/analysis/AnalysisLoadingOverlay';
+import { Colors } from '@/constants/colors';
 
 // Type definitions for analysis results
 interface ReflectiveHypothesis {
@@ -183,7 +184,7 @@ const TEST_CONFIG: Record<TaskType, TestConfigItem> = {
   },
   Rey: {
     icon: '🧩',
-    gradient: ['#F59E0B', '#FBBF24'],
+    gradient: [Colors.semantic.amber, '#FBBF24'],
     description: 'Görsel bellek testi',
     duration: '15-20 dk',
     difficulty: 'Orta',
@@ -572,10 +573,10 @@ export default function AdvancedAnalysisScreen() {
                   <View style={styles.headerContent}>
                     <View style={styles.headerIconWrapper}>
                       <LinearGradient
-                        colors={['#6366F1', '#8B5CF6']}
+                        colors={[Colors.secondary.indigo, Colors.secondary.violet]}
                         style={styles.headerIconGradient}
                       >
-                        <Brain size={32} color="#FFF" strokeWidth={2} />
+                        <Brain size={32} color={Colors.neutral.white} strokeWidth={2} />
                       </LinearGradient>
                       <Animated.View style={[styles.headerIconGlow, { opacity: glowOpacity }]} />
                     </View>
@@ -588,11 +589,11 @@ export default function AdvancedAnalysisScreen() {
                   </View>
                   <View style={styles.headerBadges}>
                     <View style={styles.headerBadge}>
-                      <Shield size={12} color="#6366F1" />
+                      <Shield size={12} color={Colors.secondary.indigo} />
                       <Text style={styles.headerBadgeText}>KVKK Uyumlu</Text>
                     </View>
                     <View style={styles.headerBadge}>
-                      <Zap size={12} color="#F59E0B" />
+                      <Zap size={12} color={Colors.semantic.amber} />
                       <Text style={styles.headerBadgeText}>GPT-4 Vision</Text>
                     </View>
                   </View>
@@ -603,8 +604,8 @@ export default function AdvancedAnalysisScreen() {
             {/* Process Highlights */}
             <View style={styles.quickStats}>
               <View style={styles.statItem}>
-                <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.statIconBg}>
-                  <Brain size={18} color="#FFF" />
+                <LinearGradient colors={[Colors.secondary.indigo, Colors.secondary.violet]} style={styles.statIconBg}>
+                  <Brain size={18} color={Colors.neutral.white} />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
                   <Text style={styles.statValueSmall}>Bilimsel</Text>
@@ -614,7 +615,7 @@ export default function AdvancedAnalysisScreen() {
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <LinearGradient colors={['#EC4899', '#F472B6']} style={styles.statIconBg}>
-                  <FileText size={18} color="#FFF" />
+                  <FileText size={18} color={Colors.neutral.white} />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
                   <Text style={styles.statValueSmall}>Kapsamlı</Text>
@@ -624,7 +625,7 @@ export default function AdvancedAnalysisScreen() {
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
                 <LinearGradient colors={['#10B981', '#34D399']} style={styles.statIconBg}>
-                  <Shield size={18} color="#FFF" />
+                  <Shield size={18} color={Colors.neutral.white} />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
                   <Text style={styles.statValueSmall}>Gizlilik</Text>
@@ -642,7 +643,7 @@ export default function AdvancedAnalysisScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Test Seçimi</Text>
               <Pressable onPress={() => openSheet(task)} style={styles.sectionAction}>
-                <Info size={16} color="#6366F1" />
+                <Info size={16} color={Colors.secondary.indigo} />
                 <Text style={styles.sectionActionText}>Protokol</Text>
               </Pressable>
             </View>
@@ -715,7 +716,7 @@ export default function AdvancedAnalysisScreen() {
                       </View>
                       {isActive && (
                         <View style={styles.testCardCheck}>
-                          <CheckCircle size={16} color="#FFF" />
+                          <CheckCircle size={16} color={Colors.neutral.white} />
                         </View>
                       )}
                     </LinearGradient>
@@ -743,9 +744,9 @@ export default function AdvancedAnalysisScreen() {
                     </View>
                   </View>
                   <Pressable onPress={() => openSheet(task)} style={styles.selectedTestButton}>
-                    <FileText size={16} color="#FFF" />
+                    <FileText size={16} color={Colors.neutral.white} />
                     <Text style={styles.selectedTestButtonText}>Protokol</Text>
-                    <ChevronRight size={14} color="#FFF" />
+                    <ChevronRight size={14} color={Colors.neutral.white} />
                   </Pressable>
                 </View>
                 <Text style={styles.selectedTestInstruction} numberOfLines={2}>
@@ -865,7 +866,7 @@ export default function AdvancedAnalysisScreen() {
                                   pressed && { opacity: 0.8 },
                                 ]}
                               >
-                                <ImageIcon size={16} color="#6366F1" />
+                                <ImageIcon size={16} color={Colors.secondary.indigo} />
                                 <Text style={styles.uploadButtonText}>Galeri</Text>
                               </Pressable>
                               <Pressable
@@ -915,16 +916,16 @@ export default function AdvancedAnalysisScreen() {
                 ]}
               >
                 <LinearGradient
-                  colors={hasRequiredImages ? ['#6366F1', '#8B5CF6'] : ['#94A3B8', '#CBD5E1']}
+                  colors={hasRequiredImages ? [Colors.secondary.indigo, Colors.secondary.violet] : ['#94A3B8', '#CBD5E1']}
                   style={styles.analyzeButton}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#FFF" size="small" />
+                    <ActivityIndicator color={Colors.neutral.white} size="small" />
                   ) : (
                     <>
-                      <Sparkles size={24} color="#FFF" />
+                      <Sparkles size={24} color={Colors.neutral.white} />
                       <Text style={styles.analyzeButtonText}>
                         {hasRequiredImages
                           ? 'AI Analizi Başlat'
@@ -943,7 +944,7 @@ export default function AdvancedAnalysisScreen() {
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>Analiz Sonuçları</Text>
                   <Pressable onPress={onShare} style={styles.shareButton}>
-                    <Share2 size={16} color="#6366F1" />
+                    <Share2 size={16} color={Colors.secondary.indigo} />
                     <Text style={styles.shareButtonText}>Paylaş</Text>
                   </Pressable>
                 </View>
@@ -953,7 +954,7 @@ export default function AdvancedAnalysisScreen() {
 
                 <View style={styles.disclaimerCard}>
                   <View style={styles.disclaimerHeader}>
-                    <AlertTriangle size={18} color="#F59E0B" />
+                    <AlertTriangle size={18} color={Colors.semantic.amber} />
                     <Text style={styles.disclaimerTitle}>Önemli Uyarı</Text>
                   </View>
                   <Text style={styles.disclaimerText}>{strings[lang].legacy.disclaimer}</Text>
@@ -1074,7 +1075,7 @@ export default function AdvancedAnalysisScreen() {
                     <Text style={styles.sheetSectionTitle}>📸 Fotoğraf İpuçları</Text>
                     {PROTOCOLS[sheetTask].captureHints.map((c: string, i: number) => (
                       <View key={i} style={styles.hintItem}>
-                        <Camera size={14} color="#6366F1" />
+                        <Camera size={14} color={Colors.secondary.indigo} />
                         <Text style={styles.hintText}>{c}</Text>
                       </View>
                     ))}
@@ -1088,7 +1089,7 @@ export default function AdvancedAnalysisScreen() {
                       <Text style={styles.sheetSectionTitle}>📊 Skorlama Notları</Text>
                       {PROTOCOLS[sheetTask].scoringNotes?.map((s: string, i: number) => (
                         <View key={i} style={styles.scoringItem}>
-                          <Award size={14} color="#F59E0B" />
+                          <Award size={14} color={Colors.semantic.amber} />
                           <Text style={styles.scoringText}>{s}</Text>
                         </View>
                       ))}
@@ -1108,7 +1109,7 @@ export default function AdvancedAnalysisScreen() {
                     colors={TEST_CONFIG[sheetTask].gradient}
                     style={styles.sheetSelectButtonGradient}
                   >
-                    <CheckCircle size={18} color="#FFF" />
+                    <CheckCircle size={18} color={Colors.neutral.white} />
                     <Text style={styles.sheetSelectButtonText}>Bu Testi Seç</Text>
                   </LinearGradient>
                 </Pressable>
@@ -1204,7 +1205,7 @@ const styles = StyleSheet.create({
     right: -4,
     bottom: -4,
     borderRadius: 24,
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
     opacity: 0.3,
   },
   headerTextArea: {
@@ -1213,12 +1214,12 @@ const styles = StyleSheet.create({
   premiumHeaderTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1E293B',
+    color: Colors.text.primary,
     letterSpacing: -0.5,
   },
   premiumHeaderSubtitle: {
     fontSize: 14,
-    color: '#64748B',
+    color: Colors.neutral.medium,
     marginTop: 4,
     fontWeight: '500',
   },
@@ -1238,14 +1239,14 @@ const styles = StyleSheet.create({
   headerBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
   },
 
   // Quick Stats
   quickStats: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 16,
     marginBottom: 24,
@@ -1270,22 +1271,22 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1E293B',
+    color: Colors.text.primary,
   },
   statValueSmall: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1E293B',
+    color: Colors.text.primary,
   },
   statLabel: {
     fontSize: 11,
-    color: '#64748B',
+    color: Colors.neutral.medium,
     fontWeight: '500',
   },
   statDivider: {
     width: 1,
     height: 36,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: Colors.neutral.lighter,
     marginHorizontal: 8,
   },
 
@@ -1306,7 +1307,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1E293B',
+    color: Colors.text.primary,
   },
   sectionAction: {
     flexDirection: 'row',
@@ -1317,7 +1318,7 @@ const styles = StyleSheet.create({
   },
   sectionActionText: {
     fontSize: 13,
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
     fontWeight: '600',
   },
 
@@ -1349,15 +1350,15 @@ const styles = StyleSheet.create({
   testCardName: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1E293B',
+    color: Colors.text.primary,
     marginBottom: 2,
   },
   testCardNameActive: {
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   testCardDesc: {
     fontSize: 10,
-    color: '#64748B',
+    color: Colors.neutral.medium,
     textAlign: 'center',
   },
   testCardDescActive: {
@@ -1389,7 +1390,7 @@ const styles = StyleSheet.create({
   testCardBadgeText: {
     fontSize: 9,
     fontWeight: '600',
-    color: '#64748B',
+    color: Colors.neutral.medium,
   },
   testCardBadgeTextActive: {
     color: 'rgba(255, 255, 255, 0.9)',
@@ -1434,7 +1435,7 @@ const styles = StyleSheet.create({
   selectedTestName: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   selectedTestMeta: {
     fontSize: 12,
@@ -1453,7 +1454,7 @@ const styles = StyleSheet.create({
   selectedTestButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   selectedTestInstruction: {
     fontSize: 13,
@@ -1464,7 +1465,7 @@ const styles = StyleSheet.create({
 
   // Child Info
   childInfoCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 18,
     marginBottom: 16,
@@ -1483,7 +1484,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748B',
+    color: Colors.neutral.medium,
     marginBottom: 8,
   },
   ageInputWrapper: {
@@ -1492,32 +1493,32 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ageInput: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderWidth: 2,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 18,
     fontWeight: '700',
-    color: '#1E293B',
+    color: Colors.text.primary,
     width: 56,
     textAlign: 'center',
   },
   ageUnit: {
     fontSize: 14,
-    color: '#94A3B8',
+    color: Colors.neutral.light,
     fontWeight: '500',
   },
   quoteInput: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderWidth: 2,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1E293B',
+    color: Colors.text.primary,
     minHeight: 48,
     fontWeight: '500',
   },
@@ -1531,18 +1532,18 @@ const styles = StyleSheet.create({
   uploadProgressText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
   },
   uploadProgressBar: {
     width: 60,
     height: 6,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: Colors.neutral.lighter,
     borderRadius: 3,
     overflow: 'hidden',
   },
   uploadProgressFill: {
     height: '100%',
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
     borderRadius: 3,
   },
 
@@ -1550,7 +1551,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   imageCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 16,
     ...shadows.sm,
@@ -1565,14 +1566,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
     justifyContent: 'center',
     alignItems: 'center',
   },
   imageCardNumberText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   imageCardMeta: {
     flex: 1,
@@ -1580,16 +1581,16 @@ const styles = StyleSheet.create({
   imageCardLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1E293B',
+    color: Colors.text.primary,
   },
   imageCardOptional: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: Colors.neutral.light,
     marginTop: 2,
   },
   imageCardRequired: {
     fontSize: 11,
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
     fontWeight: '600',
     marginTop: 2,
   },
@@ -1603,7 +1604,7 @@ const styles = StyleSheet.create({
   },
   imageCardDescription: {
     fontSize: 12,
-    color: '#64748B',
+    color: Colors.neutral.medium,
     marginBottom: 12,
     lineHeight: 18,
   },
@@ -1635,7 +1636,7 @@ const styles = StyleSheet.create({
   },
   uploadDashedBorder: {
     borderWidth: 2,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
     borderStyle: 'dashed',
     borderRadius: 16,
     padding: 24,
@@ -1644,7 +1645,7 @@ const styles = StyleSheet.create({
   },
   uploadText: {
     fontSize: 14,
-    color: '#94A3B8',
+    color: Colors.neutral.light,
     marginTop: 12,
     marginBottom: 16,
     fontWeight: '500',
@@ -1665,17 +1666,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEF2FF',
   },
   uploadButtonCamera: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: Colors.neutral.lighter,
   },
   uploadButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
   },
   uploadButtonTextDark: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748B',
+    color: Colors.neutral.medium,
   },
 
   // No Image Card
@@ -1692,7 +1693,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 18,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -1735,7 +1736,7 @@ const styles = StyleSheet.create({
   analyzeButtonText: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   analyzeButtonShine: {
     position: 'absolute',
@@ -1764,7 +1765,7 @@ const styles = StyleSheet.create({
   shareButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
   },
   disclaimerCard: {
     backgroundColor: '#FFFBEB',
@@ -1801,7 +1802,7 @@ const styles = StyleSheet.create({
   },
   sheetOverlay: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: Colors.neutral.darkest,
   },
   sheet: {
     position: 'absolute',
@@ -1826,7 +1827,7 @@ const styles = StyleSheet.create({
   sheetHandle: {
     width: 40,
     height: 5,
-    backgroundColor: '#CBD5E1',
+    backgroundColor: Colors.border.light,
     borderRadius: 3,
   },
   sheetHeader: {
@@ -1835,7 +1836,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: Colors.neutral.lighter,
   },
   sheetHeaderIcon: {
     width: 52,
@@ -1854,18 +1855,18 @@ const styles = StyleSheet.create({
   sheetTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#1E293B',
+    color: Colors.text.primary,
   },
   sheetSubtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: Colors.neutral.medium,
     marginTop: 2,
   },
   sheetCloseIcon: {
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: Colors.neutral.lighter,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1883,7 +1884,7 @@ const styles = StyleSheet.create({
   sheetSectionTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1E293B',
+    color: Colors.text.primary,
     marginBottom: 12,
   },
   sheetMaterialsGrid: {
@@ -1892,23 +1893,23 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   materialChip: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: Colors.neutral.lighter,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
   },
   materialChipText: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.text.secondary,
     fontWeight: '500',
   },
   phaseCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#6366F1',
+    borderLeftColor: Colors.secondary.indigo,
   },
   phaseHeader: {
     flexDirection: 'row',
@@ -1920,14 +1921,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
     justifyContent: 'center',
     alignItems: 'center',
   },
   phaseNumberText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   phaseMeta: {
     flex: 1,
@@ -1935,17 +1936,17 @@ const styles = StyleSheet.create({
   phaseName: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1E293B',
+    color: Colors.text.primary,
   },
   phaseDuration: {
     fontSize: 11,
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
     marginTop: 2,
     fontWeight: '500',
   },
   phaseInstruction: {
     fontSize: 13,
-    color: '#475569',
+    color: Colors.text.secondary,
     fontStyle: 'italic',
     lineHeight: 20,
   },
@@ -1953,11 +1954,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: Colors.neutral.lighter,
   },
   phaseNote: {
     fontSize: 12,
-    color: '#64748B',
+    color: Colors.neutral.medium,
     marginBottom: 4,
     paddingLeft: 4,
   },
@@ -1971,13 +1972,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
     marginTop: 5,
   },
   observationText: {
     flex: 1,
     fontSize: 13,
-    color: '#475569',
+    color: Colors.text.secondary,
     lineHeight: 20,
   },
   dontItem: {
@@ -2029,7 +2030,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: Colors.neutral.lighter,
   },
   sheetSelectButton: {
     borderRadius: 16,
@@ -2046,6 +2047,6 @@ const styles = StyleSheet.create({
   sheetSelectButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 });

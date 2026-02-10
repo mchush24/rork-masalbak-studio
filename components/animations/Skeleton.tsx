@@ -68,7 +68,7 @@ export function Skeleton({
   const finalBorderRadius = borderRadius ?? variantStyle.borderRadius;
 
   const baseColor = dark ? '#2A2D38' : '#E8E8E8';
-  const highlightColor = dark ? '#3A3D48' : '#F5F5F5';
+  const highlightColor = dark ? '#3A3D48' : Colors.neutral.lightest;
 
   useEffect(() => {
     // Note: shimmerPosition and pulseOpacity are Reanimated shared values

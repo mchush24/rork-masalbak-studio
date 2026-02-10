@@ -70,41 +70,52 @@ export const BadgeCard = memo(function BadgeCard({
       ]}
     >
       {/* Badge Icon Container */}
-      <View
-        style={[
-          styles.iconContainer,
-          {
-            width: cardSize - 10,
-            height: cardSize - 10,
-            borderRadius: (cardSize - 10) / 2,
-            backgroundColor: isUnlocked ? rarityConfig.bgColor : "#E5E7EB",
-            borderColor: isUnlocked ? rarityConfig.color : "#D1D5DB",
-          },
-        ]}
-      >
-        {isUnlocked ? (
+      {isUnlocked ? (
+        <LinearGradient
+          colors={rarityConfig.gradient}
+          style={[
+            styles.iconContainer,
+            {
+              width: cardSize - 10,
+              height: cardSize - 10,
+              borderRadius: (cardSize - 10) / 2,
+              borderColor: rarityConfig.color,
+            },
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <Text style={[styles.icon, { fontSize: iconSize }]}>{icon}</Text>
-        ) : (
-          <View style={styles.lockedOverlay}>
-            <Text style={[styles.icon, styles.lockedIcon, { fontSize: iconSize * 0.7 }]}>
-              {icon}
-            </Text>
-            <View style={styles.lockBadge}>
-              <Lock size={12} color="#9CA3AF" />
-            </View>
-          </View>
-        )}
-
-        {/* Rarity indicator for unlocked badges */}
-        {isUnlocked && (
           <View
             style={[
               styles.rarityDot,
               { backgroundColor: rarityConfig.color },
             ]}
           />
-        )}
-      </View>
+        </LinearGradient>
+      ) : (
+        <View
+          style={[
+            styles.iconContainer,
+            {
+              width: cardSize - 10,
+              height: cardSize - 10,
+              borderRadius: (cardSize - 10) / 2,
+              backgroundColor: Colors.neutral.gray200,
+              borderColor: Colors.neutral.gray300,
+            },
+          ]}
+        >
+          <View style={styles.lockedOverlay}>
+            <Text style={[styles.icon, styles.lockedIcon, { fontSize: iconSize * 0.7 }]}>
+              {icon}
+            </Text>
+            <View style={styles.lockBadge}>
+              <Lock size={12} color={Colors.neutral.gray400} />
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Badge Info */}
       {showDetails && (
@@ -173,15 +184,15 @@ export const CompactBadge = memo(function CompactBadge({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: isUnlocked ? rarityConfig.bgColor : "#E5E7EB",
-          borderColor: isUnlocked ? rarityConfig.color : "#D1D5DB",
+          backgroundColor: isUnlocked ? rarityConfig.bgColor : Colors.neutral.gray200,
+          borderColor: isUnlocked ? rarityConfig.color : Colors.neutral.gray300,
         },
       ]}
     >
       {isUnlocked ? (
         <Text style={{ fontSize: size * 0.5 }}>{icon}</Text>
       ) : (
-        <Lock size={size * 0.4} color="#9CA3AF" />
+        <Lock size={size * 0.4} color={Colors.neutral.gray400} />
       )}
     </View>
   );
@@ -216,7 +227,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -2,
     right: -2,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 10,
     padding: 2,
   },
@@ -228,7 +239,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: "#FFFFFF",
+    borderColor: Colors.neutral.white,
   },
   infoContainer: {
     marginTop: spacing["2"],
@@ -257,7 +268,7 @@ const styles = StyleSheet.create({
   progressBar: {
     width: "100%",
     height: 4,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 2,
     overflow: "hidden",
   },

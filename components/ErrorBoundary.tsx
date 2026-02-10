@@ -603,20 +603,20 @@ const styles = StyleSheet.create({
     maxHeight: 180,
   },
   debugTitle: {
-    color: '#ff6b6b',
+    color: Colors.secondary.coral,
     fontSize: 11,
     fontWeight: '600',
     marginBottom: spacing['2'],
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
   debugText: {
-    color: '#ffffff',
+    color: Colors.neutral.white,
     fontSize: 11,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
     marginBottom: spacing['2'],
   },
   debugStack: {
-    color: '#666666',
+    color: Colors.neutral.medium,
     fontSize: 9,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
     lineHeight: 14,
@@ -625,10 +625,10 @@ const styles = StyleSheet.create({
   // Component Fallback
   componentFallback: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     borderStyle: 'dashed',
   },
 });

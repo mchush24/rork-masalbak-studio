@@ -298,7 +298,7 @@ export function FloatingChildSelector({
 
           <View style={styles.sheetContainer}>
             <LinearGradient
-              colors={["#FFFFFF", "#F8F9FA"]}
+              colors={[Colors.neutral.white, "#F8F9FA"]}
               style={styles.sheetGradient}
             >
               {/* Handle */}

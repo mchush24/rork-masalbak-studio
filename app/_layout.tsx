@@ -39,6 +39,7 @@ import { statePersistence, SessionState } from '@/lib/persistence';
 import { globalErrorHandler } from '@/lib/error';
 import { analytics } from '@/lib/analytics';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { Colors } from '@/constants/colors';
 
 // Initialize Sentry for error tracking (before app renders)
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -97,7 +98,7 @@ const webStyles = StyleSheet.create({
     maxWidth: 430,
     height: '100%',
     maxHeight: 932,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: Platform.OS === 'web' ? 40 : 0,
     overflow: 'hidden',
     ...Platform.select({
@@ -105,7 +106,7 @@ const webStyles = StyleSheet.create({
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
       },
       default: {
-        shadowColor: '#000',
+        shadowColor: Colors.neutral.darkest,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 30,

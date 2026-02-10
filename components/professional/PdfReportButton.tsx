@@ -36,9 +36,8 @@ import {
   Building2,
   Check,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
-import { buttonSizes, buttonStyles } from '@/constants/tokens';
+import { Colors } from '@/constants/colors';
+import { typography, spacing, radius, shadows, buttonSizes, buttonStyles } from '@/constants/design-system';
 import { SavedAnalysis } from '@/types/analysis';
 import { pdfService, ClientInfo } from '@/lib/pdf';
 
@@ -161,7 +160,7 @@ export function PdfReportButton({
             onPressOut={handlePressOut}
             disabled={disabled}
           >
-            <FileText size={s.iconSize} color={Colors.primary.purple} />
+            <FileText size={s.iconSize} color={Colors.secondary.lavender} />
           </Pressable>
         </Animated.View>
       );
@@ -175,7 +174,7 @@ export function PdfReportButton({
           disabled={disabled}
         >
           <View style={styles.cardIcon}>
-            <FileText size={24} color={Colors.primary.purple} />
+            <FileText size={24} color={Colors.secondary.lavender} />
           </View>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>PDF Rapor Oluştur</Text>
@@ -183,7 +182,7 @@ export function PdfReportButton({
               Profesyonel rapor olarak dışa aktar
             </Text>
           </View>
-          <Download size={18} color={Colors.neutral.gray} />
+          <Download size={18} color={Colors.neutral.medium} />
         </Pressable>
       );
     }
@@ -231,7 +230,7 @@ export function PdfReportButton({
                 resetForm();
               }}
             >
-              <X size={24} color={Colors.neutral.gray} />
+              <X size={24} color={Colors.neutral.medium} />
             </Pressable>
           </View>
 
@@ -243,7 +242,7 @@ export function PdfReportButton({
             {/* Client Info Section */}
             <Animated.View entering={FadeIn.delay(100)} style={styles.section}>
               <View style={styles.sectionHeader}>
-                <User size={18} color={Colors.primary.purple} />
+                <User size={18} color={Colors.secondary.lavender} />
                 <Text style={styles.sectionTitle}>Danışan Bilgileri</Text>
               </View>
 
@@ -254,7 +253,7 @@ export function PdfReportButton({
                   value={clientName}
                   onChangeText={setClientName}
                   placeholder="Örn: Ahmet Yılmaz"
-                  placeholderTextColor={Colors.neutral.gray}
+                  placeholderTextColor={Colors.neutral.medium}
                 />
               </View>
 
@@ -266,7 +265,7 @@ export function PdfReportButton({
                     value={parentName}
                     onChangeText={setParentName}
                     placeholder="Opsiyonel"
-                    placeholderTextColor={Colors.neutral.gray}
+                    placeholderTextColor={Colors.neutral.medium}
                   />
                 </View>
                 <View style={[styles.inputGroup, { width: 100 }]}>
@@ -276,7 +275,7 @@ export function PdfReportButton({
                     value={sessionNumber}
                     onChangeText={setSessionNumber}
                     placeholder="#"
-                    placeholderTextColor={Colors.neutral.gray}
+                    placeholderTextColor={Colors.neutral.medium}
                     keyboardType="number-pad"
                   />
                 </View>
@@ -285,18 +284,18 @@ export function PdfReportButton({
               {/* Analysis Info */}
               <View style={styles.analysisInfo}>
                 <View style={styles.infoItem}>
-                  <Calendar size={14} color={Colors.neutral.gray} />
+                  <Calendar size={14} color={Colors.neutral.medium} />
                   <Text style={styles.infoText}>
                     Analiz: {new Date(analysis.createdAt).toLocaleDateString('tr-TR')}
                   </Text>
                 </View>
                 <View style={styles.infoItem}>
-                  <FileText size={14} color={Colors.neutral.gray} />
+                  <FileText size={14} color={Colors.neutral.medium} />
                   <Text style={styles.infoText}>Test: {analysis.taskType}</Text>
                 </View>
                 {analysis.childAge && (
                   <View style={styles.infoItem}>
-                    <User size={14} color={Colors.neutral.gray} />
+                    <User size={14} color={Colors.neutral.medium} />
                     <Text style={styles.infoText}>Yaş: {analysis.childAge}</Text>
                   </View>
                 )}
@@ -315,7 +314,7 @@ export function PdfReportButton({
                 value={additionalNotes}
                 onChangeText={setAdditionalNotes}
                 placeholder="Rapora eklemek istediğiniz klinik notlar..."
-                placeholderTextColor={Colors.neutral.gray}
+                placeholderTextColor={Colors.neutral.medium}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -333,9 +332,9 @@ export function PdfReportButton({
                   disabled={isExporting}
                 >
                   {isExporting ? (
-                    <ActivityIndicator size="small" color={Colors.primary.purple} />
+                    <ActivityIndicator size="small" color={Colors.secondary.lavender} />
                   ) : (
-                    <Download size={24} color={Colors.primary.purple} />
+                    <Download size={24} color={Colors.secondary.lavender} />
                   )}
                   <Text style={styles.exportOptionText}>Kaydet</Text>
                 </Pressable>
@@ -372,7 +371,7 @@ export function PdfReportButton({
 
             {/* Footer Note */}
             <View style={styles.footerNote}>
-              <Check size={14} color={Colors.neutral.gray} />
+              <Check size={14} color={Colors.neutral.medium} />
               <Text style={styles.footerNoteText}>
                 Rapor, profesyonel kullanım için optimize edilmiş formatta oluşturulacaktır.
               </Text>
@@ -390,7 +389,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['2'],
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     borderRadius: buttonSizes.md.borderRadius,
     ...buttonStyles.elevated,
   },
@@ -403,7 +402,7 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     ...buttonStyles.iconButton.md,
-    backgroundColor: Colors.primary.purple + '15',
+    backgroundColor: Colors.secondary.lavender + '15',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -419,7 +418,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: Colors.primary.purple + '15',
+    backgroundColor: Colors.secondary.lavender + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing['3'],
@@ -435,7 +434,7 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     fontSize: typography.size.sm,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
 
   // Modal
@@ -489,7 +488,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginBottom: 6,
   },
   input: {
@@ -529,7 +528,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
 
   // Export Options
@@ -567,7 +566,7 @@ const styles = StyleSheet.create({
   footerNoteText: {
     flex: 1,
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     lineHeight: 18,
   },
 });

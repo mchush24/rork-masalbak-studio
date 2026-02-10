@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   answerButtonText: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.semibold,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   nextButton: {
     flexDirection: 'row',

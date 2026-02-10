@@ -17,6 +17,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { shadows, zIndex } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 // ============================================
 // TYPES
@@ -91,7 +92,7 @@ export function SyncStatusIndicator({
 
   const getStatusColor = (): string => {
     if (!isOnline) return '#EF4444'; // Red - Offline
-    if (isSyncing) return '#F59E0B'; // Yellow - Syncing
+    if (isSyncing) return Colors.semantic.amber; // Yellow - Syncing
     if (pendingCount > 0) return '#3B82F6'; // Blue - Pending
     return '#22C55E'; // Green - Synced
   };
@@ -226,7 +227,7 @@ export function OfflineBanner({ isOnline }: OfflineBannerProps) {
 const styles = StyleSheet.create({
   // Full Component
   container: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 12,
     ...shadows.sm,
     overflow: 'hidden',
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   },
   lastSyncText: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 2,
   },
   syncButton: {
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   syncButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -300,10 +301,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
   },
   pendingBadgeText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 10,
     fontWeight: '700',
   },

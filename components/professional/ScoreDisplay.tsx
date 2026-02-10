@@ -21,7 +21,7 @@ import {
   Info,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -64,7 +64,7 @@ const getInterpretation = (percentile: number) => {
   if (percentile >= 91) return { label: 'Üstün', color: '#10B981', icon: TrendingUp };
   if (percentile >= 75) return { label: 'Ortalamanın Üstü', color: '#34D399', icon: TrendingUp };
   if (percentile >= 25) return { label: 'Ortalama', color: '#6B7280', icon: Minus };
-  if (percentile >= 9) return { label: 'Ortalamanın Altı', color: '#F59E0B', icon: TrendingDown };
+  if (percentile >= 9) return { label: 'Ortalamanın Altı', color: Colors.semantic.amber, icon: TrendingDown };
   if (percentile >= 2) return { label: 'Düşük', color: '#EF4444', icon: TrendingDown };
   return { label: 'Çok Düşük', color: '#DC2626', icon: AlertTriangle };
 };
@@ -302,11 +302,11 @@ export function ScoreDisplay({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.md,
   },
   header: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   progressBackground: {
     flex: 1,
     height: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.neutral.white,
     ...shadows.sm,
   },
   markerLine: {
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   ciSection: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['3'],
     marginBottom: spacing['4'],
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   ciBar: {
     flex: 1,
     height: 6,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 3,
     position: 'relative',
   },
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: ProfessionalColors.trust.primary,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.neutral.white,
     transform: [{ translateX: -5 }],
   },
   equivalentsSection: {
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   },
   normSection: {
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
     paddingTop: spacing['3'],
   },
   normTitle: {
@@ -592,11 +592,11 @@ const styles = StyleSheet.create({
   },
   // Compact styles
   compactContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     padding: spacing['3'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   compactHeader: {
     flexDirection: 'row',
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
   compactDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     marginHorizontal: spacing['2'],
   },
 });

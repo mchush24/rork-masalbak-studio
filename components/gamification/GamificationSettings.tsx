@@ -30,6 +30,7 @@ import {
 } from 'lucide-react-native';
 import { useRole, useGamification } from '@/lib/contexts/RoleContext';
 import { spacing, radius } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 interface GamificationSettingsProps {
   /** Called when any setting changes */
@@ -64,7 +65,7 @@ const FeatureToggle = memo(function FeatureToggle({
   return (
     <View style={[styles.featureToggle, disabled && styles.featureToggleDisabled]}>
       <View style={[styles.featureIconContainer, { backgroundColor: `${color}15` }]}>
-        <Icon size={20} color={disabled ? '#9CA3AF' : color} />
+        <Icon size={20} color={disabled ? Colors.neutral.gray400 : color} />
       </View>
       <View style={styles.featureInfo}>
         <Text style={[styles.featureLabel, disabled && styles.featureLabelDisabled]}>
@@ -76,8 +77,8 @@ const FeatureToggle = memo(function FeatureToggle({
         value={value}
         onValueChange={onChange}
         disabled={disabled}
-        trackColor={{ false: '#E5E7EB', true: `${color}40` }}
-        thumbColor={value && !disabled ? color : '#F3F4F6'}
+        trackColor={{ false: Colors.neutral.gray200, true: `${color}40` }}
+        thumbColor={value && !disabled ? color : Colors.neutral.gray100}
       />
     </View>
   );
@@ -159,7 +160,7 @@ export const GamificationSettings = memo(function GamificationSettings({
   if (role === 'expert') {
     return (
       <View style={styles.infoContainer}>
-        <View style={[styles.infoIconContainer, { backgroundColor: '#F3F4F6' }]}>
+        <View style={[styles.infoIconContainer, { backgroundColor: Colors.neutral.gray100 }]}>
           <Info size={24} color="#6B7280" />
         </View>
         <View style={styles.infoContent}>
@@ -182,7 +183,7 @@ export const GamificationSettings = memo(function GamificationSettings({
       >
         <View style={styles.mainToggleLeft}>
           <View style={[styles.mainIconContainer, enabled && styles.mainIconContainerActive]}>
-            <Star size={24} color={enabled ? '#F59E0B' : '#9CA3AF'} fill={enabled ? '#F59E0B' : 'transparent'} />
+            <Star size={24} color={enabled ? Colors.semantic.amber : Colors.neutral.gray400} fill={enabled ? Colors.semantic.amber : 'transparent'} />
           </View>
           <View style={styles.mainToggleInfo}>
             <Text style={styles.mainToggleTitle}>Oyunlaştırma</Text>
@@ -195,14 +196,14 @@ export const GamificationSettings = memo(function GamificationSettings({
           <Switch
             value={enabled}
             onValueChange={handleEnabledChange}
-            trackColor={{ false: '#E5E7EB', true: '#FCD34D' }}
-            thumbColor={enabled ? '#F59E0B' : '#F3F4F6'}
+            trackColor={{ false: Colors.neutral.gray200, true: '#FCD34D' }}
+            thumbColor={enabled ? Colors.semantic.amber : Colors.neutral.gray100}
           />
           {enabled && (
             expanded ? (
-              <ChevronUp size={20} color="#9CA3AF" style={styles.chevron} />
+              <ChevronUp size={20} color={Colors.neutral.gray400} style={styles.chevron} />
             ) : (
-              <ChevronDown size={20} color="#9CA3AF" style={styles.chevron} />
+              <ChevronDown size={20} color={Colors.neutral.gray400} style={styles.chevron} />
             )
           )}
         </View>
@@ -223,7 +224,7 @@ export const GamificationSettings = memo(function GamificationSettings({
             value={showXP}
             onChange={(v) => handleFeatureChange('showXP', v)}
             disabled={!enabled}
-            color="#F59E0B"
+            color={Colors.semantic.amber}
           />
 
           <FeatureToggle
@@ -233,7 +234,7 @@ export const GamificationSettings = memo(function GamificationSettings({
             value={showBadges}
             onChange={(v) => handleFeatureChange('showBadges', v)}
             disabled={!enabled}
-            color="#8B5CF6"
+            color={Colors.secondary.violet}
           />
 
           <FeatureToggle
@@ -260,7 +261,7 @@ export const GamificationSettings = memo(function GamificationSettings({
 
       {/* Helper text */}
       <View style={styles.helperContainer}>
-        <Info size={14} color="#9CA3AF" />
+        <Info size={14} color={Colors.neutral.gray400} />
         <Text style={styles.helperText}>
           Oyunlaştırma, öğrencilerin motivasyonunu artırabilir. İhtiyacınıza göre özelleştirebilirsiniz.
         </Text>
@@ -271,11 +272,11 @@ export const GamificationSettings = memo(function GamificationSettings({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   mainToggle: {
     flexDirection: 'row',
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -322,7 +323,7 @@ const styles = StyleSheet.create({
   },
   featuresContainer: {
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
     paddingVertical: spacing['2'],
   },
   featureToggle: {
@@ -348,14 +349,14 @@ const styles = StyleSheet.create({
   featureLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#374151',
+    color: Colors.neutral.gray700,
   },
   featureLabelDisabled: {
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
   },
   featureDescription: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
     marginTop: 1,
   },
   helperContainer: {
@@ -364,9 +365,9 @@ const styles = StyleSheet.create({
     gap: spacing['2'],
     padding: spacing['3'],
     paddingHorizontal: spacing['4'],
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
   },
   helperText: {
     flex: 1,
@@ -379,10 +380,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing['4'],
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     gap: spacing['3'],
   },
   infoIconContainer: {

@@ -18,6 +18,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { spacing, borderRadius } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -53,7 +54,7 @@ function SkeletonBox({ width, height, borderRadius: br = 8, style }: SkeletonBox
           width: width as any,
           height,
           borderRadius: br,
-          backgroundColor: '#E5E7EB',
+          backgroundColor: Colors.neutral.gray200,
           overflow: 'hidden',
         },
         style,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   tipContainer: {
     marginHorizontal: spacing.md,
     padding: spacing.lg,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: borderRadius.xl,
     marginBottom: spacing.lg,
   },
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
   activityCard: {
     width: 150,
     height: 190,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: borderRadius.xl,
     padding: spacing.md,
   },
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   galleryCard: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: borderRadius.lg,
     overflow: 'hidden',
   },
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.md,
     marginTop: spacing.md,
     padding: spacing.lg,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: borderRadius.xl,
   },
   storyFooter: {
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     paddingTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.neutral.gray200,
   },
 });
 

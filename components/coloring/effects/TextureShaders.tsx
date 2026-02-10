@@ -12,6 +12,7 @@
 
 import { Skia } from '@shopify/react-native-skia';
 import type { SkRuntimeEffect } from '@shopify/react-native-skia';
+import { Colors } from '@/constants/colors';
 
 // ============================================================================
 // TEXTURE TYPES
@@ -347,10 +348,10 @@ export function createShaderUniforms(
 
 export const TEXTURE_PRESETS: Record<string, TextureConfig> = {
   // Solid colors
-  solid: { type: 'solid', baseColor: '#FF6B6B' },
+  solid: { type: 'solid', baseColor: Colors.secondary.coral },
 
   // Glitter variants
-  glitterRed: { type: 'glitter', baseColor: '#FF6B6B', intensity: 0.8, animated: true },
+  glitterRed: { type: 'glitter', baseColor: Colors.secondary.coral, intensity: 0.8, animated: true },
   glitterGold: { type: 'glitter', baseColor: '#FFD700', intensity: 1.0, animated: true },
   glitterSilver: { type: 'glitter', baseColor: '#C0C0C0', intensity: 0.9, animated: true },
   glitterPink: { type: 'glitter', baseColor: '#FF69B4', intensity: 0.8, animated: true },
@@ -363,7 +364,7 @@ export const TEXTURE_PRESETS: Record<string, TextureConfig> = {
   scaleGold: { type: 'scale', baseColor: '#FFD700', intensity: 0.6, scale: 1.2 },
 
   // Dot patterns (good for polka dots, freckles)
-  dotsRed: { type: 'dots', baseColor: '#FF6B6B', intensity: 0.5, scale: 1.0 },
+  dotsRed: { type: 'dots', baseColor: Colors.secondary.coral, intensity: 0.5, scale: 1.0 },
   dotsPink: { type: 'dots', baseColor: '#FFB3D9', intensity: 0.6, scale: 0.8 },
   dotsBlue: { type: 'dots', baseColor: '#B3D9FF', intensity: 0.5, scale: 1.0 },
 };

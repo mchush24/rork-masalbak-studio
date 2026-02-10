@@ -75,11 +75,11 @@ export function DashboardHeader({
   const getHeaderGradient = (): [string, string] => {
     switch (role) {
       case 'expert':
-        return [ProfessionalColors.roles.expert.gradient[0], '#FFFFFF'];
+        return [ProfessionalColors.roles.expert.gradient[0], Colors.neutral.white];
       case 'teacher':
-        return [ProfessionalColors.roles.teacher.gradient[0], '#FFFFFF'];
+        return [ProfessionalColors.roles.teacher.gradient[0], Colors.neutral.white];
       default:
-        return ['#F8F7FC', '#FFFFFF'];
+        return ['#F8F7FC', Colors.neutral.white];
     }
   };
 
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   notificationText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   greetingSection: {
     flexDirection: 'row',

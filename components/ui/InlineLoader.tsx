@@ -14,6 +14,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ioo, IooSize } from '@/components/Ioo';
+import { Colors } from '@/constants/colors';
 
 type LoaderSize = 'tiny' | 'small' | 'medium';
 type LoaderVariant = 'dots' | 'pulse' | 'bounce' | 'ioo';
@@ -35,7 +36,7 @@ const SIZE_CONFIG: Record<LoaderSize, { dot: number; gap: number; ioo: IooSize }
 export function InlineLoader({
   size = 'small',
   variant = 'dots',
-  color = '#A78BFA',
+  color = Colors.secondary.lavender,
   message,
   showMessage = false,
 }: InlineLoaderProps) {
@@ -215,7 +216,7 @@ export function InlineLoader({
 }
 
 // Pre-built loader configurations
-export function ButtonLoader({ color = '#FFF' }: { color?: string }) {
+export function ButtonLoader({ color = Colors.neutral.white }: { color?: string }) {
   return <InlineLoader size="tiny" variant="dots" color={color} />;
 }
 
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
   cardLoaderText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
   },
   sectionLoaderContainer: {
     flexDirection: 'row',

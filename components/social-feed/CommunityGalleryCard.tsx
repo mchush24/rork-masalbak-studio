@@ -22,6 +22,7 @@ import Animated, {
 import { Heart } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2;
@@ -153,7 +154,7 @@ export function CommunityGalleryCard({
           <Animated.View style={heartAnimStyle}>
             <Heart
               size={18}
-              color={liked ? '#EC4899' : '#9CA3AF'}
+              color={liked ? '#EC4899' : Colors.neutral.gray400}
               fill={liked ? '#EC4899' : 'transparent'}
             />
           </Animated.View>
@@ -165,7 +166,7 @@ export function CommunityGalleryCard({
           <View
             style={[
               styles.contentTypeDot,
-              { backgroundColor: item.content_type === 'coloring' ? '#A78BFA' : '#60A5FA' },
+              { backgroundColor: item.content_type === 'coloring' ? Colors.secondary.lavender : '#60A5FA' },
             ]}
           />
         </View>
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
     borderRadius: borderRadius.lg,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     overflow: 'hidden',
     ...shadows.md,
   },
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
   ageBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#374151',
+    color: Colors.neutral.gray700,
   },
   themeTag: {
     position: 'absolute',
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
   themeTagText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#FFF',
+    color: Colors.neutral.white,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
@@ -242,7 +243,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
   },
   likeButton: {
     flexDirection: 'row',
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
   likesCount: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
   },
   likesCountActive: {
     color: '#EC4899',

@@ -23,7 +23,7 @@ import {
 import { Check, Info, AlertCircle, X } from 'lucide-react-native';
 import { useIsProfessional, useGamification } from '@/lib/contexts/RoleContext';
 import { spacing, radius, zIndex } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { ProfessionalColors, Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -159,7 +159,7 @@ export const SubtleAchievementToast = memo(function SubtleAchievementToast({
           style={styles.closeButton}
           hitSlop={10}
         >
-          <X size={16} color="#9CA3AF" />
+          <X size={16} color={Colors.neutral.gray400} />
         </Pressable>
       </View>
     </Animated.View>
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     maxWidth: Math.min(SCREEN_WIDTH - 32, 400),
     width: '100%',
-    shadowColor: '#000',
+    shadowColor: Colors.neutral.darkest,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,

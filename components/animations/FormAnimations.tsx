@@ -35,7 +35,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Check, AlertCircle, Eye, EyeOff } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows } from '@/constants/design-system';
 
@@ -149,7 +149,7 @@ export function AnimatedInput({
     const color = interpolateColor(
       focusProgress.value,
       [0, 1],
-      [Colors.neutral.gray, Colors.primary.purple]
+      [Colors.neutral.medium, Colors.secondary.lavender]
     );
 
     return {
@@ -166,7 +166,7 @@ export function AnimatedInput({
       : interpolateColor(
           focusProgress.value,
           [0, 1],
-          [Colors.neutral.light, Colors.primary.purple]
+          [Colors.neutral.light, Colors.secondary.lavender]
         );
 
     const shadowOpacity = interpolate(borderGlow.value, [0, 1], [0, 0.15]);
@@ -174,7 +174,7 @@ export function AnimatedInput({
     return {
       borderColor,
       shadowOpacity,
-      shadowColor: error ? Colors.emotion.anger : Colors.primary.purple,
+      shadowColor: error ? Colors.emotion.anger : Colors.secondary.lavender,
     };
   });
 
@@ -209,7 +209,7 @@ export function AnimatedInput({
           value={value}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholderTextColor={Colors.neutral.gray}
+          placeholderTextColor={Colors.neutral.medium}
           secureTextEntry={showPasswordToggle ? !isPasswordVisible : secureTextEntry}
           {...props}
         />
@@ -230,9 +230,9 @@ export function AnimatedInput({
               style={styles.eyeButton}
             >
               {isPasswordVisible ? (
-                <EyeOff size={18} color={Colors.neutral.gray} />
+                <EyeOff size={18} color={Colors.neutral.medium} />
               ) : (
-                <Eye size={18} color={Colors.neutral.gray} />
+                <Eye size={18} color={Colors.neutral.medium} />
               )}
             </Pressable>
           )}
@@ -379,7 +379,7 @@ export function CharacterCounter({ current, max, style }: CharacterCounterProps)
     const textColor = interpolateColor(
       color.value,
       [0, 0.5, 1],
-      [Colors.neutral.gray, Colors.emotion.anticipation, Colors.emotion.anger]
+      [Colors.neutral.medium, Colors.emotion.anticipation, Colors.emotion.anger]
     );
 
     return {
@@ -443,7 +443,7 @@ function StepDot({
     const backgroundColor = interpolateColor(
       bgColor.value,
       [0, 1],
-      [Colors.neutral.lighter, Colors.primary.purple]
+      [Colors.neutral.lighter, Colors.secondary.lavender]
     );
 
     return {
@@ -472,7 +472,7 @@ function StepLine({ active }: { active: boolean }) {
 
   const animatedStyle = useAnimatedStyle(() => ({
     flex: progress.value,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   }));
 
   return (
@@ -543,7 +543,7 @@ export function SubmitButtonAnimated({
     const backgroundColor = interpolateColor(
       bgColor.value,
       [0, 1, 2],
-      [Colors.primary.purple, Colors.emotion.trust, Colors.emotion.anger]
+      [Colors.secondary.lavender, Colors.emotion.trust, Colors.emotion.anger]
     );
 
     return {
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
   },
   hintText: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginTop: 6,
     paddingHorizontal: 4,
   },
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
   strengthLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     minWidth: 40,
   },
 
@@ -724,12 +724,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepDotCurrent: {
-    ...shadows.colored(Colors.primary.purple),
+    ...shadows.colored(Colors.secondary.lavender),
   },
   stepNumber: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   stepLineContainer: {
     flex: 1,

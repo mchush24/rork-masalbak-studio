@@ -100,7 +100,7 @@ const TOAST_CONFIG: Record<
     icon: AlertTriangle,
     backgroundColor: '#FFFBEB',
     borderColor: '#FCD34D',
-    iconColor: '#F59E0B',
+    iconColor: Colors.semantic.amber,
     textColor: '#92400E',
   },
   info: {

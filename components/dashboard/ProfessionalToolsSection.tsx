@@ -24,7 +24,7 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
 interface ToolItem {
@@ -69,7 +69,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       title: 'Veri Dışa Aktar',
       description: 'Excel/CSV çıktısı',
       icon: Download,
-      color: '#F59E0B',
+      color: Colors.semantic.amber,
       route: '/export',
     },
     {
@@ -77,7 +77,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       title: 'Norm Referansları',
       description: 'Yaş normları tablosu',
       icon: BarChart2,
-      color: '#8B5CF6',
+      color: Colors.secondary.violet,
       route: '/norms',
       badge: 'Pro',
     },
@@ -122,7 +122,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       title: 'Öğrenci Listesi',
       description: 'Öğrenci yönetimi',
       icon: FolderOpen,
-      color: '#8B5CF6',
+      color: Colors.secondary.violet,
       route: '/students',
     },
     {
@@ -130,7 +130,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       title: 'Karşılaştırmalı Analiz',
       description: 'Sınıf ortalaması',
       icon: BarChart2,
-      color: '#F59E0B',
+      color: Colors.semantic.amber,
       route: '/compare',
     },
     {
@@ -173,7 +173,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       title: 'Raporlarım',
       description: 'PDF raporlar',
       icon: FileText,
-      color: '#8B5CF6',
+      color: Colors.secondary.violet,
       route: '/reports',
     },
   ];
@@ -260,7 +260,7 @@ export function ProfessionalToolsSection({
                   </View>
                   <Text style={styles.toolDescription}>{tool.description}</Text>
                 </View>
-                <ChevronRight size={18} color="#9CA3AF" />
+                <ChevronRight size={18} color={Colors.neutral.gray400} />
               </View>
             </Pressable>
           );
@@ -289,10 +289,10 @@ const styles = StyleSheet.create({
     gap: spacing['2'],
   },
   toolCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   toolCardPressed: {

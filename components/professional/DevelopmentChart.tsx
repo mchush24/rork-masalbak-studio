@@ -10,7 +10,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView, Dimensions } from 'react
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import Svg, { Path, Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { TrendingUp, TrendingDown, Minus, Calendar, Info } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 import { ChartDataService, TimeRange, EmotionChartData } from '@/lib/professional';
 import { useFeedback } from '@/hooks/useFeedback';
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   rangeButton: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
   rangeButtonActive: { backgroundColor: Colors.neutral.white, ...shadows.xs },
   rangeButtonText: { fontSize: 12, fontWeight: '600', color: Colors.neutral.medium },
-  rangeButtonTextActive: { color: Colors.primary.purple },
+  rangeButtonTextActive: { color: Colors.secondary.lavender },
   chartContainer: { alignItems: 'center', marginBottom: 16 },
   emptyChart: {
     height: CHART_HEIGHT,

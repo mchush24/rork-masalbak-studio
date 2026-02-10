@@ -27,7 +27,7 @@ import {
   BarChart2,
 } from 'lucide-react-native';
 import { spacing, radius, shadows, zIndex } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface ClassData {
   id: string;
@@ -53,13 +53,13 @@ interface ClassListProps {
 
 const GRADE_COLORS: Record<string, string> = {
   '1': '#EF4444',
-  '2': '#F59E0B',
+  '2': Colors.semantic.amber,
   '3': '#10B981',
   '4': '#3B82F6',
-  '5': '#8B5CF6',
+  '5': Colors.secondary.violet,
   '6': '#EC4899',
   '7': '#14B8A6',
-  '8': '#6366F1',
+  '8': Colors.secondary.indigo,
   'Anaokulu': '#F97316',
   'default': ProfessionalColors.trust.primary,
 };
@@ -114,7 +114,7 @@ export function ClassList({
           style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
           onPress={onAddClass}
         >
-          <Plus size={20} color="#FFFFFF" />
+          <Plus size={20} color={Colors.neutral.white} />
           <Text style={styles.addButtonText}>Sınıf Ekle</Text>
         </Pressable>
       </View>
@@ -311,19 +311,19 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['2'],
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['2'],
     marginBottom: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   searchInput: {
     flex: 1,
@@ -350,12 +350,12 @@ const styles = StyleSheet.create({
     marginTop: spacing['1'],
   },
   classCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['3'],
     marginBottom: spacing['3'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   classCardPressed: {
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   },
   classCardArchived: {
     opacity: 0.7,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
   },
   cardContent: {
     flexDirection: 'row',
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
   },
   progressBackground: {
     height: 4,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -463,10 +463,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     right: 40,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.lg,
     zIndex: zIndex.floating,
   },
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['2'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   menuItemText: {
     fontSize: 14,

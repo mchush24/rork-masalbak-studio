@@ -39,7 +39,7 @@ import {
   ExternalLink,
 } from 'lucide-react-native';
 import { spacing, radius, shadows, zIndex } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 import { useRole, useIsProfessional } from '@/lib/contexts/RoleContext';
 import { useHapticFeedback } from '@/lib/haptics';
 
@@ -74,7 +74,7 @@ const TYPE_CONFIG = {
   },
   tip: {
     icon: Lightbulb,
-    color: '#F59E0B',
+    color: Colors.semantic.amber,
     bgColor: '#FFFBEB',
   },
   warning: {
@@ -335,11 +335,11 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.md,
   },
   buttonPressed: {
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.neutral.white,
   },
 
   // Tip Panel
@@ -366,11 +366,11 @@ const styles = StyleSheet.create({
     zIndex: zIndex.toast,
   },
   tipContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.lg,
   },
   tipHeader: {
@@ -426,11 +426,11 @@ const styles = StyleSheet.create({
     right: 24,
     width: 16,
     height: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     transform: [{ rotate: '45deg' }],
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
 
   // Modal
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     padding: spacing['4'],
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     width: '100%',
     maxWidth: 400,
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     padding: spacing['6'],
     paddingBottom: spacing['4'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   modalIconContainer: {
     width: 56,
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     gap: spacing['3'],
     paddingVertical: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   helpLinkText: {
     flex: 1,

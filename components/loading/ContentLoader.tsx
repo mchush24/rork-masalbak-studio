@@ -28,7 +28,7 @@ import Animated, {
   FadeOut,
 } from 'react-native-reanimated';
 import { AlertCircle, RefreshCw, Inbox, WifiOff } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import {
   SkeletonCard,
@@ -160,7 +160,7 @@ export function ContentLoader({
       </Animated.Text>
       {onRetry && (
         <Pressable style={[styles.retryButton, styles.offlineRetryButton]} onPress={handleRetry}>
-          <RefreshCw size={18} color={Colors.primary.purple} />
+          <RefreshCw size={18} color={Colors.secondary.lavender} />
           <Animated.Text style={[styles.retryButtonText, styles.offlineRetryButtonText]}>
             Tekrar Dene
           </Animated.Text>
@@ -176,8 +176,8 @@ export function ContentLoader({
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor={Colors.primary.purple}
-          colors={[Colors.primary.purple]}
+          tintColor={Colors.secondary.lavender}
+          colors={[Colors.secondary.lavender]}
         />
       }
     >
@@ -313,7 +313,7 @@ export function InfiniteScrollLoader({
         <View style={styles.infiniteLoadingContainer}>
           {loadingComponent || (
             <Animated.View style={spinStyle}>
-              <RefreshCw size={24} color={Colors.primary.purple} />
+              <RefreshCw size={24} color={Colors.secondary.lavender} />
             </Animated.View>
           )}
         </View>
@@ -358,8 +358,8 @@ export function PullToRefresh({
         <RefreshControl
           refreshing={refreshing}
           onRefresh={handleRefresh}
-          tintColor={Colors.primary.purple}
-          colors={[Colors.primary.purple]}
+          tintColor={Colors.secondary.lavender}
+          colors={[Colors.secondary.lavender]}
           progressBackgroundColor={Colors.neutral.white}
         />
       }
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
@@ -433,10 +433,10 @@ const styles = StyleSheet.create({
   offlineRetryButton: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: Colors.primary.purple,
+    borderColor: Colors.secondary.lavender,
   },
   offlineRetryButtonText: {
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
 
   // Progressive loader

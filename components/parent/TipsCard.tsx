@@ -130,7 +130,7 @@ export function TipsCard({
               onPress={() => tip.actionUrl && onAction?.(tip.id, tip.actionUrl)}
             >
               <Text style={styles.actionButtonText}>{tip.actionText}</Text>
-              <ExternalLink size={14} color="#FFFFFF" />
+              <ExternalLink size={14} color={Colors.neutral.white} />
             </Pressable>
           )}
           <Pressable style={styles.shareButton} onPress={() => onShare?.(tip.id)}>
@@ -188,7 +188,7 @@ export function TipsCard({
 
         <View style={[styles.carouselCard, { backgroundColor: categoryConfig.bgColor }]}>
           <View style={styles.carouselCardHeader}>
-            <View style={[styles.categoryBadge, { backgroundColor: '#FFFFFF' }]}>
+            <View style={[styles.categoryBadge, { backgroundColor: Colors.neutral.white }]}>
               <CategoryIcon size={12} color={categoryConfig.color} />
               <Text style={[styles.categoryText, { color: categoryConfig.color }]}>
                 {categoryConfig.label}
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -356,13 +356,13 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   shareButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -399,12 +399,12 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navButtonDisabled: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
   },
   navCounter: {
     fontSize: 12,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
   },
   dotActive: {
     backgroundColor: Colors.primary.sunset,
@@ -490,12 +490,12 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darker,
   },
   listCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['3'],
     marginBottom: spacing['2'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   listCardPressed: {
     backgroundColor: '#FAFAFA',
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
     marginTop: spacing['3'],
     paddingTop: spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
   },
   expandedText: {
     fontSize: 14,

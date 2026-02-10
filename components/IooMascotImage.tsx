@@ -26,6 +26,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { IooMood, IooSize, getPixelSize } from '@/constants/ioo-config';
+import { Colors } from '@/constants/colors';
 
 // Re-export types for backwards compatibility
 export type { IooMood, IooSize } from '@/constants/ioo-config';
@@ -166,7 +167,7 @@ export const IooMascotImage = memo(function IooMascotImage({
       />
 
       <Animated.View
-        style={[styles.container, { width: dimensions, height: dimensions }, containerStyle]}
+        style={[styles.container, { width: dimensions, height: dimensions, overflow: 'hidden', borderRadius: dimensions / 2 }, containerStyle]}
       >
         {/* Subtle ambient glow behind the 3D model */}
         {showGlow && (
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     ...Platform.select({
       ios: {
-        shadowColor: '#8B5CF6',
+        shadowColor: Colors.secondary.violet,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

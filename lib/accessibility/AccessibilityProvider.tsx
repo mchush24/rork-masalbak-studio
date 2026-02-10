@@ -26,6 +26,7 @@ import {
 } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Colors } from '@/constants/colors';
 
 const ACCESSIBILITY_KEY = 'accessibility_preferences';
 
@@ -137,7 +138,7 @@ const COLOR_BLIND_SAFE_PALETTES: Record<ColorBlindMode, ColorBlindSafeColors> = 
   none: {
     success: '#22C55E',
     error: '#EF4444',
-    warning: '#F59E0B',
+    warning: Colors.semantic.amber,
     info: '#3B82F6',
     primary: '#7C3AED',
     secondary: '#EC4899',

@@ -37,7 +37,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows } from '@/constants/design-system';
 
@@ -119,7 +119,7 @@ interface ShimmerButtonProps {
 export function ShimmerButton({
   children,
   onPress,
-  colors = [Colors.primary.purple, Colors.primary.pink] as const,
+  colors = [Colors.secondary.lavender, Colors.secondary.rose] as const,
   disabled = false,
   style,
 }: ShimmerButtonProps) {
@@ -300,7 +300,7 @@ export function ElasticInput({
     borderColor: interpolateColor(
       borderColor.value,
       [0, 1],
-      [Colors.neutral.light, Colors.primary.purple]
+      [Colors.neutral.light, Colors.secondary.lavender]
     ),
     shadowRadius: shadowRadius.value,
     shadowOpacity: interpolate(shadowRadius.value, [0, 8], [0, 0.15]),
@@ -479,7 +479,7 @@ interface GlowingBorderProps {
  */
 export function GlowingBorder({
   children,
-  glowColor = Colors.primary.purple,
+  glowColor = Colors.secondary.lavender,
   intensity = 0.5,
   animated = true,
   style,
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   elasticInputContainer: {
     borderRadius: 12,
     backgroundColor: Colors.neutral.white,
-    shadowColor: Colors.primary.purple,
+    shadowColor: Colors.secondary.lavender,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
   },
   parallaxOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000',
+    backgroundColor: Colors.neutral.darkest,
   },
 
   // Bouncy Card

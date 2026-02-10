@@ -16,7 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { RenkooColors } from '@/constants/colors';
 import { textShadows, shadows, typography, spacing, radius } from '@/constants/design-system';
-import { buttonSizes, buttonStyles } from '@/constants/tokens';
+import { buttonSizes, buttonStyles } from '@/constants/design-system';
 
 interface JellyButtonProps {
   title: string;

@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/colors';
+
 /**
  * Badge Definitions for RenkiOO Gamification
  *
@@ -278,7 +280,7 @@ export const RARITY_COLORS: Record<BadgeRarity, { bg: string; border: string; te
   },
   rare: {
     bg: '#EEF2FF',
-    border: '#6366F1',
+    border: Colors.secondary.indigo,
     text: '#4338CA',
   },
   epic: {
@@ -288,7 +290,7 @@ export const RARITY_COLORS: Record<BadgeRarity, { bg: string; border: string; te
   },
   legendary: {
     bg: '#FEF3C7',
-    border: '#F59E0B',
+    border: Colors.semantic.amber,
     text: '#B45309',
   },
 };

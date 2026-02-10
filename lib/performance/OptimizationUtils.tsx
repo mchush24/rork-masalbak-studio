@@ -37,7 +37,7 @@ import Animated, {
   withTiming,
   FadeIn,
 } from 'react-native-reanimated';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -200,7 +200,7 @@ export const OptimizedImage = memo(function OptimizedImage({
     <View style={[styles.imageContainer, { width, height: calculatedHeight }, style]}>
       {!isLoaded && !hasError && (
         <View style={styles.imagePlaceholder}>
-          {placeholder || <ActivityIndicator color={Colors.primary.purple} />}
+          {placeholder || <ActivityIndicator color={Colors.secondary.lavender} />}
         </View>
       )}
       {hasError ? (

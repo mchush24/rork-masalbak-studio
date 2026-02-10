@@ -34,7 +34,7 @@ import {
   RefreshCw,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface DataRetentionSettings {
   analysisRetentionDays: number;
@@ -314,8 +314,8 @@ export function DataPrivacySettings({
           <Switch
             value={localSettings.autoDeleteEnabled}
             onValueChange={() => handleToggle('autoDeleteEnabled')}
-            trackColor={{ false: '#E5E7EB', true: ProfessionalColors.trust.primary }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: Colors.neutral.gray200, true: ProfessionalColors.trust.primary }}
+            thumbColor={Colors.neutral.white}
           />
         </View>
 
@@ -327,8 +327,8 @@ export function DataPrivacySettings({
           <Switch
             value={localSettings.anonymizeOnDelete}
             onValueChange={() => handleToggle('anonymizeOnDelete')}
-            trackColor={{ false: '#E5E7EB', true: ProfessionalColors.trust.primary }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: Colors.neutral.gray200, true: ProfessionalColors.trust.primary }}
+            thumbColor={Colors.neutral.white}
           />
         </View>
       </View>
@@ -405,7 +405,7 @@ export function DataPrivacySettings({
             style={({ pressed }) => [styles.actionButton, styles.dangerButtonFull, pressed && styles.actionButtonPressed]}
             onPress={() => confirmDelete('all')}
           >
-            <Trash2 size={18} color="#FFFFFF" />
+            <Trash2 size={18} color={Colors.neutral.white} />
             <Text style={styles.dangerButtonFullText}>Tüm Verileri Sil</Text>
           </Pressable>
         </View>
@@ -427,7 +427,7 @@ export function DataPrivacySettings({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
   },
   complianceBanner: {
     backgroundColor: '#ECFDF5',
@@ -472,13 +472,13 @@ const styles = StyleSheet.create({
     color: '#047857',
   },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     marginHorizontal: spacing['4'],
     marginBottom: spacing['3'],
     borderRadius: radius.xl,
     padding: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   sectionHeader: {
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
   },
   consentDivider: {
     width: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     marginHorizontal: spacing['2'],
   },
   warningText: {
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing['2'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   consentItemLeft: {
     flex: 1,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   settingInfo: {
     flex: 1,
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -648,9 +648,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: radius.md,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
   },
   pickerOptionPressed: {
     opacity: 0.7,
@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
   dangerButtonFullText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   securityInfo: {
     flexDirection: 'row',
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing['4'],
     marginTop: spacing['2'],
     padding: spacing['3'],
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
   },
   securityText: {

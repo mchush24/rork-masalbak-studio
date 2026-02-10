@@ -40,6 +40,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -127,13 +128,13 @@ export function SuccessStoryCard({
       style={styles.container}
     >
       <LinearGradient
-        colors={['#FFFFFF', '#FEFCFB']}
+        colors={[Colors.neutral.white, '#FEFCFB']}
         style={styles.gradient}
       >
         {/* Featured badge */}
         {story.is_featured && (
           <View style={styles.featuredBadge}>
-            <Star size={10} color="#F59E0B" fill="#F59E0B" />
+            <Star size={10} color={Colors.semantic.amber} fill={Colors.semantic.amber} />
             <Text style={styles.featuredText}>One Cikan</Text>
           </View>
         )}
@@ -216,7 +217,7 @@ export function SuccessStoryCard({
               <Animated.View style={[styles.actionContent, heartAnimStyle]}>
                 <Heart
                   size={18}
-                  color={liked ? '#EC4899' : '#9CA3AF'}
+                  color={liked ? '#EC4899' : Colors.neutral.gray400}
                   fill={liked ? '#EC4899' : 'transparent'}
                 />
               </Animated.View>
@@ -226,7 +227,7 @@ export function SuccessStoryCard({
             </AnimatedPressable>
 
             <Pressable onPress={handleShare} style={styles.actionButton}>
-              <Share2 size={18} color="#9CA3AF" />
+              <Share2 size={18} color={Colors.neutral.gray400} />
             </Pressable>
           </View>
         </View>
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     borderWidth: 1,
     borderColor: 'rgba(236, 64, 122, 0.15)',
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
   },
   decorativeBorder: {
     position: 'absolute',
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#374151',
+    color: Colors.neutral.gray700,
     lineHeight: 24,
     fontStyle: 'italic',
   },
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
   childAge: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
     marginTop: 2,
   },
   actions: {
@@ -372,7 +373,7 @@ const styles = StyleSheet.create({
   actionCount: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
   },
   actionCountActive: {
     color: '#EC4899',

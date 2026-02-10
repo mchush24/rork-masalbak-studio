@@ -8,65 +8,6 @@
  * - Sulu boya geçişleri
  */
 
-/**
- * RENKİOO Color System - "2035 Organic Biomimicry"
- * High-end Glassmorphism with Fluid Gradients
- * Dream Guardian Mascot: Ioo (I + oo = Star + Eyes)
- */
-// Ethereal Color Palette - Dreamy, luminescent, otherworldly
-export const EtherealColors = {
-  // Core ethereal colors - soft, glowing pastels
-  core: {
-    moonlight: '#F0F4FF', // Soft silvery blue
-    stardust: '#E8E0F0', // Pale lavender with shimmer
-    aurora: '#E0F5F0', // Mint with ethereal glow
-    nebula: '#F5E0F0', // Soft pink-purple
-    celestial: '#E8F0FF', // Light sky blue
-    twilight: '#E0E8F5', // Dusk blue-purple
-  },
-
-  // Luminescent accents - glowing highlights
-  glow: {
-    soft: 'rgba(255, 255, 255, 0.6)',
-    medium: 'rgba(255, 255, 255, 0.8)',
-    bright: 'rgba(255, 255, 255, 0.95)',
-    moonbeam: 'rgba(240, 244, 255, 0.9)',
-    starshine: 'rgba(255, 248, 240, 0.85)',
-  },
-
-  // Iridescent shimmer colors
-  shimmer: {
-    pearl: ['#FFFFFF', '#F0F4FF', '#FFE8F0', '#E8FFF0'] as const,
-    opal: ['#E8F0FF', '#F0E8FF', '#FFE8F0', '#E8FFF5'] as const,
-    crystal: ['#FFFFFF', '#F8F0FF', '#FFF0F8', '#F0FFF8'] as const,
-  },
-
-  // Ethereal gradients - dreamy transitions
-  gradients: {
-    moonrise: ['#F0F4FF', '#E8E0F0', '#F5E0F0'] as const,
-    starfall: ['#E8F0FF', '#F0E8FF', '#FFE8F5'] as const,
-    dreamscape: ['#F0F4FF', '#E0F5F0', '#F5E0F0', '#E8F0FF'] as const,
-    aurora: ['#E0F5F0', '#E8E0F0', '#F0E8FF', '#E8F0FF'] as const,
-    twilightSky: ['#E0E8F5', '#E8E0F0', '#F5E0F0'] as const,
-    celestialDawn: ['#FFF8F0', '#F0F4FF', '#E8E0F0'] as const,
-  },
-
-  // Translucent overlays
-  veil: {
-    light: 'rgba(240, 244, 255, 0.4)',
-    medium: 'rgba(232, 224, 240, 0.5)',
-    deep: 'rgba(224, 232, 245, 0.6)',
-  },
-
-  // Ethereal shadows - soft and diffused
-  shadows: {
-    soft: 'rgba(200, 210, 230, 0.2)',
-    medium: 'rgba(180, 190, 220, 0.3)',
-    deep: 'rgba(160, 170, 200, 0.4)',
-    glow: 'rgba(240, 244, 255, 0.5)',
-  },
-} as const;
-
 export const RenkooColors = {
   // Brand Gradients - Dream Palette
   brand: {
@@ -265,6 +206,11 @@ export const Colors = {
     peachLight: '#FFD1C0', // Açık şeftali
     coral: '#FF6B6B', // Mercan
     coralLight: '#FF9B9B', // Açık mercan
+
+    // İndigo ve mor tonları
+    indigo: '#6366F1', // İndigo
+    indigoLight: '#818CF8', // Açık indigo
+    violet: '#8B5CF6', // Menekşe
   },
 
   // Nötr Tonlar - WCAG AA uyumlu
@@ -277,6 +223,14 @@ export const Colors = {
     lightest: '#F7FAFC', // Arka plan
     white: '#FFFFFF', // Beyaz
     darker: '#2D3748', // Alias for darkest
+    // Tailwind gray equivalents for migration
+    gray50: '#F9FAFB',
+    gray100: '#F3F4F6',
+    gray200: '#E5E7EB',
+    gray300: '#D1D5DB',
+    gray400: '#9CA3AF',
+    gray700: '#374151',
+    gray900: '#111827',
   },
 
   // Arka Plan Renkleri - Gradient & Solid
@@ -320,6 +274,10 @@ export const Colors = {
     info: '#78C8E8',
     infoLight: '#A3DBF0',
     infoBg: '#F0F9FF',
+
+    // Amber (dikkat çekici)
+    amber: '#F59E0B',
+    amberLight: '#FCD34D',
   },
 
   // Özel Durumlar
@@ -394,6 +352,47 @@ export const Colors = {
 
     // Canlı ve enerjik - Onboarding ekranları için
     vibrant: ['#6366F1', '#8B5CF6', '#A855F7'],
+  },
+
+  // Semantic Text Colors
+  text: {
+    primary: '#2D3748',    // neutral.darkest
+    secondary: '#4A5568',  // neutral.dark
+    tertiary: '#718096',   // neutral.medium
+    inverse: '#FFFFFF',
+  },
+
+  // Surface Colors
+  surface: {
+    card: '#FFFFFF',
+    elevated: '#FFFFFF',
+    overlay: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  // Border Colors
+  border: {
+    light: '#E2E8F0',     // neutral.lighter
+    medium: '#A0AEC0',    // neutral.light
+    focus: '#A78BFA',     // secondary.lavender
+  },
+
+  // Emotion Colors
+  emotion: {
+    joy: '#FFD56B',
+    trust: '#68D89B',
+    fear: '#FF8A80',
+    anger: '#FF8A80',
+    sadness: '#78C8E8',
+    surprise: '#C4B5FD',
+    anticipation: '#FFE49B',
+  },
+
+  // Status aliases (maps to semantic)
+  status: {
+    success: '#68D89B',
+    warning: '#FFB55F',
+    error: '#FF8A80',
+    info: '#78C8E8',
   },
 
   // Kart Renkleri - Özellik bazlı
@@ -570,54 +569,6 @@ export const DarkColors = {
     },
   },
 };
-
-// Ethereal Dark Colors - Dreamy night sky palette
-export const EtherealDarkColors = {
-  core: {
-    moonlight: '#1A1D28',
-    stardust: '#201825',
-    aurora: '#152520',
-    nebula: '#251520',
-    celestial: '#151A25',
-    twilight: '#181520',
-  },
-
-  glow: {
-    soft: 'rgba(100, 120, 180, 0.15)',
-    medium: 'rgba(120, 140, 200, 0.25)',
-    bright: 'rgba(150, 170, 220, 0.35)',
-    moonbeam: 'rgba(180, 200, 255, 0.2)',
-    starshine: 'rgba(255, 220, 180, 0.2)',
-  },
-
-  shimmer: {
-    pearl: ['#2A2D38', '#252030', '#302028', '#203028'] as const,
-    opal: ['#202530', '#252030', '#302028', '#203530'] as const,
-    crystal: ['#282830', '#282030', '#302830', '#283030'] as const,
-  },
-
-  gradients: {
-    moonrise: ['#1A1D28', '#201825', '#251520'] as const,
-    starfall: ['#151A25', '#201830', '#251825'] as const,
-    dreamscape: ['#1A1D28', '#152520', '#251520', '#151A25'] as const,
-    aurora: ['#152520', '#201825', '#201830', '#151A25'] as const,
-    twilightSky: ['#181520', '#201825', '#251520'] as const,
-    celestialDawn: ['#252020', '#1A1D28', '#201825'] as const,
-  },
-
-  veil: {
-    light: 'rgba(30, 35, 50, 0.5)',
-    medium: 'rgba(35, 30, 45, 0.6)',
-    deep: 'rgba(25, 30, 45, 0.7)',
-  },
-
-  shadows: {
-    soft: 'rgba(0, 0, 0, 0.3)',
-    medium: 'rgba(0, 0, 0, 0.5)',
-    deep: 'rgba(0, 0, 0, 0.7)',
-    glow: 'rgba(100, 120, 180, 0.2)',
-  },
-} as const;
 
 // Tema Konfigürasyonu
 export const ThemeConfig = {

@@ -58,7 +58,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: 2,
     title: "Fırça Aracı 🖌️",
     description: "Fırça ile özgürce çiz! Kalınlığı ayarlayabilir, istediğin gibi boyayabilirsin.",
-    icon: <Paintbrush size={48} color="#FF9B7A" />,
+    icon: <Paintbrush size={48} color={Colors.primary.sunset} />,
   },
   {
     id: 3,
@@ -169,7 +169,7 @@ export function ColoringTutorial({ onComplete, onSkip }: ColoringTutorialProps) 
       {/* Tutorial Card */}
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
         <LinearGradient
-          colors={["#FFFFFF", "#F8F9FA"]}
+          colors={[Colors.neutral.white, "#F8F9FA"]}
           style={styles.cardGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
@@ -234,8 +234,8 @@ export function ColoringTutorial({ onComplete, onSkip }: ColoringTutorialProps) 
                 <Text style={styles.nextText}>
                   {isLastStep ? "Başla!" : "İleri"}
                 </Text>
-                {!isLastStep && <ArrowRight size={20} color="#FFFFFF" />}
-                {isLastStep && <CheckCircle size={20} color="#FFFFFF" />}
+                {!isLastStep && <ArrowRight size={20} color={Colors.neutral.white} />}
+                {isLastStep && <CheckCircle size={20} color={Colors.neutral.white} />}
               </LinearGradient>
             </Pressable>
           </View>
@@ -301,13 +301,13 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 6,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: radius.full,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#FF9B7A",
+    backgroundColor: Colors.primary.sunset,
     borderRadius: radius.full,
   },
   progressText: {
@@ -362,10 +362,10 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: radius.full,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
   },
   indicatorActive: {
-    backgroundColor: "#FF9B7A",
+    backgroundColor: Colors.primary.sunset,
     width: 24,
   },
   indicatorCompleted: {
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing["4"],
     paddingHorizontal: spacing["6"],
-    backgroundColor: "#F3F4F6",
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: radius.xl,
     alignItems: "center",
   },
@@ -407,6 +407,6 @@ const styles = StyleSheet.create({
   nextText: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.extrabold,
-    color: "#FFFFFF",
+    color: Colors.neutral.white,
   },
 });

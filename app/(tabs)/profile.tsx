@@ -1911,7 +1911,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     padding: isSmallDevice ? spacing['3'] : spacing['4'],
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    ...shadows.md,
+    borderColor: 'rgba(255, 155, 122, 0.2)',
+    ...shadows.lg,
   },
 });

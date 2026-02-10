@@ -267,12 +267,12 @@ const styles = StyleSheet.create({
     height: spacing['3'],
   },
   noteCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     padding: spacing['4'],
     ...shadows.sm,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
   },
   noteCardPinned: {
     borderColor: Colors.secondary.sunshine,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   moreButtonPressed: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
   },
   noteContent: {
     fontSize: typography.size.base,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing['3'],
   },
   tagChip: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     paddingHorizontal: spacing['2'],
     paddingVertical: 2,
     borderRadius: radius.full,
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     right: spacing['3'],
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     padding: spacing['2'],
     ...shadows.lg,
     zIndex: zIndex.floating,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
   },
   actionItem: {
     flexDirection: 'row',
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   actionItemDanger: {
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: Colors.neutral.lighter,
     marginTop: spacing['1'],
     paddingTop: spacing['3'],
   },

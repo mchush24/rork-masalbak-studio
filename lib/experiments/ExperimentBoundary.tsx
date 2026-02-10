@@ -8,7 +8,7 @@
 import React, { ReactNode } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useExperiment } from './useExperiment';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { zIndex } from '@/constants/design-system';
 
 interface ExperimentBoundaryProps {
@@ -103,7 +103,7 @@ export function VariantSwitch({
     }
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={Colors.primary.purple} />
+        <ActivityIndicator size="small" color={Colors.secondary.lavender} />
       </View>
     );
   }
@@ -248,7 +248,7 @@ export function ExperimentDebugger({
         <View style={styles.debugContent}>
           <View style={styles.debugText}>
             {isLoading ? (
-              <ActivityIndicator size="small" color={Colors.primary.purple} />
+              <ActivityIndicator size="small" color={Colors.secondary.lavender} />
             ) : (
               <>
                 <View style={styles.debugBadge}>
@@ -301,13 +301,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   debugBadge: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   debugBadgeText: {
     fontSize: 10,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

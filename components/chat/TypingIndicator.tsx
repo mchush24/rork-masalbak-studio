@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bubble: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     borderBottomLeftRadius: 4,
     paddingVertical: spacing['3'],

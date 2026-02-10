@@ -27,6 +27,7 @@ import { shadows } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import { useColoring } from '../ColoringContext';
+import { Colors } from '@/constants/colors';
 
 export interface ToolSettingsProps {
   visible: boolean;
@@ -86,7 +87,7 @@ export function ToolSettings({ visible, onClose }: ToolSettingsProps) {
       ]}
     >
       <LinearGradient
-        colors={['#FFFFFF', '#F8F9FA']}
+        colors={[Colors.neutral.white, '#F8F9FA']}
         style={styles.gradient}
       >
         {/* Header */}
@@ -285,9 +286,9 @@ function SettingSlider({
           value={value}
           onValueChange={onChange}
           onSlidingStart={onSliderStart}
-          minimumTrackTintColor="#FF9B7A"
+          minimumTrackTintColor={Colors.primary.sunset}
           maximumTrackTintColor="#E0E0E0"
-          thumbTintColor="#FF9B7A"
+          thumbTintColor={Colors.primary.sunset}
         />
         <Text style={styles.valueText}>{displayValue}</Text>
       </View>
@@ -349,25 +350,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   closeButton: {
     width: 32,
     height: 32,
     borderRadius: 9999,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeText: {
     fontSize: 20,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Preview
   previewContainer: {
     height: 100,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     marginBottom: 16,
     justifyContent: 'center',
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
   labelText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   sliderContainer: {
     flexDirection: 'row',
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
   valueText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FF9B7A',
+    color: Colors.primary.sunset,
     marginLeft: 8,
     minWidth: 50,
     textAlign: 'right',
@@ -429,13 +430,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   toggleActive: {
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
   },
   toggleThumb: {
     width: 28,
     height: 28,
     borderRadius: 9999,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     ...shadows.xs,
   },
   toggleThumbActive: {
@@ -452,7 +453,7 @@ const styles = StyleSheet.create({
   presetsTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 8,
     textTransform: 'uppercase',
   },
@@ -464,14 +465,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.xs,
   },
   presetButtonPressed: {
     transform: [{ scale: 0.95 }],
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
   },
   presetEmoji: {
     fontSize: 24,
@@ -479,6 +480,6 @@ const styles = StyleSheet.create({
   },
   presetLabel: {
     fontSize: 10,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 });

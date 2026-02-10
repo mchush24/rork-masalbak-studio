@@ -36,6 +36,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const IMAGE_SIZE = Math.min(SCREEN_WIDTH - 64, 300);
@@ -96,7 +97,7 @@ async function extractColorsFromImage(
       { hex: '#00B4D8', percentage: 25, name: 'Turkuaz' },
       { hex: '#90E0EF', percentage: 20, name: 'Açık Mavi' },
       { hex: '#CAF0F8', percentage: 15, name: 'Su Mavisi' },
-      { hex: '#FFFFFF', percentage: 10, name: 'Beyaz' },
+      { hex: Colors.neutral.white, percentage: 10, name: 'Beyaz' },
     ],
   ];
 
@@ -324,7 +325,7 @@ export function ReferenceImagePicker({
               <Text style={styles.headerEmoji}>🖼️</Text>
               <Text style={styles.headerTitle}>Referans Görsel</Text>
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                <Ionicons name="close-circle" size={32} color="#666" />
+                <Ionicons name="close-circle" size={32} color={Colors.neutral.medium} />
               </TouchableOpacity>
             </View>
 
@@ -341,7 +342,7 @@ export function ReferenceImagePicker({
                     colors={['#F0F0F0', '#E0E0E0']}
                     style={styles.placeholderGradient}
                   >
-                    <Ionicons name="image-outline" size={64} color="#999" />
+                    <Ionicons name="image-outline" size={64} color={Colors.neutral.light} />
                     <Text style={styles.placeholderText}>
                       Görsel Seç
                     </Text>
@@ -482,7 +483,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   mainButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -497,7 +498,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: SCREEN_HEIGHT * 0.85,
@@ -510,7 +511,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
   },
   headerEmoji: {
     fontSize: 28,
@@ -520,7 +521,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   closeButton: {
     padding: 4,
@@ -548,12 +549,12 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 12,
   },
   placeholderSubtext: {
     fontSize: 13,
-    color: '#999',
+    color: Colors.neutral.light,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -575,17 +576,17 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     borderWidth: 3,
-    borderColor: '#FFF',
+    borderColor: Colors.neutral.white,
     backgroundColor: 'rgba(0, 180, 216, 0.5)',
   },
   tapHint: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 12,
   },
   changeImageButton: {
     marginTop: 12,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -593,7 +594,7 @@ const styles = StyleSheet.create({
   changeImageText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Extracting
@@ -603,7 +604,7 @@ const styles = StyleSheet.create({
   },
   extractingText: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 12,
   },
 
@@ -614,7 +615,7 @@ const styles = StyleSheet.create({
   colorsSectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 12,
   },
   colorsGrid: {
@@ -640,11 +641,11 @@ const styles = StyleSheet.create({
   colorSwatchText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   colorSwatchPercentage: {
     fontSize: 8,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Apply Button
@@ -660,6 +661,6 @@ const styles = StyleSheet.create({
   applyButtonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 });

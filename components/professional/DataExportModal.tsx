@@ -30,7 +30,7 @@ import {
   Check,
   Info,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { SavedAnalysis } from '@/types/analysis';
 import { dataExportService, ExportOptions, ExportResult } from '@/lib/export';
 import { subDays, subMonths, subYears } from 'date-fns';
@@ -69,7 +69,7 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
     statistics: {
       label: 'İstatistik',
       description: 'Özet istatistikler ve trendler',
-      icon: <FileText size={24} color={Colors.primary.purple} />,
+      icon: <FileText size={24} color={Colors.secondary.lavender} />,
     },
   };
 
@@ -185,10 +185,10 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Download size={24} color={Colors.primary.purple} />
+          <Download size={24} color={Colors.secondary.lavender} />
           <Text style={styles.title}>Veri Dışa Aktarma</Text>
           <Pressable style={styles.closeButton} onPress={handleClose}>
-            <X size={24} color={Colors.neutral.gray} />
+            <X size={24} color={Colors.neutral.medium} />
           </Pressable>
         </View>
 
@@ -253,7 +253,7 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
             {/* Date Range */}
             <Animated.View entering={FadeIn.delay(200)} style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Calendar size={18} color={Colors.neutral.gray} />
+                <Calendar size={18} color={Colors.neutral.medium} />
                 <Text style={styles.sectionTitle}>Tarih Aralığı</Text>
               </View>
               <View style={styles.dateRangeOptions}>
@@ -287,7 +287,7 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
 
                 <View style={styles.optionRow}>
                   <View style={styles.optionInfo}>
-                    <FileText size={18} color={Colors.neutral.gray} />
+                    <FileText size={18} color={Colors.neutral.medium} />
                     <Text style={styles.optionLabel}>Notları dahil et</Text>
                   </View>
                   <Switch
@@ -295,16 +295,16 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
                     onValueChange={setIncludeNotes}
                     trackColor={{
                       false: Colors.neutral.lighter,
-                      true: Colors.primary.purple + '50',
+                      true: Colors.secondary.lavender + '50',
                     }}
-                    thumbColor={includeNotes ? Colors.primary.purple : Colors.neutral.gray}
+                    thumbColor={includeNotes ? Colors.secondary.lavender : Colors.neutral.medium}
                   />
                 </View>
 
                 {exportFormat === 'json' && (
                   <View style={styles.optionRow}>
                     <View style={styles.optionInfo}>
-                      <Eye size={18} color={Colors.neutral.gray} />
+                      <Eye size={18} color={Colors.neutral.medium} />
                       <Text style={styles.optionLabel}>{"Resim URL'lerini dahil et"}</Text>
                     </View>
                     <Switch
@@ -312,9 +312,9 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
                       onValueChange={setIncludeImages}
                       trackColor={{
                         false: Colors.neutral.lighter,
-                        true: Colors.primary.purple + '50',
+                        true: Colors.secondary.lavender + '50',
                       }}
-                      thumbColor={includeImages ? Colors.primary.purple : Colors.neutral.gray}
+                      thumbColor={includeImages ? Colors.secondary.lavender : Colors.neutral.medium}
                     />
                   </View>
                 )}
@@ -323,7 +323,7 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
 
             {/* Info Note */}
             <View style={styles.infoNote}>
-              <Info size={14} color={Colors.neutral.gray} />
+              <Info size={14} color={Colors.neutral.medium} />
               <Text style={styles.infoNoteText}>
                 Dışa aktarılan veriler cihazınıza kaydedilecek ve paylaşılabilecektir. Hassas
                 verileri korumak için dikkatli olun.
@@ -408,8 +408,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.lighter,
   },
   formatOptionActive: {
-    borderColor: Colors.primary.purple,
-    backgroundColor: Colors.primary.purple + '08',
+    borderColor: Colors.secondary.lavender,
+    backgroundColor: Colors.secondary.lavender + '08',
   },
   formatOptionLabel: {
     fontSize: 15,
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   formatOptionLabelActive: {
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
   formatOptionDescription: {
     flex: 1,
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginLeft: 8,
     textAlign: 'right',
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
@@ -450,20 +450,20 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.light,
   },
   dateRangeChipActive: {
-    backgroundColor: Colors.primary.purple + '15',
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender + '15',
+    borderColor: Colors.secondary.lavender,
   },
   dateRangeChipText: {
     fontSize: 13,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   dateRangeChipTextActive: {
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     fontWeight: '600',
   },
   countText: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginTop: 10,
   },
   optionRow: {
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   infoNoteText: {
     flex: 1,
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     lineHeight: 18,
   },
   exportButton: {
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     borderRadius: 12,
     paddingVertical: 16,
     marginBottom: 20,
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   },
   successFileSize: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     marginBottom: 32,
   },
   successActions: {
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     borderRadius: 12,
     paddingVertical: 16,
   },
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   doneButtonText: {
     fontSize: 15,
     fontWeight: '500',
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
 });
 

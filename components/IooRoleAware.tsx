@@ -14,7 +14,7 @@ import { Brain, Sparkles, Bot } from 'lucide-react-native';
 import { useRole, useMascotSettings, UserRole } from '@/lib/contexts/RoleContext';
 import { IooMascotImage } from './IooMascotImage';
 import { IooMood, IooSize, SIZE_MAP } from '@/constants/ioo-config';
-import { ProfessionalColors } from '@/constants/colors';
+import { ProfessionalColors, Colors } from '@/constants/colors';
 import { spacing, radius, shadows } from '@/constants/design-system';
 
 // Re-export types for use by consumers
@@ -271,7 +271,7 @@ export const AssistantIcon = memo(function AssistantIcon({
       ? ProfessionalColors.trust.primary
       : role === 'teacher'
         ? ProfessionalColors.roles.teacher.primary
-        : '#8B5CF6' // Parent default purple
+        : Colors.secondary.violet // Parent default purple
   );
 
   const content = (
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     padding: spacing['1'],
   },
   userAvatar: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     alignItems: 'center',
     justifyContent: 'center',
   },

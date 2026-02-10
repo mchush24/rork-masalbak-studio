@@ -30,7 +30,7 @@ import Animated, {
   FadeOut,
 } from 'react-native-reanimated';
 import { X, Info, Lightbulb, HelpCircle } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
 import { shadows } from '@/constants/design-system';
@@ -144,9 +144,9 @@ export function Tooltip({
       case 'tip':
         return <Lightbulb size={16} color={Colors.emotion.joy} />;
       case 'help':
-        return <HelpCircle size={16} color={Colors.primary.turquoise} />;
+        return <HelpCircle size={16} color={Colors.secondary.mint} />;
       default:
-        return <Info size={16} color={Colors.primary.purple} />;
+        return <Info size={16} color={Colors.secondary.lavender} />;
     }
   };
 
@@ -155,9 +155,9 @@ export function Tooltip({
       case 'tip':
         return Colors.emotion.joy;
       case 'help':
-        return Colors.primary.turquoise;
+        return Colors.secondary.mint;
       default:
-        return Colors.primary.purple;
+        return Colors.secondary.lavender;
     }
   };
 

@@ -44,7 +44,7 @@ import {
 } from 'lucide-react-native';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 import { typography, spacing, radius, shadows, zIndex, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
-import { buttonSizes, buttonStyles } from '@/constants/tokens';
+import { buttonSizes, buttonStyles } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 import { IooRoleAware } from '@/components/Ioo';
 import { useRole, useMascotSettings, useIsProfessional } from '@/lib/contexts/RoleContext';
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
     ...shadows.xl,
   },
   dialogProfessional: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: ProfessionalColors.border.light,
@@ -760,7 +760,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lighter,
   },
   cancelButtonProfessional: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   cancelButtonText: {
     fontSize: buttonSizes.md.fontSize,

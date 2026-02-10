@@ -25,7 +25,7 @@ import Animated, {
   withTiming,
   FadeIn,
 } from 'react-native-reanimated';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 
 interface OptimizedImageProps extends Omit<ImageProps, 'source'> {
   source: ImageSourcePropType;
@@ -55,7 +55,7 @@ export const OptimizedImage = memo(function OptimizedImage({
   fadeIn = true,
   fadeDuration = 300,
   showLoader = true,
-  loaderColor = Colors.primary.purple,
+  loaderColor = Colors.secondary.lavender,
   onLoadStart,
   onLoadEnd,
   onError,

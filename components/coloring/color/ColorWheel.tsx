@@ -22,6 +22,7 @@ import { View, StyleSheet, Text, Animated } from 'react-native';
 import { shadows } from '@/constants/design-system';
 import { Canvas, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Colors } from '@/constants/colors';
 
 export interface ColorWheelProps {
   size?: number; // Default: 200
@@ -250,7 +251,7 @@ export function ColorWheel({
         <View style={[styles.wheelContainer, { width: size, height: size }]}>
           <Canvas style={{ width: size, height: size }}>
             {/* White center circle for low saturation */}
-            <Circle cx={centerX} cy={centerY} r={radius - 20} color="#FFFFFF" />
+            <Circle cx={centerX} cy={centerY} r={radius - 20} color={Colors.neutral.white} />
 
             {/* Render color dots */}
             {wheelColors.map((dot, index) => (
@@ -282,7 +283,7 @@ export function ColorWheel({
                 cx={selectorPos.x}
                 cy={selectorPos.y}
                 r={8}
-                color={selectedColor || '#FF6B6B'}
+                color={selectedColor || Colors.secondary.coral}
               />
             </Group>
           </Canvas>
@@ -302,8 +303,8 @@ export function ColorWheel({
 
       {/* Current color display */}
       <View style={styles.colorDisplay}>
-        <View style={[styles.colorBox, { backgroundColor: selectedColor || '#FF6B6B' }]} />
-        <Text style={styles.colorText}>{selectedColor?.toUpperCase() || '#FF6B6B'}</Text>
+        <View style={[styles.colorBox, { backgroundColor: selectedColor || Colors.secondary.coral }]} />
+        <Text style={styles.colorText}>{selectedColor?.toUpperCase() || Colors.secondary.coral}</Text>
       </View>
 
       {/* Helper text */}
@@ -322,12 +323,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   wheelContainer: {
     borderRadius: 9999,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     ...shadows.md,
   },
   pulseOverlay: {
@@ -358,12 +359,12 @@ const styles = StyleSheet.create({
   colorText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
     fontFamily: 'monospace',
   },
   helperText: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginTop: 8,
     textAlign: 'center',
   },

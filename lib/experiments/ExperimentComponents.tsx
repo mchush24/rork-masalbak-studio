@@ -28,7 +28,7 @@ import Animated, {
   FadeOut,
 } from 'react-native-reanimated';
 import { X, FlaskConical, Check, RefreshCw, Bug } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows, zIndex } from '@/constants/design-system';
 import {
@@ -150,7 +150,7 @@ export function ExperimentDebugPanel({
       <View style={styles.debugContainer}>
         <View style={styles.debugHeader}>
           <View style={styles.debugHeaderTitle}>
-            <FlaskConical size={24} color={Colors.primary.purple} />
+            <FlaskConical size={24} color={Colors.secondary.lavender} />
             <Text style={styles.debugTitle}>A/B Testing Debug</Text>
           </View>
           <Pressable onPress={onClose} style={styles.debugCloseButton}>
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   debugToggleActive: {
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
 
   // Reset All
@@ -491,8 +491,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.light,
   },
   variantChipSelected: {
-    backgroundColor: Colors.primary.purple,
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
+    borderColor: Colors.secondary.lavender,
   },
   variantChipText: {
     fontSize: 13,
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   },
   conversionValue: {
     fontSize: 12,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     marginTop: 4,
   },
 
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.md,

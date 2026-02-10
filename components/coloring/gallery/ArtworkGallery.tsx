@@ -23,6 +23,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const COLUMN_COUNT = 2;
@@ -434,7 +435,7 @@ export function ArtworkGallery({
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color={Colors.secondary.indigo} />
         <Text style={styles.loadingText}>Eserler yükleniyor...</Text>
       </View>
     );
@@ -499,7 +500,7 @@ const styles = StyleSheet.create({
   },
   headerCount: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Card Styles
@@ -508,7 +509,7 @@ const styles = StyleSheet.create({
     marginBottom: ITEM_SPACING,
   },
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     overflow: 'hidden',
     ...shadows.sm,
@@ -537,7 +538,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 10,
     fontWeight: '600',
   },
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
   featuredText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#000',
+    color: Colors.neutral.darkest,
   },
   infoSection: {
     padding: 12,
@@ -573,11 +574,11 @@ const styles = StyleSheet.create({
   },
   childName: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   date: {
     fontSize: 10,
-    color: '#999',
+    color: Colors.neutral.light,
   },
   actions: {
     flexDirection: 'row',
@@ -593,7 +594,7 @@ const styles = StyleSheet.create({
   },
   likeCount: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Empty State
@@ -610,12 +611,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
     textAlign: 'center',
     paddingHorizontal: 40,
   },
@@ -629,7 +630,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Modal Styles
@@ -642,7 +643,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: SCREEN_WIDTH - 32,
     maxHeight: SCREEN_HEIGHT * 0.85,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 24,
     overflow: 'hidden',
   },
@@ -659,14 +660,14 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   modalCloseText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 18,
     fontWeight: '600',
   },
   modalImage: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.neutral.lightest,
   },
   modalInfo: {
     padding: 20,
@@ -679,7 +680,7 @@ const styles = StyleSheet.create({
   },
   modalArtist: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 16,
   },
   modalStats: {
@@ -696,7 +697,7 @@ const styles = StyleSheet.create({
   },
   modalStatText: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   modalActions: {
     flexDirection: 'row',
@@ -711,10 +712,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   shareButton: {
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
   },
   shareButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 15,
     fontWeight: '600',
   },

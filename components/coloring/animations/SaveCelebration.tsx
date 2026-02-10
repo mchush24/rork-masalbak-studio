@@ -29,6 +29,7 @@ import LottieView from 'lottie-react-native';
 import { Circle, Group } from '@shopify/react-native-skia';
 import { LinearGradient } from 'expo-linear-gradient';
 import { shadows, textShadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -460,7 +461,7 @@ const styles = StyleSheet.create({
   badgeMessage: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     textAlign: 'center',
     marginBottom: 8,
     ...textShadows.lg,
@@ -495,6 +496,6 @@ const styles = StyleSheet.create({
   successText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });

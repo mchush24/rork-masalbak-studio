@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/colors';
+
 /**
  * Color Contrast Checker
  *
@@ -173,7 +175,7 @@ export function suggestAccessibleColor(
   }
 
   // Fallback to black or white
-  return shouldLighten ? '#ffffff' : '#000000';
+  return shouldLighten ? Colors.neutral.white : Colors.neutral.darkest;
 }
 
 /**

@@ -32,6 +32,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, ThemeColors } from './ThemeProvider';
 import { useFeedback } from '@/hooks/useFeedback';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 interface ThemeToggleProps {
   showLabels?: boolean;
@@ -400,7 +401,7 @@ export function ThemedCard({
   const cardStyle: ViewStyle = {
     backgroundColor: elevated ? colors.surface.elevated : colors.surface.card,
     borderColor: colors.border.light,
-    shadowColor: isDark ? '#000' : '#000',
+    shadowColor: isDark ? Colors.neutral.darkest : Colors.neutral.darkest,
     shadowOpacity: isDark ? 0.3 : 0.08,
   };
 

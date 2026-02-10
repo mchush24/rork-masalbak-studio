@@ -35,7 +35,7 @@ import Animated, {
   FadeInDown,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { RenkooColors } from "@/constants/colors";
+import { RenkooColors, Colors } from "@/constants/colors";
 import { Ioo as IooMascot } from "@/components/Ioo";
 import { spacing, radius, typography, shadows } from "@/constants/design-system";
 import { trpc } from "@/lib/trpc";
@@ -48,7 +48,7 @@ const QUICK_ACTIONS = [
     id: "analysis",
     icon: BarChart3,
     label: "Analizimi Açıkla",
-    color: "#A78BFA",
+    color: Colors.secondary.lavender,
     message: "Son analiz sonucumu açıklar mısın?"
   },
   {
@@ -487,7 +487,7 @@ export default function ChatbotScreen() {
               >
                 <Send
                   size={20}
-                  color={inputText.trim() ? "#FFF" : RenkooColors.text.tertiary}
+                  color={inputText.trim() ? Colors.neutral.white : RenkooColors.text.tertiary}
                 />
               </Pressable>
             </View>
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   userText: {
-    color: "#FFF",
+    color: Colors.neutral.white,
   },
   iooText: {
     color: RenkooColors.text.primary,
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "flex-end",
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     paddingLeft: spacing["4"],
     paddingRight: spacing["2"],

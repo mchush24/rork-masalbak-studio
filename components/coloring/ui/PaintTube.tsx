@@ -30,6 +30,7 @@ import Svg, {
 } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import { TextureType } from '../effects/TextureShaders';
+import { Colors } from '@/constants/colors';
 
 // ============================================================================
 // TYPES
@@ -226,25 +227,25 @@ export function PaintTube({
             {/* Metallic cap gradient */}
             <LinearGradient id="capGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <Stop offset="0%" stopColor="#888888" />
-              <Stop offset="20%" stopColor="#CCCCCC" />
-              <Stop offset="40%" stopColor="#FFFFFF" />
-              <Stop offset="60%" stopColor="#DDDDDD" />
+              <Stop offset="20%" stopColor={Colors.neutral.lighter} />
+              <Stop offset="40%" stopColor={Colors.neutral.white} />
+              <Stop offset="60%" stopColor={Colors.neutral.lighter} />
               <Stop offset="80%" stopColor="#AAAAAA" />
               <Stop offset="100%" stopColor="#777777" />
             </LinearGradient>
 
             {/* Cap top gradient */}
             <RadialGradient id="capTopGradient" cx="50%" cy="30%" r="60%">
-              <Stop offset="0%" stopColor="#FFFFFF" />
-              <Stop offset="50%" stopColor="#CCCCCC" />
-              <Stop offset="100%" stopColor="#999999" />
+              <Stop offset="0%" stopColor={Colors.neutral.white} />
+              <Stop offset="50%" stopColor={Colors.neutral.lighter} />
+              <Stop offset="100%" stopColor={Colors.neutral.light} />
             </RadialGradient>
 
             {/* Glitter sparkle pattern */}
             {hasGlitter && (
               <RadialGradient id="sparkle" cx="50%" cy="50%" r="50%">
-                <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-                <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+                <Stop offset="0%" stopColor={Colors.neutral.white} stopOpacity="1" />
+                <Stop offset="100%" stopColor={Colors.neutral.white} stopOpacity="0" />
               </RadialGradient>
             )}
           </Defs>
@@ -320,7 +321,7 @@ export function PaintTube({
             {/* Cap highlight line */}
             <Path
               d={`M ${width * 0.25} ${capHeight * 0.5} L ${width * 0.25} ${capHeight * 0.9}`}
-              stroke="#FFFFFF"
+              stroke={Colors.neutral.white}
               strokeWidth="1.5"
               strokeLinecap="round"
               opacity="0.6"
@@ -337,7 +338,7 @@ export function PaintTube({
               rx={width / 5}
               ry={width / 5}
               fill="none"
-              stroke="#FFFFFF"
+              stroke={Colors.neutral.white}
               strokeWidth="3"
               opacity="0.8"
             />
@@ -357,14 +358,14 @@ export function PaintTube({
               {texture === 'scale' && (
                 <Path
                   d="M12 4C8 4 4 8 4 12C4 16 8 20 12 20C16 20 20 16 20 12C20 8 16 4 12 4Z"
-                  fill="#FFFFFF"
+                  fill={Colors.neutral.white}
                   opacity="0.8"
                 />
               )}
               {texture === 'dots' && (
                 <>
-                  <Ellipse cx="8" cy="8" rx="3" ry="3" fill="#FFFFFF" />
-                  <Ellipse cx="16" cy="16" rx="3" ry="3" fill="#FFFFFF" />
+                  <Ellipse cx="8" cy="8" rx="3" ry="3" fill={Colors.neutral.white} />
+                  <Ellipse cx="16" cy="16" rx="3" ry="3" fill={Colors.neutral.white} />
                 </>
               )}
             </Svg>
@@ -403,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.neutral.white,
   },
 });
 

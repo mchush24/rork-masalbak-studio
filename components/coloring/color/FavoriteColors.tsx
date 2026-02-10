@@ -20,6 +20,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Text, Pressable, Animated, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Colors } from '@/constants/colors';
 
 const STORAGE_KEY = '@renkioo_favorite_colors';
 const MAX_FAVORITES = 10;
@@ -252,16 +253,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   loadingText: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.neutral.medium,
     textAlign: 'center',
     paddingVertical: 20,
   },
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   slotSelected: {
-    borderColor: '#FF9B7A',
+    borderColor: Colors.primary.sunset,
   },
   slotInner: {
     width: '100%',
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
   emptySlot: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
   },
   emptyIcon: {
     fontSize: 24,
-    color: '#999',
+    color: Colors.neutral.light,
     fontWeight: '300',
   },
   selectedBadge: {
@@ -315,12 +316,12 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#FF9B7A',
+    backgroundColor: Colors.primary.sunset,
     justifyContent: 'center',
     alignItems: 'center',
   },
   selectedCheck: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#FF9B7A',
+    borderColor: Colors.primary.sunset,
   },
   addButtonIcon: {
     fontSize: 20,
@@ -344,7 +345,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
     marginRight: 8,
   },
   addButtonColor: {
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     textAlign: 'center',
     marginTop: 12,
     marginHorizontal: 16,

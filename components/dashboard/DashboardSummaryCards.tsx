@@ -18,7 +18,7 @@ import {
   BarChart3,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -50,7 +50,7 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Toplam Analiz',
         value: stats.totalAnalyses,
         icon: Brain,
-        gradient: ['#A78BFA', '#8B5CF6'],
+        gradient: [Colors.secondary.lavender, Colors.secondary.violet],
         subtitle: 'Tamamlanan değerlendirme',
       },
       {
@@ -109,7 +109,7 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Bu Ay',
         value: stats.monthlyAnalyses,
         icon: BarChart3,
-        gradient: ['#A78BFA', '#8B5CF6'],
+        gradient: [Colors.secondary.lavender, Colors.secondary.violet],
         subtitle: 'Değerlendirme',
       },
       {
@@ -117,7 +117,7 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Bekleyen',
         value: stats.pendingReviews,
         icon: Clock,
-        gradient: stats.pendingReviews > 0 ? ['#FBBF24', '#F59E0B'] : ['#9CA3AF', '#6B7280'],
+        gradient: stats.pendingReviews > 0 ? ['#FBBF24', Colors.semantic.amber] : [Colors.neutral.gray400, '#6B7280'],
         subtitle: 'İnceleme bekliyor',
         highlight: stats.pendingReviews > 0,
       },
@@ -147,7 +147,7 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Bekleyen Vaka',
         value: stats.pendingReviews,
         icon: AlertCircle,
-        gradient: stats.pendingReviews > 0 ? ['#F87171', '#EF4444'] : ['#9CA3AF', '#6B7280'],
+        gradient: stats.pendingReviews > 0 ? ['#F87171', '#EF4444'] : [Colors.neutral.gray400, '#6B7280'],
         subtitle: 'Değerlendirme bekliyor',
         highlight: stats.pendingReviews > 0,
       },
@@ -206,7 +206,7 @@ export function DashboardSummaryCards({
               >
                 <View style={styles.cardHeader}>
                   <View style={styles.iconContainer}>
-                    <IconComponent size={20} color="#FFF" strokeWidth={2} />
+                    <IconComponent size={20} color={Colors.neutral.white} strokeWidth={2} />
                   </View>
                   {'highlight' in card && card.highlight && <View style={styles.highlightDot} />}
                 </View>
@@ -251,11 +251,11 @@ const styles = StyleSheet.create({
   },
   cardLoading: {
     height: 120,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   loadingPulse: {
     flex: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: radius.xl,
   },
   cardGradient: {
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
   },
   cardContent: {
     flex: 1,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   cardValue: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#FFF',
+    color: Colors.neutral.white,
     marginBottom: 2,
   },
   cardTitle: {

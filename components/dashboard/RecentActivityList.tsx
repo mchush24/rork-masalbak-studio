@@ -22,7 +22,7 @@ import {
   FileText,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { ProfessionalColors, Colors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
 interface RecentAnalysis {
@@ -106,7 +106,7 @@ const formatDate = (dateString: string) => {
 const getStatusInfo = (status?: string) => {
   switch (status) {
     case 'pending':
-      return { icon: Clock, color: '#F59E0B', text: 'Bekliyor' };
+      return { icon: Clock, color: Colors.semantic.amber, text: 'Bekliyor' };
     case 'review':
       return { icon: AlertCircle, color: '#EF4444', text: 'İnceleme' };
     case 'completed':
@@ -262,14 +262,14 @@ const styles = StyleSheet.create({
     padding: spacing['6'],
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     borderStyle: 'dashed',
   },
   emptyIconContainer: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing['3'],
@@ -286,15 +286,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     overflow: 'hidden',
   },
   analysisCard: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   lastCard: {
     borderBottomWidth: 0,

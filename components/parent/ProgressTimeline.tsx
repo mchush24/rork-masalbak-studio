@@ -52,8 +52,8 @@ interface ProgressTimelineProps {
 const LEVEL_CONFIG = {
   excellent: { label: 'Mükemmel', color: '#059669', bgColor: '#ECFDF5', icon: Star },
   good: { label: 'İyi', color: '#3B82F6', bgColor: '#EFF6FF', icon: Smile },
-  developing: { label: 'Gelişiyor', color: '#F59E0B', bgColor: '#FFFBEB', icon: Sparkles },
-  emerging: { label: 'Başlangıç', color: '#8B5CF6', bgColor: '#F5F3FF', icon: Heart },
+  developing: { label: 'Gelişiyor', color: Colors.semantic.amber, bgColor: '#FFFBEB', icon: Sparkles },
+  emerging: { label: 'Başlangıç', color: Colors.secondary.violet, bgColor: '#F5F3FF', icon: Heart },
 };
 
 const TEST_TYPE_LABELS: Record<string, string> = {
@@ -211,7 +211,7 @@ export function ProgressTimeline({
               {/* Timeline Line */}
               <View style={styles.timelineLineContainer}>
                 <View style={[styles.timelineDot, { backgroundColor: levelConfig.color }]}>
-                  <LevelIcon size={12} color="#FFFFFF" />
+                  <LevelIcon size={12} color={Colors.neutral.white} />
                 </View>
                 {!isLast && <View style={styles.timelineLine} />}
               </View>
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   headerSubtitle: {
     fontSize: 14,
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   statLabel: {
     fontSize: 11,
@@ -385,9 +385,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
     marginRight: spacing['2'],
   },
   filterChipActive: {
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.dark,
   },
   filterChipTextActive: {
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   timeline: {
     paddingHorizontal: spacing['4'],
@@ -425,17 +425,17 @@ const styles = StyleSheet.create({
   timelineLine: {
     width: 2,
     flex: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     marginTop: -4,
   },
   entryCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['3'],
     marginBottom: spacing['3'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   entryCardPressed: {
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingTop: spacing['2'],
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
   },
   viewDetailsText: {
     fontSize: 13,
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
     gap: 6,
     marginHorizontal: spacing['4'],
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: Colors.secondary.sky,
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
   },

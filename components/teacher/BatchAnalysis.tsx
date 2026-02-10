@@ -28,7 +28,7 @@ import {
   RotateCcw,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface StudentUpload {
   studentId: string;
@@ -276,7 +276,7 @@ export function BatchAnalysis({
               onPress={handleStartAnalysis}
               disabled={readyCount === 0}
             >
-              <Play size={18} color="#FFFFFF" />
+              <Play size={18} color={Colors.neutral.white} />
               <Text style={styles.startButtonText}>Analizi Başlat ({readyCount})</Text>
             </Pressable>
           )}
@@ -413,7 +413,7 @@ export function BatchAnalysis({
           style={({ pressed }) => [styles.completeButton, pressed && styles.buttonPressed]}
           onPress={onComplete}
         >
-          <Check size={20} color="#FFFFFF" />
+          <Check size={20} color={Colors.neutral.white} />
           <Text style={styles.completeButtonText}>Değerlendirmeyi Tamamla</Text>
         </Pressable>
       )}
@@ -424,13 +424,13 @@ export function BatchAnalysis({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
   },
   header: {
     padding: spacing['4'],
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.neutral.gray100,
   },
   headerInfo: {},
   title: {
@@ -444,12 +444,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   progressSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     margin: spacing['4'],
     borderRadius: radius.xl,
     padding: spacing['4'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     ...shadows.sm,
   },
   progressStats: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     marginHorizontal: spacing['2'],
   },
   errorText: {
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   progressBarBackground: {
     flex: 1,
     height: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -518,12 +518,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
   },
   startButtonDisabled: {
-    backgroundColor: '#D1D5DB',
+    backgroundColor: Colors.neutral.gray300,
   },
   startButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   pauseButton: {
     flex: 1,
@@ -551,11 +551,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['4'],
   },
   studentCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     marginBottom: spacing['2'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     overflow: 'hidden',
   },
   studentCardHeader: {
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -610,19 +610,19 @@ const styles = StyleSheet.create({
   },
   expandedContent: {
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: Colors.neutral.gray100,
     padding: spacing['3'],
   },
   imagePreview: {
     position: 'relative',
   },
   imagePlaceholder: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['4'],
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
     borderStyle: 'dashed',
   },
   imagePlaceholderText: {
@@ -637,13 +637,13 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.sm,
   },
   uploadButton: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['4'],
     alignItems: 'center',
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
   },
   resultItem: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.md,
     padding: spacing['2'],
     alignItems: 'center',
@@ -731,7 +731,7 @@ const styles = StyleSheet.create({
   completeButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
 });
 

@@ -146,13 +146,13 @@ export function NoteInput({
             ]}
           >
             {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={Colors.neutral.white} />
             ) : (
               <LinearGradient
                 colors={[Colors.primary.sunset, Colors.primary.peach]}
                 style={styles.submitButtonGradient}
               >
-                <Plus size={20} color="#FFFFFF" />
+                <Plus size={20} color={Colors.neutral.white} />
                 <Text style={styles.submitButtonText}>Ekle</Text>
               </LinearGradient>
             )}
@@ -194,7 +194,7 @@ export function NoteInput({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.lg,
     padding: spacing['4'],
     ...shadows.md,
@@ -212,9 +212,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['2'],
     borderRadius: radius.full,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
   },
   typeChipSelected: {
     backgroundColor: Colors.primary.blush,
@@ -235,10 +235,10 @@ const styles = StyleSheet.create({
     color: Colors.primary.peach,
   },
   inputContainer: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
     overflow: 'hidden',
   },
   textInput: {
@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: spacing['2'],
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: Colors.neutral.lighter,
+    backgroundColor: Colors.neutral.white,
   },
   tagButton: {
     flexDirection: 'row',
@@ -297,13 +297,13 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   tagsContainer: {
     marginTop: spacing['3'],
     paddingTop: spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: Colors.neutral.lighter,
   },
   tagsLabel: {
     fontSize: typography.size.sm,
@@ -319,9 +319,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['1'],
     borderRadius: radius.full,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
   },
   tagChipSelected: {
     backgroundColor: Colors.primary.blush,

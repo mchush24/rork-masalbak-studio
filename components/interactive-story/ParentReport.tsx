@@ -39,6 +39,7 @@ import {
   TherapeuticReportSection,
 } from "@/types/InteractiveStory";
 import { shadows } from "@/constants/design-system";
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -79,7 +80,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
       {/* Baskin ozellikler */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Star size={24} color="#F59E0B" />
+          <Star size={24} color={Colors.semantic.amber} />
           <Text style={styles.sectionTitle}>One Cikan Ozellikler</Text>
         </View>
 
@@ -182,7 +183,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
       <View style={styles.buttons}>
         {onDownload && (
           <Pressable style={styles.downloadButton} onPress={onDownload}>
-            <Download size={20} color="#fff" />
+            <Download size={20} color={Colors.neutral.white} />
             <Text style={styles.downloadButtonText}>PDF Indir</Text>
           </Pressable>
         )}
@@ -232,7 +233,7 @@ function TimelineItem({ item, isLast }: { item: ChoiceTimelineItem; isLast: bool
       <View style={styles.timelineContent}>
         <Text style={styles.timelineQuestion}>{item.question}</Text>
         <View style={styles.timelineAnswer}>
-          <ChevronRight size={16} color="#9CA3AF" />
+          <ChevronRight size={16} color={Colors.neutral.gray400} />
           <Text style={styles.timelineAnswerText}>{item.chosenOption}</Text>
         </View>
         <View style={[styles.timelineTraitBadge, { backgroundColor: def.color + "20" }]}>
@@ -270,7 +271,7 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
         colors={["#10B981", "#059669"]}
         style={styles.therapeuticHeader}
       >
-        <Shield size={28} color="#fff" />
+        <Shield size={28} color={Colors.neutral.white} />
         <Text style={styles.therapeuticTitle}>Terapötik Destek Rehberi</Text>
         <Text style={styles.therapeuticSubtitle}>
           {section.concernName_tr} teması için özel rehberlik
@@ -327,7 +328,7 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
       {section.avoidTopics.length > 0 && (
         <View style={styles.therapeuticSection}>
           <View style={styles.therapeuticWarningHeader}>
-            <AlertCircle size={18} color="#F59E0B" />
+            <AlertCircle size={18} color={Colors.semantic.amber} />
             <Text style={styles.therapeuticWarningTitle}>Kaçınılması Gereken Konular</Text>
           </View>
           {section.avoidTopics.map((topic, index) => (
@@ -368,7 +369,7 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
   },
   header: {
     paddingTop: 60,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
+    color: Colors.neutral.white,
     marginTop: 12,
   },
   headerSubtitle: {
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   section: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
@@ -417,7 +418,7 @@ const styles = StyleSheet.create({
   },
   traitCard: {
     flexDirection: "row",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
     borderLeftWidth: 4,
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -472,7 +473,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     flexDirection: "row",
     overflow: "hidden",
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
   },
   chartSegment: {
     height: "100%",
@@ -513,19 +514,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   timelineDotText: {
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: "bold",
   },
   timelineLine: {
     flex: 1,
     width: 2,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     marginTop: 4,
   },
   timelineContent: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
   },
@@ -563,7 +564,7 @@ const styles = StyleSheet.create({
   },
   activityCard: {
     flexDirection: "row",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -595,7 +596,7 @@ const styles = StyleSheet.create({
   },
   conversationItem: {
     flexDirection: "row",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -606,7 +607,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     backgroundColor: "#EC4899",
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 12,
     fontWeight: "bold",
     textAlign: "center",
@@ -616,7 +617,7 @@ const styles = StyleSheet.create({
   conversationText: {
     flex: 1,
     fontSize: 14,
-    color: "#374151",
+    color: Colors.neutral.gray700,
     lineHeight: 20,
   },
   positiveMessage: {
@@ -650,7 +651,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   downloadButtonText: {
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -669,7 +670,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     ...shadows.xs,
   },
   therapeuticHeader: {
@@ -680,7 +681,7 @@ const styles = StyleSheet.create({
   therapeuticTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: Colors.neutral.white,
     marginTop: 8,
   },
   therapeuticSubtitle: {
@@ -707,7 +708,7 @@ const styles = StyleSheet.create({
   therapeuticSection: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: Colors.neutral.gray100,
   },
   therapeuticSectionTitle: {
     fontSize: 16,
@@ -732,13 +733,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   therapeuticInfoBox: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 14,
   },
   therapeuticInfoText: {
     fontSize: 14,
-    color: "#374151",
+    color: Colors.neutral.gray700,
     lineHeight: 20,
   },
   therapeuticWarningHeader: {
@@ -773,10 +774,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   therapeuticDisclaimer: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.neutral.gray50,
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: Colors.neutral.gray200,
   },
   therapeuticDisclaimerText: {
     fontSize: 12,

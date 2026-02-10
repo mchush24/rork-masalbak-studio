@@ -27,7 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { Check, Upload, Download, Loader2 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -50,7 +50,7 @@ export function CircularProgress({
   progress,
   size = 80,
   strokeWidth = 8,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   backgroundColor = Colors.neutral.lighter,
   showPercentage = true,
   animated = true,
@@ -88,7 +88,7 @@ export function CircularProgress({
         <Defs>
           <LinearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <Stop offset="0%" stopColor={color} />
-            <Stop offset="100%" stopColor={Colors.primary.pink} />
+            <Stop offset="100%" stopColor={Colors.secondary.rose} />
           </LinearGradient>
         </Defs>
         <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
@@ -141,7 +141,7 @@ interface LinearProgressProps {
 export function LinearProgress({
   progress,
   height = 8,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   backgroundColor = Colors.neutral.lighter,
   animated = true,
   indeterminate = false,
@@ -224,7 +224,7 @@ export function StepProgress({
   steps,
   currentStep,
   labels,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   completedColor = Colors.emotion.trust,
   style,
 }: StepProgressProps) {
@@ -395,7 +395,7 @@ export function UploadProgress({
       case 'error':
         return Colors.emotion.fear;
       default:
-        return Colors.primary.purple;
+        return Colors.secondary.lavender;
     }
   };
 
@@ -456,7 +456,7 @@ interface SpinnerProps {
  */
 export function Spinner({
   size = 24,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   style,
 }: SpinnerProps) {
   const rotation = useSharedValue(0);
@@ -492,7 +492,7 @@ interface DotsLoaderProps {
  */
 export function DotsLoader({
   size = 8,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   count = 3,
   style,
 }: DotsLoaderProps) {
@@ -571,7 +571,7 @@ interface PulseLoaderProps {
  */
 export function PulseLoader({
   size = 40,
-  color = Colors.primary.purple,
+  color = Colors.secondary.lavender,
   style,
 }: PulseLoaderProps) {
   const scale = useSharedValue(0.8);

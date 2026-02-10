@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { spacing, typography, colors, textShadows } from '@/lib/design-tokens';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
@@ -461,7 +462,7 @@ export function LoadingAnimation({
                 left: 0,
                 right: 0,
                 height: 2,
-                backgroundColor: '#fff',
+                backgroundColor: Colors.neutral.white,
                 opacity: opacity1,
                 transform: [
                   {

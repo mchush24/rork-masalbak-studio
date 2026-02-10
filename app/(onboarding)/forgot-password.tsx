@@ -36,6 +36,7 @@ import {
   textShadows,
 } from '@/lib/design-tokens';
 import { SuccessModal } from '@/components/SuccessModal';
+import { Colors } from '@/constants/colors';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -106,13 +107,13 @@ export default function ForgotPasswordScreen() {
 
   // Password strength indicator
   const getPasswordStrength = () => {
-    if (newPassword.length === 0) return { level: 0, text: '', color: '#9CA3AF' };
+    if (newPassword.length === 0) return { level: 0, text: '', color: Colors.neutral.gray400 };
     if (newPassword.length < 6) return { level: 1, text: 'Zayıf', color: '#EF4444' };
-    if (newPassword.length < 8) return { level: 2, text: 'Orta', color: '#F59E0B' };
+    if (newPassword.length < 8) return { level: 2, text: 'Orta', color: Colors.semantic.amber };
     if (newPassword.length >= 8 && /[A-Z]/.test(newPassword) && /[0-9]/.test(newPassword)) {
       return { level: 3, text: 'Güçlü', color: '#10B981' };
     }
-    return { level: 2, text: 'İyi', color: '#F59E0B' };
+    return { level: 2, text: 'İyi', color: Colors.semantic.amber };
   };
 
   const strength = getPasswordStrength();
@@ -348,19 +349,19 @@ export default function ForgotPasswordScreen() {
                         width: 40,
                         height: 40,
                         borderRadius: 20,
-                        backgroundColor: '#F3F4F6',
+                        backgroundColor: Colors.neutral.gray100,
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginRight: spacing.sm,
                       }}
                     >
-                      <Mail size={20} color="#6366F1" strokeWidth={2} />
+                      <Mail size={20} color={Colors.secondary.indigo} strokeWidth={2} />
                     </View>
                     <TextInput
                       value={email}
                       onChangeText={setEmail}
                       placeholder="Email adresiniz"
-                      placeholderTextColor="#9CA3AF"
+                      placeholderTextColor={Colors.neutral.gray400}
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoFocus
@@ -397,7 +398,7 @@ export default function ForgotPasswordScreen() {
                       style={{
                         fontSize: typography.fontSize.md,
                         fontWeight: 'bold',
-                        color: '#6366F1',
+                        color: Colors.secondary.indigo,
                       }}
                     >
                       ...
@@ -408,12 +409,12 @@ export default function ForgotPasswordScreen() {
                         style={{
                           fontSize: typography.fontSize.md,
                           fontWeight: '700',
-                          color: email ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                          color: email ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                         }}
                       >
                         Kod Gönder
                       </Text>
-                      {email && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+                      {email && <Zap size={18} color={Colors.secondary.indigo} strokeWidth={2.5} />}
                     </>
                   )}
                 </Pressable>
@@ -501,7 +502,7 @@ export default function ForgotPasswordScreen() {
                     value={code}
                     onChangeText={setCode}
                     placeholder="000000"
-                    placeholderTextColor="#E5E7EB"
+                    placeholderTextColor={Colors.neutral.gray200}
                     keyboardType="number-pad"
                     maxLength={6}
                     autoComplete="one-time-code"
@@ -510,7 +511,7 @@ export default function ForgotPasswordScreen() {
                     style={{
                       fontSize: typography.fontSize.hero,
                       fontWeight: '700',
-                      color: '#6366F1',
+                      color: Colors.secondary.indigo,
                       padding: spacing.sm,
                       textAlign: 'center',
                       letterSpacing: 16,
@@ -533,7 +534,7 @@ export default function ForgotPasswordScreen() {
                           width: 12,
                           height: 12,
                           borderRadius: 6,
-                          backgroundColor: index < code.length ? '#6366F1' : '#E5E7EB',
+                          backgroundColor: index < code.length ? Colors.secondary.indigo : Colors.neutral.gray200,
                         }}
                       />
                     ))}
@@ -557,7 +558,7 @@ export default function ForgotPasswordScreen() {
                       width: 36,
                       height: 36,
                       borderRadius: 18,
-                      backgroundColor: '#F59E0B',
+                      backgroundColor: Colors.semantic.amber,
                       justifyContent: 'center',
                       alignItems: 'center',
                     }}
@@ -603,12 +604,12 @@ export default function ForgotPasswordScreen() {
                     style={{
                       fontSize: typography.fontSize.md,
                       fontWeight: '700',
-                      color: code.length === 6 ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                      color: code.length === 6 ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                     }}
                   >
                     Devam Et
                   </Text>
-                  {code.length === 6 && <Zap size={18} color="#6366F1" strokeWidth={2.5} />}
+                  {code.length === 6 && <Zap size={18} color={Colors.secondary.indigo} strokeWidth={2.5} />}
                 </Pressable>
               </View>
             )}
@@ -681,19 +682,19 @@ export default function ForgotPasswordScreen() {
                         width: 40,
                         height: 40,
                         borderRadius: 20,
-                        backgroundColor: '#F3F4F6',
+                        backgroundColor: Colors.neutral.gray100,
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginRight: spacing.sm,
                       }}
                     >
-                      <Shield size={20} color="#6366F1" strokeWidth={2} />
+                      <Shield size={20} color={Colors.secondary.indigo} strokeWidth={2} />
                     </View>
                     <TextInput
                       value={newPassword}
                       onChangeText={setNewPassword}
                       placeholder="Yeni şifreniz"
-                      placeholderTextColor="#9CA3AF"
+                      placeholderTextColor={Colors.neutral.gray400}
                       secureTextEntry={!showPassword}
                       autoFocus
                       style={{
@@ -709,9 +710,9 @@ export default function ForgotPasswordScreen() {
                       style={{ padding: spacing.sm }}
                     >
                       {showPassword ? (
-                        <EyeOff size={22} color="#6366F1" />
+                        <EyeOff size={22} color={Colors.secondary.indigo} />
                       ) : (
-                        <Eye size={22} color="#6366F1" />
+                        <Eye size={22} color={Colors.secondary.indigo} />
                       )}
                     </Pressable>
                   </View>
@@ -774,7 +775,7 @@ export default function ForgotPasswordScreen() {
                         backgroundColor:
                           newPassword === confirmPassword && confirmPassword.length > 0
                             ? '#D1FAE5'
-                            : '#F3F4F6',
+                            : Colors.neutral.gray100,
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginRight: spacing.sm,
@@ -783,14 +784,14 @@ export default function ForgotPasswordScreen() {
                       {newPassword === confirmPassword && confirmPassword.length > 0 ? (
                         <Heart size={20} color="#10B981" fill="#10B981" strokeWidth={2} />
                       ) : (
-                        <Shield size={20} color="#9CA3AF" strokeWidth={2} />
+                        <Shield size={20} color={Colors.neutral.gray400} strokeWidth={2} />
                       )}
                     </View>
                     <TextInput
                       value={confirmPassword}
                       onChangeText={setConfirmPassword}
                       placeholder="Şifrenizi tekrar girin"
-                      placeholderTextColor="#9CA3AF"
+                      placeholderTextColor={Colors.neutral.gray400}
                       secureTextEntry={!showConfirmPassword}
                       style={{
                         flex: 1,
@@ -805,9 +806,9 @@ export default function ForgotPasswordScreen() {
                       style={{ padding: spacing.sm }}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff size={22} color="#6366F1" />
+                        <EyeOff size={22} color={Colors.secondary.indigo} />
                       ) : (
-                        <Eye size={22} color="#6366F1" />
+                        <Eye size={22} color={Colors.secondary.indigo} />
                       )}
                     </Pressable>
                   </View>
@@ -838,7 +839,7 @@ export default function ForgotPasswordScreen() {
                       style={{
                         fontSize: typography.fontSize.md,
                         fontWeight: 'bold',
-                        color: '#6366F1',
+                        color: Colors.secondary.indigo,
                       }}
                     >
                       ...
@@ -850,13 +851,13 @@ export default function ForgotPasswordScreen() {
                           fontSize: typography.fontSize.md,
                           fontWeight: '700',
                           color:
-                            newPassword && confirmPassword ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                            newPassword && confirmPassword ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                         }}
                       >
                         Şifreyi Kaydet
                       </Text>
                       {newPassword && confirmPassword && (
-                        <Zap size={18} color="#6366F1" strokeWidth={2.5} />
+                        <Zap size={18} color={Colors.secondary.indigo} strokeWidth={2.5} />
                       )}
                     </>
                   )}

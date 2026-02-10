@@ -7,6 +7,7 @@
 
 import React from "react";
 import { View, Text, StyleSheet, Animated } from "react-native";
+import { Colors } from '@/constants/colors';
 
 interface StoryProgressProps {
   currentChoice: number;
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -112,11 +113,11 @@ const styles = StyleSheet.create({
   choiceLine: {
     width: 24,
     height: 3,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     marginHorizontal: 4,
   },
   choiceLineCompleted: {
-    backgroundColor: "#F59E0B",
+    backgroundColor: Colors.semantic.amber,
   },
   pageProgress: {
     flexDirection: "row",
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
   pageBar: {
     flex: 1,
     height: 6,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.neutral.gray200,
     borderRadius: 3,
     overflow: "hidden",
   },

@@ -22,6 +22,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { shadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -445,7 +446,7 @@ export function createDefaultLayers(): Layer[] {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 16,
     ...shadows.md,
     overflow: 'hidden',
@@ -456,7 +457,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.neutral.lightest,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -469,10 +470,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   layerCountBadge: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
@@ -480,7 +481,7 @@ const styles = StyleSheet.create({
   layerCountText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   headerRight: {
     flexDirection: 'row',
@@ -491,19 +492,19 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addButtonText: {
-    color: '#FFF',
+    color: Colors.neutral.white,
     fontSize: 18,
     fontWeight: '600',
     marginTop: -2,
   },
   expandIcon: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Layer List
@@ -520,14 +521,14 @@ const styles = StyleSheet.create({
 
   // Layer Item
   layerItem: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     overflow: 'hidden',
   },
   layerItemActive: {
     backgroundColor: '#EEF2FF',
     borderWidth: 2,
-    borderColor: '#6366F1',
+    borderColor: Colors.secondary.indigo,
   },
   layerItemDragging: {
     ...shadows.lg,
@@ -543,14 +544,14 @@ const styles = StyleSheet.create({
   },
   dragHandleIcon: {
     fontSize: 16,
-    color: '#999',
+    color: Colors.neutral.light,
   },
   thumbnail: {
     width: 40,
     height: 40,
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
   },
   thumbnailImage: {
     width: '100%',
@@ -570,7 +571,7 @@ const styles = StyleSheet.create({
   layerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   layerMeta: {
     flexDirection: 'row',
@@ -579,11 +580,11 @@ const styles = StyleSheet.create({
   },
   layerOpacity: {
     fontSize: 11,
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   layerBlendMode: {
     fontSize: 11,
-    color: '#6366F1',
+    color: Colors.secondary.indigo,
     fontWeight: '500',
   },
   quickActions: {
@@ -606,7 +607,7 @@ const styles = StyleSheet.create({
   // Expanded Options
   expandedOptions: {
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.neutral.gray200,
     padding: 12,
     gap: 12,
   },
@@ -617,7 +618,7 @@ const styles = StyleSheet.create({
   },
   opacityLabel: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.neutral.medium,
     width: 50,
   },
   opacitySlider: {
@@ -629,19 +630,19 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
     alignItems: 'center',
   },
   opacityButtonActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
   },
   opacityButtonText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   opacityButtonTextActive: {
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
   layerActions: {
     flexDirection: 'row',
@@ -655,7 +656,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.neutral.gray200,
   },
   layerActionIcon: {
     fontSize: 14,
@@ -663,7 +664,7 @@ const styles = StyleSheet.create({
   layerActionText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   deleteButton: {
     backgroundColor: '#FEE2E2',
@@ -676,12 +677,12 @@ const styles = StyleSheet.create({
   blendModeSelector: {
     padding: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.neutral.gray200,
   },
   blendModeTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 8,
   },
   blendModeGrid: {
@@ -696,10 +697,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   blendModeItemActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: Colors.secondary.indigo,
   },
   blendModeIcon: {
     fontSize: 12,
@@ -707,7 +708,7 @@ const styles = StyleSheet.create({
   blendModeName: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
 
   // Quick Bar
@@ -715,7 +716,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 8,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.neutral.gray200,
     gap: 8,
   },
   quickBarButton: {
@@ -726,7 +727,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.neutral.gray100,
   },
   quickBarIcon: {
     fontSize: 14,
@@ -734,6 +735,6 @@ const styles = StyleSheet.create({
   quickBarLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 });

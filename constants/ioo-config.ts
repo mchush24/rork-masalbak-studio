@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/colors';
+
 /**
  * Ioo Mascot Configuration
  * Part of #2: Ioo Maskot Görsel Tutarlılığı
@@ -167,12 +169,12 @@ export const IOO_COLORS = {
 
   // Eye colors
   eyes: {
-    white: '#FFFFFF',
+    white: Colors.neutral.white,
     iris: '#3D2314',
     irisLight: '#5C3D2E',
     irisDeep: '#1A0F0A',
     pupil: '#0A0505',
-    highlight: '#FFFFFF',
+    highlight: Colors.neutral.white,
   },
 
   // Cheek blush

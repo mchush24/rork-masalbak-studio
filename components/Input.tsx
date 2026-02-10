@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Check, AlertCircle } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { spacing, typography, radius, semantic } from '@/constants/tokens';
+import { spacing, typography, radius, semantic } from '@/constants/design-system';
 import { shadows } from '@/constants/design-system';
 import { useHaptic } from '@/lib/haptics';
 

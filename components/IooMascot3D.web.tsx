@@ -9,6 +9,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { Colors } from '@/constants/colors';
 
 export type IooMood = 'neutral' | 'happy' | 'excited' | 'curious' | 'love' | 'calm' | 'thinking' | 'sleepy' | 'concerned' | 'sad';
 export type IooSize = 'xs' | 'sm' | 'md' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
@@ -80,7 +81,7 @@ export const IooMascot3D = memo(function IooMascot3D({
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 5, 5]} intensity={0.8} />
         <directionalLight position={[-5, 3, -5]} intensity={0.4} color="#ffd6e0" />
-        <pointLight position={[0, 2, 2]} intensity={0.5} color="#a78bfa" />
+        <pointLight position={[0, 2, 2]} intensity={0.5} color={Colors.secondary.lavender} />
         <Suspense fallback={null}>
           <IooModel autoRotate={autoRotate && animated} />
         </Suspense>

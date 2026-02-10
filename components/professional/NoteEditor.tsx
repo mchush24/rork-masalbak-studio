@@ -42,7 +42,7 @@ import {
   List,
   Link2,
 } from 'lucide-react-native';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { zIndex } from '@/constants/design-system';
 import { NoteType, AnalysisNote } from '@/types/analysis';
 import { format } from 'date-fns';
@@ -61,7 +61,7 @@ const NOTE_TYPES: { type: NoteType; label: string; icon: React.ReactNode; color:
     type: 'general',
     label: 'Genel',
     icon: <FileText size={16} />,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   {
     type: 'observation',
@@ -79,7 +79,7 @@ const NOTE_TYPES: { type: NoteType; label: string; icon: React.ReactNode; color:
     type: 'follow_up',
     label: 'Takip',
     icon: <Clock size={16} />,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
   },
   {
     type: 'milestone',
@@ -189,7 +189,7 @@ export function NoteEditor({
             {initialNote ? 'Notu Düzenle' : 'Yeni Not'}
           </Text>
           <Pressable style={styles.closeButton} onPress={onCancel}>
-            <X size={20} color={Colors.neutral.gray} />
+            <X size={20} color={Colors.neutral.medium} />
           </Pressable>
         </View>
 
@@ -220,7 +220,7 @@ export function NoteEditor({
                 >
                   <View style={{ opacity: noteType === item.type ? 1 : 0.5 }}>
                     {React.cloneElement(item.icon as React.ReactElement<{ color?: string }>, {
-                      color: noteType === item.type ? item.color : Colors.neutral.gray,
+                      color: noteType === item.type ? item.color : Colors.neutral.medium,
                     })}
                   </View>
                   <Text
@@ -245,19 +245,19 @@ export function NoteEditor({
                   style={styles.formatButton}
                   onPress={() => insertTextFormat('**')}
                 >
-                  <Bold size={16} color={Colors.neutral.gray} />
+                  <Bold size={16} color={Colors.neutral.medium} />
                 </Pressable>
                 <Pressable
                   style={styles.formatButton}
                   onPress={() => insertTextFormat('_')}
                 >
-                  <Italic size={16} color={Colors.neutral.gray} />
+                  <Italic size={16} color={Colors.neutral.medium} />
                 </Pressable>
                 <Pressable
                   style={styles.formatButton}
                   onPress={() => insertTextFormat('\n- ')}
                 >
-                  <List size={16} color={Colors.neutral.gray} />
+                  <List size={16} color={Colors.neutral.medium} />
                 </Pressable>
               </View>
             </View>
@@ -267,7 +267,7 @@ export function NoteEditor({
               value={content}
               onChangeText={setContent}
               placeholder="Notunuzu buraya yazın...&#10;&#10;Markdown desteklenir: **kalın**, _italik_, - liste"
-              placeholderTextColor={Colors.neutral.gray}
+              placeholderTextColor={Colors.neutral.medium}
               multiline
               textAlignVertical="top"
             />
@@ -282,7 +282,7 @@ export function NoteEditor({
                 style={styles.addTagButton}
                 onPress={() => setShowTagInput(!showTagInput)}
               >
-                <Tag size={14} color={Colors.primary.purple} />
+                <Tag size={14} color={Colors.secondary.lavender} />
                 <Text style={styles.addTagText}>Ekle</Text>
               </Pressable>
             </View>
@@ -295,7 +295,7 @@ export function NoteEditor({
                   value={newTag}
                   onChangeText={setNewTag}
                   placeholder="Yeni etiket..."
-                  placeholderTextColor={Colors.neutral.gray}
+                  placeholderTextColor={Colors.neutral.medium}
                   onSubmitEditing={addCustomTag}
                 />
                 <Pressable style={styles.tagAddButton} onPress={addCustomTag}>
@@ -339,7 +339,7 @@ export function NoteEditor({
                       onPress={() => toggleTag(tag)}
                     >
                       <Text style={styles.customTagText}>{tag}</Text>
-                      <X size={12} color={Colors.primary.purple} />
+                      <X size={12} color={Colors.secondary.lavender} />
                     </Pressable>
                   ))}
               </View>
@@ -354,7 +354,7 @@ export function NoteEditor({
             >
               <Pin
                 size={18}
-                color={isPinned ? Colors.emotion.joy : Colors.neutral.gray}
+                color={isPinned ? Colors.emotion.joy : Colors.neutral.medium}
                 fill={isPinned ? Colors.emotion.joy : 'transparent'}
               />
               <Text style={styles.optionText}>Notu Sabitle</Text>
@@ -372,7 +372,7 @@ export function NoteEditor({
           {/* Timestamp */}
           {initialNote && (
             <View style={styles.timestamp}>
-              <Clock size={12} color={Colors.neutral.gray} />
+              <Clock size={12} color={Colors.neutral.medium} />
               <Text style={styles.timestampText}>
                 {format(new Date(initialNote.createdAt), 'd MMMM yyyy, HH:mm', {
                   locale: tr,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   },
   typeChipText: {
     fontSize: 13,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     fontWeight: '500',
   },
   formatButtons: {
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 11,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
     textAlign: 'right',
     marginTop: 8,
   },
@@ -507,12 +507,12 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    backgroundColor: Colors.primary.purple + '10',
+    backgroundColor: Colors.secondary.lavender + '10',
     borderRadius: 16,
   },
   addTagText: {
     fontSize: 12,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     fontWeight: '500',
   },
   customTagInput: {
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -551,15 +551,15 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.light,
   },
   tagChipActive: {
-    backgroundColor: Colors.primary.purple + '15',
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender + '15',
+    borderColor: Colors.secondary.lavender,
   },
   tagChipText: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   tagChipTextActive: {
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     fontWeight: '500',
   },
   customTags: {
@@ -579,11 +579,11 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: Colors.primary.purple + '15',
+    backgroundColor: Colors.secondary.lavender + '15',
   },
   customTagText: {
     fontSize: 12,
-    color: Colors.primary.purple,
+    color: Colors.secondary.lavender,
     fontWeight: '500',
   },
   optionRow: {
@@ -606,8 +606,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxActive: {
-    backgroundColor: Colors.primary.purple,
-    borderColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
+    borderColor: Colors.secondary.lavender,
   },
   timestamp: {
     flexDirection: 'row',
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
   },
   timestampText: {
     fontSize: 12,
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   footer: {
     flexDirection: 'row',
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: Colors.neutral.gray,
+    color: Colors.neutral.medium,
   },
   saveButton: {
     flex: 2,
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: Colors.primary.purple,
+    backgroundColor: Colors.secondary.lavender,
   },
   saveButtonDisabled: {
     opacity: 0.5,

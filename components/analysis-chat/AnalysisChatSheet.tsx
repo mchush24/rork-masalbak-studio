@@ -36,9 +36,9 @@ import type { AnalysisResponse } from '@/types/analysis';
 
 // Theme colors for consistency
 const THEME = {
-  primary: '#FF9B7A',
+  primary: Colors.primary.sunset,
   primaryDark: '#E88A6A',
-  secondary: '#A78BFA',
+  secondary: Colors.secondary.lavender,
 };
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   sheetContainer: {
     height: SCREEN_HEIGHT * 0.85,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     overflow: 'hidden',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   headerSubtitle: {
     fontSize: typography.size.sm,
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing['4'],
   },
   welcomeCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.lg,
     padding: spacing['4'],
     alignItems: 'center',
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing['3'],
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.lg,
     alignSelf: 'flex-start',
     gap: spacing['2'],
@@ -479,8 +479,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['4'],
     paddingVertical: spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: Colors.neutral.lighter,
+    backgroundColor: Colors.neutral.white,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -491,14 +491,14 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 44,
     maxHeight: 100,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.lg,
     paddingHorizontal: spacing['4'],
     paddingVertical: spacing['3'],
     fontSize: typography.size.base,
     color: Colors.neutral.dark,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: Colors.neutral.lighter,
   },
   sendButton: {
     width: 44,

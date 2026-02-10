@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     ...shadows.xl,
   },
   dialogProfessional: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: ProfessionalColors.border.light,
@@ -537,9 +537,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing['3'],
   },
   sessionCardProfessional: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   sessionCardHeader: {
     flexDirection: 'row',

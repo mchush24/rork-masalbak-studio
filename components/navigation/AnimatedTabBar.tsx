@@ -26,7 +26,7 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { UIColors as Colors } from '@/constants/color-aliases';
+import { Colors } from '@/constants/colors';
 import { useFeedback } from '@/hooks/useFeedback';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -44,7 +44,7 @@ export function AnimatedTabBar({
   state,
   descriptors,
   navigation,
-  indicatorColor = Colors.primary.purple,
+  indicatorColor = Colors.secondary.lavender,
   showIndicator = true,
   badges = {},
 }: AnimatedTabBarProps) {

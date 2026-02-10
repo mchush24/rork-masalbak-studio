@@ -20,7 +20,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { Colors } from "@/constants/colors";
-import { SymbiosisTheme, EmotionalZones } from "@/constants/SymbiosisTheme";
 import { layout, typography, spacing, radius, shadows, cardVariants, badgeStyles } from "@/constants/design-system";
 import { useGenerateColoringPage } from "@/lib/hooks/useGenerateColoringPage";
 import * as Linking from "expo-linking";
@@ -61,16 +60,16 @@ export default function StudioScreen() {
     // Original categories
     war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: '#6B7280' },
     violence: { label: 'Şiddet', emoji: '💪', color: '#EF4444' },
-    disaster: { label: 'Doğal Afet', emoji: '🌈', color: '#F59E0B' },
-    loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: '#8B5CF6' },
+    disaster: { label: 'Doğal Afet', emoji: '🌈', color: Colors.semantic.amber },
+    loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: Colors.secondary.violet },
     loneliness: { label: 'Yalnızlık', emoji: '🤗', color: '#3B82F6' },
     fear: { label: 'Korku', emoji: '⭐', color: '#10B981' },
     abuse: { label: 'İstismar', emoji: '🛡️', color: '#EC4899' },
     family_separation: { label: 'Aile Ayrılığı', emoji: '❤️', color: '#F97316' },
-    death: { label: 'Ölüm / Yas', emoji: '🦋', color: '#6366F1' },
+    death: { label: 'Ölüm / Yas', emoji: '🦋', color: Colors.secondary.indigo },
     // ACEs Framework categories
-    neglect: { label: 'İhmal', emoji: '🏠', color: '#8B5CF6' },
-    bullying: { label: 'Akran Zorbalığı', emoji: '🤝', color: '#F59E0B' },
+    neglect: { label: 'İhmal', emoji: '🏠', color: Colors.secondary.violet },
+    bullying: { label: 'Akran Zorbalığı', emoji: '🤝', color: Colors.semantic.amber },
     domestic_violence_witness: { label: 'Aile İçi Şiddete Tanıklık', emoji: '🏡', color: '#EF4444' },
     parental_addiction: { label: 'Ebeveyn Bağımlılığı', emoji: '🌱', color: '#10B981' },
     parental_mental_illness: { label: 'Ebeveyn Ruhsal Hastalığı', emoji: '💙', color: '#3B82F6' },
@@ -80,14 +79,14 @@ export default function StudioScreen() {
     depression: { label: 'Depresyon Belirtileri', emoji: '🌻', color: '#EAB308' },
     low_self_esteem: { label: 'Düşük Öz Saygı', emoji: '✨', color: '#A855F7' },
     anger: { label: 'Öfke', emoji: '🧘', color: '#F97316' },
-    school_stress: { label: 'Okul Stresi', emoji: '📚', color: '#6366F1' },
+    school_stress: { label: 'Okul Stresi', emoji: '📚', color: Colors.secondary.indigo },
     social_rejection: { label: 'Sosyal Dışlanma', emoji: '🌟', color: '#EC4899' },
     // Additional categories
     displacement: { label: 'Göç / Yerinden Edilme', emoji: '🏠', color: '#14B8A6' },
     poverty: { label: 'Ekonomik Zorluk', emoji: '💎', color: '#78716C' },
-    cyberbullying: { label: 'Siber Zorbalık', emoji: '📱', color: '#8B5CF6' },
+    cyberbullying: { label: 'Siber Zorbalık', emoji: '📱', color: Colors.secondary.violet },
     // Fallback
-    other: { label: 'Diğer', emoji: '💜', color: '#9CA3AF' },
+    other: { label: 'Diğer', emoji: '💜', color: Colors.neutral.gray400 },
   };
 
   // Hayal Atölyesi'nden gelen imageUri'yi otomatik kullan
@@ -421,7 +420,7 @@ export default function StudioScreen() {
           <View style={styles.modalOverlay}>
             <BlurView intensity={Platform.OS === 'web' ? 0 : 80} tint="light" style={styles.modalBlurContainer}>
               <LinearGradient
-                colors={EmotionalZones.creative.gradient}
+                colors={['#E8FFF5', '#E0FFFF', '#F0FFF4'] as const}
                 style={[
                   styles.modalContent,
                   { padding: isSmallScreen ? spacing["4"] : spacing["6"] },
@@ -1307,12 +1306,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing["4"],
     width: '100%',
     borderLeftWidth: 4,
-    borderLeftColor: '#8B5CF6',
+    borderLeftColor: Colors.secondary.violet,
   },
   therapeuticTitle: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
     marginBottom: spacing["2"],
   },
   therapeuticText: {

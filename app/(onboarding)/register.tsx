@@ -755,7 +755,7 @@ function EmailStepNew({
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: '#F3F4F6',
+              backgroundColor: Colors.neutral.gray100,
               justifyContent: 'center',
               alignItems: 'center',
               marginRight: spacing.sm,
@@ -775,7 +775,7 @@ function EmailStepNew({
               if (emailError) setEmailError('');
             }}
             placeholder="Email adresiniz"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={Colors.neutral.gray400}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -844,7 +844,7 @@ function EmailStepNew({
             style={{
               fontSize: typography.size.md,
               fontWeight: 'bold',
-              color: '#6366F1',
+              color: Colors.secondary.indigo,
               textAlign: 'center',
             }}
           >
@@ -856,7 +856,7 @@ function EmailStepNew({
               style={{
                 fontSize: typography.size.md,
                 fontWeight: '700',
-                color: email ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                color: email ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
             >
@@ -938,13 +938,13 @@ function PasswordStepNew({
 
   // Password strength indicator
   const getPasswordStrength = () => {
-    if (password.length === 0) return { level: 0, text: '', color: '#9CA3AF' };
+    if (password.length === 0) return { level: 0, text: '', color: Colors.neutral.gray400 };
     if (password.length < 6) return { level: 1, text: 'Zayıf', color: '#EF4444' };
-    if (password.length < 8) return { level: 2, text: 'Orta', color: '#F59E0B' };
+    if (password.length < 8) return { level: 2, text: 'Orta', color: Colors.semantic.amber };
     if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
       return { level: 3, text: 'Güçlü', color: '#10B981' };
     }
-    return { level: 2, text: 'İyi', color: '#F59E0B' };
+    return { level: 2, text: 'İyi', color: Colors.semantic.amber };
   };
 
   const strength = getPasswordStrength();
@@ -961,7 +961,7 @@ function PasswordStepNew({
             borderRadius: radius.xl,
             padding: spacing.lg,
             borderLeftWidth: 4,
-            borderLeftColor: '#F59E0B',
+            borderLeftColor: Colors.semantic.amber,
             ...shadows.lg,
           }}
         >
@@ -1052,7 +1052,7 @@ function PasswordStepNew({
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: '#F3F4F6',
+              backgroundColor: Colors.neutral.gray100,
               justifyContent: 'center',
               alignItems: 'center',
               marginRight: spacing.sm,
@@ -1072,7 +1072,7 @@ function PasswordStepNew({
               if (passwordError) setPasswordError('');
             }}
             placeholder="Şifreniz"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={Colors.neutral.gray400}
             secureTextEntry={!showPassword}
             autoComplete="password-new"
             style={{
@@ -1155,7 +1155,7 @@ function PasswordStepNew({
                 backgroundColor:
                   password === confirmPassword && confirmPassword.length > 0
                     ? '#D1FAE5'
-                    : '#F3F4F6',
+                    : Colors.neutral.gray100,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginRight: spacing.sm,
@@ -1183,7 +1183,7 @@ function PasswordStepNew({
                 if (passwordError) setPasswordError('');
               }}
               placeholder="Şifrenizi tekrar girin"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.neutral.gray400}
               secureTextEntry={!showConfirmPassword}
               autoComplete="password-new"
               style={{
@@ -1294,7 +1294,7 @@ function PasswordStepNew({
             style={{
               fontSize: typography.size.md,
               fontWeight: 'bold',
-              color: '#6366F1',
+              color: Colors.secondary.indigo,
               textAlign: 'center',
             }}
           >
@@ -1307,7 +1307,7 @@ function PasswordStepNew({
                 fontSize: typography.size.md,
                 fontWeight: '700',
                 color: (isExistingUser ? password : password && confirmPassword)
-                  ? '#6366F1'
+                  ? Colors.secondary.indigo
                   : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
@@ -1498,7 +1498,7 @@ function VerifyCodeStepNew({
           value={verificationCode}
           onChangeText={setVerificationCode}
           placeholder="000000"
-          placeholderTextColor="#E5E7EB"
+          placeholderTextColor={Colors.neutral.gray200}
           keyboardType="number-pad"
           maxLength={6}
           autoComplete="one-time-code"
@@ -1506,7 +1506,7 @@ function VerifyCodeStepNew({
           style={{
             fontSize: typography.size.hero,
             fontWeight: '700',
-            color: '#6366F1',
+            color: Colors.secondary.indigo,
             padding: spacing.sm,
             textAlign: 'center',
             letterSpacing: 16,
@@ -1529,7 +1529,7 @@ function VerifyCodeStepNew({
                 width: 12,
                 height: 12,
                 borderRadius: 6,
-                backgroundColor: index < verificationCode.length ? '#6366F1' : '#E5E7EB',
+                backgroundColor: index < verificationCode.length ? Colors.secondary.indigo : Colors.neutral.gray200,
               }}
             />
           ))}
@@ -1571,7 +1571,7 @@ function VerifyCodeStepNew({
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: '#F59E0B',
+            backgroundColor: Colors.semantic.amber,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -1642,7 +1642,7 @@ function VerifyCodeStepNew({
             style={{
               fontSize: typography.size.md,
               fontWeight: 'bold',
-              color: '#6366F1',
+              color: Colors.secondary.indigo,
               textAlign: 'center',
             }}
           >
@@ -1654,7 +1654,7 @@ function VerifyCodeStepNew({
               style={{
                 fontSize: typography.size.md,
                 fontWeight: '700',
-                color: verificationCode.length === 6 ? '#6366F1' : 'rgba(255,255,255,0.6)',
+                color: verificationCode.length === 6 ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
             >

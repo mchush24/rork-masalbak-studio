@@ -57,7 +57,7 @@ export function ChildSelector({
 
         <View style={styles.card}>
           <LinearGradient
-            colors={["#FFFFFF", "#F8F9FA"]}
+            colors={[Colors.neutral.white, "#F8F9FA"]}
             style={styles.cardGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
@@ -69,7 +69,7 @@ export function ChildSelector({
 
             {/* Header */}
             <View style={styles.header}>
-              <Baby size={48} color="#FF9B7A" />
+              <Baby size={48} color={Colors.primary.sunset} />
               <Text style={styles.title}>Hangi çocuğunuz için?</Text>
               <Text style={styles.description}>
                 Bir çocuk seçin veya yaş girmek için atlayın

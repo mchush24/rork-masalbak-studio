@@ -145,7 +145,7 @@ const SHOWCASE_STORIES = [
 const SectionHeader = memo(function SectionHeader({
   title,
   icon: Icon,
-  iconColor = '#8B5CF6',
+  iconColor = Colors.secondary.violet,
   onSeeAll,
 }: {
   title: string;
@@ -167,7 +167,7 @@ const SectionHeader = memo(function SectionHeader({
           style={({ pressed }) => [styles.seeAllButton, pressed && { opacity: 0.7 }]}
         >
           <Text style={styles.seeAllText}>Tümü</Text>
-          <ChevronRight size={14} color="#8B5CF6" />
+          <ChevronRight size={14} color={Colors.secondary.violet} />
         </Pressable>
       )}
     </View>
@@ -268,7 +268,7 @@ export default function DiscoverScreen() {
         <SafeAreaView style={styles.safeArea} edges={['top']}>
           <View style={styles.header}>
             <View style={styles.headerTitle}>
-              <Compass size={24} color="#8B5CF6" />
+              <Compass size={24} color={Colors.secondary.violet} />
               <Text style={styles.headerText}>Keşfet</Text>
             </View>
           </View>
@@ -284,7 +284,7 @@ export default function DiscoverScreen() {
         {/* Header */}
         <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
           <View style={styles.headerTitle}>
-            <Compass size={24} color="#8B5CF6" />
+            <Compass size={24} color={Colors.secondary.violet} />
             <Text style={styles.headerText}>Keşfet</Text>
           </View>
           <Pressable
@@ -312,8 +312,8 @@ export default function DiscoverScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#8B5CF6"
-              colors={['#8B5CF6']}
+              tintColor={Colors.secondary.violet}
+              colors={[Colors.secondary.violet]}
             />
           }
         >
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
   },
   tipPlaceholder: {
     marginHorizontal: spacing.md,
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
   showcaseBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#8B5CF6',
+    color: Colors.secondary.violet,
   },
   emptyState: {
     alignItems: 'center',
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#9CA3AF',
+    color: Colors.neutral.gray400,
   },
   bottomPadding: {
     height: 100,

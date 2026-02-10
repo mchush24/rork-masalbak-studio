@@ -50,7 +50,7 @@ export const EMOTIONS: Emotion[] = [
     id: 'excited',
     name: 'Heyecanlı',
     emoji: '🤩',
-    color: '#FF6B6B',
+    color: Colors.secondary.coral,
     gradient: ['#FFEBEE', '#FFCDD2'] as const,
     iooMood: 'excited',
     message: 'Vay canına! Ne heyecan verici!',
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     minHeight: 200,
   },
   speechBubble: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: 20,
     padding: 16,
     marginTop: 12,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 10,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#FFF',
+    borderBottomColor: Colors.neutral.white,
   },
   speechText: {
     fontSize: typography.size.base,

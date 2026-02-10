@@ -23,6 +23,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { shadows, textShadows } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 // ============================================================================
 // TYPES
@@ -509,12 +510,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: Colors.neutral.darkest,
   },
   temperatureBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.neutral.lightest,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -526,7 +527,7 @@ const styles = StyleSheet.create({
   temperatureText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
 
   // Base Color
@@ -536,7 +537,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#999',
+    color: Colors.neutral.light,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
   baseColorHex: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFF',
+    color: Colors.neutral.white,
     ...textShadows.md,
   },
 
@@ -568,13 +569,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.neutral.lightest,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
   harmonyTypeButtonActive: {
-    backgroundColor: '#333',
+    backgroundColor: Colors.neutral.darkest,
   },
   harmonyTypeEmoji: {
     fontSize: 14,
@@ -582,10 +583,10 @@ const styles = StyleSheet.create({
   harmonyTypeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
   },
   harmonyTypeTextActive: {
-    color: '#FFF',
+    color: Colors.neutral.white,
   },
 
   // Harmony Colors
@@ -594,7 +595,7 @@ const styles = StyleSheet.create({
   },
   harmonyDescription: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 12,
     fontStyle: 'italic',
   },
@@ -621,7 +622,7 @@ const styles = StyleSheet.create({
   harmonyColorHex: {
     fontSize: 8,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.neutral.darkest,
     fontFamily: 'monospace',
   },
 
@@ -644,12 +645,12 @@ const styles = StyleSheet.create({
   },
   suggestionBoxActive: {
     borderWidth: 2,
-    borderColor: '#333',
+    borderColor: Colors.neutral.darkest,
   },
   suggestionText: {
     fontSize: 9,
     fontWeight: '600',
-    color: '#FFF',
+    color: Colors.neutral.white,
     ...textShadows.md,
   },
 
@@ -660,7 +661,7 @@ const styles = StyleSheet.create({
   compactTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.neutral.medium,
     marginBottom: 8,
   },
   compactScroll: {

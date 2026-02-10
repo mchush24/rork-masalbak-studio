@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Lock } from 'lucide-react-native';
 import { Badge, RARITY_COLORS, BadgeRarity } from '@/lib/gamification/badges';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
+import { Colors } from '@/constants/colors';
 
 interface BadgeCardProps {
   badge: Badge;
@@ -118,7 +119,7 @@ export function BadgeCard({
           {
             transform: [{ scale: scaleAnim }],
             borderColor: isUnlocked ? rarityColors.border : '#E0E0E0',
-            backgroundColor: isUnlocked ? rarityColors.bg : '#F5F5F5',
+            backgroundColor: isUnlocked ? rarityColors.bg : Colors.neutral.lightest,
           },
         ]}
       >

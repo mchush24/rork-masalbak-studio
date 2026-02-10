@@ -29,7 +29,7 @@ import {
   Minus,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
-import { ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface StudentData {
   id: string;
@@ -186,7 +186,7 @@ export function StudentList({
               style={styles.batchButton}
               onPress={() => onBatchAnalysis?.(Array.from(selectedStudents))}
             >
-              <FileText size={16} color="#FFFFFF" />
+              <FileText size={16} color={Colors.neutral.white} />
               <Text style={styles.batchButtonText}>
                 Toplu Analiz ({selectedStudents.size})
               </Text>
@@ -196,7 +196,7 @@ export function StudentList({
             style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
             onPress={onAddStudent}
           >
-            <Plus size={20} color="#FFFFFF" />
+            <Plus size={20} color={Colors.neutral.white} />
           </Pressable>
         </View>
       </View>
@@ -283,7 +283,7 @@ export function StudentList({
             selectedStudents.size === filteredAndSortedStudents.length && styles.checkboxChecked,
           ]}>
             {selectedStudents.size === filteredAndSortedStudents.length && (
-              <Check size={14} color="#FFFFFF" />
+              <Check size={14} color={Colors.neutral.white} />
             )}
           </View>
           <Text style={styles.selectAllText}>
@@ -335,7 +335,7 @@ export function StudentList({
                 {/* Checkbox (selectable mode) */}
                 {selectable && (
                   <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
-                    {isSelected && <Check size={14} color="#FFFFFF" />}
+                    {isSelected && <Check size={14} color={Colors.neutral.white} />}
                   </View>
                 )}
 
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   batchButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.neutral.white,
   },
   addButton: {
     width: 40,
@@ -453,12 +453,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['2'],
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['2'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   searchInput: {
     flex: 1,
@@ -470,9 +470,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: radius.lg,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.neutral.gray50,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -502,9 +502,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.neutral.gray200,
     marginRight: spacing['2'],
   },
   filterChipActive: {
@@ -554,12 +554,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['3'],
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.neutral.white,
     borderRadius: radius.xl,
     padding: spacing['3'],
     marginBottom: spacing['2'],
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.neutral.gray100,
   },
   studentCardPressed: {
     backgroundColor: '#FAFAFA',
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
+    borderColor: Colors.neutral.gray300,
     alignItems: 'center',
     justifyContent: 'center',
   },

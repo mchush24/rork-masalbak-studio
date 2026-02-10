@@ -32,7 +32,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { ConfettiAnimation, SuccessAnimation, SparkleAnimation } from './MicroInteractions';
-import { SymbiosisTheme, EmotionalZones } from '@/constants/SymbiosisTheme';
+import { RenkooColors, Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 
 export type CelebrationType =
@@ -66,7 +66,7 @@ const CELEBRATION_CONFIG: Record<
     defaultTitle: 'Analiz Tamamlandı!',
     defaultSubtitle: 'Harika bir adım attınız',
     emoji: '🎉',
-    gradient: EmotionalZones.joy.gradient,
+    gradient: ['#FFFBEB', '#FEF3C7', '#FDE68A'] as const,
     showConfetti: true,
   },
   badge_unlocked: {
@@ -87,14 +87,14 @@ const CELEBRATION_CONFIG: Record<
     defaultTitle: 'İlk Analiz!',
     defaultSubtitle: 'Yolculuğa başladınız',
     emoji: '⭐',
-    gradient: EmotionalZones.home.gradient,
+    gradient: RenkooColors.gradients.homeScreen,
     showConfetti: true,
   },
   milestone: {
     defaultTitle: 'Kilometre Taşı!',
     defaultSubtitle: 'Büyük bir başarı',
     emoji: '🎯',
-    gradient: EmotionalZones.joy.gradient,
+    gradient: ['#FFFBEB', '#FEF3C7', '#FDE68A'] as const,
     showConfetti: true,
   },
 };
@@ -154,13 +154,13 @@ export function CelebrationOverlay({
             >
               {/* Sparkles around emoji */}
               <View style={styles.emojiContainer}>
-                <SparkleAnimation size={120} color={SymbiosisTheme.brand.gold} />
+                <SparkleAnimation size={120} color={RenkooColors.brand.starGold} />
                 <Text style={styles.emoji}>{displayEmoji}</Text>
               </View>
 
               {/* Success checkmark */}
               <View style={styles.successContainer}>
-                <SuccessAnimation size={60} color={SymbiosisTheme.brand.mint} />
+                <SuccessAnimation size={60} color={RenkooColors.brand.jellyMint} />
               </View>
 
               {/* Text */}
@@ -233,14 +233,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1E293B',
+    color: Colors.text.primary,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#475569',
+    color: Colors.text.secondary,
     textAlign: 'center',
     marginBottom: 24,
   },

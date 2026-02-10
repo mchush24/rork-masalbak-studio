@@ -7,6 +7,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { Colors } from '@/constants/colors';
 
 // Types
 export type ExperimentType = 'ui' | 'flow' | 'feature';
@@ -77,7 +78,7 @@ const DEFAULT_EXPERIMENTS: Experiment[] = [
     description: 'Test primary button color variants',
     type: 'ui',
     variants: [
-      { id: 'purple', name: 'Purple (Default)', weight: 50, config: { color: '#8B5CF6' } },
+      { id: 'purple', name: 'Purple (Default)', weight: 50, config: { color: Colors.secondary.violet } },
       { id: 'gradient', name: 'Gradient', weight: 50, config: { gradient: true } },
     ],
     isActive: false,

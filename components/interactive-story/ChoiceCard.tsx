@@ -18,6 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { shadows } from "@/constants/design-system";
 import { ChoiceOption, TRAIT_DEFINITIONS } from "@/types/InteractiveStory";
+import { Colors } from '@/constants/colors';
 
 interface ChoiceCardProps {
   option: ChoiceOption;
@@ -32,7 +33,7 @@ const CARD_GRADIENTS: string[][] = [
   ["#9333EA", "#7C3AED"], // Mor
   ["#3B82F6", "#2563EB"], // Mavi
   ["#10B981", "#059669"], // Yesil
-  ["#F59E0B", "#D97706"], // Turuncu
+  [Colors.semantic.amber, "#D97706"], // Turuncu
   ["#EC4899", "#DB2777"], // Pembe
 ];
 
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
   },
   selectedGradient: {
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: Colors.neutral.white,
   },
   emojiContainer: {
     width: 56,
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   text: {
-    color: "#fff",
+    color: Colors.neutral.white,
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.neutral.white,
     alignItems: "center",
     justifyContent: "center",
   },

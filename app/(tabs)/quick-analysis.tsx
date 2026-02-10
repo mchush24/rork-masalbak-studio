@@ -312,7 +312,7 @@ export default function AnalyzeScreen() {
                     {retries > 0 && <Text style={styles.errorRetryInfo}>Deneme: {retries}/3</Text>}
                   </View>
                   <Pressable onPress={() => setError(null)} style={styles.errorCloseButton}>
-                    <X size={20} color="#FFFFFF" />
+                    <X size={20} color={Colors.neutral.white} />
                   </Pressable>
                 </View>
 
@@ -973,7 +973,7 @@ const styles = StyleSheet.create({
   },
   resultValue: {
     fontSize: 16,
-    color: '#374151', // Darker gray for better readability
+    color: Colors.neutral.gray700, // Darker gray for better readability
     lineHeight: 26, // 1.625x for optimal reading
     marginBottom: spacing['5'],
     letterSpacing: 0.4,
@@ -1062,12 +1062,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['8'],
     paddingTop: spacing['2'],
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.neutral.gray200,
   },
   insightTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: Colors.neutral.gray900,
     marginBottom: spacing['4'],
     lineHeight: 30,
     letterSpacing: 0.3,
@@ -1101,7 +1101,7 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: Colors.neutral.gray900,
     marginBottom: spacing['4'],
     lineHeight: 28,
     letterSpacing: 0.3,
