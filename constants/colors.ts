@@ -1,7 +1,7 @@
 /**
  * RenkiOO Renk Paleti - "Renkli Bahçe" Skin
  *
- * Çocuk uygulaması için canlı, eğlenceli ve renkli tasarım
+ * Ebeveynler için sıcak, premium tasarım
  * - Gradient arka planlar
  * - Renkli kartlar
  * - Glassmorphism efektleri
@@ -356,9 +356,9 @@ export const Colors = {
 
   // Semantic Text Colors
   text: {
-    primary: '#2D3748',    // neutral.darkest
-    secondary: '#4A5568',  // neutral.dark
-    tertiary: '#718096',   // neutral.medium
+    primary: '#2D3748', // neutral.darkest
+    secondary: '#4A5568', // neutral.dark
+    tertiary: '#718096', // neutral.medium
     inverse: '#FFFFFF',
   },
 
@@ -371,9 +371,9 @@ export const Colors = {
 
   // Border Colors
   border: {
-    light: '#E2E8F0',     // neutral.lighter
-    medium: '#A0AEC0',    // neutral.light
-    focus: '#A78BFA',     // secondary.lavender
+    light: '#E2E8F0', // neutral.lighter
+    medium: '#A0AEC0', // neutral.light
+    focus: '#A78BFA', // secondary.lavender
   },
 
   // Emotion Colors
@@ -419,6 +419,26 @@ export const Colors = {
       icon: '#9333EA',
     },
   },
+
+  // Welcome / Landing Screen Premium Colors
+  welcome: {
+    // Dark premium background gradient
+    background: ['#1a0a2e', '#2d1b4e', '#1e3a5f', '#0d1f3c'] as const,
+    backgroundDark: ['#0A0515', '#1A0D30', '#0D1A2D', '#060D1E'] as const,
+    containerBg: '#0a0a1a',
+    // CTA button gradient (hot pink → coral → orange)
+    cta: ['#FF4D8D', '#FF6B6B', '#FF8C42'] as const,
+    ctaShadow: '#FF5080',
+    // Secondary button
+    secondaryBorder: 'rgba(255, 255, 255, 0.5)',
+    secondaryBg: 'rgba(255, 255, 255, 0.15)',
+    // Text
+    subtitle: 'rgba(255, 255, 255, 0.95)',
+    footer: 'rgba(255, 255, 255, 0.75)',
+    // Brand badge
+    badgeBg: 'rgba(255, 255, 255, 0.14)',
+    badgeBorder: 'rgba(255, 255, 255, 0.4)',
+  },
 };
 
 // ============================================================================
@@ -434,6 +454,7 @@ export const DarkColors = {
     peach: '#FFAA8D', // Slightly lighter for dark bg
     blush: '#FFB8A0', // Warm glow
     soft: '#2A2235', // Dark soft purple background
+    softPeach: '#2A1D18', // Dark warm background
   },
 
   // İkincil Renkler - Dark mode için parlaklık artırıldı
@@ -455,6 +476,17 @@ export const DarkColors = {
 
     mint: '#80F5E0', // Brighter mint
     mintLight: '#B0FFF0',
+
+    // Şeftali ve mercan tonları
+    peach: '#FFAA8D',
+    peachLight: '#FFD1C0',
+    coral: '#FF8080',
+    coralLight: '#FFB0B0',
+
+    // İndigo ve mor tonları
+    indigo: '#7B80FF',
+    indigoLight: '#9EA0FF',
+    violet: '#A080FF',
   },
 
   // Nötr Tonlar - Dark mode (WCAG AA uyumlu)
@@ -466,6 +498,15 @@ export const DarkColors = {
     lighter: '#3D4055', // Kenarlıklar
     lightest: '#252835', // Arka plan (kartlar)
     white: '#1A1D28', // En koyu (ana arka plan)
+    darker: '#F5F5F7', // Alias for darkest
+    // Tailwind gray equivalents (inverted for dark mode)
+    gray50: '#1A1D28',
+    gray100: '#252835',
+    gray200: '#3D4055',
+    gray300: '#5A5D70',
+    gray400: '#8A8FA0',
+    gray700: '#D0D0D8',
+    gray900: '#F5F5F7',
   },
 
   // Arka Plan Renkleri - Dark Ethereal
@@ -504,6 +545,10 @@ export const DarkColors = {
     info: '#8AD4F0',
     infoLight: '#152535',
     infoBg: '#0D1A25',
+
+    // Amber (dikkat çekici)
+    amber: '#FFAA40',
+    amberLight: '#FFD080',
   },
 
   // Özel Durumlar - Dark mode
@@ -567,6 +612,47 @@ export const DarkColors = {
       border: '#8A70B0',
       icon: '#D4C5FF',
     },
+  },
+
+  // Semantic Text Colors - Dark mode
+  text: {
+    primary: '#F5F5F7', // Light text on dark bg
+    secondary: '#E0E0E5', // Secondary text
+    tertiary: '#A0A5B5', // Muted text
+    inverse: '#1A1D28', // Dark text (for light surfaces)
+  },
+
+  // Surface Colors - Dark mode
+  surface: {
+    card: '#1E2130',
+    elevated: '#252835',
+    overlay: 'rgba(0, 0, 0, 0.7)',
+  },
+
+  // Border Colors - Dark mode
+  border: {
+    light: '#3D4055',
+    medium: '#6B7085',
+    focus: '#B89EFF',
+  },
+
+  // Emotion Colors - Dark mode (brightened for dark bg)
+  emotion: {
+    joy: '#FFE085',
+    trust: '#7BE8AA',
+    fear: '#FF9590',
+    anger: '#FF9590',
+    sadness: '#8AD4F0',
+    surprise: '#D4C5FF',
+    anticipation: '#FFEBA8',
+  },
+
+  // Status aliases - Dark mode
+  status: {
+    success: '#7BE8AA',
+    warning: '#FFC070',
+    error: '#FF9590',
+    info: '#8AD4F0',
   },
 };
 

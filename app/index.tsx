@@ -31,15 +31,10 @@ import * as Haptics from 'expo-haptics';
 // Components
 import { Ioo as IooMascot } from '@/components/Ioo';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
-
-// ============================================
-// ANIMATED COMPONENTS
-// ============================================
-const _AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const _AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 // ============================================
 // PLATFORM UTILITIES
@@ -122,6 +117,7 @@ const FloatingParticle: React.FC<FloatingParticleProps> = ({
 // MAIN SCREEN COMPONENT
 // ============================================
 export default function PremiumHomeScreen() {
+  const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -134,7 +130,7 @@ export default function PremiumHomeScreen() {
   const ctaScale = useSharedValue(1);
   const ctaGlow = useSharedValue(0);
   const secondaryScale = useSharedValue(1);
-  const gradientProgress = useSharedValue(0);
+  const _gradientProgress = useSharedValue(0);
 
   useEffect(() => {
     // Mascot gentle floating
@@ -173,8 +169,8 @@ export default function PremiumHomeScreen() {
       )
     );
 
-    // Background gradient animation
-    gradientProgress.value = withRepeat(
+    // Background gradient animation (reserved for future use)
+    _gradientProgress.value = withRepeat(
       withSequence(
         withTiming(1, { duration: 8000, easing: Easing.inOut(Easing.sin) }),
         withTiming(0, { duration: 8000, easing: Easing.inOut(Easing.sin) })
@@ -249,7 +245,11 @@ export default function PremiumHomeScreen() {
 
       {/* Premium Gradient Background */}
       <LinearGradient
-        colors={['#1a0a2e', '#2d1b4e', '#1e3a5f', '#0d1f3c']}
+        colors={
+          isDark
+            ? ([...Colors.welcome.backgroundDark] as [string, string, ...string[]])
+            : ([...Colors.welcome.background] as [string, string, ...string[]])
+        }
         locations={[0, 0.3, 0.7, 1]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
@@ -371,7 +371,7 @@ export default function PremiumHomeScreen() {
               accessibilityLabel="Yolculuğa Başla"
             >
               <LinearGradient
-                colors={['#FF4D8D', '#FF6B6B', '#FF8C42']}
+                colors={[...Colors.welcome.cta]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.ctaGradient}
@@ -415,46 +415,49 @@ export default function PremiumHomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a1a',
+    backgroundColor: Colors.welcome.containerBg,
   },
 
   // Ambient lights
   ambientLight1: {
     position: 'absolute',
-    width: SCREEN_WIDTH * 0.8,
-    height: SCREEN_WIDTH * 0.8,
-    borderRadius: SCREEN_WIDTH * 0.4,
-    backgroundColor: 'rgba(147, 112, 219, 0.15)',
-    top: -SCREEN_WIDTH * 0.3,
-    left: -SCREEN_WIDTH * 0.2,
+    width: SCREEN_WIDTH * 1.0,
+    height: SCREEN_WIDTH * 1.0,
+    borderRadius: SCREEN_WIDTH * 0.5,
+    backgroundColor:
+      Platform.OS === 'web' ? 'rgba(147, 112, 219, 0.15)' : 'rgba(147, 112, 219, 0.08)',
+    top: -SCREEN_WIDTH * 0.35,
+    left: -SCREEN_WIDTH * 0.25,
     ...Platform.select({
-      web: { filter: 'blur(60px)' },
+      web: { filter: 'blur(60px)' } as Record<string, string>,
       default: {},
     }),
   },
   ambientLight2: {
     position: 'absolute',
-    width: SCREEN_WIDTH * 0.6,
-    height: SCREEN_WIDTH * 0.6,
-    borderRadius: SCREEN_WIDTH * 0.3,
-    backgroundColor: 'rgba(255, 150, 180, 0.12)',
+    width: SCREEN_WIDTH * 0.8,
+    height: SCREEN_WIDTH * 0.8,
+    borderRadius: SCREEN_WIDTH * 0.4,
+    backgroundColor:
+      Platform.OS === 'web' ? 'rgba(255, 150, 180, 0.12)' : 'rgba(255, 150, 180, 0.06)',
     top: SCREEN_HEIGHT * 0.3,
-    right: -SCREEN_WIDTH * 0.2,
+    right: -SCREEN_WIDTH * 0.25,
     ...Platform.select({
-      web: { filter: 'blur(50px)' },
+      web: { filter: 'blur(50px)' } as Record<string, string>,
       default: {},
     }),
   },
   ambientLight3: {
     position: 'absolute',
-    width: SCREEN_WIDTH * 0.7,
-    height: SCREEN_WIDTH * 0.7,
-    borderRadius: SCREEN_WIDTH * 0.35,
-    backgroundColor: 'rgba(100, 200, 255, 0.1)',
-    bottom: -SCREEN_WIDTH * 0.2,
-    left: -SCREEN_WIDTH * 0.1,
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_WIDTH * 0.9,
+    borderRadius: SCREEN_WIDTH * 0.45,
+    backgroundColor:
+      Platform.OS === 'web' ? 'rgba(100, 200, 255, 0.1)' : 'rgba(100, 200, 255, 0.05)',
+    bottom: -SCREEN_WIDTH * 0.25,
+    left: -SCREEN_WIDTH * 0.15,
     ...Platform.select({
-      web: { filter: 'blur(55px)' },
+      web: { filter: 'blur(55px)' } as Record<string, string>,
       default: {},
     }),
   },
@@ -484,22 +487,22 @@ const styles = StyleSheet.create({
   // Brand
   brandContainer: {
     alignItems: 'center',
-    marginBottom: isSmallDevice ? 4 : 8,
+    marginBottom: isSmallDevice ? 6 : 10,
   },
   brandBadge: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 28,
     paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   brandText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     fontFamily: 'Poppins_700Bold',
-    color: Colors.neutral.white,
-    letterSpacing: 5,
+    color: '#FFFFFF',
+    letterSpacing: 6,
   },
 
   // Hero
@@ -530,19 +533,20 @@ const styles = StyleSheet.create({
     }),
   },
   mascotContainer: {
-    marginVertical: isSmallDevice ? 16 : 24,
+    marginTop: isSmallDevice ? 12 : 16,
+    marginBottom: isSmallDevice ? 8 : 12,
   },
   subtitleContainer: {
-    marginTop: isSmallDevice ? 12 : 16,
-    paddingHorizontal: 24,
+    marginTop: isSmallDevice ? 16 : 20,
+    paddingHorizontal: 20,
   },
   subtitle: {
-    fontSize: isSmallDevice ? 16 : 19,
+    fontSize: isSmallDevice ? 17 : 20,
     fontWeight: '600',
     fontFamily: 'Poppins_600SemiBold',
-    color: 'rgba(255, 255, 255, 0.85)',
+    color: 'rgba(255, 255, 255, 0.95)',
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: isSmallDevice ? 26 : 30,
     letterSpacing: 0.3,
   },
 
@@ -553,17 +557,23 @@ const styles = StyleSheet.create({
   },
   ctaGlow: {
     position: 'absolute',
-    top: -15,
-    left: 10,
-    right: 10,
-    bottom: -15,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 100, 130, 0.5)',
+    top: -20,
+    left: 5,
+    right: 5,
+    bottom: -20,
+    borderRadius: 44,
+    backgroundColor:
+      Platform.OS === 'web' ? 'rgba(255, 100, 130, 0.5)' : 'rgba(255, 100, 130, 0.25)',
     ...Platform.select({
       web: {
         filter: 'blur(25px)',
+      } as Record<string, string>,
+      default: {
+        shadowColor: '#FF5080',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius: 30,
       },
-      default: {},
     }),
   },
   ctaButton: {
@@ -574,7 +584,7 @@ const styles = StyleSheet.create({
         boxShadow: '0 10px 40px rgba(255, 80, 120, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3)',
       },
       default: {
-        shadowColor: '#FF5080',
+        shadowColor: Colors.welcome.ctaShadow,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.5,
         shadowRadius: 20,
@@ -617,26 +627,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   secondaryText: {
     fontSize: isSmallDevice ? 16 : 18,
     fontWeight: '700',
     fontFamily: 'Poppins_700Bold',
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 
   // Footer
   footer: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   footerText: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Poppins_500Medium',
-    color: 'rgba(255, 255, 255, 0.5)',
-    letterSpacing: 1,
+    color: 'rgba(255, 255, 255, 0.75)',
+    letterSpacing: 1.5,
   },
 });
