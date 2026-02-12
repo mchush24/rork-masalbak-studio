@@ -144,7 +144,10 @@ export function calculateBrushModifiers(
  * Apply non-linear curve to pressure for more natural feel
  * Uses ease-in-out curve
  */
-export function applyPressureCurve(pressure: number, curve: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut' = 'easeInOut'): number {
+export function applyPressureCurve(
+  pressure: number,
+  curve: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut' = 'easeInOut'
+): number {
   switch (curve) {
     case 'linear':
       return pressure;
@@ -159,9 +162,7 @@ export function applyPressureCurve(pressure: number, curve: 'linear' | 'easeIn' 
 
     case 'easeInOut':
       // Quadratic ease-in-out
-      return pressure < 0.5
-        ? 2 * pressure * pressure
-        : 1 - Math.pow(-2 * pressure + 2, 2) / 2;
+      return pressure < 0.5 ? 2 * pressure * pressure : 1 - Math.pow(-2 * pressure + 2, 2) / 2;
 
     default:
       return pressure;
@@ -204,6 +205,7 @@ export function isPressureAvailable(): boolean {
 /**
  * Extract pressure data from Skia touch event
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function extractPressureFromTouch(touch: any): PressureData {
   const pressure = touch.force || touch.pressure || 0.5; // Default to medium pressure
   const force = touch.force || pressure;
@@ -236,6 +238,7 @@ export class PressureManager {
   /**
    * Update pressure from touch event
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updatePressure(touch: any): number {
     if (!this.enabled) {
       return 0.5; // Neutral pressure

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { spacing, borderRadius, typography } from '@/lib/design-tokens';
+import { spacing, borderRadius, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface PasswordStrengthIndicatorProps {
@@ -9,7 +9,7 @@ interface PasswordStrengthIndicatorProps {
 
 export function PasswordStrengthIndicator({
   password,
-  showFeedback = true,
+  _showFeedback = true,
 }: PasswordStrengthIndicatorProps) {
   // Calculate strength
   let score = 0;
@@ -34,7 +34,7 @@ export function PasswordStrengthIndicator({
     <View style={styles.container}>
       {/* Strength bars */}
       <View style={styles.barsContainer}>
-        {[0, 1, 2, 3, 4].map((index) => (
+        {[0, 1, 2, 3, 4].map(index => (
           <View
             key={index}
             style={[
@@ -48,9 +48,7 @@ export function PasswordStrengthIndicator({
       </View>
 
       {/* Label */}
-      <Text style={[styles.label, { color: colors[strength] }]}>
-        {labels[strength]}
-      </Text>
+      <Text style={[styles.label, { color: colors[strength] }]}>{labels[strength]}</Text>
     </View>
   );
 }
@@ -70,7 +68,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
   },
   label: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.size.xs,
     fontWeight: '600',
   },
 });

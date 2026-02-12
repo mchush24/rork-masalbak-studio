@@ -18,8 +18,8 @@
  */
 
 import { FillPoint } from '../ColoringContext';
-import { floodFill, FloodFillResult, FloodFillOptions, hexToRgba } from '../utils/floodFill';
-import type { SkImage, SkCanvas } from '@shopify/react-native-skia';
+import { floodFill, FloodFillResult, FloodFillOptions } from '../utils/floodFill';
+import { SkImage } from '@shopify/react-native-skia';
 
 export interface FillToolResult {
   fills: FillPoint[];
@@ -86,8 +86,8 @@ function createOptimizedCircleFill(
   // Calculate dimensions
   const width = maxX - minX;
   const height = maxY - minY;
-  const centerX = minX + width / 2;
-  const centerY = minY + height / 2;
+  const _centerX = minX + width / 2;
+  const _centerY = minY + height / 2;
 
   // Circle radius
   const radius = Math.min(50, Math.max(20, Math.min(width, height) / 4));
@@ -214,8 +214,8 @@ export async function performFillWithSnapshot(
   options: Partial<FloodFillOptions> = {}
 ): Promise<FillToolResult> {
   const baseId = `fill-${Date.now()}`;
-  const canvasWidth = snapshot.width();
-  const canvasHeight = snapshot.height();
+  const _canvasWidth = snapshot.width();
+  const _canvasHeight = snapshot.height();
 
   // Try to extract pixel data from snapshot
   const pixelData = await extractPixelDataFromSnapshot(snapshot);
@@ -267,7 +267,9 @@ export async function performFillWithSnapshot(
     } else {
       fills = createOptimizedCircleFill(result.boundingBox, color, baseId);
       method = 'pixel-perfect';
-      console.log(`[FillTool] Large region (${result.pixels} pixels) - using optimized circle fill`);
+      console.log(
+        `[FillTool] Large region (${result.pixels} pixels) - using optimized circle fill`
+      );
     }
   } else {
     fills = createFallbackCircleFill(x, y, color, baseId);
@@ -292,7 +294,7 @@ export function performFill(
   color: string,
   canvasWidth: number,
   canvasHeight: number,
-  options: Partial<FloodFillOptions> = {}
+  _options: Partial<FloodFillOptions> = {}
 ): FillToolResult {
   const baseId = `fill-${Date.now()}`;
 
@@ -369,8 +371,4 @@ export function performFill(
 // EXPORTS
 // ============================================================================
 
-export {
-  createDenseCircleFill,
-  createOptimizedCircleFill,
-  createFallbackCircleFill,
-};
+export { createDenseCircleFill, createOptimizedCircleFill, createFallbackCircleFill };

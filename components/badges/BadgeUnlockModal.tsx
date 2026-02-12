@@ -8,23 +8,15 @@
  * - Rozet detayları
  */
 
-import React, { useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Pressable,
-  Animated,
-  Dimensions,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { X, Sparkles, Lock, Target, TrendingUp } from "lucide-react-native";
-import { Colors, RenkooColors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
-import { BADGE_RARITY_CONFIG, type BadgeRarity } from "@/constants/badges";
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Modal, Pressable, Animated, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { X, Sparkles, Lock, Target, TrendingUp } from 'lucide-react-native';
+import { Colors, RenkooColors } from '@/constants/colors';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
+import { BADGE_RARITY_CONFIG, type BadgeRarity } from '@/constants/badges';
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface BadgeUnlockModalProps {
   visible: boolean;
@@ -45,12 +37,7 @@ interface BadgeUnlockModalProps {
   onAction?: () => void;
 }
 
-export function BadgeUnlockModal({
-  visible,
-  onClose,
-  badge,
-  onAction,
-}: BadgeUnlockModalProps) {
+export function BadgeUnlockModal({ visible, onClose, badge, onAction }: BadgeUnlockModalProps) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -173,56 +160,53 @@ export function BadgeUnlockModal({
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, badge, isUnlocked]);
 
   if (!badge) return null;
 
   const rarityConfig = BADGE_RARITY_CONFIG[badge.rarity];
-  const confettiColors = ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96E6A1", "#DDA0DD"];
+  const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#DDA0DD'];
 
   const rotate = rotateAnim.interpolate({
     inputRange: [-1, 0, 1],
-    outputRange: ["-5deg", "0deg", "5deg"],
+    outputRange: ['-5deg', '0deg', '5deg'],
   });
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 100],
-    outputRange: ["0%", "100%"],
+    outputRange: ['0%', '100%'],
   });
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 
         {/* Confetti - only for unlocked */}
-        {isUnlocked && confettiAnims.map((anim, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles.confetti,
-              {
-                backgroundColor: confettiColors[index % confettiColors.length],
-                transform: [
-                  { translateX: anim.translateX },
-                  { translateY: anim.translateY },
-                  {
-                    rotate: anim.rotate.interpolate({
-                      inputRange: [-2, 2],
-                      outputRange: ["-180deg", "180deg"],
-                    }),
-                  },
-                ],
-                opacity: anim.opacity,
-              },
-            ]}
-          />
-        ))}
+        {isUnlocked &&
+          confettiAnims.map((anim, index) => (
+            <Animated.View
+              key={index}
+              style={[
+                styles.confetti,
+                {
+                  backgroundColor: confettiColors[index % confettiColors.length],
+                  transform: [
+                    { translateX: anim.translateX },
+                    { translateY: anim.translateY },
+                    {
+                      rotate: anim.rotate.interpolate({
+                        inputRange: [-2, 2],
+                        outputRange: ['-180deg', '180deg'],
+                      }),
+                    },
+                  ],
+                  opacity: anim.opacity,
+                },
+              ]}
+            />
+          ))}
 
         {/* Badge Card */}
         <Animated.View
@@ -276,11 +260,12 @@ export function BadgeUnlockModal({
               ]}
             />
             <LinearGradient
-              colors={isUnlocked ? [rarityConfig.bgColor, Colors.neutral.white] : [Colors.neutral.gray100, Colors.neutral.gray200]}
-              style={[
-                styles.badgeIconContainer,
-                !isUnlocked && styles.badgeIconLocked,
-              ]}
+              colors={
+                isUnlocked
+                  ? [rarityConfig.bgColor, Colors.neutral.white]
+                  : [Colors.neutral.gray100, Colors.neutral.gray200]
+              }
+              style={[styles.badgeIconContainer, !isUnlocked && styles.badgeIconLocked]}
             >
               <Text style={[styles.badgeIcon, !isUnlocked && styles.badgeIconLockedText]}>
                 {badge.icon}
@@ -314,12 +299,7 @@ export function BadgeUnlockModal({
 
               <View style={styles.progressBarContainer}>
                 <View style={styles.progressBarBg}>
-                  <Animated.View
-                    style={[
-                      styles.progressBarFill,
-                      { width: progressWidth },
-                    ]}
-                  />
+                  <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
                 </View>
                 <Text style={styles.progressText}>
                   {badge.progress.current} / {badge.progress.target}
@@ -334,10 +314,7 @@ export function BadgeUnlockModal({
 
           {/* Action Button */}
           <Pressable
-            style={({ pressed }) => [
-              styles.actionButton,
-              pressed && { opacity: 0.8 },
-            ]}
+            style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.8 }]}
             onPress={() => {
               if (onAction && !isUnlocked) {
                 onAction();
@@ -346,15 +323,14 @@ export function BadgeUnlockModal({
             }}
           >
             <LinearGradient
-              colors={isUnlocked
-                ? [Colors.primary.sunset, Colors.primary.peach]
-                : [RenkooColors.brand.jellyPurple, RenkooColors.brand.dreamLavender]
+              colors={
+                isUnlocked
+                  ? [Colors.primary.sunset, Colors.primary.peach]
+                  : [RenkooColors.brand.jellyPurple, RenkooColors.brand.dreamLavender]
               }
               style={styles.actionButtonGradient}
             >
-              <Text style={styles.actionButtonText}>
-                {isUnlocked ? "Harika!" : "Hemen Başla!"}
-              </Text>
+              <Text style={styles.actionButtonText}>{isUnlocked ? 'Harika!' : 'Hemen Başla!'}</Text>
             </LinearGradient>
           </Pressable>
         </Animated.View>
@@ -366,15 +342,15 @@ export function BadgeUnlockModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   confetti: {
-    position: "absolute",
+    position: 'absolute',
     width: 10,
     height: 10,
     borderRadius: 2,
@@ -382,27 +358,27 @@ const styles = StyleSheet.create({
   card: {
     width: SCREEN_WIDTH * 0.85,
     backgroundColor: Colors.neutral.white,
-    borderRadius: radius["2xl"],
-    padding: spacing["6"],
-    alignItems: "center",
+    borderRadius: radius['2xl'],
+    padding: spacing['6'],
+    alignItems: 'center',
     ...shadows.xl,
   },
   closeButton: {
-    position: "absolute",
-    top: spacing["4"],
-    right: spacing["4"],
+    position: 'absolute',
+    top: spacing['4'],
+    right: spacing['4'],
     width: 32,
     height: 32,
     borderRadius: radius.full,
     backgroundColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    marginBottom: spacing["6"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    marginBottom: spacing['6'],
   },
   headerText: {
     fontSize: typography.size.xl,
@@ -410,11 +386,11 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
   },
   badgeContainer: {
-    position: "relative",
-    marginBottom: spacing["4"],
+    position: 'relative',
+    marginBottom: spacing['4'],
   },
   glow: {
-    position: "absolute",
+    position: 'absolute',
     width: 140,
     height: 140,
     borderRadius: 70,
@@ -425,8 +401,8 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 4,
     borderColor: Colors.neutral.white,
     ...shadows.lg,
@@ -442,29 +418,29 @@ const styles = StyleSheet.create({
   },
   lockOverlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 60,
   },
   badgeName: {
-    fontSize: typography.size["2xl"],
+    fontSize: typography.size['2xl'],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing["2"],
-    textAlign: "center",
+    marginBottom: spacing['2'],
+    textAlign: 'center',
   },
   badgeDescription: {
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
-    textAlign: "center",
-    marginBottom: spacing["4"],
+    textAlign: 'center',
+    marginBottom: spacing['4'],
   },
   rarityBadge: {
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["2"],
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['2'],
     borderRadius: radius.full,
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   rarityText: {
     fontSize: typography.size.sm,
@@ -472,17 +448,17 @@ const styles = StyleSheet.create({
   },
   // Progress section
   progressSection: {
-    width: "100%",
-    backgroundColor: "rgba(185, 142, 255, 0.08)",
+    width: '100%',
+    backgroundColor: 'rgba(185, 142, 255, 0.08)',
     borderRadius: radius.xl,
-    padding: spacing["4"],
-    marginBottom: spacing["4"],
+    padding: spacing['4'],
+    marginBottom: spacing['4'],
   },
   progressHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    marginBottom: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    marginBottom: spacing['3'],
   },
   progressTitle: {
     fontSize: typography.size.sm,
@@ -490,19 +466,19 @@ const styles = StyleSheet.create({
     color: RenkooColors.brand.jellyPurple,
   },
   progressBarContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['3'],
   },
   progressBarBg: {
     flex: 1,
     height: 12,
-    backgroundColor: "rgba(185, 142, 255, 0.2)",
+    backgroundColor: 'rgba(185, 142, 255, 0.2)',
     borderRadius: 6,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   progressBarFill: {
-    height: "100%",
+    height: '100%',
     backgroundColor: RenkooColors.brand.jellyPurple,
     borderRadius: 6,
   },
@@ -511,22 +487,22 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     color: RenkooColors.brand.jellyPurple,
     minWidth: 50,
-    textAlign: "right",
+    textAlign: 'right',
   },
   progressHint: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    textAlign: "center",
-    marginTop: spacing["2"],
+    textAlign: 'center',
+    marginTop: spacing['2'],
   },
   actionButton: {
-    width: "100%",
+    width: '100%',
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   actionButtonGradient: {
-    paddingVertical: spacing["4"],
-    alignItems: "center",
+    paddingVertical: spacing['4'],
+    alignItems: 'center',
   },
   actionButtonText: {
     fontSize: typography.size.lg,

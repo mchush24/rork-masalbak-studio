@@ -26,7 +26,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Animated, Dimensions, Modal } from 'react-native';
 import LottieView from 'lottie-react-native';
-import { Circle, Group } from '@shopify/react-native-skia';
 import { LinearGradient } from 'expo-linear-gradient';
 import { shadows, textShadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
@@ -93,17 +92,13 @@ export function SaveCelebration({
 
       return () => clearTimeout(timeout);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      statusBarTranslucent
-    >
+    <Modal visible={visible} transparent animationType="none" statusBarTranslucent>
       <Animated.View
         style={[
           styles.container,
@@ -207,14 +202,24 @@ function SkiaConfetti() {
 
   return (
     <View style={styles.confettiContainer} pointerEvents="none">
-      {confettiPieces.map((piece) => (
+      {confettiPieces.map(piece => (
         <ConfettiPiece key={piece.id} piece={piece} />
       ))}
     </View>
   );
 }
 
-function ConfettiPiece({ piece }: { piece: any }) {
+interface ConfettiPieceData {
+  id: number;
+  x: number;
+  startY: number;
+  color: string;
+  size: number;
+  delay: number;
+  duration: number;
+}
+
+function ConfettiPiece({ piece }: { piece: ConfettiPieceData }) {
   const fallAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -236,6 +241,7 @@ function ConfettiPiece({ piece }: { piece: any }) {
         })
       ),
     ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const translateY = fallAnim.interpolate({
@@ -279,7 +285,7 @@ function SparkleEffects() {
 
   return (
     <View style={styles.sparklesContainer} pointerEvents="none">
-      {sparkles.map((sparkle) => (
+      {sparkles.map(sparkle => (
         <FloatingSparkle key={sparkle.id} angle={sparkle.angle} />
       ))}
     </View>
@@ -321,6 +327,7 @@ function FloatingSparkle({ angle }: { angle: number }) {
         ])
       ),
     ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const distance = floatAnim.interpolate({
@@ -328,15 +335,9 @@ function FloatingSparkle({ angle }: { angle: number }) {
     outputRange: [80, 120],
   });
 
-  const translateX = Animated.multiply(
-    distance,
-    new Animated.Value(Math.cos(angle))
-  );
+  const translateX = Animated.multiply(distance, new Animated.Value(Math.cos(angle)));
 
-  const translateY = Animated.multiply(
-    distance,
-    new Animated.Value(Math.sin(angle))
-  );
+  const translateY = Animated.multiply(distance, new Animated.Value(Math.sin(angle)));
 
   return (
     <Animated.View
@@ -390,6 +391,7 @@ export function SuccessMessage({
         onClose?.();
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible) return null;

@@ -20,7 +20,7 @@
  * Inspired by: Procreate, Lake Coloring App
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -34,11 +34,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
-import { Skia, Path, Circle, Group, Blur, BlendMode, Paint } from '@shopify/react-native-skia';
 import { shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ============================================================================
 // TYPES
@@ -309,11 +308,7 @@ export function PremiumBrushes({
   return (
     <>
       {/* Brush Selector Button */}
-      <TouchableOpacity
-        style={styles.selectorButton}
-        onPress={handleOpen}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity style={styles.selectorButton} onPress={handleOpen} activeOpacity={0.8}>
         <LinearGradient
           colors={currentBrush.isPremium ? ['#FFD700', '#FFA500'] : ['#9D4EDD', '#6B5BDB']}
           style={styles.selectorGradient}
@@ -329,25 +324,11 @@ export function PremiumBrushes({
       </TouchableOpacity>
 
       {/* Brush Selection Modal */}
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="none"
-        onRequestClose={handleClose}
-      >
+      <Modal visible={isOpen} transparent animationType="none" onRequestClose={handleClose}>
         <View style={styles.modalOverlay}>
-          <TouchableOpacity
-            style={styles.modalBackdrop}
-            onPress={handleClose}
-            activeOpacity={1}
-          />
+          <TouchableOpacity style={styles.modalBackdrop} onPress={handleClose} activeOpacity={1} />
 
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateY: slideAnim }] },
-            ]}
-          >
+          <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.headerEmoji}>🖌️</Text>
@@ -358,11 +339,8 @@ export function PremiumBrushes({
             </View>
 
             {/* Brush List */}
-            <ScrollView
-              style={styles.brushList}
-              showsVerticalScrollIndicator={false}
-            >
-              {Object.values(BRUSH_CONFIGS).map((brush) => (
+            <ScrollView style={styles.brushList} showsVerticalScrollIndicator={false}>
+              {Object.values(BRUSH_CONFIGS).map(brush => (
                 <BrushCard
                   key={brush.type}
                   brush={brush}
@@ -578,7 +556,7 @@ export function PremiumBrushesCompact({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.compactScroll}
       >
-        {freeBrushes.map((brush) => (
+        {freeBrushes.map(brush => (
           <TouchableOpacity
             key={brush.type}
             style={[
@@ -593,7 +571,7 @@ export function PremiumBrushesCompact({
 
         <View style={styles.compactDivider} />
 
-        {premiumBrushes.map((brush) => (
+        {premiumBrushes.map(brush => (
           <TouchableOpacity
             key={brush.type}
             style={[

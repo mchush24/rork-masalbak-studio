@@ -9,15 +9,17 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { ChevronDown } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 
 interface SettingsSectionProps {
   title: string;
@@ -49,16 +51,11 @@ export function SettingsSection({
   return (
     <View style={styles.container}>
       <Pressable
-        style={({ pressed }) => [
-          styles.header,
-          pressed && styles.headerPressed,
-        ]}
+        style={({ pressed }) => [styles.header, pressed && styles.headerPressed]}
         onPress={toggleExpanded}
       >
         <View style={styles.headerLeft}>
-          <View style={styles.iconContainer}>
-            {icon}
-          </View>
+          <View style={styles.iconContainer}>{icon}</View>
           <Text style={styles.title}>{title}</Text>
           {badge && (
             <View style={styles.badge}>
@@ -75,11 +72,7 @@ export function SettingsSection({
         </Animated.View>
       </Pressable>
 
-      {isExpanded && (
-        <Animated.View style={styles.content}>
-          {children}
-        </Animated.View>
-      )}
+      {isExpanded && <Animated.View style={styles.content}>{children}</Animated.View>}
     </View>
   );
 }

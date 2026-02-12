@@ -5,13 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flame, Snowflake, Calendar } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
@@ -75,6 +69,7 @@ export function StreakDisplay({
         ])
       ).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStreak, isActiveToday, streakAtRisk]);
 
   const getGradientColors = (): readonly [string, string, ...string[]] => {
@@ -98,10 +93,7 @@ export function StreakDisplay({
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.compactContainer,
-          pressed && { opacity: 0.8 },
-        ]}
+        style={({ pressed }) => [styles.compactContainer, pressed && { opacity: 0.8 }]}
       >
         <LinearGradient
           colors={getGradientColors()}
@@ -124,10 +116,7 @@ export function StreakDisplay({
   }
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [pressed && { opacity: 0.95 }]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [pressed && { opacity: 0.95 }]}>
       <Animated.View style={[{ transform: [{ scale: pulseAnim }] }]}>
         <LinearGradient
           colors={getGradientColors()}
@@ -153,18 +142,14 @@ export function StreakDisplay({
 
           {streakAtRisk && (
             <View style={styles.warningContainer}>
-              <Text style={styles.warningText}>
-                Bugün aktif ol, seriyi kaybetme!
-              </Text>
+              <Text style={styles.warningText}>Bugün aktif ol, seriyi kaybetme!</Text>
             </View>
           )}
 
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Calendar size={14} color="#9E9E9E" />
-              <Text style={styles.statText}>
-                En Uzun: {longestStreak} gün
-              </Text>
+              <Text style={styles.statText}>En Uzun: {longestStreak} gün</Text>
             </View>
             {isActiveToday && (
               <View style={styles.activeBadge}>

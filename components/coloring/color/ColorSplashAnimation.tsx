@@ -84,12 +84,13 @@ export function ColorSplashAnimation({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Convert Animated values for Skia
-  const currentScale = (scale as any).__getValue();
-  const currentOpacity = (opacity as any).__getValue();
-  const currentParticleScale = (particleScale as any).__getValue();
+  const currentScale = (scale as unknown as { __getValue(): number }).__getValue();
+  const currentOpacity = (opacity as unknown as { __getValue(): number }).__getValue();
+  const currentParticleScale = (particleScale as unknown as { __getValue(): number }).__getValue();
 
   // Generate particle positions
   const particles = Array.from({ length: config.particles }, (_, i) => {
@@ -137,7 +138,7 @@ export function ColorSplashAnimation({
       />
 
       {/* Particle burst */}
-      {particles.map((particle) => (
+      {particles.map(particle => (
         <Circle
           key={particle.id}
           cx={x + particle.baseX * currentParticleScale}
@@ -189,11 +190,12 @@ export function StarBurstAnimation({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentScale = (scale as any).__getValue();
-  const currentRotation = (rotation as any).__getValue();
-  const currentOpacity = (opacity as any).__getValue();
+  const currentScale = (scale as unknown as { __getValue(): number }).__getValue();
+  const currentRotation = (rotation as unknown as { __getValue(): number }).__getValue();
+  const currentOpacity = (opacity as unknown as { __getValue(): number }).__getValue();
 
   // Create star points (5-pointed star)
   const starPoints = Array.from({ length: 10 }, (_, i) => {
@@ -287,12 +289,13 @@ export function RippleWaveAnimation({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentWave1 = (wave1 as any).__getValue();
-  const currentWave2 = (wave2 as any).__getValue();
-  const currentWave3 = (wave3 as any).__getValue();
-  const currentOpacity = (opacity as any).__getValue();
+  const currentWave1 = (wave1 as unknown as { __getValue(): number }).__getValue();
+  const currentWave2 = (wave2 as unknown as { __getValue(): number }).__getValue();
+  const currentWave3 = (wave3 as unknown as { __getValue(): number }).__getValue();
+  const currentOpacity = (opacity as unknown as { __getValue(): number }).__getValue();
 
   return (
     <Group opacity={currentOpacity}>
@@ -368,10 +371,11 @@ export function ConfettiBurstAnimation({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentScale = (scale as any).__getValue();
-  const currentOpacity = (opacity as any).__getValue();
+  const currentScale = (scale as unknown as { __getValue(): number }).__getValue();
+  const currentOpacity = (opacity as unknown as { __getValue(): number }).__getValue();
 
   // Generate confetti pieces
   const confetti = Array.from({ length: 16 }, (_, i) => {
@@ -390,7 +394,7 @@ export function ConfettiBurstAnimation({
   return (
     <Group opacity={currentOpacity}>
       {/* Confetti pieces */}
-      {confetti.map((piece) => (
+      {confetti.map(piece => (
         <Circle
           key={piece.id}
           cx={x + piece.x * currentScale}
@@ -431,56 +435,24 @@ export function AdaptiveColorSplash({
 }) {
   switch (context) {
     case 'favorite':
-      return (
-        <StarBurstAnimation
-          x={x}
-          y={y}
-          color={color}
-          onComplete={onComplete}
-        />
-      );
+      return <StarBurstAnimation x={x} y={y} color={color} onComplete={onComplete} />;
 
     case 'wheel':
       return (
-        <ColorSplashAnimation
-          x={x}
-          y={y}
-          color={color}
-          size="large"
-          onComplete={onComplete}
-        />
+        <ColorSplashAnimation x={x} y={y} color={color} size="large" onComplete={onComplete} />
       );
 
     case 'gradient':
-      return (
-        <RippleWaveAnimation
-          x={x}
-          y={y}
-          color={color}
-          onComplete={onComplete}
-        />
-      );
+      return <RippleWaveAnimation x={x} y={y} color={color} onComplete={onComplete} />;
 
     case 'celebrate':
       return (
-        <ConfettiBurstAnimation
-          x={x}
-          y={y}
-          color={color}
-          duration={1000}
-          onComplete={onComplete}
-        />
+        <ConfettiBurstAnimation x={x} y={y} color={color} duration={1000} onComplete={onComplete} />
       );
 
     default:
       return (
-        <ColorSplashAnimation
-          x={x}
-          y={y}
-          color={color}
-          size="medium"
-          onComplete={onComplete}
-        />
+        <ColorSplashAnimation x={x} y={y} color={color} size="medium" onComplete={onComplete} />
       );
   }
 }

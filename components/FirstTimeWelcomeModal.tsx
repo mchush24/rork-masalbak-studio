@@ -3,17 +3,10 @@ import { Modal, View, Text, Pressable, StyleSheet, Platform, Dimensions } from '
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Camera, Palette, BookOpen, X } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
-import {
-  layout,
-  typography,
-  spacing,
-  radius,
-  shadows,
-  textShadows,
-} from '@/constants/design-system';
+import { typography, spacing, radius, shadows, textShadows } from '@/constants/design-system';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -31,27 +24,19 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
     onDismiss();
     // Small delay for smooth transition
     setTimeout(() => {
-      router.push(route as any);
+      router.push(route as Href);
     }, 200);
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onDismiss}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
       <BlurView intensity={80} style={styles.blurContainer}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             {/* Close button */}
             <Pressable
               onPress={onDismiss}
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed && { opacity: 0.6 },
-              ]}
+              style={({ pressed }) => [styles.closeButton, pressed && { opacity: 0.6 }]}
             >
               <X size={24} color={Colors.neutral.medium} />
             </Pressable>
@@ -59,9 +44,7 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
             {/* Header */}
             <View style={styles.header}>
               {!isSmallDevice && <Text style={styles.emoji}>👋</Text>}
-              <Text style={styles.title}>
-                {isSmallDevice && '👋 '}Hoş Geldin!
-              </Text>
+              <Text style={styles.title}>{isSmallDevice && '👋 '}Hoş Geldin!</Text>
               <Text style={styles.subtitle}>
                 Renkioo ile çocuğunun renkli hayal dünyasını keşfet
               </Text>
@@ -140,9 +123,7 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
                   </View>
                   <Text style={styles.actionTitle}>Kişisel Hikayeler</Text>
                   {!isSmallDevice && (
-                    <Text style={styles.actionDescription}>
-                      Çizimlerden masallar oluşturun
-                    </Text>
+                    <Text style={styles.actionDescription}>Çizimlerden masallar oluşturun</Text>
                   )}
                   <View style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>Oluştur →</Text>
@@ -154,10 +135,7 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
             {/* Skip button */}
             <Pressable
               onPress={onDismiss}
-              style={({ pressed }) => [
-                styles.skipButton,
-                pressed && { opacity: 0.6 },
-              ]}
+              style={({ pressed }) => [styles.skipButton, pressed && { opacity: 0.6 }]}
             >
               <Text style={styles.skipButtonText}>Keşfetmeye Başla</Text>
             </Pressable>

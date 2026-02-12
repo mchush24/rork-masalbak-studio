@@ -20,7 +20,6 @@ import {
 } from 'react-native';
 import Animated, {
   FadeIn,
-  SlideInUp,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -37,7 +36,14 @@ import {
   Check,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, buttonSizes, buttonStyles } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  buttonSizes,
+  buttonStyles,
+} from '@/constants/design-system';
 import { SavedAnalysis } from '@/types/analysis';
 import { pdfService, ClientInfo } from '@/lib/pdf';
 
@@ -178,9 +184,7 @@ export function PdfReportButton({
           </View>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>PDF Rapor Oluştur</Text>
-            <Text style={styles.cardDescription}>
-              Profesyonel rapor olarak dışa aktar
-            </Text>
+            <Text style={styles.cardDescription}>Profesyonel rapor olarak dışa aktar</Text>
           </View>
           <Download size={18} color={Colors.neutral.medium} />
         </Pressable>
@@ -201,9 +205,7 @@ export function PdfReportButton({
           disabled={disabled}
         >
           <FileText size={s.iconSize} color={Colors.neutral.white} />
-          <Text style={[styles.buttonText, { fontSize: s.fontSize }]}>
-            PDF Rapor
-          </Text>
+          <Text style={[styles.buttonText, { fontSize: s.fontSize }]}>PDF Rapor</Text>
         </Pressable>
       </Animated.View>
     );

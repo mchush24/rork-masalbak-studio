@@ -7,7 +7,6 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
-  withDelay,
   withSpring,
   Easing,
 } from 'react-native-reanimated';
@@ -63,9 +62,8 @@ export function IooMascotFinal({
   animated = true,
   onPress,
   showGlow = true,
-  showSparkles = false, // not used but for API compatibility
+  _showSparkles = false, // not used but for API compatibility
 }: Props) {
-
   // Size hesaplama
   const size = getPixelSize(sizeProp);
 
@@ -142,6 +140,7 @@ export function IooMascotFinal({
       clearInterval(blinkInterval);
       clearInterval(lookInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated, mood]);
 
   // Dokunma
@@ -174,28 +173,22 @@ export function IooMascotFinal({
   }));
 
   const leftPupilStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: leftPupilX.value },
-      { translateY: pupilY.value },
-    ],
+    transform: [{ translateX: leftPupilX.value }, { translateY: pupilY.value }],
   }));
 
   const rightPupilStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: rightPupilX.value },
-      { translateY: pupilY.value },
-    ],
+    transform: [{ translateX: rightPupilX.value }, { translateY: pupilY.value }],
   }));
 
   // === Oranlar (Golden Ratio yaklaşımı) ===
   const bodySize = size;
-  const eyeSize = size * 0.22;          // Göz boyutu
-  const irisSize = eyeSize * 0.7;       // İris boyutu
+  const eyeSize = size * 0.22; // Göz boyutu
+  const irisSize = eyeSize * 0.7; // İris boyutu
   const highlightSize = irisSize * 0.35; // Highlight boyutu
-  const eyeSpacing = size * 0.08;       // Gözler arası
-  const eyeY = size * 0.38;             // Göz yüksekliği
-  const cheekSize = size * 0.1;         // Yanak boyutu
-  const cheekY = size * 0.52;           // Yanak yüksekliği
+  const eyeSpacing = size * 0.08; // Gözler arası
+  const eyeY = size * 0.38; // Göz yüksekliği
+  const cheekSize = size * 0.1; // Yanak boyutu
+  const cheekY = size * 0.52; // Yanak yüksekliği
 
   // === Sleepy mood için göz ===
   const isSleepy = mood === 'sleepy';
@@ -204,15 +197,17 @@ export function IooMascotFinal({
     <View style={[styles.wrapper, { width: size * 1.3, height: size * 1.3 }]}>
       {/* Glow */}
       {showGlow && (
-        <View style={[
-          styles.glow,
-          {
-            width: size * 1.2,
-            height: size * 1.2,
-            borderRadius: size * 0.6,
-            backgroundColor: COLORS.glow,
-          }
-        ]} />
+        <View
+          style={[
+            styles.glow,
+            {
+              width: size * 1.2,
+              height: size * 1.2,
+              borderRadius: size * 0.6,
+              backgroundColor: COLORS.glow,
+            },
+          ]}
+        />
       )}
 
       {/* Ana Maskot */}
@@ -240,46 +235,51 @@ export function IooMascotFinal({
         <View style={[styles.eyesRow, { top: eyeY }]}>
           {/* Sol Göz */}
           <Animated.View style={[styles.eyeContainer, eyeStyle, { marginRight: eyeSpacing }]}>
-            <View style={[
-              styles.eye,
-              { width: eyeSize, height: eyeSize, borderRadius: eyeSize / 2 }
-            ]}>
+            <View
+              style={[styles.eye, { width: eyeSize, height: eyeSize, borderRadius: eyeSize / 2 }]}
+            >
               {isSleepy ? (
                 // Uyku modu - çizgi göz
                 <View style={[styles.sleepyEye, { width: eyeSize * 0.6, height: 2 }]} />
               ) : (
                 // Normal göz
-                <Animated.View style={[
-                  styles.iris,
-                  leftPupilStyle,
-                  {
-                    width: irisSize,
-                    height: irisSize,
-                    borderRadius: irisSize / 2,
-                    backgroundColor: COLORS.eyeIris,
-                  }
-                ]}>
+                <Animated.View
+                  style={[
+                    styles.iris,
+                    leftPupilStyle,
+                    {
+                      width: irisSize,
+                      height: irisSize,
+                      borderRadius: irisSize / 2,
+                      backgroundColor: COLORS.eyeIris,
+                    },
+                  ]}
+                >
                   {/* Highlight */}
-                  <View style={[
-                    styles.highlight,
-                    {
-                      width: highlightSize,
-                      height: highlightSize,
-                      borderRadius: highlightSize / 2,
-                      top: irisSize * 0.15,
-                      left: irisSize * 0.15,
-                    }
-                  ]} />
-                  <View style={[
-                    styles.highlightSmall,
-                    {
-                      width: highlightSize * 0.4,
-                      height: highlightSize * 0.4,
-                      borderRadius: highlightSize * 0.2,
-                      bottom: irisSize * 0.2,
-                      right: irisSize * 0.2,
-                    }
-                  ]} />
+                  <View
+                    style={[
+                      styles.highlight,
+                      {
+                        width: highlightSize,
+                        height: highlightSize,
+                        borderRadius: highlightSize / 2,
+                        top: irisSize * 0.15,
+                        left: irisSize * 0.15,
+                      },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.highlightSmall,
+                      {
+                        width: highlightSize * 0.4,
+                        height: highlightSize * 0.4,
+                        borderRadius: highlightSize * 0.2,
+                        bottom: irisSize * 0.2,
+                        right: irisSize * 0.2,
+                      },
+                    ]}
+                  />
                 </Animated.View>
               )}
             </View>
@@ -287,43 +287,48 @@ export function IooMascotFinal({
 
           {/* Sağ Göz */}
           <Animated.View style={[styles.eyeContainer, eyeStyle, { marginLeft: eyeSpacing }]}>
-            <View style={[
-              styles.eye,
-              { width: eyeSize, height: eyeSize, borderRadius: eyeSize / 2 }
-            ]}>
+            <View
+              style={[styles.eye, { width: eyeSize, height: eyeSize, borderRadius: eyeSize / 2 }]}
+            >
               {isSleepy ? (
                 <View style={[styles.sleepyEye, { width: eyeSize * 0.6, height: 2 }]} />
               ) : (
-                <Animated.View style={[
-                  styles.iris,
-                  rightPupilStyle,
-                  {
-                    width: irisSize,
-                    height: irisSize,
-                    borderRadius: irisSize / 2,
-                    backgroundColor: COLORS.eyeIris,
-                  }
-                ]}>
-                  <View style={[
-                    styles.highlight,
+                <Animated.View
+                  style={[
+                    styles.iris,
+                    rightPupilStyle,
                     {
-                      width: highlightSize,
-                      height: highlightSize,
-                      borderRadius: highlightSize / 2,
-                      top: irisSize * 0.15,
-                      left: irisSize * 0.15,
-                    }
-                  ]} />
-                  <View style={[
-                    styles.highlightSmall,
-                    {
-                      width: highlightSize * 0.4,
-                      height: highlightSize * 0.4,
-                      borderRadius: highlightSize * 0.2,
-                      bottom: irisSize * 0.2,
-                      right: irisSize * 0.2,
-                    }
-                  ]} />
+                      width: irisSize,
+                      height: irisSize,
+                      borderRadius: irisSize / 2,
+                      backgroundColor: COLORS.eyeIris,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.highlight,
+                      {
+                        width: highlightSize,
+                        height: highlightSize,
+                        borderRadius: highlightSize / 2,
+                        top: irisSize * 0.15,
+                        left: irisSize * 0.15,
+                      },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.highlightSmall,
+                      {
+                        width: highlightSize * 0.4,
+                        height: highlightSize * 0.4,
+                        borderRadius: highlightSize * 0.2,
+                        bottom: irisSize * 0.2,
+                        right: irisSize * 0.2,
+                      },
+                    ]}
+                  />
                 </Animated.View>
               )}
             </View>
@@ -331,28 +336,32 @@ export function IooMascotFinal({
         </View>
 
         {/* Yanaklar */}
-        <View style={[
-          styles.cheek,
-          {
-            width: cheekSize,
-            height: cheekSize * 0.5,
-            borderRadius: cheekSize * 0.25,
-            backgroundColor: COLORS.cheek,
-            top: cheekY,
-            left: size * 0.15,
-          }
-        ]} />
-        <View style={[
-          styles.cheek,
-          {
-            width: cheekSize,
-            height: cheekSize * 0.5,
-            borderRadius: cheekSize * 0.25,
-            backgroundColor: COLORS.cheek,
-            top: cheekY,
-            right: size * 0.15,
-          }
-        ]} />
+        <View
+          style={[
+            styles.cheek,
+            {
+              width: cheekSize,
+              height: cheekSize * 0.5,
+              borderRadius: cheekSize * 0.25,
+              backgroundColor: COLORS.cheek,
+              top: cheekY,
+              left: size * 0.15,
+            },
+          ]}
+        />
+        <View
+          style={[
+            styles.cheek,
+            {
+              width: cheekSize,
+              height: cheekSize * 0.5,
+              borderRadius: cheekSize * 0.25,
+              backgroundColor: COLORS.cheek,
+              top: cheekY,
+              right: size * 0.15,
+            },
+          ]}
+        />
 
         {/* Ağız */}
         <View style={[styles.mouthContainer, { top: size * 0.58 }]}>

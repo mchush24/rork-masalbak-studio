@@ -21,14 +21,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions } from 'react-native';
 import { shadows, zIndex } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
@@ -135,7 +128,10 @@ export function FirstUseGuide({ onComplete, onSkip }: FirstUseGuideProps) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Overlay coordination - first use guide has low priority
-  const { request: requestOverlay, release: releaseOverlay } = useOverlay('first_use_guide', 'first_use_guide');
+  const { request: requestOverlay, release: releaseOverlay } = useOverlay(
+    'first_use_guide',
+    'first_use_guide'
+  );
 
   // Request overlay on mount
   useEffect(() => {
@@ -174,6 +170,7 @@ export function FirstUseGuide({ onComplete, onSkip }: FirstUseGuideProps) {
 
       return () => pulse.stop();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
 
   const handleNext = () => {
@@ -271,14 +268,9 @@ export function FirstUseGuide({ onComplete, onSkip }: FirstUseGuideProps) {
 
           <Pressable
             onPress={handleNext}
-            style={[
-              styles.nextButton,
-              isLastStep && styles.nextButtonComplete,
-            ]}
+            style={[styles.nextButton, isLastStep && styles.nextButtonComplete]}
           >
-            <Text style={styles.nextText}>
-              {isLastStep ? 'Başla! 🚀' : 'İleri →'}
-            </Text>
+            <Text style={styles.nextText}>{isLastStep ? 'Başla! 🚀' : 'İleri →'}</Text>
           </Pressable>
         </View>
       </Animated.View>
@@ -317,10 +309,7 @@ export async function resetFirstUseGuide(): Promise<void> {
 /**
  * Calculate message card position
  */
-function getMessagePosition(
-  position: 'top' | 'bottom' | 'center',
-  spotlight?: SpotlightRegion
-) {
+function getMessagePosition(position: 'top' | 'bottom' | 'center', spotlight?: SpotlightRegion) {
   const CARD_HEIGHT = 200;
 
   switch (position) {
@@ -335,10 +324,7 @@ function getMessagePosition(
     case 'bottom':
       if (spotlight) {
         return {
-          top: Math.min(
-            SCREEN_HEIGHT - CARD_HEIGHT - 20,
-            spotlight.y + spotlight.height + 20
-          ),
+          top: Math.min(SCREEN_HEIGHT - CARD_HEIGHT - 20, spotlight.y + spotlight.height + 20),
         };
       }
       return { bottom: 80 };

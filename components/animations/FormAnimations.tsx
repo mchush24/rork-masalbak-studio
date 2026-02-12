@@ -17,6 +17,8 @@ import {
   TextInput,
   StyleSheet,
   TextInputProps,
+  TextInputFocusEventData,
+  NativeSyntheticEvent,
   Pressable,
   ViewStyle,
   TextStyle,
@@ -29,17 +31,15 @@ import Animated, {
   withTiming,
   withSequence,
   withDelay,
-  Easing,
   interpolate,
   interpolateColor,
-  runOnJS,
 } from 'react-native-reanimated';
 import { Check, AlertCircle, Eye, EyeOff } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows } from '@/constants/design-system';
 
-const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
+const _AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 interface AnimatedInputProps extends TextInputProps {
   label?: string;
@@ -69,7 +69,12 @@ export function AnimatedInput({
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const { tapLight, tapMedium, tapHeavy, success: hapticSuccess, warning: hapticWarning, error: hapticError } = useHaptics();
+  const {
+    tapLight,
+    success: hapticSuccess,
+    warning: _hapticWarning,
+    error: hapticError,
+  } = useHaptics();
 
   // Animation values
   const focusProgress = useSharedValue(0);
@@ -85,7 +90,7 @@ export function AnimatedInput({
   useEffect(() => {
     focusProgress.value = withTiming(isFocused ? 1 : 0, { duration: 200 });
     borderGlow.value = withTiming(isFocused ? 1 : 0, { duration: 300 });
-  }, [isFocused]);
+  }, [isFocused, focusProgress, borderGlow]);
 
   // Handle label animation
   useEffect(() => {
@@ -94,7 +99,7 @@ export function AnimatedInput({
       damping: 15,
       stiffness: 150,
     });
-  }, [isFocused, hasValue]);
+  }, [isFocused, hasValue, labelPosition]);
 
   // Handle error animation
   useEffect(() => {
@@ -111,7 +116,8 @@ export function AnimatedInput({
     } else {
       errorOpacity.value = withTiming(0, { duration: 200 });
     }
-  }, [error]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error, shakeX, errorOpacity]);
 
   // Handle success animation
   useEffect(() => {
@@ -125,15 +131,16 @@ export function AnimatedInput({
     } else {
       successScale.value = withTiming(0, { duration: 150 });
     }
-  }, [success]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success, successScale]);
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true);
     tapLight();
     onFocus?.(e);
   };
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(false);
     onBlur?.(e);
   };
@@ -162,12 +169,12 @@ export function AnimatedInput({
     const borderColor = error
       ? Colors.emotion.anger
       : success
-      ? Colors.emotion.trust
-      : interpolateColor(
-          focusProgress.value,
-          [0, 1],
-          [Colors.neutral.light, Colors.secondary.lavender]
-        );
+        ? Colors.emotion.trust
+        : interpolateColor(
+            focusProgress.value,
+            [0, 1],
+            [Colors.neutral.light, Colors.secondary.lavender]
+          );
 
     const shadowOpacity = interpolate(borderGlow.value, [0, 1], [0, 0.15]);
 
@@ -195,11 +202,7 @@ export function AnimatedInput({
   return (
     <Animated.View style={[styles.container, containerAnimatedStyle, containerStyle]}>
       {/* Floating Label */}
-      {label && (
-        <Animated.Text style={[styles.label, labelAnimatedStyle]}>
-          {label}
-        </Animated.Text>
-      )}
+      {label && <Animated.Text style={[styles.label, labelAnimatedStyle]}>{label}</Animated.Text>}
 
       {/* Input Container */}
       <Animated.View style={[styles.inputContainer, inputContainerStyle]}>
@@ -248,9 +251,7 @@ export function AnimatedInput({
       )}
 
       {/* Hint */}
-      {hint && !error && (
-        <Text style={styles.hintText}>{hint}</Text>
-      )}
+      {hint && !error && <Text style={styles.hintText}>{hint}</Text>}
     </Animated.View>
   );
 }
@@ -289,14 +290,14 @@ export function PasswordStrengthBar({ password, style }: PasswordStrengthBarProp
     };
 
     animateBars(Math.min(score, 4));
-  }, [password]);
+  }, [password, strength, width1, width2, width3, width4]);
 
   const getColor = (index: number) => {
     const colors = [
-      Colors.emotion.anger,      // 1 - weak
+      Colors.emotion.anger, // 1 - weak
       Colors.emotion.anticipation, // 2 - fair
-      Colors.emotion.joy,         // 3 - good
-      Colors.emotion.trust,       // 4 - strong
+      Colors.emotion.joy, // 3 - good
+      Colors.emotion.trust, // 4 - strong
     ];
     return colors[index] || Colors.neutral.lighter;
   };
@@ -304,10 +305,10 @@ export function PasswordStrengthBar({ password, style }: PasswordStrengthBarProp
   const getLabel = () => {
     const score = Math.min(
       (password.length >= 6 ? 1 : 0) +
-      (password.length >= 10 ? 1 : 0) +
-      (/[A-Z]/.test(password) && /[a-z]/.test(password) ? 1 : 0) +
-      (/[0-9]/.test(password) ? 1 : 0) +
-      (/[^A-Za-z0-9]/.test(password) ? 1 : 0),
+        (password.length >= 10 ? 1 : 0) +
+        (/[A-Z]/.test(password) && /[a-z]/.test(password) ? 1 : 0) +
+        (/[0-9]/.test(password) ? 1 : 0) +
+        (/[^A-Za-z0-9]/.test(password) ? 1 : 0),
       4
     );
 
@@ -365,15 +366,12 @@ export function CharacterCounter({ current, max, style }: CharacterCounterProps)
 
   useEffect(() => {
     // Pulse on change
-    scale.value = withSequence(
-      withTiming(1.1, { duration: 100 }),
-      withSpring(1, { damping: 10 })
-    );
+    scale.value = withSequence(withTiming(1.1, { duration: 100 }), withSpring(1, { damping: 10 }));
 
     // Color change near limit
     const ratio = current / max;
     color.value = withTiming(ratio >= 0.9 ? 1 : ratio >= 0.75 ? 0.5 : 0, { duration: 200 });
-  }, [current, max]);
+  }, [current, max, scale, color]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const textColor = interpolateColor(
@@ -437,7 +435,7 @@ function StepDot({
   useEffect(() => {
     scale.value = withSpring(active ? 1 : 0.8, { damping: 12 });
     bgColor.value = withTiming(active ? 1 : 0, { duration: 300 });
-  }, [active]);
+  }, [active, scale, bgColor]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -468,7 +466,7 @@ function StepLine({ active }: { active: boolean }) {
 
   useEffect(() => {
     progress.value = withTiming(active ? 1 : 0, { duration: 400 });
-  }, [active]);
+  }, [active, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     flex: progress.value,
@@ -509,7 +507,12 @@ export function SubmitButtonAnimated({
   const bgColor = useSharedValue(0);
   const shakeX = useSharedValue(0);
 
-  const { tapLight, tapMedium, tapHeavy, success: hapticSuccess, warning: hapticWarning, error: hapticError } = useHaptics();
+  const {
+    tapMedium,
+    success: hapticSuccess,
+    warning: _hapticWarning,
+    error: hapticError,
+  } = useHaptics();
 
   useEffect(() => {
     if (success) {
@@ -527,7 +530,8 @@ export function SubmitButtonAnimated({
     } else {
       bgColor.value = withTiming(0, { duration: 300 });
     }
-  }, [success, error]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success, error, bgColor, shakeX]);
 
   const handlePressIn = () => {
     if (disabled || loading) return;
@@ -583,24 +587,18 @@ function LoadingDot({ delay }: { delay: number }) {
   useEffect(() => {
     opacity.value = withDelay(
       delay,
-      withSequence(
-        withTiming(1, { duration: 300 }),
-        withTiming(0.3, { duration: 300 })
-      )
+      withSequence(withTiming(1, { duration: 300 }), withTiming(0.3, { duration: 300 }))
     );
 
     const interval = setInterval(() => {
       opacity.value = withDelay(
         delay,
-        withSequence(
-          withTiming(1, { duration: 300 }),
-          withTiming(0.3, { duration: 300 })
-        )
+        withSequence(withTiming(1, { duration: 300 }), withTiming(0.3, { duration: 300 }))
       );
     }, 900);
 
     return () => clearInterval(interval);
-  }, [delay]);
+  }, [delay, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

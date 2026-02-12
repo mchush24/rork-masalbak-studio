@@ -12,10 +12,20 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Star, Calendar, Filter, Brain } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import { typography, spacing, radius, iconSizes, iconStroke } from '@/constants/design-system';
 
 export type DateFilter = 'all' | 'today' | 'week' | 'month';
-export type TestTypeFilter = 'all' | 'DAP' | 'HTP' | 'Family' | 'Cactus' | 'Tree' | 'Garden' | 'BenderGestalt2' | 'ReyOsterrieth' | 'Luscher';
+export type TestTypeFilter =
+  | 'all'
+  | 'DAP'
+  | 'HTP'
+  | 'Family'
+  | 'Cactus'
+  | 'Tree'
+  | 'Garden'
+  | 'BenderGestalt2'
+  | 'ReyOsterrieth'
+  | 'Luscher';
 
 interface HistoryFiltersProps {
   dateFilter: DateFilter;
@@ -57,7 +67,11 @@ export function HistoryFilters({
       {/* Date Filters */}
       <View style={styles.filterSection}>
         <View style={styles.sectionHeader}>
-          <Calendar size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+          <Calendar
+            size={iconSizes.inline}
+            color={Colors.neutral.medium}
+            strokeWidth={iconStroke.standard}
+          />
           <Text style={styles.sectionLabel}>Tarih</Text>
         </View>
         <ScrollView
@@ -65,7 +79,7 @@ export function HistoryFilters({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipsContainer}
         >
-          {DATE_FILTERS.map((filter) => (
+          {DATE_FILTERS.map(filter => (
             <Pressable
               key={filter.id}
               style={({ pressed }) => [
@@ -75,12 +89,7 @@ export function HistoryFilters({
               ]}
               onPress={() => onDateFilterChange(filter.id)}
             >
-              <Text
-                style={[
-                  styles.chipText,
-                  dateFilter === filter.id && styles.chipTextActive,
-                ]}
-              >
+              <Text style={[styles.chipText, dateFilter === filter.id && styles.chipTextActive]}>
                 {filter.label}
               </Text>
             </Pressable>
@@ -105,14 +114,7 @@ export function HistoryFilters({
             fill={showFavorites ? Colors.neutral.white : 'transparent'}
             strokeWidth={iconStroke.standard}
           />
-          <Text
-            style={[
-              styles.chipText,
-              showFavorites && styles.chipTextActive,
-            ]}
-          >
-            Favoriler
-          </Text>
+          <Text style={[styles.chipText, showFavorites && styles.chipTextActive]}>Favoriler</Text>
         </Pressable>
 
         {/* Test Type Selector */}
@@ -121,7 +123,7 @@ export function HistoryFilters({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipsContainer}
         >
-          {TEST_TYPE_FILTERS.map((filter) => (
+          {TEST_TYPE_FILTERS.map(filter => (
             <Pressable
               key={filter.id}
               style={({ pressed }) => [
@@ -134,21 +136,22 @@ export function HistoryFilters({
               {filter.id === 'all' ? (
                 <Filter
                   size={iconSizes.inline}
-                  color={testTypeFilter === filter.id ? Colors.neutral.white : Colors.secondary.lavender}
+                  color={
+                    testTypeFilter === filter.id ? Colors.neutral.white : Colors.secondary.lavender
+                  }
                   strokeWidth={iconStroke.standard}
                 />
               ) : (
                 <Brain
                   size={iconSizes.inline}
-                  color={testTypeFilter === filter.id ? Colors.neutral.white : Colors.secondary.grass}
+                  color={
+                    testTypeFilter === filter.id ? Colors.neutral.white : Colors.secondary.grass
+                  }
                   strokeWidth={iconStroke.standard}
                 />
               )}
               <Text
-                style={[
-                  styles.chipText,
-                  testTypeFilter === filter.id && styles.chipTextActive,
-                ]}
+                style={[styles.chipText, testTypeFilter === filter.id && styles.chipTextActive]}
               >
                 {filter.label}
               </Text>

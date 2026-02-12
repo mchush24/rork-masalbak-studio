@@ -6,7 +6,7 @@
  * kutlama ekrani gosterir.
  */
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,23 +17,18 @@ import {
   ActivityIndicator,
   Platform,
   ScrollView,
-} from "react-native";
-import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
-import { ChevronLeft, ChevronRight, Sparkles, Book } from "lucide-react-native";
-import { ChoiceScreen } from "./ChoiceScreen";
-import { StoryProgress } from "./StoryProgress";
-import {
-  StorySegment,
-  ChoicePoint,
-  InteractiveCharacter,
-  StoryPage,
-} from "@/types/InteractiveStory";
-import { shadows } from "@/constants/design-system";
+} from 'react-native';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { ChevronLeft, ChevronRight, Sparkles, Book } from 'lucide-react-native';
+import { ChoiceScreen } from './ChoiceScreen';
+import { StoryProgress } from './StoryProgress';
+import { StorySegment, ChoicePoint, InteractiveCharacter } from '@/types/InteractiveStory';
+import { shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const PAGE_WIDTH = SCREEN_WIDTH * 0.9;
 
 interface InteractiveStoryReaderProps {
@@ -79,6 +74,7 @@ export function InteractiveStoryReader({
       duration: 400,
       useNativeDriver: true,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSegment?.id]);
 
   // Sayfa gecis animasyonu
@@ -100,7 +96,7 @@ export function InteractiveStoryReader({
   };
 
   const handleNextPage = async () => {
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
@@ -119,7 +115,7 @@ export function InteractiveStoryReader({
   const handlePrevPage = async () => {
     if (currentPageIndex === 0) return;
 
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
@@ -137,12 +133,14 @@ export function InteractiveStoryReader({
       <View style={styles.loadingContainer}>
         <Animated.View
           style={{
-            transform: [{
-              scale: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.8, 1.2],
-              }),
-            }],
+            transform: [
+              {
+                scale: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 1.2],
+                }),
+              },
+            ],
           }}
         >
           <Sparkles size={48} color="#9333EA" />
@@ -200,7 +198,7 @@ export function InteractiveStoryReader({
           ) : (
             <View style={styles.pageImagePlaceholder}>
               <LinearGradient
-                colors={["#E9D5FF", "#F3E8FF", "#FAF5FF"]}
+                colors={['#E9D5FF', '#F3E8FF', '#FAF5FF']}
                 style={styles.imagePlaceholderGradient}
               >
                 <Sparkles size={40} color="#9333EA" />
@@ -228,12 +226,12 @@ export function InteractiveStoryReader({
         <Pressable
           onPress={handlePrevPage}
           disabled={currentPageIndex === 0}
-          style={[
-            styles.navButton,
-            currentPageIndex === 0 && styles.navButtonDisabled,
-          ]}
+          style={[styles.navButton, currentPageIndex === 0 && styles.navButtonDisabled]}
         >
-          <ChevronLeft size={28} color={currentPageIndex === 0 ? Colors.neutral.gray300 : "#9333EA"} />
+          <ChevronLeft
+            size={28}
+            color={currentPageIndex === 0 ? Colors.neutral.gray300 : '#9333EA'}
+          />
         </Pressable>
 
         {/* Sayfa noktalari */}
@@ -241,23 +239,15 @@ export function InteractiveStoryReader({
           {pages.map((_, i) => (
             <View
               key={i}
-              style={[
-                styles.pageDot,
-                i === currentPageIndex && styles.pageDotActive,
-              ]}
+              style={[styles.pageDot, i === currentPageIndex && styles.pageDotActive]}
             />
           ))}
         </View>
 
-        <Pressable
-          onPress={handleNextPage}
-          style={styles.navButton}
-        >
+        <Pressable onPress={handleNextPage} style={styles.navButton}>
           {isLastPageOfSegment ? (
             <View style={styles.nextActionButton}>
-              <Text style={styles.nextActionText}>
-                {isEnding ? "Bitir" : "Sec"}
-              </Text>
+              <Text style={styles.nextActionText}>{isEnding ? 'Bitir' : 'Sec'}</Text>
               <Sparkles size={20} color={Colors.neutral.white} />
             </View>
           ) : (
@@ -272,24 +262,24 @@ export function InteractiveStoryReader({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF5FF",
+    backgroundColor: '#FAF5FF',
   },
   loadingContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FAF5FF",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FAF5FF',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 18,
-    color: "#7C3AED",
-    fontWeight: "600",
+    color: '#7C3AED',
+    fontWeight: '600',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
@@ -297,48 +287,48 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#1F2937",
+    fontWeight: 'bold',
+    color: '#1F2937',
     maxWidth: SCREEN_WIDTH - 100,
   },
   pageContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 16,
   },
   pageCard: {
     width: PAGE_WIDTH,
     backgroundColor: Colors.neutral.white,
     borderRadius: 24,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.md,
     maxHeight: SCREEN_HEIGHT * 0.65,
   },
   pageImage: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
-    backgroundColor: "#F3E8FF",
+    backgroundColor: '#F3E8FF',
   },
   pageImagePlaceholder: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
   },
   imagePlaceholderGradient: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   imagePlaceholderText: {
     marginTop: 12,
-    color: "#9333EA",
+    color: '#9333EA',
     fontSize: 14,
   },
   pageBadge: {
-    position: "absolute",
+    position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: 'rgba(0,0,0,0.6)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -346,7 +336,7 @@ const styles = StyleSheet.create({
   pageBadgeText: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   textContainer: {
     maxHeight: 120,
@@ -357,12 +347,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: Colors.neutral.gray700,
-    textAlign: "center",
+    textAlign: 'center',
   },
   navigation: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
@@ -371,17 +361,17 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     backgroundColor: Colors.neutral.white,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     ...shadows.sm,
   },
   navButtonDisabled: {
     opacity: 0.5,
   },
   nextActionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#9333EA",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#9333EA',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
@@ -390,10 +380,10 @@ const styles = StyleSheet.create({
   nextActionText: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   pageDots: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   pageDot: {
@@ -403,7 +393,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.gray200,
   },
   pageDotActive: {
-    backgroundColor: "#9333EA",
+    backgroundColor: '#9333EA',
     width: 24,
   },
 });

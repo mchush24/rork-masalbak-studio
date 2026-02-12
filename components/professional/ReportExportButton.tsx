@@ -6,15 +6,8 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  ActivityIndicator,
-} from 'react-native';
-import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
+import { View, Text, StyleSheet, Pressable, Modal, ActivityIndicator } from 'react-native';
+import Animated, { SlideInUp } from 'react-native-reanimated';
 import {
   FileText,
   Download,
@@ -25,8 +18,12 @@ import {
   FileSpreadsheet,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, buttonSizes, buttonStyles } from '@/constants/design-system';
-import { PdfReportService, ReportAnalysis, ReportOptions } from '@/lib/professional/PdfReportService';
+import { typography, spacing, radius, buttonSizes, buttonStyles } from '@/constants/design-system';
+import {
+  PdfReportService,
+  ReportAnalysis,
+  ReportOptions,
+} from '@/lib/professional/PdfReportService';
 import { DataExportService, ExportFormat } from '@/lib/professional/DataExportService';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useProfessionalMode } from '@/lib/professional';
@@ -84,16 +81,18 @@ export function ReportExportButton({
     feedback('tap');
     setIsExporting(true);
     try {
-      const analysisData = [{
-        id: analysis.id,
-        type: analysis.type,
-        childName: analysis.childName,
-        childAge: analysis.childAge,
-        date: analysis.date,
-        emotionalTones: analysis.emotionalTones,
-        analysis: analysis.analysis,
-        notes: analysis.clinicalNotes,
-      }];
+      const analysisData = [
+        {
+          id: analysis.id,
+          type: analysis.type,
+          childName: analysis.childName,
+          childAge: analysis.childAge,
+          date: analysis.date,
+          emotionalTones: analysis.emotionalTones,
+          analysis: analysis.analysis,
+          notes: analysis.clinicalNotes,
+        },
+      ];
       await DataExportService.exportAndShare(analysisData, format);
       setExportSuccess(true);
       feedback('success');
@@ -115,7 +114,10 @@ export function ReportExportButton({
       case 'icon':
         return (
           <Pressable
-            onPress={() => { feedback('tap'); setShowModal(true); }}
+            onPress={() => {
+              feedback('tap');
+              setShowModal(true);
+            }}
             style={styles.iconButton}
           >
             <Share2 size={20} color={Colors.secondary.lavender} />
@@ -124,7 +126,10 @@ export function ReportExportButton({
       case 'menu':
         return (
           <Pressable
-            onPress={() => { feedback('tap'); setShowModal(true); }}
+            onPress={() => {
+              feedback('tap');
+              setShowModal(true);
+            }}
             style={styles.menuButton}
           >
             <Download size={18} color={Colors.neutral.dark} />
@@ -134,7 +139,10 @@ export function ReportExportButton({
       default:
         return (
           <Pressable
-            onPress={() => { feedback('tap'); setShowModal(true); }}
+            onPress={() => {
+              feedback('tap');
+              setShowModal(true);
+            }}
             style={styles.button}
           >
             <FileText size={18} color={Colors.neutral.white} />
@@ -155,7 +163,7 @@ export function ReportExportButton({
       >
         <Pressable style={styles.overlay} onPress={() => setShowModal(false)}>
           <Animated.View entering={SlideInUp} style={styles.modalContent}>
-            <Pressable onPress={(e) => e.stopPropagation()}>
+            <Pressable onPress={e => e.stopPropagation()}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Rapor Olustur</Text>
                 <Pressable onPress={() => setShowModal(false)} style={styles.closeButton}>

@@ -11,7 +11,6 @@ import Animated, {
   withSpring,
   Easing,
   interpolate,
-  useAnimatedProps,
 } from 'react-native-reanimated';
 import Svg, {
   Defs,
@@ -21,12 +20,6 @@ import Svg, {
   Circle,
   Ellipse,
   Path,
-  G,
-  Filter,
-  FeGaussianBlur,
-  FeOffset,
-  FeMerge,
-  FeMergeNode,
 } from 'react-native-svg';
 import { IooMood, IooSize, getPixelSize, IOO_COLORS } from '@/constants/ioo-config';
 
@@ -52,7 +45,7 @@ interface IooMascotProProps {
 const Colors = IOO_COLORS;
 
 const AnimatedView = Animated.createAnimatedComponent(View);
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+const _AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
 export const IooMascotPro: React.FC<IooMascotProProps> = ({
   size = 'medium',
@@ -65,7 +58,7 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
 
   // Animation values
   const breathScale = useSharedValue(1);
-  const breathY = useSharedValue(0);
+  const _breathY = useSharedValue(0);
   const floatY = useSharedValue(0);
   const squashX = useSharedValue(1);
   const squashY = useSharedValue(1);
@@ -162,7 +155,8 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
       blinkProgress.value = withSequence(
         withTiming(0.05, { duration: 70, easing: Easing.out(Easing.quad) }),
         withTiming(1, { duration: 90, easing: Easing.out(Easing.quad) }),
-        withDelay(120,
+        withDelay(
+          120,
           withSequence(
             withTiming(0.05, { duration: 70, easing: Easing.out(Easing.quad) }),
             withTiming(1, { duration: 90, easing: Easing.out(Easing.quad) })
@@ -203,20 +197,14 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
 
     // Yanak parlaması
     cheekGlow.value = withRepeat(
-      withSequence(
-        withTiming(0.8, { duration: 1500 }),
-        withTiming(0.5, { duration: 1500 })
-      ),
+      withSequence(withTiming(0.8, { duration: 1500 }), withTiming(0.5, { duration: 1500 })),
       -1,
       true
     );
 
     // Glow pulse
     glowIntensity.value = withRepeat(
-      withSequence(
-        withTiming(0.55, { duration: 2000 }),
-        withTiming(0.35, { duration: 2000 })
-      ),
+      withSequence(withTiming(0.55, { duration: 2000 }), withTiming(0.35, { duration: 2000 })),
       -1,
       true
     );
@@ -225,6 +213,7 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
       clearInterval(blinkInterval);
       clearInterval(lookInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated]);
 
   // ==========================================================================
@@ -321,6 +310,7 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
         eyeWiden.value = withSpring(1, { damping: 10 });
         break;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mood, animated]);
 
   // ==========================================================================
@@ -384,17 +374,11 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
   }));
 
   const leftPupilStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: leftPupilX.value },
-      { translateY: leftPupilY.value },
-    ],
+    transform: [{ translateX: leftPupilX.value }, { translateY: leftPupilY.value }],
   }));
 
   const rightPupilStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: rightPupilX.value },
-      { translateY: rightPupilY.value },
-    ],
+    transform: [{ translateX: rightPupilX.value }, { translateY: rightPupilY.value }],
   }));
 
   const cheekStyle = useAnimatedStyle(() => ({
@@ -425,34 +409,34 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
   const MascotContent = (
     <View style={[styles.wrapper, { width: containerSize, height: containerSize }, style]}>
       {/* Ambient Glow */}
-      <AnimatedView style={[
-        styles.glowOuter,
-        glowStyle,
-        {
-          width: containerSize,
-          height: containerSize,
-          borderRadius: containerSize / 2,
-          backgroundColor: Colors.glow.ambient,
-        }
-      ]} />
-      <AnimatedView style={[
-        styles.glowInner,
-        glowStyle,
-        {
-          width: containerSize * 0.85,
-          height: containerSize * 0.85,
-          borderRadius: containerSize * 0.425,
-          backgroundColor: Colors.glow.soft,
-        }
-      ]} />
+      <AnimatedView
+        style={[
+          styles.glowOuter,
+          glowStyle,
+          {
+            width: containerSize,
+            height: containerSize,
+            borderRadius: containerSize / 2,
+            backgroundColor: Colors.glow.ambient,
+          },
+        ]}
+      />
+      <AnimatedView
+        style={[
+          styles.glowInner,
+          glowStyle,
+          {
+            width: containerSize * 0.85,
+            height: containerSize * 0.85,
+            borderRadius: containerSize * 0.425,
+            backgroundColor: Colors.glow.soft,
+          },
+        ]}
+      />
 
       {/* Main Body */}
       <AnimatedView style={[styles.bodyContainer, bodyContainerStyle]}>
-        <Svg
-          width={bodySize}
-          height={bodySize}
-          viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
-        >
+        <Svg width={bodySize} height={bodySize} viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}>
           <Defs>
             {/* Ana beden gradient - sıcak, derinlikli */}
             <RadialGradient id="bodyGradient" cx="40%" cy="30%" r="70%" fx="35%" fy="25%">
@@ -493,13 +477,7 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
           </Defs>
 
           {/* Drop shadow (fake) */}
-          <Ellipse
-            cx="100"
-            cy="185"
-            rx="55"
-            ry="12"
-            fill="rgba(180,150,130,0.2)"
-          />
+          <Ellipse cx="100" cy="185" rx="55" ry="12" fill="rgba(180,150,130,0.2)" />
 
           {/* Ana beden - organik blob şekli */}
           <Path
@@ -526,39 +504,16 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
           />
 
           {/* Alt ambient occlusion */}
-          <Ellipse
-            cx="100"
-            cy="170"
-            rx="65"
-            ry="30"
-            fill="url(#bottomAO)"
-          />
+          <Ellipse cx="100" cy="170" rx="65" ry="30" fill="url(#bottomAO)" />
 
           {/* Ana üst highlight */}
-          <Ellipse
-            cx="70"
-            cy="55"
-            rx="38"
-            ry="25"
-            fill="url(#topHighlight)"
-          />
+          <Ellipse cx="70" cy="55" rx="38" ry="25" fill="url(#topHighlight)" />
 
           {/* Sekonder highlight */}
-          <Ellipse
-            cx="130"
-            cy="42"
-            rx="18"
-            ry="12"
-            fill="rgba(255,255,255,0.65)"
-          />
+          <Ellipse cx="130" cy="42" rx="18" ry="12" fill="rgba(255,255,255,0.65)" />
 
           {/* Mini highlight */}
-          <Circle
-            cx="148"
-            cy="65"
-            r="8"
-            fill="rgba(255,255,255,0.5)"
-          />
+          <Circle cx="148" cy="65" r="8" fill="rgba(255,255,255,0.5)" />
 
           {/* Rim light sol */}
           <Path
@@ -571,84 +526,94 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
         </Svg>
 
         {/* Gözler */}
-        <AnimatedView style={[
-          styles.eyesContainer,
-          eyeContainerStyle,
-          { top: bodySize * 0.32 }
-        ]}>
+        <AnimatedView style={[styles.eyesContainer, eyeContainerStyle, { top: bodySize * 0.32 }]}>
           {/* Sol Göz */}
           <View style={[styles.eyeWrapper, { marginRight: bodySize * 0.06 }]}>
-            <View style={[
-              styles.eyeOuter,
-              {
-                width: eyeSize,
-                height: eyeSize,
-                borderRadius: eyeSize / 2,
-              }
-            ]}>
-              {/* Göz beyazı gradient */}
-              <View style={[
-                styles.eyeWhite,
+            <View
+              style={[
+                styles.eyeOuter,
                 {
-                  width: eyeSize * 0.92,
-                  height: eyeSize * 0.92,
-                  borderRadius: eyeSize * 0.46,
-                }
-              ]}>
+                  width: eyeSize,
+                  height: eyeSize,
+                  borderRadius: eyeSize / 2,
+                },
+              ]}
+            >
+              {/* Göz beyazı gradient */}
+              <View
+                style={[
+                  styles.eyeWhite,
+                  {
+                    width: eyeSize * 0.92,
+                    height: eyeSize * 0.92,
+                    borderRadius: eyeSize * 0.46,
+                  },
+                ]}
+              >
                 {/* İris */}
                 <AnimatedView style={[styles.irisContainer, leftPupilStyle]}>
-                  <View style={[
-                    styles.iris,
-                    {
-                      width: pupilSize,
-                      height: pupilSize,
-                      borderRadius: pupilSize / 2,
-                    }
-                  ]}>
-                    {/* Pupil */}
-                    <View style={[
-                      styles.pupil,
+                  <View
+                    style={[
+                      styles.iris,
                       {
-                        width: pupilSize * 0.55,
-                        height: pupilSize * 0.55,
-                        borderRadius: pupilSize * 0.275,
-                      }
-                    ]} />
+                        width: pupilSize,
+                        height: pupilSize,
+                        borderRadius: pupilSize / 2,
+                      },
+                    ]}
+                  >
+                    {/* Pupil */}
+                    <View
+                      style={[
+                        styles.pupil,
+                        {
+                          width: pupilSize * 0.55,
+                          height: pupilSize * 0.55,
+                          borderRadius: pupilSize * 0.275,
+                        },
+                      ]}
+                    />
 
                     {/* Ana highlight - büyük */}
-                    <View style={[
-                      styles.highlight1,
-                      {
-                        width: highlightSize,
-                        height: highlightSize,
-                        borderRadius: highlightSize / 2,
-                        top: pupilSize * 0.12,
-                        left: pupilSize * 0.12,
-                      }
-                    ]} />
+                    <View
+                      style={[
+                        styles.highlight1,
+                        {
+                          width: highlightSize,
+                          height: highlightSize,
+                          borderRadius: highlightSize / 2,
+                          top: pupilSize * 0.12,
+                          left: pupilSize * 0.12,
+                        },
+                      ]}
+                    />
 
                     {/* Sekonder highlight - küçük */}
-                    <View style={[
-                      styles.highlight2,
-                      {
-                        width: highlightSize * 0.45,
-                        height: highlightSize * 0.45,
-                        borderRadius: highlightSize * 0.225,
-                        bottom: pupilSize * 0.18,
-                        right: pupilSize * 0.15,
-                      }
-                    ]} />
+                    <View
+                      style={[
+                        styles.highlight2,
+                        {
+                          width: highlightSize * 0.45,
+                          height: highlightSize * 0.45,
+                          borderRadius: highlightSize * 0.225,
+                          bottom: pupilSize * 0.18,
+                          right: pupilSize * 0.15,
+                        },
+                      ]}
+                    />
 
                     {/* Alt reflection */}
-                    <View style={[
-                      styles.reflection,
-                      {
-                        width: pupilSize * 0.5,
-                        height: pupilSize * 0.15,
-                        borderRadius: pupilSize * 0.075,
-                        bottom: pupilSize * 0.08,
-                      }
-                    ]} />
+                    <View
+                      style={[
+                        styles.reflection,
+                        {
+                          width: pupilSize * 0.5,
+                          height: pupilSize * 0.15,
+                          borderRadius: pupilSize * 0.075,
+                          bottom: pupilSize * 0.08,
+                        },
+                      ]}
+                    />
                   </View>
                 </AnimatedView>
               </View>
@@ -657,68 +622,82 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
 
           {/* Sağ Göz */}
           <View style={[styles.eyeWrapper, { marginLeft: bodySize * 0.06 }]}>
-            <View style={[
-              styles.eyeOuter,
-              {
-                width: eyeSize,
-                height: eyeSize,
-                borderRadius: eyeSize / 2,
-              }
-            ]}>
-              <View style={[
-                styles.eyeWhite,
+            <View
+              style={[
+                styles.eyeOuter,
                 {
-                  width: eyeSize * 0.92,
-                  height: eyeSize * 0.92,
-                  borderRadius: eyeSize * 0.46,
-                }
-              ]}>
+                  width: eyeSize,
+                  height: eyeSize,
+                  borderRadius: eyeSize / 2,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.eyeWhite,
+                  {
+                    width: eyeSize * 0.92,
+                    height: eyeSize * 0.92,
+                    borderRadius: eyeSize * 0.46,
+                  },
+                ]}
+              >
                 <AnimatedView style={[styles.irisContainer, rightPupilStyle]}>
-                  <View style={[
-                    styles.iris,
-                    {
-                      width: pupilSize,
-                      height: pupilSize,
-                      borderRadius: pupilSize / 2,
-                    }
-                  ]}>
-                    <View style={[
-                      styles.pupil,
+                  <View
+                    style={[
+                      styles.iris,
                       {
-                        width: pupilSize * 0.55,
-                        height: pupilSize * 0.55,
-                        borderRadius: pupilSize * 0.275,
-                      }
-                    ]} />
-                    <View style={[
-                      styles.highlight1,
-                      {
-                        width: highlightSize,
-                        height: highlightSize,
-                        borderRadius: highlightSize / 2,
-                        top: pupilSize * 0.12,
-                        left: pupilSize * 0.12,
-                      }
-                    ]} />
-                    <View style={[
-                      styles.highlight2,
-                      {
-                        width: highlightSize * 0.45,
-                        height: highlightSize * 0.45,
-                        borderRadius: highlightSize * 0.225,
-                        bottom: pupilSize * 0.18,
-                        right: pupilSize * 0.15,
-                      }
-                    ]} />
-                    <View style={[
-                      styles.reflection,
-                      {
-                        width: pupilSize * 0.5,
-                        height: pupilSize * 0.15,
-                        borderRadius: pupilSize * 0.075,
-                        bottom: pupilSize * 0.08,
-                      }
-                    ]} />
+                        width: pupilSize,
+                        height: pupilSize,
+                        borderRadius: pupilSize / 2,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.pupil,
+                        {
+                          width: pupilSize * 0.55,
+                          height: pupilSize * 0.55,
+                          borderRadius: pupilSize * 0.275,
+                        },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        styles.highlight1,
+                        {
+                          width: highlightSize,
+                          height: highlightSize,
+                          borderRadius: highlightSize / 2,
+                          top: pupilSize * 0.12,
+                          left: pupilSize * 0.12,
+                        },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        styles.highlight2,
+                        {
+                          width: highlightSize * 0.45,
+                          height: highlightSize * 0.45,
+                          borderRadius: highlightSize * 0.225,
+                          bottom: pupilSize * 0.18,
+                          right: pupilSize * 0.15,
+                        },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        styles.reflection,
+                        {
+                          width: pupilSize * 0.5,
+                          height: pupilSize * 0.15,
+                          borderRadius: pupilSize * 0.075,
+                          bottom: pupilSize * 0.08,
+                        },
+                      ]}
+                    />
                   </View>
                 </AnimatedView>
               </View>
@@ -727,50 +706,58 @@ export const IooMascotPro: React.FC<IooMascotProProps> = ({
         </AnimatedView>
 
         {/* Yanaklar */}
-        <AnimatedView style={[
-          styles.cheek,
-          cheekStyle,
-          {
-            width: cheekWidth,
-            height: cheekHeight,
-            borderRadius: cheekHeight / 2,
-            backgroundColor: Colors.cheeks.main,
-            bottom: bodySize * 0.35,
-            left: bodySize * 0.14,
-          }
-        ]}>
-          <View style={[
-            styles.cheekGlow,
+        <AnimatedView
+          style={[
+            styles.cheek,
+            cheekStyle,
             {
-              width: cheekWidth * 0.6,
-              height: cheekHeight * 0.5,
-              borderRadius: cheekHeight * 0.25,
-              backgroundColor: Colors.cheeks.glow,
-            }
-          ]} />
+              width: cheekWidth,
+              height: cheekHeight,
+              borderRadius: cheekHeight / 2,
+              backgroundColor: Colors.cheeks.main,
+              bottom: bodySize * 0.35,
+              left: bodySize * 0.14,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.cheekGlow,
+              {
+                width: cheekWidth * 0.6,
+                height: cheekHeight * 0.5,
+                borderRadius: cheekHeight * 0.25,
+                backgroundColor: Colors.cheeks.glow,
+              },
+            ]}
+          />
         </AnimatedView>
 
-        <AnimatedView style={[
-          styles.cheek,
-          cheekStyle,
-          {
-            width: cheekWidth,
-            height: cheekHeight,
-            borderRadius: cheekHeight / 2,
-            backgroundColor: Colors.cheeks.main,
-            bottom: bodySize * 0.35,
-            right: bodySize * 0.14,
-          }
-        ]}>
-          <View style={[
-            styles.cheekGlow,
+        <AnimatedView
+          style={[
+            styles.cheek,
+            cheekStyle,
             {
-              width: cheekWidth * 0.6,
-              height: cheekHeight * 0.5,
-              borderRadius: cheekHeight * 0.25,
-              backgroundColor: Colors.cheeks.glow,
-            }
-          ]} />
+              width: cheekWidth,
+              height: cheekHeight,
+              borderRadius: cheekHeight / 2,
+              backgroundColor: Colors.cheeks.main,
+              bottom: bodySize * 0.35,
+              right: bodySize * 0.14,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.cheekGlow,
+              {
+                width: cheekWidth * 0.6,
+                height: cheekHeight * 0.5,
+                borderRadius: cheekHeight * 0.25,
+                backgroundColor: Colors.cheeks.glow,
+              },
+            ]}
+          />
         </AnimatedView>
 
         {/* Ağız */}

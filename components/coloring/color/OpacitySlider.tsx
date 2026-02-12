@@ -26,62 +26,65 @@ export interface OpacitySliderProps {
   height?: number;
 }
 
-export function OpacitySlider({
-  value,
-  color,
-  onChange,
-  height = 200,
-}: OpacitySliderProps) {
+export function OpacitySlider({ value, color, onChange, height = 200 }: OpacitySliderProps) {
   const thumbAnim = useRef(new Animated.Value(1)).current;
 
   // Calculate thumb position from value
-  const getThumbPosition = useCallback((opacity: number) => {
-    return height - 30 - (opacity * (height - 60));
-  }, [height]);
+  const getThumbPosition = useCallback(
+    (opacity: number) => {
+      return height - 30 - opacity * (height - 60);
+    },
+    [height]
+  );
 
   // Calculate value from touch position
-  const getValueFromPosition = useCallback((y: number) => {
-    const minY = 30;
-    const maxY = height - 30;
-    const clampedY = Math.max(minY, Math.min(maxY, y));
-    const normalized = (maxY - clampedY) / (maxY - minY);
-    return Math.max(0, Math.min(1, normalized));
-  }, [height]);
+  const getValueFromPosition = useCallback(
+    (y: number) => {
+      const minY = 30;
+      const maxY = height - 30;
+      const clampedY = Math.max(minY, Math.min(maxY, y));
+      const normalized = (maxY - clampedY) / (maxY - minY);
+      return Math.max(0, Math.min(1, normalized));
+    },
+    [height]
+  );
 
   // Handle touch
-  const handleTouch = useCallback((y: number) => {
-    const newValue = getValueFromPosition(y);
-    onChange(newValue);
+  const handleTouch = useCallback(
+    (y: number) => {
+      const newValue = getValueFromPosition(y);
+      onChange(newValue);
 
-    // Thumb animation
-    Animated.sequence([
-      Animated.timing(thumbAnim, {
-        toValue: 1.2,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(thumbAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [getValueFromPosition, onChange, thumbAnim]);
+      // Thumb animation
+      Animated.sequence([
+        Animated.timing(thumbAnim, {
+          toValue: 1.2,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(thumbAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    },
+    [getValueFromPosition, onChange, thumbAnim]
+  );
 
   // Pan gesture
   const panGesture = Gesture.Pan()
-    .onBegin((e) => {
+    .onBegin(e => {
       handleTouch(e.y);
     })
-    .onUpdate((e) => {
+    .onUpdate(e => {
       handleTouch(e.y);
     });
 
   // Tap gesture
-  const tapGesture = Gesture.Tap()
-    .onEnd((e) => {
-      handleTouch(e.y);
-    });
+  const tapGesture = Gesture.Tap().onEnd(e => {
+    handleTouch(e.y);
+  });
 
   const composedGesture = Gesture.Race(panGesture, tapGesture);
 
@@ -121,7 +124,7 @@ export function OpacitySlider({
                 end={vec(0, 0)}
                 colors={[
                   `${color}00`, // Fully transparent
-                  color,         // Fully opaque
+                  color, // Fully opaque
                 ]}
               />
             </Rect>
@@ -153,9 +156,24 @@ export function OpacitySlider({
       {/* Quick presets */}
       <View style={styles.presetsContainer}>
         <OpacityPreset value={1} label="100%" onPress={() => onChange(1)} active={value === 1} />
-        <OpacityPreset value={0.75} label="75%" onPress={() => onChange(0.75)} active={value === 0.75} />
-        <OpacityPreset value={0.5} label="50%" onPress={() => onChange(0.5)} active={value === 0.5} />
-        <OpacityPreset value={0.25} label="25%" onPress={() => onChange(0.25)} active={value === 0.25} />
+        <OpacityPreset
+          value={0.75}
+          label="75%"
+          onPress={() => onChange(0.75)}
+          active={value === 0.75}
+        />
+        <OpacityPreset
+          value={0.5}
+          label="50%"
+          onPress={() => onChange(0.5)}
+          active={value === 0.5}
+        />
+        <OpacityPreset
+          value={0.25}
+          label="25%"
+          onPress={() => onChange(0.25)}
+          active={value === 0.25}
+        />
       </View>
     </View>
   );
@@ -172,18 +190,10 @@ interface OpacityPresetProps {
   active: boolean;
 }
 
-function OpacityPreset({ value, label, onPress, active }: OpacityPresetProps) {
+function OpacityPreset({ label, onPress, active }: OpacityPresetProps) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={[
-        styles.presetButton,
-        active && styles.presetButtonActive,
-      ]}
-    >
-      <Text style={[styles.presetText, active && styles.presetTextActive]}>
-        {label}
-      </Text>
+    <Pressable onPress={onPress} style={[styles.presetButton, active && styles.presetButtonActive]}>
+      <Text style={[styles.presetText, active && styles.presetTextActive]}>{label}</Text>
     </Pressable>
   );
 }

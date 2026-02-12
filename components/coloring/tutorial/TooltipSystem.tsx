@@ -19,14 +19,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions } from 'react-native';
 import { shadows, zIndex } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
@@ -69,7 +62,11 @@ export function Tooltip({
 
   // Overlay coordination
   const overlayId = `tooltip_${id}`;
-  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('tooltip', overlayId);
+  const {
+    canShow,
+    request: requestOverlay,
+    release: releaseOverlay,
+  } = useOverlay('tooltip', overlayId);
 
   // Memoize handleDismiss to avoid stale closure issues
   const handleDismiss = useCallback(async () => {
@@ -123,7 +120,16 @@ export function Tooltip({
         }),
       ]).start();
     }
-  }, [visible, canShow, requestOverlay, autoDismiss, autoDismissDelay, handleDismiss, fadeAnim, scaleAnim]);
+  }, [
+    visible,
+    canShow,
+    requestOverlay,
+    autoDismiss,
+    autoDismissDelay,
+    handleDismiss,
+    fadeAnim,
+    scaleAnim,
+  ]);
 
   // Don't render if not visible or can't show due to overlay conflict
   if (!visible || !canShow) return null;
@@ -181,6 +187,7 @@ export function useTooltip(tooltipId: string) {
 
   useEffect(() => {
     checkTooltipStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkTooltipStatus = async () => {
@@ -229,7 +236,7 @@ export async function markTooltipSeen(tooltipId: string): Promise<void> {
 export async function resetTooltips(): Promise<void> {
   try {
     const keys = await AsyncStorage.getAllKeys();
-    const tooltipKeys = keys.filter((key) => key.startsWith('@tooltip_'));
+    const tooltipKeys = keys.filter(key => key.startsWith('@tooltip_'));
     await AsyncStorage.multiRemove(tooltipKeys);
   } catch (error) {
     console.warn('[Tooltip] Failed to reset tooltips:', error);
@@ -240,11 +247,7 @@ export async function resetTooltips(): Promise<void> {
 // POSITIONING HELPERS
 // ============================================================================
 
-function getTooltipPosition(
-  position: TooltipPosition,
-  targetX: number,
-  targetY: number
-) {
+function getTooltipPosition(position: TooltipPosition, targetX: number, targetY: number) {
   const OFFSET = 20; // Offset from target
   const TOOLTIP_WIDTH = 280;
   const TOOLTIP_HEIGHT = 150; // Approximate
@@ -252,23 +255,35 @@ function getTooltipPosition(
   switch (position) {
     case 'top':
       return {
-        left: Math.max(20, Math.min(SCREEN_WIDTH - TOOLTIP_WIDTH - 20, targetX - TOOLTIP_WIDTH / 2)),
+        left: Math.max(
+          20,
+          Math.min(SCREEN_WIDTH - TOOLTIP_WIDTH - 20, targetX - TOOLTIP_WIDTH / 2)
+        ),
         bottom: SCREEN_HEIGHT - targetY + OFFSET,
       };
     case 'bottom':
       return {
-        left: Math.max(20, Math.min(SCREEN_WIDTH - TOOLTIP_WIDTH - 20, targetX - TOOLTIP_WIDTH / 2)),
+        left: Math.max(
+          20,
+          Math.min(SCREEN_WIDTH - TOOLTIP_WIDTH - 20, targetX - TOOLTIP_WIDTH / 2)
+        ),
         top: targetY + OFFSET,
       };
     case 'left':
       return {
         right: SCREEN_WIDTH - targetX + OFFSET,
-        top: Math.max(20, Math.min(SCREEN_HEIGHT - TOOLTIP_HEIGHT - 20, targetY - TOOLTIP_HEIGHT / 2)),
+        top: Math.max(
+          20,
+          Math.min(SCREEN_HEIGHT - TOOLTIP_HEIGHT - 20, targetY - TOOLTIP_HEIGHT / 2)
+        ),
       };
     case 'right':
       return {
         left: targetX + OFFSET,
-        top: Math.max(20, Math.min(SCREEN_HEIGHT - TOOLTIP_HEIGHT - 20, targetY - TOOLTIP_HEIGHT / 2)),
+        top: Math.max(
+          20,
+          Math.min(SCREEN_HEIGHT - TOOLTIP_HEIGHT - 20, targetY - TOOLTIP_HEIGHT / 2)
+        ),
       };
   }
 }

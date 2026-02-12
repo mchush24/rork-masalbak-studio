@@ -5,22 +5,15 @@
  * Animasyonlu ve cocuk dostu tasarim.
  */
 
-import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Platform,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
-import { ChoiceCard } from "./ChoiceCard";
-import { ChoicePoint, InteractiveCharacter } from "@/types/InteractiveStory";
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { ChoiceCard } from './ChoiceCard';
+import { ChoicePoint, InteractiveCharacter } from '@/types/InteractiveStory';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ChoiceScreenProps {
   choicePoint: ChoicePoint;
@@ -74,6 +67,7 @@ export function ChoiceScreen({
         }),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSelect = async (optionId: string) => {
@@ -82,7 +76,7 @@ export function ChoiceScreen({
     setSelectedOptionId(optionId);
 
     // Haptic feedback
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
@@ -93,10 +87,7 @@ export function ChoiceScreen({
   };
 
   return (
-    <LinearGradient
-      colors={["#1E1B4B", "#312E81", "#4338CA"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1E1B4B', '#312E81', '#4338CA']} style={styles.container}>
       {/* Ilerleme gostergesi */}
       <View style={styles.progressContainer}>
         <View style={styles.progressDots}>
@@ -128,15 +119,10 @@ export function ChoiceScreen({
       >
         {/* Karakter avatar */}
         <Animated.View
-          style={[
-            styles.characterContainer,
-            { transform: [{ translateY: characterBounce }] },
-          ]}
+          style={[styles.characterContainer, { transform: [{ translateY: characterBounce }] }]}
         >
           <View style={styles.characterAvatar}>
-            <Text style={styles.characterEmoji}>
-              {getCharacterEmoji(character.type)}
-            </Text>
+            <Text style={styles.characterEmoji}>{getCharacterEmoji(character.type)}</Text>
           </View>
           <Text style={styles.characterName}>{character.name}</Text>
         </Animated.View>
@@ -204,28 +190,28 @@ export function ChoiceScreen({
 // Karakter turune gore emoji
 function getCharacterEmoji(type: string): string {
   const emojiMap: Record<string, string> = {
-    tilki: "🦊",
-    tavsan: "🐰",
-    ayi: "🐻",
-    kedi: "🐱",
-    kopek: "🐶",
-    kus: "🐦",
-    balik: "🐟",
-    kelebek: "🦋",
-    sincap: "🐿️",
-    fil: "🐘",
-    aslan: "🦁",
-    panda: "🐼",
-    penguen: "🐧",
-    fare: "🐭",
-    kirpi: "🦔",
-    fox: "🦊",
-    rabbit: "🐰",
-    bear: "🐻",
-    cat: "🐱",
-    dog: "🐶",
+    tilki: '🦊',
+    tavsan: '🐰',
+    ayi: '🐻',
+    kedi: '🐱',
+    kopek: '🐶',
+    kus: '🐦',
+    balik: '🐟',
+    kelebek: '🦋',
+    sincap: '🐿️',
+    fil: '🐘',
+    aslan: '🦁',
+    panda: '🐼',
+    penguen: '🐧',
+    fare: '🐭',
+    kirpi: '🦔',
+    fox: '🦊',
+    rabbit: '🐰',
+    bear: '🐻',
+    cat: '🐱',
+    dog: '🐶',
   };
-  return emojiMap[type.toLowerCase()] || "🌟";
+  return emojiMap[type.toLowerCase()] || '🌟';
 }
 
 const styles = StyleSheet.create({
@@ -236,11 +222,11 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   progressContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 20,
   },
   progressDots: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
     marginBottom: 8,
   },
@@ -248,37 +234,37 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "rgba(255,255,255,0.3)",
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   progressDotCompleted: {
-    backgroundColor: "#22C55E",
+    backgroundColor: '#22C55E',
   },
   progressDotCurrent: {
     backgroundColor: Colors.semantic.amber,
     width: 20,
   },
   progressText: {
-    color: "rgba(255,255,255,0.7)",
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   questionContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 30,
   },
   characterContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 16,
   },
   characterAvatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: 'rgba(255,255,255,0.4)',
     marginBottom: 8,
   },
   characterEmoji: {
@@ -287,51 +273,51 @@ const styles = StyleSheet.create({
   characterName: {
     color: Colors.neutral.white,
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   questionBubble: {
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: 20,
     paddingHorizontal: 24,
     paddingVertical: 16,
     maxWidth: SCREEN_WIDTH - 60,
     // Konusma balonu ok
-    position: "relative",
+    position: 'relative',
   },
   questionText: {
-    color: "#1E1B4B",
+    color: '#1E1B4B',
     fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
+    fontWeight: '600',
+    textAlign: 'center',
     lineHeight: 26,
   },
   choicesContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   choicesRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
     gap: 12,
   },
   helpText: {
-    color: "rgba(255,255,255,0.5)",
+    color: 'rgba(255,255,255,0.5)',
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
   starsContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     height: 150,
-    pointerEvents: "none",
+    pointerEvents: 'none',
   },
   star: {
-    position: "absolute",
-    color: "#FCD34D",
+    position: 'absolute',
+    color: '#FCD34D',
     fontSize: 16,
   },
 });

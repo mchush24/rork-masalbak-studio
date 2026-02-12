@@ -39,12 +39,7 @@ interface StaggeredEntranceProps {
  * Staggered entrance animation wrapper
  * Cards slide up and fade in with a staggered delay based on index
  */
-export function StaggeredEntrance({
-  children,
-  index,
-  delay = 80,
-  style,
-}: StaggeredEntranceProps) {
+export function StaggeredEntrance({ children, index, delay = 80, style }: StaggeredEntranceProps) {
   const translateY = useSharedValue(30);
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.95);
@@ -67,21 +62,14 @@ export function StaggeredEntrance({
     }, index * delay);
 
     return () => clearTimeout(timeout);
-  }, [index, delay]);
+  }, [index, delay, translateY, opacity, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
     opacity: opacity.value,
   }));
 
-  return (
-    <Animated.View style={[style, animatedStyle]}>
-      {children}
-    </Animated.View>
-  );
+  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
 }
 
 interface IdleBreathingProps {
@@ -127,17 +115,13 @@ export function IdleBreathing({
     }
 
     return () => cancelAnimation(scale);
-  }, [enabled, min, max]);
+  }, [enabled, min, max, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
-  return (
-    <Animated.View style={[style, animatedStyle]}>
-      {children}
-    </Animated.View>
-  );
+  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
 }
 
 interface AttentionPulseProps {
@@ -189,7 +173,7 @@ export function AttentionPulse({
       cancelAnimation(pulseOpacity);
       cancelAnimation(pulseScale);
     };
-  }, [active]);
+  }, [active, pulseOpacity, pulseScale]);
 
   const pulseStyle = useAnimatedStyle(() => ({
     opacity: pulseOpacity.value,
@@ -199,11 +183,7 @@ export function AttentionPulse({
   return (
     <View style={[styles.attentionContainer, style]}>
       <Animated.View
-        style={[
-          styles.attentionPulse,
-          { borderColor: color, shadowColor: color },
-          pulseStyle,
-        ]}
+        style={[styles.attentionPulse, { borderColor: color, shadowColor: color }, pulseStyle]}
       />
       {children}
     </View>
@@ -225,23 +205,17 @@ export function NewBadge({ visible = true }: NewBadgeProps) {
     if (visible) {
       scale.value = withSpring(1, { damping: 10, stiffness: 150 });
       rotation.value = withRepeat(
-        withSequence(
-          withTiming(5, { duration: 1500 }),
-          withTiming(-5, { duration: 1500 })
-        ),
+        withSequence(withTiming(5, { duration: 1500 }), withTiming(-5, { duration: 1500 })),
         -1,
         true
       );
     } else {
       scale.value = withTiming(0, { duration: 200 });
     }
-  }, [visible]);
+  }, [visible, scale, rotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` },
-    ],
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
   }));
 
   if (!visible) return null;
@@ -280,12 +254,10 @@ export function PremiumIndicator({ visible = true, style }: PremiumIndicatorProp
         false
       );
     }
-  }, [visible]);
+  }, [visible, shimmerPosition]);
 
   const shimmerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: interpolate(shimmerPosition.value, [0, 1], [-100, 100]) },
-    ],
+    transform: [{ translateX: interpolate(shimmerPosition.value, [0, 1], [-100, 100]) }],
   }));
 
   if (!visible) return null;
@@ -325,7 +297,7 @@ export function RippleEffect({
   const rippleScale = useSharedValue(0);
   const rippleOpacity = useSharedValue(0);
 
-  const triggerRipple = useCallback(() => {
+  const _triggerRipple = useCallback(() => {
     rippleScale.value = 0;
     rippleOpacity.value = 1;
 
@@ -333,15 +305,12 @@ export function RippleEffect({
       duration: 400,
       easing: Easing.out(Easing.cubic),
     });
-    rippleOpacity.value = withDelay(
-      200,
-      withTiming(0, { duration: 200 })
-    );
+    rippleOpacity.value = withDelay(200, withTiming(0, { duration: 200 }));
 
     if (onPress) {
       setTimeout(onPress, 100);
     }
-  }, [onPress]);
+  }, [onPress, rippleScale, rippleOpacity]);
 
   const rippleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: rippleScale.value }],
@@ -351,13 +320,7 @@ export function RippleEffect({
   return (
     <Animated.View style={[styles.rippleContainer, style]}>
       {children}
-      <Animated.View
-        style={[
-          styles.ripple,
-          { backgroundColor: color },
-          rippleStyle,
-        ]}
-      />
+      <Animated.View style={[styles.ripple, { backgroundColor: color }, rippleStyle]} />
     </Animated.View>
   );
 }
@@ -373,12 +336,7 @@ interface SuccessFlashProps {
  * Success flash animation
  * Green glow flash on successful action
  */
-export function SuccessFlash({
-  children,
-  trigger = false,
-  onComplete,
-  style,
-}: SuccessFlashProps) {
+export function SuccessFlash({ children, trigger = false, onComplete, style }: SuccessFlashProps) {
   const flashOpacity = useSharedValue(0);
 
   useEffect(() => {
@@ -392,7 +350,7 @@ export function SuccessFlash({
         })
       );
     }
-  }, [trigger, onComplete]);
+  }, [trigger, onComplete, flashOpacity]);
 
   const flashStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
@@ -416,11 +374,7 @@ interface IconMicroRotationProps {
  * Icon micro-rotation animation
  * Subtle rotation for idle state
  */
-export function IconMicroRotation({
-  children,
-  enabled = true,
-  style,
-}: IconMicroRotationProps) {
+export function IconMicroRotation({ children, enabled = true, style }: IconMicroRotationProps) {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
@@ -439,17 +393,13 @@ export function IconMicroRotation({
     }
 
     return () => cancelAnimation(rotation);
-  }, [enabled]);
+  }, [enabled, rotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
   }));
 
-  return (
-    <Animated.View style={[style, animatedStyle]}>
-      {children}
-    </Animated.View>
-  );
+  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({

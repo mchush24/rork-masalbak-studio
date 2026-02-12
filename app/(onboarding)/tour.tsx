@@ -7,33 +7,15 @@
  * - Beautiful, engaging animations
  */
 
-import {
-  View,
-  Text,
-  Pressable,
-  Animated,
-  StyleSheet,
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet, Platform, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import {
-  Heart,
-  Shield,
-  Sparkles,
-  Eye,
-  MessageCircle,
-  TrendingUp,
-  ChevronRight,
-  ChevronLeft,
-} from 'lucide-react-native';
+import { Heart, Sparkles, Eye, TrendingUp, ChevronRight, ChevronLeft } from 'lucide-react-native';
 import {
   spacing,
-  radius,
   shadows,
   typography,
   iconSizes,
@@ -41,10 +23,11 @@ import {
   iconColors,
 } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
-const isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
+const _isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
 
 // Emotion-driven tour steps
 const tourSteps = [
@@ -90,6 +73,7 @@ const tourSteps = [
 ];
 
 export default function TourScreen() {
+  const { colors, isDark } = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
 
@@ -134,6 +118,7 @@ export default function TourScreen() {
       duration: 300,
       useNativeDriver: false,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
 
   const handleNext = () => {
@@ -168,7 +153,11 @@ export default function TourScreen() {
 
   return (
     <LinearGradient
-      colors={currentStepData.gradient}
+      colors={
+        isDark
+          ? ([...colors.background.pageGradient] as [string, string, ...string[]])
+          : currentStepData.gradient
+      }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -178,21 +167,27 @@ export default function TourScreen() {
         <View style={styles.header}>
           {currentStep > 0 ? (
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <ChevronLeft size={iconSizes.action} color={Colors.neutral.dark} strokeWidth={iconStroke.standard} />
-              <Text style={styles.backText}>Geri</Text>
+              <ChevronLeft
+                size={iconSizes.action}
+                color={colors.text.secondary}
+                strokeWidth={iconStroke.standard}
+              />
+              <Text style={[styles.backText, { color: colors.text.secondary }]}>Geri</Text>
             </Pressable>
           ) : (
             <View style={styles.backButton} />
           )}
 
           <Pressable onPress={handleSkip} style={styles.skipButton}>
-            <Text style={styles.skipText}>Atla</Text>
+            <Text style={[styles.skipText, { color: colors.text.tertiary }]}>Atla</Text>
           </Pressable>
         </View>
 
         {/* Progress Bar */}
         <View style={styles.progressContainer}>
-          <View style={styles.progressBg}>
+          <View
+            style={[styles.progressBg, isDark && { backgroundColor: 'rgba(255, 255, 255, 0.12)' }]}
+          >
             <Animated.View
               style={[
                 styles.progressFill,
@@ -206,7 +201,7 @@ export default function TourScreen() {
               ]}
             />
           </View>
-          <Text style={styles.stepCounter}>
+          <Text style={[styles.stepCounter, { color: colors.text.tertiary }]}>
             {currentStep + 1} / {tourSteps.length}
           </Text>
         </View>
@@ -239,7 +234,7 @@ export default function TourScreen() {
           </Animated.View>
 
           {/* Emoji Badge */}
-          <View style={styles.emojiBadge}>
+          <View style={[styles.emojiBadge, { backgroundColor: colors.surface.card }]}>
             <Text style={styles.emoji}>{currentStepData.emoji}</Text>
           </View>
 
@@ -249,11 +244,20 @@ export default function TourScreen() {
           </Text>
 
           {/* Subtitle */}
-          <Text style={styles.subtitle}>{currentStepData.subtitle}</Text>
+          <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+            {currentStepData.subtitle}
+          </Text>
 
           {/* Description Card */}
-          <View style={styles.descriptionCard}>
-            <Text style={styles.description}>{currentStepData.description}</Text>
+          <View
+            style={[
+              styles.descriptionCard,
+              { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+            ]}
+          >
+            <Text style={[styles.description, { color: colors.text.primary }]}>
+              {currentStepData.description}
+            </Text>
 
             {/* Highlight */}
             <View
@@ -262,10 +266,12 @@ export default function TourScreen() {
                 { backgroundColor: `${currentStepData.iconBg}40` },
               ]}
             >
-              <Sparkles size={iconSizes.badge} color={currentStepData.iconColor} strokeWidth={iconStroke.standard} />
-              <Text
-                style={[styles.highlightText, { color: currentStepData.iconColor }]}
-              >
+              <Sparkles
+                size={iconSizes.badge}
+                color={currentStepData.iconColor}
+                strokeWidth={iconStroke.standard}
+              />
+              <Text style={[styles.highlightText, { color: currentStepData.iconColor }]}>
                 {currentStepData.highlight}
               </Text>
             </View>
@@ -282,6 +288,7 @@ export default function TourScreen() {
                 onPress={() => setCurrentStep(index)}
                 style={[
                   styles.dot,
+                  isDark && { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
                   index === currentStep && {
                     backgroundColor: currentStepData.iconColor,
                     width: 24,
@@ -303,10 +310,12 @@ export default function TourScreen() {
               pressed && styles.ctaButtonPressed,
             ]}
           >
-            <Text style={styles.ctaText}>
-              {isLastStep ? 'Hesap Oluştur' : 'Devam Et'}
-            </Text>
-            <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+            <Text style={styles.ctaText}>{isLastStep ? 'Hesap Oluştur' : 'Devam Et'}</Text>
+            <ChevronRight
+              size={iconSizes.action}
+              color={iconColors.inverted}
+              strokeWidth={iconStroke.standard}
+            />
           </Pressable>
 
           {/* Login Link */}
@@ -314,7 +323,7 @@ export default function TourScreen() {
             onPress={() => router.push('/(onboarding)/login' as Href)}
             style={({ pressed }) => [pressed && { opacity: 0.7 }]}
           >
-            <Text style={styles.loginText}>
+            <Text style={[styles.loginText, { color: colors.text.secondary }]}>
               Zaten hesabınız var mı?{' '}
               <Text style={[styles.loginLink, { color: currentStepData.iconColor }]}>
                 Giriş Yapın

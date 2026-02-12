@@ -11,9 +11,9 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Pressable, ViewStyle, StyleProp } from 'react-native';
 import { Brain, Sparkles, Bot } from 'lucide-react-native';
-import { useRole, useMascotSettings, UserRole } from '@/lib/contexts/RoleContext';
+import { useRole, useMascotSettings } from '@/lib/contexts/RoleContext';
 import { IooMascotImage } from './IooMascotImage';
-import { IooMood, IooSize, SIZE_MAP } from '@/constants/ioo-config';
+import { IooMood, IooSize } from '@/constants/ioo-config';
 import { ProfessionalColors, Colors } from '@/constants/colors';
 import { spacing, radius, shadows } from '@/constants/design-system';
 
@@ -74,10 +74,7 @@ const ProfessionalIcon = memo(function ProfessionalIcon({
 
   if (onPress) {
     return (
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => pressed && styles.pressed}
-      >
+      <Pressable onPress={onPress} style={({ pressed }) => pressed && styles.pressed}>
         {content}
       </Pressable>
     );
@@ -127,7 +124,7 @@ export const IooRoleAware = memo(function IooRoleAware({
   style,
   forceShow = false,
 }: IooRoleAwareProps) {
-  const { role, config } = useRole();
+  const { role } = useRole();
   const mascotSettings = useMascotSettings();
 
   // Check if mascot should be shown based on context
@@ -169,22 +166,9 @@ export const IooRoleAware = memo(function IooRoleAware({
     case 'low':
       // Professional icon for experts, subtle mascot for others with low prominence
       if (role === 'expert') {
-        return (
-          <ProfessionalIcon
-            size={numericSize}
-            onPress={onPress}
-            style={style}
-          />
-        );
+        return <ProfessionalIcon size={numericSize} onPress={onPress} style={style} />;
       }
-      return (
-        <SubtleMascot
-          size={size}
-          mood={mood}
-          onPress={onPress}
-          style={style}
-        />
-      );
+      return <SubtleMascot size={size} mood={mood} onPress={onPress} style={style} />;
 
     case 'medium':
       // Subtle mascot with reduced effects
@@ -266,13 +250,13 @@ export const AssistantIcon = memo(function AssistantIcon({
 }) {
   const { role } = useRole();
 
-  const iconColor = color || (
-    role === 'expert'
+  const iconColor =
+    color ||
+    (role === 'expert'
       ? ProfessionalColors.trust.primary
       : role === 'teacher'
         ? ProfessionalColors.roles.teacher.primary
-        : Colors.secondary.violet // Parent default purple
-  );
+        : Colors.secondary.violet); // Parent default purple
 
   const content = (
     <View style={[styles.assistantIcon, style]}>
@@ -282,10 +266,7 @@ export const AssistantIcon = memo(function AssistantIcon({
 
   if (onPress) {
     return (
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => pressed && styles.pressed}
-      >
+      <Pressable onPress={onPress} style={({ pressed }) => pressed && styles.pressed}>
         {content}
       </Pressable>
     );
@@ -301,7 +282,7 @@ export const AssistantIcon = memo(function AssistantIcon({
 export const ChatAvatar = memo(function ChatAvatar({
   size = 40,
   isUser = false,
-  onPress,
+
   style,
 }: {
   size?: number;
@@ -315,7 +296,9 @@ export const ChatAvatar = memo(function ChatAvatar({
   if (isUser) {
     // User avatar - simple circle with initial
     return (
-      <View style={[styles.userAvatar, { width: size, height: size, borderRadius: size / 2 }, style]}>
+      <View
+        style={[styles.userAvatar, { width: size, height: size, borderRadius: size / 2 }, style]}
+      >
         {/* Could add user initial here */}
       </View>
     );
@@ -324,10 +307,16 @@ export const ChatAvatar = memo(function ChatAvatar({
   // Bot avatar - role-aware
   if (mascotSettings.prominence === 'hidden' || mascotSettings.prominence === 'low') {
     return (
-      <View style={[styles.botAvatarPro, { width: size, height: size, borderRadius: size / 2 }, style]}>
+      <View
+        style={[styles.botAvatarPro, { width: size, height: size, borderRadius: size / 2 }, style]}
+      >
         <Sparkles
           size={size * 0.5}
-          color={role === 'expert' ? ProfessionalColors.trust.primary : ProfessionalColors.roles.teacher.primary}
+          color={
+            role === 'expert'
+              ? ProfessionalColors.trust.primary
+              : ProfessionalColors.roles.teacher.primary
+          }
         />
       </View>
     );
@@ -336,12 +325,7 @@ export const ChatAvatar = memo(function ChatAvatar({
   // Full mascot for high prominence
   return (
     <View style={[{ width: size, height: size }, style]}>
-      <IooMascotImage
-        size={size}
-        mood="happy"
-        animated={false}
-        showGlow={false}
-      />
+      <IooMascotImage size={size} mood="happy" animated={false} showGlow={false} />
     </View>
   );
 });

@@ -1,22 +1,10 @@
 import React from 'react';
-import {
-  Pressable,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-  StyleProp,
-} from 'react-native';
+import { Pressable, Text, StyleSheet, ViewStyle, TextStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { RenkooColors } from '@/constants/colors';
-import { textShadows, shadows, typography, spacing, radius } from '@/constants/design-system';
-import { buttonSizes, buttonStyles } from '@/constants/design-system';
+import { textShadows, shadows, typography, buttonSizes } from '@/constants/design-system';
 
 interface JellyButtonProps {
   title: string;
@@ -120,15 +108,7 @@ export const JellyButton: React.FC<JellyButtonProps> = ({
           },
         ]}
       >
-        <Text
-          style={[
-            styles.text,
-            { fontSize: currentSize.fontSize },
-            textStyle,
-          ]}
-        >
-          {title}
-        </Text>
+        <Text style={[styles.text, { fontSize: currentSize.fontSize }, textStyle]}>{title}</Text>
       </LinearGradient>
     </AnimatedPressable>
   );

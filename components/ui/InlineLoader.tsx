@@ -6,13 +6,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import { Ioo, IooSize } from '@/components/Ioo';
 import { Colors } from '@/constants/colors';
 
@@ -75,10 +69,10 @@ export function InlineLoader({
         createDotAnimation(dot3Anim, 200),
       ];
 
-      animations.forEach((anim) => anim.start());
+      animations.forEach(anim => anim.start());
 
       return () => {
-        animations.forEach((anim) => anim.stop());
+        animations.forEach(anim => anim.stop());
       };
     }
 
@@ -98,6 +92,7 @@ export function InlineLoader({
         ])
       ).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variant]);
 
   const renderDots = () => {
@@ -111,15 +106,9 @@ export function InlineLoader({
     if (variant === 'bounce') {
       return (
         <View style={[styles.dotsContainer, { gap: config.gap }]}>
-          <Animated.View
-            style={[dotStyle, { transform: [{ translateY: dot1Anim }] }]}
-          />
-          <Animated.View
-            style={[dotStyle, { transform: [{ translateY: dot2Anim }] }]}
-          />
-          <Animated.View
-            style={[dotStyle, { transform: [{ translateY: dot3Anim }] }]}
-          />
+          <Animated.View style={[dotStyle, { transform: [{ translateY: dot1Anim }] }]} />
+          <Animated.View style={[dotStyle, { transform: [{ translateY: dot2Anim }] }]} />
+          <Animated.View style={[dotStyle, { transform: [{ translateY: dot3Anim }] }]} />
         </View>
       );
     }
@@ -208,9 +197,7 @@ export function InlineLoader({
   return (
     <View style={styles.container}>
       {renderLoader()}
-      {showMessage && message && (
-        <Text style={[styles.message, { color }]}>{message}</Text>
-      )}
+      {showMessage && message && <Text style={[styles.message, { color }]}>{message}</Text>}
     </View>
   );
 }

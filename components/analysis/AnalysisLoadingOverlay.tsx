@@ -14,14 +14,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withRepeat,
   withTiming,
   withSequence,
-  Easing,
 } from 'react-native-reanimated';
 import { Clock, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 
 interface AnalysisLoadingOverlayProps {
@@ -53,7 +58,7 @@ export function AnalysisLoadingOverlay({
   // Rotate tips
   useEffect(() => {
     const tipInterval = setInterval(() => {
-      setCurrentTipIndex((prev) => (prev + 1) % ANALYSIS_TIPS.length);
+      setCurrentTipIndex(prev => (prev + 1) % ANALYSIS_TIPS.length);
     }, 3500);
 
     return () => clearInterval(tipInterval);
@@ -62,7 +67,7 @@ export function AnalysisLoadingOverlay({
   // Track elapsed time
   useEffect(() => {
     const timeInterval = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
+      setElapsedSeconds(prev => prev + 1);
     }, 1000);
 
     return () => clearInterval(timeInterval);
@@ -75,6 +80,7 @@ export function AnalysisLoadingOverlay({
       withTiming(0, { duration: 200 }),
       withTiming(1, { duration: 200 })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTipIndex]);
 
   const tipStyle = useAnimatedStyle(() => ({
@@ -90,17 +96,18 @@ export function AnalysisLoadingOverlay({
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={Colors.background.analysis}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={Colors.background.analysis} style={styles.gradient}>
         {/* Main Loading Animation */}
         <LoadingAnimation type="analysis" message={message} />
 
         {/* Time Info Card */}
         <View style={styles.timeCard}>
           <View style={styles.timeRow}>
-            <Clock size={iconSizes.inline} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+            <Clock
+              size={iconSizes.inline}
+              color={Colors.secondary.lavender}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={styles.timeLabel}>Tahmini süre:</Text>
             <Text style={styles.timeValue}>{estimatedDuration}</Text>
           </View>
@@ -126,12 +133,13 @@ export function AnalysisLoadingOverlay({
         {showCancel && onCancel && (
           <Pressable
             onPress={onCancel}
-            style={({ pressed }) => [
-              styles.cancelButton,
-              pressed && styles.cancelButtonPressed,
-            ]}
+            style={({ pressed }) => [styles.cancelButton, pressed && styles.cancelButtonPressed]}
           >
-            <X size={iconSizes.small} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+            <X
+              size={iconSizes.small}
+              color={Colors.neutral.medium}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={styles.cancelText}>İptal Et</Text>
           </Pressable>
         )}

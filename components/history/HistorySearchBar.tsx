@@ -8,15 +8,18 @@
  */
 
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Pressable } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import { TextInput, StyleSheet, Pressable } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Search, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 
 interface HistorySearchBarProps {
   value: string;
@@ -80,17 +83,10 @@ export function HistorySearchBar({
       {value.length > 0 && (
         <Pressable
           onPress={() => onChangeText('')}
-          style={({ pressed }) => [
-            styles.clearButton,
-            pressed && styles.clearButtonPressed,
-          ]}
+          style={({ pressed }) => [styles.clearButton, pressed && styles.clearButtonPressed]}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <X
-            size={iconSizes.inline}
-            color={Colors.neutral.medium}
-            strokeWidth={iconStroke.bold}
-          />
+          <X size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.bold} />
         </Pressable>
       )}
     </Animated.View>

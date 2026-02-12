@@ -5,13 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Zap, TrendingUp } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
@@ -63,6 +57,7 @@ export function XPProgressBar({
         }),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progressPercent]);
 
   const getLevelColor = () => {
@@ -85,10 +80,7 @@ export function XPProgressBar({
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.compactContainer,
-          pressed && { opacity: 0.9 },
-        ]}
+        style={({ pressed }) => [styles.compactContainer, pressed && { opacity: 0.9 }]}
       >
         <LinearGradient
           colors={getLevelColor()}
@@ -121,10 +113,7 @@ export function XPProgressBar({
   }
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [pressed && { opacity: 0.95 }]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [pressed && { opacity: 0.95 }]}>
       <View style={styles.fullContainer}>
         {/* Level Badge */}
         <View style={styles.levelSection}>
@@ -170,9 +159,7 @@ export function XPProgressBar({
           <View style={styles.progressLabels}>
             <View style={styles.progressLabelLeft}>
               <Zap size={12} color={Colors.secondary.lavender} />
-              <Text style={styles.progressText}>
-                {xpProgress} XP
-              </Text>
+              <Text style={styles.progressText}>{xpProgress} XP</Text>
             </View>
             <View style={styles.progressLabelRight}>
               <TrendingUp size={12} color="#9E9E9E" />

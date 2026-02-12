@@ -5,19 +5,12 @@
  * Buyuk, dokunulabilir ve animasyonlu tasarim.
  */
 
-import React, { useRef } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Animated,
-  Platform,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
-import { shadows } from "@/constants/design-system";
-import { ChoiceOption, TRAIT_DEFINITIONS } from "@/types/InteractiveStory";
+import React, { useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, Animated, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { shadows } from '@/constants/design-system';
+import { ChoiceOption, TRAIT_DEFINITIONS } from '@/types/InteractiveStory';
 import { Colors } from '@/constants/colors';
 
 interface ChoiceCardProps {
@@ -30,24 +23,18 @@ interface ChoiceCardProps {
 
 // Kart renk paleti
 const CARD_GRADIENTS: string[][] = [
-  ["#9333EA", "#7C3AED"], // Mor
-  ["#3B82F6", "#2563EB"], // Mavi
-  ["#10B981", "#059669"], // Yesil
-  [Colors.semantic.amber, "#D97706"], // Turuncu
-  ["#EC4899", "#DB2777"], // Pembe
+  ['#9333EA', '#7C3AED'], // Mor
+  ['#3B82F6', '#2563EB'], // Mavi
+  ['#10B981', '#059669'], // Yesil
+  [Colors.semantic.amber, '#D97706'], // Turuncu
+  ['#EC4899', '#DB2777'], // Pembe
 ];
 
-export function ChoiceCard({
-  option,
-  onSelect,
-  isSelected,
-  disabled,
-  index,
-}: ChoiceCardProps) {
+export function ChoiceCard({ option, onSelect, isSelected, disabled, index }: ChoiceCardProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const sparkleAnim = useRef(new Animated.Value(0)).current;
 
-  const traitInfo = TRAIT_DEFINITIONS[option.trait];
+  const _traitInfo = TRAIT_DEFINITIONS[option.trait];
   const gradientColors = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
 
   const handlePressIn = () => {
@@ -70,7 +57,7 @@ export function ChoiceCard({
     if (disabled) return;
 
     // Haptic feedback
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
@@ -123,13 +110,12 @@ export function ChoiceCard({
         style={styles.pressable}
       >
         <LinearGradient
-          colors={isSelected ? ["#22C55E", "#16A34A"] : gradientColors as any}
+          colors={
+            isSelected ? ['#22C55E', '#16A34A'] : (gradientColors as [string, string, ...string[]])
+          }
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[
-            styles.gradient,
-            isSelected && styles.selectedGradient,
-          ]}
+          style={[styles.gradient, isSelected && styles.selectedGradient]}
         >
           {/* Emoji / Icon */}
           <View style={styles.emojiContainer}>
@@ -192,14 +178,14 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     borderRadius: 20,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.md,
   },
   gradient: {
     flex: 1,
     padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 20,
   },
   selectedGradient: {
@@ -210,9 +196,9 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "rgba(255,255,255,0.3)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 12,
   },
   emoji: {
@@ -221,30 +207,30 @@ const styles = StyleSheet.create({
   text: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
+    fontWeight: '600',
+    textAlign: 'center',
     lineHeight: 20,
   },
   checkmark: {
-    position: "absolute",
+    position: 'absolute',
     top: 8,
     right: 8,
     width: 28,
     height: 28,
     borderRadius: 14,
     backgroundColor: Colors.neutral.white,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checkmarkText: {
-    color: "#22C55E",
+    color: '#22C55E',
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   sparkle: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
     marginTop: -20,
     marginLeft: -20,
   },

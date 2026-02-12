@@ -7,12 +7,12 @@
  * - Boş durum gösterimi
  */
 
-import React, { useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Award, Lock, TrendingUp } from "lucide-react-native";
-import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Award, Lock, TrendingUp } from 'lucide-react-native';
+import { Colors } from '@/constants/colors';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import {
   BADGES,
   BADGE_CATEGORY_LABELS,
@@ -20,8 +20,9 @@ import {
   getBadgesGroupedByCategory,
   type BadgeCategory,
   type Badge,
-} from "@/constants/badges";
-import { BadgeCard } from "./BadgeCard";
+  type BadgeRarity,
+} from '@/constants/badges';
+import { BadgeCard } from './BadgeCard';
 
 interface UserBadge {
   id: string;
@@ -61,16 +62,10 @@ export function BadgeGrid({
   onBadgePress,
 }: BadgeGridProps) {
   // Create a set of unlocked badge IDs for quick lookup
-  const unlockedBadgeIds = useMemo(
-    () => new Set(userBadges.map(b => b.id)),
-    [userBadges]
-  );
+  const unlockedBadgeIds = useMemo(() => new Set(userBadges.map(b => b.id)), [userBadges]);
 
   // Create progress map
-  const progressMap = useMemo(
-    () => new Map(progress.map(p => [p.id, p])),
-    [progress]
-  );
+  const progressMap = useMemo(() => new Map(progress.map(p => [p.id, p])), [progress]);
 
   // Group all badges by category
   const badgesByCategory = useMemo(() => getBadgesGroupedByCategory(), []);
@@ -134,7 +129,7 @@ export function BadgeGrid({
                   name={progressBadge.name}
                   description={progressBadge.description}
                   icon={progressBadge.icon}
-                  rarity={progressBadge.rarity as any}
+                  rarity={progressBadge.rarity as BadgeRarity}
                   isUnlocked={false}
                   isSecret={fullBadge?.isSecret}
                   progress={{
@@ -157,7 +152,7 @@ export function BadgeGrid({
         if (!categoryBadges || categoryBadges.length === 0) return null;
 
         // Skip secret category if no secret badges are unlocked
-        if (category === "secret") {
+        if (category === 'secret') {
           const hasUnlockedSecret = categoryBadges.some(b => unlockedBadgeIds.has(b.id));
           if (!hasUnlockedSecret) return null;
         }
@@ -190,14 +185,18 @@ export function BadgeGrid({
                     name={badge.name}
                     description={badge.description}
                     icon={badge.icon}
-                    rarity={badge.rarity as any}
+                    rarity={badge.rarity as BadgeRarity}
                     isUnlocked={isUnlocked}
                     isSecret={badge.isSecret}
-                    progress={badgeProgress ? {
-                      current: badgeProgress.current,
-                      target: badgeProgress.target,
-                      percentage: badgeProgress.percentage,
-                    } : undefined}
+                    progress={
+                      badgeProgress
+                        ? {
+                            current: badgeProgress.current,
+                            target: badgeProgress.target,
+                            percentage: badgeProgress.percentage,
+                          }
+                        : undefined
+                    }
                     size="small"
                     onPress={() => onBadgePress?.(badge.id, isUnlocked, badge)}
                   />
@@ -229,32 +228,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loadingContainer: {
-    padding: spacing["8"],
-    alignItems: "center",
-    justifyContent: "center",
+    padding: spacing['8'],
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loadingText: {
-    marginTop: spacing["4"],
+    marginTop: spacing['4'],
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
   },
   // Summary Card
   summaryCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing["4"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing['4'],
     borderRadius: radius.xl,
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
     ...shadows.md,
   },
   summaryIcon: {
     width: 56,
     height: 56,
     borderRadius: radius.lg,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: spacing["4"],
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing['4'],
   },
   summaryContent: {
     flex: 1,
@@ -263,40 +262,40 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   summaryCount: {
     fontSize: typography.size.sm,
     color: Colors.neutral.white,
     opacity: 0.9,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   progressBar: {
     height: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 3,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   progressFill: {
-    height: "100%",
+    height: '100%',
     backgroundColor: Colors.neutral.white,
     borderRadius: 3,
   },
   summaryPercentage: {
-    fontSize: typography.size["2xl"],
+    fontSize: typography.size['2xl'],
     fontWeight: typography.weight.extrabold,
     color: Colors.neutral.white,
-    marginLeft: spacing["3"],
+    marginLeft: spacing['3'],
   },
   // Section
   sectionContainer: {
-    marginBottom: spacing["6"],
+    marginBottom: spacing['6'],
   },
   sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing["3"],
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing['3'],
+    gap: spacing['2'],
   },
   sectionTitle: {
     fontSize: typography.size.base,
@@ -313,38 +312,38 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   horizontalScroll: {
-    paddingRight: spacing["4"],
-    gap: spacing["4"],
+    paddingRight: spacing['4'],
+    gap: spacing['4'],
   },
   badgeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing["3"],
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing['3'],
   },
   // Empty State
   emptyState: {
-    alignItems: "center",
-    padding: spacing["8"],
+    alignItems: 'center',
+    padding: spacing['8'],
   },
   emptyIcon: {
     width: 80,
     height: 80,
     borderRadius: 40,
     backgroundColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacing["4"],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing['4'],
   },
   emptyTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.dark,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   emptySubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });
 

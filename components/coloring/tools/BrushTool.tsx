@@ -11,12 +11,11 @@
  */
 
 import React, { useMemo } from 'react';
-import { Path as SkiaPath, Paint, Skia, BlendMode } from '@shopify/react-native-skia';
-import { useColoring } from '../ColoringContext';
+import { Path as SkiaPath, Skia, BlendMode, SkPath } from '@shopify/react-native-skia';
 import { PressureManager, BrushModifiers } from '../utils/pressureSensitivity';
 
 export interface BrushToolProps {
-  path: any; // Skia Path object
+  path: SkPath;
   color: string;
   baseSize: number;
   baseOpacity: number;
@@ -38,9 +37,7 @@ export function BrushStroke({
   isEraser = false,
 }: BrushToolProps) {
   // Calculate final size and opacity with pressure
-  const finalSize = pressureModifiers
-    ? baseSize * pressureModifiers.sizeMultiplier
-    : baseSize;
+  const finalSize = pressureModifiers ? baseSize * pressureModifiers.sizeMultiplier : baseSize;
 
   const finalOpacity = pressureModifiers
     ? baseOpacity * pressureModifiers.opacityMultiplier
@@ -89,7 +86,7 @@ export function BrushStroke({
  * Creates smooth brush paths with interpolation
  */
 export class BrushPathBuilder {
-  private path: any;
+  private path: SkPath;
   private lastPoint: { x: number; y: number } | null = null;
   private pressureManager: PressureManager;
 
@@ -101,6 +98,7 @@ export class BrushPathBuilder {
   /**
    * Start a new stroke
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   start(x: number, y: number, touch?: any) {
     this.path.moveTo(x, y);
     this.lastPoint = { x, y };
@@ -113,6 +111,7 @@ export class BrushPathBuilder {
   /**
    * Add point to stroke with smooth interpolation
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addPoint(x: number, y: number, touch?: any) {
     if (!this.lastPoint) {
       this.start(x, y, touch);
@@ -143,6 +142,7 @@ export class BrushPathBuilder {
   /**
    * Finish the stroke
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   end(x: number, y: number, touch?: any) {
     if (this.lastPoint) {
       // Final point with straight line for accuracy
@@ -222,12 +222,7 @@ export function BrushPreview({
 
   // Render as a circle at preview location
   // (In actual UI, this would be positioned near the settings panel)
-  return (
-    <SkiaPath
-      path={createCirclePath(50, 50, size / 2)}
-      paint={paint}
-    />
-  );
+  return <SkiaPath path={createCirclePath(50, 50, size / 2)} paint={paint} />;
 }
 
 // ============================================================================
@@ -262,7 +257,7 @@ function createCirclePath(cx: number, cy: number, radius: number) {
  * Create brush texture pattern (for advanced hardness rendering)
  * Future enhancement for Phase 3+
  */
-export function createBrushTexture(size: number, hardness: number) {
+export function createBrushTexture(_size: number, _hardness: number) {
   // This would create a gradient texture for soft brushes
   // Using Skia Shader API
   // Implementation deferred to Phase 3

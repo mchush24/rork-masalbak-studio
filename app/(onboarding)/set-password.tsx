@@ -16,17 +16,11 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { getErrorMessage } from '@/lib/utils/error';
-import {
-  spacing,
-  borderRadius,
-  shadows,
-  typography,
-  colors,
-  textShadows,
-} from '@/lib/design-tokens';
-import { Colors } from '@/constants/colors';
+import { spacing, borderRadius, shadows, typography, textShadows } from '@/constants/design-system';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
 export default function SetPasswordScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams();
   const _userId = params.userId as string;
   const _email = params.email as string;
@@ -86,7 +80,7 @@ export default function SetPasswordScreen() {
 
   return (
     <LinearGradient
-      colors={colors.gradients.accessible as unknown as [string, string, ...string[]]}
+      colors={[...colors.gradients.accessible] as unknown as [string, string, ...string[]]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -97,7 +91,7 @@ export default function SetPasswordScreen() {
       >
         <Text
           style={{
-            fontSize: typography.fontSize.xxl,
+            fontSize: typography.size['2xl'],
             fontWeight: '700',
             color: 'white',
             marginBottom: spacing.sm,
@@ -109,7 +103,7 @@ export default function SetPasswordScreen() {
         </Text>
         <Text
           style={{
-            fontSize: typography.fontSize.base,
+            fontSize: typography.size.base,
             color: 'rgba(255,255,255,0.9)',
             marginBottom: spacing.xl,
             textAlign: 'center',
@@ -122,7 +116,7 @@ export default function SetPasswordScreen() {
         {/* Password Input */}
         <View
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.surface.card,
             borderRadius: borderRadius.xl,
             padding: spacing.md,
             marginBottom: spacing.md,
@@ -135,21 +129,21 @@ export default function SetPasswordScreen() {
             value={password}
             onChangeText={setPassword}
             placeholder="Şifreniz (min 6 karakter)"
-            placeholderTextColor={Colors.neutral.gray400}
+            placeholderTextColor={colors.text.tertiary}
             secureTextEntry={!showPassword}
             style={{
               flex: 1,
-              fontSize: typography.fontSize.base,
-              color: '#1F2937',
+              fontSize: typography.size.base,
+              color: colors.text.primary,
               padding: spacing.sm,
               fontWeight: '500',
             }}
           />
           <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
             {showPassword ? (
-              <EyeOff size={20} color={Colors.neutral.gray400} />
+              <EyeOff size={20} color={colors.text.tertiary} />
             ) : (
-              <Eye size={20} color={Colors.neutral.gray400} />
+              <Eye size={20} color={colors.text.tertiary} />
             )}
           </Pressable>
         </View>
@@ -157,7 +151,7 @@ export default function SetPasswordScreen() {
         {/* Confirm Password */}
         <View
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.surface.card,
             borderRadius: borderRadius.xl,
             padding: spacing.md,
             marginBottom: spacing.xl,
@@ -170,12 +164,12 @@ export default function SetPasswordScreen() {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             placeholder="Şifrenizi tekrar girin"
-            placeholderTextColor={Colors.neutral.gray400}
+            placeholderTextColor={colors.text.tertiary}
             secureTextEntry={!showConfirmPassword}
             style={{
               flex: 1,
-              fontSize: typography.fontSize.base,
-              color: '#1F2937',
+              fontSize: typography.size.base,
+              color: colors.text.primary,
               padding: spacing.sm,
               fontWeight: '500',
             }}
@@ -185,9 +179,9 @@ export default function SetPasswordScreen() {
             style={{ padding: spacing.sm }}
           >
             {showConfirmPassword ? (
-              <EyeOff size={20} color={Colors.neutral.gray400} />
+              <EyeOff size={20} color={colors.text.tertiary} />
             ) : (
-              <Eye size={20} color={Colors.neutral.gray400} />
+              <Eye size={20} color={colors.text.tertiary} />
             )}
           </Pressable>
         </View>
@@ -198,7 +192,9 @@ export default function SetPasswordScreen() {
           style={({ pressed }) => [
             {
               backgroundColor:
-                password && confirmPassword && !isLoading ? 'white' : 'rgba(255,255,255,0.3)',
+                password && confirmPassword && !isLoading
+                  ? colors.surface.card
+                  : 'rgba(255,255,255,0.3)',
               paddingVertical: spacing.lg,
               borderRadius: borderRadius.xxxl,
               ...shadows.lg,
@@ -207,13 +203,14 @@ export default function SetPasswordScreen() {
           ]}
         >
           {isLoading ? (
-            <ActivityIndicator color={colors.brand.primary} />
+            <ActivityIndicator color={colors.primary.sunset} />
           ) : (
             <Text
               style={{
-                fontSize: typography.fontSize.md,
+                fontSize: typography.size.md,
                 fontWeight: 'bold',
-                color: password && confirmPassword ? colors.brand.primary : 'rgba(255,255,255,0.6)',
+                color:
+                  password && confirmPassword ? colors.primary.sunset : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
             >

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
 import { Input } from '../Input';
 
 // Mock useHaptic hook
@@ -104,13 +104,7 @@ describe('Input', () => {
     });
 
     it('prioritizes error over helper text', () => {
-      render(
-        <Input
-          error="Invalid input"
-          helperText="This should not show"
-          testID="input"
-        />
-      );
+      render(<Input error="Invalid input" helperText="This should not show" testID="input" />);
 
       expect(screen.getByText('Invalid input')).toBeTruthy();
       expect(screen.queryByText('This should not show')).toBeNull();
@@ -188,24 +182,14 @@ describe('Input', () => {
 
   describe('accessibility', () => {
     it('has accessibility label when provided', () => {
-      render(
-        <Input
-          accessibilityLabel="Email input field"
-          testID="input"
-        />
-      );
+      render(<Input accessibilityLabel="Email input field" testID="input" />);
 
       const input = screen.getByTestId('input');
       expect(input.props.accessibilityLabel).toBe('Email input field');
     });
 
     it('has accessibility hint when provided', () => {
-      render(
-        <Input
-          accessibilityHint="Enter your email address"
-          testID="input"
-        />
-      );
+      render(<Input accessibilityHint="Enter your email address" testID="input" />);
 
       const input = screen.getByTestId('input');
       expect(input.props.accessibilityHint).toBe('Enter your email address');

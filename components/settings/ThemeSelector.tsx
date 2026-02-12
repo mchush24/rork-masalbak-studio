@@ -22,7 +22,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Sun, Moon, Smartphone, Check, X } from 'lucide-react-native';
 import { Colors, DarkColors } from '@/constants/colors';
 import { useTheme, ThemeMode } from '@/lib/contexts/ThemeContext';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 
 interface ThemeSelectorProps {
   visible: boolean;
@@ -39,12 +46,21 @@ interface ThemeOptionProps {
   onSelect: () => void;
 }
 
-function ThemeOption({ mode, label, description, icon, previewColors, isSelected, onSelect }: ThemeOptionProps) {
+function ThemeOption({
+  mode,
+  label,
+  description,
+  icon,
+  previewColors,
+  isSelected,
+  onSelect,
+}: ThemeOptionProps) {
   const scale = useSharedValue(1);
   const borderOpacity = useSharedValue(isSelected ? 1 : 0);
 
   React.useEffect(() => {
     borderOpacity.value = withTiming(isSelected ? 1 : 0, { duration: 200 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSelected]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -78,24 +94,38 @@ function ThemeOption({ mode, label, description, icon, previewColors, isSelected
           <View style={[styles.previewCard, mode === 'dark' && styles.previewCardDark]}>
             <View style={[styles.previewHeader, mode === 'dark' && styles.previewHeaderDark]} />
             <View style={styles.previewContent}>
-              <View style={[styles.previewLine, mode === 'dark' && styles.previewLineDark, { width: '80%' }]} />
-              <View style={[styles.previewLine, mode === 'dark' && styles.previewLineDark, { width: '60%' }]} />
+              <View
+                style={[
+                  styles.previewLine,
+                  mode === 'dark' && styles.previewLineDark,
+                  { width: '80%' },
+                ]}
+              />
+              <View
+                style={[
+                  styles.previewLine,
+                  mode === 'dark' && styles.previewLineDark,
+                  { width: '60%' },
+                ]}
+              />
             </View>
           </View>
         </LinearGradient>
 
         {/* Info Area */}
         <View style={styles.infoArea}>
-          <View style={styles.iconContainer}>
-            {icon}
-          </View>
+          <View style={styles.iconContainer}>{icon}</View>
           <View style={styles.textContainer}>
             <Text style={styles.label}>{label}</Text>
             <Text style={styles.description}>{description}</Text>
           </View>
           {isSelected && (
             <View style={styles.checkmark}>
-              <Check size={iconSizes.small} color={Colors.semantic.success} strokeWidth={iconStroke.bold} />
+              <Check
+                size={iconSizes.small}
+                color={Colors.semantic.success}
+                strokeWidth={iconStroke.bold}
+              />
             </View>
           )}
         </View>
@@ -111,26 +141,50 @@ export function ThemeSelector({ visible, onClose }: ThemeSelectorProps) {
     await setMode(newMode);
   };
 
-  const options: { mode: ThemeMode; label: string; description: string; icon: React.ReactNode; previewColors: string[] }[] = [
+  const options: {
+    mode: ThemeMode;
+    label: string;
+    description: string;
+    icon: React.ReactNode;
+    previewColors: string[];
+  }[] = [
     {
       mode: 'light',
       label: 'Açık Tema',
       description: 'Parlak ve aydınlık görünüm',
-      icon: <Sun size={iconSizes.action} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />,
+      icon: (
+        <Sun
+          size={iconSizes.action}
+          color={Colors.secondary.sunshine}
+          strokeWidth={iconStroke.standard}
+        />
+      ),
       previewColors: ['#FFF8F0', '#F5E8FF', '#FFE8F5'],
     },
     {
       mode: 'dark',
       label: 'Koyu Tema',
       description: 'Gece için rahat görünüm',
-      icon: <Moon size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />,
+      icon: (
+        <Moon
+          size={iconSizes.action}
+          color={Colors.secondary.lavender}
+          strokeWidth={iconStroke.standard}
+        />
+      ),
       previewColors: ['#12141D', '#1A1D28', '#201825'],
     },
     {
       mode: 'system',
       label: 'Sistem Teması',
       description: 'Cihaz ayarlarına göre otomatik',
-      icon: <Smartphone size={iconSizes.action} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />,
+      icon: (
+        <Smartphone
+          size={iconSizes.action}
+          color={Colors.secondary.sky}
+          strokeWidth={iconStroke.standard}
+        />
+      ),
       previewColors: ['#E8F0FF', '#1A1D28', '#FFE8F5'],
     },
   ];
@@ -143,14 +197,22 @@ export function ThemeSelector({ visible, onClose }: ThemeSelectorProps) {
           exiting={FadeOut.duration(150)}
           style={styles.container}
         >
-          <Pressable onPress={(e) => e.stopPropagation()}>
+          <Pressable onPress={e => e.stopPropagation()}>
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 {isDark ? (
-                  <Moon size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+                  <Moon
+                    size={iconSizes.action}
+                    color={Colors.secondary.lavender}
+                    strokeWidth={iconStroke.standard}
+                  />
                 ) : (
-                  <Sun size={iconSizes.action} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
+                  <Sun
+                    size={iconSizes.action}
+                    color={Colors.secondary.sunshine}
+                    strokeWidth={iconStroke.standard}
+                  />
                 )}
                 <View>
                   <Text style={styles.headerTitle}>Tema Seçimi</Text>
@@ -158,13 +220,17 @@ export function ThemeSelector({ visible, onClose }: ThemeSelectorProps) {
                 </View>
               </View>
               <Pressable style={styles.closeButton} onPress={onClose}>
-                <X size={iconSizes.action} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                <X
+                  size={iconSizes.action}
+                  color={Colors.neutral.medium}
+                  strokeWidth={iconStroke.standard}
+                />
               </Pressable>
             </View>
 
             {/* Options */}
             <View style={styles.optionsContainer}>
-              {options.map((option) => (
+              {options.map(option => (
                 <ThemeOption
                   key={option.mode}
                   {...option}
@@ -177,7 +243,8 @@ export function ThemeSelector({ visible, onClose }: ThemeSelectorProps) {
             {/* Info Note */}
             <View style={styles.infoNote}>
               <Text style={styles.infoNoteText}>
-                Tema değişikliği anında uygulanır. Sistem teması seçildiğinde cihaz ayarlarınız takip edilir.
+                Tema değişikliği anında uygulanır. Sistem teması seçildiğinde cihaz ayarlarınız
+                takip edilir.
               </Text>
             </View>
           </Pressable>

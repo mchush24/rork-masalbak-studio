@@ -6,16 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  TextInput,
-  Alert,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -35,12 +26,10 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
-  Check,
   X,
-  Trash2,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, shadows } from '@/constants/design-system';
 
 const STORAGE_KEYS = {
   APP_LOCK_ENABLED: '@renkioo_app_lock_enabled',
@@ -150,7 +139,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
       setError('');
     } else {
       if (pin !== confirmPin) {
-        setError('PIN\'ler eşleşmiyor');
+        setError("PIN'ler eşleşmiyor");
         shakeAnimation();
         setConfirmPin('');
         return;
@@ -235,11 +224,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
     title: string,
     onSubmit: () => void
   ) => (
-    <Animated.View
-      entering={SlideInUp}
-      exiting={FadeOut}
-      style={styles.pinOverlay}
-    >
+    <Animated.View entering={SlideInUp} exiting={FadeOut} style={styles.pinOverlay}>
       <View style={styles.pinModal}>
         <View style={styles.pinHeader}>
           <Lock size={32} color={Colors.secondary.lavender} />
@@ -325,9 +310,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
             </View>
             <View style={styles.settingInfo}>
               <Text style={styles.settingTitle}>Uygulama Kilidi</Text>
-              <Text style={styles.settingDescription}>
-                Uygulamayı açmak için PIN gerekli
-              </Text>
+              <Text style={styles.settingDescription}>Uygulamayı açmak için PIN gerekli</Text>
             </View>
             <View style={[styles.toggle, isLockEnabled && styles.toggleActive]}>
               <View style={[styles.toggleKnob, isLockEnabled && styles.toggleKnobActive]} />
@@ -366,7 +349,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
                   Arka plana alındıktan sonra ne zaman kilitlensin?
                 </Text>
                 <View style={styles.timeoutOptions}>
-                  {(Object.keys(timeoutLabels) as AutoLockTimeout[]).map((timeout) => (
+                  {(Object.keys(timeoutLabels) as AutoLockTimeout[]).map(timeout => (
                     <Pressable
                       key={timeout}
                       style={[
@@ -409,8 +392,8 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
           <View style={styles.privacyNote}>
             <Shield size={16} color={Colors.neutral.medium} />
             <Text style={styles.privacyNoteText}>
-              Uygulama kilidi, çocuk verilerini yetkisiz erişime karşı korur.
-              KVKK ve GDPR uyumlu veri güvenliği sağlanır.
+              Uygulama kilidi, çocuk verilerini yetkisiz erişime karşı korur. KVKK ve GDPR uyumlu
+              veri güvenliği sağlanır.
             </Text>
           </View>
         </View>
@@ -420,13 +403,12 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
           renderPinInput(
             pinStep === 'enter' ? pin : confirmPin,
             pinStep === 'enter' ? setPin : setConfirmPin,
-            pinStep === 'enter' ? 'Yeni PIN Belirle' : 'PIN\'i Onayla',
+            pinStep === 'enter' ? 'Yeni PIN Belirle' : "PIN'i Onayla",
             handlePinSubmit
           )}
 
         {/* PIN Verify Modal */}
-        {showPinVerify &&
-          renderPinInput(pin, setPin, 'PIN\'inizi Girin', handleVerifyPin)}
+        {showPinVerify && renderPinInput(pin, setPin, "PIN'inizi Girin", handleVerifyPin)}
       </View>
     </Modal>
   );

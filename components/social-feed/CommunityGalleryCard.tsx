@@ -21,7 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Heart } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -166,7 +166,10 @@ export function CommunityGalleryCard({
           <View
             style={[
               styles.contentTypeDot,
-              { backgroundColor: item.content_type === 'coloring' ? Colors.secondary.lavender : '#60A5FA' },
+              {
+                backgroundColor:
+                  item.content_type === 'coloring' ? Colors.secondary.lavender : '#60A5FA',
+              },
             ]}
           />
         </View>

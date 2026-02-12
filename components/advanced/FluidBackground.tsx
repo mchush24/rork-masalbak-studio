@@ -86,13 +86,11 @@ const WebFloatingOrb: React.FC<WebOrbProps> = ({ colors, size, x, y, delay, dura
         true
       )
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
     opacity: opacity.value,
   }));
 
@@ -133,6 +131,7 @@ const WebFluidBackground: React.FC<FluidBackgroundProps> = ({ style }) => {
       -1,
       false
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rotatingStyle = useAnimatedStyle(() => ({
@@ -250,9 +249,11 @@ const NativeFluidBackground: React.FC<FluidBackgroundProps> = ({
     Circle,
     useClock,
     Shader,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
   } = require('@shopify/react-native-skia');
 
   // Try to create shader
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let fluidPlasmaShader: any = null;
   try {
     fluidPlasmaShader = Skia.RuntimeEffect.Make(`
@@ -330,15 +331,19 @@ const NativeFluidBackground: React.FC<FluidBackgroundProps> = ({
         return half4(color, 1.0);
       }
     `);
-  } catch (e) {
+  } catch (_e) {
     // Shader compilation failed, will use fallback
   }
 
   // Animation time value
   const clock = useClock();
-  const time = require('react-native-reanimated').useDerivedValue(() => clock.value * 0.001 * speed);
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const time = require('react-native-reanimated').useDerivedValue(
+    () => clock.value * 0.001 * speed
+  );
 
   // Shader uniforms
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const uniforms = require('react-native-reanimated').useDerivedValue(() => ({
     iResolution: vec(SCREEN_WIDTH, SCREEN_HEIGHT),
     iTime: time.value,
@@ -347,10 +352,30 @@ const NativeFluidBackground: React.FC<FluidBackgroundProps> = ({
 
   // Orb configurations for native
   const orbs = [
-    { x: SCREEN_WIDTH * 0.2, y: SCREEN_HEIGHT * 0.15, radius: 60, colors: ['#00F5FF80', '#00F5FF20', 'transparent'] },
-    { x: SCREEN_WIDTH * 0.8, y: SCREEN_HEIGHT * 0.25, radius: 45, colors: ['#B98EFF80', '#B98EFF20', 'transparent'] },
-    { x: SCREEN_WIDTH * 0.15, y: SCREEN_HEIGHT * 0.6, radius: 55, colors: ['#FF9EBF80', '#FF9EBF20', 'transparent'] },
-    { x: SCREEN_WIDTH * 0.85, y: SCREEN_HEIGHT * 0.7, radius: 40, colors: ['#70FFD680', '#70FFD620', 'transparent'] },
+    {
+      x: SCREEN_WIDTH * 0.2,
+      y: SCREEN_HEIGHT * 0.15,
+      radius: 60,
+      colors: ['#00F5FF80', '#00F5FF20', 'transparent'],
+    },
+    {
+      x: SCREEN_WIDTH * 0.8,
+      y: SCREEN_HEIGHT * 0.25,
+      radius: 45,
+      colors: ['#B98EFF80', '#B98EFF20', 'transparent'],
+    },
+    {
+      x: SCREEN_WIDTH * 0.15,
+      y: SCREEN_HEIGHT * 0.6,
+      radius: 55,
+      colors: ['#FF9EBF80', '#FF9EBF20', 'transparent'],
+    },
+    {
+      x: SCREEN_WIDTH * 0.85,
+      y: SCREEN_HEIGHT * 0.7,
+      radius: 40,
+      colors: ['#70FFD680', '#70FFD620', 'transparent'],
+    },
   ];
 
   // If shader failed, use gradient fallback
@@ -364,11 +389,12 @@ const NativeFluidBackground: React.FC<FluidBackgroundProps> = ({
             colors={['#1A1E2E', '#2A2E4E', '#3A2E5E', '#2A3E4E']}
           />
         </Rect>
-        {showOrbs && orbs.map((orb, i) => (
-          <Circle key={i} cx={orb.x} cy={orb.y} r={orb.radius}>
-            <RadialGradient c={vec(orb.x, orb.y)} r={orb.radius} colors={orb.colors} />
-          </Circle>
-        ))}
+        {showOrbs &&
+          orbs.map((orb, i) => (
+            <Circle key={i} cx={orb.x} cy={orb.y} r={orb.radius}>
+              <RadialGradient c={vec(orb.x, orb.y)} r={orb.radius} colors={orb.colors} />
+            </Circle>
+          ))}
       </Canvas>
     );
   }
@@ -392,13 +418,14 @@ const NativeFluidBackground: React.FC<FluidBackgroundProps> = ({
       </Group>
 
       {/* Floating energy orbs */}
-      {showOrbs && orbs.map((orb, i) => (
-        <Group key={i} opacity={0.6}>
-          <Circle cx={orb.x} cy={orb.y} r={orb.radius}>
-            <RadialGradient c={vec(orb.x, orb.y)} r={orb.radius} colors={orb.colors} />
-          </Circle>
-        </Group>
-      ))}
+      {showOrbs &&
+        orbs.map((orb, i) => (
+          <Group key={i} opacity={0.6}>
+            <Circle cx={orb.x} cy={orb.y} r={orb.radius}>
+              <RadialGradient c={vec(orb.x, orb.y)} r={orb.radius} colors={orb.colors} />
+            </Circle>
+          </Group>
+        ))}
 
       {/* Top vignette */}
       <Rect x={0} y={0} width={SCREEN_WIDTH} height={SCREEN_HEIGHT * 0.3}>
@@ -424,7 +451,7 @@ const NativeFluidBackground: React.FC<FluidBackgroundProps> = ({
 // ============================================
 // MAIN EXPORT - Platform Switch
 // ============================================
-export const FluidBackground: React.FC<FluidBackgroundProps> = (props) => {
+export const FluidBackground: React.FC<FluidBackgroundProps> = props => {
   if (isWeb) {
     return <WebFluidBackground {...props} />;
   }

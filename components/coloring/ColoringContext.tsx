@@ -10,7 +10,7 @@
  * - Animation & sound preferences
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -73,7 +73,8 @@ export interface PlacedSticker {
 
 export interface BrushStroke {
   id: string;
-  path: any; // Skia Path object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  path: any; // Skia Path object - SkPath type requires @shopify/react-native-skia import
   color: string;
   width: number;
   opacity: number;
@@ -231,11 +232,13 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
   const [selectedTexture, setSelectedTexture] = useState<TextureType>('solid');
 
   // History state
-  const [history, setHistory] = useState<HistoryState[]>([{ fills: [], strokes: [], stickers: [] }]);
+  const [history, setHistory] = useState<HistoryState[]>([
+    { fills: [], strokes: [], stickers: [] },
+  ]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
   // Device capabilities (will be detected on mount)
-  const [deviceCapabilities, setDeviceCapabilities] = useState<DeviceCapabilities>({
+  const [deviceCapabilities, _setDeviceCapabilities] = useState<DeviceCapabilities>({
     tier: 'basic',
     supportsGradients: false,
     supportsPressure: false,
@@ -261,6 +264,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
   // Save favorite colors to AsyncStorage whenever they change
   useEffect(() => {
     saveFavoriteColors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colorState.favoriteColors]);
 
   // ============================================================================
@@ -350,9 +354,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateSticker = useCallback((id: string, updates: Partial<PlacedSticker>) => {
-    setStickerLayer(prev =>
-      prev.map(s => (s.id === id ? { ...s, ...updates } : s))
-    );
+    setStickerLayer(prev => prev.map(s => (s.id === id ? { ...s, ...updates } : s)));
   }, []);
 
   // ============================================================================
@@ -379,7 +381,14 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
     }
 
     setHistory(newHistory);
-  }, [fillLayer, strokeLayer, stickerLayer, history, historyIndex, deviceCapabilities.maxHistorySteps]);
+  }, [
+    fillLayer,
+    strokeLayer,
+    stickerLayer,
+    history,
+    historyIndex,
+    deviceCapabilities.maxHistorySteps,
+  ]);
 
   const undo = useCallback(() => {
     if (historyIndex > 0) {
@@ -391,6 +400,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
       setHistoryIndex(newIndex);
       triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [historyIndex, history]);
 
   const redo = useCallback(() => {
@@ -403,6 +413,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
       setHistoryIndex(newIndex);
       triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [historyIndex, history]);
 
   const clearHistory = useCallback(() => {
@@ -420,11 +431,14 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
   // HELPERS
   // ============================================================================
 
-  const triggerHaptic = useCallback((style = Haptics.ImpactFeedbackStyle.Medium) => {
-    if (hapticsEnabled && Platform.OS !== 'web') {
-      Haptics.impactAsync(style);
-    }
-  }, [hapticsEnabled]);
+  const triggerHaptic = useCallback(
+    (style = Haptics.ImpactFeedbackStyle.Medium) => {
+      if (hapticsEnabled && Platform.OS !== 'web') {
+        Haptics.impactAsync(style);
+      }
+    },
+    [hapticsEnabled]
+  );
 
   const getCurrentColor = useCallback(() => {
     if (colorState.customColor) {
@@ -477,11 +491,7 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
     getCurrentColor,
   };
 
-  return (
-    <ColoringContext.Provider value={value}>
-      {children}
-    </ColoringContext.Provider>
-  );
+  return <ColoringContext.Provider value={value}>{children}</ColoringContext.Provider>;
 }
 
 // ============================================================================

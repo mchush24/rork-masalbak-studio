@@ -50,16 +50,13 @@ export function SkeletonBase({
       -1,
       false
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(
-          shimmerPosition.value,
-          [0, 1],
-          [-SCREEN_WIDTH, SCREEN_WIDTH]
-        ),
+        translateX: interpolate(shimmerPosition.value, [0, 1], [-SCREEN_WIDTH, SCREEN_WIDTH]),
       },
     ],
   }));
@@ -78,11 +75,7 @@ export function SkeletonBase({
     >
       <Animated.View style={[styles.shimmerContainer, shimmerStyle]}>
         <LinearGradient
-          colors={[
-            'transparent',
-            'rgba(255, 255, 255, 0.3)',
-            'transparent',
-          ]}
+          colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.shimmerGradient}
@@ -134,11 +127,7 @@ interface SkeletonAvatarProps {
 /**
  * Avatar skeleton
  */
-export function SkeletonAvatar({
-  size = 48,
-  shape = 'circle',
-  style,
-}: SkeletonAvatarProps) {
+export function SkeletonAvatar({ size = 48, shape = 'circle', style }: SkeletonAvatarProps) {
   return (
     <SkeletonBase
       width={size}
@@ -200,9 +189,7 @@ export function SkeletonCard({
   if (variant === 'horizontal') {
     return (
       <View style={[styles.horizontalCard, style]}>
-        {showImage && (
-          <SkeletonBase width={80} height={80} borderRadius={12} />
-        )}
+        {showImage && <SkeletonBase width={80} height={80} borderRadius={12} />}
         <View style={styles.horizontalCardContent}>
           {showAvatar && (
             <View style={styles.avatarRow}>
@@ -239,7 +226,11 @@ export function SkeletonCard({
           <SkeletonBase width={120} height={14} style={{ marginLeft: 10 }} />
         </View>
       )}
-      <SkeletonBase width="85%" height={20} style={{ marginBottom: 8, marginTop: showAvatar ? 12 : 0 }} />
+      <SkeletonBase
+        width="85%"
+        height={20}
+        style={{ marginBottom: 8, marginTop: showAvatar ? 12 : 0 }}
+      />
       <SkeletonText lines={textLines} lineHeight={14} lineSpacing={6} />
     </View>
   );
@@ -301,10 +292,7 @@ export function SkeletonGrid({
       {Array.from({ length: count }).map((_, index) => (
         <View
           key={index}
-          style={[
-            styles.gridItem,
-            { width: `${(100 - gap * (columns - 1) / 4) / columns}%` },
-          ]}
+          style={[styles.gridItem, { width: `${(100 - (gap * (columns - 1)) / 4) / columns}%` }]}
         >
           <SkeletonBase width="100%" height={itemSize} borderRadius={16} />
           <SkeletonBase width="80%" height={14} style={{ marginTop: 8 }} />
@@ -324,11 +312,7 @@ interface SkeletonChartProps {
 /**
  * Chart skeleton placeholder
  */
-export function SkeletonChart({
-  type = 'bar',
-  height = 200,
-  style,
-}: SkeletonChartProps) {
+export function SkeletonChart({ type = 'bar', height = 200, style }: SkeletonChartProps) {
   if (type === 'pie') {
     return (
       <View style={[styles.chartContainer, { height }, style]}>
@@ -378,18 +362,12 @@ interface SkeletonProfileProps {
 /**
  * Profile page skeleton
  */
-export function SkeletonProfile({
-  showCover = true,
-  style,
-}: SkeletonProfileProps) {
+export function SkeletonProfile({ showCover = true, style }: SkeletonProfileProps) {
   return (
     <View style={[styles.profileContainer, style]}>
       {showCover && <SkeletonBase width="100%" height={120} borderRadius={0} />}
       <View style={styles.profileContent}>
-        <SkeletonAvatar
-          size={80}
-          style={[styles.profileAvatar, showCover && { marginTop: -40 }]}
-        />
+        <SkeletonAvatar size={80} style={[styles.profileAvatar, showCover && { marginTop: -40 }]} />
         <SkeletonBase width={150} height={22} style={{ marginTop: 12 }} />
         <SkeletonBase width={100} height={14} style={{ marginTop: 8 }} />
         <SkeletonText lines={2} style={{ marginTop: 16, width: '80%' }} />

@@ -25,19 +25,21 @@ import {
 } from 'lucide-react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { spacing, borderRadius, typography, shadows, textShadows } from '@/lib/design-tokens';
+import { spacing, borderRadius, typography, shadows, textShadows } from '@/constants/design-system';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import { AnalysisShareCard } from '@/components/AnalysisShareCard';
 import { AnalysisChatSheet } from '@/components/analysis-chat';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
 export default function AnalysisResultScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { screenPadding } = useResponsive();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { colors, isDark } = useTheme();
   const [isFavorited, setIsFavorited] = useState(false);
   const [showChat, setShowChat] = useState(false);
 
@@ -389,14 +391,18 @@ export default function AnalysisResultScreen() {
   if (isLoading) {
     return (
       <LinearGradient
-        colors={['#1A2332', '#2E3F5C', '#3D5A80']}
+        colors={
+          isDark
+            ? ([...colors.background.analysis] as [string, string, ...string[]])
+            : ['#1A2332', '#2E3F5C', '#3D5A80']
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="white" />
+            <ActivityIndicator size="large" color="#FFFFFF" />
             <Text style={styles.loadingText}>Analiz yükleniyor...</Text>
           </View>
         </SafeAreaView>
@@ -408,7 +414,11 @@ export default function AnalysisResultScreen() {
   if (error || !analysisData) {
     return (
       <LinearGradient
-        colors={['#1A2332', '#2E3F5C', '#3D5A80']}
+        colors={
+          isDark
+            ? ([...colors.background.analysis] as [string, string, ...string[]])
+            : ['#1A2332', '#2E3F5C', '#3D5A80']
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}
@@ -416,8 +426,11 @@ export default function AnalysisResultScreen() {
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>Analiz bulunamadı</Text>
-            <Pressable onPress={handleBack} style={styles.backToHomeButton}>
-              <Text style={styles.backToHomeText}>Geri Dön</Text>
+            <Pressable
+              onPress={handleBack}
+              style={[styles.backToHomeButton, { backgroundColor: colors.surface.card }]}
+            >
+              <Text style={[styles.backToHomeText, { color: colors.text.primary }]}>Geri Dön</Text>
             </Pressable>
           </View>
         </SafeAreaView>
@@ -437,13 +450,13 @@ export default function AnalysisResultScreen() {
 
   // Calculate emotional indicators from insights
   const emotionalIndicators = insights.slice(0, 4).map((insight: any, index: number) => {
-    const colors = ['#7ED99C', '#FFD56B', '#A78BFA', '#78C8E8'];
+    const indicatorColors = ['#7ED99C', '#FFD56B', '#A78BFA', '#78C8E8'];
     const strengthValue =
       insight.strength === 'strong' ? 85 : insight.strength === 'moderate' ? 70 : 55;
     return {
       label: insight.title || `İçgörü ${index + 1}`,
       value: strengthValue,
-      color: colors[index % colors.length],
+      color: indicatorColors[index % indicatorColors.length],
     };
   });
 
@@ -451,7 +464,11 @@ export default function AnalysisResultScreen() {
 
   return (
     <LinearGradient
-      colors={['#1A2332', '#2E3F5C', '#3D5A80']}
+      colors={
+        isDark
+          ? ([...colors.background.analysis] as [string, string, ...string[]])
+          : ['#1A2332', '#2E3F5C', '#3D5A80']
+      }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -460,11 +477,11 @@ export default function AnalysisResultScreen() {
         {/* Header */}
         <View style={[styles.header, { paddingHorizontal: screenPadding }]}>
           <Pressable onPress={handleBack} style={styles.backButton}>
-            <ArrowLeft size={24} color="white" strokeWidth={2} />
+            <ArrowLeft size={24} color="#FFFFFF" strokeWidth={2} />
           </Pressable>
           <View style={styles.logoContainer}>
             <Text style={styles.logoText}>
-              RENK<Text style={styles.logoAccent}>İOO</Text>
+              RENK<Text style={[styles.logoAccent, { color: colors.secondary.sunshine }]}>İOO</Text>
             </Text>
           </View>
           <View style={{ width: 40 }} />
@@ -482,7 +499,16 @@ export default function AnalysisResultScreen() {
           </View>
 
           {/* Summary Card */}
-          <View style={[styles.summaryCard, shadows.lg]}>
+          <View
+            style={[
+              styles.summaryCard,
+              shadows.lg,
+              isDark && {
+                backgroundColor: colors.surface.card + '40',
+                borderColor: colors.border.light + '40',
+              },
+            ]}
+          >
             <Text style={styles.summaryText}>{summary}</Text>
           </View>
 
@@ -514,14 +540,25 @@ export default function AnalysisResultScreen() {
 
           {/* Insights Card */}
           {insights.length > 0 && (
-            <View style={[styles.insightsCard, shadows.lg]}>
+            <View
+              style={[
+                styles.insightsCard,
+                shadows.lg,
+                isDark && {
+                  backgroundColor: colors.surface.card + '40',
+                  borderColor: colors.border.light + '40',
+                },
+              ]}
+            >
               <View style={styles.cardHeader}>
-                <Brain size={20} color={Colors.secondary.lavender} strokeWidth={2} />
+                <Brain size={20} color={colors.secondary.lavender} strokeWidth={2} />
                 <Text style={styles.cardTitle}>Gözlemler</Text>
               </View>
               {insights.map((insight: any, index: number) => (
                 <View key={index} style={styles.insightItem}>
-                  <View style={styles.bulletPoint} />
+                  <View
+                    style={[styles.bulletPoint, { backgroundColor: colors.secondary.lavender }]}
+                  />
                   <Text style={styles.insightText}>{insight.summary}</Text>
                 </View>
               ))}
@@ -530,14 +567,24 @@ export default function AnalysisResultScreen() {
 
           {/* Recommendations Card */}
           {homeTips.length > 0 && (
-            <View style={[styles.insightsCard, shadows.lg, { marginBottom: spacing.xl }]}>
+            <View
+              style={[
+                styles.insightsCard,
+                shadows.lg,
+                { marginBottom: spacing.xl },
+                isDark && {
+                  backgroundColor: colors.surface.card + '40',
+                  borderColor: colors.border.light + '40',
+                },
+              ]}
+            >
               <View style={styles.cardHeader}>
-                <Smile size={20} color={Colors.secondary.grass} strokeWidth={2} />
+                <Smile size={20} color={colors.secondary.grass} strokeWidth={2} />
                 <Text style={styles.cardTitle}>Öneriler</Text>
               </View>
               {homeTips.map((tip: any, index: number) => (
                 <View key={index} style={styles.insightItem}>
-                  <View style={[styles.bulletPoint, { backgroundColor: Colors.secondary.grass }]} />
+                  <View style={[styles.bulletPoint, { backgroundColor: colors.secondary.grass }]} />
                   <Text style={styles.insightText}>{tip.title}</Text>
                   {tip.steps?.map((step: string, stepIdx: number) => (
                     <Text key={stepIdx} style={styles.stepText}>
@@ -558,7 +605,13 @@ export default function AnalysisResultScreen() {
         </ScrollView>
 
         {/* Bottom Actions */}
-        <View style={[styles.bottomActions, { paddingHorizontal: screenPadding }]}>
+        <View
+          style={[
+            styles.bottomActions,
+            { paddingHorizontal: screenPadding },
+            isDark && { borderTopColor: colors.border.light + '30' },
+          ]}
+        >
           <View style={styles.iconActions}>
             <Pressable
               onPress={handleFavorite}
@@ -566,8 +619,8 @@ export default function AnalysisResultScreen() {
             >
               <Heart
                 size={24}
-                color={isFavorited ? Colors.secondary.coral : 'rgba(255, 255, 255, 0.7)'}
-                fill={isFavorited ? Colors.secondary.coral : 'none'}
+                color={isFavorited ? colors.secondary.coral : 'rgba(255, 255, 255, 0.7)'}
+                fill={isFavorited ? colors.secondary.coral : 'none'}
                 strokeWidth={2}
               />
             </Pressable>
@@ -579,14 +632,23 @@ export default function AnalysisResultScreen() {
             </Pressable>
             <Pressable
               onPress={() => setShowChat(true)}
-              style={[styles.iconButton, styles.iconButtonChat]}
+              style={[
+                styles.iconButton,
+                {
+                  backgroundColor: colors.secondary.lavender + '33',
+                  borderColor: colors.secondary.lavender,
+                },
+              ]}
             >
-              <MessageCircle size={24} color={Colors.secondary.lavender} strokeWidth={2} />
+              <MessageCircle size={24} color={colors.secondary.lavender} strokeWidth={2} />
             </Pressable>
           </View>
-          <Pressable onPress={() => setShowChat(true)} style={[styles.chatButton, shadows.lg]}>
-            <MessageCircle size={20} color={Colors.neutral.white} strokeWidth={2} />
-            <Text style={styles.chatButtonText}>Ioo ile Konuş</Text>
+          <Pressable
+            onPress={() => setShowChat(true)}
+            style={[styles.chatButton, shadows.lg, { backgroundColor: colors.secondary.lavender }]}
+          >
+            <MessageCircle size={20} color="#FFFFFF" strokeWidth={2} />
+            <Text style={[styles.chatButtonText, { color: '#FFFFFF' }]}>Ioo ile Konuş</Text>
           </Pressable>
         </View>
 
@@ -630,7 +692,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoText: {
-    fontSize: typography.fontSize.lg,
+    fontSize: typography.size.lg,
     fontWeight: '800',
     color: 'white',
     letterSpacing: -0.5,
@@ -646,19 +708,19 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   mainTitle: {
-    fontSize: typography.fontSize.xxl,
+    fontSize: typography.size['2xl'],
     fontWeight: '700',
     color: 'white',
     marginBottom: spacing.xs,
     ...textShadows.lg,
   },
   dateText: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.6)',
     fontWeight: '500',
   },
   taskTypeText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.size.xs,
     color: 'rgba(255, 255, 255, 0.5)',
     fontWeight: '600',
     marginTop: spacing.xs,
@@ -670,7 +732,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   loadingText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '500',
   },
@@ -682,7 +744,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   errorText: {
-    fontSize: typography.fontSize.lg,
+    fontSize: typography.size.lg,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: '600',
     textAlign: 'center',
@@ -694,14 +756,14 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
   },
   backToHomeText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     fontWeight: '700',
     color: '#2E3F5C',
   },
   stepText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.size.xs,
     color: 'rgba(255, 255, 255, 0.75)',
-    lineHeight: typography.fontSize.xs * 1.5,
+    lineHeight: typography.size.xs * 1.5,
     marginLeft: spacing.md,
     marginTop: spacing.xs,
   },
@@ -714,17 +776,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   summaryText: {
-    fontSize: typography.fontSize.md,
+    fontSize: typography.size.md,
     color: 'white',
     fontWeight: '600',
     textAlign: 'center',
-    lineHeight: typography.fontSize.md * 1.4,
+    lineHeight: typography.size.md * 1.4,
   },
   indicatorsSection: {
     marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '600',
     marginBottom: spacing.md,
@@ -739,12 +801,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   indicatorLabel: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: '500',
   },
   indicatorValue: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'white',
     fontWeight: '700',
   },
@@ -772,7 +834,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   cardTitle: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     color: 'white',
     fontWeight: '700',
     marginLeft: spacing.sm,
@@ -792,9 +854,9 @@ const styles = StyleSheet.create({
   },
   insightText: {
     flex: 1,
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.85)',
-    lineHeight: typography.fontSize.sm * 1.5,
+    lineHeight: typography.size.sm * 1.5,
     fontWeight: '400',
   },
   bottomActions: {
@@ -837,7 +899,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   chatButtonText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     fontWeight: '700',
     color: Colors.neutral.white,
     letterSpacing: -0.3,
@@ -851,7 +913,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   saveButtonText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     fontWeight: '700',
     color: '#2E3F5C',
     letterSpacing: -0.3,
@@ -861,7 +923,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxl,
   },
   shareCardTitle: {
-    fontSize: typography.fontSize.lg,
+    fontSize: typography.size.lg,
     fontWeight: '700',
     color: 'white',
     textAlign: 'center',

@@ -9,25 +9,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Pressable,
-  Platform,
-} from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withDelay,
-  withSequence,
-  withTiming,
-  FadeIn,
-  FadeOut,
-  SlideInUp,
-} from 'react-native-reanimated';
+import { View, Text, StyleSheet, Modal, Pressable, Platform } from 'react-native';
+import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -133,6 +116,7 @@ export function CelebrationOverlay({
     } else {
       setShowConfetti(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible) return null;
@@ -140,7 +124,11 @@ export function CelebrationOverlay({
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onDismiss}>
       <Pressable style={styles.overlay} onPress={onDismiss}>
-        <BlurView intensity={Platform.OS === 'web' ? 0 : 40} tint="dark" style={styles.blurContainer}>
+        <BlurView
+          intensity={Platform.OS === 'web' ? 0 : 40}
+          tint="dark"
+          style={styles.blurContainer}
+        >
           {/* Confetti */}
           {showConfetti && <ConfettiAnimation count={30} duration={2500} />}
 
@@ -164,25 +152,16 @@ export function CelebrationOverlay({
               </View>
 
               {/* Text */}
-              <Animated.Text
-                entering={FadeIn.delay(300)}
-                style={styles.title}
-              >
+              <Animated.Text entering={FadeIn.delay(300)} style={styles.title}>
                 {displayTitle}
               </Animated.Text>
 
-              <Animated.Text
-                entering={FadeIn.delay(500)}
-                style={styles.subtitle}
-              >
+              <Animated.Text entering={FadeIn.delay(500)} style={styles.subtitle}>
                 {displaySubtitle}
               </Animated.Text>
 
               {/* Dismiss hint */}
-              <Animated.Text
-                entering={FadeIn.delay(1000)}
-                style={styles.dismissHint}
-              >
+              <Animated.Text entering={FadeIn.delay(1000)} style={styles.dismissHint}>
                 Kapatmak için dokun
               </Animated.Text>
             </LinearGradient>

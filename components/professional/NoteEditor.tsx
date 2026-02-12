@@ -15,7 +15,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
 } from 'react-native';
 import Animated, {
   FadeIn,
@@ -28,7 +27,6 @@ import Animated, {
 import {
   FileText,
   Eye,
-  AlertCircle,
   HelpCircle,
   Star,
   Tag,
@@ -40,7 +38,6 @@ import {
   Bold,
   Italic,
   List,
-  Link2,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { zIndex } from '@/constants/design-system';
@@ -150,14 +147,12 @@ export function NoteEditor({
   };
 
   const toggleTag = (tag: string) => {
-    setTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+    setTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]));
   };
 
   const addCustomTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags((prev) => [...prev, newTag.trim()]);
+      setTags(prev => [...prev, newTag.trim()]);
       setNewTag('');
       setShowTagInput(false);
     }
@@ -168,26 +163,20 @@ export function NoteEditor({
     if (!input) return;
 
     // Simple formatting insertion
-    setContent((prev) => `${prev}${prefix}${suffix}`);
+    setContent(prev => `${prev}${prefix}${suffix}`);
   };
 
   if (!isVisible) return null;
 
   return (
-    <Animated.View
-      entering={SlideInDown.springify()}
-      exiting={FadeOut}
-      style={styles.container}
-    >
+    <Animated.View entering={SlideInDown.springify()} exiting={FadeOut} style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>
-            {initialNote ? 'Notu Düzenle' : 'Yeni Not'}
-          </Text>
+          <Text style={styles.title}>{initialNote ? 'Notu Düzenle' : 'Yeni Not'}</Text>
           <Pressable style={styles.closeButton} onPress={onCancel}>
             <X size={20} color={Colors.neutral.medium} />
           </Pressable>
@@ -206,7 +195,7 @@ export function NoteEditor({
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.typeSelector}
             >
-              {NOTE_TYPES.map((item) => (
+              {NOTE_TYPES.map(item => (
                 <Pressable
                   key={item.type}
                   style={[
@@ -224,10 +213,7 @@ export function NoteEditor({
                     })}
                   </View>
                   <Text
-                    style={[
-                      styles.typeChipText,
-                      noteType === item.type && { color: item.color },
-                    ]}
+                    style={[styles.typeChipText, noteType === item.type && { color: item.color }]}
                   >
                     {item.label}
                   </Text>
@@ -241,22 +227,13 @@ export function NoteEditor({
             <View style={styles.labelRow}>
               <Text style={styles.sectionLabel}>Not İçeriği</Text>
               <View style={styles.formatButtons}>
-                <Pressable
-                  style={styles.formatButton}
-                  onPress={() => insertTextFormat('**')}
-                >
+                <Pressable style={styles.formatButton} onPress={() => insertTextFormat('**')}>
                   <Bold size={16} color={Colors.neutral.medium} />
                 </Pressable>
-                <Pressable
-                  style={styles.formatButton}
-                  onPress={() => insertTextFormat('_')}
-                >
+                <Pressable style={styles.formatButton} onPress={() => insertTextFormat('_')}>
                   <Italic size={16} color={Colors.neutral.medium} />
                 </Pressable>
-                <Pressable
-                  style={styles.formatButton}
-                  onPress={() => insertTextFormat('\n- ')}
-                >
+                <Pressable style={styles.formatButton} onPress={() => insertTextFormat('\n- ')}>
                   <List size={16} color={Colors.neutral.medium} />
                 </Pressable>
               </View>
@@ -278,10 +255,7 @@ export function NoteEditor({
           <View style={styles.section}>
             <View style={styles.labelRow}>
               <Text style={styles.sectionLabel}>Etiketler</Text>
-              <Pressable
-                style={styles.addTagButton}
-                onPress={() => setShowTagInput(!showTagInput)}
-              >
+              <Pressable style={styles.addTagButton} onPress={() => setShowTagInput(!showTagInput)}>
                 <Tag size={14} color={Colors.secondary.lavender} />
                 <Text style={styles.addTagText}>Ekle</Text>
               </Pressable>
@@ -306,20 +280,14 @@ export function NoteEditor({
 
             {/* Suggested tags */}
             <View style={styles.tagsContainer}>
-              {SUGGESTED_TAGS.map((tag) => (
+              {SUGGESTED_TAGS.map(tag => (
                 <Pressable
                   key={tag}
-                  style={[
-                    styles.tagChip,
-                    tags.includes(tag) && styles.tagChipActive,
-                  ]}
+                  style={[styles.tagChip, tags.includes(tag) && styles.tagChipActive]}
                   onPress={() => toggleTag(tag)}
                 >
                   <Text
-                    style={[
-                      styles.tagChipText,
-                      tags.includes(tag) && styles.tagChipTextActive,
-                    ]}
+                    style={[styles.tagChipText, tags.includes(tag) && styles.tagChipTextActive]}
                   >
                     {tag}
                   </Text>
@@ -328,11 +296,11 @@ export function NoteEditor({
             </View>
 
             {/* Selected custom tags */}
-            {tags.filter((t) => !SUGGESTED_TAGS.includes(t)).length > 0 && (
+            {tags.filter(t => !SUGGESTED_TAGS.includes(t)).length > 0 && (
               <View style={styles.customTags}>
                 {tags
-                  .filter((t) => !SUGGESTED_TAGS.includes(t))
-                  .map((tag) => (
+                  .filter(t => !SUGGESTED_TAGS.includes(t))
+                  .map(tag => (
                     <Pressable
                       key={tag}
                       style={styles.customTagChip}
@@ -348,22 +316,14 @@ export function NoteEditor({
 
           {/* Options */}
           <View style={styles.section}>
-            <Pressable
-              style={styles.optionRow}
-              onPress={() => setIsPinned(!isPinned)}
-            >
+            <Pressable style={styles.optionRow} onPress={() => setIsPinned(!isPinned)}>
               <Pin
                 size={18}
                 color={isPinned ? Colors.emotion.joy : Colors.neutral.medium}
                 fill={isPinned ? Colors.emotion.joy : 'transparent'}
               />
               <Text style={styles.optionText}>Notu Sabitle</Text>
-              <View
-                style={[
-                  styles.checkbox,
-                  isPinned && styles.checkboxActive,
-                ]}
-              >
+              <View style={[styles.checkbox, isPinned && styles.checkboxActive]}>
                 {isPinned && <Check size={12} color={Colors.neutral.white} />}
               </View>
             </Pressable>
@@ -389,10 +349,7 @@ export function NoteEditor({
           </Pressable>
           <Animated.View style={animatedSaveStyle}>
             <Pressable
-              style={[
-                styles.saveButton,
-                !content.trim() && styles.saveButtonDisabled,
-              ]}
+              style={[styles.saveButton, !content.trim() && styles.saveButtonDisabled]}
               onPress={handleSave}
               disabled={!content.trim()}
             >

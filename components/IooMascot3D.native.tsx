@@ -3,6 +3,7 @@
  * Uses @react-three/fiber/native with expo-gl
  */
 
+/* eslint-disable react/no-unknown-property */
 import React, { Suspense, useRef, memo, useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Canvas, useFrame } from '@react-three/fiber/native';
@@ -12,12 +13,40 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { Colors } from '@/constants/colors';
 
-export type IooMood = 'neutral' | 'happy' | 'excited' | 'curious' | 'love' | 'calm' | 'thinking' | 'sleepy' | 'concerned' | 'sad';
-export type IooSize = 'xs' | 'sm' | 'md' | 'tiny' | 'small' | 'medium' | 'lg' | 'large' | 'hero' | 'giant';
+export type IooMood =
+  | 'neutral'
+  | 'happy'
+  | 'excited'
+  | 'curious'
+  | 'love'
+  | 'calm'
+  | 'thinking'
+  | 'sleepy'
+  | 'concerned'
+  | 'sad';
+export type IooSize =
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'tiny'
+  | 'small'
+  | 'medium'
+  | 'lg'
+  | 'large'
+  | 'hero'
+  | 'giant';
 
 const SIZE_MAP: Record<IooSize, number> = {
-  xs: 80, sm: 100, md: 140, tiny: 100, small: 140,
-  medium: 180, lg: 220, large: 260, hero: 320, giant: 400,
+  xs: 80,
+  sm: 100,
+  md: 140,
+  tiny: 100,
+  small: 140,
+  medium: 180,
+  lg: 220,
+  large: 260,
+  hero: 320,
+  giant: 400,
 };
 
 interface IooProps {
@@ -45,6 +74,7 @@ function IooModel({ autoRotate = true }: { autoRotate?: boolean }) {
         loader.setDRACOLoader(dracoLoader);
 
         // Native: Use expo-asset
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const asset = Asset.fromModule(require('../assets/models/ioo-mascot.glb'));
         await asset.downloadAsync();
         const modelUri = asset.localUri || asset.uri;
@@ -53,9 +83,11 @@ function IooModel({ autoRotate = true }: { autoRotate?: boolean }) {
 
         loader.load(
           modelUri,
-          (gltf) => { if (mounted) setModel(gltf.scene); },
+          gltf => {
+            if (mounted) setModel(gltf.scene);
+          },
           undefined,
-          (error) => console.error('Error loading 3D model:', error)
+          error => console.error('Error loading 3D model:', error)
         );
       } catch (error) {
         console.error('Error loading model:', error);
@@ -63,10 +95,12 @@ function IooModel({ autoRotate = true }: { autoRotate?: boolean }) {
     }
 
     loadModel();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  useFrame((state) => {
+  useFrame(state => {
     if (modelRef.current) {
       modelRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.1;
       if (autoRotate) {
@@ -78,7 +112,11 @@ function IooModel({ autoRotate = true }: { autoRotate?: boolean }) {
   });
 
   if (!model) return null;
-  return <group ref={modelRef}><primitive object={model} /></group>;
+  return (
+    <group ref={modelRef}>
+      <primitive object={model} />
+    </group>
+  );
 }
 
 export const IooMascot3D = memo(function IooMascot3D({
@@ -121,8 +159,12 @@ const styles = StyleSheet.create({
   container: { position: 'relative', overflow: 'visible' },
   canvas: { flex: 1, backgroundColor: 'transparent' },
   glow: {
-    position: 'absolute', top: '10%', left: '10%',
-    backgroundColor: 'rgba(167, 139, 250, 0.15)', borderRadius: 1000, zIndex: -1,
+    position: 'absolute',
+    top: '10%',
+    left: '10%',
+    backgroundColor: 'rgba(167, 139, 250, 0.15)',
+    borderRadius: 1000,
+    zIndex: -1,
   },
 });
 

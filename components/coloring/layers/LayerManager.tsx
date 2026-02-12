@@ -9,7 +9,7 @@
  * - Opaklık kontrolü
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -17,14 +17,13 @@ import {
   StyleSheet,
   ScrollView,
   Animated,
-  PanResponder,
   Image,
   Dimensions,
 } from 'react-native';
 import { shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 // ============================================
 // TYPES
@@ -185,13 +184,8 @@ function LayerItem({
         {/* Quick Actions */}
         <View style={styles.quickActions}>
           {/* Visibility Toggle */}
-          <TouchableOpacity
-            style={styles.quickActionButton}
-            onPress={onVisibilityToggle}
-          >
-            <Text style={styles.quickActionIcon}>
-              {layer.visible ? '👁️' : '👁️‍🗨️'}
-            </Text>
+          <TouchableOpacity style={styles.quickActionButton} onPress={onVisibilityToggle}>
+            <Text style={styles.quickActionIcon}>{layer.visible ? '👁️' : '👁️‍🗨️'}</Text>
           </TouchableOpacity>
 
           {/* Lock Toggle */}
@@ -200,10 +194,9 @@ function LayerItem({
             onPress={onLockToggle}
             disabled={layer.isBackground}
           >
-            <Text style={[
-              styles.quickActionIcon,
-              layer.isBackground && styles.quickActionDisabled,
-            ]}>
+            <Text
+              style={[styles.quickActionIcon, layer.isBackground && styles.quickActionDisabled]}
+            >
               {layer.locked ? '🔒' : '🔓'}
             </Text>
           </TouchableOpacity>
@@ -217,7 +210,7 @@ function LayerItem({
           <View style={styles.opacityRow}>
             <Text style={styles.opacityLabel}>Opaklık</Text>
             <View style={styles.opacitySlider}>
-              {[25, 50, 75, 100].map((val) => (
+              {[25, 50, 75, 100].map(val => (
                 <TouchableOpacity
                   key={val}
                   style={[
@@ -226,10 +219,12 @@ function LayerItem({
                   ]}
                   onPress={() => onOpacityChange(val / 100)}
                 >
-                  <Text style={[
-                    styles.opacityButtonText,
-                    layer.opacity * 100 === val && styles.opacityButtonTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.opacityButtonText,
+                      layer.opacity * 100 === val && styles.opacityButtonTextActive,
+                    ]}
+                  >
                     {val}%
                   </Text>
                 </TouchableOpacity>
@@ -239,10 +234,7 @@ function LayerItem({
 
           {/* Layer Actions */}
           <View style={styles.layerActions}>
-            <TouchableOpacity
-              style={styles.layerActionButton}
-              onPress={onDuplicate}
-            >
+            <TouchableOpacity style={styles.layerActionButton} onPress={onDuplicate}>
               <Text style={styles.layerActionIcon}>📋</Text>
               <Text style={styles.layerActionText}>Çoğalt</Text>
             </TouchableOpacity>
@@ -275,12 +267,11 @@ export function LayerManager({
   onLayerLockChange,
   onLayerOpacityChange,
   onLayerBlendModeChange,
-  onLayerReorder,
+
   onLayerAdd,
   onLayerDelete,
   onLayerDuplicate,
   onLayerMergeDown,
-  onLayerRename,
 }: LayerManagerProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showBlendModes, setShowBlendModes] = useState(false);
@@ -313,16 +304,11 @@ export function LayerManager({
         </View>
         <View style={styles.headerRight}>
           {/* Add Layer Button */}
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={onLayerAdd}
-          >
+          <TouchableOpacity style={styles.addButton} onPress={onLayerAdd}>
             <Text style={styles.addButtonText}>+</Text>
           </TouchableOpacity>
           {/* Expand Toggle */}
-          <Text style={styles.expandIcon}>
-            {isExpanded ? '▼' : '▶'}
-          </Text>
+          <Text style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</Text>
         </View>
       </TouchableOpacity>
 
@@ -344,7 +330,7 @@ export function LayerManager({
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {sortedLayers.map((layer) => (
+          {sortedLayers.map(layer => (
             <LayerItem
               key={layer.id}
               layer={layer}
@@ -352,7 +338,7 @@ export function LayerManager({
               onSelect={() => onLayerSelect(layer.id)}
               onVisibilityToggle={() => onLayerVisibilityChange(layer.id, !layer.visible)}
               onLockToggle={() => onLayerLockChange(layer.id, !layer.locked)}
-              onOpacityChange={(opacity) => onLayerOpacityChange(layer.id, opacity)}
+              onOpacityChange={opacity => onLayerOpacityChange(layer.id, opacity)}
               onDelete={() => onLayerDelete(layer.id)}
               onDuplicate={() => onLayerDuplicate(layer.id)}
             />
@@ -365,7 +351,7 @@ export function LayerManager({
         <View style={styles.blendModeSelector}>
           <Text style={styles.blendModeTitle}>Karıştırma Modu</Text>
           <View style={styles.blendModeGrid}>
-            {BLEND_MODES.map((mode) => (
+            {BLEND_MODES.map(mode => (
               <TouchableOpacity
                 key={mode.id}
                 style={[
@@ -416,11 +402,7 @@ export function LayerManager({
 // LAYER UTILS
 // ============================================
 
-export function createLayer(
-  name: string,
-  order: number,
-  isBackground = false
-): Layer {
+export function createLayer(name: string, order: number, isBackground = false): Layer {
   return {
     id: `layer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name,
@@ -434,10 +416,7 @@ export function createLayer(
 }
 
 export function createDefaultLayers(): Layer[] {
-  return [
-    createLayer('Arka Plan', 0, true),
-    createLayer('Katman 1', 1),
-  ];
+  return [createLayer('Arka Plan', 0, true), createLayer('Katman 1', 1)];
 }
 
 // ============================================

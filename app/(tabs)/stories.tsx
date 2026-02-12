@@ -35,6 +35,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import {
   layout,
   typography,
@@ -74,6 +75,7 @@ export default function StoriesScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { colors, isDark } = useTheme();
   const { user } = useAuth();
   const { selectedChild, setSelectedChild, children: userChildren, hasChildren } = useChild();
 
@@ -1037,7 +1039,7 @@ export default function StoriesScreen() {
           style={styles.deleteButton}
           onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
         >
-          <Trash2 size={24} color={Colors.neutral.white} />
+          <Trash2 size={24} color="#FFFFFF" />
           <Text style={styles.deleteButtonText}>Sil</Text>
         </Pressable>
       </View>
@@ -1052,8 +1054,13 @@ export default function StoriesScreen() {
           ]}
           onPress={() => handleStorybookPress(storybook)}
         >
-          <LinearGradient colors={Colors.cards.story.bg} style={styles.cardGradient}>
-            <View style={styles.cardImageContainer}>
+          <LinearGradient
+            colors={[...colors.cards.story.bg] as [string, string, ...string[]]}
+            style={styles.cardGradient}
+          >
+            <View
+              style={[styles.cardImageContainer, { backgroundColor: colors.background.primary }]}
+            >
               {firstPageImage ? (
                 <Image
                   source={{ uri: firstPageImage }}
@@ -1061,42 +1068,53 @@ export default function StoriesScreen() {
                   contentFit="contain"
                 />
               ) : (
-                <View style={styles.cardImagePlaceholder}>
-                  <BookOpen size={layout.icon.large} color={Colors.cards.story.icon} />
+                <View
+                  style={[
+                    styles.cardImagePlaceholder,
+                    { backgroundColor: colors.neutral.lightest },
+                  ]}
+                >
+                  <BookOpen size={layout.icon.large} color={colors.cards.story.icon} />
                 </View>
               )}
               {storybook.pdf_url && (
                 <LinearGradient
-                  colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                  colors={[colors.secondary.lavender, colors.secondary.lavenderLight]}
                   style={styles.pdfBadge}
                 >
-                  <FileText size={14} color={Colors.neutral.white} />
+                  <FileText size={14} color="#FFFFFF" />
                   <Text style={styles.pdfBadgeText}>PDF</Text>
                 </LinearGradient>
               )}
             </View>
 
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle} numberOfLines={2}>
+              <Text style={[styles.cardTitle, { color: colors.neutral.darkest }]} numberOfLines={2}>
                 {storybook.title}
               </Text>
 
               <View style={styles.cardMeta}>
                 <View style={styles.cardMetaItem}>
-                  <FileText size={14} color={Colors.neutral.medium} />
-                  <Text style={styles.cardMetaText}>{pageCount} sayfa</Text>
+                  <FileText size={14} color={colors.neutral.medium} />
+                  <Text style={[styles.cardMetaText, { color: colors.neutral.medium }]}>
+                    {pageCount} sayfa
+                  </Text>
                 </View>
 
                 <View style={styles.cardMetaItem}>
-                  <Calendar size={14} color={Colors.neutral.medium} />
-                  <Text style={styles.cardMetaText}>{createdDate}</Text>
+                  <Calendar size={14} color={colors.neutral.medium} />
+                  <Text style={[styles.cardMetaText, { color: colors.neutral.medium }]}>
+                    {createdDate}
+                  </Text>
                 </View>
               </View>
 
               {storybook.voice_urls && storybook.voice_urls.length > 0 && (
-                <View style={styles.featureBadge}>
-                  <Sparkles size={12} color={Colors.cards.story.icon} />
-                  <Text style={styles.featureBadgeText}>Sesli Masal</Text>
+                <View style={[styles.featureBadge, { backgroundColor: colors.primary.soft }]}>
+                  <Sparkles size={12} color={colors.cards.story.icon} />
+                  <Text style={[styles.featureBadgeText, { color: colors.cards.story.icon }]}>
+                    Sesli Masal
+                  </Text>
                 </View>
               )}
             </View>
@@ -1128,23 +1146,23 @@ export default function StoriesScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       <LinearGradient
-        colors={Colors.background.stories}
+        colors={[...colors.background.stories] as [string, string, ...string[]]}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTitleContainer}>
             <LinearGradient
-              colors={[Colors.secondary.sunshine, Colors.cards.story.border]}
+              colors={[colors.secondary.sunshine, colors.cards.story.border]}
               style={styles.headerIcon}
             >
-              <BookOpen size={layout.icon.medium} color={Colors.neutral.white} />
+              <BookOpen size={layout.icon.medium} color="#FFFFFF" />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Masallar</Text>
-              <Text style={styles.headerSubtitle}>
+              <Text style={[styles.headerTitle, { color: colors.neutral.darkest }]}>Masallar</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.neutral.medium }]}>
                 {storybooks && storybooks.length > 0
                   ? `${storybooks.length} masal kitabı`
                   : 'Masal koleksiyonunuz'}
@@ -1153,6 +1171,7 @@ export default function StoriesScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.createButton,
+                { backgroundColor: colors.primary.sunset },
                 pressed && { opacity: 0.8, transform: [{ scale: 0.96 }] },
               ]}
               onPress={() => {
@@ -1160,7 +1179,7 @@ export default function StoriesScreen() {
                 setShowCreateForm(!showCreateForm);
               }}
             >
-              <Plus size={24} color={Colors.neutral.white} />
+              <Plus size={24} color="#FFFFFF" />
             </Pressable>
           </View>
         </View>
@@ -1247,7 +1266,10 @@ export default function StoriesScreen() {
           </View>
         ) : showCreateForm && analyzingImage ? (
           /* Image Analysis Loading Animation */
-          <LinearGradient colors={Colors.cards.story.bg} style={styles.analysisLoadingContainer}>
+          <LinearGradient
+            colors={[...colors.cards.story.bg] as [string, string, ...string[]]}
+            style={styles.analysisLoadingContainer}
+          >
             <View style={styles.analysisLoadingContent}>
               <View style={styles.analysisStepsContainer}>
                 {/* Step 1: Uploading */}
@@ -1307,18 +1329,18 @@ export default function StoriesScreen() {
 
               <ActivityIndicator
                 size="large"
-                color={Colors.cards.story.icon}
+                color={colors.cards.story.icon}
                 style={{ marginTop: spacing['4'] }}
               />
 
-              <Text style={styles.analysisLoadingTitle}>
+              <Text style={[styles.analysisLoadingTitle, { color: colors.neutral.darkest }]}>
                 {analysisStep === 'uploading' && '📤 Çizim yükleniyor...'}
                 {analysisStep === 'analyzing' && '🔍 Çizim analiz ediliyor...'}
                 {analysisStep === 'generating' && '✨ Masal temaları hazırlanıyor...'}
                 {analysisStep === 'done' && '🎉 Hazır!'}
               </Text>
 
-              <Text style={styles.analysisLoadingSubtitle}>
+              <Text style={[styles.analysisLoadingSubtitle, { color: colors.neutral.medium }]}>
                 AI çiziminizi inceleyip size özel masal temaları öneriyor
               </Text>
             </View>
@@ -1331,18 +1353,25 @@ export default function StoriesScreen() {
               showsVerticalScrollIndicator={true}
               nestedScrollEnabled={true}
             >
-              <LinearGradient colors={Colors.cards.story.bg} style={styles.createFormContainer}>
+              <LinearGradient
+                colors={[...colors.cards.story.bg] as [string, string, ...string[]]}
+                style={styles.createFormContainer}
+              >
                 <View style={styles.createFormHeader}>
-                  <Wand2 size={24} color={Colors.cards.story.icon} />
-                  <Text style={styles.createFormTitle}>Yeni Masal Oluştur</Text>
+                  <Wand2 size={24} color={colors.cards.story.icon} />
+                  <Text style={[styles.createFormTitle, { color: colors.neutral.darkest }]}>
+                    Yeni Masal Oluştur
+                  </Text>
                 </View>
-                <Text style={styles.createFormDescription}>
+                <Text style={[styles.createFormDescription, { color: colors.neutral.medium }]}>
                   Çocuğunuzun çizimlerinden ilham alan özel bir masal kitabı oluşturun
                 </Text>
 
                 {/* Story Mode Toggle - Normal vs Interactive */}
                 <View style={styles.storyModeSection}>
-                  <Text style={styles.storyModeSectionTitle}>Masal Türü Seçin</Text>
+                  <Text style={[styles.storyModeSectionTitle, { color: colors.neutral.dark }]}>
+                    Masal Türü Seçin
+                  </Text>
                   <View style={styles.storyModeToggle}>
                     {/* Normal Story Option */}
                     <Pressable
@@ -1355,20 +1384,21 @@ export default function StoriesScreen() {
                       <LinearGradient
                         colors={
                           storyMode === 'normal'
-                            ? [Colors.secondary.sunshine, Colors.cards.story.border]
-                            : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
+                            ? [colors.secondary.sunshine, colors.cards.story.border]
+                            : isDark
+                              ? ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']
+                              : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
                         }
                         style={styles.storyModeOptionGradient}
                       >
                         <BookOpen
                           size={28}
-                          color={
-                            storyMode === 'normal' ? Colors.neutral.white : Colors.neutral.medium
-                          }
+                          color={storyMode === 'normal' ? '#FFFFFF' : colors.neutral.medium}
                         />
                         <Text
                           style={[
                             styles.storyModeOptionTitle,
+                            { color: colors.neutral.dark },
                             storyMode === 'normal' && styles.storyModeOptionTitleSelected,
                           ]}
                         >
@@ -1377,6 +1407,7 @@ export default function StoriesScreen() {
                         <Text
                           style={[
                             styles.storyModeOptionDesc,
+                            { color: colors.neutral.medium },
                             storyMode === 'normal' && styles.storyModeOptionDescSelected,
                           ]}
                         >
@@ -1397,18 +1428,16 @@ export default function StoriesScreen() {
                         colors={
                           storyMode === 'interactive'
                             ? ['#9333EA', '#7C3AED']
-                            : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
+                            : isDark
+                              ? ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']
+                              : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
                         }
                         style={styles.storyModeOptionGradient}
                       >
                         <View style={styles.interactiveBadgeContainer}>
                           <Gamepad2
                             size={28}
-                            color={
-                              storyMode === 'interactive'
-                                ? Colors.neutral.white
-                                : Colors.neutral.medium
-                            }
+                            color={storyMode === 'interactive' ? '#FFFFFF' : colors.neutral.medium}
                           />
                           <View style={styles.newBadge}>
                             <Text style={styles.newBadgeText}>YENİ</Text>
@@ -1417,6 +1446,7 @@ export default function StoriesScreen() {
                         <Text
                           style={[
                             styles.storyModeOptionTitle,
+                            { color: colors.neutral.dark },
                             storyMode === 'interactive' && styles.storyModeOptionTitleSelected,
                           ]}
                         >
@@ -1425,6 +1455,7 @@ export default function StoriesScreen() {
                         <Text
                           style={[
                             styles.storyModeOptionDesc,
+                            { color: colors.neutral.medium },
                             storyMode === 'interactive' && styles.storyModeOptionDescSelected,
                           ]}
                         >
@@ -1443,14 +1474,16 @@ export default function StoriesScreen() {
                       >
                         <View style={styles.interactiveInfoHeader}>
                           <Star size={20} color="#9333EA" />
-                          <Text style={styles.interactiveInfoTitle}>İnteraktif Masal Nedir?</Text>
+                          <Text style={[styles.interactiveInfoTitle, { color: '#9333EA' }]}>
+                            İnteraktif Masal Nedir?
+                          </Text>
                         </View>
                         <View style={styles.interactiveInfoFeatures}>
                           <View style={styles.interactiveInfoFeature}>
                             <View style={styles.featureIconCircle}>
                               <ChevronRight size={14} color="#9333EA" />
                             </View>
-                            <Text style={styles.featureText}>
+                            <Text style={[styles.featureText, { color: colors.neutral.dark }]}>
                               Çocuğunuz hikayede seçimler yapar
                             </Text>
                           </View>
@@ -1458,7 +1491,7 @@ export default function StoriesScreen() {
                             <View style={styles.featureIconCircle}>
                               <Brain size={14} color="#9333EA" />
                             </View>
-                            <Text style={styles.featureText}>
+                            <Text style={[styles.featureText, { color: colors.neutral.dark }]}>
                               Seçimler kişilik özelliklerini yansıtır
                             </Text>
                           </View>
@@ -1466,7 +1499,7 @@ export default function StoriesScreen() {
                             <View style={styles.featureIconCircle}>
                               <Users size={14} color="#9333EA" />
                             </View>
-                            <Text style={styles.featureText}>
+                            <Text style={[styles.featureText, { color: colors.neutral.dark }]}>
                               Ebeveynler için detaylı analiz raporu
                             </Text>
                           </View>
@@ -1477,15 +1510,22 @@ export default function StoriesScreen() {
                 </View>
 
                 {/* Child Selector - Show which child the story is for */}
-                <View style={styles.childSelectorSection}>
-                  <Text style={styles.childSelectorLabel}>Bu masal kimin için?</Text>
+                <View
+                  style={[
+                    styles.childSelectorSection,
+                    { backgroundColor: isDark ? colors.surface.card : 'rgba(255, 255, 255, 0.6)' },
+                  ]}
+                >
+                  <Text style={[styles.childSelectorLabel, { color: colors.neutral.dark }]}>
+                    Bu masal kimin için?
+                  </Text>
                   <ChildSelectorChip
                     selectedChild={selectedChild}
                     childrenList={userChildren}
                     onSelectChild={child => setSelectedChild(child)}
                   />
                   {selectedChild && (
-                    <Text style={styles.childSelectorHint}>
+                    <Text style={[styles.childSelectorHint, { color: colors.secondary.grass }]}>
                       Hikaye {selectedChild.age} yaş için
                       {selectedChild.gender
                         ? ` (${selectedChild.gender === 'male' ? 'erkek' : 'kız'} karakter)`
@@ -1494,7 +1534,7 @@ export default function StoriesScreen() {
                     </Text>
                   )}
                   {!selectedChild && !hasChildren && (
-                    <Text style={styles.childSelectorWarning}>
+                    <Text style={[styles.childSelectorWarning, { color: colors.neutral.medium }]}>
                       💡 Profil sayfasından çocuk ekleyerek kişiselleştirilmiş hikayeler
                       oluşturabilirsiniz
                     </Text>
@@ -1517,9 +1557,14 @@ export default function StoriesScreen() {
 
                 {/* AI Theme Suggestions - Show prominently when image exists */}
                 {loadingSuggestions && (
-                  <View style={styles.suggestionsLoading}>
-                    <ActivityIndicator size="small" color={Colors.cards.story.icon} />
-                    <Text style={styles.suggestionsLoadingText}>
+                  <View
+                    style={[
+                      styles.suggestionsLoading,
+                      { backgroundColor: colors.neutral.lightest },
+                    ]}
+                  >
+                    <ActivityIndicator size="small" color={colors.cards.story.icon} />
+                    <Text style={[styles.suggestionsLoadingText, { color: colors.neutral.medium }]}>
                       🎨 Çizim analiz ediliyor, tema önerileri hazırlanıyor...
                     </Text>
                   </View>
@@ -1528,14 +1573,18 @@ export default function StoriesScreen() {
                 {!loadingSuggestions && themeSuggestions.length > 0 && (
                   <View style={styles.suggestionsContainer}>
                     <View style={styles.suggestionsTitleRow}>
-                      <Text style={styles.suggestionsTitle}>✨ Masal Teması Seçin</Text>
+                      <Text style={[styles.suggestionsTitle, { color: colors.neutral.dark }]}>
+                        ✨ Masal Teması Seçin
+                      </Text>
                       {selectedThemeIndex === null && !storyTitle.trim() && (
-                        <View style={styles.requiredBadge}>
+                        <View
+                          style={[styles.requiredBadge, { backgroundColor: colors.primary.sunset }]}
+                        >
                           <Text style={styles.requiredBadgeText}>Gerekli</Text>
                         </View>
                       )}
                     </View>
-                    <Text style={styles.suggestionsSubtitle}>
+                    <Text style={[styles.suggestionsSubtitle, { color: colors.neutral.medium }]}>
                       AI çiziminizi analiz etti ve size özel temalar önerdi:
                     </Text>
                     {themeSuggestions.map((suggestion, index) => (
@@ -1553,11 +1602,19 @@ export default function StoriesScreen() {
                       >
                         <Text style={styles.suggestionEmoji}>{suggestion.emoji}</Text>
                         <View style={styles.suggestionContent}>
-                          <Text style={styles.suggestionTitle}>{suggestion.title}</Text>
-                          <Text style={styles.suggestionTheme}>{suggestion.theme}</Text>
+                          <Text style={[styles.suggestionTitle, { color: colors.neutral.darkest }]}>
+                            {suggestion.title}
+                          </Text>
+                          <Text style={[styles.suggestionTheme, { color: colors.neutral.medium }]}>
+                            {suggestion.theme}
+                          </Text>
                         </View>
                         {selectedThemeIndex === index && (
-                          <Text style={styles.suggestionCheck}>✓</Text>
+                          <Text
+                            style={[styles.suggestionCheck, { color: colors.cards.story.border }]}
+                          >
+                            ✓
+                          </Text>
                         )}
                       </Pressable>
                     ))}
@@ -1566,15 +1623,23 @@ export default function StoriesScreen() {
 
                 {/* Manual title input - Alternative to theme selection */}
                 <View style={styles.manualTitleSection}>
-                  <Text style={styles.manualTitleLabel}>
+                  <Text style={[styles.manualTitleLabel, { color: colors.neutral.dark }]}>
                     {themeSuggestions.length > 0
                       ? 'Ya da kendi başlığınızı yazın:'
                       : 'Masal başlığı:'}
                   </Text>
                   <TextInput
-                    style={[styles.input, selectedThemeIndex !== null && styles.inputDisabledLook]}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: isDark ? colors.surface.card : 'rgba(255, 255, 255, 0.95)',
+                        color: colors.neutral.darkest,
+                        borderColor: isDark ? colors.border.light : 'rgba(255, 255, 255, 0.8)',
+                      },
+                      selectedThemeIndex !== null && styles.inputDisabledLook,
+                    ]}
                     placeholder="Örn: Orman Macerası, Uzay Yolculuğu..."
-                    placeholderTextColor={Colors.neutral.light}
+                    placeholderTextColor={colors.neutral.light}
                     value={storyTitle}
                     onChangeText={text => {
                       setStoryTitle(text);
@@ -1590,9 +1655,11 @@ export default function StoriesScreen() {
                 {storyImage && (
                   <View style={styles.statusIndicator}>
                     {selectedThemeIndex !== null || storyTitle.trim() ? (
-                      <Text style={styles.statusReady}>✅ Masal oluşturmaya hazır!</Text>
+                      <Text style={[styles.statusReady, { color: colors.secondary.mint }]}>
+                        ✅ Masal oluşturmaya hazır!
+                      </Text>
                     ) : (
-                      <Text style={styles.statusWaiting}>
+                      <Text style={[styles.statusWaiting, { color: colors.secondary.sunshine }]}>
                         👆 Yukarıdan bir tema seçin veya başlık yazın
                       </Text>
                     )}
@@ -1610,10 +1677,10 @@ export default function StoriesScreen() {
                   ]}
                 >
                   <LinearGradient
-                    colors={[Colors.neutral.medium, Colors.neutral.dark]}
+                    colors={[colors.neutral.medium, colors.neutral.dark]}
                     style={styles.buttonGradient}
                   >
-                    <ImagePlus size={20} color={Colors.neutral.white} />
+                    <ImagePlus size={20} color="#FFFFFF" />
                     <Text style={styles.buttonText}>
                       {storyImage ? 'Farklı Görsel Seç' : 'İlham Görseli Seç'}
                     </Text>
@@ -1629,7 +1696,7 @@ export default function StoriesScreen() {
                 <Text
                   style={{
                     fontSize: 10,
-                    color: Colors.neutral.medium,
+                    color: colors.neutral.medium,
                     textAlign: 'center',
                     marginBottom: 4,
                   }}
@@ -1666,19 +1733,19 @@ export default function StoriesScreen() {
                 <LinearGradient
                   colors={
                     !storyImage || loadingStory
-                      ? [Colors.neutral.light, Colors.neutral.medium]
+                      ? [colors.neutral.light, colors.neutral.medium]
                       : storyMode === 'interactive'
                         ? ['#9333EA', '#7C3AED']
-                        : [Colors.secondary.sunshine, Colors.cards.story.border]
+                        : [colors.secondary.sunshine, colors.cards.story.border]
                   }
                   style={styles.buttonGradientLarge}
                 >
                   {loadingStory ? (
-                    <ActivityIndicator size="small" color={Colors.neutral.white} />
+                    <ActivityIndicator size="small" color="#FFFFFF" />
                   ) : storyMode === 'interactive' ? (
-                    <Gamepad2 size={24} color={Colors.neutral.white} />
+                    <Gamepad2 size={24} color="#FFFFFF" />
                   ) : (
-                    <Sparkles size={24} color={Colors.neutral.white} />
+                    <Sparkles size={24} color="#FFFFFF" />
                   )}
                   <Text style={styles.buttonTextLarge}>
                     {loadingStory
@@ -1698,8 +1765,10 @@ export default function StoriesScreen() {
         {/* Content - Hidden when create form is open */}
         {showCreateForm ? null : isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.primary.sunset} />
-            <Text style={styles.loadingText}>Masallar yükleniyor...</Text>
+            <ActivityIndicator size="large" color={colors.primary.sunset} />
+            <Text style={[styles.loadingText, { color: colors.neutral.medium }]}>
+              Masallar yükleniyor...
+            </Text>
           </View>
         ) : error ? (
           renderError()
@@ -1713,8 +1782,8 @@ export default function StoriesScreen() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                tintColor={Colors.primary.sunset}
-                colors={[Colors.primary.sunset]}
+                tintColor={colors.primary.sunset}
+                colors={[colors.primary.sunset]}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -1736,12 +1805,14 @@ export default function StoriesScreen() {
               contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
               showsVerticalScrollIndicator={false}
             >
-              <View style={styles.contentWarningModal}>
+              <View style={[styles.contentWarningModal, { backgroundColor: colors.surface.card }]}>
                 <View style={styles.warningIconContainer}>
-                  <AlertTriangle size={40} color={Colors.secondary.sunshine} />
+                  <AlertTriangle size={40} color={colors.secondary.sunshine} />
                 </View>
 
-                <Text style={styles.warningTitle}>Ebeveyn Bildirimi</Text>
+                <Text style={[styles.warningTitle, { color: colors.neutral.darkest }]}>
+                  Ebeveyn Bildirimi
+                </Text>
 
                 {/* Concern Type Badge */}
                 {contentWarning?.concernType && concernTypeLabels[contentWarning.concernType] && (
@@ -1767,14 +1838,16 @@ export default function StoriesScreen() {
                   </View>
                 )}
 
-                <Text style={styles.warningDescription}>
+                <Text style={[styles.warningDescription, { color: colors.neutral.dark }]}>
                   Çocuğunuzun çiziminde dikkat edilmesi gereken duygusal içerik tespit edildi.
                 </Text>
 
                 {contentWarning?.concernDescription && (
                   <View style={styles.warningDetailBox}>
-                    <Text style={styles.warningDetailTitle}>Tespit Edilen İçerik:</Text>
-                    <Text style={styles.warningDetailText}>
+                    <Text style={[styles.warningDetailTitle, { color: colors.neutral.dark }]}>
+                      Tespit Edilen İçerik:
+                    </Text>
+                    <Text style={[styles.warningDetailText, { color: colors.neutral.darkest }]}>
                       {contentWarning.concernDescription}
                     </Text>
                   </View>
@@ -1782,14 +1855,18 @@ export default function StoriesScreen() {
 
                 {contentWarning?.therapeuticApproach && (
                   <View style={styles.therapeuticBox}>
-                    <Text style={styles.therapeuticTitle}>🎯 Terapötik Yaklaşım:</Text>
-                    <Text style={styles.therapeuticText}>{contentWarning.therapeuticApproach}</Text>
+                    <Text style={[styles.therapeuticTitle, { color: colors.secondary.violet }]}>
+                      🎯 Terapötik Yaklaşım:
+                    </Text>
+                    <Text style={[styles.therapeuticText, { color: colors.neutral.dark }]}>
+                      {contentWarning.therapeuticApproach}
+                    </Text>
                   </View>
                 )}
 
                 <View style={styles.warningInfoBox}>
-                  <Heart size={20} color={Colors.primary.sunset} />
-                  <Text style={styles.warningInfoText}>
+                  <Heart size={20} color={colors.primary.sunset} />
+                  <Text style={[styles.warningInfoText, { color: colors.neutral.dark }]}>
                     Önerilen masal temaları, bibliotherapy (kitap terapisi) prensipleri
                     doğrultusunda çocuğunuzun duygularını güvenli bir şekilde işlemesine yardımcı
                     olmak için özel olarak seçildi. Bu hikayeler dolaylı yoldan iyileşmeyi
@@ -1797,8 +1874,17 @@ export default function StoriesScreen() {
                   </Text>
                 </View>
 
-                <View style={styles.professionalNoteBox}>
-                  <Text style={styles.professionalNoteText}>
+                <View
+                  style={[
+                    styles.professionalNoteBox,
+                    {
+                      backgroundColor: isDark
+                        ? colors.surface.elevated
+                        : 'rgba(156, 163, 175, 0.1)',
+                    },
+                  ]}
+                >
+                  <Text style={[styles.professionalNoteText, { color: colors.neutral.medium }]}>
                     💡 Not: Bu uygulama profesyonel psikolojik destek yerine geçmez. Endişeleriniz
                     varsa bir çocuk psikoloğuna danışmanızı öneririz.
                   </Text>
@@ -1809,7 +1895,7 @@ export default function StoriesScreen() {
                   onPress={() => setShowContentWarningModal(false)}
                 >
                   <LinearGradient
-                    colors={[Colors.primary.sunset, Colors.secondary.sunshine]}
+                    colors={[colors.primary.sunset, colors.secondary.sunshine]}
                     style={styles.warningButtonGradient}
                   >
                     <Text style={styles.warningButtonText}>Anladım, Devam Et</Text>

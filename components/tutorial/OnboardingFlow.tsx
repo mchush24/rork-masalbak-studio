@@ -24,20 +24,13 @@ import {
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
-  withTiming,
-  withSequence,
   interpolate,
   Extrapolation,
-  FadeIn,
-  FadeOut,
-  SlideInRight,
   SharedValue,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   ChevronRight,
-  Check,
   Palette,
   Brain,
   Heart,
@@ -66,7 +59,7 @@ export interface OnboardingStep {
 const defaultSteps: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Renkioo\'ya Hoş Geldiniz',
+    title: "Renkioo'ya Hoş Geldiniz",
     description: 'Çocuğunuzun duygusal dünyasını keşfetmek için doğru yerdesiniz.',
     icon: Heart,
     colors: [Colors.secondary.lavender, Colors.secondary.rose] as const,
@@ -74,7 +67,8 @@ const defaultSteps: OnboardingStep[] = [
   {
     id: 'coloring',
     title: 'Boyama Analizi',
-    description: 'Çocuğunuzun çizimlerini yükleyin, AI destekli analiz ile duygusal içgörüler kazanın.',
+    description:
+      'Çocuğunuzun çizimlerini yükleyin, AI destekli analiz ile duygusal içgörüler kazanın.',
     icon: Palette,
     colors: [Colors.emotion.joy, Colors.primary.sunset] as const,
   },
@@ -122,22 +116,20 @@ export function OnboardingFlow({
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useSharedValue(0);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapLight, tapMedium, success, error: _hapticError } = useHaptics();
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       scrollX.value = event.nativeEvent.contentOffset.x;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  const handleMomentumScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
-      setCurrentIndex(index);
-    },
-    []
-  );
+  const handleMomentumScrollEnd = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+    setCurrentIndex(index);
+  }, []);
 
   const goToNext = async () => {
     tapMedium();
@@ -165,12 +157,7 @@ export function OnboardingFlow({
   };
 
   const renderStep = ({ item, index }: { item: OnboardingStep; index: number }) => (
-    <OnboardingStepView
-      step={item}
-      index={index}
-      scrollX={scrollX}
-      totalSteps={steps.length}
-    />
+    <OnboardingStepView step={item} index={index} scrollX={scrollX} totalSteps={steps.length} />
   );
 
   const isLastStep = currentIndex === steps.length - 1;
@@ -187,7 +174,7 @@ export function OnboardingFlow({
         onScroll={handleScroll}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         scrollEventThrottle={16}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
       />
 
       {/* Skip button */}
@@ -199,20 +186,17 @@ export function OnboardingFlow({
 
       {/* Bottom controls */}
       <View style={styles.bottomControls}>
-        <PageIndicator
-          total={steps.length}
-          current={currentIndex}
-          scrollX={scrollX}
-        />
+        <PageIndicator total={steps.length} current={currentIndex} scrollX={scrollX} />
 
         <Pressable
           style={[styles.nextButton, isLastStep && styles.completeButton]}
           onPress={goToNext}
         >
           <LinearGradient
-            colors={isLastStep
-              ? [Colors.emotion.trust, Colors.secondary.mint]
-              : [Colors.secondary.lavender, Colors.secondary.rose]
+            colors={
+              isLastStep
+                ? [Colors.emotion.trust, Colors.secondary.mint]
+                : [Colors.secondary.lavender, Colors.secondary.rose]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -243,12 +227,7 @@ interface OnboardingStepViewProps {
   totalSteps: number;
 }
 
-function OnboardingStepView({
-  step,
-  index,
-  scrollX,
-  totalSteps,
-}: OnboardingStepViewProps) {
+function OnboardingStepView({ step, index, scrollX }: OnboardingStepViewProps) {
   const Icon = step.icon;
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -258,26 +237,11 @@ function OnboardingStepView({
       (index + 1) * SCREEN_WIDTH,
     ];
 
-    const translateY = interpolate(
-      scrollX.value,
-      inputRange,
-      [50, 0, 50],
-      Extrapolation.CLAMP
-    );
+    const translateY = interpolate(scrollX.value, inputRange, [50, 0, 50], Extrapolation.CLAMP);
 
-    const opacity = interpolate(
-      scrollX.value,
-      inputRange,
-      [0.5, 1, 0.5],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollX.value, inputRange, [0.5, 1, 0.5], Extrapolation.CLAMP);
 
-    const scale = interpolate(
-      scrollX.value,
-      inputRange,
-      [0.9, 1, 0.9],
-      Extrapolation.CLAMP
-    );
+    const scale = interpolate(scrollX.value, inputRange, [0.9, 1, 0.9], Extrapolation.CLAMP);
 
     return {
       transform: [{ translateY }, { scale }],
@@ -292,12 +256,7 @@ function OnboardingStepView({
       (index + 1) * SCREEN_WIDTH,
     ];
 
-    const rotate = interpolate(
-      scrollX.value,
-      inputRange,
-      [-15, 0, 15],
-      Extrapolation.CLAMP
-    );
+    const rotate = interpolate(scrollX.value, inputRange, [-15, 0, 15], Extrapolation.CLAMP);
 
     return {
       transform: [{ rotate: `${rotate}deg` }],
@@ -321,9 +280,7 @@ function OnboardingStepView({
 
       <Animated.View style={[styles.stepContent, animatedStyle]}>
         <Animated.Text style={styles.stepTitle}>{step.title}</Animated.Text>
-        <Animated.Text style={styles.stepDescription}>
-          {step.description}
-        </Animated.Text>
+        <Animated.Text style={styles.stepDescription}>{step.description}</Animated.Text>
       </Animated.View>
     </View>
   );
@@ -339,12 +296,7 @@ function PageIndicator({ total, current, scrollX }: PageIndicatorProps) {
   return (
     <View style={styles.pageIndicatorContainer}>
       {Array.from({ length: total }).map((_, index) => (
-        <PageDot
-          key={index}
-          index={index}
-          current={current}
-          scrollX={scrollX}
-        />
+        <PageDot key={index} index={index} current={current} scrollX={scrollX} />
       ))}
     </View>
   );
@@ -364,19 +316,9 @@ function PageDot({ index, current, scrollX }: PageDotProps) {
       (index + 1) * SCREEN_WIDTH,
     ];
 
-    const width = interpolate(
-      scrollX.value,
-      inputRange,
-      [8, 24, 8],
-      Extrapolation.CLAMP
-    );
+    const width = interpolate(scrollX.value, inputRange, [8, 24, 8], Extrapolation.CLAMP);
 
-    const opacity = interpolate(
-      scrollX.value,
-      inputRange,
-      [0.4, 1, 0.4],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollX.value, inputRange, [0.4, 1, 0.4], Extrapolation.CLAMP);
 
     return {
       width,
@@ -386,11 +328,7 @@ function PageDot({ index, current, scrollX }: PageDotProps) {
 
   return (
     <Animated.View
-      style={[
-        styles.pageDot,
-        index === current && styles.pageDotActive,
-        animatedStyle,
-      ]}
+      style={[styles.pageDot, index === current && styles.pageDotActive, animatedStyle]}
     />
   );
 }

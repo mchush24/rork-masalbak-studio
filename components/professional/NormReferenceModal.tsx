@@ -5,28 +5,12 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
-import {
-  X,
-  BookOpen,
-  ChevronDown,
-  ChevronUp,
-  Info,
-  Search,
-  Filter,
-} from 'lucide-react-native';
+import { View, Text, Modal, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { X, BookOpen, ChevronDown, ChevronUp, Info } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: _SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface NormDataPoint {
   ageRange: string;
@@ -70,15 +54,105 @@ const NORM_TABLES: NormTable[] = [
     year: 2020,
     source: 'Türk Psikologlar Derneği',
     data: [
-      { ageRange: '4:0 - 4:11', mean: 4.2, standardDeviation: 2.1, percentile10: 1, percentile25: 2, percentile50: 4, percentile75: 6, percentile90: 7, sampleSize: 120 },
-      { ageRange: '5:0 - 5:11', mean: 6.8, standardDeviation: 2.4, percentile10: 3, percentile25: 5, percentile50: 7, percentile75: 9, percentile90: 10, sampleSize: 145 },
-      { ageRange: '6:0 - 6:11', mean: 9.2, standardDeviation: 2.6, percentile10: 5, percentile25: 7, percentile50: 9, percentile75: 11, percentile90: 13, sampleSize: 168 },
-      { ageRange: '7:0 - 7:11', mean: 11.5, standardDeviation: 2.3, percentile10: 8, percentile25: 10, percentile50: 12, percentile75: 13, percentile90: 15, sampleSize: 152 },
-      { ageRange: '8:0 - 8:11', mean: 13.1, standardDeviation: 2.1, percentile10: 10, percentile25: 12, percentile50: 13, percentile75: 15, percentile90: 16, sampleSize: 140 },
-      { ageRange: '9:0 - 9:11', mean: 14.3, standardDeviation: 1.9, percentile10: 11, percentile25: 13, percentile50: 14, percentile75: 16, percentile90: 17, sampleSize: 135 },
-      { ageRange: '10:0 - 10:11', mean: 15.2, standardDeviation: 1.7, percentile10: 12, percentile25: 14, percentile50: 15, percentile75: 17, percentile90: 18, sampleSize: 128 },
-      { ageRange: '11:0 - 11:11', mean: 15.8, standardDeviation: 1.5, percentile10: 13, percentile25: 15, percentile50: 16, percentile75: 17, percentile90: 18, sampleSize: 118 },
-      { ageRange: '12:0 - 12:11', mean: 16.2, standardDeviation: 1.4, percentile10: 14, percentile25: 15, percentile50: 16, percentile75: 17, percentile90: 18, sampleSize: 112 },
+      {
+        ageRange: '4:0 - 4:11',
+        mean: 4.2,
+        standardDeviation: 2.1,
+        percentile10: 1,
+        percentile25: 2,
+        percentile50: 4,
+        percentile75: 6,
+        percentile90: 7,
+        sampleSize: 120,
+      },
+      {
+        ageRange: '5:0 - 5:11',
+        mean: 6.8,
+        standardDeviation: 2.4,
+        percentile10: 3,
+        percentile25: 5,
+        percentile50: 7,
+        percentile75: 9,
+        percentile90: 10,
+        sampleSize: 145,
+      },
+      {
+        ageRange: '6:0 - 6:11',
+        mean: 9.2,
+        standardDeviation: 2.6,
+        percentile10: 5,
+        percentile25: 7,
+        percentile50: 9,
+        percentile75: 11,
+        percentile90: 13,
+        sampleSize: 168,
+      },
+      {
+        ageRange: '7:0 - 7:11',
+        mean: 11.5,
+        standardDeviation: 2.3,
+        percentile10: 8,
+        percentile25: 10,
+        percentile50: 12,
+        percentile75: 13,
+        percentile90: 15,
+        sampleSize: 152,
+      },
+      {
+        ageRange: '8:0 - 8:11',
+        mean: 13.1,
+        standardDeviation: 2.1,
+        percentile10: 10,
+        percentile25: 12,
+        percentile50: 13,
+        percentile75: 15,
+        percentile90: 16,
+        sampleSize: 140,
+      },
+      {
+        ageRange: '9:0 - 9:11',
+        mean: 14.3,
+        standardDeviation: 1.9,
+        percentile10: 11,
+        percentile25: 13,
+        percentile50: 14,
+        percentile75: 16,
+        percentile90: 17,
+        sampleSize: 135,
+      },
+      {
+        ageRange: '10:0 - 10:11',
+        mean: 15.2,
+        standardDeviation: 1.7,
+        percentile10: 12,
+        percentile25: 14,
+        percentile50: 15,
+        percentile75: 17,
+        percentile90: 18,
+        sampleSize: 128,
+      },
+      {
+        ageRange: '11:0 - 11:11',
+        mean: 15.8,
+        standardDeviation: 1.5,
+        percentile10: 13,
+        percentile25: 15,
+        percentile50: 16,
+        percentile75: 17,
+        percentile90: 18,
+        sampleSize: 118,
+      },
+      {
+        ageRange: '12:0 - 12:11',
+        mean: 16.2,
+        standardDeviation: 1.4,
+        percentile10: 14,
+        percentile25: 15,
+        percentile50: 16,
+        percentile75: 17,
+        percentile90: 18,
+        sampleSize: 112,
+      },
     ],
   },
   {
@@ -89,14 +163,94 @@ const NORM_TABLES: NormTable[] = [
     year: 2019,
     source: 'Koppitz Puanlama Sistemi - TR Uyarlama',
     data: [
-      { ageRange: '5:0 - 5:11', mean: 5.3, standardDeviation: 2.8, percentile10: 1, percentile25: 3, percentile50: 5, percentile75: 7, percentile90: 9, sampleSize: 95 },
-      { ageRange: '6:0 - 6:11', mean: 8.7, standardDeviation: 3.2, percentile10: 4, percentile25: 6, percentile50: 9, percentile75: 11, percentile90: 13, sampleSize: 112 },
-      { ageRange: '7:0 - 7:11', mean: 12.4, standardDeviation: 3.5, percentile10: 7, percentile25: 10, percentile50: 12, percentile75: 15, percentile90: 17, sampleSize: 128 },
-      { ageRange: '8:0 - 8:11', mean: 15.8, standardDeviation: 3.8, percentile10: 10, percentile25: 13, percentile50: 16, percentile75: 19, percentile90: 21, sampleSize: 134 },
-      { ageRange: '9:0 - 9:11', mean: 18.6, standardDeviation: 4.1, percentile10: 12, percentile25: 15, percentile50: 19, percentile75: 22, percentile90: 24, sampleSize: 118 },
-      { ageRange: '10:0 - 10:11', mean: 21.2, standardDeviation: 4.3, percentile10: 15, percentile25: 18, percentile50: 21, percentile75: 24, percentile90: 27, sampleSize: 105 },
-      { ageRange: '11:0 - 11:11', mean: 23.5, standardDeviation: 4.5, percentile10: 17, percentile25: 20, percentile50: 24, percentile75: 27, percentile90: 29, sampleSize: 98 },
-      { ageRange: '12:0 - 12:11', mean: 25.1, standardDeviation: 4.2, percentile10: 19, percentile25: 22, percentile50: 25, percentile75: 28, percentile90: 31, sampleSize: 92 },
+      {
+        ageRange: '5:0 - 5:11',
+        mean: 5.3,
+        standardDeviation: 2.8,
+        percentile10: 1,
+        percentile25: 3,
+        percentile50: 5,
+        percentile75: 7,
+        percentile90: 9,
+        sampleSize: 95,
+      },
+      {
+        ageRange: '6:0 - 6:11',
+        mean: 8.7,
+        standardDeviation: 3.2,
+        percentile10: 4,
+        percentile25: 6,
+        percentile50: 9,
+        percentile75: 11,
+        percentile90: 13,
+        sampleSize: 112,
+      },
+      {
+        ageRange: '7:0 - 7:11',
+        mean: 12.4,
+        standardDeviation: 3.5,
+        percentile10: 7,
+        percentile25: 10,
+        percentile50: 12,
+        percentile75: 15,
+        percentile90: 17,
+        sampleSize: 128,
+      },
+      {
+        ageRange: '8:0 - 8:11',
+        mean: 15.8,
+        standardDeviation: 3.8,
+        percentile10: 10,
+        percentile25: 13,
+        percentile50: 16,
+        percentile75: 19,
+        percentile90: 21,
+        sampleSize: 134,
+      },
+      {
+        ageRange: '9:0 - 9:11',
+        mean: 18.6,
+        standardDeviation: 4.1,
+        percentile10: 12,
+        percentile25: 15,
+        percentile50: 19,
+        percentile75: 22,
+        percentile90: 24,
+        sampleSize: 118,
+      },
+      {
+        ageRange: '10:0 - 10:11',
+        mean: 21.2,
+        standardDeviation: 4.3,
+        percentile10: 15,
+        percentile25: 18,
+        percentile50: 21,
+        percentile75: 24,
+        percentile90: 27,
+        sampleSize: 105,
+      },
+      {
+        ageRange: '11:0 - 11:11',
+        mean: 23.5,
+        standardDeviation: 4.5,
+        percentile10: 17,
+        percentile25: 20,
+        percentile50: 24,
+        percentile75: 27,
+        percentile90: 29,
+        sampleSize: 98,
+      },
+      {
+        ageRange: '12:0 - 12:11',
+        mean: 25.1,
+        standardDeviation: 4.2,
+        percentile10: 19,
+        percentile25: 22,
+        percentile50: 25,
+        percentile75: 28,
+        percentile90: 31,
+        sampleSize: 92,
+      },
     ],
   },
   {
@@ -108,10 +262,50 @@ const NORM_TABLES: NormTable[] = [
     year: 2021,
     source: 'HTP Türkiye Norm Çalışması',
     data: [
-      { ageRange: '5:0 - 6:11', mean: 2.1, standardDeviation: 1.4, percentile10: 0, percentile25: 1, percentile50: 2, percentile75: 3, percentile90: 4, sampleSize: 85 },
-      { ageRange: '7:0 - 8:11', mean: 1.8, standardDeviation: 1.2, percentile10: 0, percentile25: 1, percentile50: 2, percentile75: 3, percentile90: 4, sampleSize: 102 },
-      { ageRange: '9:0 - 10:11', mean: 1.5, standardDeviation: 1.1, percentile10: 0, percentile25: 1, percentile50: 1, percentile75: 2, percentile90: 3, sampleSize: 95 },
-      { ageRange: '11:0 - 12:11', mean: 1.3, standardDeviation: 1.0, percentile10: 0, percentile25: 0, percentile50: 1, percentile75: 2, percentile90: 3, sampleSize: 88 },
+      {
+        ageRange: '5:0 - 6:11',
+        mean: 2.1,
+        standardDeviation: 1.4,
+        percentile10: 0,
+        percentile25: 1,
+        percentile50: 2,
+        percentile75: 3,
+        percentile90: 4,
+        sampleSize: 85,
+      },
+      {
+        ageRange: '7:0 - 8:11',
+        mean: 1.8,
+        standardDeviation: 1.2,
+        percentile10: 0,
+        percentile25: 1,
+        percentile50: 2,
+        percentile75: 3,
+        percentile90: 4,
+        sampleSize: 102,
+      },
+      {
+        ageRange: '9:0 - 10:11',
+        mean: 1.5,
+        standardDeviation: 1.1,
+        percentile10: 0,
+        percentile25: 1,
+        percentile50: 1,
+        percentile75: 2,
+        percentile90: 3,
+        sampleSize: 95,
+      },
+      {
+        ageRange: '11:0 - 12:11',
+        mean: 1.3,
+        standardDeviation: 1.0,
+        percentile10: 0,
+        percentile25: 0,
+        percentile50: 1,
+        percentile75: 2,
+        percentile90: 3,
+        sampleSize: 88,
+      },
     ],
   },
   {
@@ -123,10 +317,50 @@ const NORM_TABLES: NormTable[] = [
     year: 2018,
     source: 'Corman Aile Çizimi - TR Uyarlama',
     data: [
-      { ageRange: '5:0 - 6:11', mean: 12.4, standardDeviation: 4.2, percentile10: 6, percentile25: 9, percentile50: 12, percentile75: 15, percentile90: 18, sampleSize: 78 },
-      { ageRange: '7:0 - 8:11', mean: 16.8, standardDeviation: 4.8, percentile10: 10, percentile25: 13, percentile50: 17, percentile75: 21, percentile90: 24, sampleSize: 92 },
-      { ageRange: '9:0 - 10:11', mean: 20.5, standardDeviation: 5.1, percentile10: 13, percentile25: 17, percentile50: 20, percentile75: 24, percentile90: 28, sampleSize: 86 },
-      { ageRange: '11:0 - 12:11', mean: 23.2, standardDeviation: 5.4, percentile10: 16, percentile25: 19, percentile50: 23, percentile75: 27, percentile90: 31, sampleSize: 81 },
+      {
+        ageRange: '5:0 - 6:11',
+        mean: 12.4,
+        standardDeviation: 4.2,
+        percentile10: 6,
+        percentile25: 9,
+        percentile50: 12,
+        percentile75: 15,
+        percentile90: 18,
+        sampleSize: 78,
+      },
+      {
+        ageRange: '7:0 - 8:11',
+        mean: 16.8,
+        standardDeviation: 4.8,
+        percentile10: 10,
+        percentile25: 13,
+        percentile50: 17,
+        percentile75: 21,
+        percentile90: 24,
+        sampleSize: 92,
+      },
+      {
+        ageRange: '9:0 - 10:11',
+        mean: 20.5,
+        standardDeviation: 5.1,
+        percentile10: 13,
+        percentile25: 17,
+        percentile50: 20,
+        percentile75: 24,
+        percentile90: 28,
+        sampleSize: 86,
+      },
+      {
+        ageRange: '11:0 - 12:11',
+        mean: 23.2,
+        standardDeviation: 5.4,
+        percentile10: 16,
+        percentile25: 19,
+        percentile50: 23,
+        percentile75: 27,
+        percentile90: 31,
+        sampleSize: 81,
+      },
     ],
   },
 ];
@@ -146,12 +380,12 @@ export function NormReferenceModal({
     if (!testType) return NORM_TABLES;
 
     const testTypeMap: Record<string, string[]> = {
-      'BenderGestalt2': ['bender-2-age'],
-      'Bender': ['bender-2-age'],
-      'DAP': ['dap-age'],
-      'HTP': ['htp-emotional'],
-      'Family': ['family-drawing'],
-      'Aile': ['family-drawing'],
+      BenderGestalt2: ['bender-2-age'],
+      Bender: ['bender-2-age'],
+      DAP: ['dap-age'],
+      HTP: ['htp-emotional'],
+      Family: ['family-drawing'],
+      Aile: ['family-drawing'],
     };
 
     const relevantIds = testTypeMap[testType] || [];
@@ -202,10 +436,7 @@ export function NormReferenceModal({
               <Text style={styles.headerSubtitle}>Yaş normları ve standart değerler</Text>
             </View>
           </View>
-          <Pressable
-            style={styles.closeButton}
-            onPress={onClose}
-          >
+          <Pressable style={styles.closeButton} onPress={onClose}>
             <X size={24} color={ProfessionalColors.text.secondary} />
           </Pressable>
         </View>
@@ -216,13 +447,12 @@ export function NormReferenceModal({
           <Text style={styles.infoText}>
             {childAge
               ? `${childAge} yaş için ilgili normlar vurgulanmıştır`
-              : 'Danışanın yaş grubuna göre uygun normu seçin'
-            }
+              : 'Danışanın yaş grubuna göre uygun normu seçin'}
           </Text>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {filteredTables.map((table) => {
+          {filteredTables.map(table => {
             const isExpanded = expandedTable === table.id;
             const matchingAge = findMatchingAgeRange(table.data);
 
@@ -238,9 +468,7 @@ export function NormReferenceModal({
                 >
                   <View style={styles.tableHeaderContent}>
                     <Text style={styles.tableName}>{table.testName}</Text>
-                    {table.subtest && (
-                      <Text style={styles.tableSubtest}>{table.subtest}</Text>
-                    )}
+                    {table.subtest && <Text style={styles.tableSubtest}>{table.subtest}</Text>}
                     <View style={styles.tableMetaRow}>
                       <Text style={styles.tableMeta}>{table.population}</Text>
                       <Text style={styles.tableMetaDot}>•</Text>
@@ -288,39 +516,49 @@ export function NormReferenceModal({
                           ]}
                           onPress={() => handleSelectNorm(point, table)}
                         >
-                          <Text style={[
-                            styles.dataCell,
-                            styles.ageCell,
-                            isMatching && styles.dataCellMatching,
-                          ]}>
+                          <Text
+                            style={[
+                              styles.dataCell,
+                              styles.ageCell,
+                              isMatching && styles.dataCellMatching,
+                            ]}
+                          >
                             {point.ageRange}
                           </Text>
-                          <Text style={[
-                            styles.dataCell,
-                            styles.statCell,
-                            isMatching && styles.dataCellMatching,
-                          ]}>
+                          <Text
+                            style={[
+                              styles.dataCell,
+                              styles.statCell,
+                              isMatching && styles.dataCellMatching,
+                            ]}
+                          >
                             {point.mean.toFixed(1)}
                           </Text>
-                          <Text style={[
-                            styles.dataCell,
-                            styles.statCell,
-                            isMatching && styles.dataCellMatching,
-                          ]}>
+                          <Text
+                            style={[
+                              styles.dataCell,
+                              styles.statCell,
+                              isMatching && styles.dataCellMatching,
+                            ]}
+                          >
                             {point.standardDeviation.toFixed(1)}
                           </Text>
-                          <Text style={[
-                            styles.dataCell,
-                            styles.statCell,
-                            isMatching && styles.dataCellMatching,
-                          ]}>
+                          <Text
+                            style={[
+                              styles.dataCell,
+                              styles.statCell,
+                              isMatching && styles.dataCellMatching,
+                            ]}
+                          >
                             {point.percentile50 ?? '-'}
                           </Text>
-                          <Text style={[
-                            styles.dataCell,
-                            styles.sampleCell,
-                            isMatching && styles.dataCellMatching,
-                          ]}>
+                          <Text
+                            style={[
+                              styles.dataCell,
+                              styles.sampleCell,
+                              isMatching && styles.dataCellMatching,
+                            ]}
+                          >
                             {point.sampleSize}
                           </Text>
                         </Pressable>
@@ -343,27 +581,40 @@ export function NormReferenceModal({
                         return (
                           <View
                             key={index}
-                            style={[
-                              styles.percentileRow,
-                              isMatching && styles.dataRowMatching,
-                            ]}
+                            style={[styles.percentileRow, isMatching && styles.dataRowMatching]}
                           >
-                            <Text style={[styles.percentileCell, styles.ageCell, isMatching && styles.dataCellMatching]}>
+                            <Text
+                              style={[
+                                styles.percentileCell,
+                                styles.ageCell,
+                                isMatching && styles.dataCellMatching,
+                              ]}
+                            >
                               {point.ageRange}
                             </Text>
-                            <Text style={[styles.percentileCell, isMatching && styles.dataCellMatching]}>
+                            <Text
+                              style={[styles.percentileCell, isMatching && styles.dataCellMatching]}
+                            >
                               {point.percentile10 ?? '-'}
                             </Text>
-                            <Text style={[styles.percentileCell, isMatching && styles.dataCellMatching]}>
+                            <Text
+                              style={[styles.percentileCell, isMatching && styles.dataCellMatching]}
+                            >
                               {point.percentile25 ?? '-'}
                             </Text>
-                            <Text style={[styles.percentileCell, isMatching && styles.dataCellMatching]}>
+                            <Text
+                              style={[styles.percentileCell, isMatching && styles.dataCellMatching]}
+                            >
                               {point.percentile50 ?? '-'}
                             </Text>
-                            <Text style={[styles.percentileCell, isMatching && styles.dataCellMatching]}>
+                            <Text
+                              style={[styles.percentileCell, isMatching && styles.dataCellMatching]}
+                            >
                               {point.percentile75 ?? '-'}
                             </Text>
-                            <Text style={[styles.percentileCell, isMatching && styles.dataCellMatching]}>
+                            <Text
+                              style={[styles.percentileCell, isMatching && styles.dataCellMatching]}
+                            >
                               {point.percentile90 ?? '-'}
                             </Text>
                           </View>

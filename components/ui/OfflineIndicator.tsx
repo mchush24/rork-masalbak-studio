@@ -7,13 +7,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -108,10 +102,7 @@ export function OfflineIndicator({
 
   // Animated styles
   const containerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: pulseScale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: pulseScale.value }],
     opacity: opacity.value,
   }));
 
@@ -174,12 +165,7 @@ export function OfflineIndicator({
       ]}
       pointerEvents="box-none"
     >
-      <View
-        style={[
-          styles.banner,
-          isReconnecting ? styles.bannerSuccess : styles.bannerOffline,
-        ]}
-      >
+      <View style={[styles.banner, isReconnecting ? styles.bannerSuccess : styles.bannerOffline]}>
         {/* Icon */}
         <Animated.View style={iconStyle}>
           {isReconnecting ? (
@@ -197,10 +183,7 @@ export function OfflineIndicator({
           {showRetry && !isReconnecting && (
             <Pressable
               onPress={handleRetry}
-              style={({ pressed }) => [
-                styles.retryButton,
-                pressed && styles.buttonPressed,
-              ]}
+              style={({ pressed }) => [styles.retryButton, pressed && styles.buttonPressed]}
               hitSlop={8}
             >
               <RefreshCw size={16} color={Colors.neutral.white} />
@@ -210,10 +193,7 @@ export function OfflineIndicator({
           {dismissible && (
             <Pressable
               onPress={handleDismiss}
-              style={({ pressed }) => [
-                styles.dismissButton,
-                pressed && styles.buttonPressed,
-              ]}
+              style={({ pressed }) => [styles.dismissButton, pressed && styles.buttonPressed]}
               hitSlop={8}
             >
               <X size={16} color={Colors.neutral.white} />
@@ -238,23 +218,13 @@ export function OfflineBadge({ showWhenOnline = false }: OfflineBadgeProps) {
   }
 
   return (
-    <View
-      style={[
-        styles.badge,
-        isOnline ? styles.badgeOnline : styles.badgeOffline,
-      ]}
-    >
+    <View style={[styles.badge, isOnline ? styles.badgeOnline : styles.badgeOffline]}>
       {isOnline ? (
         <Wifi size={12} color={Colors.secondary.grass} />
       ) : (
         <WifiOff size={12} color={Colors.semantic.error} />
       )}
-      <Text
-        style={[
-          styles.badgeText,
-          isOnline ? styles.badgeTextOnline : styles.badgeTextOffline,
-        ]}
-      >
+      <Text style={[styles.badgeText, isOnline ? styles.badgeTextOnline : styles.badgeTextOffline]}>
         {isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}
       </Text>
     </View>

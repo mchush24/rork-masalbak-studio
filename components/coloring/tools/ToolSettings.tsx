@@ -15,14 +15,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Animated,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
 import { shadows } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
@@ -35,13 +28,8 @@ export interface ToolSettingsProps {
 }
 
 export function ToolSettings({ visible, onClose }: ToolSettingsProps) {
-  const {
-    brushSettings,
-    updateBrushSettings,
-    deviceCapabilities,
-    triggerHaptic,
-    getCurrentColor,
-  } = useColoring();
+  const { brushSettings, updateBrushSettings, deviceCapabilities, triggerHaptic, getCurrentColor } =
+    useColoring();
 
   // Animation
   const [slideAnim] = useState(new Animated.Value(visible ? 0 : 300));
@@ -54,20 +42,30 @@ export function ToolSettings({ visible, onClose }: ToolSettingsProps) {
       tension: 50,
       friction: 8,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   // Handle slider changes with haptic feedback
-  const handleSizeChange = useCallback((value: number) => {
-    updateBrushSettings({ size: value });
-  }, [updateBrushSettings]);
+  const handleSizeChange = useCallback(
+    (value: number) => {
+      updateBrushSettings({ size: value });
+    },
+    [updateBrushSettings]
+  );
 
-  const handleOpacityChange = useCallback((value: number) => {
-    updateBrushSettings({ opacity: value });
-  }, [updateBrushSettings]);
+  const handleOpacityChange = useCallback(
+    (value: number) => {
+      updateBrushSettings({ opacity: value });
+    },
+    [updateBrushSettings]
+  );
 
-  const handleHardnessChange = useCallback((value: number) => {
-    updateBrushSettings({ hardness: value });
-  }, [updateBrushSettings]);
+  const handleHardnessChange = useCallback(
+    (value: number) => {
+      updateBrushSettings({ hardness: value });
+    },
+    [updateBrushSettings]
+  );
 
   // Haptic feedback on slider start
   const handleSliderStart = useCallback(() => {
@@ -80,16 +78,8 @@ export function ToolSettings({ visible, onClose }: ToolSettingsProps) {
   if (!visible) return null;
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        { transform: [{ translateX: slideAnim }] },
-      ]}
-    >
-      <LinearGradient
-        colors={[Colors.neutral.white, '#F8F9FA']}
-        style={styles.gradient}
-      >
+    <Animated.View style={[styles.container, { transform: [{ translateX: slideAnim }] }]}>
+      <LinearGradient colors={[Colors.neutral.white, '#F8F9FA']} style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>🎨 Fırça Ayarları</Text>
@@ -153,7 +143,13 @@ export function ToolSettings({ visible, onClose }: ToolSettingsProps) {
           step={0.01}
           onChange={handleHardnessChange}
           onSliderStart={handleSliderStart}
-          displayValue={brushSettings.hardness < 0.3 ? 'Yumuşak' : brushSettings.hardness > 0.7 ? 'Sert' : 'Orta'}
+          displayValue={
+            brushSettings.hardness < 0.3
+              ? 'Yumuşak'
+              : brushSettings.hardness > 0.7
+                ? 'Sert'
+                : 'Orta'
+          }
         />
 
         {/* Pressure Sensitivity Toggle (Premium only) */}
@@ -164,10 +160,7 @@ export function ToolSettings({ visible, onClose }: ToolSettingsProps) {
               <Text style={styles.labelText}>Basınç Hassasiyeti</Text>
             </View>
             <Pressable
-              style={[
-                styles.toggle,
-                brushSettings.pressureSensitivity && styles.toggleActive,
-              ]}
+              style={[styles.toggle, brushSettings.pressureSensitivity && styles.toggleActive]}
               onPress={() => {
                 updateBrushSettings({
                   pressureSensitivity: !brushSettings.pressureSensitivity,
@@ -309,10 +302,7 @@ interface PresetButtonProps {
 function PresetButton({ emoji, label, onPress }: PresetButtonProps) {
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.presetButton,
-        pressed && styles.presetButtonPressed,
-      ]}
+      style={({ pressed }) => [styles.presetButton, pressed && styles.presetButtonPressed]}
       onPress={onPress}
     >
       <Text style={styles.presetEmoji}>{emoji}</Text>

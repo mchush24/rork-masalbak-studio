@@ -8,16 +8,21 @@
  */
 
 import React, { useCallback } from 'react';
-import { Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
+import {
+  GestureResponderEvent,
+  Pressable,
+  PressableProps,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
   interpolate,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { spring, transforms, duration } from '@/constants/animations';
+import { spring, transforms } from '@/constants/animations';
 
 const AnimatedPressableComponent = Animated.createAnimatedComponent(Pressable);
 
@@ -54,11 +59,7 @@ export function AnimatedPressable({
   const pressed = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const scale = interpolate(
-      pressed.value,
-      [0, 1],
-      [1, PRESS_SCALES[pressStyle]]
-    );
+    const scale = interpolate(pressed.value, [0, 1], [1, PRESS_SCALES[pressStyle]]);
 
     return {
       transform: [{ scale }],
@@ -66,34 +67,40 @@ export function AnimatedPressable({
     };
   });
 
-  const handlePressIn = useCallback((e: any) => {
-    pressed.value = withSpring(1, spring.snappy);
+  const handlePressIn = useCallback(
+    (e: GestureResponderEvent) => {
+      pressed.value = withSpring(1, spring.snappy);
 
-    // Trigger haptic feedback
-    if (haptic !== 'none' && !disabled) {
-      switch (haptic) {
-        case 'light':
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          break;
-        case 'medium':
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          break;
-        case 'heavy':
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          break;
-        case 'selection':
-          Haptics.selectionAsync();
-          break;
+      // Trigger haptic feedback
+      if (haptic !== 'none' && !disabled) {
+        switch (haptic) {
+          case 'light':
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            break;
+          case 'medium':
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            break;
+          case 'heavy':
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            break;
+          case 'selection':
+            Haptics.selectionAsync();
+            break;
+        }
       }
-    }
 
-    onPressIn?.(e);
-  }, [haptic, disabled, onPressIn]);
+      onPressIn?.(e);
+    },
+    [haptic, disabled, onPressIn, pressed]
+  );
 
-  const handlePressOut = useCallback((e: any) => {
-    pressed.value = withSpring(0, spring.snappy);
-    onPressOut?.(e);
-  }, [onPressOut]);
+  const handlePressOut = useCallback(
+    (e: GestureResponderEvent) => {
+      pressed.value = withSpring(0, spring.snappy);
+      onPressOut?.(e);
+    },
+    [onPressOut, pressed]
+  );
 
   return (
     <AnimatedPressableComponent

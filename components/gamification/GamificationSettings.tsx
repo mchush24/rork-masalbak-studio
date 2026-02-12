@@ -11,23 +11,9 @@
  */
 
 import React, { useState, useCallback, memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
-import {
-  Star,
-  Flame,
-  Award,
-  PartyPopper,
-  Info,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react-native';
+import { Star, Flame, Award, PartyPopper, Info, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useRole, useGamification } from '@/lib/contexts/RoleContext';
 import { spacing, radius } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
@@ -44,7 +30,7 @@ interface GamificationSettingsProps {
 }
 
 interface FeatureToggleProps {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ size?: number; color?: string }>;
   label: string;
   description: string;
   value: boolean;
@@ -68,9 +54,7 @@ const FeatureToggle = memo(function FeatureToggle({
         <Icon size={20} color={disabled ? Colors.neutral.gray400 : color} />
       </View>
       <View style={styles.featureInfo}>
-        <Text style={[styles.featureLabel, disabled && styles.featureLabelDisabled]}>
-          {label}
-        </Text>
+        <Text style={[styles.featureLabel, disabled && styles.featureLabelDisabled]}>{label}</Text>
         <Text style={styles.featureDescription}>{description}</Text>
       </View>
       <Switch
@@ -99,25 +83,28 @@ export const GamificationSettings = memo(function GamificationSettings({
   const [expanded, setExpanded] = useState(false);
 
   // Only teachers can toggle gamification
-  const canToggle = role === 'teacher';
+  const _canToggle = role === 'teacher';
 
-  const handleEnabledChange = useCallback((value: boolean) => {
-    setEnabled(value);
-    if (!value) {
-      // If disabling, turn off all features
-      setShowXP(false);
-      setShowBadges(false);
-      setShowStreak(false);
-      setShowCelebrations(false);
-    }
-    onSettingsChange?.({
-      enabled: value,
-      showXP: value ? showXP : false,
-      showBadges: value ? showBadges : false,
-      showStreak: value ? showStreak : false,
-      showCelebrations: value ? showCelebrations : false,
-    });
-  }, [showXP, showBadges, showStreak, showCelebrations, onSettingsChange]);
+  const handleEnabledChange = useCallback(
+    (value: boolean) => {
+      setEnabled(value);
+      if (!value) {
+        // If disabling, turn off all features
+        setShowXP(false);
+        setShowBadges(false);
+        setShowStreak(false);
+        setShowCelebrations(false);
+      }
+      onSettingsChange?.({
+        enabled: value,
+        showXP: value ? showXP : false,
+        showBadges: value ? showBadges : false,
+        showStreak: value ? showStreak : false,
+        showCelebrations: value ? showCelebrations : false,
+      });
+    },
+    [showXP, showBadges, showStreak, showCelebrations, onSettingsChange]
+  );
 
   const handleFeatureChange = useCallback(
     (feature: 'showXP' | 'showBadges' | 'showStreak' | 'showCelebrations', value: boolean) => {
@@ -177,13 +164,14 @@ export const GamificationSettings = memo(function GamificationSettings({
   return (
     <View style={styles.container}>
       {/* Main Toggle */}
-      <Pressable
-        style={styles.mainToggle}
-        onPress={() => setExpanded(!expanded)}
-      >
+      <Pressable style={styles.mainToggle} onPress={() => setExpanded(!expanded)}>
         <View style={styles.mainToggleLeft}>
           <View style={[styles.mainIconContainer, enabled && styles.mainIconContainerActive]}>
-            <Star size={24} color={enabled ? Colors.semantic.amber : Colors.neutral.gray400} fill={enabled ? Colors.semantic.amber : 'transparent'} />
+            <Star
+              size={24}
+              color={enabled ? Colors.semantic.amber : Colors.neutral.gray400}
+              fill={enabled ? Colors.semantic.amber : 'transparent'}
+            />
           </View>
           <View style={styles.mainToggleInfo}>
             <Text style={styles.mainToggleTitle}>Oyunlaştırma</Text>
@@ -199,13 +187,12 @@ export const GamificationSettings = memo(function GamificationSettings({
             trackColor={{ false: Colors.neutral.gray200, true: '#FCD34D' }}
             thumbColor={enabled ? Colors.semantic.amber : Colors.neutral.gray100}
           />
-          {enabled && (
-            expanded ? (
+          {enabled &&
+            (expanded ? (
               <ChevronUp size={20} color={Colors.neutral.gray400} style={styles.chevron} />
             ) : (
               <ChevronDown size={20} color={Colors.neutral.gray400} style={styles.chevron} />
-            )
-          )}
+            ))}
         </View>
       </Pressable>
 
@@ -222,7 +209,7 @@ export const GamificationSettings = memo(function GamificationSettings({
             label="XP Sistemi"
             description="Öğrenciler tamamlanan görevlerden XP kazanır"
             value={showXP}
-            onChange={(v) => handleFeatureChange('showXP', v)}
+            onChange={v => handleFeatureChange('showXP', v)}
             disabled={!enabled}
             color={Colors.semantic.amber}
           />
@@ -232,7 +219,7 @@ export const GamificationSettings = memo(function GamificationSettings({
             label="Rozetler"
             description="Başarılar için rozet koleksiyonu"
             value={showBadges}
-            onChange={(v) => handleFeatureChange('showBadges', v)}
+            onChange={v => handleFeatureChange('showBadges', v)}
             disabled={!enabled}
             color={Colors.secondary.violet}
           />
@@ -242,7 +229,7 @@ export const GamificationSettings = memo(function GamificationSettings({
             label="Gün Serisi"
             description="Ardışık gün takibi"
             value={showStreak}
-            onChange={(v) => handleFeatureChange('showStreak', v)}
+            onChange={v => handleFeatureChange('showStreak', v)}
             disabled={!enabled}
             color="#EF4444"
           />
@@ -252,7 +239,7 @@ export const GamificationSettings = memo(function GamificationSettings({
             label="Kutlamalar"
             description="Başarılarda animasyonlu kutlama"
             value={showCelebrations}
-            onChange={(v) => handleFeatureChange('showCelebrations', v)}
+            onChange={v => handleFeatureChange('showCelebrations', v)}
             disabled={!enabled}
             color="#10B981"
           />
@@ -263,7 +250,8 @@ export const GamificationSettings = memo(function GamificationSettings({
       <View style={styles.helperContainer}>
         <Info size={14} color={Colors.neutral.gray400} />
         <Text style={styles.helperText}>
-          Oyunlaştırma, öğrencilerin motivasyonunu artırabilir. İhtiyacınıza göre özelleştirebilirsiniz.
+          Oyunlaştırma, öğrencilerin motivasyonunu artırabilir. İhtiyacınıza göre
+          özelleştirebilirsiniz.
         </Text>
       </View>
     </View>

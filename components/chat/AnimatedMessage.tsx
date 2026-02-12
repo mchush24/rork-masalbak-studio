@@ -17,12 +17,7 @@ interface AnimatedMessageProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function AnimatedMessage({
-  children,
-  type,
-  delay = 0,
-  style,
-}: AnimatedMessageProps) {
+export function AnimatedMessage({ children, type, delay = 0, style }: AnimatedMessageProps) {
   // Daha kısa mesafe ve hızlı animasyon = daha responsive
   const slideAnim = useRef(new Animated.Value(type === 'user' ? 20 : -20)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -52,7 +47,7 @@ export function AnimatedMessage({
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [delay, type]);
+  }, [delay, type, slideAnim, opacityAnim, scaleAnim]);
 
   return (
     <Animated.View
@@ -61,10 +56,7 @@ export function AnimatedMessage({
         style,
         {
           opacity: opacityAnim,
-          transform: [
-            { translateX: slideAnim },
-            { scale: scaleAnim },
-          ],
+          transform: [{ translateX: slideAnim }, { scale: scaleAnim }],
         },
       ]}
     >
@@ -103,6 +95,7 @@ export function MessageSendAnimation({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -149,7 +142,7 @@ export function MessageReceiveAnimation({
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [delay]);
+  }, [delay, slideAnim, opacityAnim]);
 
   return (
     <Animated.View

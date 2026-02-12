@@ -44,7 +44,7 @@ export function QuickPrompts({ prompts, onSelect, isLoading }: QuickPromptsProps
         useNativeDriver: true,
       }).start();
     }
-  }, [isLoading, prompts.length]);
+  }, [isLoading, prompts.length, fadeAnim]);
 
   if (isLoading) {
     return (
@@ -65,14 +65,17 @@ export function QuickPrompts({ prompts, onSelect, isLoading }: QuickPromptsProps
   };
 
   // Group prompts by category
-  const categorizedPrompts = prompts.reduce((acc, prompt) => {
-    const category = prompt.category || 'general';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(prompt);
-    return acc;
-  }, {} as Record<string, QuickPrompt[]>);
+  const _categorizedPrompts = prompts.reduce(
+    (acc, prompt) => {
+      const category = prompt.category || 'general';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(prompt);
+      return acc;
+    },
+    {} as Record<string, QuickPrompt[]>
+  );
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
@@ -124,7 +127,7 @@ function PromptChip({ prompt, onPress, delay = 0 }: PromptChipProps) {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [delay]);
+  }, [delay, scaleAnim, opacityAnim]);
 
   const getCategoryColor = (category?: string): [string, string] => {
     switch (category) {
@@ -157,15 +160,9 @@ function PromptChip({ prompt, onPress, delay = 0 }: PromptChipProps) {
     >
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.chip,
-          pressed && styles.chipPressed,
-        ]}
+        style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}
       >
-        <LinearGradient
-          colors={getCategoryColor(prompt.category)}
-          style={styles.chipGradient}
-        >
+        <LinearGradient colors={getCategoryColor(prompt.category)} style={styles.chipGradient}>
           {prompt.emoji && <Text style={styles.chipEmoji}>{prompt.emoji}</Text>}
           <Text style={styles.chipLabel} numberOfLines={2}>
             {prompt.label}

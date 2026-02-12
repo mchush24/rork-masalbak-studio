@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, StyleSheet, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
-import { spacing, typography, colors, textShadows } from '@/lib/design-tokens';
-import { shadows } from '@/constants/design-system';
+import { spacing, typography, shadows, textShadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
@@ -208,11 +207,11 @@ export function LoadingAnimation({
   const getGradientColors = () => {
     switch (type) {
       case 'drawing':
-        return colors.gradients.creative; // Creative colors (pink-purple)
+        return Colors.gradients.creative; // Creative colors (pink-purple)
       case 'painting':
-        return colors.gradients.scientific; // Blue-purple
+        return Colors.gradients.scientific; // Blue-purple
       case 'story':
-        return colors.gradients.accessible; // Purple-pink
+        return Colors.gradients.accessible; // Purple-pink
       case 'analysis':
         return ['#667eea', '#764ba2', '#f093fb']; // Deep purple to pink gradient
       case 'thinking':
@@ -222,7 +221,7 @@ export function LoadingAnimation({
       case 'magic':
         return ['#FFD93D', '#FF6B9D', '#C7CEEA']; // Gold to pink to lavender
       default:
-        return colors.gradients.professional;
+        return Colors.gradients.professional;
     }
   };
 
@@ -545,7 +544,7 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   message: {
-    fontSize: typography.fontSize.xl,
+    fontSize: typography.size.xl,
     fontFamily: 'Poppins_600SemiBold',
     color: 'white',
     textAlign: 'center',
@@ -582,7 +581,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressText: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'white',
     fontWeight: '600',
   },
@@ -597,15 +596,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tipLabel: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: '600',
     marginBottom: spacing.xs,
   },
   tipText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     color: 'white',
     textAlign: 'center',
-    lineHeight: typography.fontSize.base * 1.5,
+    lineHeight: typography.size.base * 1.5,
   },
 });

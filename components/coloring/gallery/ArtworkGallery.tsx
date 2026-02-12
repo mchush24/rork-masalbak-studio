@@ -8,7 +8,7 @@
  * - Filtreleme ve sıralama
  */
 
-import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import {
   View,
   Text,
@@ -98,6 +98,7 @@ const ArtworkCard = memo(function ArtworkCard({
       delay: index * 100,
       useNativeDriver: true,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLikePress = () => {
@@ -131,17 +132,8 @@ const ArtworkCard = memo(function ArtworkCard({
   };
 
   return (
-    <Animated.View
-      style={[
-        styles.cardContainer,
-        { transform: [{ scale: scaleAnim }] },
-      ]}
-    >
-      <TouchableOpacity
-        style={styles.card}
-        onPress={onPress}
-        activeOpacity={0.9}
-      >
+    <Animated.View style={[styles.cardContainer, { transform: [{ scale: scaleAnim }] }]}>
+      <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
         {/* Featured Badge */}
         {artwork.isFeatured && (
           <View style={styles.featuredBadge}>
@@ -194,16 +186,8 @@ const ArtworkCard = memo(function ArtworkCard({
           {showActions && (
             <View style={styles.actions}>
               {/* Like Button */}
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleLikePress}
-              >
-                <Animated.Text
-                  style={[
-                    styles.actionIcon,
-                    { transform: [{ scale: likeAnim }] },
-                  ]}
-                >
+              <TouchableOpacity style={styles.actionButton} onPress={handleLikePress}>
+                <Animated.Text style={[styles.actionIcon, { transform: [{ scale: likeAnim }] }]}>
                   {artwork.isLiked ? '❤️' : '🤍'}
                 </Animated.Text>
                 {artwork.likes !== undefined && artwork.likes > 0 && (
@@ -212,10 +196,7 @@ const ArtworkCard = memo(function ArtworkCard({
               </TouchableOpacity>
 
               {/* Share Button */}
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={onSharePress}
-              >
+              <TouchableOpacity style={styles.actionButton} onPress={onSharePress}>
                 <Text style={styles.actionIcon}>📤</Text>
               </TouchableOpacity>
             </View>
@@ -238,13 +219,7 @@ interface ArtworkDetailProps {
   onDelete?: () => void;
 }
 
-function ArtworkDetail({
-  artwork,
-  visible,
-  onClose,
-  onShare,
-  onDelete,
-}: ArtworkDetailProps) {
+function ArtworkDetail({ artwork, visible, onClose, onShare, onDelete }: ArtworkDetailProps) {
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -264,6 +239,7 @@ function ArtworkDetail({
         }),
       ]).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!artwork) return null;
@@ -282,12 +258,7 @@ function ArtworkDetail({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <Animated.View
           style={[
@@ -323,25 +294,19 @@ function ArtworkDetail({
               {artwork.colorsUsed && (
                 <View style={styles.modalStat}>
                   <Text style={styles.modalStatIcon}>🎨</Text>
-                  <Text style={styles.modalStatText}>
-                    {artwork.colorsUsed} renk
-                  </Text>
+                  <Text style={styles.modalStatText}>{artwork.colorsUsed} renk</Text>
                 </View>
               )}
               {artwork.timeSpent && (
                 <View style={styles.modalStat}>
                   <Text style={styles.modalStatIcon}>⏱️</Text>
-                  <Text style={styles.modalStatText}>
-                    {artwork.timeSpent} dakika
-                  </Text>
+                  <Text style={styles.modalStatText}>{artwork.timeSpent} dakika</Text>
                 </View>
               )}
               {artwork.likes !== undefined && (
                 <View style={styles.modalStat}>
                   <Text style={styles.modalStatIcon}>❤️</Text>
-                  <Text style={styles.modalStatText}>
-                    {artwork.likes} beğeni
-                  </Text>
+                  <Text style={styles.modalStatText}>{artwork.likes} beğeni</Text>
                 </View>
               )}
             </View>
@@ -417,18 +382,14 @@ export function ArtworkGallery({
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>🖼️</Text>
       <Text style={styles.emptyText}>{emptyMessage}</Text>
-      <Text style={styles.emptySubtext}>
-        Boyama tamamladığında eserler burada görünecek
-      </Text>
+      <Text style={styles.emptySubtext}>Boyama tamamladığında eserler burada görünecek</Text>
     </View>
   );
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
       <Text style={styles.headerTitle}>{title}</Text>
-      <Text style={styles.headerCount}>
-        {artworks.length} eser
-      </Text>
+      <Text style={styles.headerCount}>{artworks.length} eser</Text>
     </View>
   );
 
@@ -446,7 +407,7 @@ export function ArtworkGallery({
       <FlatList
         data={artworks}
         renderItem={renderArtwork}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         numColumns={COLUMN_COUNT}
         contentContainerStyle={styles.listContent}
         columnWrapperStyle={styles.columnWrapper}
@@ -461,10 +422,14 @@ export function ArtworkGallery({
         visible={detailVisible}
         onClose={handleCloseDetail}
         onShare={() => onSharePress?.(selectedArtwork!)}
-        onDelete={onDeletePress ? () => {
-          onDeletePress?.(selectedArtwork!);
-          handleCloseDetail();
-        } : undefined}
+        onDelete={
+          onDeletePress
+            ? () => {
+                onDeletePress?.(selectedArtwork!);
+                handleCloseDetail();
+              }
+            : undefined
+        }
       />
     </View>
   );

@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ViewStyle,
-  StyleProp,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { ChevronRight } from 'lucide-react-native';
@@ -19,7 +12,6 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
-  withDelay,
   FadeInDown,
   Easing,
 } from 'react-native-reanimated';
@@ -88,7 +80,8 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
     return () => {
       borderGlow.value = 0;
     };
-  }, [isNew, isDisabled]); // Removed borderGlow from deps to prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNew, isDisabled]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -160,112 +153,117 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
         onPressOut={handlePressOut}
         disabled={isDisabled}
       >
-      <LinearGradient
-        colors={isDisabled ? [Colors.neutral.gray100, Colors.neutral.gray200] : cardConfig.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[
-          styles.gradient,
-          {
-            padding: currentSize.padding,
-            borderRadius: currentSize.borderRadius,
-          },
-        ]}
-      >
-        {/* Glassmorphism overlay */}
-        <View style={[styles.glassOverlay, { borderRadius: currentSize.borderRadius }]} />
+        <LinearGradient
+          colors={
+            isDisabled ? [Colors.neutral.gray100, Colors.neutral.gray200] : cardConfig.gradient
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[
+            styles.gradient,
+            {
+              padding: currentSize.padding,
+              borderRadius: currentSize.borderRadius,
+            },
+          ]}
+        >
+          {/* Glassmorphism overlay */}
+          <View style={[styles.glassOverlay, { borderRadius: currentSize.borderRadius }]} />
 
-        {/* Holographic shimmer effect */}
-        {!isDisabled && (
-          <LinearGradient
-            colors={RenkooColors.holographic.shimmer}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0.5 }}
-            style={[styles.shimmer, { borderRadius: currentSize.borderRadius }]}
-          />
-        )}
+          {/* Holographic shimmer effect */}
+          {!isDisabled && (
+            <LinearGradient
+              colors={RenkooColors.holographic.shimmer}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0.5 }}
+              style={[styles.shimmer, { borderRadius: currentSize.borderRadius }]}
+            />
+          )}
 
-        {/* NEW Badge */}
-        {isNew && !comingSoon && (
-          <Animated.View
-            entering={FadeInDown.delay(entranceAnimationDelay + 200).springify()}
-            style={styles.newBadge}
-          >
-            <Text style={styles.newBadgeText}>YENİ</Text>
-          </Animated.View>
-        )}
-
-        {/* Coming Soon Badge */}
-        {comingSoon && (
-          <View style={styles.comingSoonBadge}>
-            <Text style={styles.comingSoonText}>Yakında</Text>
-          </View>
-        )}
-
-        <View style={[styles.content, isDisabled && styles.contentDisabled]}>
-          {/* Icon container */}
-          <View
-            style={[
-              styles.iconContainer,
-              {
-                width: currentSize.iconSize,
-                height: currentSize.iconSize,
-                borderRadius: currentSize.iconSize / 2.5,
-                borderColor: isDisabled ? Colors.neutral.gray300 : cardConfig.border,
-              },
-              isDisabled && styles.iconContainerDisabled,
-            ]}
-          >
-            {icon}
-          </View>
-
-          {/* Text content */}
-          <View style={styles.textContainer}>
-            <Text
-              style={[
-                styles.title,
-                { fontSize: currentSize.titleSize },
-                isDisabled && styles.titleDisabled,
-              ]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
+          {/* NEW Badge */}
+          {isNew && !comingSoon && (
+            <Animated.View
+              entering={FadeInDown.delay(entranceAnimationDelay + 200).springify()}
+              style={styles.newBadge}
             >
-              {title}
-            </Text>
-            {subtitle && (
+              <Text style={styles.newBadgeText}>YENİ</Text>
+            </Animated.View>
+          )}
+
+          {/* Coming Soon Badge */}
+          {comingSoon && (
+            <View style={styles.comingSoonBadge}>
+              <Text style={styles.comingSoonText}>Yakında</Text>
+            </View>
+          )}
+
+          <View style={[styles.content, isDisabled && styles.contentDisabled]}>
+            {/* Icon container */}
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  width: currentSize.iconSize,
+                  height: currentSize.iconSize,
+                  borderRadius: currentSize.iconSize / 2.5,
+                  borderColor: isDisabled ? Colors.neutral.gray300 : cardConfig.border,
+                },
+                isDisabled && styles.iconContainerDisabled,
+              ]}
+            >
+              {icon}
+            </View>
+
+            {/* Text content */}
+            <View style={styles.textContainer}>
               <Text
                 style={[
-                  styles.subtitle,
-                  { fontSize: currentSize.subtitleSize },
-                  isDisabled && styles.subtitleDisabled,
+                  styles.title,
+                  { fontSize: currentSize.titleSize },
+                  isDisabled && styles.titleDisabled,
                 ]}
-                numberOfLines={2}
+                numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {subtitle}
+                {title}
               </Text>
+              {subtitle && (
+                <Text
+                  style={[
+                    styles.subtitle,
+                    { fontSize: currentSize.subtitleSize },
+                    isDisabled && styles.subtitleDisabled,
+                  ]}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {subtitle}
+                </Text>
+              )}
+            </View>
+
+            {/* Arrow */}
+            {showArrow && !comingSoon && (
+              <View style={styles.arrowContainer}>
+                <ChevronRight
+                  size={20}
+                  color={isDisabled ? Colors.neutral.gray400 : RenkooColors.text.secondary}
+                />
+              </View>
             )}
           </View>
 
-          {/* Arrow */}
-          {showArrow && !comingSoon && (
-            <View style={styles.arrowContainer}>
-              <ChevronRight size={20} color={isDisabled ? Colors.neutral.gray400 : RenkooColors.text.secondary} />
-            </View>
-          )}
-        </View>
-
-        {/* Border */}
-        <View
-          style={[
-            styles.border,
-            {
-              borderRadius: currentSize.borderRadius,
-              borderColor: isDisabled ? Colors.neutral.gray300 : cardConfig.border,
-            },
-          ]}
-        />
-      </LinearGradient>
+          {/* Border */}
+          <View
+            style={[
+              styles.border,
+              {
+                borderRadius: currentSize.borderRadius,
+                borderColor: isDisabled ? Colors.neutral.gray300 : cardConfig.border,
+              },
+            ]}
+          />
+        </LinearGradient>
       </AnimatedPressable>
     </Animated.View>
   );

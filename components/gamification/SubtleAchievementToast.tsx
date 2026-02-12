@@ -12,15 +12,8 @@
  */
 
 import React, { useEffect, useRef, memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-  Dimensions,
-} from 'react-native';
-import { Check, Info, AlertCircle, X } from 'lucide-react-native';
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions } from 'react-native';
+import { Check, Info, X } from 'lucide-react-native';
 import { useIsProfessional, useGamification } from '@/lib/contexts/RoleContext';
 import { spacing, radius, zIndex } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
@@ -109,6 +102,7 @@ export const SubtleAchievementToast = memo(function SubtleAchievementToast({
         }),
       ]).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, duration, position]);
 
   const handleClose = () => {
@@ -154,11 +148,7 @@ export const SubtleAchievementToast = memo(function SubtleAchievementToast({
           {message && <Text style={styles.message}>{message}</Text>}
         </View>
 
-        <Pressable
-          onPress={handleClose}
-          style={styles.closeButton}
-          hitSlop={10}
-        >
+        <Pressable onPress={handleClose} style={styles.closeButton} hitSlop={10}>
           <X size={16} color={Colors.neutral.gray400} />
         </Pressable>
       </View>

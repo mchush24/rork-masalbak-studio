@@ -11,7 +11,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp, Dimensions } from 'react-native';
+import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,11 +22,10 @@ import Animated, {
   interpolate,
   Easing,
   cancelAnimation,
-  SharedValue,
   useAnimatedProps,
 } from 'react-native-reanimated';
 import Svg, { Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { Check, Upload, Download, Loader2 } from 'lucide-react-native';
+import { Check, Upload, Loader2 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 
@@ -69,7 +68,7 @@ export function CircularProgress({
     } else {
       animatedProgress.value = progress;
     }
-  }, [progress, animated]);
+  }, [progress, animated, animatedProgress]);
 
   const animatedProps = useAnimatedProps(() => {
     const strokeDashoffset = circumference - (animatedProgress.value / 100) * circumference;
@@ -170,17 +169,14 @@ export function LinearProgress({
     return () => {
       cancelAnimation(indeterminatePosition);
     };
-  }, [progress, animated, indeterminate]);
+  }, [progress, animated, indeterminate, animatedProgress, indeterminatePosition]);
 
   const progressStyle = useAnimatedStyle(() => {
     if (indeterminate) {
-      const translateX = interpolate(
-        indeterminatePosition.value,
-        [0, 0.5, 1],
-        [-100, 0, 100]
-      );
+      const translateX = interpolate(indeterminatePosition.value, [0, 0.5, 1], [-100, 0, 100]);
       return {
         width: '30%',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         transform: [{ translateX: `${translateX}%` as any }],
       };
     }
@@ -286,7 +282,7 @@ function StepDot({
       scale.value = withSpring(1, { damping: 15 });
       opacity.value = withTiming(isCompleted ? 1 : 0.5, { duration: 200 });
     }
-  }, [isCurrent, isCompleted]);
+  }, [isCurrent, isCompleted, scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -297,13 +293,7 @@ function StepDot({
 
   return (
     <View style={styles.stepDotContainer}>
-      <Animated.View
-        style={[
-          styles.stepDot,
-          { backgroundColor: dotColor },
-          animatedStyle,
-        ]}
-      >
+      <Animated.View style={[styles.stepDot, { backgroundColor: dotColor }, animatedStyle]}>
         {isCompleted ? (
           <Check size={14} color={Colors.neutral.white} />
         ) : (
@@ -312,10 +302,7 @@ function StepDot({
       </Animated.View>
       {label && (
         <Animated.Text
-          style={[
-            styles.stepLabel,
-            { color: isCurrent ? color : Colors.neutral.medium },
-          ]}
+          style={[styles.stepLabel, { color: isCurrent ? color : Colors.neutral.medium }]}
         >
           {label}
         </Animated.Text>
@@ -335,7 +322,7 @@ function StepConnector({ isCompleted, completedColor }: StepConnectorProps) {
 
   useEffect(() => {
     progress.value = withTiming(isCompleted ? 1 : 0, { duration: 300 });
-  }, [isCompleted]);
+  }, [isCompleted, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: `${progress.value * 100}%`,
@@ -345,11 +332,7 @@ function StepConnector({ isCompleted, completedColor }: StepConnectorProps) {
     <View style={styles.stepConnectorContainer}>
       <View style={styles.stepConnectorBackground} />
       <Animated.View
-        style={[
-          styles.stepConnectorProgress,
-          { backgroundColor: completedColor },
-          animatedStyle,
-        ]}
+        style={[styles.stepConnectorProgress, { backgroundColor: completedColor }, animatedStyle]}
       />
     </View>
   );
@@ -382,7 +365,7 @@ export function UploadProgress({
         withSpring(1, { damping: 8 })
       );
     }
-  }, [status]);
+  }, [status, iconScale]);
 
   const iconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: iconScale.value }],
@@ -412,13 +395,7 @@ export function UploadProgress({
 
   return (
     <View style={[styles.uploadContainer, style]}>
-      <Animated.View
-        style={[
-          styles.uploadIcon,
-          { backgroundColor: getStatusColor() },
-          iconStyle,
-        ]}
-      >
+      <Animated.View style={[styles.uploadIcon, { backgroundColor: getStatusColor() }, iconStyle]}>
         {getIcon()}
       </Animated.View>
       <View style={styles.uploadInfo}>
@@ -427,15 +404,9 @@ export function UploadProgress({
             {fileName}
           </Animated.Text>
         )}
-        {fileSize && (
-          <Animated.Text style={styles.uploadFileSize}>{fileSize}</Animated.Text>
-        )}
+        {fileSize && <Animated.Text style={styles.uploadFileSize}>{fileSize}</Animated.Text>}
         {status === 'uploading' && (
-          <LinearProgress
-            progress={progress}
-            height={4}
-            style={{ marginTop: 8 }}
-          />
+          <LinearProgress progress={progress} height={4} style={{ marginTop: 8 }} />
         )}
       </View>
       <Animated.Text style={[styles.uploadPercentage, { color: getStatusColor() }]}>
@@ -454,11 +425,7 @@ interface SpinnerProps {
 /**
  * Simple spinning loader
  */
-export function Spinner({
-  size = 24,
-  color = Colors.secondary.lavender,
-  style,
-}: SpinnerProps) {
+export function Spinner({ size = 24, color = Colors.secondary.lavender, style }: SpinnerProps) {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
@@ -467,7 +434,7 @@ export function Spinner({
       -1,
       false
     );
-  }, []);
+  }, [rotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
@@ -499,12 +466,7 @@ export function DotsLoader({
   return (
     <View style={[styles.dotsContainer, style]}>
       {Array.from({ length: count }).map((_, index) => (
-        <BouncingDot
-          key={index}
-          size={size}
-          color={color}
-          delay={index * 150}
-        />
+        <BouncingDot key={index} size={size} color={color} delay={index * 150} />
       ))}
     </View>
   );
@@ -531,10 +493,7 @@ function BouncingDot({ size, color, delay }: BouncingDotProps) {
         false
       );
       opacity.value = withRepeat(
-        withSequence(
-          withTiming(1, { duration: 300 }),
-          withTiming(0.4, { duration: 300 })
-        ),
+        withSequence(withTiming(1, { duration: 300 }), withTiming(0.4, { duration: 300 })),
         -1,
         false
       );
@@ -542,7 +501,7 @@ function BouncingDot({ size, color, delay }: BouncingDotProps) {
 
     const timeout = setTimeout(startAnimation, delay);
     return () => clearTimeout(timeout);
-  }, [delay, size]);
+  }, [delay, size, translateY, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -587,14 +546,11 @@ export function PulseLoader({
       false
     );
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.3, { duration: 800 }),
-        withTiming(1, { duration: 800 })
-      ),
+      withSequence(withTiming(0.3, { duration: 800 }), withTiming(1, { duration: 800 })),
       -1,
       false
     );
-  }, []);
+  }, [scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

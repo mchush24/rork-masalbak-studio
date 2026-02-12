@@ -7,13 +7,7 @@
  */
 
 import React, { useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ViewStyle,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, ViewStyle, Dimensions, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -115,7 +109,7 @@ const WebAnimatedBorder: React.FC<WebAnimatedBorderProps> = ({
         true
       );
     }
-  }, [pulsing, glowIntensity]);
+  }, [pulsing, glowIntensity, rotation, opacity]);
 
   const borderAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -127,18 +121,16 @@ const WebAnimatedBorder: React.FC<WebAnimatedBorderProps> = ({
 
   return (
     <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        { borderRadius, overflow: 'hidden' },
-        borderAnimatedStyle,
-      ]}
+      style={[StyleSheet.absoluteFill, { borderRadius, overflow: 'hidden' }, borderAnimatedStyle]}
       pointerEvents="none"
     >
       {/* Outer glow */}
       <View style={[StyleSheet.absoluteFill, { margin: -4 }]}>
         <Animated.View style={[StyleSheet.absoluteFill, gradientAnimatedStyle]}>
           <LinearGradient
-            colors={[colors[0], colors[1], ...colors.slice(2), colors[0]] as [string, string, ...string[]]}
+            colors={
+              [colors[0], colors[1], ...colors.slice(2), colors[0]] as [string, string, ...string[]]
+            }
             style={[StyleSheet.absoluteFill, { transform: [{ scale: 2 }] }]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -182,7 +174,15 @@ const NativeAnimatedBorder: React.FC<NativeAnimatedBorderProps> = ({
   pulsing,
 }) => {
   // Dynamically import Skia
-  const { Canvas, RoundedRect, vec, LinearGradient: SkiaGradient, Group } = require('@shopify/react-native-skia');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const {
+    Canvas,
+    RoundedRect,
+    vec,
+    LinearGradient: SkiaGradient,
+    Group,
+  } = require('@shopify/react-native-skia');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { useDerivedValue } = require('react-native-reanimated');
 
   const animationProgress = useSharedValue(0);
@@ -205,22 +205,16 @@ const NativeAnimatedBorder: React.FC<NativeAnimatedBorderProps> = ({
         true
       );
     }
-  }, [pulsing, glowIntensity]);
+  }, [pulsing, glowIntensity, animationProgress, pulseOpacity]);
 
   const gradientStart = useDerivedValue(() => {
     const angle = animationProgress.value * Math.PI * 2;
-    return vec(
-      width / 2 + Math.cos(angle) * width,
-      height / 2 + Math.sin(angle) * height
-    );
+    return vec(width / 2 + Math.cos(angle) * width, height / 2 + Math.sin(angle) * height);
   });
 
   const gradientEnd = useDerivedValue(() => {
     const angle = animationProgress.value * Math.PI * 2 + Math.PI;
-    return vec(
-      width / 2 + Math.cos(angle) * width,
-      height / 2 + Math.sin(angle) * height
-    );
+    return vec(width / 2 + Math.cos(angle) * width, height / 2 + Math.sin(angle) * height);
   });
 
   const opacity = useDerivedValue(() => pulseOpacity.value);
@@ -237,11 +231,7 @@ const NativeAnimatedBorder: React.FC<NativeAnimatedBorderProps> = ({
           style="stroke"
           strokeWidth={8}
         >
-          <SkiaGradient
-            start={gradientStart}
-            end={gradientEnd}
-            colors={[...colors, colors[0]]}
-          />
+          <SkiaGradient start={gradientStart} end={gradientEnd} colors={[...colors, colors[0]]} />
         </RoundedRect>
         <RoundedRect
           x={0}
@@ -252,11 +242,7 @@ const NativeAnimatedBorder: React.FC<NativeAnimatedBorderProps> = ({
           style="stroke"
           strokeWidth={2}
         >
-          <SkiaGradient
-            start={gradientStart}
-            end={gradientEnd}
-            colors={[...colors, colors[0]]}
-          />
+          <SkiaGradient start={gradientStart} end={gradientEnd} colors={[...colors, colors[0]]} />
         </RoundedRect>
       </Group>
     </Canvas>
@@ -275,7 +261,6 @@ export const HolographicCard: React.FC<HolographicCardProps> = ({
   blurIntensity = 50,
   borderRadius = 32,
   style,
-  onPress,
 }) => {
   const colors = variantColors[variant];
   const breathScale = useSharedValue(1);
@@ -291,7 +276,7 @@ export const HolographicCard: React.FC<HolographicCardProps> = ({
         true
       );
     }
-  }, [breathing]);
+  }, [breathing, breathScale]);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: breathScale.value }],
@@ -301,13 +286,8 @@ export const HolographicCard: React.FC<HolographicCardProps> = ({
 
   return (
     <Animated.View
-      style={[
-        styles.container,
-        { borderRadius },
-        animatedContainerStyle,
-        style,
-      ]}
-      onLayout={(e) => {
+      style={[styles.container, { borderRadius }, animatedContainerStyle, style]}
+      onLayout={e => {
         const { width, height } = e.nativeEvent.layout;
         setLayout({ width, height });
       }}
@@ -359,11 +339,7 @@ export const HolographicCard: React.FC<HolographicCardProps> = ({
         ) : (
           <View style={[styles.androidGlass, { borderRadius: borderRadius - 2 }]}>
             <LinearGradient
-              colors={[
-                'rgba(30, 34, 53, 0.85)',
-                'rgba(30, 34, 53, 0.75)',
-                'rgba(30, 34, 53, 0.8)',
-              ]}
+              colors={['rgba(30, 34, 53, 0.85)', 'rgba(30, 34, 53, 0.75)', 'rgba(30, 34, 53, 0.8)']}
               locations={[0, 0.5, 1]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}

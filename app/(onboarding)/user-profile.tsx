@@ -33,6 +33,7 @@ import {
   Sparkles,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 import { assistantEngine, UserType } from '@/lib/coaching';
@@ -139,6 +140,7 @@ const PRIORITY_NEEDS = [
 ];
 
 export default function UserProfileScreen() {
+  const { colors, isDark } = useTheme();
   const router = useRouter();
   const { tapMedium, selection, success } = useHapticFeedback();
   const [step, setStep] = useState(1);
@@ -225,8 +227,10 @@ export default function UserProfileScreen() {
       case 1:
         return (
           <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Kullanım Amacı</Text>
-            <Text style={styles.stepDescription}>{"Renkioo'yu nasıl kullanacaksınız?"}</Text>
+            <Text style={[styles.stepTitle, { color: colors.text.primary }]}>Kullanım Amacı</Text>
+            <Text style={[styles.stepDescription, { color: colors.text.secondary }]}>
+              {"Renkioo'yu nasıl kullanacaksınız?"}
+            </Text>
 
             <View style={styles.optionsContainer}>
               {USAGE_OPTIONS.map(option => (
@@ -239,15 +243,33 @@ export default function UserProfileScreen() {
                     pressed && { opacity: 0.9 },
                   ]}
                 >
-                  <LinearGradient colors={option.gradient} style={styles.optionGradient}>
-                    <View style={styles.optionIcon}>{option.icon}</View>
+                  <LinearGradient
+                    colors={
+                      isDark
+                        ? ([colors.surface.card, colors.surface.elevated] as [string, string])
+                        : option.gradient
+                    }
+                    style={styles.optionGradient}
+                  >
+                    <View
+                      style={[
+                        styles.optionIcon,
+                        isDark && { backgroundColor: colors.surface.elevated },
+                      ]}
+                    >
+                      {option.icon}
+                    </View>
                     <View style={styles.optionText}>
-                      <Text style={styles.optionTitle}>{option.title}</Text>
-                      <Text style={styles.optionDescription}>{option.description}</Text>
+                      <Text style={[styles.optionTitle, { color: colors.text.primary }]}>
+                        {option.title}
+                      </Text>
+                      <Text style={[styles.optionDescription, { color: colors.text.secondary }]}>
+                        {option.description}
+                      </Text>
                     </View>
                     {profile.usagePurpose === option.id && (
                       <View style={styles.checkMark}>
-                        <Check size={20} color={Colors.neutral.white} />
+                        <Check size={20} color="#FFFFFF" />
                       </View>
                     )}
                   </LinearGradient>
@@ -265,8 +287,10 @@ export default function UserProfileScreen() {
               exiting={SlideOutLeft}
               style={styles.stepContent}
             >
-              <Text style={styles.stepTitle}>Aile Yapısı</Text>
-              <Text style={styles.stepDescription}>Kaç çocuğunuz var?</Text>
+              <Text style={[styles.stepTitle, { color: colors.text.primary }]}>Aile Yapısı</Text>
+              <Text style={[styles.stepDescription, { color: colors.text.secondary }]}>
+                Kaç çocuğunuz var?
+              </Text>
 
               <View style={styles.childrenSelector}>
                 {[1, 2, 3, 4].map(count => (
@@ -278,12 +302,14 @@ export default function UserProfileScreen() {
                     }}
                     style={[
                       styles.countButton,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                       profile.childrenCount === count && styles.countButtonSelected,
                     ]}
                   >
                     <Text
                       style={[
                         styles.countText,
+                        { color: colors.text.primary },
                         profile.childrenCount === count && styles.countTextSelected,
                       ]}
                     >
@@ -293,9 +319,14 @@ export default function UserProfileScreen() {
                 ))}
               </View>
 
-              <View style={styles.infoBox}>
-                <Baby size={20} color={Colors.secondary.lavender} />
-                <Text style={styles.infoText}>
+              <View
+                style={[
+                  styles.infoBox,
+                  isDark && { backgroundColor: colors.secondary.lavender + '1F' },
+                ]}
+              >
+                <Baby size={20} color={colors.secondary.lavender} />
+                <Text style={[styles.infoText, { color: colors.text.secondary }]}>
                   Her çocuk için ayrı profil oluşturarak analizleri düzenli tutabilirsiniz.
                 </Text>
               </View>
@@ -305,8 +336,10 @@ export default function UserProfileScreen() {
 
         return (
           <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Deneyim Seviyesi</Text>
-            <Text style={styles.stepDescription}>Çocuk psikolojisi alanındaki deneyiminiz?</Text>
+            <Text style={[styles.stepTitle, { color: colors.text.primary }]}>Deneyim Seviyesi</Text>
+            <Text style={[styles.stepDescription, { color: colors.text.secondary }]}>
+              Çocuk psikolojisi alanındaki deneyiminiz?
+            </Text>
 
             <View style={styles.experienceOptions}>
               {EXPERIENCE_OPTIONS.map(option => (
@@ -315,19 +348,21 @@ export default function UserProfileScreen() {
                   onPress={() => handleSelectExperience(option.id)}
                   style={[
                     styles.experienceOption,
+                    { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                     profile.experienceLevel === option.id && styles.experienceOptionSelected,
                   ]}
                 >
                   <Text
                     style={[
                       styles.experienceText,
+                      { color: colors.text.primary },
                       profile.experienceLevel === option.id && styles.experienceTextSelected,
                     ]}
                   >
                     {option.label}
                   </Text>
                   {profile.experienceLevel === option.id && (
-                    <Check size={20} color={Colors.secondary.lavender} />
+                    <Check size={20} color={colors.secondary.lavender} />
                   )}
                 </Pressable>
               ))}
@@ -338,8 +373,10 @@ export default function UserProfileScreen() {
       case 3:
         return (
           <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Öncelikli İhtiyaçlar</Text>
-            <Text style={styles.stepDescription}>
+            <Text style={[styles.stepTitle, { color: colors.text.primary }]}>
+              Öncelikli İhtiyaçlar
+            </Text>
+            <Text style={[styles.stepDescription, { color: colors.text.secondary }]}>
               En çok hangi konularda destek istiyorsunuz? (Maks. 3)
             </Text>
 
@@ -354,17 +391,24 @@ export default function UserProfileScreen() {
                     onPress={() => !isDisabled && handleToggleNeed(need.id)}
                     style={[
                       styles.needCard,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                       isSelected && styles.needCardSelected,
                       isDisabled && styles.needCardDisabled,
                     ]}
                   >
                     {need.icon}
-                    <Text style={[styles.needText, isSelected && styles.needTextSelected]}>
+                    <Text
+                      style={[
+                        styles.needText,
+                        { color: colors.text.primary },
+                        isSelected && styles.needTextSelected,
+                      ]}
+                    >
                       {need.label}
                     </Text>
                     {isSelected && (
                       <View style={styles.needCheck}>
-                        <Check size={14} color={Colors.neutral.white} />
+                        <Check size={14} color="#FFFFFF" />
                       </View>
                     )}
                   </Pressable>
@@ -377,14 +421,18 @@ export default function UserProfileScreen() {
       case 4:
         return (
           <Animated.View entering={SlideInRight} exiting={SlideOutLeft} style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Tercihler</Text>
-            <Text style={styles.stepDescription}>Uygulama deneyiminizi özelleştirin</Text>
+            <Text style={[styles.stepTitle, { color: colors.text.primary }]}>Tercihler</Text>
+            <Text style={[styles.stepDescription, { color: colors.text.secondary }]}>
+              Uygulama deneyiminizi özelleştirin
+            </Text>
 
             {/* Notifications */}
             <View style={styles.preferenceSection}>
               <View style={styles.preferenceLabelRow}>
                 <Bell size={18} color={Colors.secondary.sunshine} />
-                <Text style={styles.preferenceLabel}>Bildirimler</Text>
+                <Text style={[styles.preferenceLabel, { color: colors.text.primary }]}>
+                  Bildirimler
+                </Text>
               </View>
               <View style={styles.notificationOptions}>
                 {(['daily', 'weekly', 'off'] as NotificationFrequency[]).map(freq => (
@@ -396,12 +444,14 @@ export default function UserProfileScreen() {
                     }}
                     style={[
                       styles.notificationOption,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                       profile.notificationFrequency === freq && styles.notificationOptionSelected,
                     ]}
                   >
                     <Text
                       style={[
                         styles.notificationText,
+                        { color: colors.text.primary },
                         profile.notificationFrequency === freq && styles.notificationTextSelected,
                       ]}
                     >
@@ -416,7 +466,7 @@ export default function UserProfileScreen() {
             <View style={styles.preferenceSection}>
               <View style={styles.preferenceLabelRow}>
                 <Sun size={18} color={Colors.secondary.sky} />
-                <Text style={styles.preferenceLabel}>Tema</Text>
+                <Text style={[styles.preferenceLabel, { color: colors.text.primary }]}>Tema</Text>
               </View>
               <View style={styles.themeOptions}>
                 {(['light', 'dark', 'system'] as Theme[]).map(theme => (
@@ -428,31 +478,26 @@ export default function UserProfileScreen() {
                     }}
                     style={[
                       styles.themeOption,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                       profile.theme === theme && styles.themeOptionSelected,
                     ]}
                   >
                     {theme === 'light' && (
                       <Sun
                         size={16}
-                        color={
-                          profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium
-                        }
+                        color={profile.theme === theme ? '#FFFFFF' : colors.text.tertiary}
                       />
                     )}
                     {theme === 'dark' && (
                       <Moon
                         size={16}
-                        color={
-                          profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium
-                        }
+                        color={profile.theme === theme ? '#FFFFFF' : colors.text.tertiary}
                       />
                     )}
                     {theme === 'system' && (
                       <Lightbulb
                         size={16}
-                        color={
-                          profile.theme === theme ? Colors.neutral.white : Colors.neutral.medium
-                        }
+                        color={profile.theme === theme ? '#FFFFFF' : colors.text.tertiary}
                       />
                     )}
                     <Text
@@ -469,9 +514,14 @@ export default function UserProfileScreen() {
             </View>
 
             {/* Info about personalization */}
-            <View style={styles.personalizationInfo}>
-              <Sparkles size={20} color={Colors.secondary.lavender} />
-              <Text style={styles.personalizationText}>
+            <View
+              style={[
+                styles.personalizationInfo,
+                isDark && { backgroundColor: colors.secondary.lavender + '1F' },
+              ]}
+            >
+              <Sparkles size={20} color={colors.secondary.lavender} />
+              <Text style={[styles.personalizationText, { color: colors.text.secondary }]}>
                 {profile.usagePurpose === 'parent'
                   ? 'Ebeveyn modunda sıcak ve destekleyici bir deneyim sunulacak.'
                   : profile.usagePurpose === 'professional'
@@ -488,7 +538,10 @@ export default function UserProfileScreen() {
   };
 
   return (
-    <LinearGradient colors={['#FFF8F0', '#F5E8FF', '#FFE8F5']} style={styles.container}>
+    <LinearGradient
+      colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
+      style={styles.container}
+    >
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
@@ -497,7 +550,7 @@ export default function UserProfileScreen() {
             style={[styles.backButton, step === 1 && { opacity: 0 }]}
             disabled={step === 1}
           >
-            <ChevronLeft size={24} color={Colors.neutral.medium} />
+            <ChevronLeft size={24} color={colors.text.tertiary} />
           </Pressable>
 
           {/* Progress */}
@@ -507,7 +560,11 @@ export default function UserProfileScreen() {
                 key={i}
                 style={[
                   styles.progressDot,
-                  i < step && styles.progressDotCompleted,
+                  { backgroundColor: colors.border.light },
+                  i < step && [
+                    styles.progressDotCompleted,
+                    { backgroundColor: colors.secondary.lavender },
+                  ],
                   i === step - 1 && styles.progressDotActive,
                 ]}
               />
@@ -515,7 +572,7 @@ export default function UserProfileScreen() {
           </View>
 
           <Pressable onPress={handleSkip} style={styles.skipButton}>
-            <Text style={styles.skipText}>Atla</Text>
+            <Text style={[styles.skipText, { color: colors.text.tertiary }]}>Atla</Text>
           </Pressable>
         </View>
 
@@ -539,13 +596,16 @@ export default function UserProfileScreen() {
               pressed && canProceed() && styles.buttonPressed,
             ]}
           >
-            <Text style={[styles.nextButtonText, !canProceed() && styles.nextButtonTextDisabled]}>
+            <Text
+              style={[
+                styles.nextButtonText,
+                { color: '#FFFFFF' },
+                !canProceed() && styles.nextButtonTextDisabled,
+              ]}
+            >
               {step === totalSteps ? 'Tamamla' : 'Devam'}
             </Text>
-            <ChevronRight
-              size={20}
-              color={canProceed() ? Colors.neutral.white : Colors.neutral.light}
-            />
+            <ChevronRight size={20} color={canProceed() ? '#FFFFFF' : colors.text.tertiary} />
           </Pressable>
         </View>
       </SafeAreaView>

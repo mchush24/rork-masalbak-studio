@@ -35,6 +35,7 @@ import { useRouter } from 'expo-router';
 
 import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { spacing, radius } from '@/constants/design-system';
 import { IooEmptyState } from '@/components/IooEmptyState';
 import {
@@ -153,21 +154,22 @@ const SectionHeader = memo(function SectionHeader({
   iconColor?: string;
   onSeeAll?: () => void;
 }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionTitleRow}>
         <View style={[styles.sectionIconContainer, { backgroundColor: `${iconColor}15` }]}>
           <Icon size={16} color={iconColor} />
         </View>
-        <Text style={styles.sectionTitle}>{title}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>{title}</Text>
       </View>
       {onSeeAll && (
         <Pressable
           onPress={onSeeAll}
           style={({ pressed }) => [styles.seeAllButton, pressed && { opacity: 0.7 }]}
         >
-          <Text style={styles.seeAllText}>Tümü</Text>
-          <ChevronRight size={14} color={Colors.secondary.violet} />
+          <Text style={[styles.seeAllText, { color: colors.secondary.violet }]}>Tümü</Text>
+          <ChevronRight size={14} color={colors.secondary.violet} />
         </Pressable>
       )}
     </View>
@@ -191,6 +193,7 @@ const DiscoverEmptyState = memo(function DiscoverEmptyState({
 
 export default function DiscoverScreen() {
   const _router = useRouter();
+  const { colors } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch discover feed data
@@ -199,12 +202,11 @@ export default function DiscoverScreen() {
     isLoading,
     refetch,
     error: _error,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = trpc.socialFeed.getDiscoverFeed.useQuery({}) as {
-    data: any;
+    data: unknown;
     isLoading: boolean;
     refetch: () => void;
-    error: any;
+    error: unknown;
   };
 
   // Like mutations
@@ -264,12 +266,15 @@ export default function DiscoverScreen() {
 
   if (isLoading && !feedData) {
     return (
-      <LinearGradient colors={Colors.background.pageGradient} style={styles.container}>
+      <LinearGradient
+        colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
+        style={styles.container}
+      >
         <SafeAreaView style={styles.safeArea} edges={['top']}>
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: colors.border.light + '20' }]}>
             <View style={styles.headerTitle}>
-              <Compass size={24} color={Colors.secondary.violet} />
-              <Text style={styles.headerText}>Keşfet</Text>
+              <Compass size={24} color={colors.secondary.violet} />
+              <Text style={[styles.headerText, { color: colors.text.primary }]}>Keşfet</Text>
             </View>
           </View>
           <SocialFeedSkeleton />
@@ -279,16 +284,22 @@ export default function DiscoverScreen() {
   }
 
   return (
-    <LinearGradient colors={Colors.background.pageGradient} style={styles.container}>
+    <LinearGradient
+      colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
+      style={styles.container}
+    >
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
-        <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
+        <Animated.View
+          entering={FadeIn.duration(400)}
+          style={[styles.header, { borderBottomColor: colors.border.light + '20' }]}
+        >
           <View style={styles.headerTitle}>
-            <Compass size={24} color={Colors.secondary.violet} />
-            <Text style={styles.headerText}>Keşfet</Text>
+            <Compass size={24} color={colors.secondary.violet} />
+            <Text style={[styles.headerText, { color: colors.text.primary }]}>Keşfet</Text>
           </View>
           <Pressable
-            style={styles.filterButton}
+            style={[styles.filterButton, { backgroundColor: colors.neutral.lighter + '30' }]}
             onPress={() => {
               if (Platform.OS !== 'web') {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -300,7 +311,7 @@ export default function DiscoverScreen() {
               }
             }}
           >
-            <Filter size={20} color="#6B7280" />
+            <Filter size={20} color={colors.text.secondary} />
           </Pressable>
         </Animated.View>
 
@@ -312,8 +323,8 @@ export default function DiscoverScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={Colors.secondary.violet}
-              colors={[Colors.secondary.violet]}
+              tintColor={colors.secondary.violet}
+              colors={[colors.secondary.violet]}
             />
           }
         >
@@ -322,9 +333,16 @@ export default function DiscoverScreen() {
             {feedData?.dailyTip ? (
               <ExpertTipCard tip={feedData.dailyTip} featured />
             ) : (
-              <View style={styles.tipPlaceholder}>
-                <Sparkles size={24} color="#FFA726" />
-                <Text style={styles.tipPlaceholderText}>Günün ilhamı yükleniyor...</Text>
+              <View
+                style={[
+                  styles.tipPlaceholder,
+                  { backgroundColor: colors.secondary.sunshine + '1A' },
+                ]}
+              >
+                <Sparkles size={24} color={colors.secondary.sunshine} />
+                <Text style={[styles.tipPlaceholderText, { color: colors.secondary.sunshine }]}>
+                  Günün ilhamı yükleniyor...
+                </Text>
               </View>
             )}
           </Animated.View>
@@ -376,8 +394,15 @@ export default function DiscoverScreen() {
               return (
                 <>
                   {isShowcase && (
-                    <View style={styles.showcaseBadge}>
-                      <Text style={styles.showcaseBadgeText}>Örnek İçerik</Text>
+                    <View
+                      style={[
+                        styles.showcaseBadge,
+                        { backgroundColor: colors.secondary.violet + '1A' },
+                      ]}
+                    >
+                      <Text style={[styles.showcaseBadgeText, { color: colors.secondary.violet }]}>
+                        Örnek İçerik
+                      </Text>
                     </View>
                   )}
                   <View style={styles.galleryGrid}>
@@ -422,8 +447,15 @@ export default function DiscoverScreen() {
               return (
                 <>
                   {isShowcase && (
-                    <View style={styles.showcaseBadge}>
-                      <Text style={styles.showcaseBadgeText}>Örnek İçerik</Text>
+                    <View
+                      style={[
+                        styles.showcaseBadge,
+                        { backgroundColor: colors.secondary.violet + '1A' },
+                      ]}
+                    >
+                      <Text style={[styles.showcaseBadgeText, { color: colors.secondary.violet }]}>
+                        Örnek İçerik
+                      </Text>
                     </View>
                   )}
                   <View style={styles.storiesContainer}>

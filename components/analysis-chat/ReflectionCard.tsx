@@ -5,13 +5,7 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ChevronRight, Sparkles } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -44,6 +38,7 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
         useNativeDriver: true,
       }),
     ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const currentPrompt = prompts[currentIndex];
@@ -92,10 +87,7 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
         },
       ]}
     >
-      <LinearGradient
-        colors={['#F5F3FF', '#EDE9FE']}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={['#F5F3FF', '#EDE9FE']} style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -104,10 +96,7 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
           </View>
           <Pressable
             onPress={handleDismiss}
-            style={({ pressed }) => [
-              styles.closeButton,
-              pressed && styles.closeButtonPressed,
-            ]}
+            style={({ pressed }) => [styles.closeButton, pressed && styles.closeButtonPressed]}
           >
             <X size={18} color={Colors.neutral.medium} />
           </Pressable>
@@ -121,19 +110,14 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
 
         {/* Category Tag */}
         <View style={styles.categoryTag}>
-          <Text style={styles.categoryText}>
-            {getCategoryLabel(currentPrompt.category)}
-          </Text>
+          <Text style={styles.categoryText}>{getCategoryLabel(currentPrompt.category)}</Text>
         </View>
 
         {/* Actions */}
         <View style={styles.actions}>
           <Pressable
             onPress={handleSelect}
-            style={({ pressed }) => [
-              styles.answerButton,
-              pressed && styles.answerButtonPressed,
-            ]}
+            style={({ pressed }) => [styles.answerButton, pressed && styles.answerButtonPressed]}
           >
             <LinearGradient
               colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
@@ -145,10 +129,7 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
 
           <Pressable
             onPress={handleNext}
-            style={({ pressed }) => [
-              styles.nextButton,
-              pressed && styles.nextButtonPressed,
-            ]}
+            style={({ pressed }) => [styles.nextButton, pressed && styles.nextButtonPressed]}
           >
             <Text style={styles.nextButtonText}>Diğer Soru</Text>
             <ChevronRight size={16} color={Colors.neutral.medium} />
@@ -158,13 +139,7 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
         {/* Progress Dots */}
         <View style={styles.progressDots}>
           {prompts.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                index === currentIndex && styles.dotActive,
-              ]}
-            />
+            <View key={index} style={[styles.dot, index === currentIndex && styles.dotActive]} />
           ))}
         </View>
       </LinearGradient>

@@ -8,11 +8,15 @@ import { View, ActivityIndicator } from 'react-native';
 // Lazy load - Skia sadece gerektiğinde yüklenir
 const ColoringCanvasSkia = lazy(() =>
   import('./ColoringCanvasSkia').then(module => ({
-    default: module.ColoringCanvasSkia
+    default: module.ColoringCanvasSkia,
   }))
 );
 
-export function ColoringCanvasSkiaLazy(props: any) {
+export function ColoringCanvasSkiaLazy(props: {
+  backgroundImage: string;
+  onSave?: (imageData: string) => void;
+  onClose?: () => void;
+}) {
   return (
     <Suspense
       fallback={

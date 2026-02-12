@@ -10,14 +10,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  Pressable,
-  ViewStyle,
-  StyleProp,
-} from 'react-native';
+import { View, StyleSheet, Dimensions, Pressable, ViewStyle, StyleProp } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -39,7 +32,7 @@ import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows, zIndex } from '@/constants/design-system';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface ScreenTransitionProps {
   children: React.ReactNode;
@@ -74,7 +67,7 @@ export function ScreenTransition({
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [delay, type]);
+  }, [delay, type, opacity, translateX, translateY, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -86,9 +79,7 @@ export function ScreenTransition({
   }));
 
   return (
-    <Animated.View style={[styles.screenContainer, animatedStyle, style]}>
-      {children}
-    </Animated.View>
+    <Animated.View style={[styles.screenContainer, animatedStyle, style]}>{children}</Animated.View>
   );
 }
 
@@ -102,15 +93,10 @@ interface TabIconAnimatedProps {
 /**
  * Animated tab bar icon with scale and color transitions
  */
-export function TabIconAnimated({
-  children,
-  isActive,
-  onPress,
-  style,
-}: TabIconAnimatedProps) {
+export function TabIconAnimated({ children, isActive, onPress, style }: TabIconAnimatedProps) {
   const scale = useSharedValue(1);
   const activeProgress = useSharedValue(isActive ? 1 : 0);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapLight, error: _hapticError } = useHaptics();
 
   useEffect(() => {
     activeProgress.value = withSpring(isActive ? 1 : 0, {
@@ -124,7 +110,7 @@ export function TabIconAnimated({
         withSpring(1, { damping: 10 })
       ) as number;
     }
-  }, [isActive]);
+  }, [isActive, activeProgress, scale]);
 
   const handlePress = () => {
     tapLight();
@@ -139,10 +125,7 @@ export function TabIconAnimated({
     const translateY = interpolate(activeProgress.value, [0, 1], [0, -2]);
 
     return {
-      transform: [
-        { scale: scale.value },
-        { translateY },
-      ],
+      transform: [{ scale: scale.value }, { translateY }],
     };
   });
 
@@ -153,18 +136,14 @@ export function TabIconAnimated({
 
   return (
     <Pressable onPress={handlePress} style={[styles.tabIconContainer, style]}>
-      <Animated.View style={[styles.tabIconWrapper, animatedStyle]}>
-        {children}
-      </Animated.View>
+      <Animated.View style={[styles.tabIconWrapper, animatedStyle]}>{children}</Animated.View>
       <Animated.View style={[styles.tabIndicator, indicatorStyle]} />
     </Pressable>
   );
 }
 
 // Helper for sequence
-const withSequence = (
-  ...animations: ReturnType<typeof withTiming | typeof withSpring>[]
-) => {
+const withSequence = (...animations: ReturnType<typeof withTiming | typeof withSpring>[]) => {
   'worklet';
   return animations.reduce((acc, animation, index) => {
     if (index === 0) return animation;
@@ -181,11 +160,7 @@ interface TabBarAnimatedProps {
 /**
  * Animated tab bar with slide animation
  */
-export function TabBarAnimated({
-  children,
-  visible = true,
-  style,
-}: TabBarAnimatedProps) {
+export function TabBarAnimated({ children, visible = true, style }: TabBarAnimatedProps) {
   const translateY = useSharedValue(visible ? 0 : 100);
   const opacity = useSharedValue(visible ? 1 : 0);
 
@@ -195,18 +170,14 @@ export function TabBarAnimated({
       stiffness: 100,
     });
     opacity.value = withTiming(visible ? 1 : 0, { duration: 200 });
-  }, [visible]);
+  }, [visible, translateY, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
     opacity: opacity.value,
   }));
 
-  return (
-    <Animated.View style={[styles.tabBar, animatedStyle, style]}>
-      {children}
-    </Animated.View>
-  );
+  return <Animated.View style={[styles.tabBar, animatedStyle, style]}>{children}</Animated.View>;
 }
 
 interface ModalTransitionProps {
@@ -259,7 +230,7 @@ export function ModalTransition({
         contentOpacity.value = withTiming(0, { duration: 150 });
       }
     }
-  }, [visible, type]);
+  }, [visible, type, backdropOpacity, contentTranslateY, contentScale, contentOpacity]);
 
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: backdropOpacity.value,
@@ -288,9 +259,7 @@ export function ModalTransition({
       <Animated.View style={[styles.modalBackdrop, backdropStyle]}>
         <Pressable style={styles.modalBackdropPressable} onPress={onClose} />
       </Animated.View>
-      <Animated.View style={[styles.modalContent, contentStyle, style]}>
-        {children}
-      </Animated.View>
+      <Animated.View style={[styles.modalContent, contentStyle, style]}>{children}</Animated.View>
     </View>
   );
 }
@@ -307,12 +276,7 @@ interface SharedElementProps {
  * Note: This is a simplified version. For full shared element transitions,
  * consider using react-native-shared-element or expo-router's native support.
  */
-export function SharedElement({
-  children,
-  id,
-  isSource = true,
-  style,
-}: SharedElementProps) {
+export function SharedElement({ children, id, isSource = true, style }: SharedElementProps) {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
 
@@ -325,7 +289,7 @@ export function SharedElement({
       scale.value = withSpring(1, { damping: 15 });
       opacity.value = withTiming(1, { duration: 300 });
     }
-  }, [isSource]);
+  }, [isSource, scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -365,7 +329,7 @@ function PageDot({ isActive }: { isActive: boolean }) {
   useEffect(() => {
     width.value = withSpring(isActive ? 24 : 8, { damping: 15 });
     opacity.value = withTiming(isActive ? 1 : 0.4, { duration: 200 });
-  }, [isActive]);
+  }, [isActive, width, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: width.value,
@@ -373,13 +337,7 @@ function PageDot({ isActive }: { isActive: boolean }) {
   }));
 
   return (
-    <Animated.View
-      style={[
-        styles.pageDot,
-        isActive && styles.pageDotActive,
-        animatedStyle,
-      ]}
-    />
+    <Animated.View style={[styles.pageDot, isActive && styles.pageDotActive, animatedStyle]} />
   );
 }
 
@@ -411,14 +369,14 @@ export function SwipeableScreen({
   return (
     <Animated.View
       style={[styles.swipeableContainer, animatedStyle, style]}
-      onTouchStart={(e) => {
+      onTouchStart={e => {
         startX.current = e.nativeEvent.pageX;
       }}
-      onTouchMove={(e) => {
+      onTouchMove={e => {
         const diff = e.nativeEvent.pageX - startX.current;
         translateX.value = diff * 0.3; // Dampened movement
       }}
-      onTouchEnd={(e) => {
+      onTouchEnd={e => {
         const diff = e.nativeEvent.pageX - startX.current;
 
         if (diff > threshold && onSwipeRight) {
@@ -475,9 +433,7 @@ export function HeaderAnimated({
   });
 
   return (
-    <Animated.View style={[styles.headerAnimated, animatedStyle, style]}>
-      {children}
-    </Animated.View>
+    <Animated.View style={[styles.headerAnimated, animatedStyle, style]}>{children}</Animated.View>
   );
 }
 

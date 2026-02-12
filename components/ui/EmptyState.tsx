@@ -15,15 +15,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-  Dimensions,
-  ViewStyle,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Search,
@@ -32,7 +24,6 @@ import {
   Brain,
   Calendar,
   AlertCircle,
-  Sparkles,
   Hand,
   Users,
   Trophy,
@@ -42,8 +33,6 @@ import {
   Image as ImageIcon,
   MessageCircle,
   Star,
-  Heart,
-  Inbox,
 } from 'lucide-react-native';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
@@ -100,7 +89,7 @@ interface EmptyStateProps {
 
 // Illustration configurations with role-aware messaging
 interface IllustrationConfig {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ size?: number; color?: string }>;
   gradient: readonly [string, string, ...string[]];
   iconColor: string;
   // Parent-friendly message (warm, encouraging)
@@ -200,7 +189,7 @@ const ILLUSTRATIONS: Record<EmptyStateIllustration, IllustrationConfig> = {
     professionalMessage: 'Görsel yok',
     defaultMood: 'curious',
   },
-  'welcome': {
+  welcome: {
     icon: Hand,
     gradient: ['#FFF8F0', '#F5E8FF', '#FFF8F0'],
     iconColor: Colors.secondary.lavender,
@@ -216,7 +205,7 @@ const ILLUSTRATIONS: Record<EmptyStateIllustration, IllustrationConfig> = {
     professionalMessage: 'Sonuç bulunamadı',
     defaultMood: 'thinking',
   },
-  'error': {
+  error: {
     icon: AlertCircle,
     gradient: ['#FFF5F5', '#FEE2E2', '#FFF5F5'],
     iconColor: Colors.semantic.error,
@@ -224,7 +213,7 @@ const ILLUSTRATIONS: Record<EmptyStateIllustration, IllustrationConfig> = {
     professionalMessage: 'Hata oluştu',
     defaultMood: 'sad',
   },
-  'offline': {
+  offline: {
     icon: WifiOff,
     gradient: ['#FFF5F5', '#FEE2E2', '#FFF5F5'],
     iconColor: Colors.neutral.medium,
@@ -277,7 +266,8 @@ export function EmptyState({
   const useProfessionalStyle = forceProStyle || isProfessional;
 
   // Check if mascot should be shown
-  const showMascot = !useProfessionalStyle &&
+  const showMascot =
+    !useProfessionalStyle &&
     mascotSettings.showOnEmptyStates &&
     mascotSettings.prominence !== 'hidden';
 
@@ -355,7 +345,14 @@ export function EmptyState({
   // Professional mode render
   if (useProfessionalStyle) {
     return (
-      <View style={[styles.container, compact && styles.containerCompact, styles.containerProfessional, style]}>
+      <View
+        style={[
+          styles.container,
+          compact && styles.containerCompact,
+          styles.containerProfessional,
+          style,
+        ]}
+      >
         {/* Professional Icon */}
         <Animated.View
           style={[
@@ -376,7 +373,13 @@ export function EmptyState({
           <Text style={[styles.title, styles.titleProfessional, compact && styles.titleCompact]}>
             {title}
           </Text>
-          <Text style={[styles.description, styles.descriptionProfessional, compact && styles.descriptionCompact]}>
+          <Text
+            style={[
+              styles.description,
+              styles.descriptionProfessional,
+              compact && styles.descriptionCompact,
+            ]}
+          >
             {description}
           </Text>
         </Animated.View>
@@ -460,9 +463,7 @@ export function EmptyState({
 
       {/* Text Content */}
       <Animated.View style={[styles.textContainer, { opacity: fadeAnim }]}>
-        <Text style={[styles.title, compact && styles.titleCompact]}>
-          {title}
-        </Text>
+        <Text style={[styles.title, compact && styles.titleCompact]}>{title}</Text>
         <Text style={[styles.description, compact && styles.descriptionCompact]}>
           {description}
         </Text>
@@ -478,10 +479,7 @@ export function EmptyState({
         >
           <Pressable
             onPress={handleAction}
-            style={({ pressed }) => [
-              styles.actionButton,
-              pressed && styles.actionButtonPressed,
-            ]}
+            style={({ pressed }) => [styles.actionButton, pressed && styles.actionButtonPressed]}
           >
             <LinearGradient
               colors={[config.iconColor, Colors.secondary.lavender]}
@@ -522,12 +520,13 @@ export function NoAnalysisEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-analysis"
-      title={isProfessional ? "Analiz Bulunamadı" : "Henüz Analiz Yok"}
-      description={isProfessional
-        ? "Yeni analiz oluşturmak için çizim yükleyin."
-        : "Çocuğunuzun bir çizimini yükleyerek duygusal analiz yapabilirsiniz."
+      title={isProfessional ? 'Analiz Bulunamadı' : 'İlk çizim analizini yapalım!'}
+      description={
+        isProfessional
+          ? 'Yeni analiz oluşturmak için çizim yükleyin.'
+          : 'Bir çizim yükleyin, duygusal dünyayı birlikte keşfedelim.'
       }
-      actionLabel={isProfessional ? "Yeni Analiz" : "Analiz Başlat"}
+      actionLabel={isProfessional ? 'Yeni Analiz' : 'Çizim Yükle'}
       onAction={onAction}
       compact={compact}
     />
@@ -539,12 +538,13 @@ export function NoStoriesEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-stories"
-      title={isProfessional ? "Hikaye Bulunamadı" : "Hikaye Zamanı!"}
-      description={isProfessional
-        ? "Bu danışan için henüz hikaye oluşturulmamış."
-        : "İnteraktif hikayelerle çocuğunuzun hayal dünyasını keşfedin."
+      title={isProfessional ? 'Hikaye Bulunamadı' : 'Masallar seni bekliyor!'}
+      description={
+        isProfessional
+          ? 'Bu danışan için henüz hikaye oluşturulmamış.'
+          : 'Birlikte hayal gücünü keşfedecek masallar oluşturalım.'
       }
-      actionLabel={isProfessional ? "Hikaye Oluştur" : "Hikaye Seç"}
+      actionLabel={isProfessional ? 'Hikaye Oluştur' : 'Masal Oluştur'}
       onAction={onAction}
       compact={compact}
     />
@@ -556,12 +556,13 @@ export function NoColoringEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-coloring"
-      title={isProfessional ? "Boyama Bulunamadı" : "Renklere Hazır mısın?"}
-      description={isProfessional
-        ? "Henüz boyama aktivitesi kaydedilmemiş."
-        : "Boyama sayfaları ile yaratıcılığınızı ortaya koyun."
+      title={isProfessional ? 'Boyama Bulunamadı' : 'İlk sanat eserini burada göreceksin!'}
+      description={
+        isProfessional
+          ? 'Henüz boyama aktivitesi kaydedilmemiş.'
+          : 'Boyama sayfalarıyla yaratıcılığı keşfedin.'
       }
-      actionLabel={isProfessional ? "Boyama Ekle" : "Boyamaya Başla"}
+      actionLabel={isProfessional ? 'Boyama Ekle' : 'Boyamaya Başla'}
       onAction={onAction}
       compact={compact}
     />
@@ -573,12 +574,13 @@ export function NoHistoryEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-history"
-      title={isProfessional ? "Geçmiş Aktivite Yok" : "Macera Başlasın!"}
-      description={isProfessional
-        ? "Bu dönem için aktivite kaydı bulunmuyor."
-        : "Henüz bir aktivite yok. Keşfetmeye başlayın!"
+      title={isProfessional ? 'Geçmiş Aktivite Yok' : 'Gelişim yolculuğu başlıyor!'}
+      description={
+        isProfessional
+          ? 'Bu dönem için aktivite kaydı bulunmuyor.'
+          : 'İlk aktivitenizi tamamladığınızda burada göreceksiniz.'
       }
-      actionLabel={isProfessional ? "Yeni Aktivite" : "Keşfet"}
+      actionLabel={isProfessional ? 'Yeni Aktivite' : 'Keşfet'}
       onAction={onAction}
       compact={compact}
     />
@@ -590,12 +592,13 @@ export function NoChildrenEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-children"
-      title={isProfessional ? "Danışan Profili Yok" : "Çocuk Profili Ekleyin"}
-      description={isProfessional
-        ? "Yeni danışan ekleyerek takibe başlayın."
-        : "Çocuğunuzun profilini oluşturarak kişiselleştirilmiş deneyim elde edin."
+      title={isProfessional ? 'Danışan Profili Yok' : 'Çocuğunuzun profilini oluşturun'}
+      description={
+        isProfessional
+          ? 'Yeni danışan ekleyerek takibe başlayın.'
+          : 'Kişiselleştirilmiş gelişim takibi için profil ekleyin.'
       }
-      actionLabel={isProfessional ? "Danışan Ekle" : "Profil Oluştur"}
+      actionLabel={isProfessional ? 'Danışan Ekle' : 'Profil Oluştur'}
       onAction={onAction}
       compact={compact}
     />
@@ -621,12 +624,13 @@ export function NoFavoritesEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-favorites"
-      title={isProfessional ? "Favori Öğe Yok" : "Favorilerin Burada"}
-      description={isProfessional
-        ? "Favori olarak işaretlediğiniz öğeler burada görünür."
-        : "Beğendiğin analizleri ve hikayeleri favorilere ekle!"
+      title={isProfessional ? 'Favori Öğe Yok' : 'Favorilerin burada görünecek'}
+      description={
+        isProfessional
+          ? 'Favori olarak işaretlediğiniz öğeler burada görünür.'
+          : 'Beğendiğiniz analizleri ve hikayeleri favorilere ekleyin.'
       }
-      actionLabel={isProfessional ? undefined : "Keşfet"}
+      actionLabel={isProfessional ? undefined : 'Keşfet'}
       onAction={onAction}
       compact={compact}
     />
@@ -637,33 +641,27 @@ export function NoBadgesEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="no-badges"
-      title="Rozetler Seni Bekliyor!"
-      description="Aktiviteleri tamamlayarak rozetler kazan."
-      actionLabel="Başla"
+      title="Rozetler seni bekliyor!"
+      description="Aktiviteleri tamamlayarak özel rozetler kazanın."
+      actionLabel="Keşfet"
       onAction={onAction}
       compact={compact}
     />
   );
 }
 
-export function SearchEmpty({
-  query,
-  compact = true,
-}: {
-  query?: string;
-  compact?: boolean;
-}) {
+export function SearchEmpty({ query, compact = true }: { query?: string; compact?: boolean }) {
   const isProfessional = useIsProfessional();
   return (
     <EmptyState
       illustration="search-empty"
-      title={isProfessional ? "Sonuç Bulunamadı" : "Bulamadım"}
+      title={isProfessional ? 'Sonuç Bulunamadı' : 'Bulamadım'}
       description={
         query
           ? `"${query}" için sonuç bulunamadı.`
           : isProfessional
-            ? "Aramanızla eşleşen sonuç yok."
-            : "Farklı bir şey aramayı dene."
+            ? 'Aramanızla eşleşen sonuç yok.'
+            : 'Farklı bir şey aramayı dene.'
       }
       compact={compact}
     />
@@ -683,11 +681,13 @@ export function ErrorEmpty({
   return (
     <EmptyState
       illustration="error"
-      title={isProfessional ? "Hata Oluştu" : "Bir Şeyler Ters Gitti"}
-      description={message || (isProfessional
-        ? "İşlem tamamlanamadı. Lütfen tekrar deneyin."
-        : "Bir hata oluştu. Lütfen tekrar deneyin."
-      )}
+      title={isProfessional ? 'Hata Oluştu' : 'Bir Şeyler Ters Gitti'}
+      description={
+        message ||
+        (isProfessional
+          ? 'İşlem tamamlanamadı. Lütfen tekrar deneyin.'
+          : 'Bir hata oluştu. Lütfen tekrar deneyin.')
+      }
       actionLabel="Tekrar Dene"
       onAction={onRetry}
       compact={compact}
@@ -695,21 +695,16 @@ export function ErrorEmpty({
   );
 }
 
-export function OfflineEmpty({
-  onRetry,
-  compact,
-}: {
-  onRetry?: () => void;
-  compact?: boolean;
-}) {
+export function OfflineEmpty({ onRetry, compact }: { onRetry?: () => void; compact?: boolean }) {
   const isProfessional = useIsProfessional();
   return (
     <EmptyState
       illustration="offline"
-      title={isProfessional ? "Bağlantı Yok" : "İnternet Bağlantısı Yok"}
-      description={isProfessional
-        ? "Bağlantınızı kontrol edin."
-        : "İnternet bağlantınızı kontrol edip tekrar deneyin."
+      title={isProfessional ? 'Bağlantı Yok' : 'İnternet Bağlantısı Yok'}
+      description={
+        isProfessional
+          ? 'Bağlantınızı kontrol edin.'
+          : 'İnternet bağlantınızı kontrol edip tekrar deneyin.'
       }
       actionLabel="Tekrar Dene"
       onAction={onRetry}
@@ -723,10 +718,11 @@ export function ComingSoonEmpty({ compact }: { compact?: boolean }) {
   return (
     <EmptyState
       illustration="coming-soon"
-      title={isProfessional ? "Yakında" : "Çok Yakında!"}
-      description={isProfessional
-        ? "Bu özellik geliştirme aşamasında."
-        : "Bu özellik üzerinde çalışıyoruz. Çok yakında burada!"
+      title={isProfessional ? 'Yakında' : 'Çok Yakında!'}
+      description={
+        isProfessional
+          ? 'Bu özellik geliştirme aşamasında.'
+          : 'Bu özellik üzerinde çalışıyoruz. Çok yakında burada!'
       }
       compact={compact}
     />
@@ -738,12 +734,13 @@ export function WelcomeEmpty({ onAction, compact }: PresetEmptyProps) {
   return (
     <EmptyState
       illustration="welcome"
-      title={isProfessional ? "Hoş Geldiniz" : "Hoş Geldin!"}
-      description={isProfessional
-        ? "Platformu kullanmaya başlamak için ilk danışanınızı ekleyin."
-        : "Çocuğunuzun duygusal dünyasını keşfetmeye hazır mısınız?"
+      title={isProfessional ? 'Hoş Geldiniz' : 'Hoş Geldin!'}
+      description={
+        isProfessional
+          ? 'Platformu kullanmaya başlamak için ilk danışanınızı ekleyin.'
+          : 'Çocuğunuzun duygusal dünyasını keşfetmeye hazır mısınız?'
       }
-      actionLabel={isProfessional ? "Başlayın" : "Başlayalım"}
+      actionLabel={isProfessional ? 'Başlayın' : 'Başlayalım'}
       onAction={onAction}
       compact={compact}
     />

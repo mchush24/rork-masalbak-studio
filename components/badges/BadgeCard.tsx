@@ -8,13 +8,13 @@
  * - Animasyonlu geçişler
  */
 
-import React, { memo } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Lock } from "lucide-react-native";
-import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
-import { BADGE_RARITY_CONFIG, type BadgeRarity } from "@/constants/badges";
+import React, { memo } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Lock } from 'lucide-react-native';
+import { Colors } from '@/constants/colors';
+import { spacing, shadows, typography } from '@/constants/design-system';
+import { BADGE_RARITY_CONFIG, type BadgeRarity } from '@/constants/badges';
 
 export interface BadgeCardProps {
   id: string;
@@ -31,23 +31,22 @@ export interface BadgeCardProps {
     percentage: number;
   };
   onPress?: () => void;
-  size?: "small" | "medium" | "large";
+  size?: 'small' | 'medium' | 'large';
   showDetails?: boolean;
 }
 
 // Memoized to prevent unnecessary re-renders in badge grids
 export const BadgeCard = memo(function BadgeCard({
-  id,
   name,
-  description,
+
   icon,
   rarity,
   isUnlocked,
   isSecret = false,
-  unlockedAt,
+
   progress,
   onPress,
-  size = "medium",
+  size = 'medium',
   showDetails = true,
 }: BadgeCardProps) {
   const rarityConfig = BADGE_RARITY_CONFIG[rarity];
@@ -63,11 +62,7 @@ export const BadgeCard = memo(function BadgeCard({
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.container,
-        { width: cardSize },
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.container, { width: cardSize }, pressed && styles.pressed]}
     >
       {/* Badge Icon Container */}
       {isUnlocked ? (
@@ -86,23 +81,19 @@ export const BadgeCard = memo(function BadgeCard({
           end={{ x: 1, y: 1 }}
         >
           <Text style={[styles.icon, { fontSize: iconSize }]}>{icon}</Text>
-          <View
-            style={[
-              styles.rarityDot,
-              { backgroundColor: rarityConfig.color },
-            ]}
-          />
+          <View style={[styles.rarityDot, { backgroundColor: rarityConfig.color }]} />
         </LinearGradient>
       ) : (
         <View
           style={[
             styles.iconContainer,
+            styles.lockedContainer,
             {
               width: cardSize - 10,
               height: cardSize - 10,
               borderRadius: (cardSize - 10) / 2,
-              backgroundColor: Colors.neutral.gray200,
-              borderColor: Colors.neutral.gray300,
+              backgroundColor: 'rgba(232, 213, 255, 0.15)',
+              borderColor: 'rgba(185, 142, 255, 0.2)',
             },
           ]}
         >
@@ -111,7 +102,7 @@ export const BadgeCard = memo(function BadgeCard({
               {icon}
             </Text>
             <View style={styles.lockBadge}>
-              <Lock size={12} color={Colors.neutral.gray400} />
+              <Lock size={12} color={Colors.secondary.lavender} />
             </View>
           </View>
         </View>
@@ -120,26 +111,15 @@ export const BadgeCard = memo(function BadgeCard({
       {/* Badge Info */}
       {showDetails && (
         <View style={styles.infoContainer}>
-          <Text
-            style={[
-              styles.name,
-              !isUnlocked && styles.lockedText,
-            ]}
-            numberOfLines={1}
-          >
-            {isUnlocked ? name : (isSecret ? "???" : name)}
+          <Text style={[styles.name, !isUnlocked && styles.lockedText]} numberOfLines={1}>
+            {isUnlocked ? name : isSecret ? '???' : name}
           </Text>
 
           {/* Progress bar for locked badges */}
           {!isUnlocked && progress && (
             <View style={styles.progressContainer}>
               <View style={styles.progressBar}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${progress.percentage}%` },
-                  ]}
-                />
+                <View style={[styles.progressFill, { width: `${progress.percentage}%` }]} />
               </View>
               <Text style={styles.progressText}>
                 {progress.current}/{progress.target}
@@ -184,15 +164,15 @@ export const CompactBadge = memo(function CompactBadge({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: isUnlocked ? rarityConfig.bgColor : Colors.neutral.gray200,
-          borderColor: isUnlocked ? rarityConfig.color : Colors.neutral.gray300,
+          backgroundColor: isUnlocked ? rarityConfig.bgColor : 'rgba(232, 213, 255, 0.15)',
+          borderColor: isUnlocked ? rarityConfig.color : 'rgba(185, 142, 255, 0.2)',
         },
       ]}
     >
       {isUnlocked ? (
         <Text style={{ fontSize: size * 0.5 }}>{icon}</Text>
       ) : (
-        <Lock size={size * 0.4} color={Colors.neutral.gray400} />
+        <Lock size={size * 0.4} color={Colors.secondary.lavender} />
       )}
     </View>
   );
@@ -200,39 +180,44 @@ export const CompactBadge = memo(function CompactBadge({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   pressed: {
     opacity: 0.8,
     transform: [{ scale: 0.95 }],
   },
   iconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 3,
     ...shadows.sm,
   },
   icon: {
-    textAlign: "center",
+    textAlign: 'center',
+  },
+  lockedContainer: {
+    borderStyle: 'dashed',
+    borderWidth: 2,
   },
   lockedOverlay: {
-    justifyContent: "center",
-    alignItems: "center",
-    opacity: 0.4,
-  },
-  lockedIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
     opacity: 0.5,
   },
+  lockedIcon: {
+    opacity: 0.6,
+  },
   lockBadge: {
-    position: "absolute",
+    position: 'absolute',
     bottom: -2,
     right: -2,
-    backgroundColor: Colors.neutral.gray100,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 10,
-    padding: 2,
+    padding: 3,
+    ...shadows.xs,
   },
   rarityDot: {
-    position: "absolute",
+    position: 'absolute',
     top: 2,
     right: 2,
     width: 10,
@@ -242,15 +227,15 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.white,
   },
   infoContainer: {
-    marginTop: spacing["2"],
-    alignItems: "center",
-    width: "100%",
+    marginTop: spacing['2'],
+    alignItems: 'center',
+    width: '100%',
   },
   name: {
     fontSize: typography.size.xs,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.darkest,
-    textAlign: "center",
+    textAlign: 'center',
   },
   lockedText: {
     color: Colors.neutral.medium,
@@ -261,20 +246,20 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   progressContainer: {
-    width: "100%",
-    marginTop: spacing["1"],
-    alignItems: "center",
+    width: '100%',
+    marginTop: spacing['1'],
+    alignItems: 'center',
   },
   progressBar: {
-    width: "100%",
+    width: '100%',
     height: 4,
-    backgroundColor: Colors.neutral.gray200,
+    backgroundColor: 'rgba(185, 142, 255, 0.15)',
     borderRadius: 2,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   progressFill: {
-    height: "100%",
-    backgroundColor: Colors.secondary.grass,
+    height: '100%',
+    backgroundColor: Colors.primary.sunset,
     borderRadius: 2,
   },
   progressText: {
@@ -284,8 +269,8 @@ const styles = StyleSheet.create({
   },
   // Compact badge
   compactContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 2,
   },
 });

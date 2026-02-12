@@ -10,24 +10,16 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ViewStyle,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
-  interpolateColor,
   FadeIn,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, X } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
@@ -53,7 +45,7 @@ interface OnboardingProgressProps {
   light?: boolean;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const _AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function OnboardingProgress({
   currentStep,
@@ -94,11 +86,7 @@ export function OnboardingProgress({
   return (
     <Animated.View
       entering={FadeIn.duration(300)}
-      style={[
-        styles.container,
-        { paddingTop: insets.top + spacing['2'] },
-        style,
-      ]}
+      style={[styles.container, { paddingTop: insets.top + spacing['2'] }, style]}
     >
       {/* Back Button */}
       <View style={styles.leftSection}>
@@ -143,15 +131,10 @@ export function OnboardingProgress({
         {showSkip && onSkip ? (
           <Pressable
             onPress={handleSkip}
-            style={({ pressed }) => [
-              styles.skipButton,
-              pressed && { opacity: 0.6 },
-            ]}
+            style={({ pressed }) => [styles.skipButton, pressed && { opacity: 0.6 }]}
             hitSlop={8}
           >
-            <Text style={[styles.skipText, { color: colors.textMuted }]}>
-              {skipText}
-            </Text>
+            <Text style={[styles.skipText, { color: colors.textMuted }]}>{skipText}</Text>
           </Pressable>
         ) : (
           <View style={styles.placeholder} />
@@ -169,12 +152,7 @@ interface ProgressDotProps {
   inactiveColor: string;
 }
 
-function ProgressDot({
-  isActive,
-  isCompleted,
-  activeColor,
-  inactiveColor,
-}: ProgressDotProps) {
+function ProgressDot({ isActive, isCompleted, activeColor, inactiveColor }: ProgressDotProps) {
   const scale = useSharedValue(isActive ? 1 : 0.7);
   const width = useSharedValue(isActive ? 24 : 8);
 
@@ -243,11 +221,7 @@ export function OnboardingStepCounter({
   return (
     <Animated.View
       entering={FadeIn.duration(300)}
-      style={[
-        styles.container,
-        { paddingTop: insets.top + spacing['2'] },
-        style,
-      ]}
+      style={[styles.container, { paddingTop: insets.top + spacing['2'] }, style]}
     >
       {/* Back Button */}
       <View style={styles.leftSection}>
@@ -271,9 +245,7 @@ export function OnboardingStepCounter({
       {/* Step Counter */}
       <View style={styles.counterContainer}>
         <Text style={[styles.counterText, { color: colors.textMuted }]}>
-          <Text style={[styles.counterCurrent, { color: colors.accent }]}>
-            {currentStep}
-          </Text>
+          <Text style={[styles.counterCurrent, { color: colors.accent }]}>{currentStep}</Text>
           {' / '}
           {totalSteps}
         </Text>
@@ -284,15 +256,10 @@ export function OnboardingStepCounter({
         {showSkip && onSkip ? (
           <Pressable
             onPress={handleSkip}
-            style={({ pressed }) => [
-              styles.skipButton,
-              pressed && { opacity: 0.6 },
-            ]}
+            style={({ pressed }) => [styles.skipButton, pressed && { opacity: 0.6 }]}
             hitSlop={8}
           >
-            <Text style={[styles.skipText, { color: colors.textMuted }]}>
-              {skipText}
-            </Text>
+            <Text style={[styles.skipText, { color: colors.textMuted }]}>{skipText}</Text>
           </Pressable>
         ) : (
           <View style={styles.placeholder} />
@@ -404,15 +371,10 @@ export function OnboardingProgressBar({
           {showSkip && onSkip ? (
             <Pressable
               onPress={handleSkip}
-              style={({ pressed }) => [
-                styles.skipButton,
-                pressed && { opacity: 0.6 },
-              ]}
+              style={({ pressed }) => [styles.skipButton, pressed && { opacity: 0.6 }]}
               hitSlop={8}
             >
-              <Text style={[styles.skipText, { color: colors.textMuted }]}>
-                {skipText}
-              </Text>
+              <Text style={[styles.skipText, { color: colors.textMuted }]}>{skipText}</Text>
             </Pressable>
           ) : (
             <View style={styles.placeholder} />
@@ -423,11 +385,7 @@ export function OnboardingProgressBar({
       {/* Progress Bar */}
       <View style={[styles.progressBarBg, { backgroundColor: colors.barBg }]}>
         <Animated.View
-          style={[
-            styles.progressBarFill,
-            { backgroundColor: colors.barFill },
-            animatedBarStyle,
-          ]}
+          style={[styles.progressBarFill, { backgroundColor: colors.barFill }, animatedBarStyle]}
         />
       </View>
     </Animated.View>

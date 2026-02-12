@@ -74,6 +74,7 @@ export function NewBadgeModal({ visible, badge, onClose }: NewBadgeModalProps) {
         ])
       ).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, badge]);
 
   if (!badge) return null;
@@ -109,25 +110,11 @@ export function NewBadgeModal({ visible, badge, onClose }: NewBadgeModalProps) {
   });
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <BlurView
-        intensity={Platform.OS === 'web' ? 0 : 40}
-        tint="dark"
-        style={styles.overlay}
-      >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <BlurView intensity={Platform.OS === 'web' ? 0 : 40} tint="dark" style={styles.overlay}>
         <Pressable style={styles.overlayPressable} onPress={onClose}>
-          <Animated.View
-            style={[
-              styles.modalContainer,
-              { transform: [{ scale: scaleAnim }] },
-            ]}
-          >
-            <Pressable onPress={(e) => e.stopPropagation()}>
+          <Animated.View style={[styles.modalContainer, { transform: [{ scale: scaleAnim }] }]}>
+            <Pressable onPress={e => e.stopPropagation()}>
               <LinearGradient
                 colors={getGradientColors()}
                 style={styles.modalContent}
@@ -135,11 +122,7 @@ export function NewBadgeModal({ visible, badge, onClose }: NewBadgeModalProps) {
                 end={{ x: 1, y: 1 }}
               >
                 {/* Close Button */}
-                <Pressable
-                  style={styles.closeButton}
-                  onPress={onClose}
-                  hitSlop={20}
-                >
+                <Pressable style={styles.closeButton} onPress={onClose} hitSlop={20}>
                   <X size={20} color="#9E9E9E" />
                 </Pressable>
 
@@ -199,18 +182,11 @@ export function NewBadgeModal({ visible, badge, onClose }: NewBadgeModalProps) {
                 </Animated.View>
 
                 {/* Badge Info */}
-                <Text style={[styles.badgeName, { color: rarityColors.text }]}>
-                  {badge.name}
-                </Text>
+                <Text style={[styles.badgeName, { color: rarityColors.text }]}>{badge.name}</Text>
                 <Text style={styles.badgeDescription}>{badge.description}</Text>
 
                 {/* Rarity Badge */}
-                <View
-                  style={[
-                    styles.rarityBadge,
-                    { backgroundColor: `${rarityColors.border}20` },
-                  ]}
-                >
+                <View style={[styles.rarityBadge, { backgroundColor: `${rarityColors.border}20` }]}>
                   <Text style={[styles.rarityText, { color: rarityColors.text }]}>
                     {getRarityLabel(badge.rarity)} Rozet
                   </Text>

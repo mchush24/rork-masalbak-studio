@@ -9,13 +9,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Pressable,
-  Text,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { View, Pressable, Text, StyleSheet } from 'react-native';
 import { TEXTURE_OPTIONS } from '../effects/TexturedFill';
 import { TextureType } from '../effects/TextureShaders';
 import { Colors } from '@/constants/colors';
@@ -49,7 +43,7 @@ export function TextureSelector({
       {!compact && <Text style={styles.title}>Doku Efekti</Text>}
 
       <View style={[styles.optionsContainer, compact && styles.optionsCompact]}>
-        {TEXTURE_OPTIONS.map((option) => {
+        {TEXTURE_OPTIONS.map(option => {
           const isSelected = selectedTexture === option.type;
 
           return (
@@ -103,9 +97,7 @@ export function TextureSelector({
               </View>
 
               {/* Emoji */}
-              <Text style={[styles.emoji, compact && styles.emojiCompact]}>
-                {option.emoji}
-              </Text>
+              <Text style={[styles.emoji, compact && styles.emojiCompact]}>{option.emoji}</Text>
 
               {/* Label (only in full mode) */}
               {!compact && (
@@ -138,7 +130,7 @@ export interface TextureToggleProps {
 export function GlitterToggle({
   isGlitterEnabled,
   onToggle,
-  color = '#FFD700',
+  _color = '#FFD700',
   disabled = false,
 }: TextureToggleProps) {
   return (

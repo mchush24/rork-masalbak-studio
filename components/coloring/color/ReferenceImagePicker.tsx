@@ -29,7 +29,6 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
-  Platform,
 } from 'react-native';
 import { shadows } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -66,7 +65,7 @@ interface ReferenceImagePickerProps {
  */
 async function extractColorsFromImage(
   imageUri: string,
-  sampleSize: number = 5
+  _sampleSize: number = 5
 ): Promise<ExtractedColor[]> {
   // For React Native, we'll use a simplified approach
   // In production, consider using a library like react-native-color-extractor
@@ -131,7 +130,9 @@ function hslToHex(h: number, s: number, l: number): string {
   const f = (n: number) => {
     const k = (n + h / 30) % 12;
     const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color).toString(16).padStart(2, '0');
+    return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, '0');
   };
   return `#${f(0)}${f(8)}${f(4)}`;
 }
@@ -171,6 +172,7 @@ export function ReferenceImagePicker({
         }).start();
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extractedColors]);
 
   // Handle opening the picker
@@ -204,11 +206,9 @@ export function ReferenceImagePicker({
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permissionResult.granted) {
-        Alert.alert(
-          'İzin Gerekli',
-          'Galeri erişimi için izin vermeniz gerekiyor.',
-          [{ text: 'Tamam' }]
-        );
+        Alert.alert('İzin Gerekli', 'Galeri erişimi için izin vermeniz gerekiyor.', [
+          { text: 'Tamam' },
+        ]);
         return;
       }
 
@@ -250,6 +250,7 @@ export function ReferenceImagePicker({
   };
 
   // Handle tapping on image to pick color
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleImageTap = (event: any) => {
     const { locationX, locationY } = event.nativeEvent;
     setTapPosition({ x: locationX, y: locationY });
@@ -284,11 +285,7 @@ export function ReferenceImagePicker({
   return (
     <>
       {/* Reference Image Button */}
-      <TouchableOpacity
-        style={styles.mainButton}
-        onPress={handleOpen}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity style={styles.mainButton} onPress={handleOpen} activeOpacity={0.8}>
         <LinearGradient
           colors={['#00B4D8', '#0077B6']}
           start={{ x: 0, y: 0 }}
@@ -301,25 +298,11 @@ export function ReferenceImagePicker({
       </TouchableOpacity>
 
       {/* Reference Image Modal */}
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="none"
-        onRequestClose={handleClose}
-      >
+      <Modal visible={isOpen} transparent animationType="none" onRequestClose={handleClose}>
         <View style={styles.modalOverlay}>
-          <TouchableOpacity
-            style={styles.modalBackdrop}
-            onPress={handleClose}
-            activeOpacity={1}
-          />
+          <TouchableOpacity style={styles.modalBackdrop} onPress={handleClose} activeOpacity={1} />
 
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateY: modalSlide }] },
-            ]}
-          >
+          <Animated.View style={[styles.modalContent, { transform: [{ translateY: modalSlide }] }]}>
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.headerEmoji}>🖼️</Text>
@@ -343,9 +326,7 @@ export function ReferenceImagePicker({
                     style={styles.placeholderGradient}
                   >
                     <Ionicons name="image-outline" size={64} color={Colors.neutral.light} />
-                    <Text style={styles.placeholderText}>
-                      Görsel Seç
-                    </Text>
+                    <Text style={styles.placeholderText}>Görsel Seç</Text>
                     <Text style={styles.placeholderSubtext}>
                       Galerinizden bir görsel seçin ve renklerini kullanın
                     </Text>
@@ -353,10 +334,7 @@ export function ReferenceImagePicker({
                 </TouchableOpacity>
               ) : (
                 <View style={styles.imageContainer}>
-                  <TouchableOpacity
-                    onPress={handleImageTap}
-                    activeOpacity={0.9}
-                  >
+                  <TouchableOpacity onPress={handleImageTap} activeOpacity={0.9}>
                     <Image
                       source={{ uri: selectedImage }}
                       style={styles.selectedImage}
@@ -378,15 +356,10 @@ export function ReferenceImagePicker({
                     )}
                   </TouchableOpacity>
 
-                  <Text style={styles.tapHint}>
-                    👆 Görsele dokunarak renk seçin
-                  </Text>
+                  <Text style={styles.tapHint}>👆 Görsele dokunarak renk seçin</Text>
 
                   {/* Change Image Button */}
-                  <TouchableOpacity
-                    style={styles.changeImageButton}
-                    onPress={handlePickImage}
-                  >
+                  <TouchableOpacity style={styles.changeImageButton} onPress={handlePickImage}>
                     <Text style={styles.changeImageText}>🔄 Değiştir</Text>
                   </TouchableOpacity>
                 </View>
@@ -400,9 +373,7 @@ export function ReferenceImagePicker({
                 </View>
               ) : extractedColors.length > 0 ? (
                 <View style={styles.colorsSection}>
-                  <Text style={styles.colorsSectionTitle}>
-                    🎨 Çıkarılan Renkler
-                  </Text>
+                  <Text style={styles.colorsSectionTitle}>🎨 Çıkarılan Renkler</Text>
                   <View style={styles.colorsGrid}>
                     {extractedColors.map((color, index) => (
                       <Animated.View
@@ -416,20 +387,13 @@ export function ReferenceImagePicker({
                         }}
                       >
                         <TouchableOpacity
-                          style={[
-                            styles.colorSwatch,
-                            { backgroundColor: color.hex },
-                          ]}
+                          style={[styles.colorSwatch, { backgroundColor: color.hex }]}
                           onPress={() => handleColorSelect(color.hex)}
                           activeOpacity={0.8}
                         >
                           <View style={styles.colorSwatchLabel}>
-                            <Text style={styles.colorSwatchText}>
-                              {color.name}
-                            </Text>
-                            <Text style={styles.colorSwatchPercentage}>
-                              {color.percentage}%
-                            </Text>
+                            <Text style={styles.colorSwatchText}>{color.name}</Text>
+                            <Text style={styles.colorSwatchPercentage}>{color.percentage}%</Text>
                           </View>
                         </TouchableOpacity>
                       </Animated.View>
@@ -446,10 +410,7 @@ export function ReferenceImagePicker({
                 onPress={handleClose}
                 activeOpacity={0.8}
               >
-                <LinearGradient
-                  colors={['#6BCB77', '#4CAF50']}
-                  style={styles.applyButtonGradient}
-                >
+                <LinearGradient colors={['#6BCB77', '#4CAF50']} style={styles.applyButtonGradient}>
                   <Text style={styles.applyButtonText}>✓ Tamam</Text>
                 </LinearGradient>
               </TouchableOpacity>

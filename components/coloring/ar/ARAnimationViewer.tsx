@@ -8,7 +8,7 @@
  * - Ses efektleri ile senkronize animasyon
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,21 +25,21 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { shadows, textShadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ============================================
 // TYPES
 // ============================================
 
 export type AnimationTheme =
-  | 'float'       // Yüzen hareket
-  | 'bounce'      // Zıplama
-  | 'spin'        // Dönme
-  | 'wave'        // Dalga
-  | 'breathe'     // Nefes alma
-  | 'dance'       // Dans
-  | 'fly'         // Uçuş
-  | 'sparkle';    // Parıltı
+  | 'float' // Yüzen hareket
+  | 'bounce' // Zıplama
+  | 'spin' // Dönme
+  | 'wave' // Dalga
+  | 'breathe' // Nefes alma
+  | 'dance' // Dans
+  | 'fly' // Uçuş
+  | 'sparkle'; // Parıltı
 
 interface AnimationConfig {
   id: AnimationTheme;
@@ -86,7 +86,7 @@ function AnimatedArtwork({ imageUri, theme, isPlaying }: AnimatedArtworkProps) {
   const translateX = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
   const rotate = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
+  const _opacity = useRef(new Animated.Value(1)).current;
 
   // Sparkle animations
   const sparkle1 = useRef(new Animated.Value(0)).current;
@@ -369,6 +369,7 @@ function AnimatedArtwork({ imageUri, theme, isPlaying }: AnimatedArtworkProps) {
     return () => {
       animation.stop();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, isPlaying]);
 
   const rotateInterpolate = rotate.interpolate({
@@ -386,10 +387,15 @@ function AnimatedArtwork({ imageUri, theme, isPlaying }: AnimatedArtworkProps) {
               { translateY },
               { translateX },
               { scale },
-              { rotate: theme === 'spin' ? rotateInterpolate : rotate.interpolate({
-                inputRange: [-1, 1],
-                outputRange: ['-15deg', '15deg'],
-              }) },
+              {
+                rotate:
+                  theme === 'spin'
+                    ? rotateInterpolate
+                    : rotate.interpolate({
+                        inputRange: [-1, 1],
+                        outputRange: ['-15deg', '15deg'],
+                      }),
+              },
             ],
           },
         ]}
@@ -398,40 +404,18 @@ function AnimatedArtwork({ imageUri, theme, isPlaying }: AnimatedArtworkProps) {
         <View style={styles.artworkShadow} />
 
         {/* Main Image */}
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.artworkImage}
-          resizeMode="contain"
-        />
+        <Image source={{ uri: imageUri }} style={styles.artworkImage} resizeMode="contain" />
 
         {/* Sparkle Effects */}
         {theme === 'sparkle' && (
           <>
-            <Animated.Text
-              style={[
-                styles.sparkle,
-                styles.sparkle1,
-                { opacity: sparkle1 },
-              ]}
-            >
+            <Animated.Text style={[styles.sparkle, styles.sparkle1, { opacity: sparkle1 }]}>
               ✨
             </Animated.Text>
-            <Animated.Text
-              style={[
-                styles.sparkle,
-                styles.sparkle2,
-                { opacity: sparkle2 },
-              ]}
-            >
+            <Animated.Text style={[styles.sparkle, styles.sparkle2, { opacity: sparkle2 }]}>
               ⭐
             </Animated.Text>
-            <Animated.Text
-              style={[
-                styles.sparkle,
-                styles.sparkle3,
-                { opacity: sparkle3 },
-              ]}
-            >
+            <Animated.Text style={[styles.sparkle, styles.sparkle3, { opacity: sparkle3 }]}>
               💫
             </Animated.Text>
           </>
@@ -472,6 +456,7 @@ export function ARAnimationViewer({
       duration: 500,
       useNativeDriver: true,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCapture = async () => {
@@ -525,11 +510,7 @@ export function ARAnimationViewer({
       <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
         {/* Camera or Gradient Background */}
         {isARMode ? (
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing="back"
-          />
+          <CameraView ref={cameraRef} style={styles.camera} facing="back" />
         ) : (
           <LinearGradient
             colors={['#667eea', '#764ba2', '#f093fb']}
@@ -538,11 +519,7 @@ export function ARAnimationViewer({
         )}
 
         {/* Animated Artwork Overlay */}
-        <AnimatedArtwork
-          imageUri={imageUri}
-          theme={selectedTheme}
-          isPlaying={isPlaying}
-        />
+        <AnimatedArtwork imageUri={imageUri} theme={selectedTheme} isPlaying={isPlaying} />
 
         {/* Header */}
         <View style={styles.header}>
@@ -555,13 +532,8 @@ export function ARAnimationViewer({
             <Text style={styles.subtitle}>canlandı!</Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.modeButton}
-            onPress={toggleARMode}
-          >
-            <Text style={styles.modeButtonText}>
-              {isARMode ? '🎨' : '📷'}
-            </Text>
+          <TouchableOpacity style={styles.modeButton} onPress={toggleARMode}>
+            <Text style={styles.modeButtonText}>{isARMode ? '🎨' : '📷'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -570,13 +542,10 @@ export function ARAnimationViewer({
           <View style={styles.themeSelector}>
             <Text style={styles.themeSelectorTitle}>Animasyon Seç</Text>
             <View style={styles.themeGrid}>
-              {ANIMATION_THEMES.map((theme) => (
+              {ANIMATION_THEMES.map(theme => (
                 <TouchableOpacity
                   key={theme.id}
-                  style={[
-                    styles.themeItem,
-                    selectedTheme === theme.id && styles.themeItemSelected,
-                  ]}
+                  style={[styles.themeItem, selectedTheme === theme.id && styles.themeItemSelected]}
                   onPress={() => {
                     setSelectedTheme(theme.id);
                     setShowThemeSelector(false);
@@ -604,26 +573,16 @@ export function ARAnimationViewer({
           </TouchableOpacity>
 
           {/* Capture Button */}
-          <TouchableOpacity
-            style={styles.captureButton}
-            onPress={handleCapture}
-          >
+          <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
             <View style={styles.captureButtonInner}>
               <Text style={styles.captureIcon}>📸</Text>
             </View>
           </TouchableOpacity>
 
           {/* Play/Pause Button */}
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={togglePlay}
-          >
-            <Text style={styles.controlIcon}>
-              {isPlaying ? '⏸️' : '▶️'}
-            </Text>
-            <Text style={styles.controlLabel}>
-              {isPlaying ? 'Durdur' : 'Oynat'}
-            </Text>
+          <TouchableOpacity style={styles.controlButton} onPress={togglePlay}>
+            <Text style={styles.controlIcon}>{isPlaying ? '⏸️' : '▶️'}</Text>
+            <Text style={styles.controlLabel}>{isPlaying ? 'Durdur' : 'Oynat'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -681,6 +640,7 @@ export function ARButton({ onPress, size = 48 }: ARButtonProps) {
         ]),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -700,9 +660,7 @@ export function ARButton({ onPress, size = 48 }: ARButtonProps) {
           colors={['#667eea', '#764ba2']}
           style={[styles.arButtonGradient, { borderRadius: size / 2 }]}
         >
-          <Text style={[styles.arButtonText, { fontSize: size * 0.35 }]}>
-            AR
-          </Text>
+          <Text style={[styles.arButtonText, { fontSize: size * 0.35 }]}>AR</Text>
         </LinearGradient>
       </Animated.View>
     </TouchableOpacity>

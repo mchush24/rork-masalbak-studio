@@ -18,7 +18,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet } from 'react-native';
 
 export type ToolAnimationType = 'bounce' | 'scale' | 'pulse' | 'fade';
 
@@ -75,6 +75,7 @@ export function ToolChangeAnimation({
         }),
       ]).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, animationType]);
 
   const bounceAnimation = () => {
@@ -217,6 +218,7 @@ export function ToolIconBounce({ children }: { children: React.ReactNode }) {
     bounce.start();
 
     return () => bounce.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -264,6 +266,7 @@ export function ToolGlowAnimation({ isActive }: { isActive: boolean }) {
         useNativeDriver: true,
       }).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
   const opacity = glowAnim.interpolate({
@@ -294,7 +297,7 @@ export function ToolTransitionAnimation({
   trigger,
   children,
 }: {
-  trigger: any;
+  trigger: unknown;
   children: React.ReactNode;
 }) {
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -329,6 +332,7 @@ export function ToolTransitionAnimation({
         }),
       ]),
     ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trigger]);
 
   return (
@@ -396,6 +400,7 @@ export function ToolShimmerEffect() {
         useNativeDriver: true,
       })
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const translateX = shimmerAnim.interpolate({

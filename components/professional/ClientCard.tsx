@@ -4,25 +4,9 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
-import {
-  User,
-  ChevronRight,
-  FileText,
-  Calendar,
-  Archive,
-  MoreHorizontal,
-} from 'lucide-react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { User, ChevronRight, FileText, Calendar, Archive } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { shadows } from '@/constants/design-system';
 import { format } from 'date-fns';
@@ -70,7 +54,7 @@ export function ClientCard({ client, onPress, onLongPress }: ClientCardProps) {
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map((n) => n[0])
+      .map(n => n[0])
       .join('')
       .toUpperCase()
       .substring(0, 2);

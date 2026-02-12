@@ -5,29 +5,13 @@
  */
 
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-  MessageCircle,
-  Settings,
-  Bell,
-} from 'lucide-react-native';
+import { MessageCircle, Settings, Bell } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
-import {
-  useRole,
-  useRoleText,
-  useMascotSettings,
-  ROLE_TEXTS,
-} from '@/lib/contexts/RoleContext';
+import { useRole, useRoleText, useMascotSettings, ROLE_TEXTS } from '@/lib/contexts/RoleContext';
 import { Ioo as IooMascot } from '@/components/Ioo';
-import { GreetingService } from '@/lib/services/greeting-service';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -47,7 +31,7 @@ export function DashboardHeader({
   onNotificationsPress,
   notificationCount = 0,
 }: DashboardHeaderProps) {
-  const { role, config } = useRole();
+  const { role } = useRole();
   const mascotSettings = useMascotSettings();
   const dashboardTitle = useRoleText('dashboard_title');
   const dashboardSubtitle = useRoleText('dashboard_subtitle');
@@ -108,7 +92,10 @@ export function DashboardHeader({
                 ]}
                 onPress={onNotificationsPress}
               >
-                <Bell size={20} color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.dark} />
+                <Bell
+                  size={20}
+                  color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.dark}
+                />
                 {notificationCount > 0 && (
                   <View style={styles.notificationBadge}>
                     <Text style={styles.notificationText}>
@@ -127,7 +114,10 @@ export function DashboardHeader({
                 ]}
                 onPress={onSettingsPress}
               >
-                <Settings size={20} color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.dark} />
+                <Settings
+                  size={20}
+                  color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.dark}
+                />
               </Pressable>
             )}
           </View>
@@ -137,10 +127,7 @@ export function DashboardHeader({
         <View style={styles.greetingSection}>
           {/* Mascot (conditionally shown) */}
           {showMascot && (
-            <Pressable
-              style={styles.mascotContainer}
-              onPress={onMascotPress}
-            >
+            <Pressable style={styles.mascotContainer} onPress={onMascotPress}>
               <IooMascot
                 size={isSmallDevice ? 'small' : 'medium'}
                 animated

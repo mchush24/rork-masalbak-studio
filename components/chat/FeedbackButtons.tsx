@@ -6,18 +6,11 @@
  * users feel heard even when they don't get what they want."
  */
 
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Animated,
-} from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
 import { ThumbsUp, ThumbsDown } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius } from '@/constants/design-system';
-import { buttonStyles } from '@/constants/design-system';
+import { typography, spacing, buttonStyles } from '@/constants/design-system';
 
 type FeedbackType = 'positive' | 'negative' | null;
 
@@ -95,9 +88,7 @@ export function FeedbackButtons({
 
   return (
     <Animated.View style={[styles.container, { opacity: containerOpacity }]}>
-      {showLabel && !feedback && (
-        <Text style={styles.label}>Yararlı oldu mu?</Text>
-      )}
+      {showLabel && !feedback && <Text style={styles.label}>Yararlı oldu mu?</Text>}
 
       <View style={styles.buttonsRow}>
         {/* Thumbs Up */}
@@ -188,9 +179,7 @@ export function InlineFeedback({
   if (feedback) {
     return (
       <Animated.View style={[styles.inlineContainer, { transform: [{ scale: scaleAnim }] }]}>
-        <Text style={styles.inlineFeedbackGiven}>
-          {feedback === 'positive' ? '👍' : '👎'}
-        </Text>
+        <Text style={styles.inlineFeedbackGiven}>{feedback === 'positive' ? '👍' : '👎'}</Text>
       </Animated.View>
     );
   }
@@ -199,19 +188,13 @@ export function InlineFeedback({
     <View style={styles.inlineContainer}>
       <Pressable
         onPress={() => handleFeedback('positive')}
-        style={({ pressed }) => [
-          styles.inlineButton,
-          pressed && styles.inlineButtonPressed,
-        ]}
+        style={({ pressed }) => [styles.inlineButton, pressed && styles.inlineButtonPressed]}
       >
         <Text style={styles.inlineEmoji}>👍</Text>
       </Pressable>
       <Pressable
         onPress={() => handleFeedback('negative')}
-        style={({ pressed }) => [
-          styles.inlineButton,
-          pressed && styles.inlineButtonPressed,
-        ]}
+        style={({ pressed }) => [styles.inlineButton, pressed && styles.inlineButtonPressed]}
       >
         <Text style={styles.inlineEmoji}>👎</Text>
       </Pressable>

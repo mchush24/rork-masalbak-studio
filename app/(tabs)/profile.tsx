@@ -5,7 +5,6 @@ import {
   View,
   Pressable,
   ScrollView,
-  ActivityIndicator,
   RefreshControl,
   Modal,
   TextInput,
@@ -18,11 +17,7 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
-  BookOpen,
-  Palette,
-  Brain,
   Edit2,
-  History,
   Check,
   X,
   Bell,
@@ -44,10 +39,11 @@ import { useRouter, Href } from 'expo-router';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useRole, ROLE_CONFIGS, type UserRole } from '@/lib/contexts/RoleContext';
 import { AvatarPicker, AvatarDisplay } from '@/components/AvatarPicker';
-import { BadgeGrid, BadgeUnlockModal } from '@/components/badges';
+import { BadgeUnlockModal } from '@/components/badges';
 import { type BadgeRarity } from '@/constants/badges';
 import { TokenUsageCard } from '@/components/quota/TokenUsageCard';
 import { useQuota } from '@/hooks/useQuota';
@@ -88,6 +84,7 @@ export default function ProfileScreen() {
     auto: { icon: '🔄', name: 'Otomatik', description: 'Sistem ayarlarına göre' },
   };
 
+  const { colors, isDark, setTheme: setAppTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout, refreshUserFromBackend } = useAuth();
@@ -144,12 +141,12 @@ export default function ProfileScreen() {
   // Fetch user badges
   const {
     data: badgesData,
-    isLoading: badgesLoading,
+    isLoading: _badgesLoading,
     refetch: refetchBadges,
   } = trpc.badges.getUserBadges.useQuery(undefined, { enabled: !!user?.userId });
 
   // Fetch badge progress
-  const { data: badgeProgress, refetch: refetchBadgeProgress } =
+  const { data: _badgeProgress, refetch: refetchBadgeProgress } =
     trpc.badges.getBadgeProgress.useQuery(undefined, { enabled: !!user?.userId });
 
   // Quota data
@@ -162,6 +159,22 @@ export default function ProfileScreen() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettings?.language]);
+
+  // Sync user's backend theme setting with ThemeProvider
+  React.useEffect(() => {
+    if (userSettings?.theme) {
+      const themeMap: Record<string, 'light' | 'dark' | 'system'> = {
+        light: 'light',
+        dark: 'dark',
+        auto: 'system',
+      };
+      const mapped = themeMap[userSettings.theme];
+      if (mapped) {
+        setAppTheme(mapped);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSettings?.theme]);
 
   // Mutations
   const updateSettingsMutation = trpc.user.updateSettings.useMutation();
@@ -361,7 +374,10 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={Colors.background.pageGradient} style={styles.gradientContainer}>
+      <LinearGradient
+        colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
+        style={styles.gradientContainer}
+      >
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
@@ -380,14 +396,17 @@ export default function ProfileScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.webRefreshButton,
+                { backgroundColor: colors.surface.card, borderColor: colors.secondary.grassLight },
                 pressed && { opacity: 0.7 },
                 refreshing && { opacity: 0.5 },
               ]}
               onPress={handleRefresh}
               disabled={refreshing}
             >
-              <RefreshCw size={20} color={Colors.secondary.grass} />
-              <Text style={styles.webRefreshText}>{refreshing ? 'Yenileniyor...' : 'Yenile'}</Text>
+              <RefreshCw size={20} color={colors.secondary.grass} />
+              <Text style={[styles.webRefreshText, { color: colors.secondary.grass }]}>
+                {refreshing ? 'Yenileniyor...' : 'Yenile'}
+              </Text>
             </Pressable>
           )}
           <View style={styles.header}>
@@ -396,13 +415,17 @@ export default function ProfileScreen() {
                 <AvatarDisplay avatarId={user?.avatarUrl} size={layout.icon.mega + 24} />
               </Pressable>
               <Pressable style={styles.editButton} onPress={handleEditProfile}>
-                <Edit2 size={16} color={Colors.neutral.white} />
+                <Edit2 size={16} color="#FFFFFF" />
               </Pressable>
             </View>
             <Pressable onPress={handleEditName}>
-              <Text style={styles.userName}>{user?.name || 'Hoş Geldiniz'}</Text>
+              <Text style={[styles.userName, { color: colors.text.primary }]}>
+                {user?.name || 'Hoş Geldiniz'}
+              </Text>
             </Pressable>
-            <Text style={styles.userEmail}>{user?.email || 'RenkiOO Kullanıcısı'}</Text>
+            <Text style={[styles.userEmail, { color: colors.text.tertiary }]}>
+              {user?.email || 'RenkiOO Kullanıcısı'}
+            </Text>
           </View>
 
           {/* Children Profiles */}
@@ -411,13 +434,22 @@ export default function ProfileScreen() {
               <View style={styles.childrenTitleRow}>
                 <Baby
                   size={iconSizes.small}
-                  color={Colors.secondary.lavender}
+                  color={colors.secondary.lavender}
                   strokeWidth={iconStroke.standard}
                 />
-                <Text style={styles.childrenTitle}>{t.profile.children}</Text>
+                <Text style={[styles.childrenTitle, { color: colors.text.primary }]}>
+                  {t.profile.children}
+                </Text>
                 {user?.children && user.children.length > 0 && (
-                  <View style={styles.childrenCount}>
-                    <Text style={styles.childrenCountText}>{user.children.length}</Text>
+                  <View
+                    style={[
+                      styles.childrenCount,
+                      { backgroundColor: colors.secondary.lavenderLight },
+                    ]}
+                  >
+                    <Text style={[styles.childrenCountText, { color: colors.secondary.lavender }]}>
+                      {user.children.length}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -425,11 +457,7 @@ export default function ProfileScreen() {
                 style={({ pressed }) => [styles.addChildButton, pressed && { opacity: 0.7 }]}
                 onPress={() => setShowAddChildWizard(true)}
               >
-                <Plus
-                  size={iconSizes.small}
-                  color={Colors.neutral.white}
-                  strokeWidth={iconStroke.bold}
-                />
+                <Plus size={iconSizes.small} color="#FFFFFF" strokeWidth={iconStroke.bold} />
               </Pressable>
             </View>
 
@@ -465,199 +493,117 @@ export default function ProfileScreen() {
               </ScrollView>
             ) : (
               <Pressable
-                style={({ pressed }) => [styles.addChildPrompt, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.addChildPrompt,
+                  { backgroundColor: colors.neutral.lightest, borderColor: colors.border.light },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowAddChildWizard(true)}
               >
                 <Baby
                   size={iconSizes.hero}
-                  color={Colors.neutral.light}
+                  color={colors.neutral.light}
                   strokeWidth={iconStroke.thin}
                 />
-                <Text style={styles.addChildPromptText}>Çocuk profili ekleyin</Text>
-                <Text style={styles.addChildPromptHint}>
+                <Text style={[styles.addChildPromptText, { color: colors.text.tertiary }]}>
+                  Çocuk profili ekleyin
+                </Text>
+                <Text style={[styles.addChildPromptHint, { color: colors.neutral.light }]}>
                   Adım adım rehberlik ile kolayca ekleyin
                 </Text>
               </Pressable>
             )}
           </View>
 
-          {/* Stats Cards */}
-          {statsLoading ? (
-            <View style={styles.statsLoading}>
-              <ActivityIndicator size="large" color={Colors.secondary.grass} />
-            </View>
-          ) : (
-            stats && (
-              <View style={styles.statsContainer}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.statCard,
-                    pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
-                  ]}
-                  onPress={() => router.push('/history' as Href)}
-                >
-                  <LinearGradient
-                    colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                    style={styles.statCardGradient}
-                  >
-                    <BookOpen size={32} color={Colors.neutral.white} />
-                    <Text style={styles.statValue}>{stats.totalStorybooks || 0}</Text>
-                    <Text style={styles.statLabel}>{t.profile.stories}</Text>
-                  </LinearGradient>
-                </Pressable>
-
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.statCard,
-                    pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
-                  ]}
-                  onPress={() => router.push('/history' as Href)}
-                >
-                  <LinearGradient
-                    colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                    style={styles.statCardGradient}
-                  >
-                    <Palette size={32} color={Colors.neutral.white} />
-                    <Text style={styles.statValue}>{stats.totalColorings || 0}</Text>
-                    <Text style={styles.statLabel}>{t.profile.colorings}</Text>
-                  </LinearGradient>
-                </Pressable>
-
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.statCard,
-                    pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
-                  ]}
-                  onPress={() => router.push('/history' as Href)}
-                >
-                  <LinearGradient
-                    colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                    style={styles.statCardGradient}
-                  >
-                    <Brain size={32} color={Colors.neutral.white} />
-                    <Text style={styles.statValue}>{stats.totalAnalyses || 0}</Text>
-                    <Text style={styles.statLabel}>{t.profile.analyses}</Text>
-                  </LinearGradient>
-                </Pressable>
-              </View>
-            )
-          )}
-
-          <View style={styles.settingsSection}>
-            <Text style={styles.settingsGroupTitle}>{t.profile.stats}</Text>
-            <View style={styles.settingsGroup}>
-              <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
-                onPress={() => router.push('/history' as Href)}
-              >
-                <View
-                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
-                >
-                  <History size={18} color={Colors.secondary.grass} />
-                </View>
-                <Text style={styles.compactMenuLabel}>{t.profile.stats}</Text>
-                <Text style={styles.compactMenuValue}>
-                  {(stats?.totalAnalyses || 0) +
-                    (stats?.totalStorybooks || 0) +
-                    (stats?.totalColorings || 0)}
+          {/* Compact Stats Row - Inline with header */}
+          {!statsLoading && stats && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.compactStatsRow,
+                { backgroundColor: colors.surface.card },
+                pressed && { opacity: 0.8 },
+              ]}
+              onPress={() => router.push('/history' as Href)}
+            >
+              <View style={styles.compactStatItem}>
+                <Text style={[styles.compactStatNumber, { color: colors.primary.sunset }]}>
+                  {stats.totalAnalyses || 0}
                 </Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Rozetler (Badges) Section */}
-          <View style={styles.section}>
-            <View style={styles.badgesSectionHeader}>
-              <View style={styles.badgesTitleRow}>
-                <Award size={20} color={Colors.primary.sunset} />
-                <Text style={styles.sectionTitle}>Rozetlerim</Text>
+                <Text style={[styles.compactStatLabel, { color: colors.text.tertiary }]}>
+                  {t.profile.analyses}
+                </Text>
               </View>
-              {badgesData?.badges && (
-                <View style={styles.badgesCountBadge}>
-                  <Text style={styles.badgesCountText}>{badgesData.badges.length} kazanıldı</Text>
-                </View>
-              )}
-            </View>
-            <View style={styles.badgesContainer}>
-              <BadgeGrid
-                userBadges={badgesData?.badges || []}
-                progress={badgeProgress?.progress || []}
-                isLoading={badgesLoading}
-                showProgress={true}
-                onBadgePress={(badgeId, isUnlocked, badgeInfo) => {
-                  // badgeInfo tüm rozet verilerini constants'dan alınabilir
-                  const unlockedBadge = badgesData?.badges.find(b => b.id === badgeId);
-                  const progressInfo = badgeProgress?.progress?.find(p => p.id === badgeId);
-
-                  if (unlockedBadge) {
-                    // Açık rozet
-                    setSelectedBadge({
-                      id: unlockedBadge.id,
-                      name: unlockedBadge.name,
-                      description: unlockedBadge.description,
-                      icon: unlockedBadge.icon,
-                      rarity: unlockedBadge.rarity as BadgeRarity,
-                      isUnlocked: true,
-                    });
-                  } else if (badgeInfo) {
-                    // Kilitli rozet - badgeInfo from constants
-                    setSelectedBadge({
-                      id: badgeInfo.id,
-                      name: badgeInfo.name,
-                      description: badgeInfo.description,
-                      icon: badgeInfo.icon,
-                      rarity: badgeInfo.rarity as BadgeRarity,
-                      isUnlocked: false,
-                      progress: progressInfo
-                        ? {
-                            current: progressInfo.current,
-                            target: progressInfo.target,
-                            percentage: progressInfo.percentage,
-                          }
-                        : undefined,
-                    });
-                  }
-                  setShowBadgeModal(true);
-                }}
-              />
-            </View>
-          </View>
+              <View style={[styles.compactStatDivider, { backgroundColor: colors.border.light }]} />
+              <View style={styles.compactStatItem}>
+                <Text style={[styles.compactStatNumber, { color: colors.primary.sunset }]}>
+                  {stats.totalStorybooks || 0}
+                </Text>
+                <Text style={[styles.compactStatLabel, { color: colors.text.tertiary }]}>
+                  {t.profile.stories}
+                </Text>
+              </View>
+              <View style={[styles.compactStatDivider, { backgroundColor: colors.border.light }]} />
+              <View style={styles.compactStatItem}>
+                <Text style={[styles.compactStatNumber, { color: colors.primary.sunset }]}>
+                  {stats.totalColorings || 0}
+                </Text>
+                <Text style={[styles.compactStatLabel, { color: colors.text.tertiary }]}>
+                  {t.profile.colorings}
+                </Text>
+              </View>
+            </Pressable>
+          )}
 
           {/* HESAP Group */}
           <View style={styles.settingsSection}>
-            <Text style={styles.settingsGroupTitle}>HESAP</Text>
-            <View style={styles.settingsGroup}>
+            <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>HESAP</Text>
+            <View style={[styles.settingsGroup, { backgroundColor: colors.surface.card }]}>
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowLanguageModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(120, 200, 232, 0.15)' }]}
                 >
-                  <Globe size={18} color={Colors.secondary.sky} />
+                  <Globe size={18} color={colors.secondary.sky} />
                 </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.language}</Text>
-                <Text style={styles.compactMenuValue}>
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  {t.settings.language}
+                </Text>
+                <Text style={[styles.compactMenuValue, { color: colors.text.tertiary }]}>
                   {userSettings?.language
                     ? LANGUAGES[userSettings.language as Language].nativeName
                     : 'Türkçe'}
                 </Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
+              <View
+                style={[styles.compactMenuDivider, { backgroundColor: colors.neutral.lightest }]}
+              />
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowRoleModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
                 >
-                  <Users size={18} color={Colors.secondary.grass} />
+                  <Users size={18} color={colors.secondary.grass} />
                 </View>
-                <Text style={styles.compactMenuLabel}>Kullanıcı Rolü</Text>
-                <Text style={styles.compactMenuValue}>{roleConfig.displayName}</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  Kullanıcı Rolü
+                </Text>
+                <Text style={[styles.compactMenuValue, { color: colors.text.tertiary }]}>
+                  {roleConfig.displayName}
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
             </View>
           </View>
@@ -669,139 +615,205 @@ export default function ProfileScreen() {
 
           {/* TERCİHLER Group */}
           <View style={styles.settingsSection}>
-            <Text style={styles.settingsGroupTitle}>TERCİHLER</Text>
-            <View style={styles.settingsGroup}>
+            <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>
+              TERCİHLER
+            </Text>
+            <View style={[styles.settingsGroup, { backgroundColor: colors.surface.card }]}>
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowNotificationsModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}
                 >
-                  <Bell size={18} color={Colors.secondary.sunshine} />
+                  <Bell size={18} color={colors.secondary.sunshine} />
                 </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.notifications}</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  {t.settings.notifications}
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
+              <View
+                style={[styles.compactMenuDivider, { backgroundColor: colors.neutral.lightest }]}
+              />
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowThemeModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
                 >
-                  <Sun size={18} color={Colors.secondary.lavender} />
+                  <Sun size={18} color={colors.secondary.lavender} />
                 </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.theme}</Text>
-                <Text style={styles.compactMenuValue}>
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  {t.settings.theme}
+                </Text>
+                <Text style={[styles.compactMenuValue, { color: colors.text.tertiary }]}>
                   {userSettings?.theme === 'light'
                     ? 'Açık'
                     : userSettings?.theme === 'dark'
                       ? 'Koyu'
                       : 'Otomatik'}
                 </Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
+              <View
+                style={[styles.compactMenuDivider, { backgroundColor: colors.neutral.lightest }]}
+              />
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowSoundModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(120, 200, 232, 0.15)' }]}
                 >
-                  <Volume2 size={18} color={Colors.secondary.sky} />
+                  <Volume2 size={18} color={colors.secondary.sky} />
                 </View>
-                <Text style={styles.compactMenuLabel}>Ses Ayarları</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  Ses Ayarları
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
+              <View
+                style={[styles.compactMenuDivider, { backgroundColor: colors.neutral.lightest }]}
+              />
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowHapticModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
                 >
-                  <Vibrate size={18} color={Colors.secondary.lavender} />
+                  <Vibrate size={18} color={colors.secondary.lavender} />
                 </View>
-                <Text style={styles.compactMenuLabel}>Titreşim Ayarları</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  Titreşim Ayarları
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
             </View>
           </View>
 
           {/* GÜVENLİK Group */}
           <View style={styles.settingsSection}>
-            <Text style={styles.settingsGroupTitle}>GÜVENLİK</Text>
-            <View style={styles.settingsGroup}>
+            <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>
+              GÜVENLİK
+            </Text>
+            <View style={[styles.settingsGroup, { backgroundColor: colors.surface.card }]}>
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowPrivacyModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
                 >
-                  <Lock size={18} color={Colors.secondary.grass} />
+                  <Lock size={18} color={colors.secondary.grass} />
                 </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.privacy}</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  {t.settings.privacy}
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
+              <View
+                style={[styles.compactMenuDivider, { backgroundColor: colors.neutral.lightest }]}
+              />
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowAppLockModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
                 >
-                  <Shield size={18} color={Colors.secondary.grass} />
+                  <Shield size={18} color={colors.secondary.grass} />
                 </View>
-                <Text style={styles.compactMenuLabel}>Uygulama Kilidi</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  Uygulama Kilidi
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
-              <View style={styles.compactMenuDivider} />
+              <View
+                style={[styles.compactMenuDivider, { backgroundColor: colors.neutral.lightest }]}
+              />
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowGeneralModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(160, 174, 192, 0.15)' }]}
                 >
-                  <Settings size={18} color={Colors.neutral.medium} />
+                  <Settings size={18} color={colors.neutral.medium} />
                 </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.general}</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  {t.settings.general}
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
             </View>
           </View>
 
           {/* VERİ Group */}
           <View style={styles.settingsSection}>
-            <Text style={styles.settingsGroupTitle}>VERİ</Text>
-            <View style={styles.settingsGroup}>
+            <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>VERİ</Text>
+            <View style={[styles.settingsGroup, { backgroundColor: colors.surface.card }]}>
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() => setShowDataExportModal(true)}
               >
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(120, 200, 232, 0.15)' }]}
                 >
-                  <Download size={18} color={Colors.secondary.sky} />
+                  <Download size={18} color={colors.secondary.sky} />
                 </View>
-                <Text style={styles.compactMenuLabel}>Verilerimi İndir</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  Verilerimi İndir
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
             </View>
           </View>
 
           {/* DESTEK Group */}
           <View style={styles.settingsSection}>
-            <Text style={styles.settingsGroupTitle}>DESTEK</Text>
-            <View style={styles.settingsGroup}>
+            <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>DESTEK</Text>
+            <View style={[styles.settingsGroup, { backgroundColor: colors.surface.card }]}>
               <Pressable
-                style={({ pressed }) => [styles.compactMenuItem, pressed && { opacity: 0.7 }]}
+                style={({ pressed }) => [
+                  styles.compactMenuItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
                 onPress={() =>
                   showAlert(
                     t.settings.help,
@@ -815,10 +827,12 @@ export default function ProfileScreen() {
                 <View
                   style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}
                 >
-                  <HelpCircle size={18} color={Colors.secondary.sunshine} />
+                  <HelpCircle size={18} color={colors.secondary.sunshine} />
                 </View>
-                <Text style={styles.compactMenuLabel}>{t.settings.help}</Text>
-                <ChevronRight size={16} color={Colors.neutral.light} />
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  {t.settings.help}
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
               </Pressable>
             </View>
           </View>
@@ -826,21 +840,59 @@ export default function ProfileScreen() {
           {/* Logout Button */}
           <View style={styles.settingsSection}>
             <Pressable
-              style={({ pressed }) => [styles.logoutCompactButton, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [
+                styles.logoutCompactButton,
+                { backgroundColor: colors.surface.card },
+                pressed && { opacity: 0.7 },
+              ]}
               onPress={handleLogout}
             >
               <View
                 style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 138, 128, 0.15)' }]}
               >
-                <LogOut size={18} color={Colors.semantic.error} />
+                <LogOut size={18} color={colors.semantic.error} />
               </View>
-              <Text style={styles.logoutCompactText}>{t.profile.logout}</Text>
+              <Text style={[styles.logoutCompactText, { color: colors.semantic.error }]}>
+                {t.profile.logout}
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Rozetler - Compact Row */}
+          <View style={styles.settingsSection}>
+            <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>
+              ROZETLER
+            </Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.settingsGroup,
+                { backgroundColor: colors.surface.card },
+                pressed && { opacity: 0.7 },
+              ]}
+              onPress={() => setShowBadgeModal(true)}
+            >
+              <View style={[styles.compactMenuItem, { backgroundColor: colors.surface.card }]}>
+                <View
+                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 155, 122, 0.15)' }]}
+                >
+                  <Award size={18} color={colors.primary.sunset} />
+                </View>
+                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                  Rozetlerim
+                </Text>
+                <Text style={[styles.compactMenuValue, { color: colors.text.tertiary }]}>
+                  {badgesData?.badges?.length || 0} kazanıldı
+                </Text>
+                <ChevronRight size={16} color={colors.neutral.light} />
+              </View>
             </Pressable>
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Renkioo v1.0.0</Text>
-            <Text style={styles.footerText}>Çocukların renkli hayal dünyası</Text>
+            <Text style={[styles.footerText, { color: colors.text.tertiary }]}>Renkioo v1.0.0</Text>
+            <Text style={[styles.footerText, { color: colors.text.tertiary }]}>
+              Ebeveynler için gelişim takip platformu
+            </Text>
           </View>
         </ScrollView>
 
@@ -852,14 +904,22 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowLanguageModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowLanguageModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🌍 {t.settings.language} / Language</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  🌍 {t.settings.language} / Language
+                </Text>
                 <Pressable
                   onPress={() => setShowLanguageModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
@@ -873,6 +933,14 @@ export default function ProfileScreen() {
                       key={langCode}
                       style={({ pressed }) => [
                         styles.languageItem,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(255, 255, 255, 0.3)',
+                          borderColor: isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(255, 255, 255, 0.5)',
+                        },
                         isSelected && styles.languageItemSelected,
                         pressed && { opacity: 0.7 },
                       ]}
@@ -880,10 +948,16 @@ export default function ProfileScreen() {
                     >
                       <Text style={styles.languageFlag}>{lang.flag}</Text>
                       <View style={styles.languageInfo}>
-                        <Text style={styles.languageName}>{lang.nativeName}</Text>
-                        <Text style={styles.languageNameSecondary}>{lang.name}</Text>
+                        <Text style={[styles.languageName, { color: colors.text.primary }]}>
+                          {lang.nativeName}
+                        </Text>
+                        <Text
+                          style={[styles.languageNameSecondary, { color: colors.text.tertiary }]}
+                        >
+                          {lang.name}
+                        </Text>
                       </View>
-                      {isSelected && <Check size={24} color={Colors.secondary.grass} />}
+                      {isSelected && <Check size={24} color={colors.secondary.grass} />}
                     </Pressable>
                   );
                 })}
@@ -900,25 +974,44 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowProfileModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowProfileModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>✏️ {t.profile.editProfile}</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  ✏️ {t.profile.editProfile}
+                </Text>
                 <Pressable
                   onPress={() => setShowProfileModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
               <View style={styles.profileEditForm}>
-                <Text style={styles.inputLabel}>{t.profile.name}</Text>
+                <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>
+                  {t.profile.name}
+                </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text.primary,
+                      backgroundColor: isDark
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'rgba(255, 255, 255, 0.5)',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)',
+                    },
+                  ]}
                   value={editName}
                   onChangeText={setEditName}
                   placeholder={t.profile.name}
-                  placeholderTextColor={Colors.neutral.light}
+                  placeholderTextColor={colors.neutral.light}
                   autoFocus
                 />
 
@@ -927,10 +1020,12 @@ export default function ProfileScreen() {
                   onPress={handleProfileSave}
                 >
                   <LinearGradient
-                    colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                    colors={
+                      [colors.secondary.grass, colors.secondary.grassLight] as [string, string]
+                    }
                     style={styles.saveButtonGradient}
                   >
-                    <Check size={20} color={Colors.neutral.white} />
+                    <Check size={20} color="#FFFFFF" />
                     <Text style={styles.saveButtonText}>{t.common.save}</Text>
                   </LinearGradient>
                 </Pressable>
@@ -947,52 +1042,70 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowNotificationsModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowNotificationsModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🔔 {t.settings.notifications}</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  🔔 {t.settings.notifications}
+                </Text>
                 <Pressable
                   onPress={() => setShowNotificationsModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
               <View style={styles.settingsForm}>
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.notificationsEnabled}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.notificationsEnabled}
+                  </Text>
                   <Switch
                     value={userSettings?.notifications_enabled ?? true}
                     onValueChange={value => handleSettingToggle('notificationsEnabled', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
                   Uygulama bildirimlerini açın veya kapatın
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.emailNotifications}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.emailNotifications}
+                  </Text>
                   <Switch
                     value={userSettings?.email_notifications ?? false}
                     onValueChange={value => handleSettingToggle('emailNotifications', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>{t.settings.emailNotifications}</Text>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
+                  {t.settings.emailNotifications}
+                </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.pushNotifications}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.pushNotifications}
+                  </Text>
                   <Switch
                     value={userSettings?.push_notifications ?? true}
                     onValueChange={value => handleSettingToggle('pushNotifications', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>Anlık bildirimler alın</Text>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
+                  Anlık bildirimler alın
+                </Text>
               </View>
             </Pressable>
           </Pressable>
@@ -1006,35 +1119,53 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowPrivacyModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowPrivacyModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🔒 {t.settings.privacy}</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  🔒 {t.settings.privacy}
+                </Text>
                 <Pressable
                   onPress={() => setShowPrivacyModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
               <View style={styles.settingsForm}>
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.dataSharingConsent}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.dataSharingConsent}
+                  </Text>
                   <Switch
                     value={userSettings?.data_sharing_consent ?? false}
                     onValueChange={value => handleSettingToggle('dataSharingConsent', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
                   Anonim kullanım verilerini paylaşarak uygulamayı geliştirmemize yardımcı olun
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.profileVisibility}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.profileVisibility}
+                  </Text>
                   <Pressable
-                    style={styles.selectButton}
+                    style={[
+                      styles.selectButton,
+                      {
+                        backgroundColor: colors.secondary.grassLight,
+                        borderColor: colors.secondary.grass,
+                      },
+                    ]}
                     onPress={() => {
                       const newVisibility =
                         userSettings?.profile_visibility === 'public' ? 'private' : 'public';
@@ -1042,14 +1173,16 @@ export default function ProfileScreen() {
                       handleSettingToggle('profileVisibility', newVisibility as any);
                     }}
                   >
-                    <Text style={styles.selectButtonText}>
+                    <Text style={[styles.selectButtonText, { color: colors.text.primary }]}>
                       {userSettings?.profile_visibility === 'public'
                         ? '🌍 Herkese Açık'
                         : '🔒 Gizli'}
                     </Text>
                   </Pressable>
                 </View>
-                <Text style={styles.settingDescription}>Profilinizin görünürlüğünü ayarlayın</Text>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
+                  Profilinizin görünürlüğünü ayarlayın
+                </Text>
               </View>
             </Pressable>
           </Pressable>
@@ -1063,52 +1196,70 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowGeneralModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowGeneralModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>⚙️ {t.settings.general}</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  ⚙️ {t.settings.general}
+                </Text>
                 <Pressable
                   onPress={() => setShowGeneralModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
               <View style={styles.settingsForm}>
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.autoSave}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.autoSave}
+                  </Text>
                   <Switch
                     value={userSettings?.auto_save ?? true}
                     onValueChange={value => handleSettingToggle('autoSave', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
                   İçeriklerinizi otomatik olarak kaydedin
                 </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.showTips}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.showTips}
+                  </Text>
                   <Switch
                     value={userSettings?.show_tips ?? true}
                     onValueChange={value => handleSettingToggle('showTips', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>{t.settings.showTips}</Text>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
+                  {t.settings.showTips}
+                </Text>
 
                 <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>{t.settings.childLock}</Text>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>
+                    {t.settings.childLock}
+                  </Text>
                   <Switch
                     value={userSettings?.child_lock_enabled ?? false}
                     onValueChange={value => handleSettingToggle('childLockEnabled', value)}
-                    trackColor={{ false: Colors.neutral.light, true: Colors.secondary.grass }}
+                    trackColor={{ false: colors.neutral.light, true: colors.secondary.grass }}
                     thumbColor={Colors.neutral.white}
                   />
                 </View>
-                <Text style={styles.settingDescription}>Hassas içeriklere erişimi kısıtla</Text>
+                <Text style={[styles.settingDescription, { color: colors.text.tertiary }]}>
+                  Hassas içeriklere erişimi kısıtla
+                </Text>
               </View>
             </Pressable>
           </Pressable>
@@ -1122,11 +1273,19 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowThemeModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowThemeModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>🎨 {t.settings.theme}</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  🎨 {t.settings.theme}
+                </Text>
                 <Pressable onPress={() => setShowThemeModal(false)} style={styles.modalCloseButton}>
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
@@ -1140,20 +1299,40 @@ export default function ProfileScreen() {
                       key={theme}
                       style={({ pressed }) => [
                         styles.themeItem,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(255, 255, 255, 0.3)',
+                          borderColor: isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(255, 255, 255, 0.5)',
+                        },
                         isSelected && styles.themeItemSelected,
                         pressed && { opacity: 0.7 },
                       ]}
                       onPress={async () => {
+                        // Save to backend settings
                         await handleSettingToggle('theme', theme);
+                        // Actually switch the theme in ThemeProvider
+                        const themeMap: Record<Theme, 'light' | 'dark' | 'system'> = {
+                          light: 'light',
+                          dark: 'dark',
+                          auto: 'system',
+                        };
+                        setAppTheme(themeMap[theme]);
                         setShowThemeModal(false);
                       }}
                     >
                       <Text style={styles.themeIcon}>{themeInfo.icon}</Text>
                       <View style={styles.themeInfo}>
-                        <Text style={styles.themeName}>{themeInfo.name}</Text>
-                        <Text style={styles.themeDescription}>{themeInfo.description}</Text>
+                        <Text style={[styles.themeName, { color: colors.text.primary }]}>
+                          {themeInfo.name}
+                        </Text>
+                        <Text style={[styles.themeDescription, { color: colors.text.tertiary }]}>
+                          {themeInfo.description}
+                        </Text>
                       </View>
-                      {isSelected && <Check size={24} color={Colors.secondary.grass} />}
+                      {isSelected && <Check size={24} color={colors.secondary.grass} />}
                     </Pressable>
                   );
                 })}
@@ -1170,45 +1349,78 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowChildrenModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowChildrenModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>👶 {t.profile.addChild}</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  👶 {t.profile.addChild}
+                </Text>
                 <Pressable
                   onPress={() => setShowChildrenModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
               <View style={styles.profileEditForm}>
-                <Text style={styles.inputLabel}>Avatar</Text>
+                <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>Avatar</Text>
                 <Pressable
-                  style={styles.avatarSelector}
+                  style={[
+                    styles.avatarSelector,
+                    { backgroundColor: colors.neutral.lightest, borderColor: colors.border.light },
+                  ]}
                   onPress={() => setShowChildAvatarPicker(true)}
                 >
                   <AvatarDisplay avatarId={selectedChildAvatarId} size={64} />
-                  <Text style={styles.avatarSelectorText}>
+                  <Text style={[styles.avatarSelectorText, { color: colors.text.secondary }]}>
                     {selectedChildAvatarId ? 'Avatar Değiştir' : 'Avatar Seç'}
                   </Text>
                 </Pressable>
 
-                <Text style={styles.inputLabel}>{t.profile.childName}</Text>
+                <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>
+                  {t.profile.childName}
+                </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text.primary,
+                      backgroundColor: isDark
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'rgba(255, 255, 255, 0.5)',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)',
+                    },
+                  ]}
                   value={childName}
                   onChangeText={setChildName}
                   placeholder={t.profile.childName}
-                  placeholderTextColor={Colors.neutral.light}
+                  placeholderTextColor={colors.neutral.light}
                 />
 
-                <Text style={styles.inputLabel}>{t.profile.childAge}</Text>
+                <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>
+                  {t.profile.childAge}
+                </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text.primary,
+                      backgroundColor: isDark
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'rgba(255, 255, 255, 0.5)',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)',
+                    },
+                  ]}
                   value={childAge}
                   onChangeText={setChildAge}
                   placeholder={t.profile.childAge + ' (0-18)'}
-                  placeholderTextColor={Colors.neutral.light}
+                  placeholderTextColor={colors.neutral.light}
                   keyboardType="number-pad"
                 />
 
@@ -1217,10 +1429,15 @@ export default function ProfileScreen() {
                   onPress={handleAddChild}
                 >
                   <LinearGradient
-                    colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                    colors={
+                      [colors.secondary.lavender, colors.secondary.lavenderLight] as [
+                        string,
+                        string,
+                      ]
+                    }
                     style={styles.saveButtonGradient}
                   >
-                    <Plus size={20} color={Colors.neutral.white} />
+                    <Plus size={20} color="#FFFFFF" />
                     <Text style={styles.saveButtonText}>{t.common.add}</Text>
                   </LinearGradient>
                 </Pressable>
@@ -1276,11 +1493,19 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowRoleModal(false)}
         >
           <Pressable style={styles.modalOverlay} onPress={() => setShowRoleModal(false)}>
-            <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>👤 Kullanıcı Rolü</Text>
+            <Pressable
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+              ]}
+              onPress={e => e.stopPropagation()}
+            >
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border.light }]}>
+                <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                  👤 Kullanıcı Rolü
+                </Text>
                 <Pressable onPress={() => setShowRoleModal(false)} style={styles.modalCloseButton}>
-                  <X size={24} color={Colors.neutral.dark} />
+                  <X size={24} color={colors.text.secondary} />
                 </Pressable>
               </View>
 
@@ -1294,6 +1519,14 @@ export default function ProfileScreen() {
                       key={roleKey}
                       style={({ pressed }) => [
                         styles.themeItem,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(255, 255, 255, 0.3)',
+                          borderColor: isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(255, 255, 255, 0.5)',
+                        },
                         isSelected && styles.themeItemSelected,
                         pressed && { opacity: 0.7 },
                       ]}
@@ -1307,10 +1540,14 @@ export default function ProfileScreen() {
                         {roleKey === 'parent' ? '👨‍👩‍👧' : roleKey === 'teacher' ? '👩‍🏫' : '🩺'}
                       </Text>
                       <View style={styles.themeInfo}>
-                        <Text style={styles.themeName}>{roleInfo.displayName}</Text>
-                        <Text style={styles.themeDescription}>{roleInfo.description}</Text>
+                        <Text style={[styles.themeName, { color: colors.text.primary }]}>
+                          {roleInfo.displayName}
+                        </Text>
+                        <Text style={[styles.themeDescription, { color: colors.text.tertiary }]}>
+                          {roleInfo.description}
+                        </Text>
                       </View>
-                      {isSelected && <Check size={24} color={Colors.secondary.grass} />}
+                      {isSelected && <Check size={24} color={colors.secondary.grass} />}
                     </Pressable>
                   );
                 })}
@@ -1320,7 +1557,7 @@ export default function ProfileScreen() {
                 <Text
                   style={{
                     fontSize: typography.size.xs,
-                    color: Colors.neutral.medium,
+                    color: colors.text.tertiary,
                     textAlign: 'center',
                   }}
                 >
@@ -1414,40 +1651,37 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['10'],
     alignItems: 'center',
   },
-  statsContainer: {
+  compactStatsRow: {
     flexDirection: 'row',
-    gap: isSmallDevice ? spacing['2'] : spacing['3'],
-    marginBottom: spacing['8'],
-  },
-  statCard: {
-    flex: 1,
-    borderRadius: radius.xl,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    overflow: 'hidden',
-  },
-  statCardGradient: {
-    padding: isSmallDevice ? spacing['4'] : spacing['5'],
-    borderRadius: radius.xl,
     alignItems: 'center',
-    gap: isSmallDevice ? spacing['2'] : spacing['3'],
-    ...shadows.md,
+    justifyContent: 'space-around',
+    backgroundColor: Colors.neutral.white,
+    borderRadius: radius.xl,
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['3'],
+    marginBottom: spacing['6'],
+    ...shadows.sm,
   },
-  statValue: {
-    fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
+  compactStatItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  compactStatNumber: {
+    fontSize: typography.size['2xl'],
     fontWeight: typography.weight.extrabold,
-    color: Colors.neutral.white,
+    color: Colors.primary.sunset,
     letterSpacing: typography.letterSpacing.tight,
-    ...textShadows.md,
   },
-  statLabel: {
-    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.white,
-    opacity: 0.95,
-    textTransform: 'uppercase' as const,
-    letterSpacing: typography.letterSpacing.wide,
-    ...textShadows.sm,
+  compactStatLabel: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.medium,
+    color: Colors.neutral.medium,
+    marginTop: 2,
+  },
+  compactStatDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: Colors.neutral.lighter,
   },
   userName: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
@@ -1464,15 +1698,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: spacing['8'],
-  },
-  sectionTitle: {
-    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
-    fontWeight: typography.weight.bold,
-    color: Colors.neutral.medium,
-    textTransform: 'uppercase' as const,
-    letterSpacing: typography.letterSpacing.wider,
-    marginBottom: spacing['4'],
-    paddingHorizontal: spacing['1'],
   },
   // Compact Settings Styles
   settingsSection: {
@@ -1882,36 +2107,5 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
     color: Colors.secondary.grass,
-  },
-  // Badges Section Styles
-  badgesSectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing['3'],
-  },
-  badgesTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['2'],
-  },
-  badgesCountBadge: {
-    backgroundColor: 'rgba(255, 155, 122, 0.15)',
-    paddingHorizontal: spacing['3'],
-    paddingVertical: spacing['1'],
-    borderRadius: radius.full,
-  },
-  badgesCountText: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
-    color: Colors.primary.sunset,
-  },
-  badgesContainer: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: radius.xl,
-    padding: isSmallDevice ? spacing['3'] : spacing['4'],
-    borderWidth: 2,
-    borderColor: 'rgba(255, 155, 122, 0.2)',
-    ...shadows.lg,
   },
 });

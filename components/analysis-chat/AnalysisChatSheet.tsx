@@ -13,7 +13,6 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
   StyleSheet,
   Dimensions,
@@ -21,7 +20,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
-import { X, Send, Sparkles, StickyNote } from 'lucide-react-native';
+import { X, Send, StickyNote } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
@@ -41,7 +40,7 @@ const THEME = {
   secondary: Colors.secondary.lavender,
 };
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface Message {
   id: string;
@@ -65,7 +64,7 @@ interface AnalysisChatSheetProps {
 export function AnalysisChatSheet({
   analysisId,
   analysisResult,
-  childAge,
+
   childName,
   isVisible,
   onClose,
@@ -96,7 +95,7 @@ export function AnalysisChatSheet({
       startConversationMutation.mutate(
         { analysisId },
         {
-          onSuccess: (data) => {
+          onSuccess: data => {
             setConversationId(data.conversation.id);
             if (!data.isNew && data.conversation.messages?.length > 0) {
               setMessages(data.conversation.messages);
@@ -106,6 +105,7 @@ export function AnalysisChatSheet({
         }
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible, analysisId]);
 
   // Scroll to bottom on new messages
@@ -117,65 +117,69 @@ export function AnalysisChatSheet({
     }
   }, [messages]);
 
-  const handleSendMessage = useCallback(async (text: string, insightIndex?: number) => {
-    if (!text.trim() || isLoading) return;
+  const handleSendMessage = useCallback(
+    async (text: string, insightIndex?: number) => {
+      if (!text.trim() || isLoading) return;
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: text.trim(),
-      timestamp: new Date().toISOString(),
-      referencedInsightIndex: insightIndex,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInputText('');
-    setIsLoading(true);
-    setShowWelcome(false);
-
-    try {
-      const response = await sendMessageMutation.mutateAsync({
-        analysisId,
-        message: text.trim(),
-        conversationId: conversationId || undefined,
-        referencedInsightIndex: insightIndex,
-      });
-
-      if (!conversationId && response.conversationId) {
-        setConversationId(response.conversationId);
-      }
-
-      const assistantMessage: Message = {
-        id: response.assistantMessage.id,
-        role: 'assistant',
-        content: response.assistantMessage.content,
-        timestamp: response.assistantMessage.timestamp,
-        referencedInsightIndex: response.assistantMessage.referencedInsightIndex,
-        suggestedQuestions: response.suggestedQuestions,
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      // Show reflection prompt after a few messages
-      if (messages.length >= 4 && !showReflection) {
-        setShowReflection(true);
-      }
-    } catch (error) {
-      console.error('Send message error:', error);
-      // Add error message
-      const errorMessage: Message = {
-        id: `error-${Date.now()}`,
-        role: 'assistant',
-        content: 'Üzgünüm, yanıt oluşturamadım. Lütfen tekrar deneyin.',
+      const userMessage: Message = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: text.trim(),
         timestamp: new Date().toISOString(),
+        referencedInsightIndex: insightIndex,
       };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [analysisId, conversationId, isLoading, messages.length, showReflection]);
+
+      setMessages(prev => [...prev, userMessage]);
+      setInputText('');
+      setIsLoading(true);
+      setShowWelcome(false);
+
+      try {
+        const response = await sendMessageMutation.mutateAsync({
+          analysisId,
+          message: text.trim(),
+          conversationId: conversationId || undefined,
+          referencedInsightIndex: insightIndex,
+        });
+
+        if (!conversationId && response.conversationId) {
+          setConversationId(response.conversationId);
+        }
+
+        const assistantMessage: Message = {
+          id: response.assistantMessage.id,
+          role: 'assistant',
+          content: response.assistantMessage.content,
+          timestamp: response.assistantMessage.timestamp,
+          referencedInsightIndex: response.assistantMessage.referencedInsightIndex,
+          suggestedQuestions: response.suggestedQuestions,
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+
+        // Show reflection prompt after a few messages
+        if (messages.length >= 4 && !showReflection) {
+          setShowReflection(true);
+        }
+      } catch (error) {
+        console.error('Send message error:', error);
+        // Add error message
+        const errorMessage: Message = {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: 'Üzgünüm, yanıt oluşturamadım. Lütfen tekrar deneyin.',
+          timestamp: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [analysisId, conversationId, isLoading, messages.length, showReflection]
+  );
 
   const handleQuickPromptSelect = (question: string) => {
     handleSendMessage(question);
@@ -194,27 +198,17 @@ export function AnalysisChatSheet({
   };
 
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={handleClose}
-    >
+    <Modal visible={isVisible} transparent animationType="slide" onRequestClose={handleClose}>
       <BlurView intensity={20} style={styles.blurContainer}>
         <View style={[styles.sheetContainer, { paddingBottom: insets.bottom }]}>
           {/* Header */}
-          <LinearGradient
-            colors={['#1A2332', '#2E3F5C']}
-            style={styles.header}
-          >
+          <LinearGradient colors={['#1A2332', '#2E3F5C']} style={styles.header}>
             <View style={styles.headerContent}>
               <View style={styles.headerLeft}>
                 <Ioo size="sm" mood="curious" animated={true} />
                 <View style={styles.headerTextContainer}>
                   <Text style={styles.headerTitle}>Ioo ile Sohbet</Text>
-                  <Text style={styles.headerSubtitle}>
-                    Analiz hakkında konuşalım
-                  </Text>
+                  <Text style={styles.headerSubtitle}>Analiz hakkında konuşalım</Text>
                 </View>
               </View>
               <View style={styles.headerActions}>
@@ -265,8 +259,8 @@ export function AnalysisChatSheet({
                         Merhaba{childName ? ` ${childName}'in ebeveyni` : ''}!
                       </Text>
                       <Text style={styles.welcomeText}>
-                        Bu analiz hakkında sorularını yanıtlayabilirim.
-                        Aşağıdaki sorulardan birini seçebilir veya kendi sorunuzu yazabilirsiniz.
+                        Bu analiz hakkında sorularını yanıtlayabilirim. Aşağıdaki sorulardan birini
+                        seçebilir veya kendi sorunuzu yazabilirsiniz.
                       </Text>
                     </View>
                   </AnimatedMessage>

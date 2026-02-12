@@ -4,27 +4,29 @@
  * Interaktif hikaye okuma ve secim ekrani
  */
 
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, StatusBar, Alert } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/lib/hooks/useAuth";
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, StatusBar, Alert } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import {
   InteractiveStoryReader,
   EndingCelebration,
   ParentReport,
-} from "@/components/interactive-story";
+} from '@/components/interactive-story';
 import {
   StorySegment,
   ChoicePoint,
   InteractiveCharacter,
   ChoiceMade,
   ParentReport as ParentReportType,
-} from "@/types/InteractiveStory";
+} from '@/types/InteractiveStory';
 
-type ScreenState = "reading" | "ending" | "report";
+type ScreenState = 'reading' | 'ending' | 'report';
 
 export default function InteractiveStoryScreen() {
+  const { colors, isDark } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{
     id: string;
@@ -45,15 +47,15 @@ export default function InteractiveStoryScreen() {
   useEffect(() => {
     if (!sessionId) {
       Alert.alert('Hata', 'Geçersiz hikaye oturumu', [
-        { text: 'Tamam', onPress: () => router.back() }
+        { text: 'Tamam', onPress: () => router.back() },
       ]);
     }
   }, [sessionId, router]);
 
-  const [screenState, setScreenState] = useState<ScreenState>("reading");
+  const [screenState, setScreenState] = useState<ScreenState>('reading');
   const [currentSegment, setCurrentSegment] = useState<StorySegment | null>(null);
   const [currentChoicePoint, setCurrentChoicePoint] = useState<ChoicePoint | undefined>();
-  const [choicesMade, setChoicesMade] = useState<ChoiceMade[]>([]);
+  const [_choicesMade, setChoicesMade] = useState<ChoiceMade[]>([]);
   const [progress, setProgress] = useState({ currentChoice: 0, totalChoices: 5 });
   const [isEnding, setIsEnding] = useState(false);
   const [report, setReport] = useState<ParentReportType | null>(null);
@@ -72,28 +74,31 @@ export default function InteractiveStoryScreen() {
 
   // Secim mutation
   const makeChoiceMutation = trpc.interactiveStory.makeChoice.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setCurrentSegment(data.segment);
       setCurrentChoicePoint(data.nextChoicePoint);
       setProgress(data.progress);
       setIsEnding(data.isEnding);
 
       if (data.choiceMade) {
-        setChoicesMade(prev => [...prev, {
-          choicePointId: currentChoicePoint?.id || "",
-          optionId: data.choiceMade.trait,
-          trait: data.choiceMade.trait,
-          timestamp: new Date().toISOString(),
-        }]);
+        setChoicesMade(prev => [
+          ...prev,
+          {
+            choicePointId: currentChoicePoint?.id || '',
+            optionId: data.choiceMade.trait,
+            trait: data.choiceMade.trait,
+            timestamp: new Date().toISOString(),
+          },
+        ]);
       }
     },
   });
 
   // Rapor olustur mutation
   const generateReportMutation = trpc.interactiveStory.generateParentReport.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setReport(data);
-      setScreenState("report");
+      setScreenState('report');
     },
   });
 
@@ -112,7 +117,7 @@ export default function InteractiveStoryScreen() {
       setChoicesMade(data.session.choicesMade);
 
       if (data.isEnding) {
-        setScreenState("ending");
+        setScreenState('ending');
       }
     }
   }, [sessionQuery.data]);
@@ -130,7 +135,7 @@ export default function InteractiveStoryScreen() {
 
   // Hikaye tamamlandiginda
   const handleStoryComplete = () => {
-    setScreenState("ending");
+    setScreenState('ending');
   };
 
   // Rapor gorme
@@ -141,26 +146,26 @@ export default function InteractiveStoryScreen() {
 
   // Ana sayfaya don
   const handleGoHome = () => {
-    router.replace("/(tabs)/stories");
+    router.replace('/(tabs)/stories');
   };
 
   // Yukleniyor
   if (sessionQuery.isLoading || !storyInfo || !currentSegment) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+      <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
         <InteractiveStoryReader
           title=""
           character={{
-            name: "",
-            type: "",
+            name: '',
+            type: '',
             age: 0,
-            appearance: "",
+            appearance: '',
             personality: [],
-            speechStyle: "",
-            arc: { start: "", middle: "", end: "" },
+            speechStyle: '',
+            arc: { start: '', middle: '', end: '' },
           }}
-          currentSegment={{ id: "", pages: [], endsWithChoice: false }}
+          currentSegment={{ id: '', pages: [], endsWithChoice: false }}
           onChoiceMade={() => {}}
           onStoryComplete={() => {}}
           isLoading={true}
@@ -172,22 +177,19 @@ export default function InteractiveStoryScreen() {
   }
 
   // Rapor ekrani
-  if (screenState === "report" && report) {
+  if (screenState === 'report' && report) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <ParentReport
-          report={report}
-          onClose={handleGoHome}
-        />
+      <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <ParentReport report={report} onClose={handleGoHome} />
       </View>
     );
   }
 
   // Bitis kutlama ekrani
-  if (screenState === "ending") {
+  if (screenState === 'ending') {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
         <StatusBar barStyle="light-content" />
         <EndingCelebration
           character={storyInfo.character}
@@ -201,8 +203,8 @@ export default function InteractiveStoryScreen() {
 
   // Hikaye okuma ekrani
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <InteractiveStoryReader
         title={storyInfo.title}
         character={storyInfo.character}
@@ -221,6 +223,6 @@ export default function InteractiveStoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF5FF",
+    backgroundColor: '#FAF5FF',
   },
 });

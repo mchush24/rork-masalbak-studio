@@ -30,6 +30,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import {
   layout,
@@ -98,6 +99,7 @@ export default function HistoryScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { colors, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState<TabType>(TAB_ANALYSES);
   const [refreshing, setRefreshing] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
@@ -481,23 +483,29 @@ export default function HistoryScreen() {
         : coloringsList.length === 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       <LinearGradient
-        colors={Colors.background.pageGradient}
+        colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTitleContainer}>
             <LinearGradient
-              colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+              colors={
+                [colors.secondary.lavender, colors.secondary.lavenderLight] as [
+                  string,
+                  string,
+                  ...string[],
+                ]
+              }
               style={styles.headerIcon}
             >
-              <Clock size={layout.icon.medium} color={Colors.neutral.white} />
+              <Clock size={layout.icon.medium} color="#FFFFFF" />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Geçmiş</Text>
-              <Text style={styles.headerSubtitle}>
+              <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Geçmiş</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
                 {activeTab === TAB_ANALYSES && `${analyses.length} analiz`}
                 {activeTab === TAB_STORIES && `${storybooksList.length} masal`}
                 {activeTab === TAB_COLORINGS && `${coloringsList.length} boyama`}
@@ -507,21 +515,35 @@ export default function HistoryScreen() {
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
+        <View
+          style={[
+            styles.tabsContainer,
+            { backgroundColor: isDark ? colors.surface.card : undefined },
+          ]}
+        >
           <Pressable
             style={({ pressed }) => [
               styles.tab,
               activeTab === TAB_ANALYSES && styles.tabActive,
+              activeTab !== TAB_ANALYSES && {
+                backgroundColor: isDark ? colors.surface.elevated : undefined,
+              },
               pressed && { opacity: 0.7 },
             ]}
             onPress={() => setActiveTab(TAB_ANALYSES)}
           >
             <Brain
               size={iconSizes.small}
-              color={activeTab === TAB_ANALYSES ? Colors.neutral.white : Colors.neutral.dark}
+              color={activeTab === TAB_ANALYSES ? '#FFFFFF' : colors.text.secondary}
               strokeWidth={iconStroke.standard}
             />
-            <Text style={[styles.tabText, activeTab === TAB_ANALYSES && styles.tabTextActive]}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === TAB_ANALYSES && styles.tabTextActive,
+                activeTab !== TAB_ANALYSES && { color: colors.text.secondary },
+              ]}
+            >
               {t.history.analyses}
             </Text>
           </Pressable>
@@ -530,16 +552,25 @@ export default function HistoryScreen() {
             style={({ pressed }) => [
               styles.tab,
               activeTab === TAB_STORIES && styles.tabActive,
+              activeTab !== TAB_STORIES && {
+                backgroundColor: isDark ? colors.surface.elevated : undefined,
+              },
               pressed && { opacity: 0.7 },
             ]}
             onPress={() => setActiveTab(TAB_STORIES)}
           >
             <BookOpen
               size={iconSizes.small}
-              color={activeTab === TAB_STORIES ? Colors.neutral.white : Colors.neutral.dark}
+              color={activeTab === TAB_STORIES ? '#FFFFFF' : colors.text.secondary}
               strokeWidth={iconStroke.standard}
             />
-            <Text style={[styles.tabText, activeTab === TAB_STORIES && styles.tabTextActive]}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === TAB_STORIES && styles.tabTextActive,
+                activeTab !== TAB_STORIES && { color: colors.text.secondary },
+              ]}
+            >
               {t.history.stories}
             </Text>
           </Pressable>
@@ -548,16 +579,25 @@ export default function HistoryScreen() {
             style={({ pressed }) => [
               styles.tab,
               activeTab === TAB_COLORINGS && styles.tabActive,
+              activeTab !== TAB_COLORINGS && {
+                backgroundColor: isDark ? colors.surface.elevated : undefined,
+              },
               pressed && { opacity: 0.7 },
             ]}
             onPress={() => setActiveTab(TAB_COLORINGS)}
           >
             <Palette
               size={iconSizes.small}
-              color={activeTab === TAB_COLORINGS ? Colors.neutral.white : Colors.neutral.dark}
+              color={activeTab === TAB_COLORINGS ? '#FFFFFF' : colors.text.secondary}
               strokeWidth={iconStroke.standard}
             />
-            <Text style={[styles.tabText, activeTab === TAB_COLORINGS && styles.tabTextActive]}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === TAB_COLORINGS && styles.tabTextActive,
+                activeTab !== TAB_COLORINGS && { color: colors.text.secondary },
+              ]}
+            >
               {t.history.colorings}
             </Text>
           </Pressable>
@@ -591,15 +631,17 @@ export default function HistoryScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              tintColor={Colors.primary.sunset}
+              tintColor={colors.primary.sunset}
             />
           }
         >
           {/* Loading State */}
           {isLoading && (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={Colors.primary.sunset} />
-              <Text style={styles.loadingText}>Yükleniyor...</Text>
+              <ActivityIndicator size="large" color={colors.primary.sunset} />
+              <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
+                Yükleniyor...
+              </Text>
             </View>
           )}
 
@@ -658,14 +700,22 @@ export default function HistoryScreen() {
               <View key={dateGroup} style={styles.timelineGroup}>
                 {/* Timeline Date Header */}
                 <View style={styles.timelineHeader}>
-                  <View style={styles.timelineDot} />
-                  <Text style={styles.timelineDate}>{dateGroup}</Text>
-                  <View style={styles.timelineLine} />
+                  <View style={[styles.timelineDot, { backgroundColor: colors.primary.sunset }]} />
+                  <Text style={[styles.timelineDate, { color: colors.text.secondary }]}>
+                    {dateGroup}
+                  </Text>
+                  <View style={[styles.timelineLine, { backgroundColor: colors.border.light }]} />
                 </View>
 
                 {/* Analyses in this group */}
                 {groupAnalyses.map(analysis => (
-                  <View key={analysis.id} style={styles.analysisCard}>
+                  <View
+                    key={analysis.id}
+                    style={[
+                      styles.analysisCard,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                    ]}
+                  >
                     <Pressable
                       onPress={() => handleViewAnalysis(analysis.id)}
                       style={({ pressed }) => [styles.cardPressable, pressed && { opacity: 0.8 }]}
@@ -683,28 +733,34 @@ export default function HistoryScreen() {
                             </View>
                           ) : (
                             <LinearGradient
-                              colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
+                              colors={
+                                [colors.secondary.grass, colors.secondary.grassLight] as [
+                                  string,
+                                  string,
+                                  ...string[],
+                                ]
+                              }
                               style={styles.cardIcon}
                             >
                               <Brain
                                 size={iconSizes.small}
-                                color={Colors.neutral.white}
+                                color="#FFFFFF"
                                 strokeWidth={iconStroke.standard}
                               />
                             </LinearGradient>
                           )}
                           <View style={styles.cardHeaderText}>
-                            <Text style={styles.cardTitle}>
+                            <Text style={[styles.cardTitle, { color: colors.text.primary }]}>
                               {TASK_TYPE_LABELS[analysis.task_type as TaskType] ||
                                 analysis.task_type}
                             </Text>
                             <View style={styles.cardMeta}>
                               <Clock
                                 size={iconSizes.inline}
-                                color={Colors.neutral.medium}
+                                color={colors.text.tertiary}
                                 strokeWidth={iconStroke.standard}
                               />
-                              <Text style={styles.cardMetaText}>
+                              <Text style={[styles.cardMetaText, { color: colors.text.tertiary }]}>
                                 {new Date(analysis.created_at).toLocaleTimeString('tr-TR', {
                                   hour: '2-digit',
                                   minute: '2-digit',
@@ -712,8 +768,16 @@ export default function HistoryScreen() {
                               </Text>
                               {analysis.child_age && (
                                 <>
-                                  <Text style={styles.cardMetaDot}>•</Text>
-                                  <Text style={styles.cardMetaText}>{analysis.child_age} yaş</Text>
+                                  <Text
+                                    style={[styles.cardMetaDot, { color: colors.text.tertiary }]}
+                                  >
+                                    •
+                                  </Text>
+                                  <Text
+                                    style={[styles.cardMetaText, { color: colors.text.tertiary }]}
+                                  >
+                                    {analysis.child_age} yaş
+                                  </Text>
                                 </>
                               )}
                             </View>
@@ -721,15 +785,23 @@ export default function HistoryScreen() {
                         </View>
                         <ChevronRight
                           size={iconSizes.small}
-                          color={Colors.neutral.light}
+                          color={colors.text.tertiary}
                           strokeWidth={iconStroke.standard}
                         />
                       </View>
 
                       {analysis.analysis_result?.insights?.length > 0 &&
                         analysis.analysis_result.insights[0] && (
-                          <View style={styles.insightsPreview}>
-                            <Text style={styles.insightText} numberOfLines={2}>
+                          <View
+                            style={[
+                              styles.insightsPreview,
+                              { backgroundColor: isDark ? colors.surface.elevated : undefined },
+                            ]}
+                          >
+                            <Text
+                              style={[styles.insightText, { color: colors.text.secondary }]}
+                              numberOfLines={2}
+                            >
                               {analysis.analysis_result.insights[0]?.title}:{' '}
                               {analysis.analysis_result.insights[0]?.summary}
                             </Text>
@@ -737,15 +809,15 @@ export default function HistoryScreen() {
                         )}
                     </Pressable>
 
-                    <View style={styles.cardActions}>
+                    <View style={[styles.cardActions, { borderTopColor: colors.border.light }]}>
                       <Pressable
                         onPress={() => handleToggleFavorite(analysis.id, analysis.favorited)}
                         style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
                       >
                         <Heart
                           size={iconSizes.small}
-                          color={analysis.favorited ? Colors.semantic.error : Colors.neutral.medium}
-                          fill={analysis.favorited ? Colors.semantic.error : 'none'}
+                          color={analysis.favorited ? colors.semantic.error : colors.text.tertiary}
+                          fill={analysis.favorited ? colors.semantic.error : 'none'}
                           strokeWidth={iconStroke.standard}
                         />
                       </Pressable>
@@ -755,7 +827,7 @@ export default function HistoryScreen() {
                       >
                         <Share2
                           size={iconSizes.small}
-                          color={Colors.neutral.medium}
+                          color={colors.text.tertiary}
                           strokeWidth={iconStroke.standard}
                         />
                       </Pressable>
@@ -765,7 +837,7 @@ export default function HistoryScreen() {
                       >
                         <Trash2
                           size={iconSizes.small}
-                          color={Colors.neutral.medium}
+                          color={colors.text.tertiary}
                           strokeWidth={iconStroke.standard}
                         />
                       </Pressable>
@@ -788,7 +860,7 @@ export default function HistoryScreen() {
                   >
                     <Trash2
                       size={iconSizes.action}
-                      color={Colors.neutral.white}
+                      color="#FFFFFF"
                       strokeWidth={iconStroke.standard}
                     />
                     <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
@@ -803,10 +875,25 @@ export default function HistoryScreen() {
                   overshootRight={false}
                 >
                   <Pressable
-                    style={({ pressed }) => [styles.storyCard, pressed && { opacity: 0.8 }]}
+                    style={({ pressed }) => [
+                      styles.storyCard,
+                      { borderColor: colors.border.light },
+                      pressed && { opacity: 0.8 },
+                    ]}
                     onPress={() => handleStorybookPress(storybook)}
                   >
-                    <LinearGradient colors={Colors.cards.story.bg} style={styles.cardGradient}>
+                    <LinearGradient
+                      colors={
+                        isDark
+                          ? ([colors.surface.card, colors.surface.elevated] as [
+                              string,
+                              string,
+                              ...string[],
+                            ])
+                          : Colors.cards.story.bg
+                      }
+                      style={styles.cardGradient}
+                    >
                       <View style={styles.storyImageContainer}>
                         {storybook.pages?.[0]?.img_url ? (
                           <Image
@@ -815,27 +902,40 @@ export default function HistoryScreen() {
                             contentFit="contain"
                           />
                         ) : (
-                          <View style={styles.storyImagePlaceholder}>
-                            <BookOpen size={layout.icon.large} color={Colors.cards.story.icon} />
+                          <View
+                            style={[
+                              styles.storyImagePlaceholder,
+                              { backgroundColor: isDark ? colors.surface.elevated : undefined },
+                            ]}
+                          >
+                            <BookOpen
+                              size={layout.icon.large}
+                              color={isDark ? colors.secondary.lavender : Colors.cards.story.icon}
+                            />
                           </View>
                         )}
                       </View>
 
                       <View style={styles.storyContent}>
-                        <Text style={styles.storyTitle} numberOfLines={2}>
+                        <Text
+                          style={[styles.storyTitle, { color: colors.text.primary }]}
+                          numberOfLines={2}
+                        >
                           {storybook.title}
                         </Text>
                         <View style={styles.storyMeta}>
                           <Calendar
                             size={iconSizes.inline}
-                            color={Colors.neutral.medium}
+                            color={colors.text.tertiary}
                             strokeWidth={iconStroke.standard}
                           />
-                          <Text style={styles.storyMetaText}>
+                          <Text style={[styles.storyMetaText, { color: colors.text.tertiary }]}>
                             {formatDate(storybook.created_at)}
                           </Text>
-                          <Text style={styles.cardMetaDot}>•</Text>
-                          <Text style={styles.storyMetaText}>
+                          <Text style={[styles.cardMetaDot, { color: colors.text.tertiary }]}>
+                            •
+                          </Text>
+                          <Text style={[styles.storyMetaText, { color: colors.text.tertiary }]}>
                             {storybook.pages?.length || 0} sayfa
                           </Text>
                         </View>
@@ -858,7 +958,7 @@ export default function HistoryScreen() {
                     >
                       <Trash2
                         size={iconSizes.small}
-                        color={Colors.neutral.white}
+                        color="#FFFFFF"
                         strokeWidth={iconStroke.standard}
                       />
                       <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
@@ -872,9 +972,17 @@ export default function HistoryScreen() {
                     renderRightActions={renderRightActions}
                     overshootRight={false}
                   >
-                    <View style={styles.coloringCard}>
+                    <View style={[styles.coloringCard, { borderColor: colors.border.light }]}>
                       <LinearGradient
-                        colors={[Colors.neutral.lightest, Colors.neutral.white]}
+                        colors={
+                          isDark
+                            ? ([colors.surface.card, colors.surface.elevated] as [
+                                string,
+                                string,
+                                ...string[],
+                              ])
+                            : [Colors.neutral.lightest, Colors.neutral.white]
+                        }
                         style={styles.coloringGradient}
                       >
                         <View style={styles.coloringImageContainer}>
@@ -885,10 +993,15 @@ export default function HistoryScreen() {
                               contentFit="cover"
                             />
                           ) : (
-                            <View style={styles.coloringImagePlaceholder}>
+                            <View
+                              style={[
+                                styles.coloringImagePlaceholder,
+                                { backgroundColor: isDark ? colors.surface.elevated : undefined },
+                              ]}
+                            >
                               <Palette
                                 size={iconSizes.hero}
-                                color={Colors.neutral.light}
+                                color={colors.text.tertiary}
                                 strokeWidth={iconStroke.thin}
                               />
                             </View>
@@ -896,16 +1009,19 @@ export default function HistoryScreen() {
                         </View>
 
                         <View style={styles.coloringContent}>
-                          <Text style={styles.coloringTitle} numberOfLines={2}>
+                          <Text
+                            style={[styles.coloringTitle, { color: colors.text.primary }]}
+                            numberOfLines={2}
+                          >
                             {coloring.title}
                           </Text>
                           <View style={styles.cardMeta}>
                             <Calendar
                               size={iconSizes.inline}
-                              color={Colors.neutral.medium}
+                              color={colors.text.tertiary}
                               strokeWidth={iconStroke.standard}
                             />
-                            <Text style={styles.cardMetaText}>
+                            <Text style={[styles.cardMetaText, { color: colors.text.tertiary }]}>
                               {formatDate(coloring.created_at)}
                             </Text>
                           </View>
@@ -919,16 +1035,22 @@ export default function HistoryScreen() {
                             disabled={generateColoringPDFMutation.isPending}
                           >
                             <LinearGradient
-                              colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                              colors={
+                                [colors.secondary.sky, colors.secondary.skyLight] as [
+                                  string,
+                                  string,
+                                  ...string[],
+                                ]
+                              }
                               style={styles.downloadButtonGradient}
                             >
                               {generateColoringPDFMutation.isPending ? (
-                                <ActivityIndicator size="small" color={Colors.neutral.white} />
+                                <ActivityIndicator size="small" color="#FFFFFF" />
                               ) : (
                                 <>
                                   <Download
                                     size={iconSizes.inline}
-                                    color={Colors.neutral.white}
+                                    color="#FFFFFF"
                                     strokeWidth={iconStroke.bold}
                                   />
                                   <Text style={styles.downloadButtonText}>

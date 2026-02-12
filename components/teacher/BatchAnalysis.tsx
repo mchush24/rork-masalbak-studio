@@ -5,17 +5,9 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import {
   Upload,
-  Users,
   Image,
   Check,
   X,
@@ -62,11 +54,11 @@ export function BatchAnalysis({
   students,
   testType,
   onImageSelect,
-  onAnalyze,
+
   onComplete,
 }: BatchAnalysisProps) {
   const [uploads, setUploads] = useState<StudentUpload[]>(
-    students.map((s) => ({
+    students.map(s => ({
       studentId: s.id,
       studentName: s.name,
       status: 'pending',
@@ -78,27 +70,30 @@ export function BatchAnalysis({
 
   const testInfo = TEST_TYPES[testType] || { label: testType, description: '' };
 
-  const completedCount = uploads.filter((u) => u.status === 'completed').length;
-  const errorCount = uploads.filter((u) => u.status === 'error').length;
-  const readyCount = uploads.filter((u) => u.imageUri && u.status === 'pending').length;
+  const completedCount = uploads.filter(u => u.status === 'completed').length;
+  const errorCount = uploads.filter(u => u.status === 'error').length;
+  const readyCount = uploads.filter(u => u.imageUri && u.status === 'pending').length;
   const totalProgress = uploads.length > 0 ? (completedCount / uploads.length) * 100 : 0;
 
-  const handleSelectImage = useCallback(async (studentId: string) => {
-    const uri = await onImageSelect(studentId);
-    if (uri) {
-      setUploads((prev) =>
-        prev.map((u) =>
-          u.studentId === studentId
-            ? { ...u, imageUri: uri, status: 'pending', error: undefined }
-            : u
-        )
-      );
-    }
-  }, [onImageSelect]);
+  const handleSelectImage = useCallback(
+    async (studentId: string) => {
+      const uri = await onImageSelect(studentId);
+      if (uri) {
+        setUploads(prev =>
+          prev.map(u =>
+            u.studentId === studentId
+              ? { ...u, imageUri: uri, status: 'pending', error: undefined }
+              : u
+          )
+        );
+      }
+    },
+    [onImageSelect]
+  );
 
   const handleRemoveImage = useCallback((studentId: string) => {
-    setUploads((prev) =>
-      prev.map((u) =>
+    setUploads(prev =>
+      prev.map(u =>
         u.studentId === studentId
           ? { ...u, imageUri: undefined, status: 'pending', result: undefined }
           : u
@@ -107,7 +102,7 @@ export function BatchAnalysis({
   }, []);
 
   const handleStartAnalysis = useCallback(async () => {
-    const readyUploads = uploads.filter((u) => u.imageUri && u.status === 'pending');
+    const readyUploads = uploads.filter(u => u.imageUri && u.status === 'pending');
     if (readyUploads.length === 0) return;
 
     setIsAnalyzing(true);
@@ -118,8 +113,8 @@ export function BatchAnalysis({
       if (isPaused) break;
 
       // Update status to analyzing
-      setUploads((prev) =>
-        prev.map((u) =>
+      setUploads(prev =>
+        prev.map(u =>
           u.studentId === upload.studentId ? { ...u, status: 'analyzing', progress: 0 } : u
         )
       );
@@ -127,17 +122,15 @@ export function BatchAnalysis({
       try {
         // Simulate analysis progress
         for (let i = 0; i <= 100; i += 10) {
-          await new Promise((resolve) => setTimeout(resolve, 200));
-          setUploads((prev) =>
-            prev.map((u) =>
-              u.studentId === upload.studentId ? { ...u, progress: i } : u
-            )
+          await new Promise(resolve => setTimeout(resolve, 200));
+          setUploads(prev =>
+            prev.map(u => (u.studentId === upload.studentId ? { ...u, progress: i } : u))
           );
         }
 
         // Mark as completed with mock result
-        setUploads((prev) =>
-          prev.map((u) =>
+        setUploads(prev =>
+          prev.map(u =>
             u.studentId === upload.studentId
               ? {
                   ...u,
@@ -151,9 +144,9 @@ export function BatchAnalysis({
               : u
           )
         );
-      } catch (error) {
-        setUploads((prev) =>
-          prev.map((u) =>
+      } catch (_error) {
+        setUploads(prev =>
+          prev.map(u =>
             u.studentId === upload.studentId
               ? { ...u, status: 'error', error: 'Analiz başarısız' }
               : u
@@ -170,12 +163,8 @@ export function BatchAnalysis({
   }, [isPaused]);
 
   const handleRetry = useCallback((studentId: string) => {
-    setUploads((prev) =>
-      prev.map((u) =>
-        u.studentId === studentId
-          ? { ...u, status: 'pending', error: undefined }
-          : u
-      )
+    setUploads(prev =>
+      prev.map(u => (u.studentId === studentId ? { ...u, status: 'pending', error: undefined } : u))
     );
   }, []);
 
@@ -285,7 +274,7 @@ export function BatchAnalysis({
 
       {/* Student Upload List */}
       <ScrollView style={styles.listContainer} showsVerticalScrollIndicator={false}>
-        {uploads.map((upload) => {
+        {uploads.map(upload => {
           const isExpanded = expandedStudent === upload.studentId;
 
           return (
@@ -295,26 +284,31 @@ export function BatchAnalysis({
                 onPress={() => setExpandedStudent(isExpanded ? null : upload.studentId)}
               >
                 {/* Status Icon */}
-                <View style={[
-                  styles.statusIcon,
-                  upload.status === 'completed' && styles.statusIconCompleted,
-                  upload.status === 'error' && styles.statusIconError,
-                ]}>
-                  {getStatusIcon(upload.status) || (
-                    upload.imageUri
-                      ? <Image size={16} color={ProfessionalColors.trust.primary} />
-                      : <Upload size={16} color={ProfessionalColors.text.tertiary} />
-                  )}
+                <View
+                  style={[
+                    styles.statusIcon,
+                    upload.status === 'completed' && styles.statusIconCompleted,
+                    upload.status === 'error' && styles.statusIconError,
+                  ]}
+                >
+                  {getStatusIcon(upload.status) ||
+                    (upload.imageUri ? (
+                      <Image size={16} color={ProfessionalColors.trust.primary} />
+                    ) : (
+                      <Upload size={16} color={ProfessionalColors.text.tertiary} />
+                    ))}
                 </View>
 
                 {/* Student Info */}
                 <View style={styles.studentInfo}>
                   <Text style={styles.studentName}>{upload.studentName}</Text>
-                  <Text style={[
-                    styles.statusText,
-                    upload.status === 'completed' && styles.statusTextCompleted,
-                    upload.status === 'error' && styles.statusTextError,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.statusText,
+                      upload.status === 'completed' && styles.statusTextCompleted,
+                      upload.status === 'error' && styles.statusTextError,
+                    ]}
+                  >
                     {getStatusText(upload)}
                   </Text>
                 </View>
@@ -354,7 +348,10 @@ export function BatchAnalysis({
                     </View>
                   ) : (
                     <Pressable
-                      style={({ pressed }) => [styles.uploadButton, pressed && styles.buttonPressed]}
+                      style={({ pressed }) => [
+                        styles.uploadButton,
+                        pressed && styles.buttonPressed,
+                      ]}
                       onPress={() => handleSelectImage(upload.studentId)}
                     >
                       <Upload size={24} color={ProfessionalColors.trust.primary} />

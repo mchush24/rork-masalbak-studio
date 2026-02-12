@@ -10,23 +10,14 @@
  * - Integration with copywriting service
  */
 
-import React, { useEffect, useRef, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Linking,
-  ViewStyle,
-  Platform,
-} from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, Pressable, Linking, ViewStyle, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withSequence,
   withTiming,
-  withDelay,
   FadeIn,
   FadeInDown,
   FadeInUp,
@@ -44,17 +35,32 @@ import {
   Clock,
   Shield,
   HelpCircle,
-  ExternalLink,
   Copy,
 } from 'lucide-react-native';
 import { Colors, ProfessionalColors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke, iconColors, getRoleStrokeWidth } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+  iconColors,
+  getRoleStrokeWidth,
+} from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 import { IooRoleAware } from '@/components/Ioo';
 import { useRole, useMascotSettings, useIsProfessional } from '@/lib/contexts/RoleContext';
-import { useCopywriting, useErrorsCopy } from '@/lib/hooks/useCopywriting';
+import { useErrorsCopy } from '@/lib/hooks/useCopywriting';
 
-export type ErrorType = 'network' | 'server' | 'auth' | 'notfound' | 'generic' | 'timeout' | 'permission';
+export type ErrorType =
+  | 'network'
+  | 'server'
+  | 'auth'
+  | 'notfound'
+  | 'generic'
+  | 'timeout'
+  | 'permission';
 
 interface ErrorStateProps {
   /** Type of error */
@@ -80,19 +86,22 @@ interface ErrorStateProps {
 }
 
 // Error configurations with role-specific adaptations
-const ERROR_CONFIG: Record<ErrorType, {
-  icon: React.ComponentType<any>;
-  gradient: {
-    parent: readonly [string, string, ...string[]];
-    professional: readonly [string, string, ...string[]];
-  };
-  iconColor: {
-    parent: string;
-    professional: string;
-  };
-  mascotMood: 'sad' | 'concerned' | 'thinking' | 'curious';
-  recoveryActions: string[];
-}> = {
+const ERROR_CONFIG: Record<
+  ErrorType,
+  {
+    icon: React.ComponentType<{ size?: number; color?: string }>;
+    gradient: {
+      parent: readonly [string, string, ...string[]];
+      professional: readonly [string, string, ...string[]];
+    };
+    iconColor: {
+      parent: string;
+      professional: string;
+    };
+    mascotMood: 'sad' | 'concerned' | 'thinking' | 'curious';
+    recoveryActions: string[];
+  }
+> = {
   network: {
     icon: WifiOff,
     gradient: {
@@ -196,55 +205,64 @@ const getErrorContent = (
     network: {
       title: role === 'parent' ? 'Bağlantı Koptu' : 'Ağ Bağlantı Hatası',
       description: errorsCopy.network,
-      suggestion: role === 'parent'
-        ? 'Wi-Fi veya mobil verinizi kontrol edin'
-        : 'Ağ bağlantınızı kontrol edin',
+      suggestion:
+        role === 'parent'
+          ? 'Wi-Fi veya mobil verinizi kontrol edin'
+          : 'Ağ bağlantınızı kontrol edin',
     },
     server: {
       title: role === 'parent' ? 'Sunucuya Ulaşamadık' : 'Sunucu Hatası',
-      description: role === 'parent'
-        ? 'Ekibimiz sorunu çözmek için çalışıyor. Biraz sonra tekrar deneyin.'
-        : 'Sunucu geçici olarak yanıt vermiyor. Lütfen bekleyin.',
-      suggestion: role === 'parent'
-        ? 'Genellikle birkaç dakika içinde düzelir'
-        : 'Sorun devam ederse destek ekibiyle iletişime geçin',
+      description:
+        role === 'parent'
+          ? 'Ekibimiz sorunu çözmek için çalışıyor. Biraz sonra tekrar deneyin.'
+          : 'Sunucu geçici olarak yanıt vermiyor. Lütfen bekleyin.',
+      suggestion:
+        role === 'parent'
+          ? 'Genellikle birkaç dakika içinde düzelir'
+          : 'Sorun devam ederse destek ekibiyle iletişime geçin',
     },
     auth: {
       title: role === 'parent' ? 'Oturum Süresi Doldu' : 'Yetkilendirme Gerekli',
       description: errorsCopy.unauthorized,
-      suggestion: role === 'parent'
-        ? 'Güvenliğiniz için tekrar giriş yapmanız gerekiyor'
-        : 'Oturumunuzu yenilemek için tekrar giriş yapın',
+      suggestion:
+        role === 'parent'
+          ? 'Güvenliğiniz için tekrar giriş yapmanız gerekiyor'
+          : 'Oturumunuzu yenilemek için tekrar giriş yapın',
     },
     notfound: {
       title: role === 'parent' ? 'Sayfa Bulunamadı' : 'Kayıt Bulunamadı',
       description: errorsCopy.notFound,
-      suggestion: role === 'parent'
-        ? 'Aradığınız içerik silinmiş veya taşınmış olabilir'
-        : 'İstenen kayıt sistemde mevcut değil',
+      suggestion:
+        role === 'parent'
+          ? 'Aradığınız içerik silinmiş veya taşınmış olabilir'
+          : 'İstenen kayıt sistemde mevcut değil',
     },
     generic: {
       title: role === 'parent' ? 'Bir Şeyler Ters Gitti' : 'Beklenmeyen Hata',
       description: errorsCopy.generic,
-      suggestion: role === 'parent'
-        ? 'Endişelenmeyin, verileriniz güvende!'
-        : 'Hata kaydedildi. Sorun devam ederse destek alın.',
+      suggestion:
+        role === 'parent'
+          ? 'Endişelenmeyin, verileriniz güvende!'
+          : 'Hata kaydedildi. Sorun devam ederse destek alın.',
     },
     timeout: {
       title: role === 'parent' ? 'İşlem Çok Uzun Sürdü' : 'Zaman Aşımı',
       description: errorsCopy.timeout,
-      suggestion: role === 'parent'
-        ? 'Daha güçlü bir bağlantı ile tekrar deneyin'
-        : 'Bağlantı kalitesini kontrol edip tekrar deneyin',
+      suggestion:
+        role === 'parent'
+          ? 'Daha güçlü bir bağlantı ile tekrar deneyin'
+          : 'Bağlantı kalitesini kontrol edip tekrar deneyin',
     },
     permission: {
       title: role === 'parent' ? 'İzin Gerekli' : 'Erişim Yetkisi Yok',
-      description: role === 'parent'
-        ? 'Bu özelliği kullanmak için izin vermeniz gerekiyor.'
-        : 'Bu işlem için gerekli yetkiniz bulunmuyor.',
-      suggestion: role === 'parent'
-        ? 'Ayarlardan gerekli izinleri açabilirsiniz'
-        : 'Yöneticinizle iletişime geçin',
+      description:
+        role === 'parent'
+          ? 'Bu özelliği kullanmak için izin vermeniz gerekiyor.'
+          : 'Bu işlem için gerekli yetkiniz bulunmuyor.',
+      suggestion:
+        role === 'parent'
+          ? 'Ayarlardan gerekli izinleri açabilirsiniz'
+          : 'Yöneticinizle iletişime geçin',
     },
   };
 
@@ -293,6 +311,7 @@ export function ErrorState({
       withTiming(3, { duration: 50 }),
       withTiming(0, { duration: 50 })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
@@ -304,7 +323,8 @@ export function ErrorState({
   }));
 
   const IconComponent = config.icon;
-  const showMascot = mascotSettings.showOnErrors && mascotSettings.prominence !== 'hidden' && !isProfessional;
+  const showMascot =
+    mascotSettings.showOnErrors && mascotSettings.prominence !== 'hidden' && !isProfessional;
 
   const handleRetry = () => {
     tapMedium();
@@ -385,55 +405,66 @@ export function ErrorState({
             colors={gradientColors}
             style={[styles.typeBadge, isProfessional && styles.typeBadgeProfessional]}
           >
-            <IconComponent size={iconSizes.badge} color={iconColor} strokeWidth={iconStroke.standard} />
+            <IconComponent
+              size={iconSizes.badge}
+              color={iconColor}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={[styles.typeBadgeText, { color: iconColor }]}>
-              {type === 'network' ? 'Bağlantı' :
-               type === 'server' ? 'Sunucu' :
-               type === 'auth' ? 'Oturum' :
-               type === 'notfound' ? 'Bulunamadı' :
-               type === 'timeout' ? 'Zaman Aşımı' :
-               type === 'permission' ? 'İzin' : 'Hata'}
+              {type === 'network'
+                ? 'Bağlantı'
+                : type === 'server'
+                  ? 'Sunucu'
+                  : type === 'auth'
+                    ? 'Oturum'
+                    : type === 'notfound'
+                      ? 'Bulunamadı'
+                      : type === 'timeout'
+                        ? 'Zaman Aşımı'
+                        : type === 'permission'
+                          ? 'İzin'
+                          : 'Hata'}
             </Text>
           </LinearGradient>
         </Animated.View>
       )}
 
       {/* Error Message */}
-      <Animated.View
-        entering={FadeInDown.delay(200).duration(300)}
-        style={styles.textContainer}
-      >
-        <Text style={[
-          styles.title,
-          compact && styles.titleCompact,
-          isProfessional && styles.titleProfessional
-        ]}>
+      <Animated.View entering={FadeInDown.delay(200).duration(300)} style={styles.textContainer}>
+        <Text
+          style={[
+            styles.title,
+            compact && styles.titleCompact,
+            isProfessional && styles.titleProfessional,
+          ]}
+        >
           {title || errorContent.title}
         </Text>
-        <Text style={[
-          styles.description,
-          compact && styles.descriptionCompact,
-          isProfessional && styles.descriptionProfessional
-        ]}>
+        <Text
+          style={[
+            styles.description,
+            compact && styles.descriptionCompact,
+            isProfessional && styles.descriptionProfessional,
+          ]}
+        >
           {description || errorContent.description}
         </Text>
 
         {/* Suggestion - only for parents or when not compact */}
         {!compact && !isProfessional && (
           <View style={styles.suggestionContainer}>
-            <HelpCircle size={iconSizes.badge} color={iconColors.medium} strokeWidth={iconStroke.standard} />
-            <Text style={styles.suggestion}>
-              {errorContent.suggestion}
-            </Text>
+            <HelpCircle
+              size={iconSizes.badge}
+              color={iconColors.medium}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text style={styles.suggestion}>{errorContent.suggestion}</Text>
           </View>
         )}
       </Animated.View>
 
       {/* Action Buttons */}
-      <Animated.View
-        entering={FadeInUp.delay(300).duration(300)}
-        style={styles.buttonContainer}
-      >
+      <Animated.View entering={FadeInUp.delay(300).duration(300)} style={styles.buttonContainer}>
         {onRetry && (
           <Pressable
             onPress={handleRetry}
@@ -443,10 +474,12 @@ export function ErrorState({
               pressed && styles.buttonPressed,
             ]}
           >
-            <RefreshCw size={iconSizes.small} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
-            <Text style={styles.primaryButtonText}>
-              {errorsCopy.tryAgain}
-            </Text>
+            <RefreshCw
+              size={iconSizes.small}
+              color={iconColors.inverted}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text style={styles.primaryButtonText}>{errorsCopy.tryAgain}</Text>
           </Pressable>
         )}
 
@@ -459,8 +492,17 @@ export function ErrorState({
               pressed && { opacity: 0.7 },
             ]}
           >
-            <ArrowLeft size={iconSizes.inline} color={isProfessional ? ProfessionalColors.text.secondary : iconColors.medium} strokeWidth={iconStroke.standard} />
-            <Text style={[styles.secondaryButtonText, isProfessional && styles.secondaryButtonTextProfessional]}>
+            <ArrowLeft
+              size={iconSizes.inline}
+              color={isProfessional ? ProfessionalColors.text.secondary : iconColors.medium}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text
+              style={[
+                styles.secondaryButtonText,
+                isProfessional && styles.secondaryButtonTextProfessional,
+              ]}
+            >
               Geri Dön
             </Text>
           </Pressable>
@@ -475,8 +517,17 @@ export function ErrorState({
               pressed && { opacity: 0.7 },
             ]}
           >
-            <MessageCircle size={iconSizes.badge} color={isProfessional ? ProfessionalColors.trust.primary : iconColors.secondary} strokeWidth={iconStroke.standard} />
-            <Text style={[styles.supportButtonText, isProfessional && styles.supportButtonTextProfessional]}>
+            <MessageCircle
+              size={iconSizes.badge}
+              color={isProfessional ? ProfessionalColors.trust.primary : iconColors.secondary}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text
+              style={[
+                styles.supportButtonText,
+                isProfessional && styles.supportButtonTextProfessional,
+              ]}
+            >
               Destek Al
             </Text>
           </Pressable>
@@ -485,16 +536,17 @@ export function ErrorState({
 
       {/* Error Code - Professional mode shows more details */}
       {errorCode && (
-        <Animated.View
-          entering={FadeIn.delay(400).duration(200)}
-          style={styles.errorCodeContainer}
-        >
+        <Animated.View entering={FadeIn.delay(400).duration(200)} style={styles.errorCodeContainer}>
           <Text style={[styles.errorCode, isProfessional && styles.errorCodeProfessional]}>
             {isProfessional ? `Hata Kodu: ${errorCode}` : `Referans: ${errorCode}`}
           </Text>
           {isProfessional && (
             <Pressable onPress={handleCopyError} style={styles.copyButton}>
-              <Copy size={iconSizes.badge - 2} color={ProfessionalColors.text.tertiary} strokeWidth={iconStroke.thin} />
+              <Copy
+                size={iconSizes.badge - 2}
+                color={ProfessionalColors.text.tertiary}
+                strokeWidth={iconStroke.thin}
+              />
             </Pressable>
           )}
         </Animated.View>
@@ -523,7 +575,13 @@ export function AuthError({ onRetry, errorCode }: { onRetry?: () => void; errorC
   return <ErrorState type="auth" onRetry={onRetry} errorCode={errorCode} />;
 }
 
-export function NotFoundError({ onGoBack, errorCode }: { onGoBack?: () => void; errorCode?: string }) {
+export function NotFoundError({
+  onGoBack,
+  errorCode,
+}: {
+  onGoBack?: () => void;
+  errorCode?: string;
+}) {
   return <ErrorState type="notfound" onGoBack={onGoBack} errorCode={errorCode} />;
 }
 
@@ -531,12 +589,18 @@ export function TimeoutError({ onRetry, errorCode }: { onRetry?: () => void; err
   return <ErrorState type="timeout" onRetry={onRetry} errorCode={errorCode} />;
 }
 
-export function PermissionError({ onRetry, onGoBack, errorCode }: {
+export function PermissionError({
+  onRetry,
+  onGoBack,
+  errorCode,
+}: {
   onRetry?: () => void;
   onGoBack?: () => void;
-  errorCode?: string
+  errorCode?: string;
 }) {
-  return <ErrorState type="permission" onRetry={onRetry} onGoBack={onGoBack} errorCode={errorCode} />;
+  return (
+    <ErrorState type="permission" onRetry={onRetry} onGoBack={onGoBack} errorCode={errorCode} />
+  );
 }
 
 export function GenericError({

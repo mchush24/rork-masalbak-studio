@@ -6,14 +6,7 @@
  */
 
 import React, { useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import Animated, {
@@ -47,7 +40,7 @@ interface SymbioticHeartButtonProps {
 // HEART SVG PATH
 // ============================================
 const createHeartSvgPath = (size: number): string => {
-  const scale = size / 100;
+  const _scale = size / 100;
   return `
     M 50 85
     C 25 65, 5 45, 5 30
@@ -85,23 +78,13 @@ const WebHeart: React.FC<{ size: number }> = ({ size }) => {
       </Defs>
 
       {/* Shadow */}
-      <Path
-        d={createHeartSvgPath(100)}
-        fill="rgba(0, 0, 0, 0.2)"
-        transform="translate(2, 4)"
-      />
+      <Path d={createHeartSvgPath(100)} fill="rgba(0, 0, 0, 0.2)" transform="translate(2, 4)" />
 
       {/* Main heart */}
-      <Path
-        d={createHeartSvgPath(100)}
-        fill="url(#heartGradient)"
-      />
+      <Path d={createHeartSvgPath(100)} fill="url(#heartGradient)" />
 
       {/* Highlight */}
-      <Path
-        d={createHeartSvgPath(100)}
-        fill="url(#heartHighlight)"
-      />
+      <Path d={createHeartSvgPath(100)} fill="url(#heartHighlight)" />
     </Svg>
   );
 };
@@ -110,7 +93,16 @@ const WebHeart: React.FC<{ size: number }> = ({ size }) => {
 // NATIVE HEART (Skia-based)
 // ============================================
 const NativeHeart: React.FC<{ size: number }> = ({ size }) => {
-  const { Canvas, Path, Skia, RadialGradient, vec, Group, Blur } = require('@shopify/react-native-skia');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const {
+    Canvas,
+    Path,
+    Skia,
+    RadialGradient,
+    vec,
+    Group,
+    Blur,
+  } = require('@shopify/react-native-skia');
 
   const heartPath = Skia.Path.MakeFromSVGString(`
     M ${size / 2} ${size * 0.85}
@@ -222,6 +214,7 @@ export const SymbioticHeartButton: React.FC<SymbioticHeartButtonProps> = ({
       -1,
       true
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Press handlers
@@ -233,11 +226,11 @@ export const SymbioticHeartButton: React.FC<SymbioticHeartButtonProps> = ({
       withTiming(0, { duration: 300 })
     );
     triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
-  }, [disabled, triggerHaptic]);
+  }, [disabled, triggerHaptic, pressScale, lightPulse]);
 
   const handlePressOut = useCallback(() => {
     pressScale.value = withSpring(1, { damping: 12, stiffness: 200 });
-  }, []);
+  }, [pressScale]);
 
   const handlePress = useCallback(() => {
     if (disabled) return;

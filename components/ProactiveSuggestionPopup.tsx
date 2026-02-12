@@ -6,21 +6,9 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-  MessageCircle,
-  X,
-  ChevronRight,
-  Lightbulb,
-} from 'lucide-react-native';
+import { MessageCircle, X, ChevronRight, Lightbulb } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
@@ -71,7 +59,11 @@ export function ProactiveSuggestionPopup({
 
   // Overlay coordination - prevent multiple overlays from showing
   const overlayId = `chatbot_suggestion_${screen}`;
-  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('chatbot_suggestion', overlayId);
+  const {
+    canShow,
+    request: requestOverlay,
+    release: releaseOverlay,
+  } = useOverlay('chatbot_suggestion', overlayId);
 
   // Fetch suggestion based on screen and trigger
   const suggestionQuery = trpc.chatbot.getProactiveSuggestion.useQuery(
@@ -87,13 +79,20 @@ export function ProactiveSuggestionPopup({
         clearTimeout(idleTimerRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
   // Show popup when suggestion is available
   useEffect(() => {
-    if (suggestionQuery.data?.found && suggestionQuery.data.suggestion && !hasShownForScreen && canShow) {
+    if (
+      suggestionQuery.data?.found &&
+      suggestionQuery.data.suggestion &&
+      !hasShownForScreen &&
+      canShow
+    ) {
       showPopup();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestionQuery.data, canShow, hasShownForScreen]);
 
   const checkFirstVisit = async () => {
@@ -120,10 +119,7 @@ export function ProactiveSuggestionPopup({
         }, delay);
 
         // Mark as visited
-        await AsyncStorage.setItem(
-          VISITED_SCREENS_KEY,
-          JSON.stringify([...visited, screen])
-        );
+        await AsyncStorage.setItem(VISITED_SCREENS_KEY, JSON.stringify([...visited, screen]));
       } else {
         // Not first visit - show enter trigger after delay
         setTimeout(() => {
@@ -288,10 +284,7 @@ export function ProactiveSuggestionPopup({
 
       {/* Open Chat Button */}
       <Pressable
-        style={({ pressed }) => [
-          styles.openChatButton,
-          pressed && { opacity: 0.8 },
-        ]}
+        style={({ pressed }) => [styles.openChatButton, pressed && { opacity: 0.8 }]}
         onPress={handleOpenChat}
       >
         <LinearGradient
@@ -306,11 +299,13 @@ export function ProactiveSuggestionPopup({
       </Pressable>
 
       {/* Arrow pointer */}
-      <View style={[
-        styles.arrow,
-        position.includes('left') ? styles.arrowLeft : styles.arrowRight,
-        position.includes('bottom') ? styles.arrowBottom : styles.arrowTop,
-      ]} />
+      <View
+        style={[
+          styles.arrow,
+          position.includes('left') ? styles.arrowLeft : styles.arrowRight,
+          position.includes('bottom') ? styles.arrowBottom : styles.arrowTop,
+        ]}
+      />
     </Animated.View>
   );
 }
@@ -329,9 +324,7 @@ export function useProactiveSuggestion(screen: string) {
     showPopup,
     openPopup,
     closePopup,
-    ProactiveSuggestionComponent: showPopup ? (
-      <ProactiveSuggestionPopup screen={screen} />
-    ) : null,
+    ProactiveSuggestionComponent: showPopup ? <ProactiveSuggestionPopup screen={screen} /> : null,
   };
 }
 

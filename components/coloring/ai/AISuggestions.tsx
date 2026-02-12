@@ -88,7 +88,9 @@ export function AISuggestions({
   const [palettes, setPalettes] = useState<MoodPalette[]>([]);
   const [selectedPalette, setSelectedPalette] = useState<string | null>(null);
   const [harmonyTips, setHarmonyTips] = useState<{ tip: string; tipTr: string }[]>([]);
-  const [analysis, setAnalysis] = useState<{ subjectTr: string; suggestedStyleTr: string } | null>(null);
+  const [analysis, setAnalysis] = useState<{ subjectTr: string; suggestedStyleTr: string } | null>(
+    null
+  );
 
   const buttonScale = useRef(new Animated.Value(1)).current;
   const modalSlide = useRef(new Animated.Value(SCREEN_WIDTH)).current;
@@ -116,6 +118,7 @@ export function AISuggestions({
     );
     loop.start();
     return () => loop.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle opening the AI suggestions panel
@@ -224,11 +227,7 @@ export function AISuggestions({
   return (
     <>
       {/* Magic Wand Button */}
-      <TouchableOpacity
-        style={styles.magicButton}
-        onPress={handleOpen}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity style={styles.magicButton} onPress={handleOpen} activeOpacity={0.8}>
         <LinearGradient
           colors={['#9D4EDD', '#FF69B4', '#FFD700']}
           start={{ x: 0, y: 0 }}
@@ -243,34 +242,18 @@ export function AISuggestions({
       </TouchableOpacity>
 
       {/* AI Suggestions Modal */}
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="none"
-        onRequestClose={handleClose}
-      >
+      <Modal visible={isOpen} transparent animationType="none" onRequestClose={handleClose}>
         <View style={styles.modalOverlay}>
-          <TouchableOpacity
-            style={styles.modalBackdrop}
-            onPress={handleClose}
-            activeOpacity={1}
-          />
+          <TouchableOpacity style={styles.modalBackdrop} onPress={handleClose} activeOpacity={1} />
 
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateX: modalSlide }] },
-            ]}
-          >
+          <Animated.View style={[styles.modalContent, { transform: [{ translateX: modalSlide }] }]}>
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <Text style={styles.headerEmoji}>🎨</Text>
                 <View>
                   <Text style={styles.headerTitle}>AI Renk Asistanı</Text>
-                  {analysis && (
-                    <Text style={styles.headerSubtitle}>{analysis.subjectTr}</Text>
-                  )}
+                  {analysis && <Text style={styles.headerSubtitle}>{analysis.subjectTr}</Text>}
                 </View>
               </View>
               <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
@@ -279,10 +262,7 @@ export function AISuggestions({
             </View>
 
             {/* Content */}
-            <ScrollView
-              style={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
+            <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {isLoading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="large" color="#9D4EDD" />
@@ -305,7 +285,7 @@ export function AISuggestions({
                     <View style={styles.section}>
                       <Text style={styles.sectionTitle}>🎯 AI Önerileri</Text>
                       <View style={styles.colorGrid}>
-                        {suggestions.map((suggestion) => (
+                        {suggestions.map(suggestion => (
                           <ColorSuggestionItem
                             key={suggestion.id}
                             suggestion={suggestion}
@@ -324,7 +304,7 @@ export function AISuggestions({
                       showsHorizontalScrollIndicator={false}
                       style={styles.palettesScroll}
                     >
-                      {palettes.map((palette) => (
+                      {palettes.map(palette => (
                         <PaletteCard
                           key={palette.id}
                           palette={palette}
@@ -384,6 +364,7 @@ function ColorSuggestionItem({
       delay: Math.random() * 200,
       useNativeDriver: true,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const categoryEmoji = {

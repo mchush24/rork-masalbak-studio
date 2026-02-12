@@ -12,37 +12,21 @@
  * - Gender indicator (subtle)
  */
 
-import React, { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  ScrollView,
-  Dimensions,
-  Animated,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import {
-  ChevronDown,
-  Baby,
-  Plus,
-  Check,
-  User,
-  UserCircle,
-} from "lucide-react-native";
-import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
-import { AvatarDisplay } from "@/components/AvatarPicker";
-import { useRouter } from "expo-router";
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Pressable, Modal, ScrollView, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ChevronDown, Baby, Plus, Check } from 'lucide-react-native';
+import { Colors } from '@/constants/colors';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
+import { AvatarDisplay } from '@/components/AvatarPicker';
+import { useRouter } from 'expo-router';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 type Child = {
   name: string;
   age: number;
-  gender?: "male" | "female";
+  gender?: 'male' | 'female';
   avatarId?: string;
 };
 
@@ -56,11 +40,11 @@ type ChildSelectorChipProps = {
 /**
  * Gender-based gradient colors
  */
-const getGenderColors = (gender?: "male" | "female"): [string, string] => {
-  if (gender === "male") {
+const getGenderColors = (gender?: 'male' | 'female'): [string, string] => {
+  if (gender === 'male') {
     return [Colors.secondary.sky, Colors.secondary.skyLight];
   }
-  if (gender === "female") {
+  if (gender === 'female') {
     return [Colors.secondary.rose, Colors.secondary.roseLight];
   }
   return [Colors.primary.sunset, Colors.primary.peach];
@@ -69,11 +53,11 @@ const getGenderColors = (gender?: "male" | "female"): [string, string] => {
 /**
  * Gender icon
  */
-const GenderIcon = ({ gender, size = 12 }: { gender?: "male" | "female"; size?: number }) => {
-  if (gender === "male") {
+const GenderIcon = ({ gender, size = 12 }: { gender?: 'male' | 'female'; size?: number }) => {
+  if (gender === 'male') {
     return <Text style={{ fontSize: size }}>👦</Text>;
   }
-  if (gender === "female") {
+  if (gender === 'female') {
     return <Text style={{ fontSize: size }}>👧</Text>;
   }
   return null;
@@ -106,7 +90,7 @@ export function ChildSelectorChip({
 
   const handleAddChild = useCallback(() => {
     setShowSheet(false);
-    router.push("/(tabs)/profile");
+    router.push('/(tabs)/profile');
   }, [router]);
 
   const hasChildren = childrenList && childrenList.length > 0;
@@ -117,13 +101,10 @@ export function ChildSelectorChip({
       {/* Chip Button */}
       <Pressable
         onPress={handleOpenSheet}
-        style={({ pressed }) => [
-          styles.chipContainer,
-          pressed && styles.chipPressed,
-        ]}
+        style={({ pressed }) => [styles.chipContainer, pressed && styles.chipPressed]}
       >
         <LinearGradient
-          colors={hasChildren ? gradientColors : ["#E2E8F0", "#F7FAFC"]}
+          colors={hasChildren ? gradientColors : ['#E2E8F0', '#F7FAFC']}
           style={[styles.chipGradient, compact && styles.chipCompact]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -191,10 +172,7 @@ export function ChildSelectorChip({
           <Pressable style={styles.modalBackdrop} onPress={handleCloseSheet} />
 
           <View style={styles.sheetContainer}>
-            <LinearGradient
-              colors={[Colors.neutral.white, "#F8F9FA"]}
-              style={styles.sheetGradient}
-            >
+            <LinearGradient colors={[Colors.neutral.white, '#F8F9FA']} style={styles.sheetGradient}>
               {/* Handle */}
               <View style={styles.sheetHandle} />
 
@@ -215,8 +193,7 @@ export function ChildSelectorChip({
                 >
                   {childrenList.map((child, index) => {
                     const isSelected =
-                      selectedChild?.name === child.name &&
-                      selectedChild?.age === child.age;
+                      selectedChild?.name === child.name && selectedChild?.age === child.age;
                     const childGradient = getGenderColors(child.gender);
 
                     return (
@@ -254,13 +231,13 @@ export function ChildSelectorChip({
                                 <View
                                   style={[
                                     styles.genderBadge,
-                                    child.gender === "male"
+                                    child.gender === 'male'
                                       ? styles.genderBadgeMale
                                       : styles.genderBadgeFemale,
                                   ]}
                                 >
                                   <Text style={styles.genderBadgeText}>
-                                    {child.gender === "male" ? "Erkek" : "Kız"}
+                                    {child.gender === 'male' ? 'Erkek' : 'Kız'}
                                   </Text>
                                 </View>
                               )}
@@ -295,10 +272,7 @@ export function ChildSelectorChip({
               {/* Add Child Button */}
               <Pressable
                 onPress={handleAddChild}
-                style={({ pressed }) => [
-                  styles.addChildButton,
-                  pressed && { opacity: 0.8 },
-                ]}
+                style={({ pressed }) => [styles.addChildButton, pressed && { opacity: 0.8 }]}
               >
                 <LinearGradient
                   colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
@@ -312,8 +286,8 @@ export function ChildSelectorChip({
               {/* Info Note */}
               <View style={styles.infoNote}>
                 <Text style={styles.infoNoteText}>
-                  💡 Seçili çocuğun yaşına göre hikaye karmaşıklığı ve cinsiyetine göre
-                  karakter otomatik ayarlanır
+                  💡 Seçili çocuğun yaşına göre hikaye karmaşıklığı ve cinsiyetine göre karakter
+                  otomatik ayarlanır
                 </Text>
               </View>
             </LinearGradient>
@@ -328,34 +302,34 @@ const styles = StyleSheet.create({
   // Chip Styles
   chipContainer: {
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.sm,
   },
   chipPressed: {
     transform: [{ scale: 0.98 }],
   },
   chipGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
+    gap: spacing['2'],
   },
   chipCompact: {
-    paddingVertical: spacing["1.5"],
-    paddingHorizontal: spacing["2"],
+    paddingVertical: spacing['1.5'],
+    paddingHorizontal: spacing['2'],
   },
   avatarContainer: {
     borderRadius: radius.full,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   defaultAvatar: {
     width: 32,
     height: 32,
     borderRadius: radius.full,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   defaultAvatarCompact: {
     width: 24,
@@ -397,40 +371,40 @@ const styles = StyleSheet.create({
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   sheetContainer: {
     maxHeight: SCREEN_HEIGHT * 0.7,
-    borderTopLeftRadius: radius["2xl"],
-    borderTopRightRadius: radius["2xl"],
-    overflow: "hidden",
+    borderTopLeftRadius: radius['2xl'],
+    borderTopRightRadius: radius['2xl'],
+    overflow: 'hidden',
     ...shadows.xl,
   },
   sheetGradient: {
-    paddingTop: spacing["2"],
-    paddingBottom: spacing["6"],
+    paddingTop: spacing['2'],
+    paddingBottom: spacing['6'],
   },
   sheetHandle: {
     width: 40,
     height: 4,
     backgroundColor: Colors.neutral.lighter,
     borderRadius: radius.full,
-    alignSelf: "center",
-    marginBottom: spacing["4"],
+    alignSelf: 'center',
+    marginBottom: spacing['4'],
   },
   sheetHeader: {
-    paddingHorizontal: spacing["6"],
-    marginBottom: spacing["4"],
+    paddingHorizontal: spacing['6'],
+    marginBottom: spacing['4'],
   },
   sheetTitle: {
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   sheetSubtitle: {
     fontSize: typography.size.sm,
@@ -441,15 +415,15 @@ const styles = StyleSheet.create({
   // Children List
   childrenList: {
     maxHeight: SCREEN_HEIGHT * 0.35,
-    paddingHorizontal: spacing["4"],
+    paddingHorizontal: spacing['4'],
   },
   childrenListContent: {
-    gap: spacing["3"],
-    paddingBottom: spacing["2"],
+    gap: spacing['3'],
+    paddingBottom: spacing['2'],
   },
   childCard: {
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.md,
   },
   childCardSelected: {
@@ -457,31 +431,31 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.white,
   },
   childCardGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing["4"],
-    gap: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing['4'],
+    gap: spacing['3'],
   },
   cardAvatarContainer: {
     borderRadius: radius.full,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   cardDefaultAvatar: {
     width: 48,
     height: 48,
     borderRadius: radius.full,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardInfoContainer: {
     flex: 1,
   },
   cardNameRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    marginBottom: spacing["1"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    marginBottom: spacing['1'],
   },
   cardChildName: {
     fontSize: typography.size.lg,
@@ -494,15 +468,15 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   genderBadge: {
-    paddingHorizontal: spacing["2"],
+    paddingHorizontal: spacing['2'],
     paddingVertical: 2,
     borderRadius: radius.full,
   },
   genderBadgeMale: {
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   genderBadgeFemale: {
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   genderBadgeText: {
     fontSize: typography.size.xs,
@@ -513,53 +487,53 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.full,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // Empty State
   emptyState: {
-    alignItems: "center",
-    paddingVertical: spacing["8"],
-    paddingHorizontal: spacing["6"],
+    alignItems: 'center',
+    paddingVertical: spacing['8'],
+    paddingHorizontal: spacing['6'],
   },
   emptyIconContainer: {
     width: 80,
     height: 80,
     borderRadius: radius.full,
     backgroundColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacing["4"],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing['4'],
   },
   emptyTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.dark,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   emptySubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: typography.size.sm * 1.5,
   },
 
   // Add Child Button
   addChildButton: {
-    marginHorizontal: spacing["4"],
-    marginTop: spacing["4"],
+    marginHorizontal: spacing['4'],
+    marginTop: spacing['4'],
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.sm,
   },
   addChildButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing["4"],
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing['4'],
+    gap: spacing['2'],
   },
   addChildButtonText: {
     fontSize: typography.size.base,
@@ -569,16 +543,16 @@ const styles = StyleSheet.create({
 
   // Info Note
   infoNote: {
-    marginHorizontal: spacing["4"],
-    marginTop: spacing["4"],
-    padding: spacing["3"],
+    marginHorizontal: spacing['4'],
+    marginTop: spacing['4'],
+    padding: spacing['3'],
     backgroundColor: Colors.semantic.infoBg,
     borderRadius: radius.lg,
   },
   infoNoteText: {
     fontSize: typography.size.xs,
     color: Colors.neutral.dark,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: typography.size.xs * 1.5,
   },
 });

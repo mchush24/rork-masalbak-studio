@@ -74,7 +74,7 @@ export function SyncStatusIndicator({
     } else {
       pulseAnim.setValue(1);
     }
-  }, [isSyncing, pendingCount]);
+  }, [isSyncing, pendingCount, fadeAnim, pulseAnim]);
 
   const formatLastSync = (time: string | null | undefined): string => {
     if (!time) return 'Henüz senkronize edilmedi';
@@ -155,12 +155,8 @@ export function SyncStatusIndicator({
 
         {/* Status Info */}
         <View style={styles.statusInfo}>
-          <Text style={[styles.statusText, { color: getStatusColor() }]}>
-            {getStatusText()}
-          </Text>
-          <Text style={styles.lastSyncText}>
-            {formatLastSync(lastSyncTime)}
-          </Text>
+          <Text style={[styles.statusText, { color: getStatusColor() }]}>{getStatusText()}</Text>
+          <Text style={styles.lastSyncText}>{formatLastSync(lastSyncTime)}</Text>
         </View>
 
         {/* Sync Button */}
@@ -201,15 +197,10 @@ export function OfflineBanner({ isOnline }: OfflineBannerProps) {
       friction: 8,
       useNativeDriver: true,
     }).start();
-  }, [isOnline]);
+  }, [isOnline, translateY]);
 
   return (
-    <Animated.View
-      style={[
-        styles.offlineBannerStandalone,
-        { transform: [{ translateY }] },
-      ]}
-    >
+    <Animated.View style={[styles.offlineBannerStandalone, { transform: [{ translateY }] }]}>
       <View style={styles.offlineBannerContent}>
         <Text style={styles.offlineBannerIcon}>📵</Text>
         <Text style={styles.offlineBannerStandaloneText}>

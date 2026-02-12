@@ -5,14 +5,7 @@
  */
 
 import React, { useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Animated,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
 import { Lock } from 'lucide-react-native';
 import { Badge, RARITY_COLORS, BadgeRarity } from '@/lib/gamification/badges';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
@@ -66,6 +59,7 @@ export function BadgeCard({
         ).start();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated, isUnlocked, badge.rarity]);
 
   const rarityColors = RARITY_COLORS[badge.rarity];
@@ -109,10 +103,7 @@ export function BadgeCard({
   };
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [pressed && { opacity: 0.9 }]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [pressed && { opacity: 0.9 }]}>
       <Animated.View
         style={[
           sizeStyles.container,
@@ -143,10 +134,7 @@ export function BadgeCard({
 
         {/* Badge Info */}
         <Text
-          style={[
-            sizeStyles.name,
-            { color: isUnlocked ? rarityColors.text : '#9E9E9E' },
-          ]}
+          style={[sizeStyles.name, { color: isUnlocked ? rarityColors.text : '#9E9E9E' }]}
           numberOfLines={1}
         >
           {badge.name}
@@ -154,10 +142,7 @@ export function BadgeCard({
 
         {size !== 'small' && (
           <Text
-            style={[
-              styles.description,
-              { color: isUnlocked ? '#757575' : '#BDBDBD' },
-            ]}
+            style={[styles.description, { color: isUnlocked ? '#757575' : '#BDBDBD' }]}
             numberOfLines={2}
           >
             {badge.description}
@@ -166,12 +151,7 @@ export function BadgeCard({
 
         {/* Rarity Badge */}
         {size === 'large' && (
-          <View
-            style={[
-              styles.rarityBadge,
-              { backgroundColor: `${rarityColors.border}20` },
-            ]}
-          >
+          <View style={[styles.rarityBadge, { backgroundColor: `${rarityColors.border}20` }]}>
             <Text style={[styles.rarityText, { color: rarityColors.text }]}>
               {getRarityLabel(badge.rarity)}
             </Text>
@@ -186,9 +166,7 @@ export function BadgeCard({
         )}
 
         {/* Locked Overlay */}
-        {!isUnlocked && (
-          <View style={styles.lockedOverlay} />
-        )}
+        {!isUnlocked && <View style={styles.lockedOverlay} />}
       </Animated.View>
     </Pressable>
   );

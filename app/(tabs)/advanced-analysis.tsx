@@ -35,6 +35,7 @@ import {
   Share2,
 } from 'lucide-react-native';
 import { shadows } from '@/constants/design-system';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { PROTOCOLS } from '@/constants/protocols';
 import { strings } from '@/i18n/strings';
 import { preprocessImage } from '@/utils/imagePreprocess';
@@ -215,6 +216,7 @@ export default function AdvancedAnalysisScreen() {
     'Luscher',
   ];
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const { user } = useAuth();
   const [imageUris, setImageUris] = useState<Record<string, string>>({});
   const [age, setAge] = useState<string>('7');
@@ -529,7 +531,7 @@ export default function AdvancedAnalysisScreen() {
   const glowOpacity = glowAnim.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0.7] });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       {loading ? (
         <AnalysisLoadingOverlay
           message="AI analizi devam ediyor..."
@@ -537,7 +539,10 @@ export default function AdvancedAnalysisScreen() {
           testType={`${task} (${TEST_CONFIG[task]?.description || 'Analiz'})`}
         />
       ) : (
-        <LinearGradient colors={['#F0F4FF', '#E8EFFF', '#DFE8FF']} style={styles.gradientContainer}>
+        <LinearGradient
+          colors={[...colors.background.analysis] as [string, string, ...string[]]}
+          style={styles.gradientContainer}
+        >
           {/* Floating Background Elements */}
           <Animated.View
             style={[styles.floatingOrb, styles.orb1, { transform: [{ translateY: float1Y }] }]}
@@ -567,34 +572,64 @@ export default function AdvancedAnalysisScreen() {
             <View style={styles.premiumHeader}>
               <View style={styles.headerGlassCard}>
                 <LinearGradient
-                  colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.7)']}
-                  style={styles.headerGlassGradient}
+                  colors={
+                    isDark
+                      ? [colors.surface.card, colors.surface.elevated]
+                      : ['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.7)']
+                  }
+                  style={[
+                    styles.headerGlassGradient,
+                    { borderColor: isDark ? colors.border.light : 'rgba(255,255,255,0.5)' },
+                  ]}
                 >
                   <View style={styles.headerContent}>
                     <View style={styles.headerIconWrapper}>
                       <LinearGradient
-                        colors={[Colors.secondary.indigo, Colors.secondary.violet]}
+                        colors={[colors.secondary.indigo, colors.secondary.violet]}
                         style={styles.headerIconGradient}
                       >
-                        <Brain size={32} color={Colors.neutral.white} strokeWidth={2} />
+                        <Brain size={32} color="#FFFFFF" strokeWidth={2} />
                       </LinearGradient>
-                      <Animated.View style={[styles.headerIconGlow, { opacity: glowOpacity }]} />
+                      <Animated.View
+                        style={[
+                          styles.headerIconGlow,
+                          { opacity: glowOpacity, backgroundColor: colors.secondary.indigo },
+                        ]}
+                      />
                     </View>
                     <View style={styles.headerTextArea}>
-                      <Text style={styles.premiumHeaderTitle}>Uzman Analizi</Text>
-                      <Text style={styles.premiumHeaderSubtitle}>
+                      <Text style={[styles.premiumHeaderTitle, { color: colors.text.primary }]}>
+                        Uzman Analizi
+                      </Text>
+                      <Text
+                        style={[styles.premiumHeaderSubtitle, { color: colors.neutral.medium }]}
+                      >
                         Yapay zeka destekli projektif test değerlendirmesi
                       </Text>
                     </View>
                   </View>
                   <View style={styles.headerBadges}>
-                    <View style={styles.headerBadge}>
-                      <Shield size={12} color={Colors.secondary.indigo} />
-                      <Text style={styles.headerBadgeText}>KVKK Uyumlu</Text>
+                    <View
+                      style={[
+                        styles.headerBadge,
+                        { backgroundColor: colors.secondary.indigo + '1A' },
+                      ]}
+                    >
+                      <Shield size={12} color={colors.secondary.indigo} />
+                      <Text style={[styles.headerBadgeText, { color: colors.secondary.indigo }]}>
+                        KVKK Uyumlu
+                      </Text>
                     </View>
-                    <View style={styles.headerBadge}>
-                      <Zap size={12} color={Colors.semantic.amber} />
-                      <Text style={styles.headerBadgeText}>GPT-4 Vision</Text>
+                    <View
+                      style={[
+                        styles.headerBadge,
+                        { backgroundColor: colors.secondary.indigo + '1A' },
+                      ]}
+                    >
+                      <Zap size={12} color={colors.semantic.amber} />
+                      <Text style={[styles.headerBadgeText, { color: colors.secondary.indigo }]}>
+                        GPT-4 Vision
+                      </Text>
                     </View>
                   </View>
                 </LinearGradient>
@@ -602,34 +637,45 @@ export default function AdvancedAnalysisScreen() {
             </View>
 
             {/* Process Highlights */}
-            <View style={styles.quickStats}>
+            <View style={[styles.quickStats, { backgroundColor: colors.surface.card }]}>
               <View style={styles.statItem}>
-                <LinearGradient colors={[Colors.secondary.indigo, Colors.secondary.violet]} style={styles.statIconBg}>
-                  <Brain size={18} color={Colors.neutral.white} />
+                <LinearGradient
+                  colors={[colors.secondary.indigo, colors.secondary.violet]}
+                  style={styles.statIconBg}
+                >
+                  <Brain size={18} color="#FFFFFF" />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
-                  <Text style={styles.statValueSmall}>Bilimsel</Text>
-                  <Text style={styles.statLabel}>Temelli</Text>
+                  <Text style={[styles.statValueSmall, { color: colors.text.primary }]}>
+                    Bilimsel
+                  </Text>
+                  <Text style={[styles.statLabel, { color: colors.neutral.medium }]}>Temelli</Text>
                 </View>
               </View>
-              <View style={styles.statDivider} />
+              <View style={[styles.statDivider, { backgroundColor: colors.neutral.lighter }]} />
               <View style={styles.statItem}>
                 <LinearGradient colors={['#EC4899', '#F472B6']} style={styles.statIconBg}>
-                  <FileText size={18} color={Colors.neutral.white} />
+                  <FileText size={18} color="#FFFFFF" />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
-                  <Text style={styles.statValueSmall}>Kapsamlı</Text>
-                  <Text style={styles.statLabel}>Rapor</Text>
+                  <Text style={[styles.statValueSmall, { color: colors.text.primary }]}>
+                    Kapsamlı
+                  </Text>
+                  <Text style={[styles.statLabel, { color: colors.neutral.medium }]}>Rapor</Text>
                 </View>
               </View>
-              <View style={styles.statDivider} />
+              <View style={[styles.statDivider, { backgroundColor: colors.neutral.lighter }]} />
               <View style={styles.statItem}>
                 <LinearGradient colors={['#10B981', '#34D399']} style={styles.statIconBg}>
-                  <Shield size={18} color={Colors.neutral.white} />
+                  <Shield size={18} color="#FFFFFF" />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
-                  <Text style={styles.statValueSmall}>Gizlilik</Text>
-                  <Text style={styles.statLabel}>Öncelikli</Text>
+                  <Text style={[styles.statValueSmall, { color: colors.text.primary }]}>
+                    Gizlilik
+                  </Text>
+                  <Text style={[styles.statLabel, { color: colors.neutral.medium }]}>
+                    Öncelikli
+                  </Text>
                 </View>
               </View>
             </View>
@@ -641,10 +687,12 @@ export default function AdvancedAnalysisScreen() {
 
             {/* Test Selector Section */}
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Test Seçimi</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Test Seçimi</Text>
               <Pressable onPress={() => openSheet(task)} style={styles.sectionAction}>
-                <Info size={16} color={Colors.secondary.indigo} />
-                <Text style={styles.sectionActionText}>Protokol</Text>
+                <Info size={16} color={colors.secondary.indigo} />
+                <Text style={[styles.sectionActionText, { color: colors.secondary.indigo }]}>
+                  Protokol
+                </Text>
               </Pressable>
             </View>
 
@@ -668,15 +716,31 @@ export default function AdvancedAnalysisScreen() {
                     ]}
                   >
                     <LinearGradient
-                      colors={isActive ? config.gradient : ['#F8FAFC', '#F1F5F9']}
+                      colors={
+                        isActive
+                          ? config.gradient
+                          : isDark
+                            ? [colors.surface.card, colors.surface.elevated]
+                            : ['#F8FAFC', '#F1F5F9']
+                      }
                       style={styles.testCardGradient}
                     >
                       <Text style={styles.testCardIcon}>{config.icon}</Text>
-                      <Text style={[styles.testCardName, isActive && styles.testCardNameActive]}>
+                      <Text
+                        style={[
+                          styles.testCardName,
+                          { color: colors.text.primary },
+                          isActive && styles.testCardNameActive,
+                        ]}
+                      >
                         {t}
                       </Text>
                       <Text
-                        style={[styles.testCardDesc, isActive && styles.testCardDescActive]}
+                        style={[
+                          styles.testCardDesc,
+                          { color: colors.neutral.medium },
+                          isActive && styles.testCardDescActive,
+                        ]}
                         numberOfLines={1}
                       >
                         {config.description}
@@ -716,7 +780,7 @@ export default function AdvancedAnalysisScreen() {
                       </View>
                       {isActive && (
                         <View style={styles.testCardCheck}>
-                          <CheckCircle size={16} color={Colors.neutral.white} />
+                          <CheckCircle size={16} color="#FFFFFF" />
                         </View>
                       )}
                     </LinearGradient>
@@ -744,9 +808,9 @@ export default function AdvancedAnalysisScreen() {
                     </View>
                   </View>
                   <Pressable onPress={() => openSheet(task)} style={styles.selectedTestButton}>
-                    <FileText size={16} color={Colors.neutral.white} />
+                    <FileText size={16} color="#FFFFFF" />
                     <Text style={styles.selectedTestButtonText}>Protokol</Text>
-                    <ChevronRight size={14} color={Colors.neutral.white} />
+                    <ChevronRight size={14} color="#FFFFFF" />
                   </Pressable>
                 </View>
                 <Text style={styles.selectedTestInstruction} numberOfLines={2}>
@@ -757,32 +821,50 @@ export default function AdvancedAnalysisScreen() {
 
             {/* Child Info Section */}
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Çocuk Bilgileri</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+                Çocuk Bilgileri
+              </Text>
             </View>
 
-            <View style={styles.childInfoCard}>
+            <View style={[styles.childInfoCard, { backgroundColor: colors.surface.card }]}>
               <View style={styles.childInfoRow}>
                 <View style={styles.ageInputContainer}>
-                  <Text style={styles.inputLabel}>Yaş</Text>
+                  <Text style={[styles.inputLabel, { color: colors.neutral.medium }]}>Yaş</Text>
                   <View style={styles.ageInputWrapper}>
                     <TextInput
                       value={age}
                       onChangeText={setAge}
                       keyboardType="number-pad"
-                      style={styles.ageInput}
+                      style={[
+                        styles.ageInput,
+                        {
+                          backgroundColor: colors.neutral.lightest,
+                          borderColor: colors.neutral.lighter,
+                          color: colors.text.primary,
+                        },
+                      ]}
                       maxLength={2}
                     />
-                    <Text style={styles.ageUnit}>yaş</Text>
+                    <Text style={[styles.ageUnit, { color: colors.neutral.light }]}>yaş</Text>
                   </View>
                 </View>
                 <View style={styles.quoteInputContainer}>
-                  <Text style={styles.inputLabel}>Çocuğun Sözleri (Opsiyonel)</Text>
+                  <Text style={[styles.inputLabel, { color: colors.neutral.medium }]}>
+                    Çocuğun Sözleri (Opsiyonel)
+                  </Text>
                   <TextInput
                     value={quote}
                     onChangeText={setQuote}
                     placeholder='"Bu ben ve annem..."'
-                    placeholderTextColor="#94A3B8"
-                    style={styles.quoteInput}
+                    placeholderTextColor={colors.neutral.light}
+                    style={[
+                      styles.quoteInput,
+                      {
+                        backgroundColor: colors.neutral.lightest,
+                        borderColor: colors.neutral.lighter,
+                        color: colors.text.primary,
+                      },
+                    ]}
                     multiline
                   />
                 </View>
@@ -791,10 +873,10 @@ export default function AdvancedAnalysisScreen() {
 
             {/* Image Upload Section */}
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Görseller</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Görseller</Text>
               {requiredCount > 0 && (
                 <View style={styles.uploadProgress}>
-                  <Text style={styles.uploadProgressText}>
+                  <Text style={[styles.uploadProgressText, { color: colors.secondary.indigo }]}>
                     {uploadedCount}/{requiredCount}
                   </Text>
                   <View style={styles.uploadProgressBar}>
@@ -814,17 +896,35 @@ export default function AdvancedAnalysisScreen() {
                 {requiredImages.map((slot, index) => {
                   const hasImage = !!imageUris[slot.id];
                   return (
-                    <View key={slot.id} style={styles.imageCard}>
+                    <View
+                      key={slot.id}
+                      style={[styles.imageCard, { backgroundColor: colors.surface.card }]}
+                    >
                       <View style={styles.imageCardHeader}>
-                        <View style={styles.imageCardNumber}>
+                        <View
+                          style={[
+                            styles.imageCardNumber,
+                            { backgroundColor: colors.secondary.indigo },
+                          ]}
+                        >
                           <Text style={styles.imageCardNumberText}>{index + 1}</Text>
                         </View>
                         <View style={styles.imageCardMeta}>
-                          <Text style={styles.imageCardLabel}>{slot.label}</Text>
+                          <Text style={[styles.imageCardLabel, { color: colors.text.primary }]}>
+                            {slot.label}
+                          </Text>
                           {slot.optional ? (
-                            <Text style={styles.imageCardOptional}>Opsiyonel</Text>
+                            <Text
+                              style={[styles.imageCardOptional, { color: colors.neutral.light }]}
+                            >
+                              Opsiyonel
+                            </Text>
                           ) : (
-                            <Text style={styles.imageCardRequired}>Zorunlu</Text>
+                            <Text
+                              style={[styles.imageCardRequired, { color: colors.secondary.indigo }]}
+                            >
+                              Zorunlu
+                            </Text>
                           )}
                         </View>
                         {hasImage && (
@@ -838,7 +938,11 @@ export default function AdvancedAnalysisScreen() {
                       </View>
 
                       {slot.description && (
-                        <Text style={styles.imageCardDescription}>{slot.description}</Text>
+                        <Text
+                          style={[styles.imageCardDescription, { color: colors.neutral.medium }]}
+                        >
+                          {slot.description}
+                        </Text>
                       )}
 
                       {hasImage ? (
@@ -854,31 +958,57 @@ export default function AdvancedAnalysisScreen() {
                         </View>
                       ) : (
                         <View style={styles.imageUploadArea}>
-                          <View style={styles.uploadDashedBorder}>
-                            <ImageIcon size={32} color="#94A3B8" />
-                            <Text style={styles.uploadText}>Görsel yükle</Text>
+                          <View
+                            style={[
+                              styles.uploadDashedBorder,
+                              {
+                                borderColor: colors.neutral.lighter,
+                                backgroundColor: isDark ? colors.surface.elevated : '#FAFBFC',
+                              },
+                            ]}
+                          >
+                            <ImageIcon size={32} color={colors.neutral.light} />
+                            <Text style={[styles.uploadText, { color: colors.neutral.light }]}>
+                              Görsel yükle
+                            </Text>
                             <View style={styles.uploadButtons}>
                               <Pressable
                                 onPress={() => onPickFromLibrary(slot.id)}
                                 style={({ pressed }) => [
                                   styles.uploadButton,
                                   styles.uploadButtonGallery,
+                                  { backgroundColor: colors.secondary.indigo + '1A' },
                                   pressed && { opacity: 0.8 },
                                 ]}
                               >
-                                <ImageIcon size={16} color={Colors.secondary.indigo} />
-                                <Text style={styles.uploadButtonText}>Galeri</Text>
+                                <ImageIcon size={16} color={colors.secondary.indigo} />
+                                <Text
+                                  style={[
+                                    styles.uploadButtonText,
+                                    { color: colors.secondary.indigo },
+                                  ]}
+                                >
+                                  Galeri
+                                </Text>
                               </Pressable>
                               <Pressable
                                 onPress={() => onCaptureWithCamera(slot.id)}
                                 style={({ pressed }) => [
                                   styles.uploadButton,
                                   styles.uploadButtonCamera,
+                                  { backgroundColor: colors.neutral.lighter },
                                   pressed && { opacity: 0.8 },
                                 ]}
                               >
-                                <Camera size={16} color="#64748B" />
-                                <Text style={styles.uploadButtonTextDark}>Kamera</Text>
+                                <Camera size={16} color={colors.neutral.medium} />
+                                <Text
+                                  style={[
+                                    styles.uploadButtonTextDark,
+                                    { color: colors.neutral.medium },
+                                  ]}
+                                >
+                                  Kamera
+                                </Text>
                               </Pressable>
                             </View>
                           </View>
@@ -916,16 +1046,20 @@ export default function AdvancedAnalysisScreen() {
                 ]}
               >
                 <LinearGradient
-                  colors={hasRequiredImages ? [Colors.secondary.indigo, Colors.secondary.violet] : ['#94A3B8', '#CBD5E1']}
+                  colors={
+                    hasRequiredImages
+                      ? [colors.secondary.indigo, colors.secondary.violet]
+                      : ['#94A3B8', '#CBD5E1']
+                  }
                   style={styles.analyzeButton}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                 >
                   {loading ? (
-                    <ActivityIndicator color={Colors.neutral.white} size="small" />
+                    <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <>
-                      <Sparkles size={24} color={Colors.neutral.white} />
+                      <Sparkles size={24} color="#FFFFFF" />
                       <Text style={styles.analyzeButtonText}>
                         {hasRequiredImages
                           ? 'AI Analizi Başlat'
@@ -942,19 +1076,37 @@ export default function AdvancedAnalysisScreen() {
             {result && (
               <View style={styles.resultsSection}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Analiz Sonuçları</Text>
-                  <Pressable onPress={onShare} style={styles.shareButton}>
-                    <Share2 size={16} color={Colors.secondary.indigo} />
-                    <Text style={styles.shareButtonText}>Paylaş</Text>
+                  <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+                    Analiz Sonuçları
+                  </Text>
+                  <Pressable
+                    onPress={onShare}
+                    style={[
+                      styles.shareButton,
+                      { backgroundColor: colors.secondary.indigo + '1A' },
+                    ]}
+                  >
+                    <Share2 size={16} color={colors.secondary.indigo} />
+                    <Text style={[styles.shareButtonText, { color: colors.secondary.indigo }]}>
+                      Paylaş
+                    </Text>
                   </Pressable>
                 </View>
 
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <ResultCard data={result as any} onDetails={() => {}} />
 
-                <View style={styles.disclaimerCard}>
+                <View
+                  style={[
+                    styles.disclaimerCard,
+                    {
+                      backgroundColor: isDark ? colors.surface.elevated : '#FFFBEB',
+                      borderColor: isDark ? colors.border.light : '#FEF3C7',
+                    },
+                  ]}
+                >
                   <View style={styles.disclaimerHeader}>
-                    <AlertTriangle size={18} color={Colors.semantic.amber} />
+                    <AlertTriangle size={18} color={colors.semantic.amber} />
                     <Text style={styles.disclaimerTitle}>Önemli Uyarı</Text>
                   </View>
                   <Text style={styles.disclaimerText}>{strings[lang].legacy.disclaimer}</Text>
@@ -975,14 +1127,18 @@ export default function AdvancedAnalysisScreen() {
             style={[styles.sheet, { height: sheetHeight, transform: [{ translateY }] }]}
           >
             <LinearGradient
-              colors={['rgba(255,255,255,0.98)', 'rgba(255,255,255,0.95)']}
+              colors={
+                isDark
+                  ? [colors.surface.card, colors.surface.elevated]
+                  : ['rgba(255,255,255,0.98)', 'rgba(255,255,255,0.95)']
+              }
               style={styles.sheetGradient}
             >
               <View style={styles.sheetHandleContainer}>
-                <View style={styles.sheetHandle} />
+                <View style={[styles.sheetHandle, { backgroundColor: colors.border.light }]} />
               </View>
 
-              <View style={styles.sheetHeader}>
+              <View style={[styles.sheetHeader, { borderBottomColor: colors.neutral.lighter }]}>
                 <LinearGradient
                   colors={TEST_CONFIG[sheetTask].gradient}
                   style={styles.sheetHeaderIcon}
@@ -990,13 +1146,18 @@ export default function AdvancedAnalysisScreen() {
                   <Text style={styles.sheetHeaderEmoji}>{TEST_CONFIG[sheetTask].icon}</Text>
                 </LinearGradient>
                 <View style={styles.sheetHeaderText}>
-                  <Text style={styles.sheetTitle}>{PROTOCOLS[sheetTask].title}</Text>
-                  <Text style={styles.sheetSubtitle}>
+                  <Text style={[styles.sheetTitle, { color: colors.text.primary }]}>
+                    {PROTOCOLS[sheetTask].title}
+                  </Text>
+                  <Text style={[styles.sheetSubtitle, { color: colors.neutral.medium }]}>
                     {PROTOCOLS[sheetTask].ageRange} • {PROTOCOLS[sheetTask].duration}
                   </Text>
                 </View>
-                <Pressable onPress={closeSheet} style={styles.sheetCloseIcon}>
-                  <X size={20} color="#64748B" />
+                <Pressable
+                  onPress={closeSheet}
+                  style={[styles.sheetCloseIcon, { backgroundColor: colors.neutral.lighter }]}
+                >
+                  <X size={20} color={colors.neutral.medium} />
                 </Pressable>
               </View>
 
@@ -1007,11 +1168,18 @@ export default function AdvancedAnalysisScreen() {
               >
                 {/* Materials */}
                 <View style={styles.sheetSection}>
-                  <Text style={styles.sheetSectionTitle}>📦 Materyaller</Text>
+                  <Text style={[styles.sheetSectionTitle, { color: colors.text.primary }]}>
+                    📦 Materyaller
+                  </Text>
                   <View style={styles.sheetMaterialsGrid}>
                     {PROTOCOLS[sheetTask].materials.map((m: string, i: number) => (
-                      <View key={i} style={styles.materialChip}>
-                        <Text style={styles.materialChipText}>{m}</Text>
+                      <View
+                        key={i}
+                        style={[styles.materialChip, { backgroundColor: colors.neutral.lighter }]}
+                      >
+                        <Text style={[styles.materialChipText, { color: colors.text.secondary }]}>
+                          {m}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -1019,21 +1187,42 @@ export default function AdvancedAnalysisScreen() {
 
                 {/* Phases */}
                 <View style={styles.sheetSection}>
-                  <Text style={styles.sheetSectionTitle}>📋 Uygulama Aşamaları</Text>
+                  <Text style={[styles.sheetSectionTitle, { color: colors.text.primary }]}>
+                    📋 Uygulama Aşamaları
+                  </Text>
                   {PROTOCOLS[sheetTask].phases.map((phase, i: number) => (
-                    <View key={i} style={styles.phaseCard}>
+                    <View
+                      key={i}
+                      style={[
+                        styles.phaseCard,
+                        {
+                          backgroundColor: colors.neutral.lightest,
+                          borderLeftColor: colors.secondary.indigo,
+                        },
+                      ]}
+                    >
                       <View style={styles.phaseHeader}>
-                        <View style={styles.phaseNumber}>
+                        <View
+                          style={[styles.phaseNumber, { backgroundColor: colors.secondary.indigo }]}
+                        >
                           <Text style={styles.phaseNumberText}>{i + 1}</Text>
                         </View>
                         <View style={styles.phaseMeta}>
-                          <Text style={styles.phaseName}>{phase.name}</Text>
+                          <Text style={[styles.phaseName, { color: colors.text.primary }]}>
+                            {phase.name}
+                          </Text>
                           {phase.duration && (
-                            <Text style={styles.phaseDuration}>{phase.duration}</Text>
+                            <Text
+                              style={[styles.phaseDuration, { color: colors.secondary.indigo }]}
+                            >
+                              {phase.duration}
+                            </Text>
                           )}
                         </View>
                       </View>
-                      <Text style={styles.phaseInstruction}>{`"${phase.instruction}"`}</Text>
+                      <Text
+                        style={[styles.phaseInstruction, { color: colors.text.secondary }]}
+                      >{`"${phase.instruction}"`}</Text>
                       {phase.notes && phase.notes.length > 0 && (
                         <View style={styles.phaseNotes}>
                           {phase.notes.map((note: string, j: number) => (
@@ -1049,18 +1238,29 @@ export default function AdvancedAnalysisScreen() {
 
                 {/* Observations */}
                 <View style={styles.sheetSection}>
-                  <Text style={styles.sheetSectionTitle}>👁️ Gözlem Noktaları</Text>
+                  <Text style={[styles.sheetSectionTitle, { color: colors.text.primary }]}>
+                    👁️ Gözlem Noktaları
+                  </Text>
                   {PROTOCOLS[sheetTask].observations.map((o: string, i: number) => (
                     <View key={i} style={styles.observationItem}>
-                      <View style={styles.observationDot} />
-                      <Text style={styles.observationText}>{o}</Text>
+                      <View
+                        style={[
+                          styles.observationDot,
+                          { backgroundColor: colors.secondary.indigo },
+                        ]}
+                      />
+                      <Text style={[styles.observationText, { color: colors.text.secondary }]}>
+                        {o}
+                      </Text>
                     </View>
                   ))}
                 </View>
 
                 {/* Don'ts */}
                 <View style={styles.sheetSection}>
-                  <Text style={styles.sheetSectionTitle}>⚠️ Yapılmaması Gerekenler</Text>
+                  <Text style={[styles.sheetSectionTitle, { color: colors.text.primary }]}>
+                    ⚠️ Yapılmaması Gerekenler
+                  </Text>
                   {PROTOCOLS[sheetTask].donts.map((d: string, i: number) => (
                     <View key={i} style={styles.dontItem}>
                       <X size={14} color="#EF4444" />
@@ -1072,10 +1272,12 @@ export default function AdvancedAnalysisScreen() {
                 {/* Capture Hints */}
                 {PROTOCOLS[sheetTask].captureHints?.length > 0 && (
                   <View style={styles.sheetSection}>
-                    <Text style={styles.sheetSectionTitle}>📸 Fotoğraf İpuçları</Text>
+                    <Text style={[styles.sheetSectionTitle, { color: colors.text.primary }]}>
+                      📸 Fotoğraf İpuçları
+                    </Text>
                     {PROTOCOLS[sheetTask].captureHints.map((c: string, i: number) => (
                       <View key={i} style={styles.hintItem}>
-                        <Camera size={14} color={Colors.secondary.indigo} />
+                        <Camera size={14} color={colors.secondary.indigo} />
                         <Text style={styles.hintText}>{c}</Text>
                       </View>
                     ))}
@@ -1086,10 +1288,12 @@ export default function AdvancedAnalysisScreen() {
                 {PROTOCOLS[sheetTask]?.scoringNotes &&
                   PROTOCOLS[sheetTask].scoringNotes.length > 0 && (
                     <View style={styles.sheetSection}>
-                      <Text style={styles.sheetSectionTitle}>📊 Skorlama Notları</Text>
+                      <Text style={[styles.sheetSectionTitle, { color: colors.text.primary }]}>
+                        📊 Skorlama Notları
+                      </Text>
                       {PROTOCOLS[sheetTask].scoringNotes?.map((s: string, i: number) => (
                         <View key={i} style={styles.scoringItem}>
-                          <Award size={14} color={Colors.semantic.amber} />
+                          <Award size={14} color={colors.semantic.amber} />
                           <Text style={styles.scoringText}>{s}</Text>
                         </View>
                       ))}
@@ -1097,7 +1301,7 @@ export default function AdvancedAnalysisScreen() {
                   )}
               </ScrollView>
 
-              <View style={styles.sheetFooter}>
+              <View style={[styles.sheetFooter, { borderTopColor: colors.neutral.lighter }]}>
                 <Pressable
                   onPress={() => {
                     onTaskChange(sheetTask);
@@ -1109,7 +1313,7 @@ export default function AdvancedAnalysisScreen() {
                     colors={TEST_CONFIG[sheetTask].gradient}
                     style={styles.sheetSelectButtonGradient}
                   >
-                    <CheckCircle size={18} color={Colors.neutral.white} />
+                    <CheckCircle size={18} color="#FFFFFF" />
                     <Text style={styles.sheetSelectButtonText}>Bu Testi Seç</Text>
                   </LinearGradient>
                 </Pressable>

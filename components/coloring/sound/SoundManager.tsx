@@ -56,7 +56,7 @@
  * - Sources: Freesound.org (CC0), Zapsplat (with license)
  */
 
-import { useAudioPlayer, AudioSource } from 'expo-audio';
+import { AudioSource } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import React from 'react';
@@ -102,10 +102,10 @@ const SOUND_FILES: Record<SoundType, AudioSource | null> = {
   'fill-pop': null, // require('@/assets/sounds/fill-pop.mp3')
   'fill-splash': null, // require('@/assets/sounds/fill-splash.mp3')
   // UI sounds
-  'undo': null, // require('@/assets/sounds/undo.mp3')
-  'redo': null, // require('@/assets/sounds/redo.mp3')
+  undo: null, // require('@/assets/sounds/undo.mp3')
+  redo: null, // require('@/assets/sounds/redo.mp3')
   'save-success': null, // require('@/assets/sounds/save-success.mp3')
-  'milestone': null, // require('@/assets/sounds/milestone.mp3')
+  milestone: null, // require('@/assets/sounds/milestone.mp3')
   // Ambient sounds
   'ambient-nature': null, // require('@/assets/sounds/ambient-nature.mp3')
   'ambient-rain': null, // require('@/assets/sounds/ambient-rain.mp3')
@@ -123,10 +123,10 @@ const SOUND_VOLUMES: Record<SoundType, number> = {
   'brush-spray': 0.3,
   'fill-pop': 0.6,
   'fill-splash': 0.5,
-  'undo': 0.4,
-  'redo': 0.4,
+  undo: 0.4,
+  redo: 0.4,
   'save-success': 0.7,
-  'milestone': 0.6,
+  milestone: 0.6,
   'ambient-nature': 0.2,
   'ambient-rain': 0.15,
 };
@@ -143,10 +143,10 @@ const HAPTIC_PATTERNS: Record<SoundType, Haptics.ImpactFeedbackStyle | null> = {
   'brush-spray': null,
   'fill-pop': Haptics.ImpactFeedbackStyle.Heavy,
   'fill-splash': Haptics.ImpactFeedbackStyle.Medium,
-  'undo': Haptics.ImpactFeedbackStyle.Light,
-  'redo': Haptics.ImpactFeedbackStyle.Light,
+  undo: Haptics.ImpactFeedbackStyle.Light,
+  redo: Haptics.ImpactFeedbackStyle.Light,
   'save-success': null, // Uses notification haptic instead
-  'milestone': null, // Uses notification haptic instead
+  milestone: null, // Uses notification haptic instead
   'ambient-nature': null,
   'ambient-rain': null,
 };
@@ -235,6 +235,7 @@ class SoundManagerClass {
 
     // When sound files are implemented, use useAudioPlayer hook in components
     // For now, this is a placeholder for the imperative API
+    // eslint-disable-next-line no-console
     console.debug(`[SoundManager] Would play: ${soundType}`);
   }
 
@@ -275,9 +276,7 @@ class SoundManagerClass {
   async playSaveSuccess(): Promise<void> {
     if (this.hapticEnabled && Platform.OS !== 'web') {
       try {
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch (error) {
         console.warn('[SoundManager] Haptic failed:', error);
       }
@@ -293,7 +292,9 @@ class SoundManagerClass {
   // ASMR BRUSH SOUNDS
   // ============================================================================
 
-  async playBrushSound(brushType: 'standard' | 'watercolor' | 'marker' | 'crayon' | 'pencil' | 'spray' | 'highlighter'): Promise<void> {
+  async playBrushSound(
+    brushType: 'standard' | 'watercolor' | 'marker' | 'crayon' | 'pencil' | 'spray' | 'highlighter'
+  ): Promise<void> {
     const soundMap: Record<string, SoundType> = {
       standard: 'brush-stroke',
       watercolor: 'brush-watercolor',
@@ -369,9 +370,7 @@ class SoundManagerClass {
   async playMilestone(): Promise<void> {
     if (this.hapticEnabled && Platform.OS !== 'web') {
       try {
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch (error) {
         console.warn('[SoundManager] Haptic failed:', error);
       }
@@ -437,6 +436,7 @@ export function useSoundManagerInit(config?: SoundManagerConfig) {
       // Optional: cleanup on unmount (usually not needed for app-wide manager)
       // SoundManager.cleanup();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return SoundManager;

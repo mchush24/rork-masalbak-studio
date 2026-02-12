@@ -5,21 +5,9 @@
  */
 
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-} from 'lucide-react-native';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Info } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
@@ -64,7 +52,8 @@ const getInterpretation = (percentile: number) => {
   if (percentile >= 91) return { label: 'Üstün', color: '#10B981', icon: TrendingUp };
   if (percentile >= 75) return { label: 'Ortalamanın Üstü', color: '#34D399', icon: TrendingUp };
   if (percentile >= 25) return { label: 'Ortalama', color: '#6B7280', icon: Minus };
-  if (percentile >= 9) return { label: 'Ortalamanın Altı', color: Colors.semantic.amber, icon: TrendingDown };
+  if (percentile >= 9)
+    return { label: 'Ortalamanın Altı', color: Colors.semantic.amber, icon: TrendingDown };
   if (percentile >= 2) return { label: 'Düşük', color: '#EF4444', icon: TrendingDown };
   return { label: 'Çok Düşük', color: '#DC2626', icon: AlertTriangle };
 };
@@ -86,9 +75,15 @@ export function ScoreDisplay({
   showInterpretation = true,
   compact = false,
 }: ScoreDisplayProps) {
-  const interpretation = useMemo(() => getInterpretation(scoreData.percentile), [scoreData.percentile]);
+  const interpretation = useMemo(
+    () => getInterpretation(scoreData.percentile),
+    [scoreData.percentile]
+  );
   const InterpretationIcon = interpretation.icon;
-  const normalCurvePosition = useMemo(() => zScoreToPercentilePosition(scoreData.zScore), [scoreData.zScore]);
+  const normalCurvePosition = useMemo(
+    () => zScoreToPercentilePosition(scoreData.zScore),
+    [scoreData.zScore]
+  );
 
   // Calculate percentage of max score
   const scorePercentage = (scoreData.rawScore / scoreData.maxScore) * 100;
@@ -107,7 +102,9 @@ export function ScoreDisplay({
         </View>
         <View style={styles.compactScores}>
           <View style={styles.compactScoreItem}>
-            <Text style={styles.compactScoreValue}>{scoreData.rawScore}/{scoreData.maxScore}</Text>
+            <Text style={styles.compactScoreValue}>
+              {scoreData.rawScore}/{scoreData.maxScore}
+            </Text>
             <Text style={styles.compactScoreLabel}>Ham Puan</Text>
           </View>
           <View style={styles.compactDivider} />
@@ -134,7 +131,9 @@ export function ScoreDisplay({
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
         {showInterpretation && (
-          <View style={[styles.interpretationBadge, { backgroundColor: `${interpretation.color}15` }]}>
+          <View
+            style={[styles.interpretationBadge, { backgroundColor: `${interpretation.color}15` }]}
+          >
             <InterpretationIcon size={16} color={interpretation.color} />
             <Text style={[styles.interpretationText, { color: interpretation.color }]}>
               {interpretation.label}
@@ -237,9 +236,7 @@ export function ScoreDisplay({
         <View style={styles.ciSection}>
           <View style={styles.ciHeader}>
             <Info size={14} color={ProfessionalColors.text.secondary} />
-            <Text style={styles.ciTitle}>
-              %{scoreData.confidenceInterval.level} Güven Aralığı
-            </Text>
+            <Text style={styles.ciTitle}>%{scoreData.confidenceInterval.level} Güven Aralığı</Text>
           </View>
           <View style={styles.ciRange}>
             <Text style={styles.ciValue}>{scoreData.confidenceInterval.lower}</Text>

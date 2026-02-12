@@ -20,7 +20,7 @@
  */
 
 import React, { memo, useEffect } from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -28,9 +28,7 @@ import Animated, {
   withSequence,
   withTiming,
   withDelay,
-  withSpring,
   Easing,
-  interpolate,
 } from 'react-native-reanimated';
 import Svg, {
   Defs,
@@ -41,10 +39,6 @@ import Svg, {
   Circle,
   Path,
   G,
-  Filter,
-  FeGaussianBlur,
-  FeMerge,
-  FeMergeNode,
 } from 'react-native-svg';
 import { IooMood, IooSize, getPixelSize, IOO_COLORS } from '@/constants/ioo-config';
 import { Colors } from '@/constants/colors';
@@ -65,7 +59,7 @@ const FIBER_TIP_COLORS = IOO_COLORS.fiberTips;
 
 export const IooMascotNew = memo(function IooMascotNew({
   size = 'medium',
-  mood = 'happy',
+  _mood = 'happy',
   animated = true,
   showGlow = true,
   onPress,
@@ -128,21 +122,22 @@ export const IooMascotNew = memo(function IooMascotNew({
     );
 
     // Random blink - lifelike behavior
-    const blinkInterval = setInterval(() => {
-      eyeBlink.value = withSequence(
-        withTiming(0.1, { duration: 70 }),
-        withTiming(1, { duration: 70 })
-      );
-    }, 3000 + Math.random() * 2500);
+    const blinkInterval = setInterval(
+      () => {
+        eyeBlink.value = withSequence(
+          withTiming(0.1, { duration: 70 }),
+          withTiming(1, { duration: 70 })
+        );
+      },
+      3000 + Math.random() * 2500
+    );
 
     return () => clearInterval(blinkInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated]);
 
   const containerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: breathe.value },
-      { translateY: float.value },
-    ],
+    transform: [{ scale: breathe.value }, { translateY: float.value }],
   }));
 
   const handStyle = useAnimatedStyle(() => ({
@@ -153,7 +148,7 @@ export const IooMascotNew = memo(function IooMascotNew({
   const w = dimensions;
   const h = dimensions * 1.1; // Head = 65% ratio
   const cx = w / 2;
-  const cy = h * 0.50; // Center for better proportion
+  const cy = h * 0.5; // Center for better proportion
 
   // Generate grass/fiber blade data
   const generateGrassBlades = () => {
@@ -161,7 +156,7 @@ export const IooMascotNew = memo(function IooMascotNew({
     const numBlades = 15;
 
     for (let i = 0; i < numBlades; i++) {
-      const angle = -70 + (140 * i / (numBlades - 1)); // -70 to 70 degrees
+      const angle = -70 + (140 * i) / (numBlades - 1); // -70 to 70 degrees
       const length = 0.18 + Math.random() * 0.08; // Variable length
       const curve = (Math.random() - 0.5) * 15; // Random curve
       const thickness = 0.022 + Math.random() * 0.012;
@@ -193,7 +188,13 @@ export const IooMascotNew = memo(function IooMascotNew({
                 <Stop offset="100%" stopColor="#F0E8FF" stopOpacity="0" />
               </RadialGradient>
             </Defs>
-            <Ellipse cx={(w + 20) / 2} cy={(h + 20) * 0.45} rx={w * 0.55} ry={h * 0.45} fill="url(#ambientGlow)" />
+            <Ellipse
+              cx={(w + 20) / 2}
+              cy={(h + 20) * 0.45}
+              rx={w * 0.55}
+              ry={h * 0.45}
+              fill="url(#ambientGlow)"
+            />
           </Svg>
         </View>
       )}
@@ -300,62 +301,88 @@ export const IooMascotNew = memo(function IooMascotNew({
           <Circle cx={cx} cy={cy + h * 0.18} r={w * 0.26} fill="url(#cloudBody)" />
 
           {/* Layer 2: Middle bumps */}
-          <Circle cx={cx - w * 0.30} cy={cy - h * 0.02} r={w * 0.20} fill="url(#cloudBody)" />
-          <Circle cx={cx + w * 0.30} cy={cy - h * 0.02} r={w * 0.20} fill="url(#cloudBody)" />
+          <Circle cx={cx - w * 0.3} cy={cy - h * 0.02} r={w * 0.2} fill="url(#cloudBody)" />
+          <Circle cx={cx + w * 0.3} cy={cy - h * 0.02} r={w * 0.2} fill="url(#cloudBody)" />
           <Circle cx={cx - w * 0.15} cy={cy + h * 0.05} r={w * 0.24} fill="url(#cloudBody)" />
           <Circle cx={cx + w * 0.15} cy={cy + h * 0.05} r={w * 0.24} fill="url(#cloudBody)" />
 
           {/* Layer 3: Main center body */}
-          <Circle cx={cx} cy={cy} r={w * 0.30} fill="url(#cloudBody)" />
+          <Circle cx={cx} cy={cy} r={w * 0.3} fill="url(#cloudBody)" />
 
           {/* Layer 4: Top/head area - larger for baby schema, connects to hair */}
           <Circle cx={cx} cy={cy - h * 0.12} r={w * 0.32} fill="url(#cloudBody)" />
-          <Circle cx={cx - w * 0.15} cy={cy - h * 0.10} r={w * 0.22} fill="url(#cloudBody)" />
-          <Circle cx={cx + w * 0.15} cy={cy - h * 0.10} r={w * 0.22} fill="url(#cloudBody)" />
+          <Circle cx={cx - w * 0.15} cy={cy - h * 0.1} r={w * 0.22} fill="url(#cloudBody)" />
+          <Circle cx={cx + w * 0.15} cy={cy - h * 0.1} r={w * 0.22} fill="url(#cloudBody)" />
           {/* Extra top bumps to seamlessly connect with hair */}
           <Circle cx={cx} cy={cy - h * 0.22} r={w * 0.26} fill="url(#cloudBody)" />
-          <Circle cx={cx - w * 0.12} cy={cy - h * 0.20} r={w * 0.20} fill="url(#cloudBody)" />
-          <Circle cx={cx + w * 0.12} cy={cy - h * 0.20} r={w * 0.20} fill="url(#cloudBody)" />
+          <Circle cx={cx - w * 0.12} cy={cy - h * 0.2} r={w * 0.2} fill="url(#cloudBody)" />
+          <Circle cx={cx + w * 0.12} cy={cy - h * 0.2} r={w * 0.2} fill="url(#cloudBody)" />
           {/* Very top - hair root area */}
           <Circle cx={cx} cy={cy - h * 0.28} r={w * 0.18} fill="url(#cloudBody)" />
           <Circle cx={cx - w * 0.08} cy={cy - h * 0.26} r={w * 0.14} fill="url(#cloudBody)" />
           <Circle cx={cx + w * 0.08} cy={cy - h * 0.26} r={w * 0.14} fill="url(#cloudBody)" />
 
           {/* Rainbow shimmer overlay */}
-          <Circle cx={cx} cy={cy} r={w * 0.30} fill="url(#rainbowShimmer)" />
-          <Circle cx={cx - w * 0.20} cy={cy + h * 0.08} r={w * 0.22} fill="url(#rainbowShimmer)" />
-          <Circle cx={cx + w * 0.20} cy={cy + h * 0.08} r={w * 0.22} fill="url(#rainbowShimmer)" />
+          <Circle cx={cx} cy={cy} r={w * 0.3} fill="url(#rainbowShimmer)" />
+          <Circle cx={cx - w * 0.2} cy={cy + h * 0.08} r={w * 0.22} fill="url(#rainbowShimmer)" />
+          <Circle cx={cx + w * 0.2} cy={cy + h * 0.08} r={w * 0.22} fill="url(#rainbowShimmer)" />
 
           {/* Inner depth/dimension */}
           <Ellipse cx={cx} cy={cy + h * 0.05} rx={w * 0.25} ry={h * 0.15} fill="url(#innerDepth)" />
 
           {/* Fluffy highlight spots - cotton texture */}
-          <Circle cx={cx - w * 0.22} cy={cy - h * 0.08} r={w * 0.045} fill={Colors.neutral.white} opacity={0.8} />
-          <Circle cx={cx + w * 0.28} cy={cy + h * 0.05} r={w * 0.035} fill={Colors.neutral.white} opacity={0.7} />
-          <Circle cx={cx - w * 0.10} cy={cy + h * 0.20} r={w * 0.03} fill={Colors.neutral.white} opacity={0.6} />
-          <Circle cx={cx + w * 0.08} cy={cy - h * 0.15} r={w * 0.025} fill={Colors.neutral.white} opacity={0.7} />
+          <Circle
+            cx={cx - w * 0.22}
+            cy={cy - h * 0.08}
+            r={w * 0.045}
+            fill={Colors.neutral.white}
+            opacity={0.8}
+          />
+          <Circle
+            cx={cx + w * 0.28}
+            cy={cy + h * 0.05}
+            r={w * 0.035}
+            fill={Colors.neutral.white}
+            opacity={0.7}
+          />
+          <Circle
+            cx={cx - w * 0.1}
+            cy={cy + h * 0.2}
+            r={w * 0.03}
+            fill={Colors.neutral.white}
+            opacity={0.6}
+          />
+          <Circle
+            cx={cx + w * 0.08}
+            cy={cy - h * 0.15}
+            r={w * 0.025}
+            fill={Colors.neutral.white}
+            opacity={0.7}
+          />
         </G>
 
         {/* ===== FIBER OPTIC GRASS HAIR ===== */}
         {/* Root glow - fiber optic light source - embedded in top of head */}
-        <Ellipse
-          cx={cx}
-          cy={cy - h * 0.22}
-          rx={w * 0.20}
-          ry={h * 0.10}
-          fill="url(#fiberRoot)"
-        />
+        <Ellipse cx={cx} cy={cy - h * 0.22} rx={w * 0.2} ry={h * 0.1} fill="url(#fiberRoot)" />
 
         {/* Grass blades with fiber optic tips */}
         <G>
           {grassBlades.map((blade, i) => {
             const hairBase = cy - h * 0.24; // Hair starts embedded in head
-            const startX = cx + Math.sin(blade.angle * Math.PI / 180) * w * 0.08;
+            const startX = cx + Math.sin((blade.angle * Math.PI) / 180) * w * 0.08;
             const startY = hairBase;
-            const endX = cx + Math.sin((blade.angle + blade.curve) * Math.PI / 180) * w * blade.length * 1.5;
-            const endY = hairBase - Math.cos(blade.angle * Math.PI / 180) * h * blade.length * 1.2;
-            const ctrlX = cx + Math.sin((blade.angle + blade.curve * 0.5) * Math.PI / 180) * w * blade.length * 0.85;
-            const ctrlY = hairBase - Math.cos(blade.angle * Math.PI / 180) * h * blade.length * 0.65;
+            const endX =
+              cx + Math.sin(((blade.angle + blade.curve) * Math.PI) / 180) * w * blade.length * 1.5;
+            const endY =
+              hairBase - Math.cos((blade.angle * Math.PI) / 180) * h * blade.length * 1.2;
+            const ctrlX =
+              cx +
+              Math.sin(((blade.angle + blade.curve * 0.5) * Math.PI) / 180) *
+                w *
+                blade.length *
+                0.85;
+            const ctrlY =
+              hairBase - Math.cos((blade.angle * Math.PI) / 180) * h * blade.length * 0.65;
 
             return (
               <G key={i}>
@@ -377,21 +404,9 @@ export const IooMascotNew = memo(function IooMascotNew({
                   opacity={0.3}
                 />
                 {/* Fiber optic glowing tip */}
-                <Circle
-                  cx={endX}
-                  cy={endY}
-                  r={w * 0.025}
-                  fill={blade.tipColor}
-                  opacity={0.9}
-                />
+                <Circle cx={endX} cy={endY} r={w * 0.025} fill={blade.tipColor} opacity={0.9} />
                 {/* Tip glow halo */}
-                <Circle
-                  cx={endX}
-                  cy={endY}
-                  r={w * 0.04}
-                  fill={blade.tipColor}
-                  opacity={0.4}
-                />
+                <Circle cx={endX} cy={endY} r={w * 0.04} fill={blade.tipColor} opacity={0.4} />
                 {/* Bright center of tip */}
                 <Circle
                   cx={endX}
@@ -410,12 +425,26 @@ export const IooMascotNew = memo(function IooMascotNew({
           {/* Left lens */}
           <Circle cx={cx - w * 0.14} cy={cy - h * 0.05} r={w * 0.13} fill="url(#lensLeft)" />
           {/* Left lens shine */}
-          <Ellipse cx={cx - w * 0.18} cy={cy - h * 0.09} rx={w * 0.04} ry={w * 0.025} fill={Colors.neutral.white} opacity={0.7} />
+          <Ellipse
+            cx={cx - w * 0.18}
+            cy={cy - h * 0.09}
+            rx={w * 0.04}
+            ry={w * 0.025}
+            fill={Colors.neutral.white}
+            opacity={0.7}
+          />
 
           {/* Right lens */}
           <Circle cx={cx + w * 0.14} cy={cy - h * 0.05} r={w * 0.13} fill="url(#lensRight)" />
           {/* Right lens shine */}
-          <Ellipse cx={cx + w * 0.10} cy={cy - h * 0.09} rx={w * 0.04} ry={w * 0.025} fill={Colors.neutral.white} opacity={0.7} />
+          <Ellipse
+            cx={cx + w * 0.1}
+            cy={cy - h * 0.09}
+            rx={w * 0.04}
+            ry={w * 0.025}
+            fill={Colors.neutral.white}
+            opacity={0.7}
+          />
 
           {/* Glasses frame - left */}
           <Circle
@@ -460,19 +489,43 @@ export const IooMascotNew = memo(function IooMascotNew({
         {/* ===== EYES (behind glasses) - 30% of face area ===== */}
         <G>
           {/* Left eye */}
-          <Ellipse cx={cx - w * 0.14} cy={cy - h * 0.04} rx={w * 0.042} ry={w * 0.058} fill="#2C3E50" />
+          <Ellipse
+            cx={cx - w * 0.14}
+            cy={cy - h * 0.04}
+            rx={w * 0.042}
+            ry={w * 0.058}
+            fill="#2C3E50"
+          />
           <Circle cx={cx - w * 0.15} cy={cy - h * 0.06} r={w * 0.016} fill={Colors.neutral.white} />
-          <Circle cx={cx - w * 0.13} cy={cy - h * 0.045} r={w * 0.008} fill={Colors.neutral.white} opacity={0.6} />
+          <Circle
+            cx={cx - w * 0.13}
+            cy={cy - h * 0.045}
+            r={w * 0.008}
+            fill={Colors.neutral.white}
+            opacity={0.6}
+          />
 
           {/* Right eye */}
-          <Ellipse cx={cx + w * 0.14} cy={cy - h * 0.04} rx={w * 0.042} ry={w * 0.058} fill="#2C3E50" />
+          <Ellipse
+            cx={cx + w * 0.14}
+            cy={cy - h * 0.04}
+            rx={w * 0.042}
+            ry={w * 0.058}
+            fill="#2C3E50"
+          />
           <Circle cx={cx + w * 0.13} cy={cy - h * 0.06} r={w * 0.016} fill={Colors.neutral.white} />
-          <Circle cx={cx + w * 0.15} cy={cy - h * 0.045} r={w * 0.008} fill={Colors.neutral.white} opacity={0.6} />
+          <Circle
+            cx={cx + w * 0.15}
+            cy={cy - h * 0.045}
+            r={w * 0.008}
+            fill={Colors.neutral.white}
+            opacity={0.6}
+          />
         </G>
 
         {/* ===== AYDEDE GÜLÜMSEME (Crescent Smile) - More visible ===== */}
         <Path
-          d={`M ${cx - w * 0.10} ${cy + h * 0.12} Q ${cx} ${cy + h * 0.20} ${cx + w * 0.10} ${cy + h * 0.12}`}
+          d={`M ${cx - w * 0.1} ${cy + h * 0.12} Q ${cx} ${cy + h * 0.2} ${cx + w * 0.1} ${cy + h * 0.12}`}
           stroke="#D76A7C"
           strokeWidth={w * 0.028}
           strokeLinecap="round"
@@ -480,11 +533,30 @@ export const IooMascotNew = memo(function IooMascotNew({
         />
 
         {/* ===== BLUSH CHEEKS (Kawaii) ===== */}
-        <Ellipse cx={cx - w * 0.26} cy={cy + h * 0.06} rx={w * 0.055} ry={w * 0.038} fill="url(#blush)" />
-        <Ellipse cx={cx + w * 0.26} cy={cy + h * 0.06} rx={w * 0.055} ry={w * 0.038} fill="url(#blush)" />
+        <Ellipse
+          cx={cx - w * 0.26}
+          cy={cy + h * 0.06}
+          rx={w * 0.055}
+          ry={w * 0.038}
+          fill="url(#blush)"
+        />
+        <Ellipse
+          cx={cx + w * 0.26}
+          cy={cy + h * 0.06}
+          rx={w * 0.055}
+          ry={w * 0.038}
+          fill="url(#blush)"
+        />
 
         {/* ===== SMALL NOSE (minimal - baby schema) ===== */}
-        <Ellipse cx={cx} cy={cy + h * 0.05} rx={w * 0.014} ry={w * 0.01} fill="#E8A0B0" opacity={0.6} />
+        <Ellipse
+          cx={cx}
+          cy={cy + h * 0.05}
+          rx={w * 0.014}
+          ry={w * 0.01}
+          fill="#E8A0B0"
+          opacity={0.6}
+        />
       </Svg>
 
       {/* ===== WAVING HAND ===== */}

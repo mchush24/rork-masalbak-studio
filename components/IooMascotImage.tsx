@@ -167,7 +167,7 @@ export const IooMascotImage = memo(function IooMascotImage({
       />
 
       <Animated.View
-        style={[styles.container, { width: dimensions, height: dimensions, overflow: 'hidden', borderRadius: dimensions / 2 }, containerStyle]}
+        style={[styles.container, { width: dimensions, height: dimensions }, containerStyle]}
       >
         {/* Subtle ambient glow behind the 3D model */}
         {showGlow && (

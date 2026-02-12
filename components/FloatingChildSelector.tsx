@@ -13,7 +13,7 @@
  * - Snaps to screen edges
  */
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -25,28 +25,23 @@ import {
   Animated,
   PanResponder,
   Platform,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import {
-  Baby,
-  Plus,
-  Check,
-  X,
-} from "lucide-react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography, zIndex } from "@/constants/design-system";
-import { AvatarDisplay } from "@/components/AvatarPicker";
-import { useRouter } from "expo-router";
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Baby, Plus, Check, X } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Colors } from '@/constants/colors';
+import { spacing, radius, shadows, typography, zIndex } from '@/constants/design-system';
+import { AvatarDisplay } from '@/components/AvatarPicker';
+import { useRouter } from 'expo-router';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const BUTTON_SIZE = 60;
-const POSITION_STORAGE_KEY = "@renkioo_floating_child_position";
+const POSITION_STORAGE_KEY = '@renkioo_floating_child_position';
 
 type Child = {
   name: string;
   age: number;
-  gender?: "male" | "female";
+  gender?: 'male' | 'female';
   avatarId?: string;
 };
 
@@ -60,11 +55,11 @@ type FloatingChildSelectorProps = {
 /**
  * Gender-based gradient colors
  */
-const getGenderColors = (gender?: "male" | "female"): [string, string] => {
-  if (gender === "male") {
+const getGenderColors = (gender?: 'male' | 'female'): [string, string] => {
+  if (gender === 'male') {
     return [Colors.secondary.sky, Colors.secondary.skyLight];
   }
-  if (gender === "female") {
+  if (gender === 'female') {
     return [Colors.secondary.rose, Colors.secondary.roseLight];
   }
   return [Colors.primary.sunset, Colors.primary.peach];
@@ -73,11 +68,11 @@ const getGenderColors = (gender?: "male" | "female"): [string, string] => {
 /**
  * Gender emoji
  */
-const GenderIcon = ({ gender, size = 20 }: { gender?: "male" | "female"; size?: number }) => {
-  if (gender === "male") {
+const GenderIcon = ({ gender, size = 20 }: { gender?: 'male' | 'female'; size?: number }) => {
+  if (gender === 'male') {
     return <Text style={{ fontSize: size }}>👦</Text>;
   }
-  if (gender === "female") {
+  if (gender === 'female') {
     return <Text style={{ fontSize: size }}>👧</Text>;
   }
   return <Baby size={size} color={Colors.neutral.white} />;
@@ -110,12 +105,20 @@ export function FloatingChildSelector({
 
   // Debug log
   useEffect(() => {
-    console.log("[FloatingChildSelector] Mounted, visible:", visible, "position:", position, "screen:", { SCREEN_WIDTH, SCREEN_HEIGHT });
+    console.log(
+      '[FloatingChildSelector] Mounted, visible:',
+      visible,
+      'position:',
+      position,
+      'screen:',
+      { SCREEN_WIDTH, SCREEN_HEIGHT }
+    );
   }, [visible, position]);
 
   // Load saved position
   useEffect(() => {
     loadPosition();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPosition = async () => {
@@ -126,24 +129,24 @@ export function FloatingChildSelector({
         setPosition(pos);
         pan.setValue({ x: 0, y: 0 });
       }
-    } catch (e) {
-      console.log("Failed to load floating button position");
+    } catch (_e) {
+      console.log('Failed to load floating button position');
     }
   };
 
   const savePosition = async (newPos: { x: number; y: number }) => {
     try {
       await AsyncStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(newPos));
-    } catch (e) {
-      console.log("Failed to save floating button position");
+    } catch (_e) {
+      console.log('Failed to save floating button position');
     }
   };
 
   // Snap to nearest edge
   const snapToEdge = (x: number, y: number) => {
     const padding = 10;
-    const topPadding = Platform.OS === "ios" ? 50 : 30; // Safe area approximation
-    const bottomPadding = Platform.OS === "ios" ? 100 : 80;
+    const topPadding = Platform.OS === 'ios' ? 50 : 30; // Safe area approximation
+    const bottomPadding = Platform.OS === 'ios' ? 100 : 80;
 
     const snapLeft = padding;
     const snapRight = SCREEN_WIDTH - BUTTON_SIZE - padding;
@@ -221,18 +224,18 @@ export function FloatingChildSelector({
 
   const handleAddChild = useCallback(() => {
     setShowSheet(false);
-    router.push("/(tabs)/profile");
+    router.push('/(tabs)/profile');
   }, [router]);
 
   if (!visible) {
-    console.log("[FloatingChildSelector] Not visible, returning null");
+    console.log('[FloatingChildSelector] Not visible, returning null');
     return null;
   }
 
   const gradientColors = getGenderColors(selectedChild?.gender);
   const hasChildren = children && children.length > 0;
 
-  console.log("[FloatingChildSelector] Rendering with position:", position);
+  console.log('[FloatingChildSelector] Rendering with position:', position);
 
   return (
     <>
@@ -243,11 +246,7 @@ export function FloatingChildSelector({
           {
             left: position.x,
             top: position.y,
-            transform: [
-              { translateX: pan.x },
-              { translateY: pan.y },
-              { scale },
-            ],
+            transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }],
           },
         ]}
         {...panResponder.panHandlers}
@@ -297,18 +296,12 @@ export function FloatingChildSelector({
           <Pressable style={styles.modalBackdrop} onPress={() => setShowSheet(false)} />
 
           <View style={styles.sheetContainer}>
-            <LinearGradient
-              colors={[Colors.neutral.white, "#F8F9FA"]}
-              style={styles.sheetGradient}
-            >
+            <LinearGradient colors={[Colors.neutral.white, '#F8F9FA']} style={styles.sheetGradient}>
               {/* Handle */}
               <View style={styles.sheetHandle} />
 
               {/* Close Button */}
-              <Pressable
-                style={styles.closeButton}
-                onPress={() => setShowSheet(false)}
-              >
+              <Pressable style={styles.closeButton} onPress={() => setShowSheet(false)}>
                 <X size={20} color={Colors.neutral.dark} />
               </Pressable>
 
@@ -329,8 +322,7 @@ export function FloatingChildSelector({
                 >
                   {children.map((child, index) => {
                     const isSelected =
-                      selectedChild?.name === child.name &&
-                      selectedChild?.age === child.age;
+                      selectedChild?.name === child.name && selectedChild?.age === child.age;
                     const childGradient = getGenderColors(child.gender);
 
                     return (
@@ -367,7 +359,7 @@ export function FloatingChildSelector({
                               {child.gender && (
                                 <View style={styles.genderBadge}>
                                   <Text style={styles.genderBadgeText}>
-                                    {child.gender === "male" ? "Erkek" : "Kız"}
+                                    {child.gender === 'male' ? 'Erkek' : 'Kız'}
                                   </Text>
                                 </View>
                               )}
@@ -393,8 +385,8 @@ export function FloatingChildSelector({
                   </View>
                   <Text style={styles.emptyTitle}>Henüz çocuk eklenmemiş</Text>
                   <Text style={styles.emptySubtitle}>
-                    Profil sayfasından çocuk ekleyerek kişiselleştirilmiş
-                    içerikler oluşturabilirsiniz
+                    Profil sayfasından çocuk ekleyerek kişiselleştirilmiş içerikler
+                    oluşturabilirsiniz
                   </Text>
                 </View>
               )}
@@ -402,10 +394,7 @@ export function FloatingChildSelector({
               {/* Add Child Button */}
               <Pressable
                 onPress={handleAddChild}
-                style={({ pressed }) => [
-                  styles.addChildButton,
-                  pressed && { opacity: 0.8 },
-                ]}
+                style={({ pressed }) => [styles.addChildButton, pressed && { opacity: 0.8 }]}
               >
                 <LinearGradient
                   colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
@@ -434,7 +423,7 @@ const styles = StyleSheet.create({
   // Floating Button - positioned directly via left/top props
   // Uses design system z-index for consistent layering
   floatingButton: {
-    position: "absolute",
+    position: 'absolute',
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     zIndex: zIndex.floating,
@@ -445,98 +434,98 @@ const styles = StyleSheet.create({
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 3,
-    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   ageBadge: {
-    position: "absolute",
+    position: 'absolute',
     bottom: -2,
     right: -2,
     backgroundColor: Colors.neutral.darkest,
     width: 22,
     height: 22,
     borderRadius: 11,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.neutral.white,
   },
   ageBadgeText: {
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.neutral.white,
   },
   nameLabel: {
-    position: "absolute",
+    position: 'absolute',
     bottom: -18,
     left: -20,
     right: -20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   nameLabelText: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: '600',
     color: Colors.neutral.dark,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
-    overflow: "hidden",
+    overflow: 'hidden',
     maxWidth: 100,
-    textAlign: "center",
+    textAlign: 'center',
   },
 
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   sheetContainer: {
     maxHeight: SCREEN_HEIGHT * 0.7,
-    borderTopLeftRadius: radius["2xl"],
-    borderTopRightRadius: radius["2xl"],
-    overflow: "hidden",
+    borderTopLeftRadius: radius['2xl'],
+    borderTopRightRadius: radius['2xl'],
+    overflow: 'hidden',
     ...shadows.xl,
   },
   sheetGradient: {
-    paddingTop: spacing["2"],
-    paddingBottom: spacing["6"],
+    paddingTop: spacing['2'],
+    paddingBottom: spacing['6'],
   },
   sheetHandle: {
     width: 40,
     height: 4,
     backgroundColor: Colors.neutral.lighter,
     borderRadius: radius.full,
-    alignSelf: "center",
-    marginBottom: spacing["4"],
+    alignSelf: 'center',
+    marginBottom: spacing['4'],
   },
   closeButton: {
-    position: "absolute",
-    top: spacing["4"],
-    right: spacing["4"],
+    position: 'absolute',
+    top: spacing['4'],
+    right: spacing['4'],
     zIndex: 10,
     width: 32,
     height: 32,
     borderRadius: radius.full,
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sheetHeader: {
-    paddingHorizontal: spacing["6"],
-    marginBottom: spacing["4"],
+    paddingHorizontal: spacing['6'],
+    marginBottom: spacing['4'],
   },
   sheetTitle: {
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   sheetSubtitle: {
     fontSize: typography.size.sm,
@@ -547,15 +536,15 @@ const styles = StyleSheet.create({
   // Children List
   childrenList: {
     maxHeight: SCREEN_HEIGHT * 0.35,
-    paddingHorizontal: spacing["4"],
+    paddingHorizontal: spacing['4'],
   },
   childrenListContent: {
-    gap: spacing["3"],
-    paddingBottom: spacing["2"],
+    gap: spacing['3'],
+    paddingBottom: spacing['2'],
   },
   childCard: {
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.md,
   },
   childCardSelected: {
@@ -563,31 +552,31 @@ const styles = StyleSheet.create({
     borderColor: Colors.neutral.white,
   },
   childCardGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing["4"],
-    gap: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing['4'],
+    gap: spacing['3'],
   },
   cardAvatarContainer: {
     borderRadius: radius.full,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   cardDefaultAvatar: {
     width: 48,
     height: 48,
     borderRadius: radius.full,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardInfoContainer: {
     flex: 1,
   },
   cardNameRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing["2"],
-    marginBottom: spacing["1"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+    marginBottom: spacing['1'],
   },
   cardChildName: {
     fontSize: typography.size.lg,
@@ -600,10 +589,10 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   genderBadge: {
-    paddingHorizontal: spacing["2"],
+    paddingHorizontal: spacing['2'],
     paddingVertical: 2,
     borderRadius: radius.full,
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   genderBadgeText: {
     fontSize: typography.size.xs,
@@ -614,53 +603,53 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.full,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // Empty State
   emptyState: {
-    alignItems: "center",
-    paddingVertical: spacing["8"],
-    paddingHorizontal: spacing["6"],
+    alignItems: 'center',
+    paddingVertical: spacing['8'],
+    paddingHorizontal: spacing['6'],
   },
   emptyIconContainer: {
     width: 80,
     height: 80,
     borderRadius: radius.full,
     backgroundColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacing["4"],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing['4'],
   },
   emptyTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: Colors.neutral.dark,
-    marginBottom: spacing["2"],
+    marginBottom: spacing['2'],
   },
   emptySubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: typography.size.sm * 1.5,
   },
 
   // Add Child Button
   addChildButton: {
-    marginHorizontal: spacing["4"],
-    marginTop: spacing["4"],
+    marginHorizontal: spacing['4'],
+    marginTop: spacing['4'],
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.sm,
   },
   addChildButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing["4"],
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing['4'],
+    gap: spacing['2'],
   },
   addChildButtonText: {
     fontSize: typography.size.base,
@@ -670,15 +659,15 @@ const styles = StyleSheet.create({
 
   // Drag Hint
   dragHint: {
-    marginHorizontal: spacing["4"],
-    marginTop: spacing["4"],
-    padding: spacing["3"],
+    marginHorizontal: spacing['4'],
+    marginTop: spacing['4'],
+    padding: spacing['3'],
     backgroundColor: Colors.semantic.infoBg,
     borderRadius: radius.lg,
   },
   dragHintText: {
     fontSize: typography.size.xs,
     color: Colors.neutral.dark,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

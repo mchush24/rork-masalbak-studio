@@ -1,16 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Modal,
-  Animated,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import { View, Text, Pressable, Modal, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { UserCheck, ArrowRight, X } from 'lucide-react-native';
-import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -22,12 +14,7 @@ interface ExistingUserModalProps {
   onDismiss: () => void;
 }
 
-export function ExistingUserModal({
-  visible,
-  email,
-  onLogin,
-  onDismiss,
-}: ExistingUserModalProps) {
+export function ExistingUserModal({ visible, email, onLogin, onDismiss }: ExistingUserModalProps) {
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -50,6 +37,7 @@ export function ExistingUserModal({
       scaleAnim.setValue(0.8);
       opacityAnim.setValue(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const handleLogin = () => {
@@ -70,12 +58,7 @@ export function ExistingUserModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      statusBarTranslucent
-    >
+    <Modal visible={visible} transparent animationType="none" statusBarTranslucent>
       <Animated.View
         style={{
           flex: 1,
@@ -148,7 +131,7 @@ export function ExistingUserModal({
 
             <Text
               style={{
-                fontSize: typography.fontSize.xl,
+                fontSize: typography.size.xl,
                 fontWeight: '700',
                 color: 'white',
                 textAlign: 'center',
@@ -162,7 +145,7 @@ export function ExistingUserModal({
           <View style={{ padding: spacing.lg }}>
             <Text
               style={{
-                fontSize: typography.fontSize.base,
+                fontSize: typography.size.base,
                 color: '#4B5563',
                 textAlign: 'center',
                 lineHeight: 24,
@@ -182,7 +165,7 @@ export function ExistingUserModal({
             >
               <Text
                 style={{
-                  fontSize: typography.fontSize.base,
+                  fontSize: typography.size.base,
                   fontWeight: '600',
                   color: '#1F2937',
                   textAlign: 'center',
@@ -210,7 +193,7 @@ export function ExistingUserModal({
             >
               <Text
                 style={{
-                  fontSize: typography.fontSize.md,
+                  fontSize: typography.size.md,
                   fontWeight: '600',
                   color: 'white',
                 }}
@@ -230,7 +213,7 @@ export function ExistingUserModal({
             >
               <Text
                 style={{
-                  fontSize: typography.fontSize.sm,
+                  fontSize: typography.size.sm,
                   color: '#6B7280',
                   textAlign: 'center',
                 }}

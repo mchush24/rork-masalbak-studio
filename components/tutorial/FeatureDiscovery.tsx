@@ -9,7 +9,7 @@
  * - Pulsing indicators
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -29,13 +29,10 @@ import Animated, {
   withSequence,
   interpolate,
   Easing,
-  FadeIn,
-  FadeOut,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronRight, ChevronLeft, X, Sparkles } from 'lucide-react-native';
+import { ChevronRight, ChevronLeft, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { useHaptics } from '@/lib/haptics';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -87,7 +84,11 @@ export function Spotlight({
 
   // Overlay coordination
   const overlayId = `feature_discovery_${id}`;
-  const { canShow, request: requestOverlay, release: releaseOverlay } = useOverlay('feature_discovery', overlayId);
+  const {
+    canShow,
+    request: requestOverlay,
+    release: releaseOverlay,
+  } = useOverlay('feature_discovery', overlayId);
 
   useEffect(() => {
     const checkAndShow = async () => {
@@ -192,7 +193,7 @@ function SpotlightOverlay({
       -1,
       true
     );
-  }, []);
+  }, [pulseScale, contentOpacity, iooScale, iooBounce]);
 
   const pulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseScale.value }],
@@ -203,10 +204,7 @@ function SpotlightOverlay({
   }));
 
   const iooAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: iooScale.value },
-      { translateY: iooBounce.value },
-    ],
+    transform: [{ scale: iooScale.value }, { translateY: iooBounce.value }],
   }));
 
   const PADDING = 16;
@@ -217,12 +215,9 @@ function SpotlightOverlay({
     height: targetLayout.height + PADDING * 2,
   };
 
-  const contentTop = position === 'bottom'
-    ? spotlightRect.y + spotlightRect.height + 20
-    : undefined;
-  const contentBottom = position === 'top'
-    ? SCREEN_HEIGHT - spotlightRect.y + 20
-    : undefined;
+  const contentTop =
+    position === 'bottom' ? spotlightRect.y + spotlightRect.height + 20 : undefined;
+  const contentBottom = position === 'top' ? SCREEN_HEIGHT - spotlightRect.y + 20 : undefined;
 
   return (
     <Modal transparent visible animationType="fade" onRequestClose={onDismiss}>
@@ -230,12 +225,7 @@ function SpotlightOverlay({
         {/* Dark overlay with cutout */}
         <View style={styles.spotlightMask}>
           {/* Top */}
-          <View
-            style={[
-              styles.maskSection,
-              { height: spotlightRect.y, width: SCREEN_WIDTH },
-            ]}
-          />
+          <View style={[styles.maskSection, { height: spotlightRect.y, width: SCREEN_WIDTH }]} />
           {/* Middle row */}
           <View style={{ flexDirection: 'row', height: spotlightRect.height }}>
             {/* Left */}
@@ -286,13 +276,9 @@ function SpotlightOverlay({
             </Animated.View>
 
             <Animated.Text style={styles.spotlightTitle}>{title}</Animated.Text>
-            <Animated.Text style={styles.spotlightDescription}>
-              {description}
-            </Animated.Text>
+            <Animated.Text style={styles.spotlightDescription}>{description}</Animated.Text>
             <Pressable style={styles.spotlightButton} onPress={onDismiss}>
-              <Animated.Text style={styles.spotlightButtonText}>
-                Anladım
-              </Animated.Text>
+              <Animated.Text style={styles.spotlightButtonText}>Anladım</Animated.Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -312,13 +298,7 @@ interface FeatureTourProps {
 /**
  * Multi-step feature tour
  */
-export function FeatureTour({
-  steps,
-  visible,
-  onComplete,
-  onSkip,
-  tourId,
-}: FeatureTourProps) {
+export function FeatureTour({ steps, visible, onComplete, onSkip, tourId }: FeatureTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [layouts, setLayouts] = useState<Map<number, LayoutRectangle>>(new Map());
   const { feedback } = useFeedback();
@@ -328,12 +308,13 @@ export function FeatureTour({
       setCurrentStep(0);
       measureAllTargets();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const measureAllTargets = () => {
     steps.forEach((step, index) => {
       step.targetRef.current?.measureInWindow((x, y, width, height) => {
-        setLayouts((prev) => new Map(prev).set(index, { x, y, width, height }));
+        setLayouts(prev => new Map(prev).set(index, { x, y, width, height }));
       });
     });
   };
@@ -443,7 +424,7 @@ function TourCard({
       withTiming(5, { duration: 100 }),
       withTiming(0, { duration: 100 })
     );
-  }, [currentStep]);
+  }, [currentStep, scale, iooRotate]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -453,13 +434,12 @@ function TourCard({
     transform: [{ rotate: `${iooRotate.value}deg` }],
   }));
 
-  const position = step.position || (
-    targetLayout.y > SCREEN_HEIGHT / 2 ? 'top' : 'bottom'
-  );
+  const position = step.position || (targetLayout.y > SCREEN_HEIGHT / 2 ? 'top' : 'bottom');
 
-  const cardStyle: ViewStyle = position === 'top'
-    ? { bottom: SCREEN_HEIGHT - targetLayout.y + 30 }
-    : { top: targetLayout.y + targetLayout.height + 30 };
+  const cardStyle: ViewStyle =
+    position === 'top'
+      ? { bottom: SCREEN_HEIGHT - targetLayout.y + 30 }
+      : { top: targetLayout.y + targetLayout.height + 30 };
 
   return (
     <Animated.View style={[styles.tourCard, cardStyle, animatedStyle]}>
@@ -470,11 +450,7 @@ function TourCard({
 
       {/* Ioo Guide Mascot */}
       <Animated.View style={[styles.tourIooContainer, iooAnimatedStyle]}>
-        <Ioo
-          mood={isLast ? 'excited' : 'happy'}
-          size="xs"
-          animated={true}
-        />
+        <Ioo mood={isLast ? 'excited' : 'happy'} size="xs" animated={true} />
       </Animated.View>
 
       {/* Progress dots */}
@@ -554,15 +530,12 @@ export function PulsingIndicator({
         false
       );
       opacity.value = withRepeat(
-        withSequence(
-          withTiming(0.3, { duration: 800 }),
-          withTiming(1, { duration: 800 })
-        ),
+        withSequence(withTiming(0.3, { duration: 800 }), withTiming(1, { duration: 800 })),
         -1,
         false
       );
     }
-  }, [visible]);
+  }, [visible, scale, opacity]);
 
   const pulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -614,7 +587,7 @@ export function CoachMark({
 
   useEffect(() => {
     opacity.value = withTiming(visible ? 1 : 0, { duration: 200 });
-  }, [visible]);
+  }, [visible, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -640,9 +613,7 @@ export function CoachMark({
     <View style={[styles.coachMarkContainer, style]}>
       {children}
       {visible && (
-        <Animated.View
-          style={[styles.coachMarkBubble, getBubblePosition(), animatedStyle]}
-        >
+        <Animated.View style={[styles.coachMarkBubble, getBubblePosition(), animatedStyle]}>
           <Pressable onPress={onDismiss}>
             <Animated.Text style={styles.coachMarkText}>{message}</Animated.Text>
           </Pressable>
@@ -670,7 +641,7 @@ export async function isFeatureDiscovered(id: string): Promise<boolean> {
 export async function resetAllDiscovery(): Promise<void> {
   try {
     const keys = await AsyncStorage.getAllKeys();
-    const discoveryKeys = keys.filter((key) => key.startsWith(DISCOVERY_PREFIX));
+    const discoveryKeys = keys.filter(key => key.startsWith(DISCOVERY_PREFIX));
     await AsyncStorage.multiRemove(discoveryKeys);
   } catch (error) {
     console.error('Failed to reset discovery:', error);

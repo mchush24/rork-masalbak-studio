@@ -5,17 +5,9 @@
  * ve pozitif icgoruler sunan ebeveyn raporu.
  */
 
-import React, { useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Animated,
-  Pressable,
-  Dimensions,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Award,
   Heart,
@@ -28,20 +20,19 @@ import {
   Shield,
   AlertCircle,
   CheckCircle,
-} from "lucide-react-native";
+} from 'lucide-react-native';
 import {
   ParentReport as ParentReportType,
   TraitCount,
   ChoiceTimelineItem,
   ActivitySuggestion,
   TRAIT_DEFINITIONS,
-  PersonalityTrait,
   TherapeuticReportSection,
-} from "@/types/InteractiveStory";
-import { shadows } from "@/constants/design-system";
+} from '@/types/InteractiveStory';
+import { shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ParentReportProps {
   report: ParentReportType;
@@ -58,6 +49,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
       duration: 500,
       useNativeDriver: true,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -66,14 +58,12 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
       showsVerticalScrollIndicator={false}
     >
       {/* Baslik */}
-      <LinearGradient
-        colors={["#7C3AED", "#9333EA"]}
-        style={styles.header}
-      >
+      <LinearGradient colors={['#7C3AED', '#9333EA']} style={styles.header}>
         <Award size={40} color="#FCD34D" />
         <Text style={styles.headerTitle}>Ebeveyn Raporu</Text>
         <Text style={styles.headerSubtitle}>
-          {report.childName ? `${report.childName}'in` : "Cocugunuzun"} &ldquo;{report.storyTitle}&rdquo; hikayesindeki yolculugu
+          {report.childName ? `${report.childName}'in` : 'Cocugunuzun'} &ldquo;{report.storyTitle}
+          &rdquo; hikayesindeki yolculugu
         </Text>
       </LinearGradient>
 
@@ -93,7 +83,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
         {/* Basit pasta grafik */}
         <View style={styles.chartContainer}>
           <View style={styles.chartBar}>
-            {report.dominantTraits.map((tc) => {
+            {report.dominantTraits.map(tc => {
               const def = TRAIT_DEFINITIONS[tc.trait];
               return (
                 <View
@@ -107,7 +97,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
             })}
           </View>
           <View style={styles.chartLegend}>
-            {report.dominantTraits.map((tc) => {
+            {report.dominantTraits.map(tc => {
               const def = TRAIT_DEFINITIONS[tc.trait];
               return (
                 <View key={tc.trait} style={styles.legendItem}>
@@ -128,7 +118,11 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
         </View>
 
         {report.choiceTimeline.map((item, index) => (
-          <TimelineItem key={index} item={item} isLast={index === report.choiceTimeline.length - 1} />
+          <TimelineItem
+            key={index}
+            item={item}
+            isLast={index === report.choiceTimeline.length - 1}
+          />
         ))}
       </View>
 
@@ -166,16 +160,14 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
       </View>
 
       {/* Terapötik Bölüm (varsa) */}
-      {report.therapeuticSection && (
-        <TherapeuticSection section={report.therapeuticSection} />
-      )}
+      {report.therapeuticSection && <TherapeuticSection section={report.therapeuticSection} />}
 
       {/* Pozitif mesaj */}
       <View style={styles.positiveMessage}>
         <Heart size={32} color="#EC4899" />
         <Text style={styles.positiveMessageText}>
-          Her cocuk benzersizdir ve her secim degerlidir.
-          Bu rapor sadece pozitif guclu yanlari vurgulamak icindir.
+          Her cocuk benzersizdir ve her secim degerlidir. Bu rapor sadece pozitif guclu yanlari
+          vurgulamak icindir.
         </Text>
       </View>
 
@@ -236,7 +228,7 @@ function TimelineItem({ item, isLast }: { item: ChoiceTimelineItem; isLast: bool
           <ChevronRight size={16} color={Colors.neutral.gray400} />
           <Text style={styles.timelineAnswerText}>{item.chosenOption}</Text>
         </View>
-        <View style={[styles.timelineTraitBadge, { backgroundColor: def.color + "20" }]}>
+        <View style={[styles.timelineTraitBadge, { backgroundColor: def.color + '20' }]}>
           <Text style={styles.timelineTraitEmoji}>{def.emoji}</Text>
           <Text style={[styles.timelineTraitText, { color: def.color }]}>{def.name_tr}</Text>
         </View>
@@ -251,7 +243,7 @@ function ActivityCard({ activity }: { activity: ActivitySuggestion }) {
 
   return (
     <View style={styles.activityCard}>
-      <View style={[styles.activityIcon, { backgroundColor: def.color + "20" }]}>
+      <View style={[styles.activityIcon, { backgroundColor: def.color + '20' }]}>
         <Text style={styles.activityEmoji}>{activity.emoji}</Text>
       </View>
       <View style={styles.activityContent}>
@@ -267,10 +259,7 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
   return (
     <View style={styles.therapeuticContainer}>
       {/* Başlık */}
-      <LinearGradient
-        colors={["#10B981", "#059669"]}
-        style={styles.therapeuticHeader}
-      >
+      <LinearGradient colors={['#10B981', '#059669']} style={styles.therapeuticHeader}>
         <Shield size={28} color={Colors.neutral.white} />
         <Text style={styles.therapeuticTitle}>Terapötik Destek Rehberi</Text>
         <Text style={styles.therapeuticSubtitle}>
@@ -281,9 +270,7 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
       {/* Cesaretlendirici Mesaj */}
       <View style={styles.therapeuticEncouraging}>
         <CheckCircle size={24} color="#10B981" />
-        <Text style={styles.therapeuticEncouragingText}>
-          {section.encouragingMessage}
-        </Text>
+        <Text style={styles.therapeuticEncouragingText}>{section.encouragingMessage}</Text>
       </View>
 
       {/* Çocuğun Güçlü Yanları */}
@@ -344,12 +331,17 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
       <View style={styles.therapeuticSection}>
         <Text style={styles.therapeuticSectionTitle}>Önerilen Terapötik Özellikler</Text>
         <View style={styles.therapeuticTraitsRow}>
-          {section.recommendedTraits.map((trait) => {
+          {section.recommendedTraits.map(trait => {
             const def = TRAIT_DEFINITIONS[trait];
             return (
-              <View key={trait} style={[styles.therapeuticTraitBadge, { backgroundColor: def.color + "20" }]}>
+              <View
+                key={trait}
+                style={[styles.therapeuticTraitBadge, { backgroundColor: def.color + '20' }]}
+              >
                 <Text style={styles.therapeuticTraitEmoji}>{def.emoji}</Text>
-                <Text style={[styles.therapeuticTraitName, { color: def.color }]}>{def.name_tr}</Text>
+                <Text style={[styles.therapeuticTraitName, { color: def.color }]}>
+                  {def.name_tr}
+                </Text>
               </View>
             );
           })}
@@ -359,7 +351,8 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
       {/* Profesyonel Destek Hatırlatması */}
       <View style={styles.therapeuticDisclaimer}>
         <Text style={styles.therapeuticDisclaimerText}>
-          Bu rapor genel rehberlik amaçlıdır. Ciddi endişeler için profesyonel destek almanızı öneririz.
+          Bu rapor genel rehberlik amaçlıdır. Ciddi endişeler için profesyonel destek almanızı
+          öneririz.
         </Text>
       </View>
     </View>
@@ -375,19 +368,19 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 24,
-    alignItems: "center",
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.neutral.white,
     marginTop: 12,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.8)",
+    color: 'rgba(255,255,255,0.8)',
     marginTop: 8,
-    textAlign: "center",
+    textAlign: 'center',
   },
   section: {
     backgroundColor: Colors.neutral.white,
@@ -398,26 +391,26 @@ const styles = StyleSheet.create({
     ...shadows.xs,
   },
   sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1F2937",
+    fontWeight: 'bold',
+    color: '#1F2937',
   },
   sectionDescription: {
     fontSize: 14,
-    color: "#6B7280",
+    color: '#6B7280',
     marginBottom: 16,
   },
   traitsContainer: {
     gap: 12,
   },
   traitCard: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
@@ -428,21 +421,21 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     backgroundColor: Colors.neutral.gray200,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   traitRankText: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#6B7280",
+    fontWeight: 'bold',
+    color: '#6B7280',
   },
   traitInfo: {
     flex: 1,
   },
   traitHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
     marginBottom: 4,
   },
@@ -451,18 +444,18 @@ const styles = StyleSheet.create({
   },
   traitName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
+    fontWeight: '600',
+    color: '#1F2937',
     flex: 1,
   },
   traitPercentage: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#9333EA",
+    fontWeight: 'bold',
+    color: '#9333EA',
   },
   traitDescription: {
     fontSize: 13,
-    color: "#6B7280",
+    color: '#6B7280',
     lineHeight: 18,
   },
   chartContainer: {
@@ -471,22 +464,22 @@ const styles = StyleSheet.create({
   chartBar: {
     height: 12,
     borderRadius: 6,
-    flexDirection: "row",
-    overflow: "hidden",
+    flexDirection: 'row',
+    overflow: 'hidden',
     backgroundColor: Colors.neutral.gray200,
   },
   chartSegment: {
-    height: "100%",
+    height: '100%',
   },
   chartLegend: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
     marginTop: 12,
   },
   legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   legendDot: {
@@ -496,27 +489,27 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   timelineItem: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 16,
   },
   timelineLeft: {
-    alignItems: "center",
+    alignItems: 'center',
     marginRight: 12,
   },
   timelineDot: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   timelineDotText: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   timelineLine: {
     flex: 1,
@@ -532,24 +525,24 @@ const styles = StyleSheet.create({
   },
   timelineQuestion: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1F2937",
+    fontWeight: '600',
+    color: '#1F2937',
     marginBottom: 8,
   },
   timelineAnswer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 8,
   },
   timelineAnswerText: {
     fontSize: 13,
-    color: "#6B7280",
+    color: '#6B7280',
     flex: 1,
   },
   timelineTraitBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -560,10 +553,10 @@ const styles = StyleSheet.create({
   },
   timelineTraitText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   activityCard: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
@@ -573,8 +566,8 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   activityEmoji: {
@@ -585,32 +578,32 @@ const styles = StyleSheet.create({
   },
   activityTitle: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#1F2937",
+    fontWeight: '600',
+    color: '#1F2937',
     marginBottom: 4,
   },
   activityDescription: {
     fontSize: 13,
-    color: "#6B7280",
+    color: '#6B7280',
     lineHeight: 18,
   },
   conversationItem: {
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: Colors.neutral.gray50,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
-    alignItems: "flex-start",
+    alignItems: 'flex-start',
   },
   conversationNumber: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#EC4899",
+    backgroundColor: '#EC4899',
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
     lineHeight: 24,
     marginRight: 12,
   },
@@ -621,19 +614,19 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   positiveMessage: {
-    flexDirection: "row",
-    backgroundColor: "#FDF2F8",
+    flexDirection: 'row',
+    backgroundColor: '#FDF2F8',
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
     padding: 20,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 16,
   },
   positiveMessageText: {
     flex: 1,
     fontSize: 14,
-    color: "#9D174D",
+    color: '#9D174D',
     lineHeight: 20,
   },
   buttons: {
@@ -642,10 +635,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   downloadButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#9333EA",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#9333EA',
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -653,56 +646,56 @@ const styles = StyleSheet.create({
   downloadButtonText: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   closeButton: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 16,
   },
   closeButtonText: {
-    color: "#6B7280",
+    color: '#6B7280',
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   // Terapötik Bölüm Stilleri
   therapeuticContainer: {
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
-    overflow: "hidden",
+    overflow: 'hidden',
     backgroundColor: Colors.neutral.white,
     ...shadows.xs,
   },
   therapeuticHeader: {
     paddingVertical: 20,
     paddingHorizontal: 20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   therapeuticTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.neutral.white,
     marginTop: 8,
   },
   therapeuticSubtitle: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.9)",
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 4,
-    textAlign: "center",
+    textAlign: 'center',
   },
   therapeuticEncouraging: {
-    flexDirection: "row",
-    backgroundColor: "#ECFDF5",
+    flexDirection: 'row',
+    backgroundColor: '#ECFDF5',
     padding: 16,
-    alignItems: "flex-start",
+    alignItems: 'flex-start',
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#D1FAE5",
+    borderBottomColor: '#D1FAE5',
   },
   therapeuticEncouragingText: {
     flex: 1,
     fontSize: 14,
-    color: "#047857",
+    color: '#047857',
     lineHeight: 20,
   },
   therapeuticSection: {
@@ -712,13 +705,13 @@ const styles = StyleSheet.create({
   },
   therapeuticSectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
+    fontWeight: '600',
+    color: '#1F2937',
     marginBottom: 12,
   },
   therapeuticItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 10,
     marginBottom: 8,
   },
@@ -729,7 +722,7 @@ const styles = StyleSheet.create({
   therapeuticItemText: {
     flex: 1,
     fontSize: 14,
-    color: "#4B5563",
+    color: '#4B5563',
     lineHeight: 20,
   },
   therapeuticInfoBox: {
@@ -743,24 +736,24 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   therapeuticWarningHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
     marginBottom: 12,
   },
   therapeuticWarningTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#B45309",
+    fontWeight: '600',
+    color: '#B45309',
   },
   therapeuticTraitsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 10,
   },
   therapeuticTraitBadge: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -771,7 +764,7 @@ const styles = StyleSheet.create({
   },
   therapeuticTraitName: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   therapeuticDisclaimer: {
     backgroundColor: Colors.neutral.gray50,
@@ -781,9 +774,9 @@ const styles = StyleSheet.create({
   },
   therapeuticDisclaimerText: {
     fontSize: 12,
-    color: "#6B7280",
-    textAlign: "center",
-    fontStyle: "italic",
+    color: '#6B7280',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
 

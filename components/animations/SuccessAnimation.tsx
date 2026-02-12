@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -28,7 +28,7 @@ import { Colors } from '@/constants/colors';
 import { spring, duration } from '@/constants/animations';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+const _AnimatedPath = Animated.createAnimatedComponent(Path);
 
 type StateType = 'success' | 'error' | 'warning' | 'info';
 
@@ -72,6 +72,7 @@ export function SuccessAnimation({
     if (autoPlay) {
       playAnimation();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPlay, type]);
 
   const playAnimation = () => {
@@ -91,10 +92,7 @@ export function SuccessAnimation({
     scale.value = withSpring(1, spring.bouncy);
 
     // Animate icon with delay
-    iconProgress.value = withDelay(
-      150,
-      withTiming(1, { duration: duration.normal })
-    );
+    iconProgress.value = withDelay(150, withTiming(1, { duration: duration.normal }));
 
     // Trigger haptic
     if (type === 'success') {
@@ -122,10 +120,7 @@ export function SuccessAnimation({
   };
 
   const containerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { translateX: shake.value },
-    ],
+    transform: [{ scale: scale.value }, { translateX: shake.value }],
   }));
 
   const circleProps = useAnimatedProps(() => ({
@@ -134,9 +129,7 @@ export function SuccessAnimation({
 
   const iconStyle = useAnimatedStyle(() => ({
     opacity: iconProgress.value,
-    transform: [
-      { scale: interpolate(iconProgress.value, [0, 1], [0.5, 1]) },
-    ],
+    transform: [{ scale: interpolate(iconProgress.value, [0, 1], [0.5, 1]) }],
   }));
 
   return (

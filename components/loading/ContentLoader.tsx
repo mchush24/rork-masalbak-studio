@@ -23,19 +23,13 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
   FadeIn,
   FadeOut,
 } from 'react-native-reanimated';
 import { AlertCircle, RefreshCw, Inbox, WifiOff } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
-import {
-  SkeletonCard,
-  SkeletonList,
-  SkeletonProfile,
-  SkeletonChart,
-} from './SkeletonLoader';
+import { SkeletonCard, SkeletonList, SkeletonProfile, SkeletonChart } from './SkeletonLoader';
 
 type LoadingState = 'loading' | 'success' | 'error' | 'empty' | 'offline';
 type ContentType = 'list' | 'card' | 'profile' | 'chart' | 'custom';
@@ -75,7 +69,7 @@ export function ContentLoader({
   style,
 }: ContentLoaderProps) {
   const [showContent, setShowContent] = useState(state === 'success');
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapMedium, error: _hapticError } = useHaptics();
 
   useEffect(() => {
     if (state === 'success') {
@@ -155,9 +149,7 @@ export function ContentLoader({
         <WifiOff size={48} color={Colors.neutral.medium} />
       </View>
       <Animated.Text style={styles.stateTitle}>Çevrimdışı</Animated.Text>
-      <Animated.Text style={styles.stateMessage}>
-        İnternet bağlantınızı kontrol edin
-      </Animated.Text>
+      <Animated.Text style={styles.stateMessage}>İnternet bağlantınızı kontrol edin</Animated.Text>
       {onRetry && (
         <Pressable style={[styles.retryButton, styles.offlineRetryButton]} onPress={handleRetry}>
           <RefreshCw size={18} color={Colors.secondary.lavender} />
@@ -190,10 +182,7 @@ export function ContentLoader({
   return (
     <View style={[styles.container, style]}>
       {state === 'loading' && (
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(200)}
-        >
+        <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)}>
           {renderSkeleton()}
         </Animated.View>
       )}
@@ -226,7 +215,7 @@ export function ProgressiveLoader({
   useEffect(() => {
     const startTimeout = setTimeout(() => {
       const interval = setInterval(() => {
-        setVisibleCount((prev) => {
+        setVisibleCount(prev => {
           if (prev >= children.length) {
             clearInterval(interval);
             return prev;
@@ -284,18 +273,19 @@ export function InfiniteScrollLoader({
     if (isLoading) {
       spinRotation.value = withTiming(360, { duration: 1000 });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
   const spinStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${spinRotation.value}deg` }],
   }));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleScroll = (event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const paddingToBottom = 50;
     const isCloseToBottom =
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom;
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
 
     if (isCloseToBottom && hasMore && !isLoading) {
       onLoadMore();
@@ -334,11 +324,7 @@ interface PullToRefreshProps {
 /**
  * Enhanced pull-to-refresh wrapper
  */
-export function PullToRefresh({
-  children,
-  onRefresh,
-  style,
-}: PullToRefreshProps) {
+export function PullToRefresh({ children, onRefresh, style }: PullToRefreshProps) {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {

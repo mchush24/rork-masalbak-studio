@@ -9,17 +9,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  Pressable,
-  Modal,
-} from 'react-native';
-import { X, Volume2, VolumeX, ChevronRight } from 'lucide-react-native';
+import { View, Text, StyleSheet, Switch, Pressable, Modal } from 'react-native';
+import { X, Volume2, VolumeX } from 'lucide-react-native';
 import Slider from '@react-native-community/slider';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import { useSound } from '@/lib/audio/useSound';
@@ -91,14 +83,9 @@ export function SoundSettings({ visible, onClose }: SoundSettingsProps) {
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={styles.content} onPress={e => e.stopPropagation()}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerTitle}>
@@ -119,9 +106,7 @@ export function SoundSettings({ visible, onClose }: SoundSettingsProps) {
             <View style={styles.settingRow}>
               <View>
                 <Text style={styles.settingLabel}>Sesler</Text>
-                <Text style={styles.settingDescription}>
-                  Uygulama seslerini aç/kapat
-                </Text>
+                <Text style={styles.settingDescription}>Uygulama seslerini aç/kapat</Text>
               </View>
               <Switch
                 value={isEnabled}
@@ -155,9 +140,7 @@ export function SoundSettings({ visible, onClose }: SoundSettingsProps) {
                 />
                 <Volume2 size={20} color={Colors.secondary.grass} />
               </View>
-              <Text style={styles.volumeValue}>
-                {Math.round(localVolume * 100)}%
-              </Text>
+              <Text style={styles.volumeValue}>{Math.round(localVolume * 100)}%</Text>
             </View>
           )}
 
@@ -166,19 +149,17 @@ export function SoundSettings({ visible, onClose }: SoundSettingsProps) {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Ses Kategorileri</Text>
               <View style={styles.categoriesList}>
-                {(Object.keys(SOUND_CATEGORIES) as SoundCategory[]).map((category) => {
+                {(Object.keys(SOUND_CATEGORIES) as SoundCategory[]).map(category => {
                   const info = SOUND_CATEGORIES[category];
                   return (
                     <View key={category} style={styles.categoryRow}>
                       <View style={styles.categoryInfo}>
                         <Text style={styles.categoryLabel}>{info.label}</Text>
-                        <Text style={styles.categoryDescription}>
-                          {info.description}
-                        </Text>
+                        <Text style={styles.categoryDescription}>{info.description}</Text>
                       </View>
                       <Switch
                         value={categoryStates[category]}
-                        onValueChange={(value) => handleCategoryToggle(category, value)}
+                        onValueChange={value => handleCategoryToggle(category, value)}
                         trackColor={{
                           false: Colors.neutral.light,
                           true: Colors.secondary.sky,

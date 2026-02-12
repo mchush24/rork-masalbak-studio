@@ -84,6 +84,7 @@ export function TypingIndicator({
         useNativeDriver: true,
       }).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible) {
@@ -180,6 +181,7 @@ export function TypingBubble({ visible = true, avatarComponent }: TypingBubblePr
         }),
       ]).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible) {
@@ -196,9 +198,7 @@ export function TypingBubble({ visible = true, avatarComponent }: TypingBubblePr
         },
       ]}
     >
-      {avatarComponent && (
-        <View style={styles.avatarContainer}>{avatarComponent}</View>
-      )}
+      {avatarComponent && <View style={styles.avatarContainer}>{avatarComponent}</View>}
       <View style={styles.bubble}>
         <TypingIndicator visible={visible} />
       </View>

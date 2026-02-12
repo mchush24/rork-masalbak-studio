@@ -106,6 +106,7 @@ function classifyiOSDevice(): PerformanceTier {
 async function classifyAndroidDevice(): Promise<PerformanceTier> {
   try {
     // Try to get device memory (Chrome 63+, Android WebView)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deviceMemory = (navigator as any).deviceMemory;
 
     if (deviceMemory >= 6) {
@@ -138,6 +139,7 @@ async function classifyAndroidDevice(): Promise<PerformanceTier> {
  */
 function classifyWebDevice(): PerformanceTier {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const memory = (navigator as any).deviceMemory;
     const cores = navigator.hardwareConcurrency || 2;
 
@@ -168,15 +170,15 @@ function classifyWebDevice(): PerformanceTier {
  * Measures how many circles can be drawn in 16ms (60 FPS budget)
  */
 export async function runPerformanceBenchmark(): Promise<number> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const startTime = performance.now();
     const iterations = 1000;
 
     // Simulate Skia path operations
-    let dummyCalc = 0;
+    let _dummyCalc = 0;
     for (let i = 0; i < iterations; i++) {
       // Simulate expensive calculations similar to Skia path operations
-      dummyCalc += Math.sqrt(i) * Math.sin(i);
+      _dummyCalc += Math.sqrt(i) * Math.sin(i);
     }
 
     const endTime = performance.now();

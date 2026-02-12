@@ -7,18 +7,10 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  Animated,
-} from 'react-native';
+import { Text, StyleSheet, Pressable, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
-import { buttonStyles } from '@/constants/design-system';
 
 export interface QuickReply {
   id: string;
@@ -66,6 +58,7 @@ export function QuickReplyChips({
         useNativeDriver: true,
       }).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible || replies.length === 0) {
@@ -87,7 +80,7 @@ export function QuickReplyChips({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {replies.map((reply, index) => (
+        {replies.map((reply, _index) => (
           <QuickReplyChip
             key={reply.id}
             reply={reply}
@@ -108,12 +101,7 @@ interface QuickReplyChipProps {
   animated?: boolean;
 }
 
-function QuickReplyChip({
-  reply,
-  onPress,
-  delay = 0,
-  animated = true,
-}: QuickReplyChipProps) {
+function QuickReplyChip({ reply, onPress, delay = 0, animated = true }: QuickReplyChipProps) {
   const scaleAnim = useRef(new Animated.Value(0.9)).current; // 0.8 -> 0.9 daha az dramatik
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -139,7 +127,7 @@ function QuickReplyChip({
       scaleAnim.setValue(1);
       opacityAnim.setValue(1);
     }
-  }, [delay, animated]);
+  }, [delay, animated, scaleAnim, opacityAnim]);
 
   const handlePress = () => {
     // Bounce animation on press
@@ -172,18 +160,10 @@ function QuickReplyChip({
     >
       <Pressable
         onPress={handlePress}
-        style={({ pressed }) => [
-          styles.chip,
-          pressed && styles.chipPressed,
-        ]}
+        style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}
       >
-        <LinearGradient
-          colors={[Colors.neutral.white, '#F8FAFC']}
-          style={styles.chipGradient}
-        >
-          {reply.emoji && (
-            <Text style={styles.chipEmoji}>{reply.emoji}</Text>
-          )}
+        <LinearGradient colors={[Colors.neutral.white, '#F8FAFC']} style={styles.chipGradient}>
+          {reply.emoji && <Text style={styles.chipEmoji}>{reply.emoji}</Text>}
           <Text style={styles.chipLabel}>{reply.label}</Text>
         </LinearGradient>
       </Pressable>
@@ -195,9 +175,27 @@ function QuickReplyChip({
 export const QUICK_REPLIES = {
   // Default welcome - general options
   welcome: [
-    { id: 'create-story', label: 'Masal Oluştur', emoji: '📖', action: 'navigate' as const, target: '/(tabs)/stories' },
-    { id: 'analyze', label: 'Çizim Analiz Et', emoji: '🎨', action: 'navigate' as const, target: '/(tabs)/analysis' },
-    { id: 'coloring', label: 'Boyama Yap', emoji: '🖍️', action: 'navigate' as const, target: '/(tabs)/coloring' },
+    {
+      id: 'create-story',
+      label: 'Masal Oluştur',
+      emoji: '📖',
+      action: 'navigate' as const,
+      target: '/(tabs)/stories',
+    },
+    {
+      id: 'analyze',
+      label: 'Çizim Analiz Et',
+      emoji: '🎨',
+      action: 'navigate' as const,
+      target: '/(tabs)/analysis',
+    },
+    {
+      id: 'coloring',
+      label: 'Boyama Yap',
+      emoji: '🖍️',
+      action: 'navigate' as const,
+      target: '/(tabs)/coloring',
+    },
     { id: 'help', label: 'Yardım', emoji: '❓', action: 'send' as const },
   ],
   afterAnswer: [
@@ -206,7 +204,13 @@ export const QUICK_REPLIES = {
     { id: 'main-menu', label: 'Ana Menü', emoji: '🏠', action: 'custom' as const },
   ],
   storyHelp: [
-    { id: 'upload-drawing', label: 'Çizim Yükle', emoji: '📸', action: 'navigate' as const, target: '/(tabs)/stories' },
+    {
+      id: 'upload-drawing',
+      label: 'Çizim Yükle',
+      emoji: '📸',
+      action: 'navigate' as const,
+      target: '/(tabs)/stories',
+    },
     { id: 'see-example', label: 'Örnek Gör', emoji: '👀', action: 'send' as const },
     { id: 'themes', label: 'Tema Önerileri', emoji: '✨', action: 'send' as const },
   ],
@@ -260,15 +264,37 @@ export const QUICK_REPLIES = {
 
   // Screen-specific welcome messages
   welcomeStories: [
-    { id: 'how-story', label: 'Nasıl masal oluşturabilirim?', emoji: '📖', action: 'send' as const },
-    { id: 'upload-drawing', label: 'Çizim Yükle', emoji: '📸', action: 'navigate' as const, target: '/(tabs)/stories' },
+    {
+      id: 'how-story',
+      label: 'Nasıl masal oluşturabilirim?',
+      emoji: '📖',
+      action: 'send' as const,
+    },
+    {
+      id: 'upload-drawing',
+      label: 'Çizim Yükle',
+      emoji: '📸',
+      action: 'navigate' as const,
+      target: '/(tabs)/stories',
+    },
     { id: 'theme-ideas', label: 'Tema Önerileri', emoji: '✨', action: 'send' as const },
     { id: 'other-help', label: 'Başka Yardım', emoji: '❓', action: 'send' as const },
   ],
   welcomeAnalysis: [
     { id: 'what-analysis', label: 'Analiz ne işe yarar?', emoji: '🔍', action: 'send' as const },
-    { id: 'how-interpret', label: 'Sonuçları nasıl yorumlayım?', emoji: '📊', action: 'send' as const },
-    { id: 'start-analysis', label: 'Analiz Başlat', emoji: '🎨', action: 'navigate' as const, target: '/(tabs)/analysis' },
+    {
+      id: 'how-interpret',
+      label: 'Sonuçları nasıl yorumlayım?',
+      emoji: '📊',
+      action: 'send' as const,
+    },
+    {
+      id: 'start-analysis',
+      label: 'Analiz Başlat',
+      emoji: '🎨',
+      action: 'navigate' as const,
+      target: '/(tabs)/analysis',
+    },
     { id: 'other-help', label: 'Başka Yardım', emoji: '❓', action: 'send' as const },
   ],
   welcomeColoring: [
@@ -285,9 +311,27 @@ export const QUICK_REPLIES = {
   ],
   welcomeHome: [
     { id: 'what-can-do', label: 'Neler yapabilirim?', emoji: '🤔', action: 'send' as const },
-    { id: 'create-story', label: 'Masal Oluştur', emoji: '📖', action: 'navigate' as const, target: '/(tabs)/stories' },
-    { id: 'try-coloring', label: 'Boyama Yap', emoji: '🖍️', action: 'navigate' as const, target: '/(tabs)/coloring' },
-    { id: 'analyze', label: 'Çizim Analiz Et', emoji: '🎨', action: 'navigate' as const, target: '/(tabs)/analysis' },
+    {
+      id: 'create-story',
+      label: 'Masal Oluştur',
+      emoji: '📖',
+      action: 'navigate' as const,
+      target: '/(tabs)/stories',
+    },
+    {
+      id: 'try-coloring',
+      label: 'Boyama Yap',
+      emoji: '🖍️',
+      action: 'navigate' as const,
+      target: '/(tabs)/coloring',
+    },
+    {
+      id: 'analyze',
+      label: 'Çizim Analiz Et',
+      emoji: '🎨',
+      action: 'navigate' as const,
+      target: '/(tabs)/analysis',
+    },
   ],
 };
 

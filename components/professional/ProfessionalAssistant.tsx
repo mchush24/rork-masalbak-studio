@@ -8,22 +8,13 @@
  */
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, Dimensions, ScrollView } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withRepeat,
   withSequence,
-  FadeIn,
   SlideInRight,
 } from 'react-native-reanimated';
 import {
@@ -153,7 +144,7 @@ export const ProfessionalAssistant = memo(function ProfessionalAssistant({
   tip,
   onDismissTip,
 }: ProfessionalAssistantProps) {
-  const { role } = useRole();
+  const { role: _role } = useRole();
   const isProfessional = useIsProfessional();
   const { tapMedium, selection } = useHapticFeedback();
   const [showTipPanel, setShowTipPanel] = useState(false);
@@ -165,14 +156,12 @@ export const ProfessionalAssistant = memo(function ProfessionalAssistant({
   useEffect(() => {
     if (tip) {
       pulseOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.7, { duration: 1000 }),
-          withTiming(1, { duration: 1000 })
-        ),
+        withSequence(withTiming(0.7, { duration: 1000 }), withTiming(1, { duration: 1000 })),
         3, // Only pulse 3 times to not be distracting
         true
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tip]);
 
   const handlePress = useCallback(() => {
@@ -184,13 +173,16 @@ export const ProfessionalAssistant = memo(function ProfessionalAssistant({
     }
   }, [tip, tapMedium]);
 
-  const handleDismissTip = useCallback((neverShowAgain: boolean = false) => {
-    selection();
-    if (tip) {
-      onDismissTip?.(tip.id, neverShowAgain);
-    }
-    setShowTipPanel(false);
-  }, [tip, onDismissTip, selection]);
+  const handleDismissTip = useCallback(
+    (neverShowAgain: boolean = false) => {
+      selection();
+      if (tip) {
+        onDismissTip?.(tip.id, neverShowAgain);
+      }
+      setShowTipPanel(false);
+    },
+    [tip, onDismissTip, selection]
+  );
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: pulseOpacity.value,
@@ -211,22 +203,15 @@ export const ProfessionalAssistant = memo(function ProfessionalAssistant({
   return (
     <>
       {/* Assistant Button */}
-      <Animated.View
-        style={[styles.container, positionStyle, animatedStyle]}
-      >
+      <Animated.View style={[styles.container, positionStyle, animatedStyle]}>
         <Pressable
           onPress={handlePress}
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed,
-          ]}
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         >
           <Bot size={22} color={ProfessionalColors.trust.primary} strokeWidth={1.5} />
 
           {/* Notification indicator */}
-          {tip && (
-            <View style={[styles.indicator, { backgroundColor: typeConfig.color }]} />
-          )}
+          {tip && <View style={[styles.indicator, { backgroundColor: typeConfig.color }]} />}
         </Pressable>
       </Animated.View>
 
@@ -277,11 +262,8 @@ export const ProfessionalAssistant = memo(function ProfessionalAssistant({
         animationType="fade"
         onRequestClose={() => setShowHelpModal(false)}
       >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setShowHelpModal(false)}
-        >
-          <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={styles.modalOverlay} onPress={() => setShowHelpModal(false)}>
+          <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
             {/* Header */}
             <View style={styles.modalHeader}>
               <View style={styles.modalIconContainer}>
@@ -289,10 +271,7 @@ export const ProfessionalAssistant = memo(function ProfessionalAssistant({
               </View>
               <Text style={styles.modalTitle}>{screenHelp.title}</Text>
               <Text style={styles.modalSubtitle}>{screenHelp.description}</Text>
-              <Pressable
-                onPress={() => setShowHelpModal(false)}
-                style={styles.modalCloseButton}
-              >
+              <Pressable onPress={() => setShowHelpModal(false)} style={styles.modalCloseButton}>
                 <X size={24} color={ProfessionalColors.text.secondary} />
               </Pressable>
             </View>

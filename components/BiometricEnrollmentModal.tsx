@@ -1,6 +1,7 @@
 import { View, Text, Modal, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { spacing, borderRadius, shadows, typography, colors } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
+import { Colors } from '@/constants/colors';
 
 interface BiometricEnrollmentModalProps {
   visible: boolean;
@@ -38,7 +39,7 @@ export function BiometricEnrollmentModal({
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <LinearGradient
-            colors={colors.gradients.accessible as unknown as [string, string, ...string[]]}
+            colors={Colors.gradients.accessible as unknown as [string, string, ...string[]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.gradient}
@@ -104,18 +105,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: typography.fontSize.xl,
+    fontSize: typography.size.xl,
     fontWeight: '700',
     color: 'white',
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
   description: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     marginBottom: spacing.lg,
-    lineHeight: typography.fontSize.base * 1.5,
+    lineHeight: typography.size.base * 1.5,
   },
   benefitsContainer: {
     alignSelf: 'stretch',
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   benefit: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'white',
     marginBottom: spacing.xs,
     fontWeight: '500',
@@ -143,16 +144,16 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   enrollButtonText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     fontWeight: '700',
-    color: colors.brand.primary,
+    color: Colors.primary.sunset,
     textAlign: 'center',
   },
   skipButton: {
     paddingVertical: spacing.sm,
   },
   skipButtonText: {
-    fontSize: typography.fontSize.sm,
+    fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     textDecorationLine: 'underline',

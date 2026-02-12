@@ -5,8 +5,8 @@
  * Yildizlar ve renkli noktalarla gorsel geri bildirim.
  */
 
-import React from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/colors';
 
 interface StoryProgressProps {
@@ -38,16 +38,11 @@ export function StoryProgress({
               ]}
             >
               <Text style={styles.choiceStarText}>
-                {i < currentChoice ? "⭐" : i === currentChoice && isChoiceTime ? "✨" : "☆"}
+                {i < currentChoice ? '⭐' : i === currentChoice && isChoiceTime ? '✨' : '☆'}
               </Text>
             </View>
             {i < totalChoices - 1 && (
-              <View
-                style={[
-                  styles.choiceLine,
-                  i < currentChoice && styles.choiceLineCompleted,
-                ]}
-              />
+              <View style={[styles.choiceLine, i < currentChoice && styles.choiceLineCompleted]} />
             )}
           </View>
         ))}
@@ -58,10 +53,7 @@ export function StoryProgress({
         <View style={styles.pageProgress}>
           <View style={styles.pageBar}>
             <View
-              style={[
-                styles.pageBarFill,
-                { width: `${((currentPage + 1) / totalPages) * 100}%` },
-              ]}
+              style={[styles.pageBarFill, { width: `${((currentPage + 1) / totalPages) * 100}%` }]}
             />
           </View>
           <Text style={styles.pageText}>
@@ -77,34 +69,34 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: "rgba(0,0,0,0.05)",
+    backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
   },
   choiceProgress: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 8,
   },
   choiceItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   choiceStar: {
     width: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: Colors.neutral.gray200,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   choiceStarCompleted: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: '#FEF3C7',
   },
   choiceStarCurrent: {
-    backgroundColor: "#FDE68A",
+    backgroundColor: '#FDE68A',
     transform: [{ scale: 1.1 }],
   },
   choiceStarText: {
@@ -120,8 +112,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.semantic.amber,
   },
   pageProgress: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
   pageBar: {
@@ -129,19 +121,19 @@ const styles = StyleSheet.create({
     height: 6,
     backgroundColor: Colors.neutral.gray200,
     borderRadius: 3,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   pageBarFill: {
-    height: "100%",
-    backgroundColor: "#9333EA",
+    height: '100%',
+    backgroundColor: '#9333EA',
     borderRadius: 3,
   },
   pageText: {
     fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "500",
+    color: '#6B7280',
+    fontWeight: '500',
     minWidth: 40,
-    textAlign: "right",
+    textAlign: 'right',
   },
 });
 

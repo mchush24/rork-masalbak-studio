@@ -5,24 +5,16 @@
  * Konfeti animasyonu ve ebeveyn raporu secenegi.
  */
 
-import React, { useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Pressable,
-  Dimensions,
-  Platform,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
-import { Star, FileText, Share2, Home } from "lucide-react-native";
-import { InteractiveCharacter } from "@/types/InteractiveStory";
-import { shadows } from "@/constants/design-system";
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated, Pressable, Dimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { Star, FileText, Share2, Home } from 'lucide-react-native';
+import { InteractiveCharacter } from '@/types/InteractiveStory';
+import { shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface EndingCelebrationProps {
   character: InteractiveCharacter;
@@ -52,7 +44,7 @@ export function EndingCelebration({
 
   useEffect(() => {
     // Haptic feedback
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
@@ -71,7 +63,7 @@ export function EndingCelebration({
     ]).start();
 
     // Konfeti animasyonu
-    confettiAnims.forEach((anim, i) => {
+    confettiAnims.forEach((anim, _i) => {
       Animated.loop(
         Animated.parallel([
           Animated.timing(anim.translateY, {
@@ -87,24 +79,31 @@ export function EndingCelebration({
         ])
       ).start();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCharacterEmoji = (type: string): string => {
     const emojiMap: Record<string, string> = {
-      tilki: "🦊", tavsan: "🐰", ayi: "🐻", kedi: "🐱",
-      kopek: "🐶", kus: "🐦", sincap: "🐿️", fil: "🐘",
-      fox: "🦊", rabbit: "🐰", bear: "🐻", cat: "🐱",
+      tilki: '🦊',
+      tavsan: '🐰',
+      ayi: '🐻',
+      kedi: '🐱',
+      kopek: '🐶',
+      kus: '🐦',
+      sincap: '🐿️',
+      fil: '🐘',
+      fox: '🦊',
+      rabbit: '🐰',
+      bear: '🐻',
+      cat: '🐱',
     };
-    return emojiMap[type.toLowerCase()] || "🌟";
+    return emojiMap[type.toLowerCase()] || '🌟';
   };
 
-  const confettiEmojis = ["🎉", "⭐", "✨", "🎊", "💫", "🌟", "🎈", "💜"];
+  const confettiEmojis = ['🎉', '⭐', '✨', '🎊', '💫', '🌟', '🎈', '💜'];
 
   return (
-    <LinearGradient
-      colors={["#7C3AED", "#9333EA", "#A855F7"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#7C3AED', '#9333EA', '#A855F7']} style={styles.container}>
       {/* Konfeti */}
       <View style={styles.confettiContainer}>
         {confettiAnims.map((anim, i) => (
@@ -119,12 +118,12 @@ export function EndingCelebration({
                   {
                     rotate: anim.rotate.interpolate({
                       inputRange: [0, 360],
-                      outputRange: ["0deg", "360deg"],
+                      outputRange: ['0deg', '360deg'],
                     }),
                   },
                 ],
                 opacity: anim.opacity,
-                left: ((i * 5) % 100) / 100 * SCREEN_WIDTH,
+                left: (((i * 5) % 100) / 100) * SCREEN_WIDTH,
               },
             ]}
           >
@@ -144,16 +143,12 @@ export function EndingCelebration({
       >
         {/* Karakter */}
         <View style={styles.characterContainer}>
-          <Text style={styles.characterEmoji}>
-            {getCharacterEmoji(character.type)}
-          </Text>
+          <Text style={styles.characterEmoji}>{getCharacterEmoji(character.type)}</Text>
         </View>
 
         {/* Baslik */}
         <Text style={styles.title}>Tebrikler!</Text>
-        <Text style={styles.subtitle}>
-          {character.name} ile harika bir macera yasadin!
-        </Text>
+        <Text style={styles.subtitle}>{character.name} ile harika bir macera yasadin!</Text>
 
         {/* Istatistikler */}
         <View style={styles.statsContainer}>
@@ -167,8 +162,8 @@ export function EndingCelebration({
         {/* Mesaj */}
         <View style={styles.messageBox}>
           <Text style={styles.messageText}>
-            Her secimin seni benzersiz yapan ozelliklerini gosteriyor.
-            Ailenle bu deneyimi paylasabilirsin!
+            Her secimin seni benzersiz yapan ozelliklerini gosteriyor. Ailenle bu deneyimi
+            paylasabilirsin!
           </Text>
         </View>
       </Animated.View>
@@ -202,28 +197,28 @@ export function EndingCelebration({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 24,
   },
   confettiContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    pointerEvents: "none",
+    pointerEvents: 'none',
   },
   confetti: {
-    position: "absolute",
+    position: 'absolute',
     fontSize: 24,
   },
   content: {
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.95)",
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: 32,
     padding: 32,
-    width: "100%",
+    width: '100%',
     maxWidth: 340,
     ...shadows.lg,
   },
@@ -231,9 +226,9 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#F3E8FF",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#F3E8FF',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   characterEmoji: {
@@ -241,28 +236,28 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
-    color: "#7C3AED",
+    fontWeight: 'bold',
+    color: '#7C3AED',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6B7280",
-    textAlign: "center",
+    color: '#6B7280',
+    textAlign: 'center',
     marginBottom: 20,
   },
   statsContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 24,
     marginBottom: 20,
   },
   statItem: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   statValue: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#1F2937",
+    fontWeight: 'bold',
+    color: '#1F2937',
     marginTop: 4,
   },
   statLabel: {
@@ -270,25 +265,25 @@ const styles = StyleSheet.create({
     color: Colors.neutral.gray400,
   },
   messageBox: {
-    backgroundColor: "#F3E8FF",
+    backgroundColor: '#F3E8FF',
     borderRadius: 16,
     padding: 16,
   },
   messageText: {
     fontSize: 14,
-    color: "#6B7280",
-    textAlign: "center",
+    color: '#6B7280',
+    textAlign: 'center',
     lineHeight: 20,
   },
   buttons: {
-    width: "100%",
+    width: '100%',
     maxWidth: 340,
     marginTop: 24,
   },
   primaryButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.neutral.white,
     paddingVertical: 16,
     borderRadius: 16,
@@ -297,27 +292,27 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#9333EA",
+    fontWeight: 'bold',
+    color: '#9333EA',
   },
   secondaryButtons: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
     marginTop: 12,
   },
   secondaryButton: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.2)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingVertical: 12,
     borderRadius: 12,
     gap: 6,
   },
   secondaryButtonText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
     color: Colors.neutral.white,
   },
 });

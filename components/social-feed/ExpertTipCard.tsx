@@ -9,14 +9,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -25,15 +18,13 @@ import Animated, {
   withTiming,
   withSequence,
   FadeInDown,
-  interpolate,
-  Extrapolation,
 } from 'react-native-reanimated';
 import { Lightbulb, ChevronRight, Quote, Sparkles } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ExpertTipCardProps {
   tip: {
@@ -67,13 +58,11 @@ export function ExpertTipCard({ tip, onPress, featured = true }: ExpertTipCardPr
 
   React.useEffect(() => {
     pulseAnim.value = withRepeat(
-      withSequence(
-        withTiming(1.1, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
-      ),
+      withSequence(withTiming(1.1, { duration: 1000 }), withTiming(1, { duration: 1000 })),
       -1,
       true
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const iconAnimStyle = useAnimatedStyle(() => ({
@@ -108,7 +97,11 @@ export function ExpertTipCard({ tip, onPress, featured = true }: ExpertTipCardPr
       ]}
     >
       <LinearGradient
-        colors={featured ? ['#FFF8E1', '#FFECB3', '#FFE082'] : categoryStyle.gradient as any}
+        colors={
+          featured
+            ? ['#FFF8E1', '#FFECB3', '#FFE082']
+            : (categoryStyle.gradient as [string, string, ...string[]])
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -125,7 +118,9 @@ export function ExpertTipCard({ tip, onPress, featured = true }: ExpertTipCardPr
         <View style={styles.header}>
           <Animated.View style={[styles.iconContainer, iconAnimStyle]}>
             <LinearGradient
-              colors={featured ? ['#FFB300', '#FFA000'] : [categoryStyle.accent, categoryStyle.accent]}
+              colors={
+                featured ? ['#FFB300', '#FFA000'] : [categoryStyle.accent, categoryStyle.accent]
+              }
               style={styles.iconGradient}
             >
               {featured ? (
@@ -138,11 +133,9 @@ export function ExpertTipCard({ tip, onPress, featured = true }: ExpertTipCardPr
 
           <View style={styles.headerText}>
             <Text style={[styles.title, featured && styles.titleFeatured]}>
-              {featured ? "Günün İlhamı" : "Uzman İpucu"}
+              {featured ? 'Günün İlhamı' : 'Uzman İpucu'}
             </Text>
-            {tip.source_title && (
-              <Text style={styles.sourceTitle}>{tip.source_title}</Text>
-            )}
+            {tip.source_title && <Text style={styles.sourceTitle}>{tip.source_title}</Text>}
           </View>
 
           {isLongContent && (

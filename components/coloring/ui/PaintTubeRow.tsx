@@ -9,18 +9,11 @@
  */
 
 import React, { useRef, useCallback } from 'react';
-import {
-  View,
-  ScrollView,
-  Text,
-  StyleSheet,
-  Dimensions,
-  ViewStyle,
-} from 'react-native';
+import { View, ScrollView, Text, StyleSheet, ViewStyle } from 'react-native';
 import { PaintTube } from './PaintTube';
 import { TextureType } from '../effects/TextureShaders';
 import { Colors } from '@/constants/colors';
-import { spacing, typography, radius, shadows } from '@/constants/design-system';
+import { spacing, typography } from '@/constants/design-system';
 
 // ============================================================================
 // TYPES
@@ -62,11 +55,51 @@ export const DEFAULT_PAINT_COLORS: PaintTubeColor[] = [
   { id: 'pink', color: '#FF69B4', name: 'Pembe', emoji: '💗', category: 'Temel' },
 
   // Glitter Colors
-  { id: 'glitter-gold', color: '#FFD700', name: 'Altın Sim', emoji: '✨', hasGlitter: true, texture: 'glitter', category: 'Simli' },
-  { id: 'glitter-silver', color: '#C0C0C0', name: 'Gümüş Sim', emoji: '✨', hasGlitter: true, texture: 'glitter', category: 'Simli' },
-  { id: 'glitter-pink', color: '#FF69B4', name: 'Pembe Sim', emoji: '✨', hasGlitter: true, texture: 'glitter', category: 'Simli' },
-  { id: 'glitter-blue', color: '#4D96FF', name: 'Mavi Sim', emoji: '✨', hasGlitter: true, texture: 'glitter', category: 'Simli' },
-  { id: 'glitter-purple', color: '#9D4EDD', name: 'Mor Sim', emoji: '✨', hasGlitter: true, texture: 'glitter', category: 'Simli' },
+  {
+    id: 'glitter-gold',
+    color: '#FFD700',
+    name: 'Altın Sim',
+    emoji: '✨',
+    hasGlitter: true,
+    texture: 'glitter',
+    category: 'Simli',
+  },
+  {
+    id: 'glitter-silver',
+    color: '#C0C0C0',
+    name: 'Gümüş Sim',
+    emoji: '✨',
+    hasGlitter: true,
+    texture: 'glitter',
+    category: 'Simli',
+  },
+  {
+    id: 'glitter-pink',
+    color: '#FF69B4',
+    name: 'Pembe Sim',
+    emoji: '✨',
+    hasGlitter: true,
+    texture: 'glitter',
+    category: 'Simli',
+  },
+  {
+    id: 'glitter-blue',
+    color: '#4D96FF',
+    name: 'Mavi Sim',
+    emoji: '✨',
+    hasGlitter: true,
+    texture: 'glitter',
+    category: 'Simli',
+  },
+  {
+    id: 'glitter-purple',
+    color: '#9D4EDD',
+    name: 'Mor Sim',
+    emoji: '✨',
+    hasGlitter: true,
+    texture: 'glitter',
+    category: 'Simli',
+  },
 
   // Pastel Colors
   { id: 'pastel-pink', color: '#FFB3D9', name: 'Pastel Pembe', emoji: '🌸', category: 'Pastel' },
@@ -107,11 +140,11 @@ export function PaintTubeRow({
   // Group colors by category
   const groupedColors = useCallback(() => {
     if (!showCategories) {
-      return { 'Tümü': colors };
+      return { Tümü: colors };
     }
 
     const groups: Record<string, PaintTubeColor[]> = {};
-    colors.forEach((color) => {
+    colors.forEach(color => {
       const category = color.category || 'Diğer';
       if (!groups[category]) {
         groups[category] = [];
@@ -156,7 +189,7 @@ export function PaintTubeRow({
                 isHorizontal ? styles.tubesHorizontal : styles.tubesVertical,
               ]}
             >
-              {categoryColors.map((color) => (
+              {categoryColors.map(color => (
                 <PaintTube
                   key={color.id}
                   color={color.color}
@@ -196,11 +229,8 @@ export function CompactPaintTubeSelector({
   const visibleColors = colors.slice(0, maxVisible);
 
   return (
-    <ScrollView
-      style={styles.compactContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {visibleColors.map((color) => (
+    <ScrollView style={styles.compactContainer} showsVerticalScrollIndicator={false}>
+      {visibleColors.map(color => (
         <PaintTube
           key={color.id}
           color={color.color}

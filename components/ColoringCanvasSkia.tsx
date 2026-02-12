@@ -716,8 +716,9 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
    * Web-specific touch handler (fallback for gesture handler issues on web)
    * Handles fill and sticker placement on web platform
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const handleWebCanvasClick = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (Platform.OS !== 'web') return;
 
@@ -753,8 +754,8 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
         saveToHistory();
         SoundManager.playColorSelect();
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedTool, selectedSticker, stickerSize, triggerHaptic, addSticker, saveToHistory]
   );
 
@@ -762,8 +763,9 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
    * Web-specific pointer event handlers for brush/eraser drawing
    * Provides full drawing support on web platform
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const handleWebPointerDown = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (Platform.OS !== 'web') return;
       if (selectedTool !== 'brush' && selectedTool !== 'eraser') return;
@@ -787,13 +789,12 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       } else if (selectedTool === 'eraser') {
         brushBuilder.start(x, y);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [selectedTool, triggerHaptic]
+    [selectedTool, triggerHaptic, brushBuilder]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebPointerMove = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (Platform.OS !== 'web') return;
       if (!isDrawing) return;
@@ -812,13 +813,12 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
       // Force re-render for live preview (increment key to trigger re-render)
       setPathUpdateKey(k => k + 1);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [isDrawing, selectedTool]
+    [isDrawing, selectedTool, brushBuilder]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebPointerUp = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (Platform.OS !== 'web') return;
       if (!isDrawing) return;
@@ -887,7 +887,6 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
 
       setIsDrawing(false);
       lastPoint.current = null;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [
       isDrawing,
@@ -902,11 +901,12 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       getCurrentColor,
       strokeLayer,
       setStrokeLayer,
+      brushBuilder,
     ]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebPointerLeave = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (Platform.OS !== 'web') return;
       if (!isDrawing) return;

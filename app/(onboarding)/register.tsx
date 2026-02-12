@@ -31,6 +31,7 @@ import {
   animation,
 } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import {
   Brain,
   Eye,
@@ -55,6 +56,7 @@ const STEPS = {
 };
 
 export default function RegisterScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams();
   const isLoginMode = params.mode === 'login';
 
@@ -415,7 +417,13 @@ export default function RegisterScreen() {
 
   return (
     <LinearGradient
-      colors={[Colors.secondary.lavender, '#818CF8', Colors.secondary.sky]}
+      colors={
+        [colors.secondary.lavender, '#818CF8', colors.secondary.sky] as [
+          string,
+          string,
+          ...string[],
+        ]
+      }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -580,6 +588,7 @@ function EmailStepNew({
   onLoginPress: () => void;
   onRegisterPress: () => void;
 }) {
+  const { colors } = useTheme();
   const inputRef = useRef<TextInput>(null);
   const glowAnim = useRef(new Animated.Value(0)).current;
 
@@ -740,7 +749,7 @@ function EmailStepNew({
       {/* Email Input with icon */}
       <View
         style={{
-          backgroundColor: 'white',
+          backgroundColor: colors.surface.card,
           borderRadius: radius.xl,
           padding: spacing.xs,
           marginBottom: spacing.md,
@@ -755,7 +764,7 @@ function EmailStepNew({
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: Colors.neutral.gray100,
+              backgroundColor: colors.secondary.lavender + '1F',
               justifyContent: 'center',
               alignItems: 'center',
               marginRight: spacing.sm,
@@ -763,7 +772,7 @@ function EmailStepNew({
           >
             <Mail
               size={iconSizes.action}
-              color={Colors.secondary.lavender}
+              color={colors.secondary.lavender}
               strokeWidth={iconStroke.standard}
             />
           </View>
@@ -775,14 +784,14 @@ function EmailStepNew({
               if (emailError) setEmailError('');
             }}
             placeholder="Email adresiniz"
-            placeholderTextColor={Colors.neutral.gray400}
+            placeholderTextColor={colors.text.tertiary}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
             style={{
               flex: 1,
               fontSize: isSmallDevice ? typography.size.base : typography.size.md,
-              color: '#1F2937',
+              color: colors.text.primary,
               paddingVertical: spacing.md,
               fontWeight: '500',
             }}
@@ -827,7 +836,7 @@ function EmailStepNew({
         disabled={!email || isLoading}
         style={({ pressed }) => [
           {
-            backgroundColor: email && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+            backgroundColor: email && !isLoading ? colors.surface.card : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: radius['2xl'],
             ...shadows.lg,
@@ -844,7 +853,7 @@ function EmailStepNew({
             style={{
               fontSize: typography.size.md,
               fontWeight: 'bold',
-              color: Colors.secondary.indigo,
+              color: colors.secondary.indigo,
               textAlign: 'center',
             }}
           >
@@ -856,7 +865,7 @@ function EmailStepNew({
               style={{
                 fontSize: typography.size.md,
                 fontWeight: '700',
-                color: email ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
+                color: email ? colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
             >
@@ -865,7 +874,7 @@ function EmailStepNew({
             {email && (
               <Zap
                 size={iconSizes.small}
-                color={Colors.secondary.lavender}
+                color={colors.secondary.lavender}
                 strokeWidth={iconStroke.bold}
               />
             )}
@@ -930,6 +939,7 @@ function PasswordStepNew({
   bannerSlideAnim: Animated.Value;
   onForgotPassword: () => void;
 }) {
+  const { colors } = useTheme();
   const passwordInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -957,19 +967,19 @@ function PasswordStepNew({
           style={{
             transform: [{ translateY: bannerSlideAnim }],
             marginBottom: spacing.lg,
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            backgroundColor: colors.surface.card,
             borderRadius: radius.xl,
             padding: spacing.lg,
             borderLeftWidth: 4,
-            borderLeftColor: Colors.semantic.amber,
+            borderLeftColor: colors.semantic.amber,
             ...shadows.lg,
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
             <Star
               size={iconSizes.action}
-              color={Colors.secondary.sunshine}
-              fill={Colors.secondary.sunshine}
+              color={colors.secondary.sunshine}
+              fill={colors.secondary.sunshine}
               strokeWidth={iconStroke.standard}
             />
             <Text
@@ -1037,7 +1047,7 @@ function PasswordStepNew({
       {/* Password Input */}
       <View
         style={{
-          backgroundColor: 'white',
+          backgroundColor: colors.surface.card,
           borderRadius: radius.xl,
           padding: spacing.xs,
           marginBottom: spacing.md,
@@ -1052,7 +1062,7 @@ function PasswordStepNew({
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: Colors.neutral.gray100,
+              backgroundColor: colors.secondary.lavender + '1F',
               justifyContent: 'center',
               alignItems: 'center',
               marginRight: spacing.sm,
@@ -1060,7 +1070,7 @@ function PasswordStepNew({
           >
             <Shield
               size={iconSizes.action}
-              color={Colors.secondary.lavender}
+              color={colors.secondary.lavender}
               strokeWidth={iconStroke.standard}
             />
           </View>
@@ -1072,13 +1082,13 @@ function PasswordStepNew({
               if (passwordError) setPasswordError('');
             }}
             placeholder="Şifreniz"
-            placeholderTextColor={Colors.neutral.gray400}
+            placeholderTextColor={colors.text.tertiary}
             secureTextEntry={!showPassword}
             autoComplete="password-new"
             style={{
               flex: 1,
               fontSize: isSmallDevice ? typography.size.base : typography.size.md,
-              color: '#1F2937',
+              color: colors.text.primary,
               paddingVertical: spacing.md,
               fontWeight: '500',
             }}
@@ -1087,13 +1097,13 @@ function PasswordStepNew({
             {showPassword ? (
               <EyeOff
                 size={iconSizes.input}
-                color={Colors.secondary.lavender}
+                color={colors.secondary.lavender}
                 strokeWidth={iconStroke.standard}
               />
             ) : (
               <Eye
                 size={iconSizes.input}
-                color={Colors.secondary.lavender}
+                color={colors.secondary.lavender}
                 strokeWidth={iconStroke.standard}
               />
             )}
@@ -1135,7 +1145,7 @@ function PasswordStepNew({
       {!isExistingUser && (
         <View
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.surface.card,
             borderRadius: radius.xl,
             padding: spacing.xs,
             marginBottom: spacing.sm,
@@ -1155,7 +1165,7 @@ function PasswordStepNew({
                 backgroundColor:
                   password === confirmPassword && confirmPassword.length > 0
                     ? '#D1FAE5'
-                    : Colors.neutral.gray100,
+                    : colors.secondary.lavender + '1F',
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginRight: spacing.sm,
@@ -1164,8 +1174,8 @@ function PasswordStepNew({
               {password === confirmPassword && confirmPassword.length > 0 ? (
                 <Heart
                   size={iconSizes.action}
-                  color={Colors.semantic.success}
-                  fill={Colors.semantic.success}
+                  color={colors.semantic.success}
+                  fill={colors.semantic.success}
                   strokeWidth={iconStroke.standard}
                 />
               ) : (
@@ -1183,13 +1193,13 @@ function PasswordStepNew({
                 if (passwordError) setPasswordError('');
               }}
               placeholder="Şifrenizi tekrar girin"
-              placeholderTextColor={Colors.neutral.gray400}
+              placeholderTextColor={colors.text.tertiary}
               secureTextEntry={!showConfirmPassword}
               autoComplete="password-new"
               style={{
                 flex: 1,
                 fontSize: isSmallDevice ? typography.size.base : typography.size.md,
-                color: '#1F2937',
+                color: colors.text.primary,
                 paddingVertical: spacing.md,
                 fontWeight: '500',
               }}
@@ -1201,13 +1211,13 @@ function PasswordStepNew({
               {showConfirmPassword ? (
                 <EyeOff
                   size={iconSizes.input}
-                  color={Colors.secondary.lavender}
+                  color={colors.secondary.lavender}
                   strokeWidth={iconStroke.standard}
                 />
               ) : (
                 <Eye
                   size={iconSizes.input}
-                  color={Colors.secondary.lavender}
+                  color={colors.secondary.lavender}
                   strokeWidth={iconStroke.standard}
                 />
               )}
@@ -1276,7 +1286,7 @@ function PasswordStepNew({
           {
             backgroundColor:
               (isExistingUser ? password : password && confirmPassword) && !isLoading
-                ? 'white'
+                ? colors.surface.card
                 : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: radius['2xl'],
@@ -1294,7 +1304,7 @@ function PasswordStepNew({
             style={{
               fontSize: typography.size.md,
               fontWeight: 'bold',
-              color: Colors.secondary.indigo,
+              color: colors.secondary.indigo,
               textAlign: 'center',
             }}
           >
@@ -1307,7 +1317,7 @@ function PasswordStepNew({
                 fontSize: typography.size.md,
                 fontWeight: '700',
                 color: (isExistingUser ? password : password && confirmPassword)
-                  ? Colors.secondary.indigo
+                  ? colors.secondary.indigo
                   : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
@@ -1317,7 +1327,7 @@ function PasswordStepNew({
             {(isExistingUser ? password : password && confirmPassword) && (
               <Zap
                 size={iconSizes.small}
-                color={Colors.secondary.lavender}
+                color={colors.secondary.lavender}
                 strokeWidth={iconStroke.bold}
               />
             )}
@@ -1344,6 +1354,7 @@ function VerifyCodeStepNew({
   isLoading: boolean;
   email: string;
 }) {
+  const { colors } = useTheme();
   const inputRef = useRef<TextInput>(null);
   const [isResending, setIsResending] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -1484,7 +1495,7 @@ function VerifyCodeStepNew({
       {/* Code Input with dots */}
       <View
         style={{
-          backgroundColor: 'white',
+          backgroundColor: colors.surface.card,
           borderRadius: radius.xl,
           padding: spacing.md,
           marginBottom: spacing.md,
@@ -1498,7 +1509,7 @@ function VerifyCodeStepNew({
           value={verificationCode}
           onChangeText={setVerificationCode}
           placeholder="000000"
-          placeholderTextColor={Colors.neutral.gray200}
+          placeholderTextColor={colors.border.light}
           keyboardType="number-pad"
           maxLength={6}
           autoComplete="one-time-code"
@@ -1506,7 +1517,7 @@ function VerifyCodeStepNew({
           style={{
             fontSize: typography.size.hero,
             fontWeight: '700',
-            color: Colors.secondary.indigo,
+            color: colors.secondary.indigo,
             padding: spacing.sm,
             textAlign: 'center',
             letterSpacing: 16,
@@ -1529,7 +1540,8 @@ function VerifyCodeStepNew({
                 width: 12,
                 height: 12,
                 borderRadius: 6,
-                backgroundColor: index < verificationCode.length ? Colors.secondary.indigo : Colors.neutral.gray200,
+                backgroundColor:
+                  index < verificationCode.length ? colors.secondary.indigo : colors.border.light,
               }}
             />
           ))}
@@ -1571,7 +1583,7 @@ function VerifyCodeStepNew({
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: Colors.semantic.amber,
+            backgroundColor: colors.semantic.amber,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -1625,7 +1637,9 @@ function VerifyCodeStepNew({
         style={({ pressed }) => [
           {
             backgroundColor:
-              verificationCode.length === 6 && !isLoading ? 'white' : 'rgba(255,255,255,0.25)',
+              verificationCode.length === 6 && !isLoading
+                ? colors.surface.card
+                : 'rgba(255,255,255,0.25)',
             paddingVertical: spacing.md + spacing.xs,
             borderRadius: radius['2xl'],
             ...shadows.lg,
@@ -1642,7 +1656,7 @@ function VerifyCodeStepNew({
             style={{
               fontSize: typography.size.md,
               fontWeight: 'bold',
-              color: Colors.secondary.indigo,
+              color: colors.secondary.indigo,
               textAlign: 'center',
             }}
           >
@@ -1654,7 +1668,8 @@ function VerifyCodeStepNew({
               style={{
                 fontSize: typography.size.md,
                 fontWeight: '700',
-                color: verificationCode.length === 6 ? Colors.secondary.indigo : 'rgba(255,255,255,0.6)',
+                color:
+                  verificationCode.length === 6 ? colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
             >
@@ -1663,7 +1678,7 @@ function VerifyCodeStepNew({
             {verificationCode.length === 6 && (
               <Zap
                 size={iconSizes.small}
-                color={Colors.secondary.lavender}
+                color={colors.secondary.lavender}
                 strokeWidth={iconStroke.bold}
               />
             )}

@@ -125,10 +125,7 @@ export class SmartContextEngine {
   // Save session memory
   private async saveSessionMemory(): Promise<void> {
     if (this.sessionMemory) {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.SESSION_MEMORY,
-        JSON.stringify(this.sessionMemory)
-      );
+      await AsyncStorage.setItem(STORAGE_KEYS.SESSION_MEMORY, JSON.stringify(this.sessionMemory));
     }
   }
 
@@ -199,7 +196,7 @@ export class SmartContextEngine {
   }
 
   // Check for unfinished work
-  async checkUnfinishedWork(): Promise<{ has: boolean; type?: string; data?: any }> {
+  async checkUnfinishedWork(): Promise<{ has: boolean; type?: string; data?: unknown }> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEYS.UNFINISHED_WORK);
       if (stored) {
@@ -216,7 +213,7 @@ export class SmartContextEngine {
   }
 
   // Save unfinished work
-  async saveUnfinishedWork(type: string, data: any): Promise<void> {
+  async saveUnfinishedWork(type: string, data: unknown): Promise<void> {
     await AsyncStorage.setItem(
       STORAGE_KEYS.UNFINISHED_WORK,
       JSON.stringify({ type, data, timestamp: Date.now() })
@@ -253,26 +250,13 @@ export class SmartContextEngine {
 // ============================================
 
 export class ParentLanguageAdapter {
-
   // Get greeting based on time of day (for parents)
   static getGreeting(timeOfDay: string): string {
     const greetings: Record<string, string[]> = {
-      morning: [
-        'Günaydın! ☀️',
-        'Günaydın! Size nasıl yardımcı olabilirim?',
-      ],
-      afternoon: [
-        'Merhaba! 👋',
-        'Merhaba! Size nasıl yardımcı olabilirim?',
-      ],
-      evening: [
-        'İyi akşamlar! 🌙',
-        'İyi akşamlar! Size nasıl yardımcı olabilirim?',
-      ],
-      night: [
-        'İyi geceler! 🌙',
-        'Geç saatte hoş geldiniz! Size nasıl yardımcı olabilirim?',
-      ],
+      morning: ['Günaydın! ☀️', 'Günaydın! Size nasıl yardımcı olabilirim?'],
+      afternoon: ['Merhaba! 👋', 'Merhaba! Size nasıl yardımcı olabilirim?'],
+      evening: ['İyi akşamlar! 🌙', 'İyi akşamlar! Size nasıl yardımcı olabilirim?'],
+      night: ['İyi geceler! 🌙', 'Geç saatte hoş geldiniz! Size nasıl yardımcı olabilirim?'],
     };
 
     const options = greetings[timeOfDay] || greetings.afternoon;
@@ -320,9 +304,14 @@ export class ParentLanguageAdapter {
       ],
     };
 
-    const ageGroup = child.age <= 3 ? 'toddler' :
-                     child.age <= 5 ? 'preschool' :
-                     child.age <= 8 ? 'school' : 'preteen';
+    const ageGroup =
+      child.age <= 3
+        ? 'toddler'
+        : child.age <= 5
+          ? 'preschool'
+          : child.age <= 8
+            ? 'school'
+            : 'preteen';
 
     const groupTips = tips[ageGroup];
     return groupTips[Math.floor(Math.random() * groupTips.length)];
@@ -396,7 +385,13 @@ export class SmartResponseGenerator {
 
       message = `${greeting} Yarım kalan ${label} var. Devam etmek ister misiniz?`;
       quickReplies = [
-        { id: 'continue-work', label: 'Evet, devam et', emoji: '▶️', action: 'custom', priority: 1 },
+        {
+          id: 'continue-work',
+          label: 'Evet, devam et',
+          emoji: '▶️',
+          action: 'custom',
+          priority: 1,
+        },
         { id: 'new-work', label: 'Yeni başla', emoji: '✨', action: 'custom', priority: 2 },
       ];
       tone = 'helpful';
@@ -416,7 +411,12 @@ export class SmartResponseGenerator {
     }
 
     // Screen-specific responses (for parents)
-    const screenResponses = this.getScreenSpecificResponse(screen, child, isFirstScreenVisit, timeOfDay);
+    const screenResponses = this.getScreenSpecificResponse(
+      screen,
+      child,
+      isFirstScreenVisit,
+      timeOfDay
+    );
     message = `${greeting} ${screenResponses.message}`;
     quickReplies = screenResponses.quickReplies;
     tone = screenResponses.tone;
@@ -440,9 +440,28 @@ export class SmartResponseGenerator {
             ? `${childName} için çizimlerden masallar oluşturabilirsiniz!`
             : `${childName} için yeni bir masal oluşturmak ister misiniz?`,
           quickReplies: [
-            { id: 'how-story', label: 'Nasıl masal oluşturabilirim?', emoji: '📖', action: 'send', priority: 1 },
-            { id: 'upload-drawing', label: 'Çizim Yükle', emoji: '📸', action: 'navigate', target: '/(tabs)/stories', priority: 2 },
-            { id: 'theme-ideas', label: 'Tema Önerileri', emoji: '✨', action: 'send', priority: 3 },
+            {
+              id: 'how-story',
+              label: 'Nasıl masal oluşturabilirim?',
+              emoji: '📖',
+              action: 'send',
+              priority: 1,
+            },
+            {
+              id: 'upload-drawing',
+              label: 'Çizim Yükle',
+              emoji: '📸',
+              action: 'navigate',
+              target: '/(tabs)/stories',
+              priority: 2,
+            },
+            {
+              id: 'theme-ideas',
+              label: 'Tema Önerileri',
+              emoji: '✨',
+              action: 'send',
+              priority: 3,
+            },
             { id: 'help', label: 'Başka Yardım', emoji: '❓', action: 'send', priority: 4 },
           ],
           tone: 'helpful',
@@ -455,7 +474,13 @@ export class SmartResponseGenerator {
             : `${childName} için boyama konusunda yardımcı olayım mı?`,
           quickReplies: [
             { id: 'color-tips', label: 'Renk önerileri', emoji: '🎨', action: 'send', priority: 1 },
-            { id: 'how-save', label: 'Nasıl kaydederim?', emoji: '💾', action: 'send', priority: 2 },
+            {
+              id: 'how-save',
+              label: 'Nasıl kaydederim?',
+              emoji: '💾',
+              action: 'send',
+              priority: 2,
+            },
             { id: 'how-print', label: 'Yazdırma', emoji: '🖨️', action: 'send', priority: 3 },
             { id: 'help', label: 'Başka Yardım', emoji: '❓', action: 'send', priority: 4 },
           ],
@@ -468,9 +493,28 @@ export class SmartResponseGenerator {
             ? `${childName}'in çizimlerini analiz ederek gelişimini takip edebilirsiniz.`
             : 'Çizim analizi hakkında yardımcı olayım mı?',
           quickReplies: [
-            { id: 'what-analysis', label: 'Analiz ne işe yarar?', emoji: '🔍', action: 'send', priority: 1 },
-            { id: 'how-interpret', label: 'Sonuçları nasıl yorumlarım?', emoji: '📊', action: 'send', priority: 2 },
-            { id: 'start-analysis', label: 'Analiz Başlat', emoji: '🎨', action: 'navigate', target: '/(tabs)/analysis', priority: 3 },
+            {
+              id: 'what-analysis',
+              label: 'Analiz ne işe yarar?',
+              emoji: '🔍',
+              action: 'send',
+              priority: 1,
+            },
+            {
+              id: 'how-interpret',
+              label: 'Sonuçları nasıl yorumlarım?',
+              emoji: '📊',
+              action: 'send',
+              priority: 2,
+            },
+            {
+              id: 'start-analysis',
+              label: 'Analiz Başlat',
+              emoji: '🎨',
+              action: 'navigate',
+              target: '/(tabs)/analysis',
+              priority: 3,
+            },
             { id: 'help', label: 'Başka Yardım', emoji: '❓', action: 'send', priority: 4 },
           ],
           tone: 'helpful',
@@ -481,7 +525,13 @@ export class SmartResponseGenerator {
           message: 'Profil ayarlarınızda yardımcı olayım mı?',
           quickReplies: [
             { id: 'add-child', label: 'Çocuk Ekle', emoji: '👶', action: 'send', priority: 1 },
-            { id: 'account-settings', label: 'Hesap Ayarları', emoji: '⚙️', action: 'send', priority: 2 },
+            {
+              id: 'account-settings',
+              label: 'Hesap Ayarları',
+              emoji: '⚙️',
+              action: 'send',
+              priority: 2,
+            },
             { id: 'subscription', label: 'Abonelik', emoji: '💳', action: 'send', priority: 3 },
             { id: 'help', label: 'Başka Yardım', emoji: '❓', action: 'send', priority: 4 },
           ],
@@ -500,7 +550,10 @@ export class SmartResponseGenerator {
   }
 
   // Get home screen suggestions based on context (for parents)
-  private getHomeScreenSuggestions(child: Child, timeOfDay: string): { message: string; quickReplies: SmartQuickReply[] } {
+  private getHomeScreenSuggestions(
+    child: Child,
+    timeOfDay: string
+  ): { message: string; quickReplies: SmartQuickReply[] } {
     const childName = child.name;
 
     // Time-based suggestions for parents
@@ -508,9 +561,29 @@ export class SmartResponseGenerator {
       return {
         message: `${childName} için uyumadan önce bir masal oluşturmak ister misiniz?`,
         quickReplies: [
-          { id: 'create-story', label: 'Masal Oluştur', emoji: '📖', action: 'navigate', target: '/(tabs)/stories', priority: 1 },
-          { id: 'coloring', label: 'Boyama Sayfası', emoji: '🖍️', action: 'navigate', target: '/(tabs)/coloring', priority: 2 },
-          { id: 'what-can-do', label: 'Neler yapabilirim?', emoji: '🤔', action: 'send', priority: 3 },
+          {
+            id: 'create-story',
+            label: 'Masal Oluştur',
+            emoji: '📖',
+            action: 'navigate',
+            target: '/(tabs)/stories',
+            priority: 1,
+          },
+          {
+            id: 'coloring',
+            label: 'Boyama Sayfası',
+            emoji: '🖍️',
+            action: 'navigate',
+            target: '/(tabs)/coloring',
+            priority: 2,
+          },
+          {
+            id: 'what-can-do',
+            label: 'Neler yapabilirim?',
+            emoji: '🤔',
+            action: 'send',
+            priority: 3,
+          },
         ],
       };
     }
@@ -518,10 +591,37 @@ export class SmartResponseGenerator {
     return {
       message: `${childName} için bugün ne yapmak istersiniz?`,
       quickReplies: [
-        { id: 'create-story', label: 'Masal Oluştur', emoji: '📖', action: 'navigate', target: '/(tabs)/stories', priority: 1 },
-        { id: 'coloring', label: 'Boyama Sayfası', emoji: '🖍️', action: 'navigate', target: '/(tabs)/coloring', priority: 2 },
-        { id: 'analyze', label: 'Çizim Analiz Et', emoji: '🎨', action: 'navigate', target: '/(tabs)/analysis', priority: 3 },
-        { id: 'what-can-do', label: 'Neler yapabilirim?', emoji: '🤔', action: 'send', priority: 4 },
+        {
+          id: 'create-story',
+          label: 'Masal Oluştur',
+          emoji: '📖',
+          action: 'navigate',
+          target: '/(tabs)/stories',
+          priority: 1,
+        },
+        {
+          id: 'coloring',
+          label: 'Boyama Sayfası',
+          emoji: '🖍️',
+          action: 'navigate',
+          target: '/(tabs)/coloring',
+          priority: 2,
+        },
+        {
+          id: 'analyze',
+          label: 'Çizim Analiz Et',
+          emoji: '🎨',
+          action: 'navigate',
+          target: '/(tabs)/analysis',
+          priority: 3,
+        },
+        {
+          id: 'what-can-do',
+          label: 'Neler yapabilirim?',
+          emoji: '🤔',
+          action: 'send',
+          priority: 4,
+        },
       ],
     };
   }

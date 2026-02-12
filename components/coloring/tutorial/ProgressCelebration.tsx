@@ -121,11 +121,7 @@ export interface ProgressCelebrationProps {
 /**
  * Celebration component for milestones
  */
-export function ProgressCelebration({
-  milestone,
-  visible,
-  onComplete,
-}: ProgressCelebrationProps) {
+export function ProgressCelebration({ milestone, visible, onComplete }: ProgressCelebrationProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-100)).current;
@@ -175,6 +171,7 @@ export function ProgressCelebration({
 
       return () => clearTimeout(timeout);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible || !milestoneData) return null;
@@ -185,15 +182,12 @@ export function ProgressCelebration({
         styles.container,
         {
           opacity: fadeAnim,
-          transform: [
-            { scale: scaleAnim },
-            { translateY: slideAnim },
-          ],
+          transform: [{ scale: scaleAnim }, { translateY: slideAnim }],
         },
       ]}
     >
       <LinearGradient
-        colors={milestoneData.color as any}
+        colors={milestoneData.color as [string, string, ...string[]]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -338,7 +332,7 @@ export function useProgressTracker() {
   const [currentMilestone, setCurrentMilestone] = React.useState<MilestoneType | null>(null);
   const [showCelebration, setShowCelebration] = React.useState(false);
   const tracker = React.useRef(
-    new ProgressTracker((milestone) => {
+    new ProgressTracker(milestone => {
       setCurrentMilestone(milestone);
       setShowCelebration(true);
     })

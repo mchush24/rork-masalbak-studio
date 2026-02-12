@@ -5,13 +5,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import {
   Brain,
   ChevronRight,
@@ -21,7 +15,7 @@ import {
   CheckCircle,
   FileText,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
@@ -145,10 +139,7 @@ export function RecentActivityList({
       <View style={styles.header}>
         <Text style={styles.sectionTitle}>{labels.sectionTitle}</Text>
         {analyses.length > 0 && (
-          <Pressable
-            onPress={onSeeAllPress}
-            style={({ pressed }) => [pressed && { opacity: 0.6 }]}
-          >
+          <Pressable onPress={onSeeAllPress} style={({ pressed }) => [pressed && { opacity: 0.6 }]}>
             <Text style={styles.seeAllText}>{labels.seeAll} →</Text>
           </Pressable>
         )}
@@ -205,7 +196,9 @@ export function RecentActivityList({
 
                   {/* Status indicator for professionals */}
                   {isProfessional && analysis.status && (
-                    <View style={[styles.statusBadge, { backgroundColor: `${statusInfo.color}15` }]}>
+                    <View
+                      style={[styles.statusBadge, { backgroundColor: `${statusInfo.color}15` }]}
+                    >
                       <StatusIcon size={12} color={statusInfo.color} />
                       <Text style={[styles.statusText, { color: statusInfo.color }]}>
                         {statusInfo.text}

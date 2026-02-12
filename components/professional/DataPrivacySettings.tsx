@@ -5,20 +5,10 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Switch,
-  Alert,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
 import {
   Shield,
   Lock,
-  Eye,
-  EyeOff,
   Trash2,
   Download,
   FileText,
@@ -26,9 +16,7 @@ import {
   Users,
   AlertTriangle,
   CheckCircle,
-  Info,
   ChevronRight,
-  Key,
   Database,
   UserX,
   RefreshCw,
@@ -85,10 +73,12 @@ export function DataPrivacySettings({
   onUpdateRetention,
   onExportData,
   onDeleteData,
-  onAnonymizeData,
+
   onRefreshConsents,
 }: DataPrivacySettingsProps) {
-  const [showRetentionPicker, setShowRetentionPicker] = useState<'analysis' | 'client' | null>(null);
+  const [showRetentionPicker, setShowRetentionPicker] = useState<'analysis' | 'client' | null>(
+    null
+  );
   const [localSettings, setLocalSettings] = useState(retentionSettings);
 
   const handleRetentionChange = (type: 'analysis' | 'client', days: number) => {
@@ -117,18 +107,14 @@ export function DataPrivacySettings({
       analysis: 'Analiz Verilerini Sil',
     };
 
-    Alert.alert(
-      titles[type],
-      'Bu işlem geri alınamaz. Devam etmek istediğinizden emin misiniz?',
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: 'Sil',
-          style: 'destructive',
-          onPress: () => onDeleteData(type),
-        },
-      ]
-    );
+    Alert.alert(titles[type], 'Bu işlem geri alınamaz. Devam etmek istediğinizden emin misiniz?', [
+      { text: 'İptal', style: 'cancel' },
+      {
+        text: 'Sil',
+        style: 'destructive',
+        onPress: () => onDeleteData(type),
+      },
+    ]);
   };
 
   const getRetentionLabel = (days: number) => {
@@ -203,7 +189,7 @@ export function DataPrivacySettings({
         </View>
 
         {/* Recent Consents */}
-        {consentRecords.slice(0, 3).map((consent) => (
+        {consentRecords.slice(0, 3).map(consent => (
           <View key={consent.id} style={styles.consentItem}>
             <View style={styles.consentItemLeft}>
               <Text style={styles.consentClientName}>{consent.clientName}</Text>
@@ -211,19 +197,27 @@ export function DataPrivacySettings({
                 {CONSENT_TYPE_LABELS[consent.consentType]?.label || consent.consentType}
               </Text>
             </View>
-            <View style={[
-              styles.consentStatusBadge,
-              consent.status === 'active' && styles.statusActive,
-              consent.status === 'expired' && styles.statusExpired,
-              consent.status === 'revoked' && styles.statusRevoked,
-            ]}>
-              <Text style={[
-                styles.consentStatusText,
-                consent.status === 'active' && styles.statusActiveText,
-                consent.status === 'expired' && styles.statusExpiredText,
-                consent.status === 'revoked' && styles.statusRevokedText,
-              ]}>
-                {consent.status === 'active' ? 'Aktif' : consent.status === 'expired' ? 'Doldu' : 'İptal'}
+            <View
+              style={[
+                styles.consentStatusBadge,
+                consent.status === 'active' && styles.statusActive,
+                consent.status === 'expired' && styles.statusExpired,
+                consent.status === 'revoked' && styles.statusRevoked,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.consentStatusText,
+                  consent.status === 'active' && styles.statusActiveText,
+                  consent.status === 'expired' && styles.statusExpiredText,
+                  consent.status === 'revoked' && styles.statusRevokedText,
+                ]}
+              >
+                {consent.status === 'active'
+                  ? 'Aktif'
+                  : consent.status === 'expired'
+                    ? 'Doldu'
+                    : 'İptal'}
               </Text>
             </View>
           </View>
@@ -246,10 +240,7 @@ export function DataPrivacySettings({
           </View>
         </View>
 
-        <Pressable
-          style={styles.settingRow}
-          onPress={() => setShowRetentionPicker('analysis')}
-        >
+        <Pressable style={styles.settingRow} onPress={() => setShowRetentionPicker('analysis')}>
           <View style={styles.settingInfo}>
             <Text style={styles.settingLabel}>Analiz Verileri</Text>
             <Text style={styles.settingDescription}>Çizim analizleri ve sonuçlar</Text>
@@ -262,10 +253,7 @@ export function DataPrivacySettings({
           </View>
         </Pressable>
 
-        <Pressable
-          style={styles.settingRow}
-          onPress={() => setShowRetentionPicker('client')}
-        >
+        <Pressable style={styles.settingRow} onPress={() => setShowRetentionPicker('client')}>
           <View style={styles.settingInfo}>
             <Text style={styles.settingLabel}>Danışan Verileri</Text>
             <Text style={styles.settingDescription}>Kişisel bilgiler ve profiller</Text>
@@ -281,7 +269,7 @@ export function DataPrivacySettings({
         {/* Retention Picker */}
         {showRetentionPicker && (
           <View style={styles.pickerContainer}>
-            {RETENTION_OPTIONS.map((option) => (
+            {RETENTION_OPTIONS.map(option => (
               <Pressable
                 key={option.value}
                 style={({ pressed }) => [
@@ -289,16 +277,20 @@ export function DataPrivacySettings({
                   pressed && styles.pickerOptionPressed,
                   (showRetentionPicker === 'analysis'
                     ? localSettings.analysisRetentionDays
-                    : localSettings.clientDataRetentionDays) === option.value && styles.pickerOptionSelected,
+                    : localSettings.clientDataRetentionDays) === option.value &&
+                    styles.pickerOptionSelected,
                 ]}
                 onPress={() => handleRetentionChange(showRetentionPicker, option.value)}
               >
-                <Text style={[
-                  styles.pickerOptionText,
-                  (showRetentionPicker === 'analysis'
-                    ? localSettings.analysisRetentionDays
-                    : localSettings.clientDataRetentionDays) === option.value && styles.pickerOptionTextSelected,
-                ]}>
+                <Text
+                  style={[
+                    styles.pickerOptionText,
+                    (showRetentionPicker === 'analysis'
+                      ? localSettings.analysisRetentionDays
+                      : localSettings.clientDataRetentionDays) === option.value &&
+                      styles.pickerOptionTextSelected,
+                  ]}
+                >
                   {option.label}
                 </Text>
               </Pressable>
@@ -380,29 +372,45 @@ export function DataPrivacySettings({
           </View>
 
           <Pressable
-            style={({ pressed }) => [styles.actionButton, styles.dangerButton, pressed && styles.actionButtonPressed]}
+            style={({ pressed }) => [
+              styles.actionButton,
+              styles.dangerButton,
+              pressed && styles.actionButtonPressed,
+            ]}
             onPress={() => confirmDelete('analysis')}
           >
             <Trash2 size={18} color="#DC2626" />
             <View style={styles.actionButtonContent}>
-              <Text style={[styles.actionButtonText, styles.dangerButtonText]}>Analiz Verilerini Sil</Text>
+              <Text style={[styles.actionButtonText, styles.dangerButtonText]}>
+                Analiz Verilerini Sil
+              </Text>
               <Text style={styles.actionButtonDescription}>Tüm analiz sonuçları silinir</Text>
             </View>
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.actionButton, styles.dangerButton, pressed && styles.actionButtonPressed]}
+            style={({ pressed }) => [
+              styles.actionButton,
+              styles.dangerButton,
+              pressed && styles.actionButtonPressed,
+            ]}
             onPress={() => confirmDelete('client')}
           >
             <UserX size={18} color="#DC2626" />
             <View style={styles.actionButtonContent}>
-              <Text style={[styles.actionButtonText, styles.dangerButtonText]}>Danışan Verilerini Sil</Text>
+              <Text style={[styles.actionButtonText, styles.dangerButtonText]}>
+                Danışan Verilerini Sil
+              </Text>
               <Text style={styles.actionButtonDescription}>Tüm kişisel veriler silinir</Text>
             </View>
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.actionButton, styles.dangerButtonFull, pressed && styles.actionButtonPressed]}
+            style={({ pressed }) => [
+              styles.actionButton,
+              styles.dangerButtonFull,
+              pressed && styles.actionButtonPressed,
+            ]}
             onPress={() => confirmDelete('all')}
           >
             <Trash2 size={18} color={Colors.neutral.white} />
@@ -415,7 +423,8 @@ export function DataPrivacySettings({
       <View style={styles.securityInfo}>
         <Lock size={16} color={ProfessionalColors.text.tertiary} />
         <Text style={styles.securityText}>
-          Tüm veriler AES-256 şifreleme ile korunmaktadır. Veri işleme faaliyetleri KVKK ve GDPR standartlarına uygundur.
+          Tüm veriler AES-256 şifreleme ile korunmaktadır. Veri işleme faaliyetleri KVKK ve GDPR
+          standartlarına uygundur.
         </Text>
       </View>
 

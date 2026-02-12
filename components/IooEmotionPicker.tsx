@@ -6,19 +6,11 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Animated,
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Animated, Platform, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ioo, IooMood } from './Ioo';
-import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { typography, spacing, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -132,7 +124,7 @@ export function IooEmotionPicker({
   initialEmotion,
 }: IooEmotionPickerProps) {
   const [selectedEmotion, setSelectedEmotion] = useState<Emotion | null>(
-    initialEmotion ? EMOTIONS.find((e) => e.id === initialEmotion) || null : null
+    initialEmotion ? EMOTIONS.find(e => e.id === initialEmotion) || null : null
   );
   const [showMessage, setShowMessage] = useState(false);
 
@@ -151,6 +143,7 @@ export function IooEmotionPicker({
         useNativeDriver: Platform.OS !== 'web',
       }).start();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -163,7 +156,7 @@ export function IooEmotionPicker({
         useNativeDriver: Platform.OS !== 'web',
       }).start();
     }
-  }, [selectedEmotion]);
+  }, [selectedEmotion, messageAnim]);
 
   const handleEmotionPress = (emotion: Emotion, index: number) => {
     if (Platform.OS !== 'web') {
@@ -222,9 +215,7 @@ export function IooEmotionPicker({
             >
               <View style={styles.speechBubbleArrow} />
               <Text style={styles.speechText}>{selectedEmotion.message}</Text>
-              <Text style={styles.encouragementText}>
-                {selectedEmotion.encouragement}
-              </Text>
+              <Text style={styles.encouragementText}>{selectedEmotion.encouragement}</Text>
             </Animated.View>
           )}
         </View>
@@ -233,9 +224,7 @@ export function IooEmotionPicker({
       {/* Question */}
       <View style={styles.questionSection}>
         <Text style={styles.questionText}>Bugün nasıl hissediyorsun?</Text>
-        <Text style={styles.questionSubtext}>
-          Bir duygu seç, Ioo&apos;ya göster
-        </Text>
+        <Text style={styles.questionSubtext}>Bir duygu seç, Ioo&apos;ya göster</Text>
       </View>
 
       {/* Emotion Grid */}
@@ -262,10 +251,7 @@ export function IooEmotionPicker({
             >
               <LinearGradient
                 colors={emotion.gradient}
-                style={[
-                  styles.emotionGradient,
-                  isCompact && styles.emotionGradientCompact,
-                ]}
+                style={[styles.emotionGradient, isCompact && styles.emotionGradientCompact]}
               >
                 <Text style={[styles.emotionEmoji, isCompact && styles.emotionEmojiCompact]}>
                   {emotion.emoji}
@@ -282,12 +268,7 @@ export function IooEmotionPicker({
 
                 {/* Selection indicator */}
                 {selectedEmotion?.id === emotion.id && (
-                  <View
-                    style={[
-                      styles.selectedIndicator,
-                      { backgroundColor: emotion.color },
-                    ]}
-                  >
+                  <View style={[styles.selectedIndicator, { backgroundColor: emotion.color }]}>
                     <Text style={styles.selectedCheck}>✓</Text>
                   </View>
                 )}

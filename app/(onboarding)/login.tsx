@@ -29,9 +29,10 @@ import {
   iconSizes,
   iconStroke,
 } from '@/constants/design-system';
-import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
 export default function LoginScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ email?: string }>();
   const [email, setEmail] = useState(params.email || '');
   const [password, setPassword] = useState('');
@@ -190,7 +191,7 @@ export default function LoginScreen() {
 
   return (
     <LinearGradient
-      colors={['#F8F9FE', '#EEE9FE', '#E8E4F8']}
+      colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -212,7 +213,7 @@ export default function LoginScreen() {
               style={{
                 fontSize: typography.size['2xl'],
                 fontWeight: '800',
-                color: Colors.neutral.darkest,
+                color: colors.text.primary,
                 marginBottom: spacing.xs,
                 textAlign: 'center',
               }}
@@ -222,7 +223,7 @@ export default function LoginScreen() {
             <Text
               style={{
                 fontSize: typography.size.base,
-                color: Colors.neutral.medium,
+                color: colors.text.secondary,
                 marginBottom: spacing.xl,
                 textAlign: 'center',
                 fontWeight: '500',
@@ -235,12 +236,12 @@ export default function LoginScreen() {
             {/* Email Input with icon */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.surface.card,
                 borderRadius: radius.xl,
                 padding: spacing.xs,
                 marginBottom: spacing.md,
                 borderWidth: 1,
-                borderColor: Colors.neutral.gray200,
+                borderColor: colors.border.light,
                 ...shadows.sm,
               }}
             >
@@ -256,7 +257,7 @@ export default function LoginScreen() {
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    backgroundColor: Colors.neutral.gray100,
+                    backgroundColor: colors.secondary.lavender + '1F',
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginRight: spacing.sm,
@@ -264,7 +265,7 @@ export default function LoginScreen() {
                 >
                   <Mail
                     size={iconSizes.action}
-                    color={Colors.secondary.lavender}
+                    color={colors.secondary.lavender}
                     strokeWidth={iconStroke.standard}
                   />
                 </View>
@@ -272,14 +273,14 @@ export default function LoginScreen() {
                   value={email}
                   onChangeText={setEmail}
                   placeholder="Email adresiniz"
-                  placeholderTextColor={Colors.neutral.gray400}
+                  placeholderTextColor={colors.text.tertiary}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
                   style={{
                     flex: 1,
                     fontSize: typography.size.md,
-                    color: '#1F2937',
+                    color: colors.text.primary,
                     paddingVertical: spacing.md,
                     fontWeight: '500',
                   }}
@@ -290,12 +291,12 @@ export default function LoginScreen() {
             {/* Password Input */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.surface.card,
                 borderRadius: radius.xl,
                 padding: spacing.xs,
                 marginBottom: spacing.sm,
                 borderWidth: 1,
-                borderColor: Colors.neutral.gray200,
+                borderColor: colors.border.light,
                 ...shadows.sm,
               }}
             >
@@ -311,7 +312,7 @@ export default function LoginScreen() {
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    backgroundColor: Colors.neutral.gray100,
+                    backgroundColor: colors.secondary.lavender + '1F',
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginRight: spacing.sm,
@@ -319,7 +320,7 @@ export default function LoginScreen() {
                 >
                   <Lock
                     size={iconSizes.action}
-                    color={Colors.secondary.lavender}
+                    color={colors.secondary.lavender}
                     strokeWidth={iconStroke.standard}
                   />
                 </View>
@@ -327,13 +328,13 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Şifreniz"
-                  placeholderTextColor={Colors.neutral.gray400}
+                  placeholderTextColor={colors.text.tertiary}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
                   style={{
                     flex: 1,
                     fontSize: typography.size.md,
-                    color: '#1F2937',
+                    color: colors.text.primary,
                     paddingVertical: spacing.md,
                     fontWeight: '500',
                   }}
@@ -345,13 +346,13 @@ export default function LoginScreen() {
                   {showPassword ? (
                     <EyeOff
                       size={iconSizes.input}
-                      color={Colors.secondary.lavender}
+                      color={colors.secondary.lavender}
                       strokeWidth={iconStroke.standard}
                     />
                   ) : (
                     <Eye
                       size={iconSizes.input}
-                      color={Colors.secondary.lavender}
+                      color={colors.secondary.lavender}
                       strokeWidth={iconStroke.standard}
                     />
                   )}
@@ -372,7 +373,7 @@ export default function LoginScreen() {
               <Text
                 style={{
                   fontSize: typography.size.sm,
-                  color: Colors.secondary.lavender,
+                  color: colors.secondary.lavender,
                   fontWeight: '600',
                 }}
               >
@@ -395,7 +396,11 @@ export default function LoginScreen() {
               ]}
             >
               <LinearGradient
-                colors={isEnabled ? ['#7C3AED', '#6D28D9'] : [Colors.neutral.gray300, Colors.neutral.gray300]}
+                colors={
+                  isEnabled
+                    ? ([colors.secondary.lavender, '#6D28D9'] as [string, string])
+                    : ([colors.neutral.gray300, colors.neutral.gray300] as [string, string])
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -405,13 +410,13 @@ export default function LoginScreen() {
                 }}
               >
                 {isLoading ? (
-                  <ActivityIndicator color={Colors.neutral.white} />
+                  <ActivityIndicator color="#FFFFFF" />
                 ) : (
                   <Text
                     style={{
                       fontSize: typography.size.md,
                       fontWeight: '700',
-                      color: Colors.neutral.white,
+                      color: '#FFFFFF',
                       textAlign: 'center',
                     }}
                   >
@@ -429,13 +434,13 @@ export default function LoginScreen() {
               <Text
                 style={{
                   fontSize: typography.size.sm,
-                  color: Colors.neutral.dark,
+                  color: colors.text.secondary,
                   textAlign: 'center',
                   fontWeight: '500',
                 }}
               >
                 Hesabınız yok mu?{' '}
-                <Text style={{ fontWeight: '700', color: Colors.secondary.lavender }}>
+                <Text style={{ fontWeight: '700', color: colors.secondary.lavender }}>
                   Kayıt olun
                 </Text>
               </Text>

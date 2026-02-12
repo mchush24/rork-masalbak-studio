@@ -308,6 +308,7 @@ export const ProfessionalProgress = memo(function ProfessionalProgress({
         <View
           style={[
             professionalProgressStyles.progressFill,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             { width: `${percentage}%` as any },
           ]}
         />

@@ -11,14 +11,7 @@
  */
 
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  Pressable,
-  ViewStyle,
-  StyleProp,
-} from 'react-native';
+import { View, StyleSheet, Dimensions, Pressable, ViewStyle, StyleProp } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -29,16 +22,11 @@ import Animated, {
   interpolate,
   Extrapolation,
 } from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
-import { Heart, Trash2, Share2 } from 'lucide-react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Heart, Trash2 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows, zIndex } from '@/constants/design-system';
-import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -77,10 +65,10 @@ export function SwipeableCard({
     .onStart(() => {
       startX.value = translateX.value;
     })
-    .onUpdate((event) => {
+    .onUpdate(event => {
       translateX.value = startX.value + event.translationX;
     })
-    .onEnd((event) => {
+    .onEnd(event => {
       if (event.translationX > swipeThreshold && onSwipeRight) {
         translateX.value = withTiming(SCREEN_WIDTH, { duration: 200 }, () => {
           runOnJS(hapticSuccess)();
@@ -101,18 +89,8 @@ export function SwipeableCard({
   }));
 
   const leftActionStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      translateX.value,
-      [0, swipeThreshold],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-    const scale = interpolate(
-      translateX.value,
-      [0, swipeThreshold],
-      [0.5, 1],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(translateX.value, [0, swipeThreshold], [0, 1], Extrapolation.CLAMP);
+    const scale = interpolate(translateX.value, [0, swipeThreshold], [0.5, 1], Extrapolation.CLAMP);
     return { opacity, transform: [{ scale }] };
   });
 
@@ -160,9 +138,7 @@ export function SwipeableCard({
 
       {/* Card content */}
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.swipeableCard, cardStyle]}>
-          {children}
-        </Animated.View>
+        <Animated.View style={[styles.swipeableCard, cardStyle]}>{children}</Animated.View>
       </GestureDetector>
     </View>
   );
@@ -196,7 +172,7 @@ export function PinchToZoom({
     .onStart(() => {
       startScale.value = savedScale.value;
     })
-    .onUpdate((event) => {
+    .onUpdate(event => {
       const newScale = startScale.value * event.scale;
       scale.value = Math.min(Math.max(newScale, minScale), maxScale);
       focalX.value = event.focalX;
@@ -226,9 +202,7 @@ export function PinchToZoom({
   return (
     <GestureHandlerRootView style={[styles.pinchContainer, style]}>
       <GestureDetector gesture={pinchGesture}>
-        <Animated.View style={[styles.pinchContent, animatedStyle]}>
-          {children}
-        </Animated.View>
+        <Animated.View style={[styles.pinchContent, animatedStyle]}>{children}</Animated.View>
       </GestureDetector>
     </GestureHandlerRootView>
   );
@@ -299,9 +273,7 @@ export function DoubleTap({
   return (
     <View style={[styles.doubleTapContainer, style]}>
       <GestureDetector gesture={composedGesture}>
-        <Animated.View style={styles.tapArea}>
-          {children}
-        </Animated.View>
+        <Animated.View style={styles.tapArea}>{children}</Animated.View>
       </GestureDetector>
 
       {showHeartAnimation && (
@@ -363,7 +335,7 @@ export function LongPressMenu({
     });
   };
 
-  const handleMenuItemPress = (item: typeof menuItems[0]) => {
+  const handleMenuItemPress = (item: (typeof menuItems)[0]) => {
     tapMedium();
     closeMenu();
     setTimeout(() => item.onPress(), 150);
@@ -389,10 +361,7 @@ export function LongPressMenu({
       </GestureDetector>
 
       {menuVisible && (
-        <Pressable
-          style={styles.menuOverlay}
-          onPress={closeMenu}
-        >
+        <Pressable style={styles.menuOverlay} onPress={closeMenu}>
           <Animated.View
             style={[
               styles.menuContainer,
@@ -406,10 +375,7 @@ export function LongPressMenu({
             {menuItems.map((item, index) => (
               <Pressable
                 key={index}
-                style={[
-                  styles.menuItem,
-                  index < menuItems.length - 1 && styles.menuItemBorder,
-                ]}
+                style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
                 onPress={() => handleMenuItemPress(item)}
               >
                 <item.icon
@@ -417,10 +383,7 @@ export function LongPressMenu({
                   color={item.destructive ? Colors.emotion.fear : Colors.neutral.dark}
                 />
                 <Animated.Text
-                  style={[
-                    styles.menuItemText,
-                    item.destructive && styles.menuItemTextDestructive,
-                  ]}
+                  style={[styles.menuItemText, item.destructive && styles.menuItemTextDestructive]}
                 >
                   {item.label}
                 </Animated.Text>
@@ -478,7 +441,7 @@ export function Draggable({
         runOnJS(onDragStart)();
       }
     })
-    .onUpdate((event) => {
+    .onUpdate(event => {
       let newX = startX.value + event.translationX;
       let newY = startY.value + event.translationY;
 
@@ -551,7 +514,7 @@ export function PullToAction({
   };
 
   const panGesture = Gesture.Pan()
-    .onUpdate((event) => {
+    .onUpdate(event => {
       if (event.translationY > 0) {
         // Apply resistance
         translateY.value = Math.sqrt(event.translationY) * 10;
@@ -599,9 +562,7 @@ export function PullToAction({
       </Animated.View>
 
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.pullContent, contentStyle]}>
-          {children}
-        </Animated.View>
+        <Animated.View style={[styles.pullContent, contentStyle]}>{children}</Animated.View>
       </GestureDetector>
     </View>
   );

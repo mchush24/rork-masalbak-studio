@@ -29,20 +29,12 @@ import Animated, {
   FadeInUp,
   Layout,
 } from 'react-native-reanimated';
-import {
-  Quote,
-  Heart,
-  Share2,
-  ChevronDown,
-  ChevronUp,
-  Star,
-  ImageIcon,
-} from 'lucide-react-native';
+import { Quote, Heart, Share2, ChevronDown, ChevronUp, Star } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface SuccessStoryCardProps {
   story: {
@@ -94,14 +86,11 @@ export function SuccessStoryCard({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    heartScale.value = withSequence(
-      withSpring(1.4, { damping: 4 }),
-      withSpring(1, { damping: 4 })
-    );
+    heartScale.value = withSequence(withSpring(1.4, { damping: 4 }), withSpring(1, { damping: 4 }));
 
     const newLiked = !liked;
     setLiked(newLiked);
-    setLikesCount(prev => newLiked ? prev + 1 : prev - 1);
+    setLikesCount(prev => (newLiked ? prev + 1 : prev - 1));
     onLike?.(story.id);
   };
 
@@ -123,14 +112,13 @@ export function SuccessStoryCard({
 
   return (
     <Animated.View
-      entering={FadeInUp.delay(index * 100).duration(500).springify()}
+      entering={FadeInUp.delay(index * 100)
+        .duration(500)
+        .springify()}
       layout={Layout.springify()}
       style={styles.container}
     >
-      <LinearGradient
-        colors={[Colors.neutral.white, '#FEFCFB']}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={[Colors.neutral.white, '#FEFCFB']} style={styles.gradient}>
         {/* Featured badge */}
         {story.is_featured && (
           <View style={styles.featuredBadge}>
@@ -141,24 +129,16 @@ export function SuccessStoryCard({
 
         {/* Quote icon */}
         <View style={styles.quoteContainer}>
-          <LinearGradient
-            colors={['#FCE4EC', '#F8BBD0']}
-            style={styles.quoteGradient}
-          >
+          <LinearGradient colors={['#FCE4EC', '#F8BBD0']} style={styles.quoteGradient}>
             <Quote size={18} color="#EC407A" />
           </LinearGradient>
         </View>
 
         {/* Title (if any) */}
-        {story.title && (
-          <Text style={styles.title}>{story.title}</Text>
-        )}
+        {story.title && <Text style={styles.title}>{story.title}</Text>}
 
         {/* Content */}
-        <Text
-          style={styles.content}
-          numberOfLines={expanded || !isLongContent ? undefined : 4}
-        >
+        <Text style={styles.content} numberOfLines={expanded || !isLongContent ? undefined : 4}>
           {story.content}
         </Text>
 
@@ -188,11 +168,7 @@ export function SuccessStoryCard({
           >
             {story.images.slice(0, 3).map((imageUrl, idx) => (
               <View key={idx} style={styles.imageWrapper}>
-                <Image
-                  source={{ uri: imageUrl }}
-                  style={styles.storyImage}
-                  resizeMode="cover"
-                />
+                <Image source={{ uri: imageUrl }} style={styles.storyImage} resizeMode="cover" />
               </View>
             ))}
           </ScrollView>
@@ -210,10 +186,7 @@ export function SuccessStoryCard({
 
           {/* Actions */}
           <View style={styles.actions}>
-            <AnimatedPressable
-              onPress={handleLike}
-              style={styles.actionButton}
-            >
+            <AnimatedPressable onPress={handleLike} style={styles.actionButton}>
               <Animated.View style={[styles.actionContent, heartAnimStyle]}>
                 <Heart
                   size={18}

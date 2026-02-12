@@ -5,16 +5,9 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Plus, Tag, Pin, Hash } from 'lucide-react-native';
+import { Plus, Hash } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
@@ -75,16 +68,14 @@ export function NoteInput({
 
   const handleTagToggle = (tag: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+    setSelectedTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]));
   };
 
   return (
     <View style={styles.container}>
       {/* Type Selector */}
       <View style={styles.typeSelector}>
-        {NOTE_TYPES.map((item) => (
+        {NOTE_TYPES.map(item => (
           <Pressable
             key={item.type}
             onPress={() => handleTypeSelect(item.type)}
@@ -96,10 +87,7 @@ export function NoteInput({
           >
             <Text style={styles.typeEmoji}>{item.emoji}</Text>
             <Text
-              style={[
-                styles.typeLabel,
-                selectedType === item.type && styles.typeLabelSelected,
-              ]}
+              style={[styles.typeLabel, selectedType === item.type && styles.typeLabelSelected]}
             >
               {item.label}
             </Text>
@@ -130,10 +118,11 @@ export function NoteInput({
               pressed && styles.tagButtonPressed,
             ]}
           >
-            <Hash size={16} color={selectedTags.length > 0 ? Colors.primary.sunset : Colors.neutral.medium} />
-            {selectedTags.length > 0 && (
-              <Text style={styles.tagCount}>{selectedTags.length}</Text>
-            )}
+            <Hash
+              size={16}
+              color={selectedTags.length > 0 ? Colors.primary.sunset : Colors.neutral.medium}
+            />
+            {selectedTags.length > 0 && <Text style={styles.tagCount}>{selectedTags.length}</Text>}
           </Pressable>
 
           <Pressable
@@ -165,7 +154,7 @@ export function NoteInput({
         <View style={styles.tagsContainer}>
           <Text style={styles.tagsLabel}>Etiketler:</Text>
           <View style={styles.tagsList}>
-            {SUGGESTED_TAGS.map((tag) => (
+            {SUGGESTED_TAGS.map(tag => (
               <Pressable
                 key={tag}
                 onPress={() => handleTagToggle(tag)}
@@ -176,10 +165,7 @@ export function NoteInput({
                 ]}
               >
                 <Text
-                  style={[
-                    styles.tagText,
-                    selectedTags.includes(tag) && styles.tagTextSelected,
-                  ]}
+                  style={[styles.tagText, selectedTags.includes(tag) && styles.tagTextSelected]}
                 >
                   #{tag}
                 </Text>

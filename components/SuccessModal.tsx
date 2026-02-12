@@ -1,16 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Modal,
-  Animated,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import { View, Text, Pressable, Modal, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react-native';
-import { spacing, borderRadius, shadows, typography } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -22,13 +14,7 @@ interface SuccessModalProps {
   onPress: () => void;
 }
 
-export function SuccessModal({
-  visible,
-  title,
-  message,
-  buttonText,
-  onPress,
-}: SuccessModalProps) {
+export function SuccessModal({ visible, title, message, buttonText, onPress }: SuccessModalProps) {
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const checkScaleAnim = useRef(new Animated.Value(0)).current;
@@ -115,6 +101,7 @@ export function SuccessModal({
         ]).start();
       }, 300);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const handlePress = () => {
@@ -135,12 +122,7 @@ export function SuccessModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      statusBarTranslucent
-    >
+    <Modal visible={visible} transparent animationType="none" statusBarTranslucent>
       <Animated.View
         style={{
           flex: 1,
@@ -237,7 +219,7 @@ export function SuccessModal({
 
             <Text
               style={{
-                fontSize: typography.fontSize.xl,
+                fontSize: typography.size.xl,
                 fontWeight: '700',
                 color: 'white',
                 textAlign: 'center',
@@ -251,7 +233,7 @@ export function SuccessModal({
           <View style={{ padding: spacing.lg }}>
             <Text
               style={{
-                fontSize: typography.fontSize.base,
+                fontSize: typography.size.base,
                 color: '#4B5563',
                 textAlign: 'center',
                 lineHeight: 24,
@@ -279,7 +261,7 @@ export function SuccessModal({
             >
               <Text
                 style={{
-                  fontSize: typography.fontSize.md,
+                  fontSize: typography.size.md,
                   fontWeight: '600',
                   color: 'white',
                 }}

@@ -26,8 +26,6 @@ import Animated, {
   withSpring,
   withTiming,
   withDelay,
-  FadeIn,
-  FadeOut,
 } from 'react-native-reanimated';
 import { X, Info, Lightbulb, HelpCircle } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
@@ -89,6 +87,7 @@ export function Tooltip({
       }, autoDismiss);
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible, autoDismiss]);
 
   const handlePress = () => {
@@ -115,7 +114,7 @@ export function Tooltip({
       if (position === 'auto') {
         const spaceTop = y;
         const spaceBottom = SCREEN_HEIGHT - (y + height);
-        const spaceLeft = x;
+        const _spaceLeft = x;
         const spaceRight = SCREEN_WIDTH - (x + width);
 
         if (spaceBottom >= 150) {
@@ -137,6 +136,7 @@ export function Tooltip({
     if (isControlled && controlledVisible) {
       measureTarget();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controlledVisible]);
 
   const getIcon = () => {
@@ -221,7 +221,7 @@ function TooltipOverlay({
     if (showIoo) {
       iooScale.value = withDelay(100, withSpring(1, { damping: 12, stiffness: 150 }));
     }
-  }, [showIoo]);
+  }, [showIoo, scale, opacity, iooScale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -233,7 +233,7 @@ function TooltipOverlay({
   }));
 
   const getTooltipStyle = (): ViewStyle => {
-    const ARROW_SIZE = 10;
+    const _ARROW_SIZE = 10;
     const MARGIN = 12;
 
     switch (position) {
@@ -241,19 +241,25 @@ function TooltipOverlay({
         return {
           position: 'absolute',
           bottom: SCREEN_HEIGHT - targetLayout.y + MARGIN,
-          left: Math.max(16, Math.min(
-            targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
-            SCREEN_WIDTH - maxWidth - 16
-          )),
+          left: Math.max(
+            16,
+            Math.min(
+              targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
+              SCREEN_WIDTH - maxWidth - 16
+            )
+          ),
         };
       case 'bottom':
         return {
           position: 'absolute',
           top: targetLayout.y + targetLayout.height + MARGIN,
-          left: Math.max(16, Math.min(
-            targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
-            SCREEN_WIDTH - maxWidth - 16
-          )),
+          left: Math.max(
+            16,
+            Math.min(
+              targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
+              SCREEN_WIDTH - maxWidth - 16
+            )
+          ),
         };
       case 'left':
         return {
@@ -280,20 +286,32 @@ function TooltipOverlay({
         return {
           position: 'absolute',
           bottom: -8,
-          left: centerX - (Math.max(16, Math.min(
-            targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
-            SCREEN_WIDTH - maxWidth - 16
-          ))) - 5,
+          left:
+            centerX -
+            Math.max(
+              16,
+              Math.min(
+                targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
+                SCREEN_WIDTH - maxWidth - 16
+              )
+            ) -
+            5,
           borderTopColor: Colors.neutral.dark,
         };
       case 'bottom':
         return {
           position: 'absolute',
           top: -8,
-          left: centerX - (Math.max(16, Math.min(
-            targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
-            SCREEN_WIDTH - maxWidth - 16
-          ))) - 5,
+          left:
+            centerX -
+            Math.max(
+              16,
+              Math.min(
+                targetLayout.x + targetLayout.width / 2 - maxWidth / 2,
+                SCREEN_WIDTH - maxWidth - 16
+              )
+            ) -
+            5,
           borderBottomColor: Colors.neutral.dark,
         };
       case 'left':
@@ -319,12 +337,7 @@ function TooltipOverlay({
     <Modal transparent visible animationType="none" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Animated.View
-          style={[
-            styles.tooltipContainer,
-            { maxWidth },
-            getTooltipStyle(),
-            animatedStyle,
-          ]}
+          style={[styles.tooltipContainer, { maxWidth }, getTooltipStyle(), animatedStyle]}
         >
           <View style={[styles.arrow, getArrowStyle()]} />
 
@@ -364,8 +377,16 @@ interface TooltipProviderProps {
 }
 
 // Context for managing tooltips globally
+interface TooltipConfigData {
+  title?: string;
+  message?: string;
+  position?: string;
+  targetX?: number;
+  targetY?: number;
+}
+
 export const TooltipContext = React.createContext<{
-  showTooltip: (id: string, config: any) => void;
+  showTooltip: (id: string, config: TooltipConfigData) => void;
   hideTooltip: (id: string) => void;
 }>({
   showTooltip: () => {},
@@ -373,14 +394,14 @@ export const TooltipContext = React.createContext<{
 });
 
 export function TooltipProvider({ children }: TooltipProviderProps) {
-  const [tooltips, setTooltips] = useState<Map<string, any>>(new Map());
+  const [_tooltips, setTooltips] = useState<Map<string, TooltipConfigData>>(new Map());
 
-  const showTooltip = (id: string, config: any) => {
-    setTooltips((prev) => new Map(prev).set(id, config));
+  const showTooltip = (id: string, config: TooltipConfigData) => {
+    setTooltips(prev => new Map(prev).set(id, config));
   };
 
   const hideTooltip = (id: string) => {
-    setTooltips((prev) => {
+    setTooltips(prev => {
       const next = new Map(prev);
       next.delete(id);
       return next;

@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Smile, Sun, Flower } from 'lucide-react-native';
-import { spacing, borderRadius, typography, shadows } from '@/lib/design-tokens';
+import { Sun, Flower } from 'lucide-react-native';
+import { spacing, borderRadius, typography, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -77,17 +71,29 @@ export function AnalysisShareCard({ summary, mood, onSave }: AnalysisShareCardPr
 
           {/* Decorative flowers */}
           <View style={styles.flowerLeft}>
-            <Flower size={28} color={Colors.primary.sunset} fill={Colors.primary.peach} strokeWidth={1.5} />
+            <Flower
+              size={28}
+              color={Colors.primary.sunset}
+              fill={Colors.primary.peach}
+              strokeWidth={1.5}
+            />
           </View>
           <View style={styles.flowerRight}>
-            <Flower size={24} color={Colors.secondary.lavender} fill={Colors.secondary.lavenderLight} strokeWidth={1.5} />
+            <Flower
+              size={24}
+              color={Colors.secondary.lavender}
+              fill={Colors.secondary.lavenderLight}
+              strokeWidth={1.5}
+            />
           </View>
 
           {/* Grass */}
           <View style={styles.grassContainer}>
             <View style={[styles.grass, { backgroundColor: Colors.secondary.grass }]} />
             <View style={[styles.grass, { backgroundColor: '#A8E8BA', marginLeft: -10 }]} />
-            <View style={[styles.grass, { backgroundColor: Colors.secondary.grass, marginLeft: -10 }]} />
+            <View
+              style={[styles.grass, { backgroundColor: Colors.secondary.grass, marginLeft: -10 }]}
+            />
           </View>
         </View>
 
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   logoText: {
-    fontSize: typography.fontSize.xl,
+    fontSize: typography.size.xl,
     fontWeight: '800',
     color: '#2E3F5C',
     letterSpacing: -0.5,
@@ -205,11 +211,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 155, 122, 0.3)',
   },
   summaryText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     color: '#2E3F5C',
     fontWeight: '600',
     textAlign: 'center',
-    lineHeight: typography.fontSize.base * 1.5,
+    lineHeight: typography.size.base * 1.5,
   },
   bottomDecoration: {
     flexDirection: 'row',
@@ -233,7 +239,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.8)',
   },
   saveButtonText: {
-    fontSize: typography.fontSize.base,
+    fontSize: typography.size.base,
     fontWeight: '700',
     color: 'white',
     letterSpacing: -0.3,

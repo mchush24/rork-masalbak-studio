@@ -14,15 +14,7 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Pressable,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, Modal, Pressable, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -47,7 +39,6 @@ import {
   BookOpen,
   ChevronRight,
   Shield,
-  CheckCircle2,
 } from 'lucide-react-native';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
@@ -67,7 +58,7 @@ interface CrashRecoveryDialogProps {
 }
 
 // Draft type icons mapping
-const DRAFT_TYPE_ICONS: Record<string, React.ComponentType<any>> = {
+const DRAFT_TYPE_ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
   analysis: FileText,
   coloring: Palette,
   story: BookOpen,
@@ -75,7 +66,7 @@ const DRAFT_TYPE_ICONS: Record<string, React.ComponentType<any>> = {
 };
 
 // Get icon for draft type
-function getDraftIcon(draftId: string): React.ComponentType<any> {
+function getDraftIcon(draftId: string): React.ComponentType<{ size?: number; color?: string }> {
   const type = draftId.split('_')[0];
   return DRAFT_TYPE_ICONS[type] || DRAFT_TYPE_ICONS.default;
 }
@@ -137,7 +128,10 @@ export function CrashRecoveryDialog({
   const content = useMemo(() => getRecoveryContent(role), [role]);
 
   // Overlay coordination - crash recovery has highest priority
-  const { request: requestOverlay, release: releaseOverlay } = useOverlay('crash_recovery', 'crash_recovery_dialog');
+  const { request: requestOverlay, release: releaseOverlay } = useOverlay(
+    'crash_recovery',
+    'crash_recovery_dialog'
+  );
 
   // Animations
   const scale = useSharedValue(0.9);
@@ -151,22 +145,22 @@ export function CrashRecoveryDialog({
       opacity.value = withTiming(1, { duration: 200 });
 
       // Subtle attention shake
-      shake.value = withDelay(300, withSequence(
-        withTiming(3, { duration: 50 }),
-        withTiming(-3, { duration: 50 }),
-        withTiming(2, { duration: 50 }),
-        withTiming(0, { duration: 50 })
-      ));
+      shake.value = withDelay(
+        300,
+        withSequence(
+          withTiming(3, { duration: 50 }),
+          withTiming(-3, { duration: 50 }),
+          withTiming(2, { duration: 50 }),
+          withTiming(0, { duration: 50 })
+        )
+      );
 
       warning();
     }
   }, [showRecoveryDialog, scale, opacity, shake, warning, requestOverlay]);
 
   const containerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { translateX: shake.value },
-    ],
+    transform: [{ scale: scale.value }, { translateX: shake.value }],
     opacity: opacity.value,
   }));
 
@@ -193,7 +187,8 @@ export function CrashRecoveryDialog({
   const pendingDraftsCount = pendingDrafts.length;
 
   // Show mascot based on settings
-  const showMascot = mascotSettings.showOnErrors && mascotSettings.prominence !== 'hidden' && !isProfessional;
+  const showMascot =
+    mascotSettings.showOnErrors && mascotSettings.prominence !== 'hidden' && !isProfessional;
 
   // Format timestamp
   const formatTime = (timestamp: number) => {
@@ -220,22 +215,17 @@ export function CrashRecoveryDialog({
     if (!screen) return 'Bilinmeyen';
     const names: Record<string, string> = {
       '(tabs)': 'Ana Sayfa',
-      'analysis': 'Analiz',
-      'coloring': 'Boyama',
-      'stories': 'Hikayeler',
-      'profile': 'Profil',
-      'history': 'Geçmiş',
+      analysis: 'Analiz',
+      coloring: 'Boyama',
+      stories: 'Hikayeler',
+      profile: 'Profil',
+      history: 'Geçmiş',
     };
     return names[screen] || screen;
   };
 
   return (
-    <Modal
-      visible={showRecoveryDialog}
-      transparent
-      animationType="none"
-      statusBarTranslucent
-    >
+    <Modal visible={showRecoveryDialog} transparent animationType="none" statusBarTranslucent>
       <View style={styles.overlay}>
         {Platform.OS !== 'web' && (
           <BlurView
@@ -246,30 +236,23 @@ export function CrashRecoveryDialog({
         )}
 
         <Animated.View style={[styles.dialogContainer, containerStyle]}>
-          <View style={[
-            styles.dialog,
-            isProfessional && styles.dialogProfessional
-          ]}>
+          <View style={[styles.dialog, isProfessional && styles.dialogProfessional]}>
             {/* Visual Header */}
             <Animated.View
               entering={FadeIn.delay(100).duration(300)}
               style={[styles.headerSection, isProfessional && styles.headerSectionProfessional]}
             >
               {showMascot ? (
-                <IooRoleAware
-                  mood="concerned"
-                  size="medium"
-                  context="error"
-                  animated
-                />
+                <IooRoleAware mood="concerned" size="medium" context="error" animated />
               ) : (
-                <View style={[
-                  styles.iconContainer,
-                  isProfessional && styles.iconContainerProfessional
-                ]}>
+                <View
+                  style={[styles.iconContainer, isProfessional && styles.iconContainerProfessional]}
+                >
                   <History
                     size={32}
-                    color={isProfessional ? ProfessionalColors.trust.primary : Colors.secondary.grass}
+                    color={
+                      isProfessional ? ProfessionalColors.trust.primary : Colors.secondary.grass
+                    }
                     strokeWidth={1.5}
                   />
                 </View>
@@ -281,16 +264,10 @@ export function CrashRecoveryDialog({
               entering={FadeInDown.delay(150).duration(300)}
               style={styles.textSection}
             >
-              <Text style={[
-                styles.title,
-                isProfessional && styles.titleProfessional
-              ]}>
+              <Text style={[styles.title, isProfessional && styles.titleProfessional]}>
                 {content.title}
               </Text>
-              <Text style={[
-                styles.description,
-                isProfessional && styles.descriptionProfessional
-              ]}>
+              <Text style={[styles.description, isProfessional && styles.descriptionProfessional]}>
                 {content.description}
               </Text>
             </Animated.View>
@@ -299,14 +276,21 @@ export function CrashRecoveryDialog({
             {lastSession && (
               <Animated.View
                 entering={FadeInDown.delay(200).duration(300)}
-                style={[
-                  styles.sessionCard,
-                  isProfessional && styles.sessionCardProfessional
-                ]}
+                style={[styles.sessionCard, isProfessional && styles.sessionCardProfessional]}
               >
                 <View style={styles.sessionCardHeader}>
-                  <Clock size={14} color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.medium} />
-                  <Text style={[styles.sessionCardTitle, isProfessional && styles.sessionCardTitleProfessional]}>
+                  <Clock
+                    size={14}
+                    color={
+                      isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.medium
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.sessionCardTitle,
+                      isProfessional && styles.sessionCardTitleProfessional,
+                    ]}
+                  >
                     Son Oturum
                   </Text>
                 </View>
@@ -314,22 +298,52 @@ export function CrashRecoveryDialog({
                 <View style={styles.sessionDetails}>
                   {lastSession.lastScreen && (
                     <View style={styles.sessionRow}>
-                      <FileText size={14} color={isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light} />
-                      <Text style={[styles.sessionLabel, isProfessional && styles.sessionLabelProfessional]}>
+                      <FileText
+                        size={14}
+                        color={
+                          isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.sessionLabel,
+                          isProfessional && styles.sessionLabelProfessional,
+                        ]}
+                      >
                         Sayfa:
                       </Text>
-                      <Text style={[styles.sessionValue, isProfessional && styles.sessionValueProfessional]}>
+                      <Text
+                        style={[
+                          styles.sessionValue,
+                          isProfessional && styles.sessionValueProfessional,
+                        ]}
+                      >
                         {getScreenName(lastSession.lastScreen)}
                       </Text>
                     </View>
                   )}
                   {lastSession.timestamp && (
                     <View style={styles.sessionRow}>
-                      <Clock size={14} color={isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light} />
-                      <Text style={[styles.sessionLabel, isProfessional && styles.sessionLabelProfessional]}>
+                      <Clock
+                        size={14}
+                        color={
+                          isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.sessionLabel,
+                          isProfessional && styles.sessionLabelProfessional,
+                        ]}
+                      >
                         Zaman:
                       </Text>
-                      <Text style={[styles.sessionValue, isProfessional && styles.sessionValueProfessional]}>
+                      <Text
+                        style={[
+                          styles.sessionValue,
+                          isProfessional && styles.sessionValueProfessional,
+                        ]}
+                      >
                         {formatTime(lastSession.timestamp)}
                       </Text>
                     </View>
@@ -342,31 +356,37 @@ export function CrashRecoveryDialog({
             {showDrafts && pendingDraftsCount > 0 && (
               <Animated.View
                 entering={FadeInDown.delay(250).duration(300)}
-                style={[
-                  styles.draftsCard,
-                  isProfessional && styles.draftsCardProfessional
-                ]}
+                style={[styles.draftsCard, isProfessional && styles.draftsCardProfessional]}
               >
                 <View style={styles.draftsHeader}>
                   <AlertCircle
                     size={16}
                     color={isProfessional ? '#D97706' : Colors.semantic.warning}
                   />
-                  <Text style={[styles.draftsTitle, isProfessional && styles.draftsTitleProfessional]}>
+                  <Text
+                    style={[styles.draftsTitle, isProfessional && styles.draftsTitleProfessional]}
+                  >
                     {pendingDraftsCount} Kaydedilmemiş Taslak
                   </Text>
                 </View>
 
                 {/* Draft List (show max 3) */}
-                {pendingDrafts.slice(0, 3).map((draftId, index) => {
+                {pendingDrafts.slice(0, 3).map((draftId, _index) => {
                   const DraftIcon = getDraftIcon(draftId);
                   return (
                     <View key={draftId} style={styles.draftItem}>
                       <DraftIcon
                         size={14}
-                        color={isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.medium}
+                        color={
+                          isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.medium
+                        }
                       />
-                      <Text style={[styles.draftItemText, isProfessional && styles.draftItemTextProfessional]}>
+                      <Text
+                        style={[
+                          styles.draftItemText,
+                          isProfessional && styles.draftItemTextProfessional,
+                        ]}
+                      >
                         {getDraftTypeName(draftId)}
                       </Text>
                     </View>
@@ -374,18 +394,13 @@ export function CrashRecoveryDialog({
                 })}
 
                 {pendingDraftsCount > 3 && (
-                  <Text style={styles.moreDrafts}>
-                    +{pendingDraftsCount - 3} daha
-                  </Text>
+                  <Text style={styles.moreDrafts}>+{pendingDraftsCount - 3} daha</Text>
                 )}
               </Animated.View>
             )}
 
             {/* Action Buttons */}
-            <Animated.View
-              entering={FadeInUp.delay(300).duration(300)}
-              style={styles.buttons}
-            >
+            <Animated.View entering={FadeInUp.delay(300).duration(300)} style={styles.buttons}>
               <Pressable
                 onPress={handleRecover}
                 style={({ pressed }) => [
@@ -407,8 +422,16 @@ export function CrashRecoveryDialog({
                   pressed && styles.buttonPressed,
                 ]}
               >
-                <Trash2 size={16} color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.medium} />
-                <Text style={[styles.dismissButtonText, isProfessional && styles.dismissButtonTextProfessional]}>
+                <Trash2
+                  size={16}
+                  color={isProfessional ? ProfessionalColors.text.secondary : Colors.neutral.medium}
+                />
+                <Text
+                  style={[
+                    styles.dismissButtonText,
+                    isProfessional && styles.dismissButtonTextProfessional,
+                  ]}
+                >
                   {content.dismissButton}
                 </Text>
               </Pressable>
@@ -423,10 +446,7 @@ export function CrashRecoveryDialog({
 
             {/* Data Safety Indicator (for parents) */}
             {!isProfessional && (
-              <Animated.View
-                entering={FadeIn.delay(400).duration(200)}
-                style={styles.safetyBadge}
-              >
+              <Animated.View entering={FadeIn.delay(400).duration(200)} style={styles.safetyBadge}>
                 <Shield size={12} color={Colors.secondary.grass} />
                 <Text style={styles.safetyText}>Verileriniz güvende</Text>
               </Animated.View>

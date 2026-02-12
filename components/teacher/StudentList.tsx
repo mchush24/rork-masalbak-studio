@@ -5,14 +5,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, TextInput } from 'react-native';
 import {
   User,
   ChevronRight,
@@ -20,7 +13,6 @@ import {
   Search,
   Filter,
   Check,
-  X,
   AlertCircle,
   Clock,
   FileText,
@@ -90,9 +82,7 @@ export function StudentList({
 
     // Filter by search
     if (searchQuery) {
-      result = result.filter(s =>
-        s.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      result = result.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
 
     // Filter by status
@@ -153,17 +143,23 @@ export function StudentList({
 
   const getTrendIcon = (trend?: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return TrendingUp;
-      case 'down': return TrendingDown;
-      default: return Minus;
+      case 'up':
+        return TrendingUp;
+      case 'down':
+        return TrendingDown;
+      default:
+        return Minus;
     }
   };
 
   const getTrendColor = (trend?: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return '#10B981';
-      case 'down': return '#EF4444';
-      default: return '#6B7280';
+      case 'up':
+        return '#10B981';
+      case 'down':
+        return '#EF4444';
+      default:
+        return '#6B7280';
     }
   };
 
@@ -172,9 +168,7 @@ export function StudentList({
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>
-            {className ? `${className} Öğrencileri` : 'Öğrenciler'}
-          </Text>
+          <Text style={styles.title}>{className ? `${className} Öğrencileri` : 'Öğrenciler'}</Text>
           <Text style={styles.subtitle}>
             {filteredAndSortedStudents.length} öğrenci
             {filterBy !== 'all' && ` (${FILTER_OPTIONS.find(f => f.id === filterBy)?.label})`}
@@ -187,9 +181,7 @@ export function StudentList({
               onPress={() => onBatchAnalysis?.(Array.from(selectedStudents))}
             >
               <FileText size={16} color={Colors.neutral.white} />
-              <Text style={styles.batchButtonText}>
-                Toplu Analiz ({selectedStudents.size})
-              </Text>
+              <Text style={styles.batchButtonText}>Toplu Analiz ({selectedStudents.size})</Text>
             </Pressable>
           )}
           <Pressable
@@ -218,7 +210,12 @@ export function StudentList({
           style={[styles.filterButton, showFilters && styles.filterButtonActive]}
           onPress={() => setShowFilters(!showFilters)}
         >
-          <Filter size={18} color={showFilters ? ProfessionalColors.trust.primary : ProfessionalColors.text.secondary} />
+          <Filter
+            size={18}
+            color={
+              showFilters ? ProfessionalColors.trust.primary : ProfessionalColors.text.secondary
+            }
+          />
         </Pressable>
       </View>
 
@@ -229,19 +226,18 @@ export function StudentList({
           <View style={styles.filterRow}>
             <Text style={styles.filterLabel}>Filtre:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {FILTER_OPTIONS.map((option) => (
+              {FILTER_OPTIONS.map(option => (
                 <Pressable
                   key={option.id}
-                  style={[
-                    styles.filterChip,
-                    filterBy === option.id && styles.filterChipActive,
-                  ]}
+                  style={[styles.filterChip, filterBy === option.id && styles.filterChipActive]}
                   onPress={() => setFilterBy(option.id)}
                 >
-                  <Text style={[
-                    styles.filterChipText,
-                    filterBy === option.id && styles.filterChipTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      filterBy === option.id && styles.filterChipTextActive,
+                    ]}
+                  >
                     {option.label}
                   </Text>
                 </Pressable>
@@ -253,19 +249,18 @@ export function StudentList({
           <View style={styles.filterRow}>
             <Text style={styles.filterLabel}>Sırala:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {SORT_OPTIONS.map((option) => (
+              {SORT_OPTIONS.map(option => (
                 <Pressable
                   key={option.id}
-                  style={[
-                    styles.filterChip,
-                    sortBy === option.id && styles.filterChipActive,
-                  ]}
+                  style={[styles.filterChip, sortBy === option.id && styles.filterChipActive]}
                   onPress={() => setSortBy(option.id)}
                 >
-                  <Text style={[
-                    styles.filterChipText,
-                    sortBy === option.id && styles.filterChipTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      sortBy === option.id && styles.filterChipTextActive,
+                    ]}
+                  >
                     {option.label}
                   </Text>
                 </Pressable>
@@ -278,10 +273,12 @@ export function StudentList({
       {/* Select All (when in selectable mode) */}
       {selectable && filteredAndSortedStudents.length > 0 && (
         <Pressable style={styles.selectAllRow} onPress={selectAll}>
-          <View style={[
-            styles.checkbox,
-            selectedStudents.size === filteredAndSortedStudents.length && styles.checkboxChecked,
-          ]}>
+          <View
+            style={[
+              styles.checkbox,
+              selectedStudents.size === filteredAndSortedStudents.length && styles.checkboxChecked,
+            ]}
+          >
             {selectedStudents.size === filteredAndSortedStudents.length && (
               <Check size={14} color={Colors.neutral.white} />
             )}
@@ -289,8 +286,7 @@ export function StudentList({
           <Text style={styles.selectAllText}>
             {selectedStudents.size === filteredAndSortedStudents.length
               ? 'Seçimi Kaldır'
-              : 'Tümünü Seç'
-            }
+              : 'Tümünü Seç'}
           </Text>
         </Pressable>
       )}
@@ -306,12 +302,11 @@ export function StudentList({
             <Text style={styles.emptySubtitle}>
               {searchQuery || filterBy !== 'all'
                 ? 'Farklı filtre veya arama kriterleri deneyin'
-                : 'Yeni öğrenci ekleyerek başlayın'
-              }
+                : 'Yeni öğrenci ekleyerek başlayın'}
             </Text>
           </View>
         ) : (
-          filteredAndSortedStudents.map((student) => {
+          filteredAndSortedStudents.map(student => {
             const TrendIcon = getTrendIcon(student.trend);
             const trendColor = getTrendColor(student.trend);
             const isSelected = selectedStudents.has(student.id);
@@ -340,22 +335,20 @@ export function StudentList({
                 )}
 
                 {/* Avatar */}
-                <View style={[
-                  styles.avatar,
-                  student.gender === 'female' ? styles.avatarFemale : styles.avatarMale,
-                ]}>
-                  <Text style={styles.avatarText}>
-                    {student.name.charAt(0).toUpperCase()}
-                  </Text>
+                <View
+                  style={[
+                    styles.avatar,
+                    student.gender === 'female' ? styles.avatarFemale : styles.avatarMale,
+                  ]}
+                >
+                  <Text style={styles.avatarText}>{student.name.charAt(0).toUpperCase()}</Text>
                 </View>
 
                 {/* Info */}
                 <View style={styles.studentInfo}>
                   <View style={styles.nameRow}>
                     <Text style={styles.studentName}>{student.name}</Text>
-                    {student.hasAlert && (
-                      <AlertCircle size={14} color="#EF4444" />
-                    )}
+                    {student.hasAlert && <AlertCircle size={14} color="#EF4444" />}
                   </View>
                   <View style={styles.metaRow}>
                     <Text style={styles.metaText}>{student.age} yaş</Text>

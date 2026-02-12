@@ -8,18 +8,12 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { shadows, zIndex } from '@/constants/design-system';
 import { CursorPosition, CollaboratorInfo } from '@/lib/collab/CollaborationManager';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ============================================
 // TYPES
@@ -84,6 +78,7 @@ function SingleCursor({ cursor, collaborator, canvasOffset }: SingleCursorProps)
         }),
       ]).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor.x, cursor.y, cursor.isDrawing]);
 
   // Fade out after inactivity
@@ -98,6 +93,7 @@ function SingleCursor({ cursor, collaborator, canvasOffset }: SingleCursorProps)
     }, 3000);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor.x, cursor.y]);
 
   return (
@@ -106,11 +102,7 @@ function SingleCursor({ cursor, collaborator, canvasOffset }: SingleCursorProps)
         styles.cursorContainer,
         {
           opacity,
-          transform: [
-            { translateX },
-            { translateY },
-            { scale },
-          ],
+          transform: [{ translateX }, { translateY }, { scale }],
         },
       ]}
       pointerEvents="none"
@@ -124,22 +116,12 @@ function SingleCursor({ cursor, collaborator, canvasOffset }: SingleCursorProps)
         ]}
       >
         {cursor.isDrawing && (
-          <View
-            style={[
-              styles.cursorRing,
-              { borderColor: collaborator.color },
-            ]}
-          />
+          <View style={[styles.cursorRing, { borderColor: collaborator.color }]} />
         )}
       </View>
 
       {/* Name label */}
-      <View
-        style={[
-          styles.nameLabel,
-          { backgroundColor: collaborator.color },
-        ]}
-      >
+      <View style={[styles.nameLabel, { backgroundColor: collaborator.color }]}>
         <Text style={styles.nameLabelText} numberOfLines={1}>
           {collaborator.name}
         </Text>
@@ -147,12 +129,7 @@ function SingleCursor({ cursor, collaborator, canvasOffset }: SingleCursorProps)
 
       {/* Current color indicator */}
       {cursor.currentColor && cursor.isDrawing && (
-        <View
-          style={[
-            styles.colorIndicator,
-            { backgroundColor: cursor.currentColor },
-          ]}
-        />
+        <View style={[styles.colorIndicator, { backgroundColor: cursor.currentColor }]} />
       )}
     </Animated.View>
   );
@@ -201,20 +178,11 @@ interface CollaboratorsListProps {
   currentUserId: string;
 }
 
-export function CollaboratorsList({
-  collaborators,
-  currentUserId,
-}: CollaboratorsListProps) {
+export function CollaboratorsList({ collaborators, currentUserId }: CollaboratorsListProps) {
   return (
     <View style={styles.listContainer}>
       {collaborators.map((collab, index) => (
-        <View
-          key={collab.id}
-          style={[
-            styles.collaboratorItem,
-            { marginLeft: index > 0 ? -8 : 0 },
-          ]}
-        >
+        <View key={collab.id} style={[styles.collaboratorItem, { marginLeft: index > 0 ? -8 : 0 }]}>
           <View
             style={[
               styles.collaboratorAvatar,
@@ -222,9 +190,7 @@ export function CollaboratorsList({
               collab.id === currentUserId && styles.currentUserAvatar,
             ]}
           >
-            <Text style={styles.collaboratorInitial}>
-              {collab.name.charAt(0).toUpperCase()}
-            </Text>
+            <Text style={styles.collaboratorInitial}>{collab.name.charAt(0).toUpperCase()}</Text>
             {collab.isHost && (
               <View style={styles.hostBadge}>
                 <Text style={styles.hostBadgeText}>👑</Text>
@@ -235,9 +201,7 @@ export function CollaboratorsList({
       ))}
       {collaborators.length > 0 && (
         <View style={styles.collaboratorCount}>
-          <Text style={styles.collaboratorCountText}>
-            {collaborators.length}
-          </Text>
+          <Text style={styles.collaboratorCountText}>{collaborators.length}</Text>
         </View>
       )}
     </View>
@@ -256,7 +220,7 @@ interface RoomCodeDisplayProps {
 export function RoomCodeDisplay({ code, onShare }: RoomCodeDisplayProps) {
   const [copied, setCopied] = useState(false);
 
-  const handlePress = () => {
+  const _handlePress = () => {
     setCopied(true);
     onShare?.();
     setTimeout(() => setCopied(false), 2000);
@@ -268,9 +232,7 @@ export function RoomCodeDisplay({ code, onShare }: RoomCodeDisplayProps) {
       <View style={styles.roomCodeBox}>
         <Text style={styles.roomCode}>{code}</Text>
       </View>
-      <Text style={styles.roomCodeHint}>
-        {copied ? '✅ Kopyalandı!' : 'Arkadaşlarınla paylaş'}
-      </Text>
+      <Text style={styles.roomCodeHint}>{copied ? '✅ Kopyalandı!' : 'Arkadaşlarınla paylaş'}</Text>
     </View>
   );
 }

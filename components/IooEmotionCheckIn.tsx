@@ -21,14 +21,14 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import { X, Sparkles, Star, Flame, Calendar } from 'lucide-react-native';
+import { X, Sparkles, Star, Flame } from 'lucide-react-native';
 import { Ioo } from './Ioo';
-import { IooEmotionPicker, Emotion, EMOTIONS } from './IooEmotionPicker';
+import { IooEmotionPicker, Emotion } from './IooEmotionPicker';
 import { useEmotionTracker } from '@/lib/hooks/useEmotionTracker';
 import { zIndex } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface IooEmotionCheckInProps {
   visible: boolean;
@@ -38,20 +38,15 @@ interface IooEmotionCheckInProps {
 
 type CheckInStep = 'greeting' | 'select' | 'confirm' | 'complete';
 
-export function IooEmotionCheckIn({
-  visible,
-  onClose,
-  onComplete,
-}: IooEmotionCheckInProps) {
+export function IooEmotionCheckIn({ visible, onClose, onComplete }: IooEmotionCheckInProps) {
   const [step, setStep] = useState<CheckInStep>('greeting');
   const [selectedEmotion, setSelectedEmotion] = useState<Emotion | null>(null);
   const [xpEarned, setXpEarned] = useState(0);
 
   const {
     currentStreak,
-    checkedInToday,
+
     recordEmotion,
-    getTodayLastEmotion,
   } = useEmotionTracker();
 
   // Animation refs
@@ -80,6 +75,7 @@ export function IooEmotionCheckIn({
         }),
       ]).start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const getGreetingByTime = () => {
@@ -176,11 +172,7 @@ export function IooEmotionCheckIn({
 
   return (
     <View style={styles.overlay}>
-      <BlurView
-        intensity={Platform.OS === 'web' ? 0 : 40}
-        tint="dark"
-        style={styles.blurView}
-      >
+      <BlurView intensity={Platform.OS === 'web' ? 0 : 40} tint="dark" style={styles.blurView}>
         <Pressable style={styles.backdrop} onPress={handleClose} />
       </BlurView>
 
@@ -214,11 +206,7 @@ export function IooEmotionCheckIn({
             {/* STEP: Greeting */}
             {step === 'greeting' && (
               <View style={styles.stepContent}>
-                <Ioo
-                  size="lg"
-                  mood={greeting.iooMood}
-                  animated={true}
-                />
+                <Ioo size="lg" mood={greeting.iooMood} animated={true} />
 
                 <View style={styles.greetingText}>
                   <Text style={styles.greetingTitle}>{greeting.title}</Text>
@@ -229,26 +217,19 @@ export function IooEmotionCheckIn({
                 {currentStreak > 0 && (
                   <View style={styles.streakBadge}>
                     <Flame size={16} color={Colors.secondary.coral} />
-                    <Text style={styles.streakText}>
-                      {currentStreak} gün seri!
-                    </Text>
+                    <Text style={styles.streakText}>{currentStreak} gün seri!</Text>
                   </View>
                 )}
 
                 <Pressable
-                  style={({ pressed }) => [
-                    styles.startButton,
-                    pressed && styles.buttonPressed,
-                  ]}
+                  style={({ pressed }) => [styles.startButton, pressed && styles.buttonPressed]}
                   onPress={handleStartCheckIn}
                 >
                   <LinearGradient
                     colors={['#A78BFA', '#818CF8']}
                     style={styles.startButtonGradient}
                   >
-                    <Text style={styles.startButtonText}>
-                      Duygumu Paylaş
-                    </Text>
+                    <Text style={styles.startButtonText}>Duygumu Paylaş</Text>
                   </LinearGradient>
                 </Pressable>
               </View>
@@ -304,17 +285,11 @@ export function IooEmotionCheckIn({
                     <Sparkles size={40} color="#FFD93D" />
                   </Animated.View>
 
-                  <Ioo
-                    size="lg"
-                    mood={selectedEmotion.iooMood}
-                    animated={true}
-                  />
+                  <Ioo size="lg" mood={selectedEmotion.iooMood} animated={true} />
 
                   <View style={styles.completeText}>
                     <Text style={styles.completeTitle}>Harika!</Text>
-                    <Text style={styles.completeMessage}>
-                      {selectedEmotion.message}
-                    </Text>
+                    <Text style={styles.completeMessage}>{selectedEmotion.message}</Text>
                   </View>
 
                   {/* XP Earned */}
@@ -334,10 +309,7 @@ export function IooEmotionCheckIn({
                   )}
 
                   <Pressable
-                    style={({ pressed }) => [
-                      styles.doneButton,
-                      pressed && styles.buttonPressed,
-                    ]}
+                    style={({ pressed }) => [styles.doneButton, pressed && styles.buttonPressed]}
                     onPress={handleClose}
                   >
                     <Text style={styles.doneButtonText}>Tamam!</Text>
@@ -363,8 +335,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor:
-      Platform.OS === 'web' ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
+    backgroundColor: Platform.OS === 'web' ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
   },
   container: {
     maxHeight: SCREEN_HEIGHT * 0.9,

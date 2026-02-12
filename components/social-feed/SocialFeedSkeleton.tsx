@@ -17,7 +17,7 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
-import { spacing, borderRadius } from '@/lib/design-tokens';
+import { spacing, borderRadius } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

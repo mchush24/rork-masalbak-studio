@@ -3,13 +3,24 @@ import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'rea
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ioo as IooMascot, IooMood } from '@/components/Ioo';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
-const MOODS: IooMood[] = ['happy', 'excited', 'sleepy', 'curious', 'talking', 'surprised', 'love', 'thinking'];
+const MOODS: IooMood[] = [
+  'happy',
+  'excited',
+  'sleepy',
+  'curious',
+  'talking',
+  'surprised',
+  'love',
+  'thinking',
+];
 const SIZES = ['tiny', 'small', 'medium', 'large', 'hero', 'giant'] as const;
 
 export default function MascotDemoScreen() {
+  const { colors, isDark } = useTheme();
   const [currentMood, setCurrentMood] = useState<IooMood>('happy');
-  const [currentSize, setCurrentSize] = useState<typeof SIZES[number]>('large');
+  const [currentSize, setCurrentSize] = useState<(typeof SIZES)[number]>('large');
   const [tapCount, setTapCount] = useState(0);
 
   const handleMascotPress = () => {
@@ -18,14 +29,20 @@ export default function MascotDemoScreen() {
 
   return (
     <LinearGradient
-      colors={['#FFF5F7', '#F5F0FF', '#F0F7FF']}
+      colors={
+        isDark
+          ? ([...colors.background.pageGradient] as [string, string, ...string[]])
+          : ['#FFF5F7', '#F5F0FF', '#F0F7FF']
+      }
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Header */}
-          <Text style={styles.title}>Ioo Maskot Pro</Text>
-          <Text style={styles.subtitle}>Premium soft 3D tasarım</Text>
+          <Text style={[styles.title, { color: colors.text.primary }]}>Ioo Maskot Pro</Text>
+          <Text style={[styles.subtitle, { color: colors.text.tertiary }]}>
+            Premium soft 3D tasarım
+          </Text>
 
           {/* Ana Maskot */}
           <View style={styles.mascotContainer}>
@@ -36,27 +53,39 @@ export default function MascotDemoScreen() {
               onPress={handleMascotPress}
             />
             {tapCount > 0 && (
-              <Text style={styles.tapText}>Dokunma: {tapCount}x</Text>
+              <Text style={[styles.tapText, { color: colors.secondary.lavender }]}>
+                Dokunma: {tapCount}x
+              </Text>
             )}
           </View>
 
           {/* Mood Seçici */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Mood</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Mood</Text>
             <View style={styles.buttonRow}>
-              {MOODS.map((mood) => (
+              {MOODS.map(mood => (
                 <Pressable
                   key={mood}
                   style={[
                     styles.button,
-                    currentMood === mood && styles.buttonActive,
+                    { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                    currentMood === mood && [
+                      styles.buttonActive,
+                      {
+                        backgroundColor: colors.secondary.lavender,
+                        borderColor: colors.secondary.lavender,
+                      },
+                    ],
                   ]}
                   onPress={() => setCurrentMood(mood)}
                 >
-                  <Text style={[
-                    styles.buttonText,
-                    currentMood === mood && styles.buttonTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      { color: colors.text.tertiary },
+                      currentMood === mood && [styles.buttonTextActive, { color: '#FFFFFF' }],
+                    ]}
+                  >
                     {mood === 'happy' && '😊'}
                     {mood === 'excited' && '🤩'}
                     {mood === 'sleepy' && '😴'}
@@ -64,8 +93,7 @@ export default function MascotDemoScreen() {
                     {mood === 'talking' && '💬'}
                     {mood === 'surprised' && '😲'}
                     {mood === 'love' && '🥰'}
-                    {mood === 'thinking' && '🧠'}
-                    {' '}{mood}
+                    {mood === 'thinking' && '🧠'} {mood}
                   </Text>
                 </Pressable>
               ))}
@@ -74,21 +102,31 @@ export default function MascotDemoScreen() {
 
           {/* Size Seçici */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Boyut</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Boyut</Text>
             <View style={styles.buttonRow}>
-              {SIZES.map((size) => (
+              {SIZES.map(size => (
                 <Pressable
                   key={size}
                   style={[
                     styles.button,
-                    currentSize === size && styles.buttonActive,
+                    { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                    currentSize === size && [
+                      styles.buttonActive,
+                      {
+                        backgroundColor: colors.secondary.lavender,
+                        borderColor: colors.secondary.lavender,
+                      },
+                    ],
                   ]}
                   onPress={() => setCurrentSize(size)}
                 >
-                  <Text style={[
-                    styles.buttonText,
-                    currentSize === size && styles.buttonTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      { color: colors.text.tertiary },
+                      currentSize === size && [styles.buttonTextActive, { color: '#FFFFFF' }],
+                    ]}
+                  >
                     {size}
                   </Text>
                 </Pressable>
@@ -98,17 +136,13 @@ export default function MascotDemoScreen() {
 
           {/* Tüm Boyutlar Preview */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tüm Boyutlar</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Tüm Boyutlar</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.sizesRow}>
-                {SIZES.filter(s => s !== 'giant').map((size) => (
+                {SIZES.filter(s => s !== 'giant').map(size => (
                   <View key={size} style={styles.sizeItem}>
-                    <IooMascot
-                      size={size}
-                      mood="happy"
-                      animated={false}
-                    />
-                    <Text style={styles.sizeLabel}>{size}</Text>
+                    <IooMascot size={size} mood="happy" animated={false} />
+                    <Text style={[styles.sizeLabel, { color: colors.text.tertiary }]}>{size}</Text>
                   </View>
                 ))}
               </View>
@@ -117,16 +151,14 @@ export default function MascotDemoScreen() {
 
           {/* Tüm Mood'lar Preview */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tüm Mood&apos;lar</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+              Tüm Mood&apos;lar
+            </Text>
             <View style={styles.moodsGrid}>
-              {MOODS.map((mood) => (
+              {MOODS.map(mood => (
                 <View key={mood} style={styles.moodItem}>
-                  <IooMascot
-                    size="small"
-                    mood={mood}
-                    animated={true}
-                  />
-                  <Text style={styles.moodLabel}>{mood}</Text>
+                  <IooMascot size="small" mood={mood} animated={true} />
+                  <Text style={[styles.moodLabel, { color: colors.text.tertiary }]}>{mood}</Text>
                 </View>
               ))}
             </View>
@@ -134,19 +166,43 @@ export default function MascotDemoScreen() {
 
           {/* Özellikler */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Özellikler - Premium</Text>
-            <View style={styles.featuresList}>
-              <Text style={styles.featureItem}>🎨 Pixar kalitesinde soft 3D render</Text>
-              <Text style={styles.featureItem}>✨ Derinlikli radial gradient gövde</Text>
-              <Text style={styles.featureItem}>👀 Glossy gözler (iris + highlight katmanları)</Text>
-              <Text style={styles.featureItem}>💗 Soft pembe yanaklar (glow efekti)</Text>
-              <Text style={styles.featureItem}>🫧 Organik squash & stretch animasyonu</Text>
-              <Text style={styles.featureItem}>🌊 Smooth floating animasyonu</Text>
-              <Text style={styles.featureItem}>👆 Premium dokunma tepkisi (jelly bounce)</Text>
-              <Text style={styles.featureItem}>😊 8 farklı mood (thinking dahil)</Text>
-              <Text style={styles.featureItem}>📐 6 farklı boyut (giant dahil)</Text>
-              <Text style={styles.featureItem}>🔆 Ambient glow efektleri</Text>
-              <Text style={styles.featureItem}>🎭 Mood-specific animasyonlar</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+              Özellikler - Premium
+            </Text>
+            <View style={[styles.featuresList, { backgroundColor: colors.surface.card }]}>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                🎨 Pixar kalitesinde soft 3D render
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                ✨ Derinlikli radial gradient gövde
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                👀 Glossy gözler (iris + highlight katmanları)
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                💗 Soft pembe yanaklar (glow efekti)
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                🫧 Organik squash & stretch animasyonu
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                🌊 Smooth floating animasyonu
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                👆 Premium dokunma tepkisi (jelly bounce)
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                😊 8 farklı mood (thinking dahil)
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                📐 6 farklı boyut (giant dahil)
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                🔆 Ambient glow efektleri
+              </Text>
+              <Text style={[styles.featureItem, { color: colors.text.secondary }]}>
+                🎭 Mood-specific animasyonlar
+              </Text>
             </View>
           </View>
         </ScrollView>

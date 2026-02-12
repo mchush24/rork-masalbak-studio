@@ -61,6 +61,7 @@ export function FillSpreadAnimation({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Convert Animated values for Skia
@@ -75,31 +76,31 @@ export function FillSpreadAnimation({
       <Circle
         cx={x}
         cy={y}
-        r={(animatedRadius as any).__getValue()}
+        r={(animatedRadius as unknown as { __getValue(): number }).__getValue()}
         color={color}
         style="stroke"
         strokeWidth={3}
-        opacity={(opacity as any).__getValue()}
+        opacity={(opacity as unknown as { __getValue(): number }).__getValue()}
       />
 
       {/* Inner ripple (delayed) */}
       <Circle
         cx={x}
         cy={y}
-        r={(animatedRadius as any).__getValue() * 0.7}
+        r={(animatedRadius as unknown as { __getValue(): number }).__getValue() * 0.7}
         color={color}
         style="stroke"
         strokeWidth={2}
-        opacity={(opacity as any).__getValue() * 0.6}
+        opacity={(opacity as unknown as { __getValue(): number }).__getValue() * 0.6}
       />
 
       {/* Center pulse */}
       <Circle
         cx={x}
         cy={y}
-        r={15 * (1 - (scale as any).__getValue())}
+        r={15 * (1 - (scale as unknown as { __getValue(): number }).__getValue())}
         color={color}
-        opacity={(opacity as any).__getValue()}
+        opacity={(opacity as unknown as { __getValue(): number }).__getValue()}
       />
     </Group>
   );
@@ -171,6 +172,7 @@ function DelayedFillRipple({
     }, delay);
 
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [delay]);
 
   const animatedRadius = scale.interpolate({
@@ -182,9 +184,9 @@ function DelayedFillRipple({
     <Circle
       cx={x}
       cy={y}
-      r={(animatedRadius as any).__getValue()}
+      r={(animatedRadius as unknown as { __getValue(): number }).__getValue()}
       color={color}
-      opacity={(opacity as any).__getValue() * 0.3}
+      opacity={(opacity as unknown as { __getValue(): number }).__getValue() * 0.3}
       style="stroke"
       strokeWidth={2}
     />
@@ -221,15 +223,16 @@ export function ExpandingFillCircle({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Circle
       cx={x}
       cy={y}
-      r={(radius as any).__getValue()}
+      r={(radius as unknown as { __getValue(): number }).__getValue()}
       color={color}
-      opacity={(opacity as any).__getValue()}
+      opacity={(opacity as unknown as { __getValue(): number }).__getValue()}
     />
   );
 }
@@ -274,6 +277,7 @@ export function PaintSplashEffect({
     ]).start(() => {
       onComplete?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Create multiple splash particles
@@ -287,23 +291,17 @@ export function PaintSplashEffect({
     };
   });
 
-  const currentMainScale = (mainScale as any).__getValue();
-  const currentSplashScale = (splashScale as any).__getValue();
-  const currentOpacity = (opacity as any).__getValue();
+  const currentMainScale = (mainScale as unknown as { __getValue(): number }).__getValue();
+  const currentSplashScale = (splashScale as unknown as { __getValue(): number }).__getValue();
+  const currentOpacity = (opacity as unknown as { __getValue(): number }).__getValue();
 
   return (
     <Group opacity={currentOpacity}>
       {/* Main splash */}
-      <Circle
-        cx={x}
-        cy={y}
-        r={30 * currentMainScale}
-        color={color}
-        opacity={0.8}
-      />
+      <Circle cx={x} cy={y} r={30 * currentMainScale} color={color} opacity={0.8} />
 
       {/* Splash particles */}
-      {particles.map((particle) => (
+      {particles.map(particle => (
         <Circle
           key={particle.id}
           cx={x + particle.baseX * currentSplashScale}

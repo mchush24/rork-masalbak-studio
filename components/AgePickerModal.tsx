@@ -4,13 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
-import {
-  layout,
-  typography,
-  spacing,
-  radius,
-  shadows,
-} from '@/constants/design-system';
+import { typography, spacing, radius, shadows } from '@/constants/design-system';
 
 interface AgePickerModalProps {
   visible: boolean;
@@ -38,12 +32,7 @@ export function AgePickerModal({ visible, onSelectAge, onSkip }: AgePickerModalP
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onSkip}
-    >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onSkip}>
       <BlurView intensity={80} style={styles.blurContainer}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -51,9 +40,7 @@ export function AgePickerModal({ visible, onSelectAge, onSkip }: AgePickerModalP
             <View style={styles.header}>
               <Text style={styles.emoji}>🎯</Text>
               <Text style={styles.title}>Daha İyi Analiz İçin</Text>
-              <Text style={styles.subtitle}>
-                Çocuğunuzun yaşı nedir? (Opsiyonel)
-              </Text>
+              <Text style={styles.subtitle}>Çocuğunuzun yaşı nedir? (Opsiyonel)</Text>
               <Text style={styles.description}>
                 Yaş bilgisi, analiz sonuçlarını yaşa uygun hale getirir
               </Text>
@@ -61,7 +48,7 @@ export function AgePickerModal({ visible, onSelectAge, onSkip }: AgePickerModalP
 
             {/* Age Grid */}
             <View style={styles.ageGrid}>
-              {AGE_OPTIONS.map((age) => (
+              {AGE_OPTIONS.map(age => (
                 <Pressable
                   key={age}
                   onPress={() => handleSelectAge(age)}
@@ -95,10 +82,7 @@ export function AgePickerModal({ visible, onSelectAge, onSkip }: AgePickerModalP
             {/* Skip button */}
             <Pressable
               onPress={handleSkip}
-              style={({ pressed }) => [
-                styles.skipButton,
-                pressed && { opacity: 0.6 },
-              ]}
+              style={({ pressed }) => [styles.skipButton, pressed && { opacity: 0.6 }]}
             >
               <Text style={styles.skipButtonText}>Şimdilik Atla</Text>
             </Pressable>

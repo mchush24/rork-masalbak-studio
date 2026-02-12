@@ -12,14 +12,7 @@
  */
 
 import React, { useEffect, useRef, useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Easing,
-  Platform,
-  ViewStyle,
-} from 'react-native';
+import { View, StyleSheet, Animated, Easing, Platform, ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors, RenkooColors } from '@/constants/colors';
 
@@ -39,7 +32,7 @@ export type AnimationType =
   | 'sparkle'
   | 'heart';
 
-interface MicroInteractionProps {
+interface _MicroInteractionProps {
   type: AnimationType;
   size?: number;
   color?: string;
@@ -54,9 +47,10 @@ interface MicroInteractionProps {
 // ============================================
 const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
   if (Platform.OS !== 'web') {
-    Haptics.impactAsync(style).catch((err) => {
+    Haptics.impactAsync(style).catch(err => {
       // Haptic failures are non-critical (device may not support haptics)
       if (__DEV__) {
+        // eslint-disable-next-line no-console
         console.debug('[Haptics] Haptic feedback failed:', err?.message);
       }
     });
@@ -123,6 +117,7 @@ export function SuccessAnimation({
     ]).start(() => {
       onAnimationEnd?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -232,6 +227,7 @@ export function ErrorAnimation({
     ]).start(() => {
       onAnimationEnd?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const translateX = shake.interpolate({
@@ -316,6 +312,7 @@ export function PulseAnimation({
     );
     animation.start();
     return () => animation.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -356,10 +353,7 @@ export function ConfettiAnimation({
       translateX: new Animated.Value(0),
       rotate: new Animated.Value(0),
       opacity: new Animated.Value(1),
-      color:
-        Colors.gradients.rainbow[
-          Math.floor(Math.random() * Colors.gradients.rainbow.length)
-        ],
+      color: Colors.gradients.rainbow[Math.floor(Math.random() * Colors.gradients.rainbow.length)],
       startX: Math.random() * 300 - 150,
       size: Math.random() * 8 + 4,
     }))
@@ -368,7 +362,7 @@ export function ConfettiAnimation({
   useEffect(() => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
 
-    const animations = particles.map((particle) =>
+    const animations = particles.map(particle =>
       Animated.parallel([
         Animated.timing(particle.translateY, {
           toValue: 300 + Math.random() * 100,
@@ -398,6 +392,7 @@ export function ConfettiAnimation({
     Animated.parallel(animations).start(() => {
       onAnimationEnd?.();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -484,8 +479,9 @@ export function SparkleAnimation({
       )
     );
 
-    animations.forEach((anim) => anim.start());
-    return () => animations.forEach((anim) => anim.stop());
+    animations.forEach(anim => anim.start());
+    return () => animations.forEach(anim => anim.stop());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -557,6 +553,7 @@ export function HeartBeatAnimation({
     );
     animation.start();
     return () => animation.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -590,7 +587,7 @@ export function useButtonAnimation() {
       friction: 10,
       useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
-  }, []);
+  }, [scale]);
 
   const onPressOut = useCallback(() => {
     Animated.spring(scale, {
@@ -599,7 +596,7 @@ export function useButtonAnimation() {
       friction: 8,
       useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
-  }, []);
+  }, [scale]);
 
   return { scale, onPressIn, onPressOut };
 }

@@ -1,23 +1,15 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  Pressable,
-  ScrollView,
-  Platform,
-} from "react-native";
-import { Colors } from "@/constants/colors";
-import { X, CheckCircle2 } from "lucide-react-native";
-import { typography, spacing, radius, shadows } from "@/constants/design-system";
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Modal, Pressable, ScrollView, Platform } from 'react-native';
+import { Colors } from '@/constants/colors';
+import { X, CheckCircle2 } from 'lucide-react-native';
+import { typography, spacing, shadows } from '@/constants/design-system';
 import {
   QUESTIONNAIRE_QUESTIONS,
   QUESTIONNAIRE_INTRO,
   type QuestionnaireAnswer,
   type FrequencyAnswer,
-} from "@/types/QuestionnaireSchema";
-import * as Haptics from "expo-haptics";
+} from '@/types/QuestionnaireSchema';
+import * as Haptics from 'expo-haptics';
 
 interface QuestionnaireModalProps {
   visible: boolean;
@@ -25,18 +17,14 @@ interface QuestionnaireModalProps {
   onClose: () => void;
 }
 
-export function QuestionnaireModal({
-  visible,
-  onComplete,
-  onClose,
-}: QuestionnaireModalProps) {
+export function QuestionnaireModal({ visible, onComplete, onClose }: QuestionnaireModalProps) {
   const [answers, setAnswers] = useState<Record<string, FrequencyAnswer>>({});
 
   const handleAnswer = (questionId: string, answer: FrequencyAnswer) => {
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+    setAnswers(prev => ({ ...prev, [questionId]: answer }));
   };
 
   const handleComplete = () => {
@@ -49,28 +37,21 @@ export function QuestionnaireModal({
     onComplete(answersArray);
   };
 
-  const allAnswered = QUESTIONNAIRE_QUESTIONS.every((q) => answers[q.id]);
+  const allAnswered = QUESTIONNAIRE_QUESTIONS.every(q => answers[q.id]);
   const answerLabels: Record<FrequencyAnswer, string> = {
-    never: "Hayır",
-    sometimes: "Bazen",
-    often: "Sık",
+    never: 'Hayır',
+    sometimes: 'Bazen',
+    often: 'Sık',
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.container}>
           <View style={styles.header}>
             <View style={{ flex: 1 }}>
               <Text style={styles.title}>{QUESTIONNAIRE_INTRO.title}</Text>
-              <Text style={styles.subtitle}>
-                {QUESTIONNAIRE_INTRO.subtitle}
-              </Text>
+              <Text style={styles.subtitle}>{QUESTIONNAIRE_INTRO.subtitle}</Text>
             </View>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X size={24} color={Colors.neutral.dark} />
@@ -86,26 +67,19 @@ export function QuestionnaireModal({
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.timeframeLabel}>
-              {QUESTIONNAIRE_INTRO.timeframe}
-            </Text>
+            <Text style={styles.timeframeLabel}>{QUESTIONNAIRE_INTRO.timeframe}</Text>
 
-            {QUESTIONNAIRE_QUESTIONS.map((question) => (
+            {QUESTIONNAIRE_QUESTIONS.map(question => (
               <View key={question.id} style={styles.questionCard}>
                 <Text style={styles.questionText}>{question.text}</Text>
                 <View style={styles.answersRow}>
-                  {(
-                    ["never", "sometimes", "often"] as FrequencyAnswer[]
-                  ).map((answer) => {
+                  {(['never', 'sometimes', 'often'] as FrequencyAnswer[]).map(answer => {
                     const isSelected = answers[question.id] === answer;
                     return (
                       <Pressable
                         key={answer}
                         onPress={() => handleAnswer(question.id, answer)}
-                        style={[
-                          styles.answerButton,
-                          isSelected && styles.answerButtonSelected,
-                        ]}
+                        style={[styles.answerButton, isSelected && styles.answerButtonSelected]}
                       >
                         {isSelected && (
                           <CheckCircle2
@@ -114,12 +88,7 @@ export function QuestionnaireModal({
                             style={{ marginRight: 4 }}
                           />
                         )}
-                        <Text
-                          style={[
-                            styles.answerText,
-                            isSelected && styles.answerTextSelected,
-                          ]}
-                        >
+                        <Text style={[styles.answerText, isSelected && styles.answerTextSelected]}>
                           {answerLabels[answer]}
                         </Text>
                       </Pressable>
@@ -133,13 +102,10 @@ export function QuestionnaireModal({
           <Pressable
             disabled={!allAnswered}
             onPress={handleComplete}
-            style={[
-              styles.completeButton,
-              !allAnswered && styles.completeButtonDisabled,
-            ]}
+            style={[styles.completeButton, !allAnswered && styles.completeButtonDisabled]}
           >
             <Text style={styles.completeButtonText}>
-              {allAnswered ? "Tamamla" : "Tüm soruları cevaplayın"}
+              {allAnswered ? 'Tamamla' : 'Tüm soruları cevaplayın'}
             </Text>
           </Pressable>
         </View>
@@ -151,8 +117,8 @@ export function QuestionnaireModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    justifyContent: "flex-end",
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'flex-end',
   },
   container: {
     backgroundColor: Colors.neutral.white,
@@ -161,12 +127,12 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingHorizontal: 20,
     paddingBottom: 20,
-    maxHeight: "90%",
+    maxHeight: '90%',
     ...shadows.lg,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: 20,
     gap: 12,
   },
@@ -187,22 +153,22 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: Colors.neutral.lighter,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   noteCard: {
-    backgroundColor: "#FFF9F0",
+    backgroundColor: '#FFF9F0',
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#FBBF24",
+    borderColor: '#FBBF24',
     marginBottom: 20,
   },
   noteText: {
     fontSize: typography.size.sm,
-    color: "#92400E",
+    color: '#92400E',
     lineHeight: typography.lineHeightPx.sm,
-    textAlign: "center",
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
@@ -232,7 +198,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.semibold,
   },
   answersRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
   },
   answerButton: {
@@ -243,9 +209,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.white,
     borderWidth: 2,
     borderColor: Colors.neutral.lighter,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   answerButtonSelected: {
     backgroundColor: Colors.primary.soft,
@@ -263,7 +229,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.sunset,
     padding: 18,
     borderRadius: 18,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 12,
     ...shadows.colored(Colors.primary.sunset),
   },

@@ -21,7 +21,14 @@ import {
   AlertTriangle,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 
 interface DataExportOptionsProps {
   visible: boolean;
@@ -43,7 +50,10 @@ export function DataExportOptions({
   const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
   const [statusMessage, setStatusMessage] = useState('');
 
-  const handleExport = async (exportFn?: () => Promise<void>, message: string = 'Veriler dışa aktarılıyor...') => {
+  const handleExport = async (
+    exportFn?: () => Promise<void>,
+    message: string = 'Veriler dışa aktarılıyor...'
+  ) => {
     if (!exportFn) {
       setExportStatus('error');
       setStatusMessage('Bu özellik yakında aktif olacak');
@@ -65,7 +75,7 @@ export function DataExportOptions({
         setExportStatus('idle');
         setStatusMessage('');
       }, 3000);
-    } catch (error) {
+    } catch (_error) {
       setExportStatus('error');
       setStatusMessage('Bir hata oluştu. Lütfen tekrar deneyin.');
       setTimeout(() => {
@@ -88,14 +98,26 @@ export function DataExportOptions({
         )}
         {exportStatus === 'success' && (
           <>
-            <CheckCircle size={iconSizes.hero} color={Colors.semantic.success} strokeWidth={iconStroke.standard} />
-            <Text style={[styles.statusText, { color: Colors.semantic.success }]}>{statusMessage}</Text>
+            <CheckCircle
+              size={iconSizes.hero}
+              color={Colors.semantic.success}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text style={[styles.statusText, { color: Colors.semantic.success }]}>
+              {statusMessage}
+            </Text>
           </>
         )}
         {exportStatus === 'error' && (
           <>
-            <AlertTriangle size={iconSizes.hero} color={Colors.semantic.error} strokeWidth={iconStroke.standard} />
-            <Text style={[styles.statusText, { color: Colors.semantic.error }]}>{statusMessage}</Text>
+            <AlertTriangle
+              size={iconSizes.hero}
+              color={Colors.semantic.error}
+              strokeWidth={iconStroke.standard}
+            />
+            <Text style={[styles.statusText, { color: Colors.semantic.error }]}>
+              {statusMessage}
+            </Text>
           </>
         )}
       </View>
@@ -105,18 +127,26 @@ export function DataExportOptions({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.container} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={styles.container} onPress={e => e.stopPropagation()}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <Database size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+              <Database
+                size={iconSizes.action}
+                color={Colors.secondary.lavender}
+                strokeWidth={iconStroke.standard}
+              />
               <View>
                 <Text style={styles.headerTitle}>Veri Yönetimi</Text>
                 <Text style={styles.headerSubtitle}>Verilerinizi dışa aktarın veya silin</Text>
               </View>
             </View>
             <Pressable style={styles.closeButton} onPress={onClose}>
-              <X size={iconSizes.action} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+              <X
+                size={iconSizes.action}
+                color={Colors.neutral.medium}
+                strokeWidth={iconStroke.standard}
+              />
             </Pressable>
           </View>
 
@@ -131,12 +161,17 @@ export function DataExportOptions({
                 colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
                 style={styles.optionIcon}
               >
-                <Download size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                <Download
+                  size={iconSizes.action}
+                  color={Colors.neutral.white}
+                  strokeWidth={iconStroke.standard}
+                />
               </LinearGradient>
               <View style={styles.optionInfo}>
                 <Text style={styles.optionTitle}>Tüm Verilerimi İndir</Text>
                 <Text style={styles.optionDescription}>
-                  Profil, çocuklar, analizler ve ayarlar dahil tüm verilerinizi JSON formatında indirin
+                  Profil, çocuklar, analizler ve ayarlar dahil tüm verilerinizi JSON formatında
+                  indirin
                 </Text>
               </View>
             </Pressable>
@@ -150,7 +185,11 @@ export function DataExportOptions({
                 colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
                 style={styles.optionIcon}
               >
-                <FileText size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                <FileText
+                  size={iconSizes.action}
+                  color={Colors.neutral.white}
+                  strokeWidth={iconStroke.standard}
+                />
               </LinearGradient>
               <View style={styles.optionInfo}>
                 <Text style={styles.optionTitle}>Analizleri İndir</Text>
@@ -165,14 +204,22 @@ export function DataExportOptions({
 
             {/* Delete Account */}
             <Pressable
-              style={({ pressed }) => [styles.optionCard, styles.dangerCard, pressed && styles.optionCardPressed]}
+              style={({ pressed }) => [
+                styles.optionCard,
+                styles.dangerCard,
+                pressed && styles.optionCardPressed,
+              ]}
               onPress={onDeleteAccount}
             >
               <LinearGradient
                 colors={[Colors.semantic.error, Colors.semantic.errorLight]}
                 style={styles.optionIcon}
               >
-                <Trash2 size={iconSizes.action} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+                <Trash2
+                  size={iconSizes.action}
+                  color={Colors.neutral.white}
+                  strokeWidth={iconStroke.standard}
+                />
               </LinearGradient>
               <View style={styles.optionInfo}>
                 <Text style={[styles.optionTitle, styles.dangerText]}>Hesabımı Sil</Text>
@@ -184,7 +231,11 @@ export function DataExportOptions({
 
             {/* Info Note */}
             <View style={styles.infoNote}>
-              <AlertTriangle size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+              <AlertTriangle
+                size={iconSizes.inline}
+                color={Colors.neutral.medium}
+                strokeWidth={iconStroke.standard}
+              />
               <Text style={styles.infoNoteText}>
                 KVKK kapsamında verilerinizi istediğiniz zaman talep edebilirsiniz.
               </Text>

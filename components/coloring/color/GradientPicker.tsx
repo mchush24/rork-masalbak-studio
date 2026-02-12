@@ -77,12 +77,9 @@ const PRESET_GRADIENTS: GradientConfig[] = [
   },
 ];
 
-export function GradientPicker({
-  onGradientSelect,
-  selectedGradient,
-}: GradientPickerProps) {
-  const [customColor1, setCustomColor1] = useState('#FF6B6B');
-  const [customColor2, setCustomColor2] = useState('#4D96FF');
+export function GradientPicker({ onGradientSelect, selectedGradient }: GradientPickerProps) {
+  const [customColor1, _setCustomColor1] = useState('#FF6B6B');
+  const [customColor2, _setCustomColor2] = useState('#4D96FF');
   const [customDirection, setCustomDirection] = useState<GradientConfig['direction']>('horizontal');
 
   const createCustomGradient = () => {
@@ -207,10 +204,7 @@ interface GradientPresetProps {
 function GradientPreset({ gradient, onSelect, isSelected }: GradientPresetProps) {
   return (
     <Pressable
-      style={[
-        styles.presetContainer,
-        isSelected && styles.presetContainerSelected,
-      ]}
+      style={[styles.presetContainer, isSelected && styles.presetContainerSelected]}
       onPress={onSelect}
     >
       <LinearGradient
@@ -240,18 +234,13 @@ interface DirectionButtonProps {
   onPress: () => void;
 }
 
-function DirectionButton({ direction, label, active, onPress }: DirectionButtonProps) {
+function DirectionButton({ label, active, onPress }: DirectionButtonProps) {
   return (
     <Pressable
-      style={[
-        styles.directionButton,
-        active && styles.directionButtonActive,
-      ]}
+      style={[styles.directionButton, active && styles.directionButtonActive]}
       onPress={onPress}
     >
-      <Text style={[styles.directionIcon, active && styles.directionIconActive]}>
-        {label}
-      </Text>
+      <Text style={[styles.directionIcon, active && styles.directionIconActive]}>{label}</Text>
     </Pressable>
   );
 }

@@ -4,15 +4,8 @@
  * Part of #19: Öğretmen Modu - Sınıf Yönetimi UI
  */
 
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import React from 'react';
+import { View, Text, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   FileText,
@@ -31,7 +24,7 @@ import {
 import { spacing, radius, shadows } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
 interface StudentSummary {
   id: string;
@@ -95,23 +88,28 @@ export function ClassReport({
   onShare,
   onStudentPress,
 }: ClassReportProps) {
-  const completionRate = stats.totalStudents > 0
-    ? Math.round((stats.analyzedStudents / stats.totalStudents) * 100)
-    : 0;
+  const completionRate =
+    stats.totalStudents > 0 ? Math.round((stats.analyzedStudents / stats.totalStudents) * 100) : 0;
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return TrendingUp;
-      case 'down': return TrendingDown;
-      default: return Minus;
+      case 'up':
+        return TrendingUp;
+      case 'down':
+        return TrendingDown;
+      default:
+        return Minus;
     }
   };
 
   const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return '#10B981';
-      case 'down': return '#EF4444';
-      default: return '#6B7280';
+      case 'up':
+        return '#10B981';
+      case 'down':
+        return '#EF4444';
+      default:
+        return '#6B7280';
     }
   };
 
@@ -132,7 +130,9 @@ export function ClassReport({
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.reportTitle}>Sınıf Raporu</Text>
-            <Text style={styles.className}>{className} • {grade}</Text>
+            <Text style={styles.className}>
+              {className} • {grade}
+            </Text>
             <Text style={styles.testType}>{testType}</Text>
           </View>
         </View>
@@ -177,7 +177,9 @@ export function ClassReport({
             <View style={styles.statIconContainer}>
               <Users size={20} color={ProfessionalColors.trust.primary} />
             </View>
-            <Text style={styles.statValue}>{stats.analyzedStudents}/{stats.totalStudents}</Text>
+            <Text style={styles.statValue}>
+              {stats.analyzedStudents}/{stats.totalStudents}
+            </Text>
             <Text style={styles.statLabel}>Analiz Edilen</Text>
             <View style={styles.completionBar}>
               <View style={[styles.completionFill, { width: `${completionRate}%` }]} />
@@ -277,7 +279,11 @@ export function ClassReport({
                   <View style={styles.studentMeta}>
                     <TrendIcon size={12} color={trendColor} />
                     <Text style={[styles.trendText, { color: trendColor }]}>
-                      {student.trend === 'up' ? 'Yükseliyor' : student.trend === 'down' ? 'Düşüyor' : 'Stabil'}
+                      {student.trend === 'up'
+                        ? 'Yükseliyor'
+                        : student.trend === 'down'
+                          ? 'Düşüyor'
+                          : 'Stabil'}
                     </Text>
                   </View>
                 </View>
@@ -309,14 +315,18 @@ export function ClassReport({
             </Text>
           </View>
 
-          {needsAttention.map((student) => {
+          {needsAttention.map(student => {
             const TrendIcon = getTrendIcon(student.trend);
             const trendColor = getTrendColor(student.trend);
 
             return (
               <Pressable
                 key={student.id}
-                style={({ pressed }) => [styles.studentRow, styles.studentRowWarning, pressed && styles.studentRowPressed]}
+                style={({ pressed }) => [
+                  styles.studentRow,
+                  styles.studentRowWarning,
+                  pressed && styles.studentRowPressed,
+                ]}
                 onPress={() => onStudentPress?.(student.id)}
               >
                 <View style={styles.alertIcon}>
@@ -327,7 +337,11 @@ export function ClassReport({
                   <View style={styles.studentMeta}>
                     <TrendIcon size={12} color={trendColor} />
                     <Text style={[styles.trendText, { color: trendColor }]}>
-                      {student.trend === 'up' ? 'Yükseliyor' : student.trend === 'down' ? 'Düşüyor' : 'Stabil'}
+                      {student.trend === 'up'
+                        ? 'Yükseliyor'
+                        : student.trend === 'down'
+                          ? 'Düşüyor'
+                          : 'Stabil'}
                     </Text>
                   </View>
                 </View>
@@ -352,8 +366,10 @@ export function ClassReport({
           <View style={styles.recommendationContent}>
             <Text style={styles.recommendationTitle}>Genel Değerlendirme</Text>
             <Text style={styles.recommendationText}>
-              Sınıf ortalaması {stats.averagePercentile >= 50 ? 'norm üzerinde' : 'norm altında'} seyretmektedir.
-              {stats.needsAttention > 0 && ` ${stats.needsAttention} öğrenci için bireysel takip önerilmektedir.`}
+              Sınıf ortalaması {stats.averagePercentile >= 50 ? 'norm üzerinde' : 'norm altında'}{' '}
+              seyretmektedir.
+              {stats.needsAttention > 0 &&
+                ` ${stats.needsAttention} öğrenci için bireysel takip önerilmektedir.`}
             </Text>
           </View>
         </View>
@@ -366,7 +382,8 @@ export function ClassReport({
             <View style={styles.recommendationContent}>
               <Text style={styles.recommendationTitle}>Bireysel Destek</Text>
               <Text style={styles.recommendationText}>
-                Düşük performans gösteren öğrenciler için rehberlik servisi ile işbirliği yapılması önerilir.
+                Düşük performans gösteren öğrenciler için rehberlik servisi ile işbirliği yapılması
+                önerilir.
               </Text>
             </View>
           </View>

@@ -16,9 +16,16 @@ import Animated, {
   withTiming,
   FadeIn,
 } from 'react-native-reanimated';
-import { Image as ImageIcon, Brain, CheckCircle, Loader2 } from 'lucide-react-native';
+import { Image as ImageIcon, Brain, CheckCircle } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 
 export type AnalysisStep = 'select' | 'analyzing' | 'results';
 
@@ -59,11 +66,7 @@ export function AnalysisStepper({
               compact={compact}
             />
             {index < STEPS.length - 1 && (
-              <StepConnector
-                isCompleted={isCompleted}
-                isCurrent={isCurrent}
-                compact={compact}
-              />
+              <StepConnector isCompleted={isCompleted} isCurrent={isCurrent} compact={compact} />
             )}
           </React.Fragment>
         );
@@ -73,7 +76,7 @@ export function AnalysisStepper({
 }
 
 interface StepItemProps {
-  step: typeof STEPS[number];
+  step: (typeof STEPS)[number];
   isCompleted: boolean;
   isCurrent: boolean;
   isUpcoming: boolean;
@@ -81,7 +84,7 @@ interface StepItemProps {
   compact: boolean;
 }
 
-function StepItem({ step, isCompleted, isCurrent, isUpcoming, showLabel, compact }: StepItemProps) {
+function StepItem({ step, isCompleted, isCurrent, showLabel, compact }: StepItemProps) {
   const scale = useSharedValue(1);
   const IconComponent = step.icon;
 
@@ -91,7 +94,7 @@ function StepItem({ step, isCompleted, isCurrent, isUpcoming, showLabel, compact
     } else {
       scale.value = withSpring(1, { damping: 15 });
     }
-  }, [isCurrent]);
+  }, [isCurrent, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -136,10 +139,7 @@ function StepItem({ step, isCompleted, isCurrent, isUpcoming, showLabel, compact
         {isCompleted ? (
           <CheckCircle size={iconSize} color={getIconColor()} strokeWidth={iconStroke.bold} />
         ) : isCurrent && step.id === 'analyzing' ? (
-          <Animated.View
-            entering={FadeIn}
-            style={styles.pulsingIcon}
-          >
+          <Animated.View entering={FadeIn} style={styles.pulsingIcon}>
             <Brain size={iconSize} color={getIconColor()} strokeWidth={iconStroke.standard} />
           </Animated.View>
         ) : (
@@ -173,7 +173,7 @@ function StepConnector({ isCompleted, isCurrent, compact }: StepConnectorProps) 
 
   React.useEffect(() => {
     progress.value = withTiming(isCompleted ? 1 : isCurrent ? 0.5 : 0, { duration: 300 });
-  }, [isCompleted, isCurrent]);
+  }, [isCompleted, isCurrent, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: `${progress.value * 100}%`,

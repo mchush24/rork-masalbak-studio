@@ -23,28 +23,21 @@ import {
   Platform,
   ViewStyle,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  FadeIn,
-  FadeOut,
-  ZoomIn,
-  ZoomOut,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, ZoomIn, ZoomOut } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
-import {
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  XCircle,
-  X,
-  HelpCircle,
-} from 'lucide-react-native';
+import { AlertTriangle, CheckCircle, Info, XCircle, X } from 'lucide-react-native';
 import { Colors, ProfessionalColors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, zIndex, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
-import { buttonSizes, buttonStyles } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+  iconColors,
+  buttonSizes,
+  buttonStyles,
+} from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 import { IooRoleAware } from '@/components/Ioo';
 import { useRole, useMascotSettings, useIsProfessional } from '@/lib/contexts/RoleContext';
@@ -155,20 +148,13 @@ export function BaseDialog({
         <Animated.View
           entering={getEnteringAnimation()}
           exiting={getExitingAnimation()}
-          style={[
-            styles.dialog,
-            useProfessionalStyle && styles.dialogProfessional,
-            style,
-          ]}
+          style={[styles.dialog, useProfessionalStyle && styles.dialogProfessional, style]}
         >
           {/* Close Button */}
           {showCloseButton && (
             <Pressable
               onPress={handleClosePress}
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed && { opacity: 0.6 },
-              ]}
+              style={({ pressed }) => [styles.closeButton, pressed && { opacity: 0.6 }]}
               hitSlop={8}
             >
               <X
@@ -181,10 +167,7 @@ export function BaseDialog({
 
           {/* Title */}
           {title && (
-            <Text style={[
-              styles.title,
-              useProfessionalStyle && styles.titleProfessional
-            ]}>
+            <Text style={[styles.title, useProfessionalStyle && styles.titleProfessional]}>
               {title}
             </Text>
           )}
@@ -308,11 +291,13 @@ export function ConfirmDialog({
             />
           </View>
         ) : (
-          <View style={[
-            styles.iconContainer,
-            { backgroundColor: config.iconBg },
-            isProfessional && styles.iconContainerProfessional
-          ]}>
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: config.iconBg },
+              isProfessional && styles.iconContainerProfessional,
+            ]}
+          >
             <IconComponent size={isProfessional ? 28 : 32} color={config.iconColor} />
           </View>
         )}
@@ -336,7 +321,12 @@ export function ConfirmDialog({
               pressed && { opacity: 0.7 },
             ]}
           >
-            <Text style={[styles.cancelButtonText, isProfessional && styles.cancelButtonTextProfessional]}>
+            <Text
+              style={[
+                styles.cancelButtonText,
+                isProfessional && styles.cancelButtonTextProfessional,
+              ]}
+            >
               {roleText.cancel}
             </Text>
           </Pressable>
@@ -446,19 +436,16 @@ export function AlertDialog({
         {/* Mascot or Icon */}
         {shouldShowMascot ? (
           <View style={styles.mascotContainer}>
-            <IooRoleAware
-              mood={config.iooMood}
-              size="small"
-              context="general"
-              animated
-            />
+            <IooRoleAware mood={config.iooMood} size="small" context="general" animated />
           </View>
         ) : (
-          <View style={[
-            styles.iconContainer,
-            { backgroundColor: config.iconBg },
-            isProfessional && styles.iconContainerProfessional
-          ]}>
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: config.iconBg },
+              isProfessional && styles.iconContainerProfessional,
+            ]}
+          >
             <IconComponent size={isProfessional ? 28 : 32} color={config.iconColor} />
           </View>
         )}
@@ -481,9 +468,7 @@ export function AlertDialog({
             pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
           ]}
         >
-          <Text style={styles.alertButtonText}>
-            {isProfessional ? 'Kapat' : buttonText}
-          </Text>
+          <Text style={styles.alertButtonText}>{isProfessional ? 'Kapat' : buttonText}</Text>
         </Pressable>
       </View>
     </BaseDialog>
@@ -577,12 +562,14 @@ export function InputDialog({
             error && styles.textInputError,
           ]}
           value={value}
-          onChangeText={(text) => {
+          onChangeText={text => {
             setValue(text);
             if (error) setError('');
           }}
           placeholder={placeholder}
-          placeholderTextColor={isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light}
+          placeholderTextColor={
+            isProfessional ? ProfessionalColors.text.tertiary : Colors.neutral.light
+          }
           keyboardType={getKeyboardType()}
           maxLength={maxLength}
           autoFocus
@@ -600,7 +587,12 @@ export function InputDialog({
               pressed && { opacity: 0.7 },
             ]}
           >
-            <Text style={[styles.cancelButtonText, isProfessional && styles.cancelButtonTextProfessional]}>
+            <Text
+              style={[
+                styles.cancelButtonText,
+                isProfessional && styles.cancelButtonTextProfessional,
+              ]}
+            >
               {cancelText}
             </Text>
           </Pressable>

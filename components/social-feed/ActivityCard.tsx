@@ -9,13 +9,7 @@
  */
 
 import React, { memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -43,7 +37,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter, Href } from 'expo-router';
-import { spacing, borderRadius, shadows } from '@/lib/design-tokens';
+import { spacing, borderRadius, shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface ActivityCardProps {
@@ -62,7 +56,7 @@ interface ActivityCardProps {
 }
 
 // Icon mapping
-const ICON_MAP: Record<string, React.ComponentType<any>> = {
+const ICON_MAP: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
   palette: Palette,
   'book-open': BookOpen,
   gamepad: Gamepad2,
@@ -115,18 +109,19 @@ const CATEGORY_DEFAULTS: Record<string, { colors: string[]; icon: string; iconCo
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // Memoized to prevent unnecessary re-renders in lists
-export const ActivityCard = memo(function ActivityCard({ activity, index = 0, onPress }: ActivityCardProps) {
+export const ActivityCard = memo(function ActivityCard({
+  activity,
+  index = 0,
+  onPress,
+}: ActivityCardProps) {
   const router = useRouter();
 
   // Subtle glow animation
   const glowAnim = useSharedValue(0.3);
 
   React.useEffect(() => {
-    glowAnim.value = withRepeat(
-      withTiming(0.6, { duration: 2000 }),
-      -1,
-      true
-    );
+    glowAnim.value = withRepeat(withTiming(0.6, { duration: 2000 }), -1, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const glowStyle = useAnimatedStyle(() => ({
@@ -134,9 +129,8 @@ export const ActivityCard = memo(function ActivityCard({ activity, index = 0, on
   }));
 
   const categoryDefaults = CATEGORY_DEFAULTS[activity.category] || CATEGORY_DEFAULTS.creative;
-  const gradientColors = activity.gradient_colors?.length === 2
-    ? activity.gradient_colors
-    : categoryDefaults.colors;
+  const gradientColors =
+    activity.gradient_colors?.length === 2 ? activity.gradient_colors : categoryDefaults.colors;
   const iconName = activity.icon || categoryDefaults.icon;
   const IconComponent = ICON_MAP[iconName] || Sparkles;
 
@@ -154,13 +148,10 @@ export const ActivityCard = memo(function ActivityCard({ activity, index = 0, on
     <AnimatedPressable
       entering={FadeIn.delay(index * 100).duration(400)}
       onPress={handlePress}
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.containerPressed,
-      ]}
+      style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
     >
       <LinearGradient
-        colors={gradientColors as any}
+        colors={gradientColors as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -174,7 +165,9 @@ export const ActivityCard = memo(function ActivityCard({ activity, index = 0, on
         </Animated.View>
 
         {/* Icon */}
-        <View style={[styles.iconContainer, { backgroundColor: `${categoryDefaults.iconColor}20` }]}>
+        <View
+          style={[styles.iconContainer, { backgroundColor: `${categoryDefaults.iconColor}20` }]}
+        >
           <IconComponent size={28} color={categoryDefaults.iconColor} />
         </View>
 

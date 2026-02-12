@@ -13,7 +13,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Modal,
   ScrollView,
   Animated,
   Dimensions,
@@ -28,18 +27,18 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // ============================================
 
 export type MoodType =
-  | 'happy'      // Mutlu
-  | 'calm'       // Sakin
-  | 'energetic'  // Enerjik
-  | 'dreamy'     // Hayalperest
-  | 'nature'     // Doğa
-  | 'ocean'      // Okyanus
-  | 'sunset'     // Gün Batımı
-  | 'night'      // Gece
-  | 'rainbow'    // Gökkuşağı
-  | 'princess'   // Prenses
-  | 'superhero'  // Süper Kahraman
-  | 'dinosaur';  // Dinozor
+  | 'happy' // Mutlu
+  | 'calm' // Sakin
+  | 'energetic' // Enerjik
+  | 'dreamy' // Hayalperest
+  | 'nature' // Doğa
+  | 'ocean' // Okyanus
+  | 'sunset' // Gün Batımı
+  | 'night' // Gece
+  | 'rainbow' // Gökkuşağı
+  | 'princess' // Prenses
+  | 'superhero' // Süper Kahraman
+  | 'dinosaur'; // Dinozor
 
 interface MoodDefinition {
   id: MoodType;
@@ -163,11 +162,7 @@ const MOODS: MoodDefinition[] = [
 // COMPONENT
 // ============================================
 
-export function MoodPalette({
-  onColorSelect,
-  onPaletteSelect,
-  onClose,
-}: MoodPaletteProps) {
+export function MoodPalette({ onColorSelect, onPaletteSelect, onClose }: MoodPaletteProps) {
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
   const [isVisible, setIsVisible] = useState(true);
   const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
@@ -181,6 +176,7 @@ export function MoodPalette({
       friction: 11,
       useNativeDriver: true,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleMoodSelect = (mood: MoodDefinition, index: number) => {
@@ -222,19 +218,12 @@ export function MoodPalette({
     });
   };
 
-  const selectedMoodData = selectedMood
-    ? MOODS.find(m => m.id === selectedMood)
-    : null;
+  const selectedMoodData = selectedMood ? MOODS.find(m => m.id === selectedMood) : null;
 
   if (!isVisible) return null;
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        { transform: [{ translateX: slideAnim }] },
-      ]}
-    >
+    <Animated.View style={[styles.container, { transform: [{ translateX: slideAnim }] }]}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Nasıl Hissediyorsun?</Text>
@@ -250,12 +239,7 @@ export function MoodPalette({
         showsVerticalScrollIndicator={false}
       >
         {MOODS.map((mood, index) => (
-          <Animated.View
-            key={mood.id}
-            style={[
-              { transform: [{ scale: scaleAnims[index] }] },
-            ]}
-          >
+          <Animated.View key={mood.id} style={[{ transform: [{ scale: scaleAnims[index] }] }]}>
             <TouchableOpacity
               style={[
                 styles.moodCard,
@@ -288,10 +272,7 @@ export function MoodPalette({
               {/* Color Preview */}
               <View style={styles.colorPreview}>
                 {mood.colors.slice(0, 4).map((color, i) => (
-                  <View
-                    key={i}
-                    style={[styles.colorDot, { backgroundColor: color }]}
-                  />
+                  <View key={i} style={[styles.colorDot, { backgroundColor: color }]} />
                 ))}
               </View>
             </TouchableOpacity>
@@ -306,9 +287,7 @@ export function MoodPalette({
             <Text style={styles.paletteTitle}>
               {selectedMoodData.icon} {selectedMoodData.name} Paleti
             </Text>
-            <Text style={styles.paletteDescription}>
-              {selectedMoodData.description}
-            </Text>
+            <Text style={styles.paletteDescription}>{selectedMoodData.description}</Text>
           </View>
 
           <View style={styles.paletteColors}>
@@ -326,15 +305,10 @@ export function MoodPalette({
 
           {/* Use All Colors Button */}
           <TouchableOpacity
-            style={[
-              styles.useAllButton,
-              { backgroundColor: selectedMoodData.gradient[0] },
-            ]}
+            style={[styles.useAllButton, { backgroundColor: selectedMoodData.gradient[0] }]}
             onPress={() => onPaletteSelect?.(selectedMoodData.colors)}
           >
-            <Text style={styles.useAllButtonText}>
-              Tüm Paleti Kullan
-            </Text>
+            <Text style={styles.useAllButtonText}>Tüm Paleti Kullan</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -370,6 +344,7 @@ export function MoodButton({ onPress, size = 44 }: MoodButtonProps) {
         }),
       ])
     ).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -385,9 +360,7 @@ export function MoodButton({ onPress, size = 44 }: MoodButtonProps) {
           },
         ]}
       >
-        <Text style={[styles.moodButtonIcon, { fontSize: size * 0.5 }]}>
-          🎭
-        </Text>
+        <Text style={[styles.moodButtonIcon, { fontSize: size * 0.5 }]}>🎭</Text>
       </Animated.View>
     </TouchableOpacity>
   );
