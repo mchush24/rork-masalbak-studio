@@ -30,6 +30,7 @@ export function ChildProvider({ children: childrenProp }: { children: ReactNode 
     if (!selectedChild && hasChildren) {
       setSelectedChild(userChildren[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userChildren, hasChildren]);
 
   const loadSelectedChild = async () => {

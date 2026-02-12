@@ -42,7 +42,7 @@ export const FLATLIST_OPTIMIZED_PROPS = {
  * This allows FlatList to skip measuring items
  */
 export function getItemLayout(itemHeight: number, separatorHeight: number = 0) {
-  return (data: any[] | null | undefined, index: number) => ({
+  return (data: unknown[] | null | undefined, index: number) => ({
     length: itemHeight + separatorHeight,
     offset: (itemHeight + separatorHeight) * index,
     index,
@@ -59,7 +59,7 @@ export function keyExtractorId(item: { id: string | number }) {
 /**
  * Key extractor for items at index
  */
-export function keyExtractorIndex(item: any, index: number) {
+export function keyExtractorIndex(item: unknown, index: number) {
   return String(index);
 }
 

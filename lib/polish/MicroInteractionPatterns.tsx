@@ -10,7 +10,7 @@
  * - Transition refinements
  */
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Pressable,
@@ -20,6 +20,8 @@ import {
   StyleProp,
   TextInput,
   TextInputProps,
+  TextInputFocusEventData,
+  NativeSyntheticEvent,
   Dimensions,
 } from 'react-native';
 import Animated, {
@@ -33,8 +35,6 @@ import Animated, {
   interpolateColor,
   Extrapolation,
   useAnimatedScrollHandler,
-  SharedValue,
-  runOnJS,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
@@ -43,7 +43,7 @@ import { shadows } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+const _AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 interface PressableScaleProps {
   children: React.ReactNode;
@@ -70,7 +70,7 @@ export function PressableScale({
   style,
 }: PressableScaleProps) {
   const scale = useSharedValue(1);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapLight, tapMedium, tapHeavy, error: _hapticError } = useHaptics();
 
   const handlePressIn = () => {
     scale.value = withSpring(scaleValue, springConfig);
@@ -125,7 +125,7 @@ export function ShimmerButton({
 }: ShimmerButtonProps) {
   const shimmerPosition = useSharedValue(0);
   const scale = useSharedValue(1);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapMedium, error: _hapticError } = useHaptics();
 
   useEffect(() => {
     // Continuous subtle shimmer
@@ -139,6 +139,7 @@ export function ShimmerButton({
     animate();
     const interval = setInterval(animate, 3000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePressIn = () => {
@@ -162,11 +163,7 @@ export function ShimmerButton({
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(
-          shimmerPosition.value,
-          [0, 1],
-          [-200, SCREEN_WIDTH + 200]
-        ),
+        translateX: interpolate(shimmerPosition.value, [0, 1], [-200, SCREEN_WIDTH + 200]),
       },
     ],
   }));
@@ -220,9 +217,9 @@ export function RippleButton({
   const rippleOpacity = useSharedValue(0);
   const rippleX = useSharedValue(0);
   const rippleY = useSharedValue(0);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapLight, error: _hapticError } = useHaptics();
 
-  const handlePress = (event: any) => {
+  const handlePress = (event: { nativeEvent: { locationX: number; locationY: number } }) => {
     const { locationX, locationY } = event.nativeEvent;
     rippleX.value = locationX;
     rippleY.value = locationY;
@@ -277,7 +274,7 @@ export function ElasticInput({
   const shadowRadius = useSharedValue(0);
   const scale = useSharedValue(1);
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     borderWidth.value = withSpring(2, { damping: 15 });
     borderColor.value = withTiming(1, { duration: 200 });
     shadowRadius.value = withTiming(8, { duration: 200 });
@@ -288,7 +285,7 @@ export function ElasticInput({
     onFocus?.(e);
   };
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     borderWidth.value = withSpring(1, { damping: 15 });
     borderColor.value = withTiming(0, { duration: 200 });
     shadowRadius.value = withTiming(0, { duration: 200 });
@@ -308,9 +305,7 @@ export function ElasticInput({
   }));
 
   return (
-    <Animated.View
-      style={[styles.elasticInputContainer, containerAnimatedStyle, containerStyle]}
-    >
+    <Animated.View style={[styles.elasticInputContainer, containerAnimatedStyle, containerStyle]}>
       <TextInput
         style={[styles.elasticInput, style]}
         onFocus={handleFocus}
@@ -343,7 +338,7 @@ export function ParallaxScroll({
   const scrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
+    onScroll: event => {
       scrollY.value = event.contentOffset.y;
     },
   });
@@ -356,12 +351,7 @@ export function ParallaxScroll({
       Extrapolation.CLAMP
     );
 
-    const scale = interpolate(
-      scrollY.value,
-      [-parallaxHeight, 0],
-      [1.5, 1],
-      Extrapolation.CLAMP
-    );
+    const scale = interpolate(scrollY.value, [-parallaxHeight, 0], [1.5, 1], Extrapolation.CLAMP);
 
     return {
       transform: [{ translateY }, { scale }],
@@ -406,20 +396,17 @@ interface BouncyCardProps {
 /**
  * Card with bouncy entrance and press animation
  */
-export function BouncyCard({
-  children,
-  onPress,
-  style,
-}: BouncyCardProps) {
+export function BouncyCard({ children, onPress, style }: BouncyCardProps) {
   const scale = useSharedValue(0.9);
   const opacity = useSharedValue(0);
   const rotation = useSharedValue(-2);
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapLight, error: _hapticError } = useHaptics();
 
   useEffect(() => {
     scale.value = withSpring(1, { damping: 8, stiffness: 100 });
     opacity.value = withTiming(1, { duration: 300 });
     rotation.value = withSpring(0, { damping: 15 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePressIn = () => {
@@ -438,31 +425,20 @@ export function BouncyCard({
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` },
-    ],
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
     opacity: opacity.value,
   }));
 
   if (onPress) {
     return (
-      <Pressable
-        onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-      >
-        <Animated.View style={[styles.bouncyCard, animatedStyle, style]}>
-          {children}
-        </Animated.View>
+      <Pressable onPress={handlePress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+        <Animated.View style={[styles.bouncyCard, animatedStyle, style]}>{children}</Animated.View>
       </Pressable>
     );
   }
 
   return (
-    <Animated.View style={[styles.bouncyCard, animatedStyle, style]}>
-      {children}
-    </Animated.View>
+    <Animated.View style={[styles.bouncyCard, animatedStyle, style]}>{children}</Animated.View>
   );
 }
 
@@ -502,7 +478,7 @@ export function GlowingBorder({
 
       return () => clearInterval(interval);
     }
-  }, [animated, intensity]);
+  }, [animated, intensity, glowOpacity]);
 
   const glowStyle = useAnimatedStyle(() => ({
     shadowOpacity: glowOpacity.value,
@@ -535,12 +511,7 @@ interface TypewriterTextProps {
 /**
  * Typewriter text reveal effect
  */
-export function TypewriterText({
-  text,
-  speed = 50,
-  onComplete,
-  style,
-}: TypewriterTextProps) {
+export function TypewriterText({ text, speed = 50, onComplete, style }: TypewriterTextProps) {
   const [displayText, setDisplayText] = React.useState('');
   const indexRef = useRef(0);
 

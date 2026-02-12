@@ -4,13 +4,14 @@
  * Common patterns for optimizing React Native performance
  */
 
-import { useRef, useCallback, useEffect, useMemo } from 'react';
+import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { InteractionManager, Platform } from 'react-native';
 
 /**
  * Debounce a function call
  * Useful for search inputs, resize handlers, etc.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -31,6 +32,7 @@ export function debounce<T extends (...args: any[]) => any>(
  * Throttle a function call
  * Useful for scroll handlers, continuous events, etc.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number
@@ -68,12 +70,11 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-import { useState } from 'react';
-
 /**
  * Hook for debounced callback
  * Returns a memoized debounced version of the callback
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
@@ -81,6 +82,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(
     debounce((...args: Parameters<T>) => {
       callbackRef.current(...args);
@@ -92,6 +94,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
 /**
  * Hook for throttled callback
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useThrottledCallback<T extends (...args: any[]) => any>(
   callback: T,
   limit: number
@@ -99,6 +102,7 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(
     throttle((...args: Parameters<T>) => {
       callbackRef.current(...args);
@@ -126,10 +130,13 @@ export function runAfterInteractions(task: () => void): { cancel: () => void } {
 /**
  * Hook for running effects after interactions
  */
-export function useAfterInteractions(callback: () => void | (() => void), deps: any[]) {
+export function useAfterInteractions(callback: () => void | (() => void), deps: unknown[]) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const memoizedCallback = useCallback(callback, deps);
+
   useEffect(() => {
     const handle = runAfterInteractions(() => {
-      const cleanup = callback();
+      const cleanup = memoizedCallback();
       if (cleanup) {
         return cleanup;
       }
@@ -138,7 +145,7 @@ export function useAfterInteractions(callback: () => void | (() => void), deps: 
     return () => {
       handle.cancel();
     };
-  }, deps);
+  }, [memoizedCallback]);
 }
 
 /**
@@ -157,10 +164,7 @@ export function useLazyInit<T>(factory: () => T): T {
 /**
  * Memoize a heavy computation with custom comparison
  */
-export function useMemoCompare<T>(
-  next: T,
-  compare: (prev: T | undefined, next: T) => boolean
-): T {
+export function useMemoCompare<T>(next: T, compare: (prev: T | undefined, next: T) => boolean): T {
   const previousRef = useRef<T | undefined>(undefined);
   const previous = previousRef.current;
 
@@ -179,7 +183,7 @@ export function useMemoCompare<T>(
  * Hook for preventing unnecessary re-renders
  * Returns previous value if new value is shallowly equal
  */
-export function useStableValue<T extends Record<string, any>>(value: T): T {
+export function useStableValue<T extends Record<string, unknown>>(value: T): T {
   const ref = useRef(value);
 
   const isEqual = useMemo(() => {
@@ -189,7 +193,7 @@ export function useStableValue<T extends Record<string, any>>(value: T): T {
 
     if (keys.length !== prevKeys.length) return false;
 
-    return keys.every((key) => prev[key] === value[key]);
+    return keys.every(key => prev[key] === value[key]);
   }, [value]);
 
   if (!isEqual) {
@@ -208,6 +212,7 @@ export function batchUpdates(callback: () => void): void {
     callback();
   } else {
     // Use unstable_batchedUpdates for React Native
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { unstable_batchedUpdates } = require('react-native');
     if (unstable_batchedUpdates) {
       unstable_batchedUpdates(callback);
@@ -257,8 +262,8 @@ export async function preloadImages(uris: string[]): Promise<void> {
     // Web preloading
     await Promise.all(
       uris.map(
-        (uri) =>
-          new Promise<void>((resolve) => {
+        uri =>
+          new Promise<void>(resolve => {
             const img = new Image();
             img.onload = () => resolve();
             img.onerror = () => resolve();
@@ -268,8 +273,9 @@ export async function preloadImages(uris: string[]): Promise<void> {
     );
   } else {
     // React Native preloading
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Image } = require('react-native');
-    await Promise.all(uris.map((uri) => Image.prefetch(uri).catch(() => {})));
+    await Promise.all(uris.map(uri => Image.prefetch(uri).catch(() => {})));
   }
 }
 

@@ -25,12 +25,15 @@ const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || 'renkioo';
 // Only initialize in Node.js environment (backend)
 const supabaseUrl = process.env.SUPABASE_URL || '';
 // Support both naming conventions
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '';
+const supabaseServiceKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '';
 
 // Only create backend client in Node.js environment
-export const supabase = !isBrowser && supabaseUrl && supabaseServiceKey
-  ? createClient(supabaseUrl, supabaseServiceKey)
-  : null as any; // In browser, this will be null (not used)
+export const supabase =
+  !isBrowser && supabaseUrl && supabaseServiceKey
+    ? createClient(supabaseUrl, supabaseServiceKey)
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (null as any); // In browser, this will be null (not used)
 
 // Frontend Supabase Client (Anon Key - User Access)
 let supabaseFrontend: ReturnType<typeof createClient> | null = null;
@@ -58,13 +61,16 @@ export async function getSupabaseFrontend() {
 
     const Constants = (await import('expo-constants')).default;
 
-    const frontendUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
-    const frontendAnonKey = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+    const frontendUrl =
+      Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
+    const frontendAnonKey =
+      Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
+      process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!frontendUrl || !frontendAnonKey) {
       throw new Error(
         'Supabase URL and Anon Key must be set in environment variables.\n' +
-        'Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your .env file.'
+          'Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your .env file.'
       );
     }
 

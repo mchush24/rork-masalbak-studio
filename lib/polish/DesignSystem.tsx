@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle, StyleProp } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { Colors } from '@/constants/colors';
 
 // ============================================
@@ -234,7 +234,11 @@ export function Spacer({ size, flex }: SpacerProps) {
   if (flex) {
     return <View style={{ flex }} />;
   }
-  return <View style={{ width: size ? Spacing[size] : undefined, height: size ? Spacing[size] : undefined }} />;
+  return (
+    <View
+      style={{ width: size ? Spacing[size] : undefined, height: size ? Spacing[size] : undefined }}
+    />
+  );
 }
 
 interface CenterProps {
@@ -246,11 +250,7 @@ interface CenterProps {
  * Center content both horizontally and vertically
  */
 export function Center({ children, style }: CenterProps) {
-  return (
-    <View style={[styles.center, style]}>
-      {children}
-    </View>
-  );
+  return <View style={[styles.center, style]}>{children}</View>;
 }
 
 interface ContainerProps {
@@ -263,12 +263,7 @@ interface ContainerProps {
 /**
  * Container with max-width and padding
  */
-export function Container({
-  children,
-  padding = 'lg',
-  maxWidth = 600,
-  style,
-}: ContainerProps) {
+export function Container({ children, padding = 'lg', maxWidth = 600, style }: ContainerProps) {
   return (
     <View
       style={[
@@ -331,14 +326,12 @@ interface BadgeProps {
 /**
  * Badge component
  */
-export function Badge({
-  children,
-  variant = 'primary',
-  size = 'md',
-  style,
-}: BadgeProps) {
+export function Badge({ children, variant = 'primary', size = 'md', style }: BadgeProps) {
   const variantStyles = {
-    primary: { backgroundColor: Colors.secondary.lavender + '20', color: Colors.secondary.lavender },
+    primary: {
+      backgroundColor: Colors.secondary.lavender + '20',
+      color: Colors.secondary.lavender,
+    },
     secondary: { backgroundColor: Colors.neutral.lighter, color: Colors.neutral.dark },
     success: { backgroundColor: Colors.emotion.trust + '20', color: Colors.emotion.trust },
     warning: { backgroundColor: Colors.emotion.joy + '20', color: Colors.emotion.joy },
@@ -355,13 +348,7 @@ export function Badge({
   const { paddingHorizontal, paddingVertical, fontSize } = sizeStyles[size];
 
   return (
-    <View
-      style={[
-        styles.badge,
-        { backgroundColor, paddingHorizontal, paddingVertical },
-        style,
-      ]}
-    >
+    <View style={[styles.badge, { backgroundColor, paddingHorizontal, paddingVertical }, style]}>
       <Text style={[styles.badgeText, { color, fontSize }]}>{children}</Text>
     </View>
   );
@@ -388,7 +375,7 @@ export function Avatar({
   const initials = name
     ? name
         .split(' ')
-        .map((n) => n[0])
+        .map(n => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2)
@@ -396,13 +383,7 @@ export function Avatar({
 
   if (source?.uri) {
     return (
-      <View
-        style={[
-          styles.avatar,
-          { width: size, height: size, borderRadius: size / 2 },
-          style,
-        ]}
-      >
+      <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2 }, style]}>
         {/* Image would go here */}
       </View>
     );
@@ -421,9 +402,7 @@ export function Avatar({
         style,
       ]}
     >
-      <Text style={[styles.avatarText, { color, fontSize: size * 0.4 }]}>
-        {initials}
-      </Text>
+      <Text style={[styles.avatarText, { color, fontSize: size * 0.4 }]}>{initials}</Text>
     </View>
   );
 }
@@ -443,23 +422,15 @@ interface ChipProps {
 export function Chip({
   children,
   selected = false,
-  onPress,
+
   leftIcon,
   rightIcon,
   style,
 }: ChipProps) {
   return (
-    <View
-      style={[
-        styles.chip,
-        selected && styles.chipSelected,
-        style,
-      ]}
-    >
+    <View style={[styles.chip, selected && styles.chipSelected, style]}>
       {leftIcon}
-      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-        {children}
-      </Text>
+      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{children}</Text>
       {rightIcon}
     </View>
   );

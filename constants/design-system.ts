@@ -1,8 +1,8 @@
 /**
  * Renkioo Design System 2.0
  *
- * Şahane bir çocuk uygulaması için profesyonel tasarım sistemi
- * İlham: Apple HIG, Material Design, Duolingo, Khan Academy Kids
+ * Ebeveynler için profesyonel tasarım sistemi
+ * İlham: Apple HIG, Headspace, Calm, Duolingo
  */
 
 import { Dimensions, Platform } from 'react-native';
@@ -259,6 +259,8 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl: 48,
+  xxxl: 64,
 } as const;
 
 // ============================================
@@ -277,6 +279,9 @@ export const radius = {
   xxxl: 32,
   full: 9999,
 } as const;
+
+/** @deprecated Use `radius` instead */
+export const borderRadius = radius;
 
 // ============================================
 // SHADOWS & ELEVATION
@@ -467,6 +472,127 @@ export const neumorphism = {
           elevation: 1,
         },
 };
+
+// ============================================
+// CLAYMORPHISM STYLES
+// Soft, pillowy 3D effect - clay-like surfaces
+// Uses large radius + double shadow (outer + highlight) for depth
+// ============================================
+export const claymorphism = {
+  /** Soft clay card - subtle 3D lift */
+  card:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: '#F4F0F8',
+          borderRadius: 24,
+          boxShadow:
+            '8px 8px 16px rgba(163, 145, 180, 0.25), -4px -4px 12px rgba(255, 255, 255, 0.8)',
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.6)',
+        }
+      : {
+          backgroundColor: '#F4F0F8',
+          borderRadius: 24,
+          shadowColor: '#A391B4',
+          shadowOffset: { width: 6, height: 6 },
+          shadowOpacity: 0.25,
+          shadowRadius: 16,
+          elevation: 8,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.6)',
+        },
+
+  /** Pressed/sunk clay state */
+  cardPressed:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: '#EDE8F2',
+          borderRadius: 24,
+          boxShadow: '4px 4px 8px rgba(163, 145, 180, 0.2), -2px -2px 6px rgba(255, 255, 255, 0.6)',
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.4)',
+        }
+      : {
+          backgroundColor: '#EDE8F2',
+          borderRadius: 24,
+          shadowColor: '#A391B4',
+          shadowOffset: { width: 3, height: 3 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 4,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.4)',
+        },
+
+  /** Warm clay (peach/sunset tone) */
+  warm:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: '#FFF5F0',
+          borderRadius: 24,
+          boxShadow:
+            '8px 8px 16px rgba(255, 155, 122, 0.2), -4px -4px 12px rgba(255, 255, 255, 0.8)',
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.6)',
+        }
+      : {
+          backgroundColor: '#FFF5F0',
+          borderRadius: 24,
+          shadowColor: '#FF9B7A',
+          shadowOffset: { width: 6, height: 6 },
+          shadowOpacity: 0.2,
+          shadowRadius: 16,
+          elevation: 8,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.6)',
+        },
+
+  /** Cool clay (blue/mint tone) */
+  cool:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: '#F0F7FF',
+          borderRadius: 24,
+          boxShadow:
+            '8px 8px 16px rgba(120, 200, 232, 0.2), -4px -4px 12px rgba(255, 255, 255, 0.8)',
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.6)',
+        }
+      : {
+          backgroundColor: '#F0F7FF',
+          borderRadius: 24,
+          shadowColor: '#78C8E8',
+          shadowOffset: { width: 6, height: 6 },
+          shadowOpacity: 0.2,
+          shadowRadius: 16,
+          elevation: 8,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.6)',
+        },
+
+  /** Button-style clay (smaller, more tactile) */
+  button:
+    Platform.OS === 'web'
+      ? {
+          backgroundColor: '#F4F0F8',
+          borderRadius: 16,
+          boxShadow:
+            '4px 4px 10px rgba(163, 145, 180, 0.3), -2px -2px 8px rgba(255, 255, 255, 0.7)',
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.5)',
+        }
+      : {
+          backgroundColor: '#F4F0F8',
+          borderRadius: 16,
+          shadowColor: '#A391B4',
+          shadowOffset: { width: 4, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 10,
+          elevation: 6,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.5)',
+        },
+} as const;
 
 // ============================================
 // Z-INDEX LAYERS
@@ -975,12 +1101,14 @@ export default {
   typography,
   spacing,
   radius,
+  borderRadius,
   shadows,
   createShadow,
   textShadows,
   createTextShadow,
   animation,
   glassmorphism,
+  claymorphism,
   neumorphism,
   zIndex,
   interaction,

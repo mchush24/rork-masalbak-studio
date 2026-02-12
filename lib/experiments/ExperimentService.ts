@@ -17,7 +17,7 @@ export interface Variant {
   id: VariantId;
   name: string;
   weight: number; // 0-100, percentage
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface Experiment {
@@ -47,7 +47,7 @@ export interface ExperimentEvent {
   experimentId: string;
   variantId: VariantId;
   eventName: string;
-  eventData?: Record<string, any>;
+  eventData?: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -78,7 +78,12 @@ const DEFAULT_EXPERIMENTS: Experiment[] = [
     description: 'Test primary button color variants',
     type: 'ui',
     variants: [
-      { id: 'purple', name: 'Purple (Default)', weight: 50, config: { color: Colors.secondary.violet } },
+      {
+        id: 'purple',
+        name: 'Purple (Default)',
+        weight: 50,
+        config: { color: Colors.secondary.violet },
+      },
       { id: 'gradient', name: 'Gradient', weight: 50, config: { gradient: true } },
     ],
     isActive: false,
@@ -189,10 +194,13 @@ class ExperimentServiceClass {
   /**
    * Check if user is in target audience for experiment
    */
-  private isInTargetAudience(experiment: Experiment, userContext?: {
-    userType?: 'parent' | 'professional' | 'teacher';
-    appVersion?: string;
-  }): boolean {
+  private isInTargetAudience(
+    experiment: Experiment,
+    userContext?: {
+      userType?: 'parent' | 'professional' | 'teacher';
+      appVersion?: string;
+    }
+  ): boolean {
     const { targetAudience } = experiment;
     if (!targetAudience) return true;
 
@@ -289,7 +297,7 @@ class ExperimentServiceClass {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return Math.abs(hash);
@@ -313,7 +321,7 @@ class ExperimentServiceClass {
   async trackEvent(
     experimentId: string,
     eventName: string,
-    eventData?: Record<string, any>
+    eventData?: Record<string, unknown>
   ): Promise<void> {
     const assignment = this.assignments.get(experimentId);
     if (!assignment) return;
@@ -432,10 +440,7 @@ class ExperimentServiceClass {
     this.events = [];
     this.overrides.clear();
 
-    await AsyncStorage.multiRemove([
-      STORAGE_KEYS.ASSIGNMENTS,
-      STORAGE_KEYS.EVENTS,
-    ]);
+    await AsyncStorage.multiRemove([STORAGE_KEYS.ASSIGNMENTS, STORAGE_KEYS.EVENTS]);
   }
 }
 

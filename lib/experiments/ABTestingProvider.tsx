@@ -10,17 +10,10 @@
  * - Feature flags
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const EXPERIMENTS_KEY = 'ab_experiments';
+const _EXPERIMENTS_KEY = 'ab_experiments';
 const USER_VARIANTS_KEY = 'ab_user_variants';
 const CONVERSIONS_KEY = 'ab_conversions';
 
@@ -28,7 +21,7 @@ interface Variant {
   id: string;
   name: string;
   weight: number; // 0-100
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 interface Experiment {
@@ -57,7 +50,7 @@ interface ConversionEvent {
   variantId: string;
   eventName: string;
   value?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -66,7 +59,7 @@ interface ExperimentResult {
   variantId: string;
   variant: Variant | null;
   isControl: boolean;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 }
 
 interface ABTestingContextType {
@@ -86,7 +79,7 @@ interface ABTestingContextType {
     experimentId: string,
     eventName: string,
     value?: number,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ) => void;
   getConversions: (experimentId?: string) => ConversionEvent[];
 
@@ -100,9 +93,7 @@ interface ABTestingContextType {
   getAllAssignments: () => UserVariantAssignment[];
 }
 
-const ABTestingContext = createContext<ABTestingContextType | undefined>(
-  undefined
-);
+const ABTestingContext = createContext<ABTestingContextType | undefined>(undefined);
 
 interface ABTestingProviderProps {
   children: React.ReactNode;
@@ -118,9 +109,7 @@ export function ABTestingProvider({
   debugMode = __DEV__,
 }: ABTestingProviderProps) {
   const [experiments, setExperiments] = useState<Experiment[]>(initialExperiments);
-  const [userVariants, setUserVariants] = useState<Map<string, UserVariantAssignment>>(
-    new Map()
-  );
+  const [userVariants, setUserVariants] = useState<Map<string, UserVariantAssignment>>(new Map());
   const [conversions, setConversions] = useState<ConversionEvent[]>([]);
   const [isDebugMode, setDebugMode] = useState(debugMode);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -160,31 +149,25 @@ export function ABTestingProvider({
   }, []);
 
   // Persist user variants
-  const persistVariants = useCallback(
-    async (variants: Map<string, UserVariantAssignment>) => {
-      try {
-        const obj = Object.fromEntries(variants);
-        await AsyncStorage.setItem(USER_VARIANTS_KEY, JSON.stringify(obj));
-      } catch (error) {
-        console.error('Failed to persist variants:', error);
-      }
-    },
-    []
-  );
+  const persistVariants = useCallback(async (variants: Map<string, UserVariantAssignment>) => {
+    try {
+      const obj = Object.fromEntries(variants);
+      await AsyncStorage.setItem(USER_VARIANTS_KEY, JSON.stringify(obj));
+    } catch (error) {
+      console.error('Failed to persist variants:', error);
+    }
+  }, []);
 
   // Persist conversions
-  const persistConversions = useCallback(
-    async (events: ConversionEvent[]) => {
-      try {
-        // Keep only last 1000 conversions
-        const trimmed = events.slice(-1000);
-        await AsyncStorage.setItem(CONVERSIONS_KEY, JSON.stringify(trimmed));
-      } catch (error) {
-        console.error('Failed to persist conversions:', error);
-      }
-    },
-    []
-  );
+  const persistConversions = useCallback(async (events: ConversionEvent[]) => {
+    try {
+      // Keep only last 1000 conversions
+      const trimmed = events.slice(-1000);
+      await AsyncStorage.setItem(CONVERSIONS_KEY, JSON.stringify(trimmed));
+    } catch (error) {
+      console.error('Failed to persist conversions:', error);
+    }
+  }, []);
 
   // Hash function for deterministic variant assignment
   const hashUserExperiment = useCallback(
@@ -243,14 +226,14 @@ export function ABTestingProvider({
 
   const getExperiment = useCallback(
     (experimentId: string): Experiment | undefined => {
-      return experiments.find((e) => e.id === experimentId);
+      return experiments.find(e => e.id === experimentId);
     },
     [experiments]
   );
 
   const getVariant = useCallback(
     (experimentId: string): ExperimentResult => {
-      const experiment = experiments.find((e) => e.id === experimentId);
+      const experiment = experiments.find(e => e.id === experimentId);
 
       // Default result for missing/inactive experiments
       const defaultResult: ExperimentResult = {
@@ -284,9 +267,7 @@ export function ABTestingProvider({
         persistVariants(newVariants);
       }
 
-      const variant = experiment.variants.find(
-        (v) => v.id === assignment!.variantId
-      );
+      const variant = experiment.variants.find(v => v.id === assignment!.variantId);
 
       return {
         experimentId,
@@ -335,7 +316,7 @@ export function ABTestingProvider({
       experimentId: string,
       eventName: string,
       value?: number,
-      metadata?: Record<string, any>
+      metadata?: Record<string, unknown>
     ) => {
       const assignment = userVariants.get(experimentId);
       if (!assignment) return;
@@ -363,7 +344,7 @@ export function ABTestingProvider({
   const getConversions = useCallback(
     (experimentId?: string): ConversionEvent[] => {
       if (experimentId) {
-        return conversions.filter((c) => c.experimentId === experimentId);
+        return conversions.filter(c => c.experimentId === experimentId);
       }
       return conversions;
     },
@@ -429,11 +410,7 @@ export function ABTestingProvider({
     return null;
   }
 
-  return (
-    <ABTestingContext.Provider value={value}>
-      {children}
-    </ABTestingContext.Provider>
-  );
+  return <ABTestingContext.Provider value={value}>{children}</ABTestingContext.Provider>;
 }
 
 /**
@@ -478,7 +455,7 @@ export function useConversionTracking(experimentId: string) {
   const { trackConversion } = useABTesting();
 
   return useCallback(
-    (eventName: string, value?: number, metadata?: Record<string, any>) => {
+    (eventName: string, value?: number, metadata?: Record<string, unknown>) => {
       trackConversion(experimentId, eventName, value, metadata);
     },
     [trackConversion, experimentId]

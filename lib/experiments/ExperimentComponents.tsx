@@ -9,7 +9,7 @@
  * - ExperimentDebugPanel
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -20,22 +20,12 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  FadeIn,
-  FadeOut,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { X, FlaskConical, Check, RefreshCw, Bug } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { shadows, zIndex } from '@/constants/design-system';
-import {
-  useABTesting,
-  useExperiment,
-  useFeatureFlag,
-} from './ABTestingProvider';
+import { useABTesting, useExperiment, useFeatureFlag } from './ABTestingProvider';
 
 interface ExperimentSwitchProps {
   experimentId: string;
@@ -46,11 +36,7 @@ interface ExperimentSwitchProps {
 /**
  * Renders different content based on experiment variant
  */
-export function ExperimentSwitch({
-  experimentId,
-  control,
-  variants,
-}: ExperimentSwitchProps) {
+export function ExperimentSwitch({ experimentId, control, variants }: ExperimentSwitchProps) {
   const { variantId, isControl } = useExperiment(experimentId);
 
   if (isControl || !variants[variantId]) {
@@ -65,17 +51,14 @@ interface VariantRendererProps {
   children: (result: {
     variantId: string;
     isControl: boolean;
-    config: Record<string, any>;
+    config: Record<string, unknown>;
   }) => React.ReactNode;
 }
 
 /**
  * Render prop component for experiment variants
  */
-export function VariantRenderer({
-  experimentId,
-  children,
-}: VariantRendererProps) {
+export function VariantRenderer({ experimentId, children }: VariantRendererProps) {
   const result = useExperiment(experimentId);
   return <>{children(result)}</>;
 }
@@ -89,11 +72,7 @@ interface FeatureGateProps {
 /**
  * Feature gate - shows content only if feature is enabled
  */
-export function FeatureGate({
-  featureId,
-  children,
-  fallback = null,
-}: FeatureGateProps) {
+export function FeatureGate({ featureId, children, fallback = null }: FeatureGateProps) {
   const isEnabled = useFeatureFlag(featureId);
 
   if (!isEnabled) {
@@ -111,10 +90,7 @@ interface ExperimentDebugPanelProps {
 /**
  * Debug panel for viewing and manipulating experiments
  */
-export function ExperimentDebugPanel({
-  visible,
-  onClose,
-}: ExperimentDebugPanelProps) {
+export function ExperimentDebugPanel({ visible, onClose }: ExperimentDebugPanelProps) {
   const {
     experiments,
     getAllAssignments,
@@ -125,7 +101,7 @@ export function ExperimentDebugPanel({
     isDebugMode,
     setDebugMode,
   } = useABTesting();
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapLight, tapMedium, warning, error: _hapticError } = useHaptics();
 
   const assignments = getAllAssignments();
   const conversions = getConversions();
@@ -162,17 +138,9 @@ export function ExperimentDebugPanel({
           {/* Debug Mode Toggle */}
           <View style={styles.debugSection}>
             <Text style={styles.debugSectionTitle}>Ayarlar</Text>
-            <Pressable
-              style={styles.debugToggleRow}
-              onPress={() => setDebugMode(!isDebugMode)}
-            >
+            <Pressable style={styles.debugToggleRow} onPress={() => setDebugMode(!isDebugMode)}>
               <Text style={styles.debugToggleLabel}>Debug Modu</Text>
-              <View
-                style={[
-                  styles.debugToggle,
-                  isDebugMode && styles.debugToggleActive,
-                ]}
-              >
+              <View style={[styles.debugToggle, isDebugMode && styles.debugToggleActive]}>
                 {isDebugMode && <Check size={14} color={Colors.neutral.white} />}
               </View>
             </Pressable>
@@ -181,19 +149,15 @@ export function ExperimentDebugPanel({
           {/* Experiments */}
           <View style={styles.debugSection}>
             <View style={styles.debugSectionHeader}>
-              <Text style={styles.debugSectionTitle}>
-                Deneyler ({experiments.length})
-              </Text>
+              <Text style={styles.debugSectionTitle}>Deneyler ({experiments.length})</Text>
               <Pressable onPress={handleResetAll} style={styles.resetAllButton}>
                 <RefreshCw size={16} color={Colors.emotion.fear} />
                 <Text style={styles.resetAllText}>Tümünü Sıfırla</Text>
               </Pressable>
             </View>
 
-            {experiments.map((experiment) => {
-              const assignment = assignments.find(
-                (a) => a.experimentId === experiment.id
-              );
+            {experiments.map(experiment => {
+              const assignment = assignments.find(a => a.experimentId === experiment.id);
 
               return (
                 <View key={experiment.id} style={styles.experimentCard}>
@@ -202,9 +166,7 @@ export function ExperimentDebugPanel({
                     <View
                       style={[
                         styles.experimentStatus,
-                        experiment.enabled
-                          ? styles.experimentEnabled
-                          : styles.experimentDisabled,
+                        experiment.enabled ? styles.experimentEnabled : styles.experimentDisabled,
                       ]}
                     >
                       <Text style={styles.experimentStatusText}>
@@ -214,26 +176,19 @@ export function ExperimentDebugPanel({
                   </View>
 
                   {experiment.description && (
-                    <Text style={styles.experimentDescription}>
-                      {experiment.description}
-                    </Text>
+                    <Text style={styles.experimentDescription}>{experiment.description}</Text>
                   )}
 
                   <Text style={styles.variantsLabel}>Varyantlar:</Text>
                   <View style={styles.variantsContainer}>
-                    {experiment.variants.map((variant) => {
+                    {experiment.variants.map(variant => {
                       const isSelected = assignment?.variantId === variant.id;
 
                       return (
                         <Pressable
                           key={variant.id}
-                          style={[
-                            styles.variantChip,
-                            isSelected && styles.variantChipSelected,
-                          ]}
-                          onPress={() =>
-                            handleForceVariant(experiment.id, variant.id)
-                          }
+                          style={[styles.variantChip, isSelected && styles.variantChipSelected]}
+                          onPress={() => handleForceVariant(experiment.id, variant.id)}
                         >
                           <Text
                             style={[
@@ -243,9 +198,7 @@ export function ExperimentDebugPanel({
                           >
                             {variant.name} ({variant.weight}%)
                           </Text>
-                          {isSelected && (
-                            <Check size={14} color={Colors.neutral.white} />
-                          )}
+                          {isSelected && <Check size={14} color={Colors.neutral.white} />}
                         </Pressable>
                       );
                     })}
@@ -264,34 +217,29 @@ export function ExperimentDebugPanel({
               );
             })}
 
-            {experiments.length === 0 && (
-              <Text style={styles.emptyText}>Henüz deney yok</Text>
-            )}
+            {experiments.length === 0 && <Text style={styles.emptyText}>Henüz deney yok</Text>}
           </View>
 
           {/* Conversions */}
           <View style={styles.debugSection}>
-            <Text style={styles.debugSectionTitle}>
-              Dönüşümler ({conversions.length})
-            </Text>
+            <Text style={styles.debugSectionTitle}>Dönüşümler ({conversions.length})</Text>
 
-            {conversions.slice(-10).reverse().map((conversion, index) => (
-              <View key={index} style={styles.conversionItem}>
-                <Text style={styles.conversionEvent}>{conversion.eventName}</Text>
-                <Text style={styles.conversionDetails}>
-                  {conversion.experimentId} / {conversion.variantId}
-                </Text>
-                {conversion.value !== undefined && (
-                  <Text style={styles.conversionValue}>
-                    Değer: {conversion.value}
+            {conversions
+              .slice(-10)
+              .reverse()
+              .map((conversion, index) => (
+                <View key={index} style={styles.conversionItem}>
+                  <Text style={styles.conversionEvent}>{conversion.eventName}</Text>
+                  <Text style={styles.conversionDetails}>
+                    {conversion.experimentId} / {conversion.variantId}
                   </Text>
-                )}
-              </View>
-            ))}
+                  {conversion.value !== undefined && (
+                    <Text style={styles.conversionValue}>Değer: {conversion.value}</Text>
+                  )}
+                </View>
+              ))}
 
-            {conversions.length === 0 && (
-              <Text style={styles.emptyText}>Henüz dönüşüm yok</Text>
-            )}
+            {conversions.length === 0 && <Text style={styles.emptyText}>Henüz dönüşüm yok</Text>}
           </View>
         </ScrollView>
       </View>
@@ -309,7 +257,7 @@ interface DebugFABProps {
 export function ExperimentDebugFAB({ style }: DebugFABProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { isDebugMode } = useABTesting();
-  const { tapLight, tapMedium, tapHeavy, success, warning, error: hapticError } = useHaptics();
+  const { tapMedium, error: _hapticError } = useHaptics();
   const scale = useSharedValue(1);
 
   const handlePress = () => {
@@ -336,10 +284,7 @@ export function ExperimentDebugFAB({ style }: DebugFABProps) {
         </Pressable>
       </Animated.View>
 
-      <ExperimentDebugPanel
-        visible={isVisible}
-        onClose={() => setIsVisible(false)}
-      />
+      <ExperimentDebugPanel visible={isVisible} onClose={() => setIsVisible(false)} />
     </>
   );
 }

@@ -1,591 +1,486 @@
 # Renkioo Design System Guide
 
-Complete guide for using the Renkioo design system utilities.
+Ebeveynler icin profesyonel tasarim sistemi. Headspace/Calm estetiginde, sicak ve guven veren.
 
-## Table of Contents
+## Dosya Yapisi
 
-1. [Responsive Design](#responsive-design)
-2. [Style Utilities](#style-utilities)
-3. [Component Presets](#component-presets)
-4. [Best Practices](#best-practices)
+| Dosya                        | Icerik                                                             |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `constants/colors.ts`        | Renk paleti (Colors, DarkColors, ProfessionalColors, RenkooColors) |
+| `constants/design-system.ts` | Tum tasarim tokenlari (typography, spacing, shadows, vb.)          |
+| `lib/hooks/useResponsive.ts` | Responsive hook'lar                                                |
+
+---
+
+## Renkler (`constants/colors.ts`)
+
+### Temel Renk Kullanimi
+
+```tsx
+import { Colors } from '@/constants/colors';
+
+// Ana marka renkleri
+Colors.primary.sunset; // #FF9B7A - Ana buton ve vurgular
+Colors.primary.peach; // #FFB299 - Hover ve acik tonlar
+Colors.primary.soft; // #FFF5F2 - Yumusak arka plan
+
+// Ikincil renkler
+Colors.secondary.lavender; // #A78BFA - Premium, yaraticilik
+Colors.secondary.sky; // #78C8E8 - Bilgi, sakinlik
+Colors.secondary.grass; // #7ED99C - Basari, buyume
+Colors.secondary.sunshine; // #FFD56B - Dikkat, enerji
+Colors.secondary.rose; // #FFB5D8 - Masal, hikaye
+Colors.secondary.mint; // #6FEDD6 - Boyama, yaraticilik
+
+// Notr tonlar
+Colors.neutral.darkest; // #2D3748 - Ana metin
+Colors.neutral.dark; // #4A5568 - Ikincil metin
+Colors.neutral.medium; // #718096 - Yardimci metin
+Colors.neutral.lighter; // #E2E8F0 - Kenarliklar
+Colors.neutral.white; // #FFFFFF
+
+// Semantik renkler
+Colors.semantic.success; // #68D89B
+Colors.semantic.warning; // #FFB55F
+Colors.semantic.error; // #FF8A80
+Colors.semantic.info; // #78C8E8
+
+// Arka plan
+Colors.background.page; // #FAFBFC - Tum sayfalarda tek arka plan
+Colors.background.card; // #FFFFFF - Kart arka plani
+```
+
+### Gradient Kullanimi
+
+```tsx
+import { Colors } from '@/constants/colors';
+import { LinearGradient } from 'expo-linear-gradient';
+
+// Sayfa arka plan gradient'i
+<LinearGradient colors={Colors.background.pageGradient} />
+
+// Kart gradient'leri
+<LinearGradient colors={Colors.cards.story.bg} />
+<LinearGradient colors={Colors.cards.analysis.bg} />
+
+// Tema gradient'leri
+<LinearGradient colors={Colors.gradients.sunset} />
+<LinearGradient colors={Colors.gradients.calm} />
+```
+
+### Opaklık Yardımcısı
+
+```tsx
+import { withOpacity } from '@/constants/colors';
+
+const semiTransparent = withOpacity(Colors.primary.sunset, 0.5);
+// → 'rgba(255, 155, 122, 0.5)'
+```
+
+---
+
+## Typography (`constants/design-system.ts`)
+
+```tsx
+import { typography } from '@/constants/design-system';
+
+// Boyut tokenlari (hardcoded px KULLANMAYIN!)
+typography.size.xs; // 11px - Caption, timestamp
+typography.size.sm; // 13px - Label, helper text
+typography.size.base; // 15px - Body text
+typography.size.md; // 17px - Lead text
+typography.size.lg; // 20px - Card title
+typography.size.xl; // 24px - Section header
+typography.size['2xl']; // 28px - Page subtitle
+typography.size['3xl']; // 32px - Page title
+typography.size['4xl']; // 40px - Hero
+
+// Agirlik tokenlari (string KULLANMAYIN!)
+typography.weight.regular; // '400'
+typography.weight.medium; // '500'
+typography.weight.semibold; // '600'
+typography.weight.bold; // '700'
+typography.weight.extrabold; // '800'
+
+// Satir yuksekligi
+typography.lineHeight.tight; // 1.2 - Basliklar
+typography.lineHeight.normal; // 1.5 - Body text
+typography.lineHeightPx.lg; // 30px - lg boyut icin
+```
+
+---
+
+## Spacing & Radius
+
+```tsx
+import { spacing, radius } from '@/constants/design-system';
+
+// Spacing (8pt grid)
+spacing.xs; // 4px
+spacing.sm; // 8px
+spacing.md; // 16px
+spacing.lg; // 24px
+spacing.xl; // 32px
+spacing.xxl; // 48px
+
+// Numerik spacing
+spacing['1']; // 4px
+spacing['2']; // 8px
+spacing['4']; // 16px
+spacing['8']; // 32px
+
+// Border radius
+radius.xs; // 4px
+radius.sm; // 8px
+radius.md; // 12px
+radius.lg; // 16px
+radius.xl; // 20px
+radius['2xl']; // 24px
+radius.full; // 9999px (tam yuvarlak)
+```
+
+---
+
+## Shadows
+
+```tsx
+import { shadows } from '@/constants/design-system';
+
+// Hazir shadow presetleri (web + native otomatik)
+shadows.none; // Golgesiz
+shadows.xs; // Cok hafif
+shadows.sm; // Hafif
+shadows.md; // Orta
+shadows.lg; // Belirgin
+shadows.xl; // Guclu
+
+// Renkli shadow
+shadows.colored(Colors.primary.sunset);
+
+// Ozel shadow
+import { createShadow } from '@/constants/design-system';
+createShadow(offsetY, blur, opacity, elevation, color);
+```
+
+---
+
+## Surface Effects
+
+### Glassmorphism
+
+```tsx
+import { glassmorphism } from '@/constants/design-system';
+
+<View style={glassmorphism.light}>  // Acik cam efekti
+<View style={glassmorphism.medium}> // Orta cam efekti
+<View style={glassmorphism.dark}>   // Koyu cam efekti
+```
+
+### Claymorphism (YENi)
+
+Yumusak, 3D kil efekti - pillowy gorunum.
+
+```tsx
+import { claymorphism } from '@/constants/design-system';
+
+// Temel kart
+<View style={claymorphism.card}>
+  <Text>Soft clay card</Text>
+</View>
+
+// Basilmis durum
+<Pressable style={({ pressed }) => [
+  pressed ? claymorphism.cardPressed : claymorphism.card
+]}>
+
+// Renk varyantlari
+<View style={claymorphism.warm}>  // Seftali/sunset tonu
+<View style={claymorphism.cool}>  // Mavi/mint tonu
+
+// Buton stili (daha kucuk radius)
+<Pressable style={claymorphism.button}>
+```
+
+### Neumorphism
+
+```tsx
+import { neumorphism } from '@/constants/design-system';
+
+<View style={neumorphism.raised}>  // Kabartma efekti
+<View style={neumorphism.pressed}> // Basilmis efekti
+```
+
+---
+
+## Icon System
+
+```tsx
+import { iconSizes, iconStroke, iconColors } from '@/constants/design-system';
+
+// Boyutlar (kontekse gore)
+<Heart size={iconSizes.badge} />       // 14px - Kucuk badge
+<Heart size={iconSizes.action} />      // 20px - Standart aksiyon
+<Heart size={iconSizes.navigation} />  // 24px - Navigasyon
+<Heart size={iconSizes.feature} />     // 32px - Feature kart
+<Heart size={iconSizes.empty} />       // 64px - Empty state
+
+// Ozel kontekst boyutlari
+iconSizes.tabBar    // 24px
+iconSizes.fab       // 24px
+iconSizes.listItem  // 20px
+iconSizes.input     // 20px
+
+// Cizgi kalinligi
+<Heart strokeWidth={iconStroke.thin} />      // 1.5px - Profesyonel mod
+<Heart strokeWidth={iconStroke.standard} />  // 2px - Normal (varsayilan)
+<Heart strokeWidth={iconStroke.bold} />      // 2.5px - Vurgulu
+
+// Renkler
+<Heart color={iconColors.primary} />   // sunset
+<Heart color={iconColors.success} />   // yesil
+<Heart color={iconColors.muted} />     // soluk
+<Heart color={iconColors.inverted} />  // beyaz (koyu arka plan icin)
+
+// Ozellik-bazli renkler
+iconColors.stories   // lavender
+iconColors.coloring  // peach
+iconColors.analysis  // sky
+
+// Rol bazli ayarlama
+import { getRoleStrokeWidth, getRoleIconSize } from '@/constants/design-system';
+
+const strokeWidth = getRoleStrokeWidth(isProfessional); // thin veya standard
+const size = getRoleIconSize(iconSizes.action, isProfessional); // %90 kucultur
+```
+
+---
+
+## Button System
+
+```tsx
+import { buttonVariants, buttonSizes, buttonStyles } from '@/constants/design-system';
+
+// Varyantlar (renk)
+buttonVariants.primary   // sunset bg, beyaz text
+buttonVariants.secondary // sky bg, beyaz text
+buttonVariants.outline   // transparent bg, border
+buttonVariants.ghost     // transparent bg, sunset text
+buttonVariants.danger    // error bg, beyaz text
+buttonVariants.success   // grass bg, beyaz text
+
+// Boyutlar
+buttonSizes.xs  // 28px - icon-only
+buttonSizes.sm  // 36px - kompakt
+buttonSizes.md  // 44px - varsayilan (Apple HIG touch target)
+buttonSizes.lg  // 52px - belirgin CTA
+buttonSizes.xl  // 60px - hero CTA
+
+// Her boyut sunlari iceriyor:
+// height, paddingHorizontal, paddingVertical,
+// fontSize, fontWeight, iconSize, borderRadius
+
+// Ornek kullanim
+<Pressable style={[
+  buttonStyles.base,
+  {
+    backgroundColor: buttonVariants.primary.backgroundColor,
+    height: buttonSizes.md.height,
+    borderRadius: buttonSizes.md.borderRadius,
+    paddingHorizontal: buttonSizes.md.paddingHorizontal,
+  },
+  buttonStyles.elevated,
+]}>
+  <Text style={{
+    color: buttonVariants.primary.color,
+    fontSize: buttonSizes.md.fontSize,
+    fontWeight: buttonSizes.md.fontWeight,
+  }}>
+    Kaydet
+  </Text>
+</Pressable>
+
+// Icon buton
+<Pressable style={buttonStyles.iconButton.md}>
+  <Icon size={buttonSizes.md.iconSize} />
+</Pressable>
+
+// Yuvarlak buton
+<Pressable style={buttonStyles.circularButton.lg}>
+  <Icon size={buttonSizes.lg.iconSize} />
+</Pressable>
+```
+
+---
+
+## Card Variants
+
+```tsx
+import { cardVariants } from '@/constants/design-system';
+
+<View style={cardVariants.hero}>     // Buyuk, belirgin kart
+<View style={cardVariants.feature}>  // Orta ozellik karti
+<View style={cardVariants.small}>    // Kucuk kart
+<View style={cardVariants.flat}>     // Golgesiz, borderli kart
+```
+
+---
+
+## Z-Index Katmanlari
+
+```tsx
+import { zIndex } from '@/constants/design-system';
+
+// Katman sirasi (alttan uste):
+zIndex.base; // 0   - Normal elemanlar
+zIndex.raised; // 10  - Kabartmali kartlar
+zIndex.dropdown; // 20  - Dropdown menuler
+zIndex.sticky; // 30  - Sticky header'lar
+zIndex.overlay; // 40  - Arka plan overlay'leri
+zIndex.modal; // 50  - Modal dialog'lar
+zIndex.popover; // 60  - Popover'lar
+zIndex.toast; // 70  - Toast bildirimleri
+zIndex.tooltip; // 80  - Tooltip'ler
+zIndex.floating; // 100 - FAB butonlari
+```
+
+---
+
+## Animasyon
+
+```tsx
+import { animation } from '@/constants/design-system';
+
+// Sureler
+Animated.timing(anim, {
+  duration: animation.duration.fast, // 200ms
+  duration: animation.duration.normal, // 300ms
+  duration: animation.duration.slow, // 400ms
+});
+
+// Spring konfigurasyonlari
+Animated.spring(anim, {
+  ...animation.spring.gentle, // { tension: 120, friction: 14 }
+  ...animation.spring.bouncy, // { tension: 180, friction: 12 }
+  ...animation.spring.snappy, // { tension: 300, friction: 20 }
+});
+```
 
 ---
 
 ## Responsive Design
 
-### Using the `useResponsive` Hook
-
-The easiest way to handle responsive design:
-
 ```tsx
-import { useResponsive } from "@/lib/hooks/useResponsive";
+import { useResponsive } from '@/lib/hooks/useResponsive';
 
 function MyComponent() {
   const { isSmallScreen, screenPadding, getFontSize } = useResponsive();
 
   return (
     <View style={{ paddingHorizontal: screenPadding }}>
-      <Text style={{ fontSize: getFontSize("sm", "base") }}>
-        Responsive Text
-      </Text>
+      <Text style={{ fontSize: getFontSize('sm', 'base') }}>Responsive Text</Text>
     </View>
   );
 }
 ```
 
-### Available Hook Values
+### Responsive Layout
 
 ```tsx
+import { useResponsiveLayout } from '@/lib/hooks/useResponsive';
+
 const {
-  // Screen dimensions
-  width,
-  height,
-
-  // Breakpoint checks
-  isXs,          // < 380px
-  isSm,          // 380px - 768px
-  isMd,          // 768px - 1024px
-  isLg,          // 1024px - 1280px
-  isXl,          // >= 1280px
-
-  // Helper checks
-  isSmallScreen,   // < 380px
-  isMediumScreen,  // >= 768px
-  isLargeScreen,   // >= 1024px
-
-  // Responsive padding
-  screenPadding,   // 16px on small, 20px on large
-
-  // Helper functions
-  getValue,        // Get value based on breakpoint
-  getSpacing,      // Get responsive spacing
-  getFontSize,     // Get responsive font size
-  getIconSize,     // Get responsive icon size
-} = useResponsive();
-```
-
-### Responsive Layout Hook
-
-```tsx
-import { useResponsiveLayout } from "@/lib/hooks/useResponsive";
-
-function MyComponent() {
-  const {
-    gridColumns,      // 2 on small, 3 on medium, 4 on large
-    cardPadding,      // Responsive card padding
-    iconMedium,       // Responsive icon size
-    avatarLarge,      // Responsive avatar size
-    buttonMedium,     // Responsive button height
-  } = useResponsiveLayout();
-}
-```
-
-### Responsive Typography Hook
-
-```tsx
-import { useResponsiveTypography } from "@/lib/hooks/useResponsive";
-
-function MyComponent() {
-  const {
-    h1,          // Responsive h1 size
-    h2,          // Responsive h2 size
-    body,        // Responsive body size
-    button,      // Responsive button text size
-  } = useResponsiveTypography();
-
-  return <Text style={{ fontSize: h1 }}>Title</Text>;
-}
-```
-
-### Manual Responsive Values
-
-```tsx
-import { useWindowDimensions } from "react-native";
-import {
-  isSmallScreen,
-  getResponsiveValue,
-} from "@/constants/design-utilities";
-
-function MyComponent() {
-  const { width } = useWindowDimensions();
-  const small = isSmallScreen(width);
-
-  // Get different values per breakpoint
-  const padding = getResponsiveValue(width, {
-    xs: 12,
-    sm: 16,
-    md: 20,
-    lg: 24,
-    default: 20,
-  });
-}
+  gridColumns, // 2 kucuk, 3 orta, 4 buyuk ekran
+  cardPadding, // Responsive kart padding
+  iconMedium, // Responsive icon boyutu
+} = useResponsiveLayout();
 ```
 
 ---
 
-## Style Utilities
-
-### Flex Utilities
+## Interaction States
 
 ```tsx
-import { flex } from "@/constants/design-utilities";
+import { interaction } from '@/constants/design-system';
 
-// Center content
-<View style={flex.center}>...</View>
+<Pressable style={({ pressed }) => [
+  pressed && {
+    transform: [{ scale: interaction.press.scale }],    // 0.96
+    opacity: interaction.press.opacity,                  // 0.8
+  },
+]}>
 
-// Row layout
-<View style={flex.row}>...</View>
-
-// Row with center alignment
-<View style={flex.rowCenter}>...</View>
-
-// Row with space-between
-<View style={flex.rowBetween}>...</View>
-
-// Column with center alignment
-<View style={flex.columnCenter}>...</View>
-
-// Flex wrap
-<View style={[flex.row, flex.wrap]}>...</View>
+// Disabled durum
+<View style={{ opacity: interaction.disabled.opacity }}> // 0.4
 ```
 
-### Creating Common Styles
+---
+
+## Badges & Chips
 
 ```tsx
-import {
-  createCard,
-  createBadge,
-  createIconContainer,
-  createGlassmorphism,
-} from "@/constants/design-utilities";
+import { badgeStyles, chipStyles } from '@/constants/design-system';
 
-// Card with shadow
-const cardStyle = createCard("lg", "6", "2xl");
-
-// Badge with custom colors
-const { container, text } = createBadge("#FF6B6B", "#FFFFFF");
-
-// Circular icon container
-const iconStyle = createIconContainer(48, "#FF6B6B");
-
-// Glass effect
-const glassStyle = createGlassmorphism(0.7, 0.3, false);
-```
-
-### Text Style Presets
-
-```tsx
-import { textStyles } from "@/constants/design-utilities";
-
-<Text style={textStyles.h1}>Heading 1</Text>
-<Text style={textStyles.h2}>Heading 2</Text>
-<Text style={textStyles.body}>Body text</Text>
-<Text style={textStyles.caption}>Caption text</Text>
-<Text style={textStyles.label}>Label text</Text>
-<Text style={textStyles.button}>Button text</Text>
-```
-
-### Position Utilities
-
-```tsx
-import { position } from "@/constants/design-utilities";
-
-// Absolute positioning
-<View style={position.absolute}>...</View>
-
-// Fill entire parent
-<View style={position.absoluteFill}>...</View>
-
-// Top of parent
-<View style={position.absoluteTop}>...</View>
-
-// Bottom of parent
-<View style={position.absoluteBottom}>...</View>
-
-// Center of parent
-<View style={position.absoluteCenter}>...</View>
-```
-
-### Border Utilities
-
-```tsx
-import {
-  createBorder,
-  bottomBorder,
-  topBorder,
-} from "@/constants/design-utilities";
-
-// Full border
-const style1 = createBorder(1, Colors.neutral.lighter, "lg");
-
-// Bottom border only
-const style2 = bottomBorder(1, Colors.neutral.lighter);
-
-// Top border only
-const style3 = topBorder(1, Colors.neutral.lighter);
-```
-
-### Grid Utilities
-
-```tsx
-import {
-  createGridContainer,
-  createGridItem,
-} from "@/constants/design-utilities";
-
-<View style={createGridContainer("3")}>
-  <View style={createGridItem(2, "3")}>...</View>
-  <View style={createGridItem(2, "3")}>...</View>
+// Badge
+<View style={badgeStyles.primary}>
+  <Text style={{ color: Colors.neutral.white }}>Yeni</Text>
 </View>
-```
 
----
-
-## Component Presets
-
-### Button Presets
-
-```tsx
-import { buttonPresets } from "@/constants/component-presets";
-
-// Primary button with gradient
-<Pressable style={buttonPresets.primary.container}>
-  <LinearGradient
-    colors={[...]}
-    style={buttonPresets.primary.gradient}
-  >
-    <Icon />
-    <Text style={buttonPresets.primary.text}>Primary</Text>
-  </LinearGradient>
-</Pressable>
-
-// Secondary outline button
-<Pressable style={buttonPresets.secondary.container}>
-  <View style={buttonPresets.secondary.inner}>
-    <Text style={buttonPresets.secondary.text}>Secondary</Text>
-  </View>
-</Pressable>
-
-// Icon button
-<Pressable style={buttonPresets.icon.container}>
-  <Icon size={24} />
+// Chip (secim butonu)
+<Pressable style={isSelected ? chipStyles.selected : chipStyles.default}>
+  <Text>Filtre</Text>
 </Pressable>
 ```
 
-### Card Presets
+---
+
+## En Iyi Uygulamalar
+
+### KULLANIN
 
 ```tsx
-import { cardPresets } from "@/constants/component-presets";
+// Tasarim tokenlari
+fontSize: typography.size.base
+fontWeight: typography.weight.semibold
+padding: spacing.md
+borderRadius: radius.lg
+...shadows.md
 
-// Standard card
-<View style={cardPresets.standard}>...</View>
+// Renk tokenlari
+color: Colors.neutral.darkest
+backgroundColor: Colors.background.card
+borderColor: Colors.neutral.lighter
 
-// Glass card
-<View style={cardPresets.glass}>...</View>
-
-// Elevated card
-<View style={cardPresets.elevated}>...</View>
-
-// Flat card
-<View style={cardPresets.flat}>...</View>
+// Icon tokenlari
+size={iconSizes.action}
+strokeWidth={iconStroke.standard}
+color={iconColors.primary}
 ```
 
-### Header Presets
+### KULLANMAYIN
 
 ```tsx
-import { headerPresets } from "@/constants/component-presets";
-
-// Screen header (centered)
-<View style={headerPresets.screen.container}>
-  <LinearGradient style={headerPresets.screen.iconContainer}>
-    <Icon size={32} />
-  </LinearGradient>
-  <Text style={headerPresets.screen.title}>Title</Text>
-  <Text style={headerPresets.screen.subtitle}>Subtitle</Text>
-</View>
-
-// Inline header (with back button)
-<View style={headerPresets.inline.container}>
-  <Pressable style={headerPresets.inline.backButton}>
-    <ArrowLeft />
-  </Pressable>
-  <View style={headerPresets.inline.iconContainer}>
-    <Icon />
-  </View>
-  <View style={headerPresets.inline.textContainer}>
-    <Text style={headerPresets.inline.title}>Title</Text>
-    <Text style={headerPresets.inline.subtitle}>Subtitle</Text>
-  </View>
-</View>
-```
-
-### List Item Presets
-
-```tsx
-import { listItemPresets } from "@/constants/component-presets";
-
-// Standard list item
-<Pressable style={listItemPresets.standard.container}>
-  <View style={listItemPresets.standard.iconContainer}>
-    <Icon />
-  </View>
-  <View style={listItemPresets.standard.content}>
-    <Text style={listItemPresets.standard.title}>Title</Text>
-    <Text style={listItemPresets.standard.subtitle}>Subtitle</Text>
-  </View>
-  <ChevronRight style={listItemPresets.standard.chevron} />
-</Pressable>
-```
-
-### Modal Presets
-
-```tsx
-import { modalPresets } from "@/constants/component-presets";
-
-// Bottom sheet modal
-<Modal visible={show} animationType="slide" transparent>
-  <View style={modalPresets.bottomSheet.overlay}>
-    <View style={modalPresets.bottomSheet.content}>
-      <View style={modalPresets.bottomSheet.handle} />
-      <View style={modalPresets.bottomSheet.header}>
-        <Text style={modalPresets.bottomSheet.title}>Title</Text>
-        <CloseButton />
-      </View>
-      {/* Content */}
-    </View>
-  </View>
-</Modal>
-```
-
-### Badge Presets
-
-```tsx
-import { badgePresets } from "@/constants/component-presets";
-
-// Solid badge
-const solid = badgePresets.solid(Colors.primary.sunset);
-<View style={solid.container}>
-  <Text style={solid.text}>New</Text>
-</View>
-
-// Outlined badge
-const outlined = badgePresets.outlined(Colors.secondary.grass);
-<View style={outlined.container}>
-  <Text style={outlined.text}>Active</Text>
-</View>
-
-// Soft badge
-const soft = badgePresets.soft(
-  Colors.secondary.lavender,
-  Colors.secondary.lavenderLight
-);
-<View style={soft.container}>
-  <Text style={soft.text}>Featured</Text>
-</View>
-```
-
-### Empty State Presets
-
-```tsx
-import { emptyStatePresets } from "@/constants/component-presets";
-
-<View style={emptyStatePresets.default.container}>
-  <View style={emptyStatePresets.default.iconContainer}>
-    <Icon size={64} color={Colors.neutral.light} />
-  </View>
-  <Text style={emptyStatePresets.default.title}>No Items</Text>
-  <Text style={emptyStatePresets.default.description}>
-    Description here
-  </Text>
-</View>
+// Hardcoded degerler
+fontSize: 16; // → typography.size.md
+fontWeight: '600'; // → typography.weight.semibold
+padding: 20; // → spacing['5']
+borderRadius: 12; // → radius.md
+color: '#2D3748'; // → Colors.neutral.darkest
+color: '#FF9B7A'; // → Colors.primary.sunset
 ```
 
 ---
 
-## Best Practices
+## Platform Notlari
 
-### 1. Always Use Responsive Hooks
-
-```tsx
-// ✅ Good
-const { isSmallScreen, screenPadding } = useResponsive();
-
-// ❌ Bad - hardcoded values
-const padding = 20;
-```
-
-### 2. Use Component Presets for Consistency
-
-```tsx
-// ✅ Good
-<View style={cardPresets.standard}>...</View>
-
-// ❌ Bad - custom styles everywhere
-<View style={{ backgroundColor: "white", padding: 20, ... }}>...</View>
-```
-
-### 3. Leverage Text Style Presets
-
-```tsx
-// ✅ Good
-<Text style={textStyles.h2}>Title</Text>
-
-// ❌ Bad
-<Text style={{ fontSize: 28, fontWeight: "800", ... }}>Title</Text>
-```
-
-### 4. Use Flex Utilities
-
-```tsx
-// ✅ Good
-<View style={flex.rowBetween}>...</View>
-
-// ❌ Bad
-<View style={{
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center"
-}}>...</View>
-```
-
-### 5. Compose Styles When Needed
-
-```tsx
-import { composeStyles, conditionalStyle } from "@/constants/design-utilities";
-
-const style = composeStyles(
-  baseStyle,
-  isActive && activeStyle,
-  conditionalStyle(isPressed, pressedStyle)
-);
-```
-
-### 6. Use Design System Tokens
-
-```tsx
-import { spacing, radius, shadows } from "@/constants/design-system";
-
-// ✅ Good
-const style = {
-  padding: spacing["4"],
-  borderRadius: radius.lg,
-  ...shadows.md,
-};
-
-// ❌ Bad
-const style = {
-  padding: 16,
-  borderRadius: 16,
-  shadowOffset: { width: 0, height: 4 },
-  ...
-};
-```
+- **Shadows**: `shadows.*` otomatik olarak web'de `boxShadow`, native'de `shadow*` kullanir
+- **Haptics**: `Platform.OS !== 'web'` kontrolu gerekli
+- **useNativeDriver**: Web'de `false` olmali
+- **Dark Mode**: `DarkColors` ile uyumluluk kontrol edilmeli
 
 ---
 
-## Examples
+## Kaynaklar
 
-### Complete Responsive Component
-
-```tsx
-import { View, Text, Pressable } from "react-native";
-import { useResponsive } from "@/lib/hooks/useResponsive";
-import { cardPresets, buttonPresets } from "@/constants/component-presets";
-import { textStyles, flex } from "@/constants/design-utilities";
-
-function FeatureCard() {
-  const { isSmallScreen, screenPadding, getFontSize } = useResponsive();
-
-  return (
-    <View
-      style={[
-        cardPresets.standard,
-        { marginHorizontal: screenPadding },
-        isSmallScreen && { padding: spacing["4"] },
-      ]}
-    >
-      <Text
-        style={[
-          textStyles.h3,
-          { fontSize: getFontSize("xl", "2xl") },
-        ]}
-      >
-        Feature Title
-      </Text>
-
-      <View style={[flex.rowBetween, { marginTop: spacing["4"] }]}>
-        <Pressable style={buttonPresets.primary.container}>
-          <LinearGradient
-            colors={[Colors.primary.sunset, Colors.primary.coral]}
-            style={buttonPresets.primary.gradient}
-          >
-            <Text style={buttonPresets.primary.text}>Action</Text>
-          </LinearGradient>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-```
-
----
-
-## Migration Guide
-
-### From Inline Styles to Design System
-
-**Before:**
-```tsx
-<View
-  style={{
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-  }}
->
-  <Text style={{ fontSize: 28, fontWeight: "800" }}>Title</Text>
-</View>
-```
-
-**After:**
-```tsx
-import { cardPresets } from "@/constants/component-presets";
-import { textStyles } from "@/constants/design-utilities";
-
-<View style={cardPresets.standard}>
-  <Text style={textStyles.h2}>Title</Text>
-</View>
-```
-
-### From Manual Responsive to Hooks
-
-**Before:**
-```tsx
-const { width } = useWindowDimensions();
-const isSmall = width < 380;
-const padding = isSmall ? 16 : 20;
-```
-
-**After:**
-```tsx
-const { isSmallScreen, screenPadding } = useResponsive();
-```
-
----
-
-## Resources
-
-- **Design System Tokens**: `/constants/design-system.ts`
-- **Design Utilities**: `/constants/design-utilities.ts`
-- **Component Presets**: `/constants/component-presets.ts`
-- **Responsive Hooks**: `/lib/hooks/useResponsive.ts`
-- **Colors**: `/constants/colors.ts`
-
----
-
-**Questions or Suggestions?**
-Contact the design system maintainers or create an issue.
+- **Renk Paleti**: `constants/colors.ts`
+- **Tasarim Tokenlari**: `constants/design-system.ts`
+- **Responsive Hook'lar**: `lib/hooks/useResponsive.ts`

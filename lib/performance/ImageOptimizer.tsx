@@ -19,12 +19,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  FadeIn,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 
 interface OptimizedImageProps extends Omit<ImageProps, 'source'> {
@@ -80,7 +75,7 @@ export const OptimizedImage = memo(function OptimizedImage({
 
   useEffect(() => {
     mountedRef.current = true;
-    
+
     // Lazy load based on priority
     if (priority !== 'high' && !isCached) {
       const delay = priority === 'low' ? 500 : 100;
@@ -118,6 +113,7 @@ export const OptimizedImage = memo(function OptimizedImage({
       }
       onLoadEnd?.();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fadeIn, fadeDuration, onLoadEnd, getCacheKey]);
 
   const handleError = useCallback(() => {
@@ -139,9 +135,7 @@ export const OptimizedImage = memo(function OptimizedImage({
   if (!isVisible) {
     return (
       <View style={[styles.container, style]}>
-        {showLoader && (
-          <ActivityIndicator size="small" color={loaderColor} />
-        )}
+        {showLoader && <ActivityIndicator size="small" color={loaderColor} />}
       </View>
     );
   }
@@ -186,7 +180,7 @@ export function useImagePreloader() {
       return true;
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       Image.prefetch(uri)
         .then(() => {
           imageCache.set(uri, true);
@@ -198,9 +192,12 @@ export function useImagePreloader() {
     });
   }, []);
 
-  const preloadImages = useCallback(async (uris: string[]): Promise<boolean[]> => {
-    return Promise.all(uris.map(preloadImage));
-  }, [preloadImage]);
+  const preloadImages = useCallback(
+    async (uris: string[]): Promise<boolean[]> => {
+      return Promise.all(uris.map(preloadImage));
+    },
+    [preloadImage]
+  );
 
   const isImageCached = useCallback((uri: string): boolean => {
     return imageCache.has(uri);
@@ -228,7 +225,7 @@ export function useImagePreloader() {
  */
 export async function preloadCriticalImages(uris: string[]): Promise<void> {
   await Promise.all(
-    uris.map((uri) =>
+    uris.map(uri =>
       Image.prefetch(uri).catch(() => {
         console.warn(`Failed to preload image: ${uri}`);
       })

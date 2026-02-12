@@ -8,7 +8,7 @@
  * - Platform uyumluluğu (web sessiz)
  */
 
-import { useAudioPlayer, AudioSource } from 'expo-audio';
+import { AudioSource } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { SOUNDS, SoundName, SoundCategory } from './sounds';
@@ -137,13 +137,17 @@ class SoundManagerClass {
       // in a class-based manager, we use a simple approach
       // Note: Sound files are placeholder URIs - actual implementation
       // would use local require() statements
-      const soundAsset = this.getSoundAsset(soundName);
+      const _soundAsset = this.getSoundAsset(soundName);
 
       // For expo-audio, we'd typically use the useAudioPlayer hook in components
       // For now, log that sound would play (actual files not implemented)
-      console.debug(`[SoundManager] Would play sound: ${soundName} at volume ${soundDef.volume * this.settings.volume}`);
+      // eslint-disable-next-line no-console
+      console.debug(
+        `[SoundManager] Would play sound: ${soundName} at volume ${soundDef.volume * this.settings.volume}`
+      );
     } catch (error) {
       // Silently fail - sounds are optional
+      // eslint-disable-next-line no-console
       console.debug(`[SoundManager] Failed to play sound: ${soundName}`, error);
     }
   }

@@ -10,19 +10,9 @@
  * - Lazy loading components
  */
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useMemo,
-  Suspense,
-  lazy,
-  memo,
-} from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
 import {
   View,
-  Image,
   StyleSheet,
   Dimensions,
   FlatList,
@@ -31,12 +21,7 @@ import {
   ImageSourcePropType,
   ActivityIndicator,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  FadeIn,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -63,6 +48,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 /**
  * Debounced callback hook
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
@@ -95,12 +81,15 @@ export function useThrottle<T>(value: T, limit: number): T {
   const lastRan = useRef(Date.now());
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (Date.now() - lastRan.current >= limit) {
-        setThrottledValue(value);
-        lastRan.current = Date.now();
-      }
-    }, limit - (Date.now() - lastRan.current));
+    const handler = setTimeout(
+      () => {
+        if (Date.now() - lastRan.current >= limit) {
+          setThrottledValue(value);
+          lastRan.current = Date.now();
+        }
+      },
+      limit - (Date.now() - lastRan.current)
+    );
 
     return () => {
       clearTimeout(handler);
@@ -113,6 +102,7 @@ export function useThrottle<T>(value: T, limit: number): T {
 /**
  * Throttled callback hook
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useThrottledCallback<T extends (...args: any[]) => any>(
   callback: T,
   limit: number
@@ -136,10 +126,13 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
         }
-        timeoutRef.current = setTimeout(() => {
-          lastRan.current = Date.now();
-          callbackRef.current(...args);
-        }, limit - (now - lastRan.current));
+        timeoutRef.current = setTimeout(
+          () => {
+            lastRan.current = Date.now();
+            callbackRef.current(...args);
+          },
+          limit - (now - lastRan.current)
+        );
       }
     }) as T,
     [limit]
@@ -210,11 +203,7 @@ export const OptimizedImage = memo(function OptimizedImage({
       ) : (
         <Animated.Image
           source={source}
-          style={[
-            styles.image,
-            { width, height: calculatedHeight },
-            animatedStyle,
-          ]}
+          style={[styles.image, { width, height: calculatedHeight }, animatedStyle]}
           resizeMode={resizeMode}
           onLoad={handleLoad}
           onError={handleError}
@@ -259,7 +248,7 @@ export function VirtualizedList<T>({
   style,
 }: VirtualizedListProps<T>) {
   const getItemLayout = useCallback(
-    (_: any, index: number) => ({
+    (_: T[] | null | undefined, index: number) => ({
       length: itemHeight,
       offset: itemHeight * index,
       index,
@@ -301,11 +290,7 @@ interface LazyComponentProps {
 /**
  * Lazy load component with delay
  */
-export function LazyComponent({
-  children,
-  fallback,
-  delay = 0,
-}: LazyComponentProps) {
+export function LazyComponent({ children, fallback, delay = 0 }: LazyComponentProps) {
   const [shouldRender, setShouldRender] = useState(delay === 0);
 
   useEffect(() => {
@@ -333,11 +318,7 @@ interface OffscreenProps {
 /**
  * Offscreen component - keeps component mounted but hidden
  */
-export function Offscreen({
-  children,
-  visible,
-  keepMounted = true,
-}: OffscreenProps) {
+export function Offscreen({ children, visible, keepMounted = true }: OffscreenProps) {
   const [hasBeenVisible, setHasBeenVisible] = useState(visible);
 
   useEffect(() => {
@@ -354,9 +335,7 @@ export function Offscreen({
     return null;
   }
 
-  return (
-    <View style={visible ? undefined : styles.offscreen}>{children}</View>
-  );
+  return <View style={visible ? undefined : styles.offscreen}>{children}</View>;
 }
 
 /**
@@ -387,6 +366,7 @@ export function useMemoizedComputation<T, D extends readonly unknown[]>(
     }
 
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 
@@ -422,18 +402,20 @@ export function useIsMounted(): () => boolean {
 /**
  * Hook for stable callback reference
  */
-export function useStableCallback<T extends (...args: any[]) => any>(
-  callback: T
-): T {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useStableCallback<T extends (...args: any[]) => any>(callback: T): T {
   const callbackRef = useRef(callback);
 
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
 
-  return useCallback(((...args: Parameters<T>) => {
-    return callbackRef.current(...args);
-  }) as T, []);
+  return useCallback(
+    ((...args: Parameters<T>) => {
+      return callbackRef.current(...args);
+    }) as T,
+    []
+  );
 }
 
 /**
@@ -481,7 +463,7 @@ export function useBatchedUpdates() {
         pendingUpdates.current = [];
         isScheduled.current = false;
 
-        updates.forEach((u) => u());
+        updates.forEach(u => u());
       });
     }
   }, []);

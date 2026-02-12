@@ -6,7 +6,7 @@
  * component - now all consumers share the same state via React Context.
  */
 
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { trpcClient } from '@/lib/trpc';
@@ -117,12 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Refresh token when app comes back to foreground
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (
-        appStateRef.current.match(/inactive|background/) &&
-        nextAppState === 'active' &&
-        user
-      ) {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active' && user) {
         console.log('[Auth] App resumed, refreshing token...');
         tryRefreshToken();
       }
@@ -130,7 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   /**
@@ -359,7 +354,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.log('[Auth] Backend token revoked');
         }
       } catch (revokeError) {
-        console.warn('[Auth] Backend token revocation failed (continuing logout):', getErrorMessage(revokeError));
+        console.warn(
+          '[Auth] Backend token revocation failed (continuing logout):',
+          getErrorMessage(revokeError)
+        );
       }
 
       await supabaseSignOut();

@@ -9,7 +9,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { useColorScheme, Appearance, ColorSchemeName } from 'react-native';
+import { useColorScheme, Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, DarkColors, ThemeConfig } from '@/constants/colors';
 
@@ -82,7 +82,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Listen for system theme changes
   useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+    const subscription = Appearance.addChangeListener(({ colorScheme: _colorScheme }) => {
       // Force re-render when system theme changes
       if (mode === 'system') {
         // The resolvedTheme will automatically update via useMemo
@@ -108,27 +108,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await setMode(newMode);
   }, [resolvedTheme, setMode]);
 
-  const value = useMemo<ThemeContextType>(() => ({
-    mode,
-    theme: resolvedTheme,
-    setMode,
-    toggle,
-    isDark,
-    colors: colors as typeof Colors,
-    themeConfig,
-    transitionDuration: 300,
-  }), [mode, resolvedTheme, setMode, toggle, isDark, colors, themeConfig]);
+  const value = useMemo<ThemeContextType>(
+    () => ({
+      mode,
+      theme: resolvedTheme,
+      setMode,
+      toggle,
+      isDark,
+      colors: colors as typeof Colors,
+      themeConfig,
+      transitionDuration: 300,
+    }),
+    [mode, resolvedTheme, setMode, toggle, isDark, colors, themeConfig]
+  );
 
   // Don't render until theme is loaded to prevent flash
   if (!isLoaded) {
     return null;
   }
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextType {
@@ -140,10 +139,7 @@ export function useTheme(): ThemeContextType {
 }
 
 // Hook for getting themed styles
-export function useThemedStyles<T>(
-  lightStyles: T,
-  darkStyles: T
-): T {
+export function useThemedStyles<T>(lightStyles: T, darkStyles: T): T {
   const { isDark } = useTheme();
   return isDark ? darkStyles : lightStyles;
 }

@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { Colors } from '@/constants/colors';
 import { useExperimentDashboard } from './useExperiment';
-import { Experiment, Variant } from './ExperimentService';
+import { Experiment } from './ExperimentService';
 
 interface ExperimentDashboardProps {
   visible: boolean;
@@ -44,19 +44,25 @@ export const ExperimentDashboard = memo(function ExperimentDashboard({
   const [selectedExperiment, setSelectedExperiment] = useState<Experiment | null>(null);
   const [activeOverrides, setActiveOverrides] = useState<Map<string, string>>(new Map());
 
-  const handleVariantOverride = useCallback((experimentId: string, variantId: string) => {
-    setOverride(experimentId, variantId);
-    setActiveOverrides(prev => new Map(prev).set(experimentId, variantId));
-  }, [setOverride]);
+  const handleVariantOverride = useCallback(
+    (experimentId: string, variantId: string) => {
+      setOverride(experimentId, variantId);
+      setActiveOverrides(prev => new Map(prev).set(experimentId, variantId));
+    },
+    [setOverride]
+  );
 
-  const handleClearOverride = useCallback((experimentId: string) => {
-    clearOverride(experimentId);
-    setActiveOverrides(prev => {
-      const newMap = new Map(prev);
-      newMap.delete(experimentId);
-      return newMap;
-    });
-  }, [clearOverride]);
+  const handleClearOverride = useCallback(
+    (experimentId: string) => {
+      clearOverride(experimentId);
+      setActiveOverrides(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(experimentId);
+        return newMap;
+      });
+    },
+    [clearOverride]
+  );
 
   if (!__DEV__) return null;
 
@@ -117,7 +123,7 @@ export const ExperimentDashboard = memo(function ExperimentDashboard({
                     experiment={exp}
                     metrics={getMetrics(exp.id)}
                     override={activeOverrides.get(exp.id)}
-                    onVariantSelect={(variantId) => handleVariantOverride(exp.id, variantId)}
+                    onVariantSelect={variantId => handleVariantOverride(exp.id, variantId)}
                     onClearOverride={() => handleClearOverride(exp.id)}
                     onPress={() => setSelectedExperiment(exp)}
                   />
@@ -135,7 +141,7 @@ export const ExperimentDashboard = memo(function ExperimentDashboard({
                     experiment={exp}
                     metrics={getMetrics(exp.id)}
                     override={activeOverrides.get(exp.id)}
-                    onVariantSelect={(variantId) => handleVariantOverride(exp.id, variantId)}
+                    onVariantSelect={variantId => handleVariantOverride(exp.id, variantId)}
                     onClearOverride={() => handleClearOverride(exp.id)}
                     onPress={() => setSelectedExperiment(exp)}
                     inactive
@@ -211,18 +217,10 @@ const ExperimentCard = memo(function ExperimentCard({
         {experiment.variants.map(variant => (
           <TouchableOpacity
             key={variant.id}
-            style={[
-              styles.variantPill,
-              override === variant.id && styles.variantPillActive,
-            ]}
+            style={[styles.variantPill, override === variant.id && styles.variantPillActive]}
             onPress={() => onVariantSelect(variant.id)}
           >
-            <Text
-              style={[
-                styles.variantText,
-                override === variant.id && styles.variantTextActive,
-              ]}
-            >
+            <Text style={[styles.variantText, override === variant.id && styles.variantTextActive]}>
               {variant.name} ({variant.weight}%)
             </Text>
           </TouchableOpacity>
@@ -239,9 +237,7 @@ const ExperimentCard = memo(function ExperimentCard({
       {/* Metrics summary */}
       {metrics.totalEvents > 0 && (
         <View style={styles.metricsRow}>
-          <Text style={styles.metricsText}>
-            {metrics.totalEvents} events
-          </Text>
+          <Text style={styles.metricsText}>{metrics.totalEvents} events</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -260,17 +256,8 @@ const ExperimentDetail = memo(function ExperimentDetail({
   onClose,
 }: ExperimentDetailProps) {
   return (
-    <Modal
-      visible={true}
-      animationType="fade"
-      transparent
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        style={styles.detailOverlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
+    <Modal visible={true} animationType="fade" transparent onRequestClose={onClose}>
+      <TouchableOpacity style={styles.detailOverlay} activeOpacity={1} onPress={onClose}>
         <TouchableOpacity activeOpacity={1} style={styles.detailContainer}>
           <View style={styles.detailHeader}>
             <Text style={styles.detailTitle}>{experiment.name}</Text>
@@ -297,7 +284,9 @@ const ExperimentDetail = memo(function ExperimentDetail({
 
             <View style={styles.detailSection}>
               <Text style={styles.detailLabel}>Status</Text>
-              <Text style={[styles.detailValue, { color: experiment.isActive ? '#22C55E' : '#EF4444' }]}>
+              <Text
+                style={[styles.detailValue, { color: experiment.isActive ? '#22C55E' : '#EF4444' }]}
+              >
                 {experiment.isActive ? 'Active' : 'Inactive'}
               </Text>
             </View>

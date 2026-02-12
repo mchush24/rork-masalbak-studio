@@ -10,20 +10,8 @@
  * - Focus management
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
-import {
-  AccessibilityInfo,
-  Dimensions,
-  PixelRatio,
-  Platform,
-} from 'react-native';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { AccessibilityInfo, Platform, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
@@ -86,7 +74,7 @@ interface AccessibilityContextType {
 
   // Helpers
   announceForAccessibility: (message: string) => void;
-  setAccessibilityFocus: (ref: React.RefObject<any>) => void;
+  setAccessibilityFocus: (ref: React.RefObject<View>) => void;
 }
 
 /**
@@ -187,13 +175,14 @@ function transformColorForColorBlindness(hex: string, mode: ColorBlindMode): str
   const newB = Math.min(1, Math.max(0, matrix[2][0] * r + matrix[2][1] * g + matrix[2][2] * b));
 
   // Convert back to hex
-  const toHex = (v: number) => Math.round(v * 255).toString(16).padStart(2, '0');
+  const toHex = (v: number) =>
+    Math.round(v * 255)
+      .toString(16)
+      .padStart(2, '0');
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
 }
 
-const AccessibilityContext = createContext<AccessibilityContextType | undefined>(
-  undefined
-);
+const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
 
 interface AccessibilityProviderProps {
   children: React.ReactNode;
@@ -211,9 +200,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
   const systemReduceMotion = useReducedMotion();
 
   // User preferences
-  const [preferences, setPreferences] = useState<AccessibilityPreferences>(
-    defaultPreferences
-  );
+  const [preferences, setPreferences] = useState<AccessibilityPreferences>(defaultPreferences);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load preferences
@@ -258,9 +245,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
       );
 
       // Reduce transparency
-      AccessibilityInfo.isReduceTransparencyEnabled().then(
-        setIsReduceTransparencyEnabled
-      );
+      AccessibilityInfo.isReduceTransparencyEnabled().then(setIsReduceTransparencyEnabled);
       const transparencyListener = AccessibilityInfo.addEventListener(
         'reduceTransparencyChanged',
         setIsReduceTransparencyEnabled
@@ -288,23 +273,17 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
   }, []);
 
   // Save preferences
-  const savePreferences = useCallback(
-    async (newPrefs: AccessibilityPreferences) => {
-      try {
-        await AsyncStorage.setItem(ACCESSIBILITY_KEY, JSON.stringify(newPrefs));
-      } catch (error) {
-        console.error('Failed to save accessibility preferences:', error);
-      }
-    },
-    []
-  );
+  const savePreferences = useCallback(async (newPrefs: AccessibilityPreferences) => {
+    try {
+      await AsyncStorage.setItem(ACCESSIBILITY_KEY, JSON.stringify(newPrefs));
+    } catch (error) {
+      console.error('Failed to save accessibility preferences:', error);
+    }
+  }, []);
 
   const updatePreference = useCallback(
-    <K extends keyof AccessibilityPreferences>(
-      key: K,
-      value: AccessibilityPreferences[K]
-    ) => {
-      setPreferences((prev) => {
+    <K extends keyof AccessibilityPreferences>(key: K, value: AccessibilityPreferences[K]) => {
+      setPreferences(prev => {
         const newPrefs = { ...prev, [key]: value };
         savePreferences(newPrefs);
         return newPrefs;
@@ -369,7 +348,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     AccessibilityInfo.announceForAccessibility(message);
   }, []);
 
-  const setAccessibilityFocus = useCallback((ref: React.RefObject<any>) => {
+  const setAccessibilityFocus = useCallback((ref: React.RefObject<View>) => {
     if (ref.current) {
       AccessibilityInfo.setAccessibilityFocus(ref.current);
     }
@@ -425,11 +404,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     return null;
   }
 
-  return (
-    <AccessibilityContext.Provider value={value}>
-      {children}
-    </AccessibilityContext.Provider>
-  );
+  return <AccessibilityContext.Provider value={value}>{children}</AccessibilityContext.Provider>;
 }
 
 /**
@@ -438,9 +413,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
 export function useAccessibility(): AccessibilityContextType {
   const context = useContext(AccessibilityContext);
   if (!context) {
-    throw new Error(
-      'useAccessibility must be used within an AccessibilityProvider'
-    );
+    throw new Error('useAccessibility must be used within an AccessibilityProvider');
   }
   return context;
 }
@@ -514,5 +487,8 @@ export function useTransformedColor(hex: string): string {
  */
 export function useCognitiveAccessibility() {
   const { shouldUseSimplifiedLanguage, shouldReduceInformation } = useAccessibility();
-  return { simplifiedLanguage: shouldUseSimplifiedLanguage, reducedInformation: shouldReduceInformation };
+  return {
+    simplifiedLanguage: shouldUseSimplifiedLanguage,
+    reducedInformation: shouldReduceInformation,
+  };
 }

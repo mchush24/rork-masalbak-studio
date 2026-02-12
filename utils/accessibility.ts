@@ -33,10 +33,7 @@ export function useScreenReader(): boolean {
     AccessibilityInfo.isScreenReaderEnabled().then(setIsActive);
 
     // Listen for changes
-    const subscription = AccessibilityInfo.addEventListener(
-      'screenReaderChanged',
-      setIsActive
-    );
+    const subscription = AccessibilityInfo.addEventListener('screenReaderChanged', setIsActive);
 
     return () => {
       subscription.remove();
@@ -55,10 +52,7 @@ export function useReduceMotion(): boolean {
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
 
-    const subscription = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReduceMotion
-    );
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
 
     return () => {
       subscription.remove();
@@ -78,10 +72,7 @@ export function useBoldText(): boolean {
     if (Platform.OS === 'ios') {
       AccessibilityInfo.isBoldTextEnabled().then(setBoldText);
 
-      const subscription = AccessibilityInfo.addEventListener(
-        'boldTextChanged',
-        setBoldText
-      );
+      const subscription = AccessibilityInfo.addEventListener('boldTextChanged', setBoldText);
 
       return () => {
         subscription.remove();
@@ -122,7 +113,8 @@ export function announceForAccessibility(message: string): void {
 /**
  * Set focus on an element (for screen readers)
  */
-export function setAccessibilityFocus(ref: any): void {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function setAccessibilityFocus(ref: { current?: any }): void {
   if (ref?.current) {
     AccessibilityInfo.setAccessibilityFocus(ref.current);
   }
@@ -223,7 +215,7 @@ export function getContrastRatio(foreground: string, background: string): number
     const g = (rgb >> 8) & 0xff;
     const b = rgb & 0xff;
 
-    const [rs, gs, bs] = [r, g, b].map((c) => {
+    const [rs, gs, bs] = [r, g, b].map(c => {
       const s = c / 255;
       return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
     });

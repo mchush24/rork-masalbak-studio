@@ -9,7 +9,6 @@ export {
   useThemedStyles,
   useThemeColor,
   DarkColors,
-  ExtendedLightColors,
 } from './ThemeProvider';
 export type { ThemeColors } from './ThemeProvider';
 

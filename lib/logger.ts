@@ -49,8 +49,10 @@ export function createLogger(tag: string) {
     info(message: string, data?: unknown) {
       if (shouldLog()) {
         if (data !== undefined) {
+          // eslint-disable-next-line no-console
           console.info(formatMessage('info', tag, message), data);
         } else {
+          // eslint-disable-next-line no-console
           console.info(formatMessage('info', tag, message));
         }
       }

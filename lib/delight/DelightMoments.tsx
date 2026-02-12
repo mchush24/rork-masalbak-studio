@@ -6,14 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,7 +15,6 @@ import Animated, {
   withTiming,
   withDelay,
   Easing,
-  runOnJS,
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -202,6 +194,7 @@ const ConfettiParticle = memo(function ConfettiParticle({
     );
 
     opacity.value = withDelay(2500 + delay, withTiming(0, { duration: 500 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -256,14 +249,8 @@ export const MilestoneCelebration = memo(function MilestoneCelebration({
       setShowConfetti(true);
 
       // Badge entrance
-      badgeScale.value = withDelay(
-        300,
-        withSpring(1, { damping: 8, stiffness: 100 })
-      );
-      badgeRotation.value = withDelay(
-        300,
-        withSpring(0, { damping: 12 })
-      );
+      badgeScale.value = withDelay(300, withSpring(1, { damping: 8, stiffness: 100 }));
+      badgeRotation.value = withDelay(300, withSpring(0, { damping: 12 }));
 
       // Text fade in
       textOpacity.value = withDelay(800, withTiming(1, { duration: 400 }));
@@ -280,13 +267,11 @@ export const MilestoneCelebration = memo(function MilestoneCelebration({
       textOpacity.value = 0;
       buttonOpacity.value = 0;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [milestone]);
 
   const badgeStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: badgeScale.value },
-      { rotate: badgeRotation.value + 'deg' },
-    ],
+    transform: [{ scale: badgeScale.value }, { rotate: badgeRotation.value + 'deg' }],
   }));
 
   const textStyle = useAnimatedStyle(() => ({
@@ -308,27 +293,25 @@ export const MilestoneCelebration = memo(function MilestoneCelebration({
   }));
 
   return (
-    <Modal
-      visible={!!milestone}
-      transparent
-      animationType="fade"
-      onRequestClose={onDismiss}
-    >
+    <Modal visible={!!milestone} transparent animationType="fade" onRequestClose={onDismiss}>
       <View style={styles.celebrationOverlay}>
         {/* Confetti */}
-        {showConfetti && confettiParticles.map((particle) => (
-          <ConfettiParticle
-            key={particle.id}
-            color={particle.color}
-            delay={particle.delay}
-            startX={particle.startX}
-          />
-        ))}
+        {showConfetti &&
+          confettiParticles.map(particle => (
+            <ConfettiParticle
+              key={particle.id}
+              color={particle.color}
+              delay={particle.delay}
+              startX={particle.startX}
+            />
+          ))}
 
         {/* Content */}
         <View style={styles.celebrationContent}>
           {/* Badge */}
-          <Animated.View style={[styles.milestoneBadge, { backgroundColor: data.badgeColor }, badgeStyle]}>
+          <Animated.View
+            style={[styles.milestoneBadge, { backgroundColor: data.badgeColor }, badgeStyle]}
+          >
             <Text style={styles.milestoneEmoji}>{data.emoji}</Text>
           </Animated.View>
 
@@ -356,18 +339,18 @@ export const MilestoneCelebration = memo(function MilestoneCelebration({
 export function useMilestones() {
   const [pendingMilestone, setPendingMilestone] = useState<MilestoneType | null>(null);
 
-  const checkMilestone = useCallback(async (
-    type: MilestoneType,
-    condition: boolean
-  ): Promise<boolean> => {
-    if (!condition) return false;
+  const checkMilestone = useCallback(
+    async (type: MilestoneType, condition: boolean): Promise<boolean> => {
+      if (!condition) return false;
 
-    const achieved = await isMilestoneAchieved(type);
-    if (achieved) return false;
+      const achieved = await isMilestoneAchieved(type);
+      if (achieved) return false;
 
-    setPendingMilestone(type);
-    return true;
-  }, []);
+      setPendingMilestone(type);
+      return true;
+    },
+    []
+  );
 
   const dismissMilestone = useCallback(() => {
     setPendingMilestone(null);
@@ -422,9 +405,12 @@ export async function checkStreakMilestones(streakDays: number): Promise<Milesto
 /**
  * Check anniversary milestone
  */
-export async function checkAnniversaryMilestone(registrationDate: Date): Promise<MilestoneType | null> {
+export async function checkAnniversaryMilestone(
+  registrationDate: Date
+): Promise<MilestoneType | null> {
   const now = new Date();
-  const yearsSinceRegistration = (now.getTime() - registrationDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+  const yearsSinceRegistration =
+    (now.getTime() - registrationDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
 
   if (yearsSinceRegistration >= 1) {
     const achieved = await isMilestoneAchieved('year_anniversary');

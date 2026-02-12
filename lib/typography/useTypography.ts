@@ -52,7 +52,7 @@ export function useTypography(): TypographyState {
   }));
 
   const handleDimensionsChange = useCallback(
-    ({ window }: { window: ScaledSize; screen: ScaledSize }) => {
+    ({ window: _window }: { window: ScaledSize; screen: ScaledSize }) => {
       setState({
         breakpoint: getCurrentBreakpoint(),
         isTablet: isTablet(),

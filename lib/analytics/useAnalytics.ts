@@ -142,7 +142,7 @@ class AnalyticsManager {
 
       await AsyncStorage.setItem(STORAGE_KEYS.SESSION_ID, this.sessionId);
       await AsyncStorage.setItem(STORAGE_KEYS.SESSION_START, this.sessionStartTime.toString());
-    } catch (error) {
+    } catch (_error) {
       // Fallback to new session
       this.sessionId = this.generateSessionId();
       this.sessionStartTime = Date.now();
@@ -157,7 +157,7 @@ class AnalyticsManager {
   async touchSession(): Promise<void> {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.SESSION_START, Date.now().toString());
-    } catch (error) {
+    } catch (_error) {
       // Ignore
     }
   }
@@ -179,7 +179,7 @@ class AnalyticsManager {
     this.userId = undefined;
     try {
       await AsyncStorage.removeItem(STORAGE_KEYS.USER_ID);
-    } catch (error) {
+    } catch (_error) {
       // Ignore
     }
   }
@@ -195,11 +195,7 @@ class AnalyticsManager {
   }
 
   // Track event
-  trackEvent(
-    name: string,
-    category: EventCategory,
-    properties?: Record<string, unknown>
-  ): void {
+  trackEvent(name: string, category: EventCategory, properties?: Record<string, unknown>): void {
     const event: AnalyticsEvent = {
       name,
       category,
@@ -273,12 +269,7 @@ class AnalyticsManager {
   }
 
   // Track error
-  trackError(
-    errorName: string,
-    errorMessage: string,
-    stack?: string,
-    isFatal = false
-  ): void {
+  trackError(errorName: string, errorMessage: string, stack?: string, isFatal = false): void {
     this.trackEvent('error', 'error', {
       errorName,
       errorMessage,
@@ -310,11 +301,7 @@ class AnalyticsManager {
     });
   }
 
-  trackAnalysisCompleted(
-    analysisType: string,
-    duration: number,
-    success: boolean
-  ): void {
+  trackAnalysisCompleted(analysisType: string, duration: number, success: boolean): void {
     this.trackEvent('analysis_completed', 'analysis', {
       analysisType,
       duration,
@@ -387,11 +374,8 @@ class AnalyticsManager {
   // Persist queue to storage
   private async persistQueue(): Promise<void> {
     try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.EVENTS_QUEUE,
-        JSON.stringify(this.eventsQueue)
-      );
-    } catch (error) {
+      await AsyncStorage.setItem(STORAGE_KEYS.EVENTS_QUEUE, JSON.stringify(this.eventsQueue));
+    } catch (_error) {
       // Ignore
     }
   }
@@ -486,8 +470,9 @@ export function useScreenTracking(screenName: string, screenClass?: string) {
   useEffect(() => {
     analytics.trackScreenView(screenName, screenClass);
 
+    const mountTime = mountTimeRef.current;
     return () => {
-      const duration = Date.now() - mountTimeRef.current;
+      const duration = Date.now() - mountTime;
       analytics.trackEvent('screen_exit', 'navigation', {
         screenName,
         duration,

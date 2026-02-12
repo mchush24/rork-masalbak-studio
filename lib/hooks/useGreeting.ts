@@ -12,10 +12,7 @@
 
 import { useMemo } from 'react';
 import { useRole, useCopywriting as useCopywritingSettings } from '@/lib/contexts/RoleContext';
-import {
-  RoleAwareGreetingService,
-  getRoleAwareGreetingService,
-} from '@/lib/services/role-aware-greeting-service';
+import { getRoleAwareGreetingService } from '@/lib/services/role-aware-greeting-service';
 
 interface UseGreetingOptions {
   /** Whether this is the user's first visit */
@@ -44,7 +41,7 @@ interface UseGreetingReturn {
  */
 export function useGreeting(options?: UseGreetingOptions): UseGreetingReturn {
   const { role } = useRole();
-  const copywritingSettings = useCopywritingSettings();
+  const _copywritingSettings = useCopywritingSettings();
 
   const service = useMemo(() => {
     return getRoleAwareGreetingService(role);

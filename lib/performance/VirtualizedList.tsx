@@ -6,14 +6,7 @@
  */
 
 import React, { useCallback, useMemo, memo, useRef } from 'react';
-import {
-  FlatList,
-  FlatListProps,
-  View,
-  StyleSheet,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import { FlatList, FlatListProps, View, StyleSheet, Dimensions, Platform } from 'react-native';
 import { Colors } from '@/constants/colors';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -25,9 +18,9 @@ interface VirtualizedListProps<T> extends Omit<FlatListProps<T>, 'renderItem' | 
   overscan?: number;
   onEndReachedThreshold?: number;
   keyExtractor: (item: T, index: number) => string;
-  ListEmptyComponent?: React.ComponentType<any> | React.ReactElement;
-  ListHeaderComponent?: React.ComponentType<any> | React.ReactElement;
-  ListFooterComponent?: React.ComponentType<any> | React.ReactElement;
+  ListEmptyComponent?: React.ComponentType<unknown> | React.ReactElement;
+  ListHeaderComponent?: React.ComponentType<unknown> | React.ReactElement;
+  ListFooterComponent?: React.ComponentType<unknown> | React.ReactElement;
 }
 
 /**
@@ -49,7 +42,7 @@ export function VirtualizedList<T>({
 
   // Memoize getItemLayout for performance
   const getItemLayout = useCallback(
-    (_: any, index: number) => ({
+    (_: T[] | null | undefined, index: number) => ({
       length: estimatedItemSize,
       offset: estimatedItemSize * index,
       index,

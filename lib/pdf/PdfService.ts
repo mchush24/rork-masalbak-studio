@@ -9,7 +9,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
-import { SavedAnalysis, AnalysisResponse, Insight, HomeTip, RiskFlag } from '@/types/analysis';
+import { SavedAnalysis, Insight, HomeTip, RiskFlag } from '@/types/analysis';
 import { format } from 'date-fns';
 import { tr, enUS } from 'date-fns/locale';
 
@@ -405,30 +405,46 @@ class PdfService {
             <span class="info-label">${t.name}:</span>
             <span class="info-value">${client.name}</span>
           </div>
-          ${client.age ? `
+          ${
+            client.age
+              ? `
             <div class="info-item">
               <span class="info-label">${t.age}:</span>
               <span class="info-value">${client.age}</span>
             </div>
-          ` : ''}
-          ${client.gender ? `
+          `
+              : ''
+          }
+          ${
+            client.gender
+              ? `
             <div class="info-item">
               <span class="info-label">${t.gender}:</span>
               <span class="info-value">${client.gender === 'male' ? t.male : t.female}</span>
             </div>
-          ` : ''}
-          ${client.parentName ? `
+          `
+              : ''
+          }
+          ${
+            client.parentName
+              ? `
             <div class="info-item">
               <span class="info-label">${t.parent}:</span>
               <span class="info-value">${client.parentName}</span>
             </div>
-          ` : ''}
-          ${client.sessionNumber ? `
+          `
+              : ''
+          }
+          ${
+            client.sessionNumber
+              ? `
             <div class="info-item">
               <span class="info-label">${t.session}:</span>
               <span class="info-value">#${client.sessionNumber}</span>
             </div>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
       </div>
     `;
@@ -459,26 +475,36 @@ class PdfService {
 
     const getStrengthClass = (strength: string) => {
       switch (strength) {
-        case 'weak': return 'strength-weak';
-        case 'moderate': return 'strength-moderate';
-        case 'strong': return 'strength-strong';
-        default: return 'strength-moderate';
+        case 'weak':
+          return 'strength-weak';
+        case 'moderate':
+          return 'strength-moderate';
+        case 'strong':
+          return 'strength-strong';
+        default:
+          return 'strength-moderate';
       }
     };
 
     const getStrengthText = (strength: string) => {
       switch (strength) {
-        case 'weak': return t.weak;
-        case 'moderate': return t.moderate;
-        case 'strong': return t.strong;
-        default: return t.moderate;
+        case 'weak':
+          return t.weak;
+        case 'moderate':
+          return t.moderate;
+        case 'strong':
+          return t.strong;
+        default:
+          return t.moderate;
       }
     };
 
     return `
       <div class="section">
         <div class="section-title">${t.insights}</div>
-        ${insights.map(insight => `
+        ${insights
+          .map(
+            insight => `
           <div class="insight-card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div class="insight-title">${insight.title}</div>
@@ -487,14 +513,20 @@ class PdfService {
               </span>
             </div>
             <div class="insight-summary">${insight.summary}</div>
-            ${insight.evidence.length > 0 ? `
+            ${
+              insight.evidence.length > 0
+                ? `
               <div style="font-size: 9pt; color: #6B7280; margin-bottom: 4px;">${t.evidence}:</div>
               <ul class="insight-evidence">
                 ${insight.evidence.map(e => `<li>${e}</li>`).join('')}
               </ul>
-            ` : ''}
+            `
+                : ''
+            }
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     `;
   }
@@ -507,7 +539,9 @@ class PdfService {
     return `
       <div class="section">
         <div class="section-title">${t.recommendations}</div>
-        ${tips.map(tip => `
+        ${tips
+          .map(
+            tip => `
           <div class="tip-card">
             <div class="tip-title">${tip.title}</div>
             <ol class="tip-steps">
@@ -515,7 +549,9 @@ class PdfService {
             </ol>
             <div class="tip-why">${t.why}: ${tip.why}</div>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     `;
   }
@@ -540,12 +576,16 @@ class PdfService {
     return `
       <div class="section">
         <div class="section-title">${t.riskFlags}</div>
-        ${flags.map(flag => `
+        ${flags
+          .map(
+            flag => `
           <div class="risk-card">
             <div class="risk-type">${getRiskTypeText(flag.type)}</div>
             <div class="risk-summary">${flag.summary}</div>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     `;
   }

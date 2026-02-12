@@ -5,12 +5,8 @@
  * Holiday and seasonal visual themes
  */
 
-import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import React, { useState, useEffect, memo, useMemo } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -26,7 +22,14 @@ import { zIndex } from '@/constants/design-system';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Season types
-export type SeasonType = 'none' | 'new_year' | 'valentines' | 'spring' | 'summer' | 'halloween' | 'winter';
+export type SeasonType =
+  | 'none'
+  | 'new_year'
+  | 'valentines'
+  | 'spring'
+  | 'summer'
+  | 'halloween'
+  | 'winter';
 
 /**
  * Get current season based on date
@@ -72,7 +75,10 @@ export function getCurrentSeason(): SeasonType {
 /**
  * Seasonal color palettes
  */
-export const SEASONAL_COLORS: Record<SeasonType, { primary: string; secondary: string; accent: string; particles: string[] }> = {
+export const SEASONAL_COLORS: Record<
+  SeasonType,
+  { primary: string; secondary: string; accent: string; particles: string[] }
+> = {
   none: {
     primary: Colors.secondary.lavender,
     secondary: Colors.secondary.rose,
@@ -141,11 +147,7 @@ const Snowflake = memo(function Snowflake({
 
     translateY.value = withDelay(
       delay,
-      withRepeat(
-        withTiming(SCREEN_HEIGHT + 50, { duration, easing: Easing.linear }),
-        -1,
-        false
-      )
+      withRepeat(withTiming(SCREEN_HEIGHT + 50, { duration, easing: Easing.linear }), -1, false)
     );
 
     translateX.value = withDelay(
@@ -166,6 +168,7 @@ const Snowflake = memo(function Snowflake({
       delay,
       withRepeat(withTiming(360, { duration: duration * 2, easing: Easing.linear }), -1, false)
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -208,29 +211,19 @@ const HeartParticle = memo(function HeartParticle({
 
     translateY.value = withDelay(
       delay,
-      withRepeat(
-        withTiming(-100, { duration: 8000, easing: Easing.out(Easing.cubic) }),
-        -1,
-        false
-      )
+      withRepeat(withTiming(-100, { duration: 8000, easing: Easing.out(Easing.cubic) }), -1, false)
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
     opacity: opacity.value,
   }));
 
   return (
     <Animated.View
-      style={[
-        styles.heartContainer,
-        { left: startX, width: size, height: size },
-        animatedStyle,
-      ]}
+      style={[styles.heartContainer, { left: startX, width: size, height: size }, animatedStyle]}
     >
       <View style={[styles.heart, { backgroundColor: color }]} />
     </Animated.View>
@@ -240,15 +233,7 @@ const HeartParticle = memo(function HeartParticle({
 /**
  * Firework particle for New Year
  */
-const Firework = memo(function Firework({
-  delay,
-  x,
-  y,
-}: {
-  delay: number;
-  x: number;
-  y: number;
-}) {
+const Firework = memo(function Firework({ delay, x, y }: { delay: number; x: number; y: number }) {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
 
@@ -279,6 +264,7 @@ const Firework = memo(function Firework({
     animate();
     const interval = setInterval(animate, 3000 + delay);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -297,10 +283,7 @@ const Firework = memo(function Firework({
             styles.fireworkParticle,
             {
               backgroundColor: color,
-              transform: [
-                { rotate: (i * 90) + 'deg' },
-                { translateY: -15 },
-              ],
+              transform: [{ rotate: i * 90 + 'deg' }, { translateY: -15 }],
             },
           ]}
         />
@@ -327,10 +310,14 @@ export const SeasonalEffects = memo(function SeasonalEffects({
 
   const particleCount = useMemo(() => {
     switch (intensity) {
-      case 'low': return 10;
-      case 'medium': return 20;
-      case 'high': return 35;
-      default: return 20;
+      case 'low':
+        return 10;
+      case 'medium':
+        return 20;
+      case 'high':
+        return 35;
+      default:
+        return 20;
     }
   }, [intensity]);
 
@@ -406,17 +393,31 @@ export function useSeasonalTheme(forcedSeason?: SeasonType) {
 /**
  * Ioo seasonal accessories
  */
-export type IooAccessory = 'none' | 'santa_hat' | 'heart_glasses' | 'sunglasses' | 'witch_hat' | 'party_hat' | 'flower_crown';
+export type IooAccessory =
+  | 'none'
+  | 'santa_hat'
+  | 'heart_glasses'
+  | 'sunglasses'
+  | 'witch_hat'
+  | 'party_hat'
+  | 'flower_crown';
 
 export function getSeasonalIooAccessory(season: SeasonType): IooAccessory {
   switch (season) {
-    case 'new_year': return 'party_hat';
-    case 'winter': return 'santa_hat';
-    case 'valentines': return 'heart_glasses';
-    case 'summer': return 'sunglasses';
-    case 'spring': return 'flower_crown';
-    case 'halloween': return 'witch_hat';
-    default: return 'none';
+    case 'new_year':
+      return 'party_hat';
+    case 'winter':
+      return 'santa_hat';
+    case 'valentines':
+      return 'heart_glasses';
+    case 'summer':
+      return 'sunglasses';
+    case 'spring':
+      return 'flower_crown';
+    case 'halloween':
+      return 'witch_hat';
+    default:
+      return 'none';
   }
 }
 

@@ -6,7 +6,7 @@
  */
 
 import { Dimensions, Platform } from 'react-native';
-import { breakpoints, Breakpoint, isTablet, isPhone, getCurrentBreakpoint } from '../typography/responsive';
+import { Breakpoint, isTablet, getCurrentBreakpoint } from '../typography/responsive';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 

@@ -11,7 +11,7 @@
  * - FocusGroup
  */
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -25,15 +25,15 @@ import {
   ImageSourcePropType,
   AccessibilityRole,
   AccessibilityState,
-  findNodeHandle,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
-import { useAccessibility, useAccessibleFontSize, useMinimumTouchTarget, useColorBlindSafeColors, ColorBlindMode } from './AccessibilityProvider';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import {
+  useAccessibility,
+  useAccessibleFontSize,
+  useMinimumTouchTarget,
+  useColorBlindSafeColors,
+  ColorBlindMode,
+} from './AccessibilityProvider';
 import { Colors } from '@/constants/colors';
 import { shadows, zIndex } from '@/constants/design-system';
 
@@ -63,7 +63,6 @@ export function AccessibleButton({
   disabled = false,
   variant = 'primary',
   size = 'medium',
-  style,
 }: AccessibleButtonProps) {
   const minTouchSize = useMinimumTouchTarget();
   const { shouldReduceMotion, announceForAccessibility } = useAccessibility();
@@ -162,17 +161,13 @@ export function AccessibleText({
   const fontSize = useAccessibleFontSize(baseSizes[variant]);
   const fontWeight = preferences.boldText ? '600' : variant === 'heading' ? '700' : '400';
 
-  const headingLevel = variant === 'heading' ? 1 : undefined;
+  const _headingLevel = variant === 'heading' ? 1 : undefined;
 
   return (
     <Text
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole || (variant === 'heading' ? 'header' : 'text')}
-      style={[
-        styles.text,
-        { fontSize, fontWeight: fontWeight as TextStyle['fontWeight'] },
-        style,
-      ]}
+      style={[styles.text, { fontSize, fontWeight: fontWeight as TextStyle['fontWeight'] }, style]}
     >
       {children}
     </Text>
@@ -210,7 +205,7 @@ export function AccessibleImage({
 }
 
 interface SkipLinkProps {
-  targetRef: React.RefObject<any>;
+  targetRef: React.RefObject<View>;
   label?: string;
   style?: StyleProp<ViewStyle>;
 }
@@ -218,11 +213,7 @@ interface SkipLinkProps {
 /**
  * Skip link for keyboard navigation
  */
-export function SkipLink({
-  targetRef,
-  label = 'Ana içeriğe geç',
-  style,
-}: SkipLinkProps) {
+export function SkipLink({ targetRef, label = 'Ana içeriğe geç', style }: SkipLinkProps) {
   const { isScreenReaderEnabled, setAccessibilityFocus } = useAccessibility();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -262,15 +253,11 @@ interface LiveRegionProps {
 export function LiveRegion({
   children,
   polite = 'polite',
-  atomic = true,
+  _atomic = true,
   style,
 }: LiveRegionProps) {
   return (
-    <View
-      accessibilityLiveRegion={polite}
-      accessibilityElementsHidden={false}
-      style={style}
-    >
+    <View accessibilityLiveRegion={polite} accessibilityElementsHidden={false} style={style}>
       {children}
     </View>
   );
@@ -285,18 +272,9 @@ interface FocusGroupProps {
 /**
  * Group related elements for better navigation
  */
-export function FocusGroup({
-  children,
-  label,
-  style,
-}: FocusGroupProps) {
+export function FocusGroup({ children, label, style }: FocusGroupProps) {
   return (
-    <View
-      accessible={true}
-      accessibilityLabel={label}
-      accessibilityRole="none"
-      style={style}
-    >
+    <View accessible={true} accessibilityLabel={label} accessibilityRole="none" style={style}>
       {children}
     </View>
   );
@@ -306,7 +284,7 @@ interface AccessibilitySettingsItemProps {
   label: string;
   description?: string;
   value: boolean | string;
-  onValueChange?: (value: any) => void;
+  onValueChange?: (value: boolean | string) => void;
   type?: 'toggle' | 'select';
   options?: { label: string; value: string }[];
   style?: StyleProp<ViewStyle>;
@@ -321,7 +299,7 @@ export function AccessibilitySettingsItem({
   value,
   onValueChange,
   type = 'toggle',
-  options,
+
   style,
 }: AccessibilitySettingsItemProps) {
   const fontSize = useAccessibleFontSize(16);
@@ -358,16 +336,11 @@ export function AccessibilitySettingsItem({
           ]}
         >
           <Animated.View
-            style={[
-              styles.toggleThumb,
-              { transform: [{ translateX: value ? 20 : 0 }] },
-            ]}
+            style={[styles.toggleThumb, { transform: [{ translateX: value ? 20 : 0 }] }]}
           />
         </View>
       )}
-      {type === 'select' && (
-        <Text style={styles.selectValue}>{value as string}</Text>
-      )}
+      {type === 'select' && <Text style={styles.selectValue}>{value as string}</Text>}
     </Pressable>
   );
 }
@@ -380,21 +353,11 @@ interface HighContrastWrapperProps {
 /**
  * Wrapper that applies high contrast styles when enabled
  */
-export function HighContrastWrapper({
-  children,
-  style,
-}: HighContrastWrapperProps) {
+export function HighContrastWrapper({ children, style }: HighContrastWrapperProps) {
   const { shouldUseHighContrast } = useAccessibility();
 
   return (
-    <View
-      style={[
-        style,
-        shouldUseHighContrast && styles.highContrastWrapper,
-      ]}
-    >
-      {children}
-    </View>
+    <View style={[style, shouldUseHighContrast && styles.highContrastWrapper]}>{children}</View>
   );
 }
 
@@ -601,7 +564,7 @@ export function ColorBlindModeSelector({
 
   return (
     <View style={[styles.colorBlindSelector, style]}>
-      {COLOR_BLIND_OPTIONS.map((option) => {
+      {COLOR_BLIND_OPTIONS.map(option => {
         const isSelected = value === option.value;
         return (
           <Pressable
@@ -629,10 +592,18 @@ export function ColorBlindModeSelector({
               <Text style={styles.colorBlindOptionDescription}>{option.description}</Text>
               {option.value !== 'none' && (
                 <View style={styles.colorBlindPreview}>
-                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.success }]} />
-                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.error }]} />
-                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.warning }]} />
-                  <View style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.info }]} />
+                  <View
+                    style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.success }]}
+                  />
+                  <View
+                    style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.error }]}
+                  />
+                  <View
+                    style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.warning }]}
+                  />
+                  <View
+                    style={[styles.colorBlindPreviewDot, { backgroundColor: safeColors.info }]}
+                  />
                 </View>
               )}
             </View>

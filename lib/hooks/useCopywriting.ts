@@ -45,7 +45,7 @@ export interface UseCopywritingReturn extends CopywritingTexts {
  * Hook for accessing role-aware copywriting
  */
 export function useCopywriting(): UseCopywritingReturn {
-  const { role, config } = useRole();
+  const { role } = useRole();
   const copywritingSettings = useRoleCopywriting();
 
   // Get texts for current role
@@ -182,7 +182,7 @@ export function useProfessionalCopy() {
  * Hook to get formatted text with role-appropriate styling
  */
 export function useFormattedText() {
-  const { role } = useRole();
+  const { role: _role } = useRole();
   const copywritingSettings = useRoleCopywriting();
 
   const formatWithEmoji = useCallback(

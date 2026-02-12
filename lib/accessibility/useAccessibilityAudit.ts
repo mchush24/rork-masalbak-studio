@@ -5,8 +5,8 @@
  * Only active in development mode
  */
 
-import { useEffect, useCallback, useRef } from 'react';
-import { AccessibilityInfo, Platform } from 'react-native';
+import { useEffect, useCallback, useMemo, useRef } from 'react';
+import { AccessibilityInfo } from 'react-native';
 import { checkContrast, isLargeText, getRequiredContrast } from './contrastChecker';
 
 // ============================================
@@ -119,7 +119,7 @@ function checkColorContrast(
         suggestion: `Increase contrast to at least ${requiredRatio}:1 for WCAG ${level} compliance`,
       };
     }
-  } catch (error) {
+  } catch (_error) {
     // Color parsing failed, skip check
     return null;
   }
@@ -167,22 +167,20 @@ function checkAccessibleRole(
  * });
  */
 export function useAccessibilityAudit(config: AuditConfig = {}) {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const finalConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [JSON.stringify(config)]);
   const issuesRef = useRef<AccessibilityIssue[]>([]);
   const screenReaderEnabled = useRef(false);
 
   // Check if screen reader is enabled
   useEffect(() => {
-    AccessibilityInfo.isScreenReaderEnabled().then((enabled) => {
+    AccessibilityInfo.isScreenReaderEnabled().then(enabled => {
       screenReaderEnabled.current = enabled;
     });
 
-    const subscription = AccessibilityInfo.addEventListener(
-      'screenReaderChanged',
-      (enabled) => {
-        screenReaderEnabled.current = enabled;
-      }
-    );
+    const subscription = AccessibilityInfo.addEventListener('screenReaderChanged', enabled => {
+      screenReaderEnabled.current = enabled;
+    });
 
     return () => {
       subscription.remove();
@@ -232,11 +230,7 @@ export function useAccessibilityAudit(config: AuditConfig = {}) {
 
       // Label check
       if (params.isInteractive && params.role) {
-        const labelIssue = checkAccessibleLabel(
-          params.hasLabel ?? false,
-          params.role,
-          params.name
-        );
+        const labelIssue = checkAccessibleLabel(params.hasLabel ?? false, params.role, params.name);
         if (labelIssue) issues.push(labelIssue);
       }
 
@@ -273,8 +267,8 @@ export function useAccessibilityAudit(config: AuditConfig = {}) {
 
   const getAuditResult = useCallback((): AuditResult => {
     const issues = issuesRef.current;
-    const errorCount = issues.filter((i) => i.type === 'error').length;
-    const warningCount = issues.filter((i) => i.type === 'warning').length;
+    const errorCount = issues.filter(i => i.type === 'error').length;
+    const warningCount = issues.filter(i => i.type === 'warning').length;
     const totalChecks = issues.length + 10; // Assume some base checks passed
     const failedChecks = errorCount + warningCount * 0.5;
     const score = Math.max(0, Math.round((1 - failedChecks / totalChecks) * 100));
@@ -311,16 +305,13 @@ export function useScreenReaderStatus() {
   const enabled = useRef(false);
 
   useEffect(() => {
-    AccessibilityInfo.isScreenReaderEnabled().then((isEnabled) => {
+    AccessibilityInfo.isScreenReaderEnabled().then(isEnabled => {
       enabled.current = isEnabled;
     });
 
-    const subscription = AccessibilityInfo.addEventListener(
-      'screenReaderChanged',
-      (isEnabled) => {
-        enabled.current = isEnabled;
-      }
-    );
+    const subscription = AccessibilityInfo.addEventListener('screenReaderChanged', isEnabled => {
+      enabled.current = isEnabled;
+    });
 
     return () => {
       subscription.remove();

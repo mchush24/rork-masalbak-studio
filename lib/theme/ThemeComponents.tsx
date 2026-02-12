@@ -11,25 +11,10 @@
  */
 
 import React, { useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ViewStyle,
-  TextStyle,
-  StyleProp,
-} from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  interpolateColor,
-} from 'react-native-reanimated';
+import { View, Text, StyleSheet, Pressable, ViewStyle, TextStyle, StyleProp } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Sun, Moon, Monitor } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme, ThemeColors } from './ThemeProvider';
+import { useTheme } from './ThemeProvider';
 import { useFeedback } from '@/hooks/useFeedback';
 import { shadows } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
@@ -43,22 +28,13 @@ interface ThemeToggleProps {
 /**
  * Theme toggle switch
  */
-export function ThemeToggle({
-  showLabels = false,
-  variant = 'switch',
-  style,
-}: ThemeToggleProps) {
+export function ThemeToggle({ showLabels = false, variant = 'switch', style }: ThemeToggleProps) {
   const { mode, isDark, setTheme, toggleTheme } = useTheme();
   const { feedback } = useFeedback();
 
   if (variant === 'segmented') {
     return (
-      <SegmentedThemeToggle
-        mode={mode}
-        setTheme={setTheme}
-        showLabels={showLabels}
-        style={style}
-      />
+      <SegmentedThemeToggle mode={mode} setTheme={setTheme} showLabels={showLabels} style={style} />
     );
   }
 
@@ -95,12 +71,7 @@ interface SwitchThemeToggleProps {
   style?: StyleProp<ViewStyle>;
 }
 
-function SwitchThemeToggle({
-  isDark,
-  onToggle,
-  showLabels,
-  style,
-}: SwitchThemeToggleProps) {
+function SwitchThemeToggle({ isDark, onToggle, showLabels, style }: SwitchThemeToggleProps) {
   const { colors } = useTheme();
   const translateX = useSharedValue(isDark ? 24 : 0);
   const rotation = useSharedValue(isDark ? 180 : 0);
@@ -108,13 +79,10 @@ function SwitchThemeToggle({
   useEffect(() => {
     translateX.value = withSpring(isDark ? 24 : 0, { damping: 15 });
     rotation.value = withSpring(isDark ? 180 : 0, { damping: 12 });
-  }, [isDark]);
+  }, [isDark, translateX, rotation]);
 
   const thumbStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { rotate: `${rotation.value}deg` },
-    ],
+    transform: [{ translateX: translateX.value }, { rotate: `${rotation.value}deg` }],
   }));
 
   return (
@@ -127,19 +95,15 @@ function SwitchThemeToggle({
       <Pressable
         style={[
           styles.switchTrack,
-          { backgroundColor: isDark ? colors.primary.purple : colors.neutral.light },
+          { backgroundColor: isDark ? colors.secondary.lavender : colors.neutral.light },
         ]}
         onPress={onToggle}
       >
         <Animated.View
-          style={[
-            styles.switchThumb,
-            { backgroundColor: colors.surface.card },
-            thumbStyle,
-          ]}
+          style={[styles.switchThumb, { backgroundColor: colors.surface.card }, thumbStyle]}
         >
           {isDark ? (
-            <Moon size={14} color={colors.primary.purple} />
+            <Moon size={14} color={colors.secondary.lavender} />
           ) : (
             <Sun size={14} color={colors.emotion.joy} />
           )}
@@ -156,13 +120,8 @@ interface SegmentedThemeToggleProps {
   style?: StyleProp<ViewStyle>;
 }
 
-function SegmentedThemeToggle({
-  mode,
-  setTheme,
-  showLabels,
-  style,
-}: SegmentedThemeToggleProps) {
-  const { colors, isDark } = useTheme();
+function SegmentedThemeToggle({ mode, setTheme, showLabels, style }: SegmentedThemeToggleProps) {
+  const { colors } = useTheme();
   const { feedback } = useFeedback();
 
   const options: { value: 'light' | 'dark' | 'system'; icon: typeof Sun; label: string }[] = [
@@ -171,33 +130,27 @@ function SegmentedThemeToggle({
     { value: 'dark', icon: Moon, label: 'Koyu' },
   ];
 
-  const activeIndex = options.findIndex((o) => o.value === mode);
+  const activeIndex = options.findIndex(o => o.value === mode);
   const indicatorX = useSharedValue(activeIndex * 60);
 
   useEffect(() => {
     indicatorX.value = withSpring(activeIndex * 60, { damping: 15 });
-  }, [activeIndex]);
+  }, [activeIndex, indicatorX]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorX.value }],
   }));
 
   return (
-    <View
-      style={[
-        styles.segmentedContainer,
-        { backgroundColor: colors.surface.elevated },
-        style,
-      ]}
-    >
+    <View style={[styles.segmentedContainer, { backgroundColor: colors.surface.elevated }, style]}>
       <Animated.View
         style={[
           styles.segmentedIndicator,
-          { backgroundColor: colors.primary.purple },
+          { backgroundColor: colors.secondary.lavender },
           indicatorStyle,
         ]}
       />
-      {options.map((option) => (
+      {options.map(option => (
         <Pressable
           key={option.value}
           style={styles.segmentedOption}
@@ -208,21 +161,14 @@ function SegmentedThemeToggle({
         >
           <option.icon
             size={18}
-            color={
-              mode === option.value
-                ? colors.text.inverse
-                : colors.text.secondary
-            }
+            color={mode === option.value ? colors.text.inverse : colors.text.secondary}
           />
           {showLabels && (
             <Text
               style={[
                 styles.segmentedLabel,
                 {
-                  color:
-                    mode === option.value
-                      ? colors.text.inverse
-                      : colors.text.secondary,
+                  color: mode === option.value ? colors.text.inverse : colors.text.secondary,
                 },
               ]}
             >
@@ -241,11 +187,7 @@ interface IconThemeToggleProps {
   style?: StyleProp<ViewStyle>;
 }
 
-function IconThemeToggle({
-  isDark,
-  onToggle,
-  style,
-}: IconThemeToggleProps) {
+function IconThemeToggle({ isDark, onToggle, style }: IconThemeToggleProps) {
   const { colors } = useTheme();
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -259,24 +201,17 @@ function IconThemeToggle({
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${rotation.value}deg` },
-      { scale: scale.value },
-    ],
+    transform: [{ rotate: `${rotation.value}deg` }, { scale: scale.value }],
   }));
 
   return (
     <Pressable
-      style={[
-        styles.iconToggle,
-        { backgroundColor: colors.surface.elevated },
-        style,
-      ]}
+      style={[styles.iconToggle, { backgroundColor: colors.surface.elevated }, style]}
       onPress={handlePress}
     >
       <Animated.View style={animatedStyle}>
         {isDark ? (
-          <Moon size={22} color={colors.primary.purple} />
+          <Moon size={22} color={colors.secondary.lavender} />
         ) : (
           <Sun size={22} color={colors.emotion.joy} />
         )}
@@ -294,11 +229,7 @@ interface ThemedViewProps {
 /**
  * View with automatic theme-aware background
  */
-export function ThemedView({
-  children,
-  variant = 'background',
-  style,
-}: ThemedViewProps) {
+export function ThemedView({ children, variant = 'background', style }: ThemedViewProps) {
   const { colors } = useTheme();
 
   const backgroundColor = {
@@ -307,11 +238,7 @@ export function ThemedView({
     elevated: colors.surface.elevated,
   }[variant];
 
-  return (
-    <View style={[{ backgroundColor }, style]}>
-      {children}
-    </View>
-  );
+  return <View style={[{ backgroundColor }, style]}>{children}</View>;
 }
 
 interface ThemedTextProps {
@@ -356,11 +283,7 @@ export function ThemedText({
     '2xl': 24,
   }[size];
 
-  return (
-    <Text style={[{ color, fontWeight, fontSize }, style]}>
-      {children}
-    </Text>
-  );
+  return <Text style={[{ color, fontWeight, fontSize }, style]}>{children}</Text>;
 }
 
 interface ThemedCardProps {
@@ -373,12 +296,7 @@ interface ThemedCardProps {
 /**
  * Card with automatic theme-aware styling
  */
-export function ThemedCard({
-  children,
-  elevated = false,
-  onPress,
-  style,
-}: ThemedCardProps) {
+export function ThemedCard({ children, elevated = false, onPress, style }: ThemedCardProps) {
   const { colors, isDark } = useTheme();
   const scale = useSharedValue(1);
 
@@ -407,11 +325,7 @@ export function ThemedCard({
 
   if (onPress) {
     return (
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-      >
+      <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
         <Animated.View style={[styles.card, cardStyle, animatedStyle, style]}>
           {children}
         </Animated.View>
@@ -419,11 +333,7 @@ export function ThemedCard({
     );
   }
 
-  return (
-    <View style={[styles.card, cardStyle, style]}>
-      {children}
-    </View>
-  );
+  return <View style={[styles.card, cardStyle, style]}>{children}</View>;
 }
 
 interface ThemedIconProps {
@@ -436,18 +346,13 @@ interface ThemedIconProps {
 /**
  * Icon with automatic theme-aware color
  */
-export function ThemedIcon({
-  icon: Icon,
-  size = 24,
-  variant = 'primary',
-  style,
-}: ThemedIconProps) {
+export function ThemedIcon({ icon: Icon, size = 24, variant = 'primary', style }: ThemedIconProps) {
   const { colors } = useTheme();
 
   const color = {
     primary: colors.text.primary,
     secondary: colors.text.secondary,
-    accent: colors.primary.purple,
+    accent: colors.secondary.lavender,
   }[variant];
 
   return (
@@ -467,15 +372,7 @@ interface ThemedDividerProps {
 export function ThemedDivider({ style }: ThemedDividerProps) {
   const { colors } = useTheme();
 
-  return (
-    <View
-      style={[
-        styles.divider,
-        { backgroundColor: colors.border.light },
-        style,
-      ]}
-    />
-  );
+  return <View style={[styles.divider, { backgroundColor: colors.border.light }, style]} />;
 }
 
 const styles = StyleSheet.create({

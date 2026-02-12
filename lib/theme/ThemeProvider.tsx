@@ -9,133 +9,17 @@
  * - Persisted preferences
  */
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
-import { useColorScheme, Appearance, StatusBar } from 'react-native';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useColorScheme, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors as LightColors } from '@/constants/colors';
+import { Colors, DarkColors as DarkColorPalette } from '@/constants/colors';
 
 const THEME_KEY = 'theme_preference';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
 
-// Dark mode color palette
-const DarkColors = {
-  primary: {
-    purple: '#A78BFA',
-    pink: '#F472B6',
-    orange: '#FB923C',
-    turquoise: '#5EEAD4',
-  },
-  emotion: {
-    joy: '#FDE047',
-    trust: '#86EFAC',
-    fear: '#FCA5A5',
-    surprise: '#C4B5FD',
-    sadness: '#93C5FD',
-    anticipation: '#FDBA74',
-  },
-  neutral: {
-    white: '#1F1F23',
-    lighter: '#2A2A2E',
-    light: '#3F3F46',
-    medium: '#A1A1AA',
-    dark: '#E4E4E7',
-    darker: '#F4F4F5',
-  },
-  background: {
-    primary: '#0F0F12',
-    secondary: '#1F1F23',
-    tertiary: '#2A2A2E',
-  },
-  surface: {
-    card: '#1F1F23',
-    elevated: '#2A2A2E',
-    overlay: 'rgba(0, 0, 0, 0.7)',
-  },
-  text: {
-    primary: '#F4F4F5',
-    secondary: '#A1A1AA',
-    tertiary: '#71717A',
-    inverse: '#18181B',
-  },
-  border: {
-    light: '#3F3F46',
-    medium: '#52525B',
-    focus: '#A78BFA',
-  },
-  status: {
-    success: '#86EFAC',
-    warning: '#FDE047',
-    error: '#FCA5A5',
-    info: '#93C5FD',
-  },
-};
-
-// Light mode extended palette
-const ExtendedLightColors = {
-  ...LightColors,
-  primary: {
-    purple: '#A78BFA',
-    pink: '#F472B6',
-    orange: '#FB923C',
-    turquoise: '#5EEAD4',
-  },
-  emotion: {
-    joy: '#FDE047',
-    trust: '#22C55E',
-    fear: '#EF4444',
-    surprise: '#C4B5FD',
-    sadness: '#60A5FA',
-    anticipation: '#FB923C',
-  },
-  neutral: {
-    white: LightColors.neutral.white,
-    lightest: '#F8F7FC',
-    lighter: '#F1F0F7',
-    light: LightColors.neutral.gray200,
-    medium: LightColors.neutral.gray400,
-    dark: '#6B7280',
-    darker: LightColors.neutral.gray700,
-    darkest: '#1A1A2E',
-  },
-  background: {
-    primary: LightColors.neutral.white,
-    secondary: '#F8F7FC',
-    tertiary: '#F1F0F7',
-  },
-  surface: {
-    card: LightColors.neutral.white,
-    elevated: LightColors.neutral.white,
-    overlay: 'rgba(0, 0, 0, 0.5)',
-  },
-  text: {
-    primary: '#1A1A2E',
-    secondary: '#6B7280',
-    tertiary: LightColors.neutral.gray400,
-    inverse: LightColors.neutral.white,
-  },
-  border: {
-    light: LightColors.neutral.gray200,
-    medium: LightColors.neutral.gray300,
-    focus: '#7C3AED',
-  },
-  status: {
-    success: '#22C55E',
-    warning: LightColors.semantic.amber,
-    error: '#EF4444',
-    info: '#3B82F6',
-  },
-};
-
-export type ThemeColors = typeof ExtendedLightColors;
+export type ThemeColors = typeof Colors;
 
 interface ThemeContextType {
   mode: ThemeMode;
@@ -153,10 +37,7 @@ interface ThemeProviderProps {
   defaultTheme?: ThemeMode;
 }
 
-export function ThemeProvider({
-  children,
-  defaultTheme = 'system',
-}: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProviderProps) {
   const systemColorScheme = useColorScheme();
   const [mode, setMode] = useState<ThemeMode>(defaultTheme);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -189,8 +70,9 @@ export function ThemeProvider({
   const isDark = resolvedTheme === 'dark';
 
   // Select colors based on theme
+  // DarkColorPalette mirrors Colors structure but has different literal types from `as const` arrays
   const colors = useMemo<ThemeColors>(() => {
-    return isDark ? DarkColors as ThemeColors : ExtendedLightColors;
+    return (isDark ? DarkColorPalette : Colors) as ThemeColors;
   }, [isDark]);
 
   // Update status bar
@@ -229,9 +111,7 @@ export function ThemeProvider({
     return null;
   }
 
-  return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 /**
@@ -248,9 +128,7 @@ export function useTheme(): ThemeContextType {
 /**
  * Hook to get themed styles
  */
-export function useThemedStyles<T>(
-  styleFactory: (colors: ThemeColors, isDark: boolean) => T
-): T {
+export function useThemedStyles<T>(styleFactory: (colors: ThemeColors, isDark: boolean) => T): T {
   const { colors, isDark } = useTheme();
   return useMemo(() => styleFactory(colors, isDark), [colors, isDark, styleFactory]);
 }
@@ -258,14 +136,12 @@ export function useThemedStyles<T>(
 /**
  * Hook to get a single color value
  */
-export function useThemeColor(
-  colorPath: string,
-  fallback?: string
-): string {
+export function useThemeColor(colorPath: string, fallback?: string): string {
   const { colors } = useTheme();
 
   return useMemo(() => {
     const parts = colorPath.split('.');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any = colors;
 
     for (const part of parts) {
@@ -280,4 +156,4 @@ export function useThemeColor(
   }, [colors, colorPath, fallback]);
 }
 
-export { DarkColors, ExtendedLightColors };
+export { DarkColorPalette as DarkColors };
