@@ -1,11 +1,28 @@
-# Renkioo - Çocuklar için Yaratıcı Masal Uygulaması
+# Renkioo
 
-## Proje Bilgileri
+**Çocuğunuzun iç dünyasını birlikte keşfedelim.**
 
-**Platform**: iOS, Android ve Web
-**Framework**: Expo Router + React Native
-**Backend**: Hono + tRPC (Railway'de deploy)
-**Database**: Supabase
+Renkioo, ebeveynlerin, öğretmenlerin ve çocuk uzmanlarının çocukların duygusal dünyasını çizimler, hikayeler ve yaratıcı araçlarla keşfetmesini sağlayan AI destekli gelişim platformudur.
+
+## Ne Yapabilirsiniz?
+
+- **AI Çizim Analizi** - Çocuğunuzun çizimlerindeki duygusal ipuçlarını keşfedin
+- **İnteraktif Hikayeler** - Karar süreçlerini gözlemleyin
+- **Dijital Boyama Stüdyosu** - Yaratıcılığı destekleyin
+- **Gelişim Takibi** - Haftalık ve aylık raporlarla ilerlemeyi görün
+
+## Platform & Stack
+
+| Katman            | Teknoloji                                   |
+| ----------------- | ------------------------------------------- |
+| **Mobil & Web**   | Expo 54, React Native 0.81, React 19        |
+| **Routing**       | Expo Router (dosya tabanlı)                 |
+| **Backend**       | Hono + tRPC (Railway)                       |
+| **Veritabanı**    | Supabase (PostgreSQL + Auth)                |
+| **AI**            | OpenAI (çizim analizi, hikaye üretimi, TTS) |
+| **Tip Güvenliği** | TypeScript, end-to-end tRPC                 |
+
+**Platformlar:** iOS, Android, Web
 
 ## Kurulum
 
@@ -33,89 +50,51 @@ npm run web
 npm run start:tunnel
 ```
 
-## Kullanılabilir Komutlar
+## Komutlar
 
-| Komut | Açıklama |
-|-------|----------|
-| `npm start` | Expo geliştirme sunucusunu başlat |
-| `npm run start:tunnel` | Tunnel modu ile başlat |
-| `npm run start:web` | Web modunda başlat |
-| `npm run web` | Web preview |
-| `npm run backend` | Backend sunucusunu başlat |
-| `npm run backend:watch` | Backend'i watch modunda başlat |
-| `npm run ios` | iOS simulator'da çalıştır |
-| `npm run android` | Android emulator'da çalıştır |
-
-## Teknoloji Stack'i
-
-- **React Native** - Cross-platform mobil geliştirme
-- **Expo** - React Native platformu
-- **Expo Router** - Dosya tabanlı routing
-- **TypeScript** - Tip güvenliği
-- **tRPC** - End-to-end type-safe API
-- **React Query** - Server state yönetimi
-- **Supabase** - Database ve authentication
-- **Hono** - Hızlı backend framework
-- **NativeWind** - Tailwind CSS for React Native
+| Komut                   | Açıklama                          |
+| ----------------------- | --------------------------------- |
+| `npm start`             | Expo geliştirme sunucusunu başlat |
+| `npm run start:tunnel`  | Tunnel modu ile başlat            |
+| `npm run start:web`     | Web modunda başlat                |
+| `npm run web`           | Web preview                       |
+| `npm run backend`       | Backend sunucusunu başlat         |
+| `npm run backend:watch` | Backend'i watch modunda başlat    |
+| `npm run ios`           | iOS simulator'da çalıştır         |
+| `npm run android`       | Android emulator'da çalıştır      |
 
 ## Proje Yapısı
 
 ```
-├── app/                    # Uygulama ekranları (Expo Router)
-│   ├── (tabs)/            # Tab navigasyon ekranları
-│   └── _layout.tsx        # Root layout
+├── app/                    # Ekranlar (Expo Router)
+│   ├── (onboarding)/      # Onboarding akışı (welcome, value-prop, register)
+│   ├── (tabs)/            # Ana tab navigasyonu (5 tab + gizli ekranlar)
+│   ├── analysis/          # Analiz detay ekranları
+│   └── interactive-story/ # İnteraktif hikaye okuyucu
 ├── backend/               # Backend API (Hono + tRPC)
 │   ├── routers/          # tRPC router'ları
-│   └── server.ts         # Ana sunucu dosyası
+│   ├── lib/              # Cache, monitoring, auth modülleri
+│   └── routes/           # REST endpoint'leri
 ├── components/            # React Native bileşenleri
-├── lib/                   # Yardımcı kütüphaneler
-├── stores/               # Zustand state store'ları
-├── constants/            # Sabit değerler
-├── assets/               # Statik dosyalar (resimler, fontlar)
+│   ├── navigation/       # AnimatedTabBar (floating glassmorphism)
+│   ├── analysis/         # Analiz akışı bileşenleri
+│   ├── coloring/         # Boyama stüdyosu
+│   ├── gamification/     # Rozet, XP, streak sistemi
+│   └── ui/               # Genel UI bileşenleri
+├── constants/            # Renk sistemi, design tokens, protokoller
+├── lib/                  # Hook'lar, context'ler, servisler
+├── assets/               # Logo, maskot görselleri, fontlar
 └── types/                # TypeScript tip tanımları
 ```
 
-## Test
+## Marka
 
-```bash
-# Telefonunuzda test etmek için
-# 1. Expo Go uygulamasını indirin (iOS/Android)
-# 2. npm start komutunu çalıştırın
-# 3. QR kodu tarayın
+Detaylı marka rehberi için: [`BRANDING.md`](./BRANDING.md)
 
-# Web'de test
-npm run web
-
-# iOS Simulator
-npm run ios
-
-# Android Emulator
-npm run android
-```
-
-## Deploy
-
-### Backend (Railway)
-
-Backend zaten Railway'de deploy edilmiş durumda:
-`https://rork-masalbak-studio-production.up.railway.app`
-
-### Mobil Uygulama (EAS Build)
-
-```bash
-# EAS CLI'ı yükle
-npm install -g @expo/eas-cli
-
-# iOS için build
-eas build --platform ios
-
-# Android için build
-eas build --platform android
-
-# Store'a gönder
-eas submit --platform ios
-eas submit --platform android
-```
+- **Uygulama:** Renkioo (ana marka)
+- **Maskot:** Ioo (yardımcı rehber)
+- **Hedef Kitle:** Ebeveynler, öğretmenler, çocuk uzmanları
+- **Ton:** Sıcak, güven veren, teşvik edici
 
 ## Ortam Değişkenleri
 
@@ -138,6 +117,30 @@ EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
 
+## Deploy
+
+### Backend (Railway)
+
+Backend Railway'de deploy edilmiş durumda:
+`https://rork-masalbak-studio-production.up.railway.app`
+
+### Mobil Uygulama (EAS Build)
+
+```bash
+# EAS CLI'ı yükle
+npm install -g @expo/eas-cli
+
+# iOS için build
+eas build --platform ios
+
+# Android için build
+eas build --platform android
+
+# Store'a gönder
+eas submit --platform ios
+eas submit --platform android
+```
+
 ## Sorun Giderme
 
 ### Uygulama yüklenmiyor?
@@ -157,3 +160,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
    ```bash
    npx expo start --clear
    ```
+
+## Lisans
+
+Tescilli yazılım. Tüm hakları saklıdır.

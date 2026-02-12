@@ -1,36 +1,19 @@
 /**
  * Value Proposition Screen
- * Phase 6: Professional Onboarding
  *
- * 5-scene professional onboarding:
- * 1. "Children Speak a Different Language"
- * 2. "Scientific Approach"
- * 3. "Your Tools"
- * 4. "Privacy & Security"
- * 5. "Let's Start"
+ * 3-scene onboarding:
+ * 1. "Cizimler Cok Sey Anlatir" - Emotional hook
+ * 2. "Renkioo Neler Yapabilir?" - Features overview
+ * 3. "Kesfetmeye Hazir misiniz?" - CTA
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Pressable,
-  ScrollView,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable, ScrollView } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
-  withDelay,
   interpolate,
-  FadeIn,
-  FadeOut,
-  SlideInRight,
-  SlideOutLeft,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -40,54 +23,32 @@ import {
   BookOpen,
   Brain,
   TrendingUp,
-  Shield,
-  Lock,
-  CheckCircle,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
-  Users,
-  Star,
   ArrowRight,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
+import { useTheme } from '@/lib/theme/ThemeProvider';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+  iconColors,
+} from '@/constants/design-system';
 import { Ioo as IooMascot } from '@/components/Ioo';
 import { useHapticFeedback } from '@/lib/haptics';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 
-// Pre-defined illustration styles (needed before SCENES)
+// Pre-defined illustration styles
 const illustrationStyles = StyleSheet.create({
   illustrationContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  scienceIllustration: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  brainIconContainer: {
-    backgroundColor: 'rgba(167, 139, 250, 0.1)',
-    borderRadius: 999,
-    padding: 24,
-    zIndex: 2,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 2,
-    borderColor: 'rgba(167, 139, 250, 0.2)',
-  },
-  pulseRing2: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    borderColor: 'rgba(167, 139, 250, 0.1)',
   },
   toolsGrid: {
     flexDirection: 'row',
@@ -102,26 +63,6 @@ const illustrationStyles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  privacyIllustration: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shieldContainer: {
-    position: 'relative',
-    backgroundColor: 'rgba(126, 217, 156, 0.1)',
-    borderRadius: 999,
-    padding: 32,
-  },
-  checkBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: Colors.semantic.success,
-    borderRadius: 999,
-    padding: 4,
-    borderWidth: 3,
-    borderColor: Colors.neutral.white,
   },
 });
 
@@ -138,8 +79,9 @@ interface Scene {
 const SCENES: Scene[] = [
   {
     id: 'language',
-    title: 'Çocuklar Konuşur,\nFarklı Bir Dilde',
-    description: 'Çocuklar duygularını kelimelerle ifade edemeyebilir.\nAma çizimleri, hikayeleri, renk seçimleri çok şey anlatır.',
+    title: 'Çizimler Çok Şey Anlatır',
+    description:
+      'Çocuklar duygularını her zaman kelimelerle ifade edemez. Ama çizimleri, renk seçimleri ve hikayeleri iç dünyalarının penceresidir.',
     gradient: ['#FFF8F0', '#F5E8FF', '#FFE8F5'],
     illustration: (
       <View style={illustrationStyles.illustrationContainer}>
@@ -148,79 +90,98 @@ const SCENES: Scene[] = [
     ),
   },
   {
-    id: 'science',
-    title: 'Bilimsel Yaklaşım',
-    description: 'Yapay zeka destekli çizim analizi,\nçocuk psikolojisi uzmanlarıyla geliştirildi.',
-    features: [
-      { icon: <Brain size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />, text: 'AI destekli analiz' },
-      { icon: <Users size={iconSizes.action} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />, text: 'Uzman onaylı' },
-      { icon: <Star size={iconSizes.action} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />, text: 'Kanıta dayalı' },
-    ],
-    gradient: ['#F0F9FF', '#E8F4FD', '#F5F3FF'],
-    illustration: (
-      <View style={illustrationStyles.scienceIllustration}>
-        <View style={illustrationStyles.brainIconContainer}>
-          <Brain size={iconSizes.empty} color={Colors.secondary.lavender} strokeWidth={iconStroke.thin} />
-        </View>
-        <View style={illustrationStyles.pulseRing} />
-        <View style={[illustrationStyles.pulseRing, illustrationStyles.pulseRing2]} />
-      </View>
-    ),
-  },
-  {
     id: 'tools',
-    title: 'Araçlarınız',
-    description: 'Çocuğunuzun duygusal dünyasını anlamak için\nihtiyacınız olan her şey.',
+    title: 'Renkioo Neler Yapabilir?',
+    description: 'Çocukların duygusal dünyasını anlamak için ihtiyacınız olan her şey.',
     features: [
-      { icon: <Brain size={iconSizes.action} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />, text: 'Çizim Analizi: Duygusal ipuçları' },
-      { icon: <BookOpen size={iconSizes.action} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />, text: 'İnteraktif Hikayeler: Karar süreçleri' },
-      { icon: <Palette size={iconSizes.action} color={Colors.secondary.mint} strokeWidth={iconStroke.standard} />, text: 'Dijital Boyama: Yaratıcılık' },
-      { icon: <TrendingUp size={iconSizes.action} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />, text: 'Gelişim Takibi: Zaman içi değişim' },
+      {
+        icon: (
+          <Brain
+            size={iconSizes.action}
+            color={Colors.secondary.lavender}
+            strokeWidth={iconStroke.standard}
+          />
+        ),
+        text: 'AI Çizim Analizi: Duygusal ipuçları',
+      },
+      {
+        icon: (
+          <BookOpen
+            size={iconSizes.action}
+            color={Colors.secondary.sunshine}
+            strokeWidth={iconStroke.standard}
+          />
+        ),
+        text: 'İnteraktif Hikayeler: Karar süreçleri',
+      },
+      {
+        icon: (
+          <Palette
+            size={iconSizes.action}
+            color={Colors.secondary.mint}
+            strokeWidth={iconStroke.standard}
+          />
+        ),
+        text: 'Dijital Boyama: Yaratıcılık',
+      },
+      {
+        icon: (
+          <TrendingUp
+            size={iconSizes.action}
+            color={Colors.secondary.grass}
+            strokeWidth={iconStroke.standard}
+          />
+        ),
+        text: 'Gelişim Takibi: Zaman içi değişim',
+      },
     ],
-    gradient: ['#FFF5F2', '#E8FFF5', '#FFF9E6'],
+    gradient: ['#F0F9FF', '#E8FFF5', '#F5F3FF'],
     illustration: (
       <View style={illustrationStyles.toolsGrid}>
-        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}>
-          <Brain size={iconSizes.feature} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+        <View
+          style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(167, 139, 250, 0.15)' }]}
+        >
+          <Brain
+            size={iconSizes.feature}
+            color={Colors.secondary.lavender}
+            strokeWidth={iconStroke.standard}
+          />
         </View>
-        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}>
-          <BookOpen size={iconSizes.feature} color={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
+        <View
+          style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(255, 213, 107, 0.15)' }]}
+        >
+          <BookOpen
+            size={iconSizes.feature}
+            color={Colors.secondary.sunshine}
+            strokeWidth={iconStroke.standard}
+          />
         </View>
-        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}>
-          <Palette size={iconSizes.feature} color={Colors.secondary.mint} strokeWidth={iconStroke.standard} />
+        <View
+          style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(111, 237, 214, 0.15)' }]}
+        >
+          <Palette
+            size={iconSizes.feature}
+            color={Colors.secondary.mint}
+            strokeWidth={iconStroke.standard}
+          />
         </View>
-        <View style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}>
-          <TrendingUp size={iconSizes.feature} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />
-        </View>
-      </View>
-    ),
-  },
-  {
-    id: 'privacy',
-    title: 'Gizlilik & Güvenlik',
-    description: 'Çocuğunuzun verileri sadece sizin.\nGüvenlik bizim önceliğimiz.',
-    features: [
-      { icon: <Lock size={iconSizes.action} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />, text: 'Uçtan uca şifreleme' },
-      { icon: <Shield size={iconSizes.action} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />, text: 'KVKK ve GDPR uyumlu' },
-      { icon: <CheckCircle size={iconSizes.action} color={Colors.semantic.success} strokeWidth={iconStroke.standard} />, text: 'Danışan gizliliği korunur' },
-    ],
-    gradient: ['#F0FDF4', '#E8FFF5', '#F0F9FF'],
-    illustration: (
-      <View style={illustrationStyles.privacyIllustration}>
-        <View style={illustrationStyles.shieldContainer}>
-          <Shield size={iconSizes.hero} color={Colors.secondary.grass} strokeWidth={iconStroke.thin} />
-          <View style={illustrationStyles.checkBadge}>
-            <CheckCircle size={iconSizes.navigation} color={Colors.neutral.white} fill={Colors.semantic.success} strokeWidth={iconStroke.standard} />
-          </View>
+        <View
+          style={[illustrationStyles.toolCard, { backgroundColor: 'rgba(126, 217, 156, 0.15)' }]}
+        >
+          <TrendingUp
+            size={iconSizes.feature}
+            color={Colors.secondary.grass}
+            strokeWidth={iconStroke.standard}
+          />
         </View>
       </View>
     ),
   },
   {
     id: 'start',
-    title: 'Başlayalım',
-    subtitle: 'Ioo, bu yolculukta size eşlik edecek',
-    description: 'Çocuğunuzun duygusal dünyasını keşfetmeye hazır mısınız?',
+    title: 'Keşfetmeye Hazır mısınız?',
+    subtitle: 'Renkioo ve Ioo yanınızda',
+    description: 'Çocukların gelişim yolculuğunda size rehberlik edecek.',
     gradient: ['#FFF8F0', '#F5E8FF', '#FFE8F5'],
     illustration: (
       <View style={illustrationStyles.illustrationContainer}>
@@ -231,6 +192,7 @@ const SCENES: Scene[] = [
 ];
 
 export default function ValuePropositionScreen() {
+  const { colors, isDark } = useTheme();
   const router = useRouter();
   const { tapMedium, selection } = useHapticFeedback();
   const [currentScene, setCurrentScene] = useState(0);
@@ -260,19 +222,15 @@ export default function ValuePropositionScreen() {
 
   const handleSkip = () => {
     tapMedium();
-    router.push('/(onboarding)/user-profile' as Href);
+    router.push('/(onboarding)/role-select' as Href);
   };
 
   const handleGetStarted = () => {
     tapMedium();
-    router.push('/(onboarding)/user-profile' as Href);
+    router.push('/(onboarding)/role-select' as Href);
   };
 
-  const handleLogin = () => {
-    tapMedium();
-    router.push('/(onboarding)/login' as Href);
-  };
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleScroll = (event: any) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const newScene = Math.round(offsetX / SCREEN_WIDTH);
@@ -290,7 +248,11 @@ export default function ValuePropositionScreen() {
 
   return (
     <LinearGradient
-      colors={scene.gradient}
+      colors={
+        isDark
+          ? ([...colors.background.pageGradient] as [string, string, ...string[]])
+          : scene.gradient
+      }
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -303,7 +265,7 @@ export default function ValuePropositionScreen() {
           </View>
           {!isLastScene && (
             <Pressable onPress={handleSkip} style={styles.skipButton}>
-              <Text style={styles.skipText}>Atla</Text>
+              <Text style={[styles.skipText, { color: colors.text.tertiary }]}>Atla</Text>
             </Pressable>
           )}
         </View>
@@ -317,28 +279,35 @@ export default function ValuePropositionScreen() {
           onMomentumScrollEnd={handleScroll}
           scrollEventThrottle={16}
         >
-          {SCENES.map((s, index) => (
+          {SCENES.map(s => (
             <View key={s.id} style={styles.sceneContainer}>
               {/* Illustration */}
-              <View style={styles.illustrationWrapper}>
-                {s.illustration}
-              </View>
+              <View style={styles.illustrationWrapper}>{s.illustration}</View>
 
               {/* Text Content */}
               <View style={styles.textContent}>
-                <Text style={styles.title}>{s.title}</Text>
+                <Text style={[styles.title, { color: colors.text.primary }]}>{s.title}</Text>
                 {s.subtitle && (
-                  <Text style={styles.subtitle}>{s.subtitle}</Text>
+                  <Text style={[styles.subtitle, { color: colors.secondary.lavender }]}>
+                    {s.subtitle}
+                  </Text>
                 )}
-                <Text style={styles.description}>{s.description}</Text>
+                <Text style={[styles.description, { color: colors.text.secondary }]}>
+                  {s.description}
+                </Text>
 
                 {/* Features List */}
                 {s.features && (
                   <View style={styles.featuresList}>
                     {s.features.map((feature, fIndex) => (
-                      <View key={fIndex} style={styles.featureItem}>
+                      <View
+                        key={fIndex}
+                        style={[styles.featureItem, { backgroundColor: colors.surface.card }]}
+                      >
                         {feature.icon}
-                        <Text style={styles.featureText}>{feature.text}</Text>
+                        <Text style={[styles.featureText, { color: colors.text.primary }]}>
+                          {feature.text}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -353,13 +322,7 @@ export default function ValuePropositionScreen() {
           {/* Dots */}
           <View style={styles.dotsContainer}>
             {SCENES.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.dot,
-                  index === currentScene && styles.dotActive,
-                ]}
-              />
+              <View key={index} style={[styles.dot, index === currentScene && styles.dotActive]} />
             ))}
           </View>
 
@@ -370,10 +333,15 @@ export default function ValuePropositionScreen() {
                 onPress={handlePrev}
                 style={({ pressed }) => [
                   styles.prevButton,
+                  { backgroundColor: colors.surface.card },
                   pressed && { opacity: 0.7 },
                 ]}
               >
-                <ChevronLeft size={iconSizes.navigation} color={Colors.neutral.medium} strokeWidth={iconStroke.standard} />
+                <ChevronLeft
+                  size={iconSizes.navigation}
+                  color={colors.text.tertiary}
+                  strokeWidth={iconStroke.standard}
+                />
               </Pressable>
             )}
 
@@ -381,42 +349,34 @@ export default function ValuePropositionScreen() {
               <View style={styles.finalButtons}>
                 <Pressable
                   onPress={handleGetStarted}
-                  style={({ pressed }) => [
-                    styles.primaryButton,
-                    pressed && styles.buttonPressed,
-                  ]}
+                  style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed]}
                 >
                   <LinearGradient
-                    colors={[Colors.secondary.lavender, Colors.secondary.sky]}
+                    colors={[colors.secondary.lavender, colors.secondary.sky] as [string, string]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.primaryButtonGradient}
                   >
-                    <Text style={styles.primaryButtonText}>Hesap Oluştur</Text>
-                    <ArrowRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+                    <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>Devam Et</Text>
+                    <ArrowRight
+                      size={iconSizes.action}
+                      color={iconColors.inverted}
+                      strokeWidth={iconStroke.standard}
+                    />
                   </LinearGradient>
-                </Pressable>
-
-                <Pressable
-                  onPress={handleLogin}
-                  style={({ pressed }) => [
-                    styles.loginButton,
-                    pressed && { opacity: 0.7 },
-                  ]}
-                >
-                  <Text style={styles.loginButtonText}>Giriş Yap</Text>
                 </Pressable>
               </View>
             ) : (
               <Pressable
                 onPress={handleNext}
-                style={({ pressed }) => [
-                  styles.nextButton,
-                  pressed && styles.buttonPressed,
-                ]}
+                style={({ pressed }) => [styles.nextButton, pressed && styles.buttonPressed]}
               >
                 <Text style={styles.nextButtonText}>Devam</Text>
-                <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+                <ChevronRight
+                  size={iconSizes.action}
+                  color={iconColors.inverted}
+                  strokeWidth={iconStroke.standard}
+                />
               </Pressable>
             )}
           </View>
@@ -478,76 +438,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     maxHeight: SCREEN_HEIGHT * 0.35,
-  },
-  illustrationContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // Science illustration
-  scienceIllustration: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  brainIconContainer: {
-    backgroundColor: 'rgba(167, 139, 250, 0.1)',
-    borderRadius: radius.full,
-    padding: spacing['6'],
-    zIndex: 2,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 2,
-    borderColor: 'rgba(167, 139, 250, 0.2)',
-  },
-  pulseRing2: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    borderColor: 'rgba(167, 139, 250, 0.1)',
-  },
-
-  // Tools grid
-  toolsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing['4'],
-    maxWidth: 250,
-  },
-  toolCard: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-
-  // Privacy illustration
-  privacyIllustration: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shieldContainer: {
-    position: 'relative',
-    backgroundColor: 'rgba(126, 217, 156, 0.1)',
-    borderRadius: radius.full,
-    padding: spacing['8'],
-  },
-  checkBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: Colors.semantic.success,
-    borderRadius: radius.full,
-    padding: spacing['1'],
-    borderWidth: 3,
-    borderColor: Colors.neutral.white,
   },
 
   // Text Content
@@ -673,14 +563,5 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.white,
-  },
-  loginButton: {
-    alignItems: 'center',
-    paddingVertical: spacing['3'],
-  },
-  loginButtonText: {
-    fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
-    color: Colors.secondary.lavender,
   },
 });

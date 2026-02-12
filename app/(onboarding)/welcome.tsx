@@ -1,10 +1,13 @@
 /**
- * Welcome Screen - Value-First Onboarding
+ * Welcome Screen - Renkioo Brand Introduction
  *
- * Shows immediate value proposition with:
- * - Emotional hook
- * - Interactive preview
- * - Social proof
+ * Clean, brand-focused welcome with:
+ * - Renkioo logo (hero position)
+ * - Ioo mascot (supporting role)
+ * - Emotional hook text for parents
+ * - CTA to value-proposition
+ * - Login link for existing users
+ * - Trust badge
  */
 
 import {
@@ -20,19 +23,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as Haptics from 'expo-haptics';
-import {
-  Heart,
-  Sparkles,
-  Star,
-  Users,
-  ChevronRight,
-  Play,
-} from 'lucide-react-native';
+import { ChevronRight, Shield } from 'lucide-react-native';
 import {
   spacing,
-  radius,
   shadows,
   typography,
   iconSizes,
@@ -41,33 +36,23 @@ import {
 } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 import { Ioo as IooMascot } from '@/components/Ioo';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
-const isMediumDevice = SCREEN_HEIGHT >= 700 && SCREEN_HEIGHT < 850;
-
-// Sample emotional insights to show value
-const SAMPLE_INSIGHTS = [
-  { emotion: 'Mutluluk', level: 85, color: '#FFD93D', icon: '😊' },
-  { emotion: 'Güvenlik', level: 72, color: '#6BCB77', icon: '🛡️' },
-  { emotion: 'Yaratıcılık', level: 91, color: Colors.secondary.lavender, icon: '✨' },
-];
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const [showPreview, setShowPreview] = useState(false);
+  const { colors } = useTheme();
 
   // Animation refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideUpAnim = useRef(new Animated.Value(50)).current;
   const logoScaleAnim = useRef(new Animated.Value(0.8)).current;
-  const previewAnim = useRef(new Animated.Value(0)).current;
-  const insightAnims = useRef(
-    SAMPLE_INSIGHTS.map(() => new Animated.Value(0))
-  ).current;
+  const mascotFadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Initial animations
+    // Logo and content animate first
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -88,51 +73,21 @@ export default function WelcomeScreen() {
       }),
     ]).start();
 
-    // Auto-trigger preview after delay
-    const timer = setTimeout(() => {
-      triggerPreview();
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const triggerPreview = () => {
-    setShowPreview(true);
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-
-    // Animate preview card
-    Animated.timing(previewAnim, {
+    // Mascot fades in slightly delayed
+    Animated.timing(mascotFadeAnim, {
       toValue: 1,
-      duration: 500,
+      duration: 600,
+      delay: 400,
       useNativeDriver: Platform.OS !== 'web',
     }).start();
-
-    // Animate insights one by one
-    insightAnims.forEach((anim, index) => {
-      Animated.timing(anim, {
-        toValue: 1,
-        duration: 400,
-        delay: 200 + index * 150,
-        useNativeDriver: Platform.OS !== 'web',
-      }).start();
-    });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStartJourney = () => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    router.push('/(onboarding)/tour' as Href);
-  };
-
-  const handleTryNow = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    }
-    // Skip to main app for try-before-signup
-    router.push('/(tabs)' as Href);
+    router.push('/(onboarding)/value-proposition' as Href);
   };
 
   const handleLogin = () => {
@@ -144,191 +99,89 @@ export default function WelcomeScreen() {
 
   return (
     <LinearGradient
-      colors={['#FFF8F0', '#F5E8FF', '#FFE8F5']}
+      colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
-          style={[
-            styles.content,
-            { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] },
-          ]}
+          style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] }]}
         >
-          {/* Hero Section */}
-          <View style={styles.heroSection}>
-            {/* Mascot */}
-            <Animated.View
-              style={[
-                styles.mascotContainer,
-                { transform: [{ scale: logoScaleAnim }] },
-              ]}
-            >
-              <IooMascot
-                size={isSmallDevice ? 'medium' : 'large'}
-                animated
-                showGlow
-                showSparkles
-                mood="happy"
-              />
+          {/* Brand Section - Logo at top */}
+          <View style={styles.brandSection}>
+            <Animated.View style={{ transform: [{ scale: logoScaleAnim }] }}>
+              <Image source={require('@/assets/images/app-logo.png')} style={styles.logoImage} />
             </Animated.View>
-
-            {/* Emotional Hook - Turkish */}
-            <View style={styles.emotionalHook}>
-              <Text style={styles.hookTitle}>
-                Çocuğunuzun çizimleri{'\n'}
-                <Text style={styles.hookHighlight}>sırlarını fısıldıyor</Text>
-              </Text>
-              <Text style={styles.hookSubtitle}>
-                Her renk bir duygu, her çizgi bir mesaj taşır
-              </Text>
-            </View>
-
-            {/* Value Preview Card */}
-            {showPreview && (
-              <Animated.View
-                style={[
-                  styles.previewCard,
-                  {
-                    opacity: previewAnim,
-                    transform: [
-                      {
-                        translateY: previewAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [20, 0],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <View style={styles.previewHeader}>
-                  <Sparkles size={iconSizes.inline} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
-                  <Text style={styles.previewHeaderText}>
-                    Örnek Çizim Analizi
-                  </Text>
-                </View>
-
-                {/* Sample Insights */}
-                <View style={styles.insightsContainer}>
-                  {SAMPLE_INSIGHTS.map((insight, index) => (
-                    <Animated.View
-                      key={insight.emotion}
-                      style={[
-                        styles.insightItem,
-                        {
-                          opacity: insightAnims[index],
-                          transform: [
-                            {
-                              translateX: insightAnims[index].interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [-20, 0],
-                              }),
-                            },
-                          ],
-                        },
-                      ]}
-                    >
-                      <Text style={styles.insightIcon}>{insight.icon}</Text>
-                      <View style={styles.insightInfo}>
-                        <Text style={styles.insightLabel}>{insight.emotion}</Text>
-                        <View style={styles.insightBarBg}>
-                          <Animated.View
-                            style={[
-                              styles.insightBarFill,
-                              {
-                                backgroundColor: insight.color,
-                                width: insightAnims[index].interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: ['0%', `${insight.level}%`],
-                                }),
-                              },
-                            ]}
-                          />
-                        </View>
-                      </View>
-                      <Text style={[styles.insightPercent, { color: insight.color }]}>
-                        {insight.level}%
-                      </Text>
-                    </Animated.View>
-                  ))}
-                </View>
-              </Animated.View>
-            )}
           </View>
 
-          {/* Social Proof */}
-          <View style={styles.socialProof}>
-            <View style={styles.socialProofItem}>
-              <Users size={iconSizes.badge} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
-              <Text style={styles.socialProofText}>10,000+ aile</Text>
-            </View>
-            <View style={styles.socialProofDot} />
-            <View style={styles.socialProofItem}>
-              <Star size={iconSizes.badge} color={Colors.secondary.sunshine} fill={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
-              <Text style={styles.socialProofText}>4.9 puan</Text>
-            </View>
-            <View style={styles.socialProofDot} />
-            <View style={styles.socialProofItem}>
-              <Heart size={iconSizes.badge} color={Colors.secondary.peach} fill={Colors.secondary.peach} strokeWidth={iconStroke.standard} />
-              <Text style={styles.socialProofText}>Psikolog onaylı</Text>
+          {/* Hero Section - Mascot + Text */}
+          <View style={styles.heroSection}>
+            {/* Mascot (medium, supporting role) */}
+            <Animated.View style={[styles.mascotContainer, { opacity: mascotFadeAnim }]}>
+              <IooMascot size="medium" animated showGlow mood="happy" />
+            </Animated.View>
+
+            {/* Emotional hook text */}
+            <View style={styles.emotionalHook}>
+              <Text style={[styles.hookTitle, { color: colors.text.primary }]}>
+                {'Çocukların iç dünyasını\nbirlikte keşfedelim'}
+              </Text>
+              <Text style={[styles.hookSubtitle, { color: colors.text.secondary }]}>
+                {'Ebeveyn, öğretmen ya da uzman — '}
+                <Text
+                  style={{
+                    color: colors.secondary.lavender,
+                    fontWeight: typography.weight.semibold,
+                  }}
+                >
+                  Ioo
+                </Text>
+                {' bu yolculukta yanınızda'}
+              </Text>
             </View>
           </View>
 
           {/* CTA Section */}
           <View style={styles.ctaSection}>
-            {/* Primary CTA - Try Now (Value First) */}
+            {/* Primary CTA */}
             <Pressable
-              onPress={handleTryNow}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                pressed && styles.buttonPressed,
-              ]}
+              onPress={handleStartJourney}
+              style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed]}
             >
               <LinearGradient
-                colors={[Colors.secondary.lavender, '#818CF8', Colors.secondary.indigo]}
+                colors={[colors.primary.sunset, colors.secondary.peach] as [string, string]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
               >
-                <Play size={iconSizes.action} color={iconColors.inverted} fill={iconColors.inverted} strokeWidth={iconStroke.standard} />
-                <Text style={styles.primaryButtonText}>
-                  Hemen Deneyin - Ücretsiz
+                <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>
+                  Keşfetmeye Başlayın
                 </Text>
-                <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+                <ChevronRight
+                  size={iconSizes.action}
+                  color={iconColors.inverted}
+                  strokeWidth={iconStroke.standard}
+                />
               </LinearGradient>
             </Pressable>
 
-            {/* Secondary CTA - Learn More */}
-            <Pressable
-              onPress={handleStartJourney}
-              style={({ pressed }) => [
-                styles.secondaryButton,
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              <Text style={styles.secondaryButtonText}>
-                Nasıl Çalışır? Keşfedin
-              </Text>
-            </Pressable>
-
             {/* Login Link */}
-            <Pressable
-              onPress={handleLogin}
-              style={({ pressed }) => [pressed && { opacity: 0.7 }]}
-            >
-              <Text style={styles.loginText}>
-                Zaten hesabınız var mı?{' '}
-                <Text style={styles.loginLink}>Giriş Yapın</Text>
+            <Pressable onPress={handleLogin} style={({ pressed }) => [pressed && { opacity: 0.7 }]}>
+              <Text style={[styles.loginText, { color: colors.text.secondary }]}>
+                Hesabınız var mı?{' '}
+                <Text style={[styles.loginLink, { color: colors.secondary.lavender }]}>
+                  Giriş Yapın
+                </Text>
               </Text>
             </Pressable>
           </View>
 
           {/* Trust Badge */}
           <View style={styles.trustBadge}>
-            <Text style={styles.trustText}>
-              🔒 KVKK uyumlu • Verileriniz güvende
+            <Shield size={12} color={colors.text.tertiary} strokeWidth={iconStroke.standard} />
+            <Text style={[styles.trustText, { color: colors.text.tertiary }]}>
+              KVKK uyumlu · Verileriniz güvende
             </Text>
           </View>
         </Animated.View>
@@ -347,8 +200,20 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: isSmallDevice ? spacing.sm : spacing.md,
+    paddingTop: isSmallDevice ? spacing.md : spacing.lg,
     paddingBottom: spacing.md,
+  },
+
+  // Brand Section (logo at top)
+  brandSection: {
+    alignItems: 'center',
+    marginTop: isSmallDevice ? spacing.sm : spacing.lg,
+    marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+  },
+  logoImage: {
+    width: 200,
+    height: 60,
+    resizeMode: 'contain',
   },
 
   // Hero Section
@@ -374,102 +239,13 @@ const styles = StyleSheet.create({
     lineHeight: isSmallDevice ? 32 : 38,
     marginBottom: spacing.sm,
   },
-  hookHighlight: {
-    color: Colors.secondary.lavender,
-  },
   hookSubtitle: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.dark,
     textAlign: 'center',
     fontWeight: typography.weight.medium,
-  },
-
-  // Preview Card
-  previewCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: spacing.md,
-    width: '100%',
-    maxWidth: 320,
-    ...shadows.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(167, 139, 250, 0.2)',
-  },
-  previewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.md,
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(167, 139, 250, 0.15)',
-  },
-  previewHeaderText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
-    color: Colors.secondary.lavender,
-  },
-  insightsContainer: {
-    gap: spacing.sm,
-  },
-  insightItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  insightIcon: {
-    fontSize: 20,
-  },
-  insightInfo: {
-    flex: 1,
-  },
-  insightLabel: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.darkest,
-    marginBottom: spacing['1'],
-  },
-  insightBarBg: {
-    height: 6,
-    backgroundColor: Colors.neutral.gray100,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  insightBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  insightPercent: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
-    width: 36,
-    textAlign: 'right',
-  },
-
-  // Social Proof
-  socialProof: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-    flexWrap: 'wrap',
-  },
-  socialProofItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  socialProofText: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.dark,
-  },
-  socialProofDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.neutral.gray300,
+    lineHeight: 22,
+    paddingHorizontal: spacing.md,
   },
 
   // CTA Section
@@ -499,15 +275,6 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
     opacity: 0.9,
   },
-  secondaryButton: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  secondaryButtonText: {
-    fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
-    color: Colors.secondary.lavender,
-  },
   loginText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
@@ -520,7 +287,10 @@ const styles = StyleSheet.create({
 
   // Trust Badge
   trustBadge: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     paddingVertical: spacing.sm,
   },
   trustText: {

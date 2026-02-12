@@ -5,13 +5,13 @@ export default function OnboardingLayout() {
     <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
       <Stack.Screen name="value-proposition" />
-      <Stack.Screen name="user-profile" />
-      <Stack.Screen name="tour" />
+      <Stack.Screen name="role-select" options={{ animation: 'slide_from_bottom' }} />
       <Stack.Screen name="register" />
       <Stack.Screen name="login" />
       <Stack.Screen name="forgot-password" />
       <Stack.Screen name="set-password" />
-      <Stack.Screen name="role-select" options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="user-profile" />
+      <Stack.Screen name="tour" />
     </Stack>
   );
 }

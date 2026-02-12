@@ -9,15 +9,7 @@
  * Part of #16: Professional/Adult-Focused UI Revision
  */
 
-import {
-  View,
-  Text,
-  Pressable,
-  Animated,
-  StyleSheet,
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet, Platform, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -35,11 +27,19 @@ import {
   FileText,
   Shield,
 } from 'lucide-react-native';
-import { spacing, radius, shadows, typography, iconSizes, iconStroke, iconColors } from '@/constants/design-system';
-import { useRole, UserRole, ROLE_CONFIGS } from '@/lib/contexts/RoleContext';
+import {
+  spacing,
+  shadows,
+  typography,
+  iconSizes,
+  iconStroke,
+  iconColors,
+} from '@/constants/design-system';
+import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 import { ProfessionalColors, Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
 
 // Role card configurations with icons and features
@@ -85,17 +85,16 @@ const ROLE_CARDS = {
 type RoleKey = keyof typeof ROLE_CARDS;
 
 export default function RoleSelectScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
-  const { setRole, completeOnboarding } = useRole();
+  const { setRole } = useRole();
   const [selectedRole, setSelectedRole] = useState<RoleKey | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Animation refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideUpAnim = useRef(new Animated.Value(30)).current;
-  const cardAnims = useRef(
-    Object.keys(ROLE_CARDS).map(() => new Animated.Value(0))
-  ).current;
+  const cardAnims = useRef(Object.keys(ROLE_CARDS).map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
     // Initial animations
@@ -122,6 +121,7 @@ export default function RoleSelectScreen() {
         useNativeDriver: Platform.OS !== 'web',
       }).start();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRoleSelect = (role: RoleKey) => {
@@ -141,10 +141,10 @@ export default function RoleSelectScreen() {
 
     try {
       await setRole(selectedRole as UserRole);
-      await completeOnboarding();
-      router.replace('/(tabs)' as Href);
+      router.push('/(onboarding)/register' as Href);
     } catch (error) {
       console.error('Failed to set role:', error);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -153,22 +153,19 @@ export default function RoleSelectScreen() {
 
   return (
     <LinearGradient
-      colors={['#FAFAFA', '#F5F3FF', '#FFF5F5']}
+      colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
         <Animated.View
-          style={[
-            styles.content,
-            { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] },
-          ]}
+          style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideUpAnim }] }]}
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Sizi tanıyalım</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: colors.text.primary }]}>Sizi tanıyalım</Text>
+            <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
               Deneyiminizi kişiselleştirmek için rolünüzü seçin
             </Text>
           </View>
@@ -202,30 +199,28 @@ export default function RoleSelectScreen() {
                     onPress={() => handleRoleSelect(roleKey)}
                     style={({ pressed }) => [
                       styles.card,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                       isSelected && styles.cardSelected,
-                      isSelected && { borderColor: card.color },
+                      isSelected && {
+                        borderColor: card.color,
+                        backgroundColor: colors.surface.elevated,
+                      },
                       pressed && styles.cardPressed,
                     ]}
                   >
                     {/* Selection Indicator */}
                     {isSelected && (
-                      <View
-                        style={[
-                          styles.selectedIndicator,
-                          { backgroundColor: card.color },
-                        ]}
-                      >
-                        <Check size={iconSizes.badge} color={iconColors.inverted} strokeWidth={iconStroke.bold} />
+                      <View style={[styles.selectedIndicator, { backgroundColor: card.color }]}>
+                        <Check
+                          size={iconSizes.badge}
+                          color={iconColors.inverted}
+                          strokeWidth={iconStroke.bold}
+                        />
                       </View>
                     )}
 
                     {/* Icon */}
-                    <View
-                      style={[
-                        styles.iconContainer,
-                        { backgroundColor: `${card.color}15` },
-                      ]}
-                    >
+                    <View style={[styles.iconContainer, { backgroundColor: `${card.color}15` }]}>
                       <IconComponent
                         size={iconSizes.navigation}
                         color={card.color}
@@ -235,8 +230,12 @@ export default function RoleSelectScreen() {
 
                     {/* Text Content */}
                     <View style={styles.cardTextContent}>
-                      <Text style={styles.cardTitle}>{card.title}</Text>
-                      <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+                      <Text style={[styles.cardTitle, { color: colors.text.primary }]}>
+                        {card.title}
+                      </Text>
+                      <Text style={[styles.cardSubtitle, { color: colors.text.secondary }]}>
+                        {card.subtitle}
+                      </Text>
                     </View>
 
                     {/* Features */}
@@ -244,16 +243,23 @@ export default function RoleSelectScreen() {
                       {card.features.map((feature, fIndex) => {
                         const FeatureIcon = feature.icon;
                         return (
-                          <View key={fIndex} style={styles.featureItem}>
+                          <View
+                            key={fIndex}
+                            style={[
+                              styles.featureItem,
+                              { backgroundColor: colors.neutral.lightest },
+                            ]}
+                          >
                             <FeatureIcon
                               size={iconSizes.badge}
-                              color={isSelected ? card.color : iconColors.medium}
+                              color={isSelected ? card.color : colors.text.tertiary}
                               strokeWidth={iconStroke.standard}
                             />
                             <Text
                               style={[
                                 styles.featureText,
-                                isSelected && { color: ProfessionalColors.neutral.darkGray },
+                                { color: colors.text.tertiary },
+                                isSelected && { color: colors.text.primary },
                               ]}
                             >
                               {feature.text}
@@ -289,11 +295,22 @@ export default function RoleSelectScreen() {
                   <Text style={styles.continueButtonText}>
                     {isSubmitting ? 'Yükleniyor...' : 'Devam Et'}
                   </Text>
-                  <ChevronRight size={iconSizes.action} color={iconColors.inverted} strokeWidth={iconStroke.standard} />
+                  <ChevronRight
+                    size={iconSizes.action}
+                    color={iconColors.inverted}
+                    strokeWidth={iconStroke.standard}
+                  />
                 </LinearGradient>
               ) : (
-                <View style={styles.continueButtonDisabledInner}>
-                  <Text style={styles.continueButtonTextDisabled}>
+                <View
+                  style={[
+                    styles.continueButtonDisabledInner,
+                    { backgroundColor: colors.border.light },
+                  ]}
+                >
+                  <Text
+                    style={[styles.continueButtonTextDisabled, { color: colors.text.tertiary }]}
+                  >
                     Bir rol seçin
                   </Text>
                 </View>
@@ -301,7 +318,7 @@ export default function RoleSelectScreen() {
             </Pressable>
 
             {/* Info Text */}
-            <Text style={styles.infoText}>
+            <Text style={[styles.infoText, { color: colors.text.tertiary }]}>
               Rolünüzü daha sonra ayarlardan değiştirebilirsiniz
             </Text>
           </View>
