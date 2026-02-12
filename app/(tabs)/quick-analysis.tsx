@@ -11,7 +11,16 @@ import {
   Linking,
 } from 'react-native';
 import { Colors } from '@/constants/colors';
-import { layout, typography, spacing, radius, shadows } from '@/constants/design-system';
+import { useTheme } from '@/lib/theme/ThemeProvider';
+import {
+  layout,
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 import { useState, useRef, useEffect } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,14 +34,13 @@ import {
   Zap,
   Lightbulb,
   Brain,
-  TrendingUp,
-  Award,
-  CheckCircle,
+  MessageCircle,
+  ChevronRight,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { trpc } from '@/lib/trpc';
 import { useFirstTimeUser } from '@/lib/hooks/useFirstTimeUser';
 import { FirstTimeWelcomeModal } from '@/components/FirstTimeWelcomeModal';
@@ -87,6 +95,7 @@ type Analysis = {
 export default function AnalyzeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { colors, isDark: _isDark } = useTheme();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -278,7 +287,7 @@ export default function AnalyzeScreen() {
   // ... existing code ...
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       {/* First Time Welcome Modal */}
       <FirstTimeWelcomeModal visible={showWelcomeModal} onDismiss={handleDismissWelcome} />
 
@@ -297,26 +306,36 @@ export default function AnalyzeScreen() {
         />
       ) : (
         <LinearGradient
-          colors={Colors.background.analysis}
+          colors={[...colors.background.analysis] as [string, string, ...string[]]}
           style={[styles.gradientContainer, { paddingTop: insets.top }]}
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            {/* ✅ YENİ: Error Banner */}
+            {/* Error Banner */}
             {error && (
-              <View style={styles.errorBanner}>
+              <View
+                style={[
+                  styles.errorBanner,
+                  {
+                    backgroundColor: colors.semantic.errorLight,
+                    borderLeftColor: colors.semantic.error,
+                  },
+                ]}
+              >
                 <View style={styles.errorContent}>
                   <Text style={styles.errorIcon}>⚠️</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.errorTitle}>Hata Oluştu</Text>
-                    <Text style={styles.errorText}>{error}</Text>
+                    <Text style={[styles.errorTitle, { color: colors.semantic.error }]}>
+                      Hata Oluştu
+                    </Text>
+                    <Text style={[styles.errorText, { color: colors.text.tertiary }]}>{error}</Text>
                     {retries > 0 && <Text style={styles.errorRetryInfo}>Deneme: {retries}/3</Text>}
                   </View>
                   <Pressable onPress={() => setError(null)} style={styles.errorCloseButton}>
-                    <X size={20} color={Colors.neutral.white} />
+                    <X size={20} color="#FFFFFF" />
                   </Pressable>
                 </View>
 
-                {/* ✅ YENİ: Retry Button */}
+                {/* Retry Button */}
                 {retries >= 3 && (
                   <Pressable
                     onPress={() => {
@@ -324,7 +343,7 @@ export default function AnalyzeScreen() {
                       setError(null);
                       handleAnalysis();
                     }}
-                    style={styles.errorRetryButton}
+                    style={[styles.errorRetryButton, { backgroundColor: colors.semantic.error }]}
                   >
                     <Text style={styles.errorRetryButtonText}>🔄 Tekrar Dene</Text>
                   </Pressable>
@@ -332,53 +351,30 @@ export default function AnalyzeScreen() {
               </View>
             )}
 
-            {/* Header with gradient icon */}
+            {/* Header - Compact */}
             <View style={styles.header}>
-              <LinearGradient
-                colors={[Colors.cards.analysis.icon, Colors.secondary.sky]}
-                style={styles.headerIcon}
+              <View
+                style={[styles.headerIcon, { backgroundColor: colors.secondary.skyLight + '30' }]}
               >
-                <Brain size={layout.icon.medium} color={Colors.neutral.white} />
-              </LinearGradient>
+                <Brain
+                  size={iconSizes.header}
+                  color={colors.secondary.sky}
+                  strokeWidth={iconStroke.standard}
+                />
+              </View>
               <View style={styles.headerTextContainer}>
-                <Text style={styles.headerTitle}>Çizim Analizi</Text>
-                <Text style={styles.headerSubtitle}>Çocuk psikolojisi uzmanı desteğiyle</Text>
+                <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
+                  Çizim Analizi
+                </Text>
+                <Text style={[styles.headerSubtitle, { color: colors.text.tertiary }]}>
+                  AI destekli gelişim değerlendirmesi
+                </Text>
               </View>
             </View>
 
             {/* Analysis Progress Stepper */}
             <View style={styles.stepperContainer}>
               <AnalysisStepper currentStep={currentAnalysisStep} />
-            </View>
-
-            {/* Stats Row */}
-            <View style={styles.statsRow}>
-              <LinearGradient
-                colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
-                style={styles.statCard}
-              >
-                <TrendingUp size={24} color={Colors.neutral.white} />
-                <Text style={styles.statNumber}>95%</Text>
-                <Text style={styles.statLabel}>Doğruluk</Text>
-              </LinearGradient>
-
-              <LinearGradient
-                colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
-                style={styles.statCard}
-              >
-                <Award size={24} color={Colors.neutral.white} />
-                <Text style={styles.statNumber}>AI</Text>
-                <Text style={styles.statLabel}>Destekli</Text>
-              </LinearGradient>
-
-              <LinearGradient
-                colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
-                style={styles.statCard}
-              >
-                <CheckCircle size={24} color={Colors.neutral.white} />
-                <Text style={styles.statNumber}>∞</Text>
-                <Text style={styles.statLabel}>Analiz</Text>
-              </LinearGradient>
             </View>
 
             {/* Görsel Seçme Butonları */}
@@ -408,10 +404,10 @@ export default function AnalyzeScreen() {
                   ]}
                 >
                   <LinearGradient
-                    colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                    colors={[colors.secondary.sky, colors.secondary.skyLight]}
                     style={styles.primaryButton}
                   >
-                    <ImageIcon size={24} color={Colors.neutral.white} />
+                    <ImageIcon size={24} color="#FFFFFF" />
                     <Text style={styles.primaryButtonText}>Galeriden Seç</Text>
                   </LinearGradient>
                 </Pressable>
@@ -453,10 +449,10 @@ export default function AnalyzeScreen() {
                   ]}
                 >
                   <LinearGradient
-                    colors={[Colors.neutral.medium, Colors.neutral.dark]}
+                    colors={[colors.neutral.medium, colors.neutral.dark]}
                     style={styles.secondaryButton}
                   >
-                    <Camera size={24} color={Colors.neutral.white} />
+                    <Camera size={24} color="#FFFFFF" />
                     <Text style={styles.secondaryButtonText}>Fotoğraf Çek</Text>
                   </LinearGradient>
                 </Pressable>
@@ -498,7 +494,7 @@ export default function AnalyzeScreen() {
                     }}
                     style={styles.cameraCloseButton}
                   >
-                    <X size={24} color={Colors.neutral.white} />
+                    <X size={24} color="#FFFFFF" />
                   </Pressable>
                   <Pressable
                     onPress={() => {
@@ -536,7 +532,7 @@ export default function AnalyzeScreen() {
                   }}
                   style={styles.removeImageButton}
                 >
-                  <X size={20} color={Colors.neutral.white} />
+                  <X size={20} color="#FFFFFF" />
                 </Pressable>
               </View>
             )}
@@ -548,15 +544,17 @@ export default function AnalyzeScreen() {
                 style={[styles.analyzeButton, analyzing && styles.analyzeButtonDisabled]}
                 disabled={analyzing}
               >
-                <Sparkles size={20} color={Colors.neutral.white} />
+                <Sparkles size={20} color="#FFFFFF" />
                 <Text style={styles.analyzeButtonText}>Analiz Et</Text>
               </Pressable>
             )}
 
             {analyzing && (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={Colors.primary.sunset} />
-                <Text style={styles.loadingText}>Çizim analiz ediliyor...</Text>
+                <ActivityIndicator size="large" color={colors.primary.sunset} />
+                <Text style={[styles.loadingText, { color: colors.text.secondary }]}>
+                  Çizim analiz ediliyor...
+                </Text>
               </View>
             )}
 
@@ -567,49 +565,103 @@ export default function AnalyzeScreen() {
                   {
                     opacity: fadeAnim,
                     transform: [{ scale: scaleAnim }],
+                    backgroundColor: colors.surface.card,
                   },
                 ]}
               >
-                <Text style={styles.resultsTitle}>Analiz Sonuçları</Text>
-
-                {/* Meta Info */}
-                <View style={styles.metaSection}>
-                  <Text style={styles.metaText}>
-                    Güven: {(analysis.meta.confidence * 100).toFixed(0)}% • Belirsizlik:{' '}
-                    {analysis.meta.uncertaintyLevel === 'low'
-                      ? 'Düşük'
-                      : analysis.meta.uncertaintyLevel === 'mid'
-                        ? 'Orta'
-                        : 'Yüksek'}
+                {/* Summary Card - Top */}
+                <View
+                  style={[
+                    styles.summaryCard,
+                    { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                  ]}
+                >
+                  <Text style={styles.summaryEmoji}>
+                    {analysis.meta.confidence >= 0.7
+                      ? '✅'
+                      : analysis.meta.confidence >= 0.4
+                        ? '📊'
+                        : '🔍'}
                   </Text>
+                  <View style={styles.summaryContent}>
+                    <Text style={[styles.summaryTitle, { color: colors.text.primary }]}>
+                      {analysis.insights?.[0]?.title || 'Analiz Tamamlandı'}
+                    </Text>
+                    <Text style={[styles.summarySubtitle, { color: colors.text.tertiary }]}>
+                      Güven: %{(analysis.meta.confidence * 100).toFixed(0)} •{' '}
+                      {analysis.meta.uncertaintyLevel === 'low'
+                        ? 'Düşük belirsizlik'
+                        : analysis.meta.uncertaintyLevel === 'mid'
+                          ? 'Orta belirsizlik'
+                          : 'Yüksek belirsizlik'}
+                    </Text>
+                  </View>
                 </View>
 
                 {/* Risk Flags */}
                 {analysis.riskFlags && analysis.riskFlags.length > 0 && (
-                  <View style={styles.riskSection}>
-                    <Text style={styles.riskTitle}>⚠️ Önemli Notlar</Text>
+                  <View
+                    style={[
+                      styles.riskSection,
+                      {
+                        backgroundColor: colors.semantic.warningBg,
+                        borderLeftColor: colors.semantic.warning,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.riskTitle, { color: colors.text.primary }]}>
+                      Önemli Notlar
+                    </Text>
                     {analysis.riskFlags.map((risk, idx) => (
                       <View key={idx} style={styles.riskItem}>
-                        <Text style={styles.riskSummary}>{risk.summary}</Text>
-                        <Text style={styles.riskAction}>Uzman görüşü önerilir</Text>
+                        <Text style={[styles.riskSummary, { color: colors.text.secondary }]}>
+                          {risk.summary}
+                        </Text>
+                        <Text style={[styles.riskAction, { color: colors.text.tertiary }]}>
+                          Uzman görüşü önerilir
+                        </Text>
                       </View>
                     ))}
                   </View>
                 )}
 
-                {/* Insights */}
+                {/* Insights - Card Based */}
                 {analysis.insights && analysis.insights.length > 0 && (
                   <View style={styles.resultSection}>
                     <View style={styles.insightHeader}>
-                      <Lightbulb size={20} color={Colors.secondary.sunshine} />
-                      <Text style={styles.resultLabel}>İçgörüler</Text>
+                      <Lightbulb
+                        size={iconSizes.action}
+                        color={colors.secondary.sunshine}
+                        strokeWidth={iconStroke.standard}
+                      />
+                      <Text style={[styles.resultLabel, { color: colors.text.secondary }]}>
+                        İçgörüler
+                      </Text>
                     </View>
                     {analysis.insights.map((insight, idx) => (
-                      <View key={idx} style={styles.insightItem}>
-                        <Text style={styles.insightTitle}>{insight.title}</Text>
-                        <Text style={styles.resultValue}>{insight.summary}</Text>
-                        <View style={styles.strengthBadge}>
-                          <Text style={styles.strengthText}>
+                      <View
+                        key={idx}
+                        style={[
+                          styles.insightCard,
+                          {
+                            backgroundColor: colors.surface.card,
+                            borderColor: colors.border.light,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.insightTitle, { color: colors.text.primary }]}>
+                          {insight.title}
+                        </Text>
+                        <Text style={[styles.resultValue, { color: colors.text.secondary }]}>
+                          {insight.summary}
+                        </Text>
+                        <View
+                          style={[
+                            styles.strengthBadge,
+                            { backgroundColor: colors.secondary.sky + '20' },
+                          ]}
+                        >
+                          <Text style={[styles.strengthText, { color: colors.secondary.sky }]}>
                             {insight.strength === 'weak'
                               ? 'Zayıf'
                               : insight.strength === 'moderate'
@@ -625,32 +677,122 @@ export default function AnalyzeScreen() {
 
                 {/* Home Tips */}
                 {analysis.homeTips && analysis.homeTips.length > 0 && (
-                  <View style={[styles.resultSection, styles.tipsSection]}>
+                  <View style={styles.resultSection}>
                     <View style={styles.insightHeader}>
-                      <Sparkles size={20} color={Colors.primary.sunset} />
-                      <Text style={[styles.resultLabel, { color: Colors.primary.sunset }]}>
+                      <Sparkles
+                        size={iconSizes.action}
+                        color={colors.primary.sunset}
+                        strokeWidth={iconStroke.standard}
+                      />
+                      <Text style={[styles.resultLabel, { color: colors.primary.sunset }]}>
                         Evde Yapabilecekleriniz
                       </Text>
                     </View>
                     {analysis.homeTips.map((tip, idx) => (
-                      <View key={idx} style={styles.tipItem}>
-                        <Text style={styles.tipTitle}>{tip.title}</Text>
+                      <View
+                        key={idx}
+                        style={[
+                          styles.tipCard,
+                          {
+                            backgroundColor: colors.surface.card,
+                            borderColor: colors.border.light,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.tipTitle, { color: colors.text.primary }]}>
+                          {tip.title}
+                        </Text>
                         {tip.steps.map((step, sIdx) => (
-                          <Text key={sIdx} style={styles.tipStep}>
-                            • {step}
+                          <Text
+                            key={sIdx}
+                            style={[styles.tipStep, { color: colors.text.secondary }]}
+                          >
+                            {sIdx + 1}. {step}
                           </Text>
                         ))}
-                        <Text style={styles.tipWhy}>💡 {tip.why}</Text>
+                        <Text style={[styles.tipWhy, { color: colors.secondary.lavender }]}>
+                          {tip.why}
+                        </Text>
                       </View>
                     ))}
                   </View>
                 )}
 
                 {/* Disclaimer */}
-                <View style={styles.disclaimerSection}>
-                  <Text style={styles.disclaimerText}>{analysis.disclaimer}</Text>
+                <View
+                  style={[
+                    styles.disclaimerSection,
+                    {
+                      backgroundColor: colors.semantic.infoBg,
+                      borderLeftColor: colors.secondary.sky,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.disclaimerText, { color: colors.text.secondary }]}>
+                    {analysis.disclaimer}
+                  </Text>
                 </View>
 
+                {/* Action Buttons */}
+                <View style={styles.resultActions}>
+                  <Pressable
+                    onPress={() => {
+                      if (Platform.OS !== 'web') {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      }
+                      router.push('/(tabs)/analysis' as Href);
+                    }}
+                    style={({ pressed }) => [
+                      styles.resultActionButton,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                      pressed && { opacity: 0.8 },
+                    ]}
+                  >
+                    <Brain
+                      size={iconSizes.small}
+                      color={colors.secondary.lavender}
+                      strokeWidth={iconStroke.standard}
+                    />
+                    <Text style={[styles.resultActionText, { color: colors.text.primary }]}>
+                      Detaylı Analiz
+                    </Text>
+                    <ChevronRight
+                      size={iconSizes.inline}
+                      color={colors.neutral.light}
+                      strokeWidth={iconStroke.standard}
+                    />
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => {
+                      if (Platform.OS !== 'web') {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      }
+                      router.push('/chatbot' as Href);
+                    }}
+                    style={({ pressed }) => [
+                      styles.resultActionButton,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                      pressed && { opacity: 0.8 },
+                    ]}
+                  >
+                    <MessageCircle
+                      size={iconSizes.small}
+                      color={colors.secondary.sky}
+                      strokeWidth={iconStroke.standard}
+                    />
+                    <Text style={[styles.resultActionText, { color: colors.text.primary }]}>
+                      Ioo ile Konuş
+                    </Text>
+                    <ChevronRight
+                      size={iconSizes.inline}
+                      color={colors.neutral.light}
+                      strokeWidth={iconStroke.standard}
+                    />
+                  </Pressable>
+                </View>
+
+                {/* New Analysis Button */}
                 <Pressable
                   onPress={() => {
                     setSelectedImage(null);
@@ -661,9 +803,9 @@ export default function AnalyzeScreen() {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                     }
                   }}
-                  style={styles.newAnalysisButton}
+                  style={({ pressed }) => [styles.newAnalysisButton, pressed && { opacity: 0.8 }]}
                 >
-                  <Zap size={20} color={Colors.neutral.white} />
+                  <Zap size={iconSizes.action} color="#FFFFFF" strokeWidth={iconStroke.standard} />
                   <Text style={styles.newAnalysisButtonText}>Yeni Analiz</Text>
                 </Pressable>
               </Animated.View>
@@ -693,26 +835,25 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing['8'],
-    gap: spacing['4'],
+    marginBottom: spacing['6'],
+    gap: spacing['3'],
   },
   headerIcon: {
-    width: layout.icon.mega,
-    height: layout.icon.mega,
-    borderRadius: radius.xl,
+    width: 48,
+    height: 48,
+    borderRadius: radius.lg,
+    backgroundColor: Colors.secondary.skyLight + '30',
     justifyContent: 'center',
     alignItems: 'center',
-    ...shadows.lg,
   },
   headerTextContainer: {
     flex: 1,
   },
   headerTitle: {
-    fontSize: typography.size['3xl'],
+    fontSize: typography.size['2xl'],
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing['1'],
-    letterSpacing: typography.letterSpacing.tight,
+    marginBottom: spacing['0.5'],
   },
   headerSubtitle: {
     fontSize: typography.size.sm,
@@ -721,30 +862,6 @@ const styles = StyleSheet.create({
   },
   stepperContainer: {
     marginBottom: spacing['6'],
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing['3'],
-    marginBottom: spacing['8'],
-  },
-  statCard: {
-    flex: 1,
-    padding: spacing['4'],
-    borderRadius: radius.xl,
-    alignItems: 'center',
-    gap: spacing['2'],
-    ...shadows.md,
-  },
-  statNumber: {
-    fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
-    color: Colors.neutral.white,
-  },
-  statLabel: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
-    color: Colors.neutral.white,
-    opacity: 0.9,
   },
 
   // ✅ Error Banner Stilleri
@@ -837,17 +954,34 @@ const styles = StyleSheet.create({
     marginTop: spacing['6'],
     ...shadows.xl,
   },
-  resultsTitle: {
-    fontSize: typography.size['2xl'],
+  // Summary Card
+  summaryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background.card,
+    borderRadius: radius.lg,
+    padding: spacing['4'],
+    marginBottom: spacing['5'],
+    gap: spacing['3'],
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
+  },
+  summaryEmoji: {
+    fontSize: 32,
+  },
+  summaryContent: {
+    flex: 1,
+  },
+  summaryTitle: {
+    fontSize: typography.size.md,
     fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
-    marginBottom: spacing['4'],
-    letterSpacing: typography.letterSpacing.tight,
+    marginBottom: spacing['1'],
   },
-  resultsDescription: {
-    fontSize: typography.size.base,
-    color: Colors.neutral.dark,
-    lineHeight: 24,
+  summarySubtitle: {
+    fontSize: typography.size.sm,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.medium,
   },
 
   // Action Buttons
@@ -963,20 +1097,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing['6'],
   },
   resultLabel: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    lineHeight: 22,
   },
   resultValue: {
-    fontSize: 16,
-    color: Colors.neutral.gray700, // Darker gray for better readability
-    lineHeight: 26, // 1.625x for optimal reading
-    marginBottom: spacing['5'],
-    letterSpacing: 0.4,
+    fontSize: typography.size.base,
+    color: Colors.neutral.dark,
+    lineHeight: 24,
+    marginBottom: spacing['2'],
   },
   tagContainer: {
     flexDirection: 'row',
@@ -991,16 +1121,14 @@ const styles = StyleSheet.create({
   },
   tagText: {
     color: Colors.secondary.sky,
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 20,
-    letterSpacing: 0.3,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
   },
   themeTag: {
     backgroundColor: Colors.secondary.sunshine + '30',
   },
   themeTagText: {
-    color: '#D97706',
+    color: Colors.semantic.amber,
   },
   insightHeader: {
     flexDirection: 'row',
@@ -1009,135 +1137,122 @@ const styles = StyleSheet.create({
     marginBottom: spacing['2'],
   },
 
-  // New schema styles
-  metaSection: {
-    backgroundColor: Colors.neutral.lighter,
-    padding: spacing['3'],
-    borderRadius: radius.lg,
-    marginBottom: spacing['6'],
-  },
-  metaText: {
-    fontSize: 14,
-    color: Colors.neutral.dark,
-    fontWeight: '600',
-    lineHeight: 22,
-    letterSpacing: 0.3,
-  },
   riskSection: {
-    backgroundColor: '#FFF3CD',
+    backgroundColor: Colors.semantic.warningBg,
     borderLeftWidth: 4,
-    borderLeftColor: '#FFA500',
-    padding: spacing['5'],
-    borderRadius: radius.xl,
-    marginBottom: spacing['6'],
+    borderLeftColor: Colors.semantic.warning,
+    padding: spacing['4'],
+    borderRadius: radius.lg,
+    marginBottom: spacing['5'],
   },
   riskTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#A65F00',
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
     marginBottom: spacing['3'],
-    lineHeight: 28,
-    letterSpacing: 0.3,
   },
   riskItem: {
     marginBottom: spacing['3'],
   },
   riskSummary: {
-    fontSize: 14,
-    color: '#A65F00',
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
     marginBottom: spacing['2'],
-    lineHeight: 24,
-    letterSpacing: 0.3,
+    lineHeight: 22,
   },
   riskAction: {
-    fontSize: 12,
-    color: '#A65F00',
-    fontWeight: '600',
+    fontSize: typography.size.xs,
+    color: Colors.neutral.medium,
+    fontWeight: typography.weight.semibold,
     fontStyle: 'italic',
-    lineHeight: 20,
-    letterSpacing: 0.3,
   },
-  insightItem: {
-    marginBottom: spacing['10'],
-    paddingBottom: spacing['8'],
-    paddingTop: spacing['2'],
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.neutral.gray200,
+  insightCard: {
+    backgroundColor: Colors.background.card,
+    borderRadius: radius.lg,
+    padding: spacing['4'],
+    marginBottom: spacing['3'],
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
   },
   insightTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.neutral.gray900,
-    marginBottom: spacing['4'],
-    lineHeight: 30,
-    letterSpacing: 0.3,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
+    marginBottom: spacing['2'],
   },
   strengthBadge: {
     backgroundColor: Colors.secondary.sky + '20',
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing['1'],
-    borderRadius: radius.lg,
+    borderRadius: radius.full,
     alignSelf: 'flex-start',
-    marginTop: spacing['2'],
   },
   strengthText: {
-    fontSize: 12,
+    fontSize: typography.size.xs,
     color: Colors.secondary.sky,
-    fontWeight: '600',
-    lineHeight: 18,
-    letterSpacing: 0.3,
+    fontWeight: typography.weight.semibold,
   },
-  tipsSection: {
-    backgroundColor: Colors.secondary.lavender + '10',
-    padding: spacing['5'],
-    borderRadius: radius.xl,
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.secondary.lavender,
-  },
-  tipItem: {
-    marginBottom: spacing['10'],
-    paddingBottom: spacing['6'],
+  tipCard: {
+    backgroundColor: Colors.background.card,
+    borderRadius: radius.lg,
+    padding: spacing['4'],
+    marginBottom: spacing['3'],
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
   },
   tipTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.neutral.gray900,
-    marginBottom: spacing['4'],
-    lineHeight: 28,
-    letterSpacing: 0.3,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
+    marginBottom: spacing['3'],
   },
   tipStep: {
-    fontSize: 15,
-    color: '#4B5563',
-    marginLeft: spacing['4'],
-    marginBottom: spacing['4'],
-    lineHeight: 24,
-    letterSpacing: 0.3,
+    fontSize: typography.size.sm,
+    color: Colors.neutral.dark,
+    marginLeft: spacing['2'],
+    marginBottom: spacing['2'],
+    lineHeight: 22,
   },
   tipWhy: {
-    fontSize: 14,
+    fontSize: typography.size.sm,
     color: Colors.secondary.lavender,
     fontStyle: 'italic',
-    marginTop: spacing['3'],
-    lineHeight: 22,
-    letterSpacing: 0.3,
-    marginBottom: spacing['2'],
+    marginTop: spacing['2'],
   },
   disclaimerSection: {
-    backgroundColor: '#F0F9FF',
+    backgroundColor: Colors.semantic.infoBg,
     padding: spacing['3'],
-    borderRadius: radius.lg,
-    marginTop: spacing['6'],
-    marginBottom: spacing['6'],
+    borderRadius: radius.md,
+    marginBottom: spacing['5'],
     borderLeftWidth: 3,
     borderLeftColor: Colors.secondary.sky,
   },
   disclaimerText: {
-    fontSize: 12,
+    fontSize: typography.size.xs,
     color: Colors.neutral.dark,
-    lineHeight: 20,
+    lineHeight: 18,
     fontStyle: 'italic',
-    letterSpacing: 0.3,
+  },
+  // Result Action Buttons
+  resultActions: {
+    gap: spacing['2'],
+    marginBottom: spacing['4'],
+  },
+  resultActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background.card,
+    borderRadius: radius.lg,
+    padding: spacing['4'],
+    gap: spacing['3'],
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
+  },
+  resultActionText: {
+    flex: 1,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.darkest,
   },
   newAnalysisButton: {
     backgroundColor: Colors.secondary.sky,
@@ -1145,16 +1260,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing['2'],
-    padding: spacing['5'],
-    borderRadius: radius.xl,
-    marginTop: spacing['2'],
-    ...shadows.md,
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['6'],
+    borderRadius: radius.lg,
+    ...shadows.sm,
   },
   newAnalysisButtonText: {
     color: Colors.neutral.white,
-    fontSize: 18,
-    fontWeight: '700',
-    lineHeight: 26,
-    letterSpacing: 0.3,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
   },
 });

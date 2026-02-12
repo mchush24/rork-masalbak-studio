@@ -23,11 +23,8 @@ import {
   Palette,
   Brain,
   Clock,
-  TrendingUp,
   ChevronRight,
   MessageCircle,
-  Sparkles,
-  Gift,
   Trophy,
   Camera,
   X,
@@ -39,9 +36,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, Href } from 'expo-router';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
-import { Colors, RenkooColors, ProfessionalColors } from '@/constants/colors';
+import { Colors, ProfessionalColors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
-import { spacing, shadows } from '@/constants/design-system';
+import { spacing, shadows, radius, typography } from '@/constants/design-system';
 import { GreetingService } from '@/lib/services/greeting-service';
 import { useGamification } from '@/lib/gamification';
 import { StreakDisplay, XPProgressBar, NewBadgeModal } from '@/components/gamification';
@@ -57,8 +55,6 @@ import {
 
 // Components
 import { Ioo as IooMascot } from '@/components/Ioo';
-import { OrganicContainer } from '@/components/OrganicContainer';
-import { FeatureCardCompact } from '@/components/FeatureCard';
 import { ChildSelectorChip } from '@/components/ChildSelectorChip';
 
 // Dashboard Components
@@ -70,7 +66,7 @@ import {
 } from '@/components/dashboard';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const isSmallDevice = SCREEN_HEIGHT < 700;
+const _isSmallDevice = SCREEN_HEIGHT < 700;
 
 type TaskType =
   | 'DAP'
@@ -134,6 +130,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const { colors, isDark } = useTheme();
   const { t: _t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
@@ -251,14 +248,14 @@ export default function HomeScreen() {
   };
 
   // Unified page background for all roles
-  const backgroundGradient = Colors.background.pageGradient;
+  const backgroundGradient = colors.background.pageGradient;
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.neutral.white }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       <LinearGradient
-        colors={backgroundGradient}
+        colors={[...backgroundGradient] as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
@@ -271,7 +268,7 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              tintColor={Colors.primary.sunset}
+              tintColor={colors.primary.sunset}
             />
           }
         >
@@ -313,185 +310,166 @@ export default function HomeScreen() {
                 notificationCount={0}
               />
             ) : (
-              /* Parent Mode - With mascot and gamification flavor */
-              <OrganicContainer
-                style={styles.heroCard}
-                shape="blob"
-                glowColor="rgba(255, 203, 164, 0.3)"
-                animated
-              >
+              /* Parent Mode - Clean, minimal greeting card */
+              <View style={[styles.heroCardClean, { backgroundColor: colors.surface.card }]}>
                 <View style={styles.heroContent}>
-                  {/* Mascot - Only shown if enabled for role */}
+                  {/* Mascot - Compact */}
                   {mascotSettings.showOnDashboard && (
-                    <View style={styles.mascotContainer}>
-                      <IooMascot
-                        size={isSmallDevice ? 'xs' : 'small'}
-                        animated
-                        showGlow={mascotSettings.prominence === 'high'}
-                        mood="happy"
-                        onPress={() => router.push('/chatbot' as Href)}
-                      />
-                      {mascotSettings.prominence === 'high' && (
-                        <View style={styles.chatHint}>
-                          <MessageCircle size={12} color={Colors.primary.sunset} />
-                          <Text style={styles.chatHintText}>Yardıma mı ihtiyacınız var?</Text>
-                        </View>
-                      )}
-                    </View>
+                    <Pressable
+                      style={styles.mascotContainerCompact}
+                      onPress={() => router.push('/chatbot' as Href)}
+                    >
+                      <IooMascot size="xs" animated showGlow={false} mood="happy" />
+                    </Pressable>
                   )}
 
                   {/* Welcome Text */}
-                  <View
-                    style={[
-                      styles.heroTextContainer,
-                      !mascotSettings.showOnDashboard && { flex: 1 },
-                    ]}
-                  >
-                    <Text style={styles.heroGreeting} numberOfLines={1}>
+                  <View style={styles.heroTextContainer}>
+                    <Text
+                      style={[styles.heroGreeting, { color: colors.text.primary }]}
+                      numberOfLines={1}
+                    >
                       {greeting.title}
                     </Text>
-                    <Text style={styles.heroSubtitle} numberOfLines={2}>
+                    <Text
+                      style={[styles.heroSubtitle, { color: colors.text.tertiary }]}
+                      numberOfLines={1}
+                    >
                       {greeting.subtitle}
                     </Text>
-                    {mascotSettings.showOnDashboard && mascotSettings.prominence === 'high' && (
-                      <View style={styles.mascotIntro}>
-                        <Text style={styles.mascotIntroText} numberOfLines={3}>
-                          Ben <Text style={styles.mascotName}>Ioo</Text>, çocuğunuzun gelişim
-                          yolculuğunda yanınızdayım
-                        </Text>
-                      </View>
-                    )}
                   </View>
                 </View>
-              </OrganicContainer>
+              </View>
             )}
           </View>
 
-          {/* PRIMARY CTA: Right after Hero for immediate visibility (Parent mode) */}
+          {/* 2x2 Quick Action Grid (Parent mode) */}
           {!isProfessional && (
-            <Pressable
-              onPress={() => setShowActionModal(true)}
-              style={({ pressed }) => [
-                styles.primaryCtaCard,
-                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
-              ]}
-            >
-              <LinearGradient
-                colors={['#A78BFA', '#818CF8', Colors.secondary.indigo]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.primaryCtaGradient}
+            <View style={styles.quickActionGrid}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickActionItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
+                ]}
+                onPress={() => router.push('/(tabs)/analysis' as Href)}
               >
-                <View style={styles.primaryCtaContent}>
-                  <View style={styles.primaryCtaIconContainer}>
-                    <Sparkles size={32} color={Colors.neutral.white} />
-                  </View>
-                  <View style={styles.primaryCtaTextContainer}>
-                    <View style={styles.primaryCtaBadge}>
-                      <Text style={styles.primaryCtaBadgeText}>ANA ÖZELLİK</Text>
-                    </View>
-                    <Text style={styles.primaryCtaTitle}>Duygu Yansıması</Text>
-                    <Text style={styles.primaryCtaSubtitle} numberOfLines={2} ellipsizeMode="tail">
-                      Çocuğunuzun çizimlerinden duygusal dünyasını keşfedin
-                    </Text>
-                  </View>
-                  <ChevronRight size={24} color="rgba(255,255,255,0.8)" />
+                <View
+                  style={[
+                    styles.quickActionIcon,
+                    { backgroundColor: colors.secondary.lavender + '1F' },
+                  ]}
+                >
+                  <Brain size={24} color={colors.secondary.lavender} />
                 </View>
-                <View style={styles.primaryCtaShine} />
-              </LinearGradient>
-            </Pressable>
-          )}
-
-          {/* Progress & Stats Combined Section - Parent mode */}
-          {!isProfessional && (
-            <View style={styles.progressSection}>
-              {/* Section Header with Primary Styling */}
-              <View style={styles.sectionHeaderPrimary}>
-                <View style={styles.sectionTitleRow}>
-                  <View
-                    style={[
-                      styles.sectionTitleIcon,
-                      { backgroundColor: 'rgba(245, 158, 11, 0.15)' },
-                    ]}
-                  >
-                    <TrendingUp size={16} color={Colors.semantic.amber} />
-                  </View>
-                  <Text style={styles.sectionTitlePrimary}>İlerleme</Text>
+                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                  Analiz
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickActionItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
+                ]}
+                onPress={() => router.push('/stories' as Href)}
+              >
+                <View
+                  style={[
+                    styles.quickActionIcon,
+                    { backgroundColor: colors.secondary.sunshine + '1F' },
+                  ]}
+                >
+                  <BookOpen size={24} color={colors.secondary.sunshine} />
                 </View>
-              </View>
-
-              {/* Gamification Row - Compact */}
-              {showGamification && !gamificationLoading && (
-                <View style={styles.gamificationRow}>
-                  <StreakDisplay
-                    currentStreak={streakData?.currentStreak || 0}
-                    longestStreak={streakData?.longestStreak || 0}
-                    isActiveToday={
-                      streakData?.lastActivityDate === new Date().toISOString().split('T')[0]
-                    }
-                    streakAtRisk={
-                      !streakData?.lastActivityDate ||
-                      (streakData?.currentStreak > 0 &&
-                        streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
-                        streakData?.lastActivityDate !==
-                          (() => {
-                            const yesterday = new Date();
-                            yesterday.setDate(yesterday.getDate() - 1);
-                            return yesterday.toISOString().split('T')[0];
-                          })())
-                    }
-                    hasFreezeAvailable={streakData?.streakFreezeAvailable}
-                    size="compact"
-                    onPress={() => router.push('/profile' as Href)}
-                  />
-                  <View style={styles.xpContainer}>
-                    <XPProgressBar
-                      level={levelInfo.level}
-                      xpProgress={levelInfo.xpProgress}
-                      xpNeeded={levelInfo.xpNeeded}
-                      totalXp={totalXp}
-                      progressPercent={levelInfo.progressPercent}
-                      size="compact"
-                      onPress={() => router.push('/profile' as Href)}
-                    />
-                  </View>
-                  <Pressable
-                    style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
-                    onPress={() => router.push('/profile' as Href)}
-                  >
-                    <Trophy size={18} color={Colors.semantic.amber} />
-                  </Pressable>
+                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>Masal</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickActionItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
+                ]}
+                onPress={() => router.push('/coloring-history' as Href)}
+              >
+                <View
+                  style={[
+                    styles.quickActionIcon,
+                    { backgroundColor: colors.secondary.grass + '1F' },
+                  ]}
+                >
+                  <Palette size={24} color={colors.secondary.grass} />
                 </View>
-              )}
-
-              {/* Mini Stats Row - Combined with Gamification */}
-              <View style={styles.miniStatsRow}>
-                <View style={styles.miniStatItem}>
-                  <Text style={styles.miniStatNumber}>{stats.totalAnalyses || 0}</Text>
-                  <Text style={styles.miniStatLabel}>Analiz</Text>
+                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                  Boyama
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quickActionItem,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
+                ]}
+                onPress={() => router.push('/chatbot' as Href)}
+              >
+                <View
+                  style={[
+                    styles.quickActionIcon,
+                    { backgroundColor: colors.primary.sunset + '1F' },
+                  ]}
+                >
+                  <MessageCircle size={24} color={colors.primary.sunset} />
                 </View>
-                <View style={styles.miniStatDivider} />
-                <View style={styles.miniStatItem}>
-                  <Text style={styles.miniStatNumber}>
-                    {'totalActivities' in stats
-                      ? stats.totalActivities
-                      : (stats.totalStorybooks || 0) +
-                        (stats.totalColorings || 0) +
-                        (stats.totalAnalyses || 0)}
-                  </Text>
-                  <Text style={styles.miniStatLabel}>Aktivite</Text>
-                </View>
-                <View style={styles.miniStatDivider} />
-                <View style={styles.miniStatItem}>
-                  <Text style={styles.miniStatNumber}>{stats.totalStorybooks || 0}</Text>
-                  <Text style={styles.miniStatLabel}>Masal</Text>
-                </View>
-              </View>
+                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                  Sohbet
+                </Text>
+              </Pressable>
             </View>
           )}
 
-          {/* Section Divider */}
-          {!isProfessional && <View style={styles.sectionDivider} />}
+          {/* Compact Progress Row - Single line: streak + XP + badges */}
+          {!isProfessional && showGamification && !gamificationLoading && (
+            <View style={[styles.progressRowCompact, { backgroundColor: colors.surface.card }]}>
+              <StreakDisplay
+                currentStreak={streakData?.currentStreak || 0}
+                longestStreak={streakData?.longestStreak || 0}
+                isActiveToday={
+                  streakData?.lastActivityDate === new Date().toISOString().split('T')[0]
+                }
+                streakAtRisk={
+                  !streakData?.lastActivityDate ||
+                  (streakData?.currentStreak > 0 &&
+                    streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
+                    streakData?.lastActivityDate !==
+                      (() => {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return yesterday.toISOString().split('T')[0];
+                      })())
+                }
+                hasFreezeAvailable={streakData?.streakFreezeAvailable}
+                size="compact"
+                onPress={() => router.push('/profile' as Href)}
+              />
+              <View style={styles.xpContainer}>
+                <XPProgressBar
+                  level={levelInfo.level}
+                  xpProgress={levelInfo.xpProgress}
+                  xpNeeded={levelInfo.xpNeeded}
+                  totalXp={totalXp}
+                  progressPercent={levelInfo.progressPercent}
+                  size="compact"
+                  onPress={() => router.push('/profile' as Href)}
+                />
+              </View>
+              <Pressable
+                style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
+                onPress={() => router.push('/profile' as Href)}
+              >
+                <Trophy size={18} color={colors.semantic.amber} />
+              </Pressable>
+            </View>
+          )}
 
           {/* Professional Summary Cards - For experts and teachers */}
           {isProfessional && (
@@ -531,78 +509,12 @@ export default function HomeScreen() {
             />
           )}
 
-          {/* Unified "Keşfet" Section - Combined Features & Quick Actions (Parent mode) */}
-          {!isProfessional && (
-            <View style={styles.exploreSection}>
-              {/* Section Header - Primary */}
-              <View style={styles.sectionHeaderPrimary}>
-                <View style={styles.sectionTitleRow}>
-                  <View style={styles.sectionTitleIcon}>
-                    <Sparkles size={16} color={Colors.primary.sunset} />
-                  </View>
-                  <Text style={styles.sectionTitlePrimary}>Keşfet</Text>
-                </View>
-              </View>
-
-              {/* Hayal Atölyesi - Featured Card */}
-              <Pressable
-                style={({ pressed }) => [
-                  styles.atolyeCard,
-                  pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
-                ]}
-                onPress={() => router.push('/hayal-atolyesi' as Href)}
-              >
-                <LinearGradient
-                  colors={['#E8D5FF', '#FFCBA4', '#FFD6E0']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0.5 }}
-                  style={styles.atolyeGradient}
-                >
-                  <View style={styles.atolyeContent}>
-                    <Text style={styles.atolyeEmoji}>🌟</Text>
-                    <View style={styles.atolyeTextContainer}>
-                      <Text style={styles.atolyeTitle}>Hayal Atölyesi</Text>
-                      <Text style={styles.atolyeSubtitle}>Çizimden Masal • Boyama • Analiz</Text>
-                    </View>
-                    <ChevronRight size={24} color={Colors.neutral.darker} />
-                  </View>
-                </LinearGradient>
-              </Pressable>
-
-              {/* Quick Actions Row */}
-              <View style={styles.quickActionsRow}>
-                <FeatureCardCompact
-                  title="Ioo"
-                  icon={<MessageCircle size={22} color={RenkooColors.featureCards.chat.icon} />}
-                  type="chat"
-                  onPress={() => router.push('/chatbot' as Href)}
-                />
-                <FeatureCardCompact
-                  title="Masal"
-                  icon={<BookOpen size={22} color={RenkooColors.featureCards.story.icon} />}
-                  type="story"
-                  onPress={() => router.push('/stories' as Href)}
-                />
-                <FeatureCardCompact
-                  title="Boyama"
-                  icon={<Palette size={22} color={RenkooColors.featureCards.coloring.icon} />}
-                  type="coloring"
-                  onPress={() => router.push('/coloring-history' as Href)}
-                />
-                <FeatureCardCompact
-                  title="Ödüller"
-                  icon={
-                    <Gift size={22} color={RenkooColors.featureCards.reward?.icon || Colors.semantic.amber} />
-                  }
-                  type="reward"
-                  onPress={() => router.push('/profile' as Href)}
-                />
-              </View>
-            </View>
-          )}
-
           {/* Section Divider */}
-          {!isProfessional && <View style={styles.sectionDivider} />}
+          {!isProfessional && (
+            <View
+              style={[styles.sectionDivider, { backgroundColor: colors.border.light + '40' }]}
+            />
+          )}
 
           {/* Recent Analyses Section - Role-aware */}
           {isProfessional ? (
@@ -633,89 +545,122 @@ export default function HomeScreen() {
                       { backgroundColor: 'rgba(185, 142, 255, 0.15)' },
                     ]}
                   >
-                    <Clock size={16} color={Colors.primary.sunset} />
+                    <Clock size={16} color={colors.primary.sunset} />
                   </View>
-                  <Text style={styles.sectionTitleSecondary}>Son Analizler</Text>
+                  <Text style={[styles.sectionTitleSecondary, { color: colors.text.secondary }]}>
+                    Son Analizler
+                  </Text>
                 </View>
                 {recentAnalyses.length > 0 && (
                   <Pressable
                     onPress={() => router.push('/history' as Href)}
                     style={({ pressed }) => [pressed && { opacity: 0.6 }]}
                   >
-                    <Text style={styles.seeAllText}>Tümünü Gör →</Text>
+                    <Text style={[styles.seeAllText, { color: colors.primary.sunset }]}>
+                      Tümünü Gör →
+                    </Text>
                   </Pressable>
                 )}
               </View>
 
               {analysesLoading ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="small" color={Colors.primary.sunset} />
+                  <ActivityIndicator size="small" color={colors.primary.sunset} />
                 </View>
               ) : recentAnalyses.length === 0 ? (
-                <OrganicContainer style={styles.emptyContainer}>
-                  <LinearGradient
-                    colors={['rgba(255, 255, 255, 0.9)', 'rgba(248, 250, 252, 0.95)']}
-                    style={styles.emptyGradient}
+                <View
+                  style={[
+                    styles.emptyContainer,
+                    { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                  ]}
+                >
+                  <View
+                    style={[styles.emptyIconContainer, { backgroundColor: colors.primary.soft }]}
                   >
-                    <View style={styles.emptyIconContainer}>
-                      <View style={styles.emptyIconRing}>
-                        <Brain size={28} color={Colors.primary.sunset} />
-                      </View>
-                      <View style={styles.emptySparkle1}>
-                        <Sparkles size={14} color="#FFD700" />
-                      </View>
-                    </View>
-                    <View style={styles.emptyContent}>
-                      <Text style={styles.emptyText}>Henüz analiz yok</Text>
-                      <Text style={styles.emptySubtext}>
-                        Çizim yükleyerek ilk analizinizi yapın
-                      </Text>
-                    </View>
-                    <Pressable
-                      style={styles.emptyCtaButton}
-                      onPress={() => router.push('/advanced-analysis' as Href)}
-                    >
-                      <Camera size={16} color={Colors.primary.sunset} />
-                      <Text style={styles.emptyCtaText}>İlk Analizi Başlat</Text>
-                    </Pressable>
-                  </LinearGradient>
-                </OrganicContainer>
+                    <Brain size={28} color={colors.primary.sunset} />
+                  </View>
+                  <Text style={[styles.emptyText, { color: colors.text.primary }]}>
+                    Henüz analiz yok
+                  </Text>
+                  <Text style={[styles.emptySubtext, { color: colors.text.tertiary }]}>
+                    Çizim yükleyerek ilk analizinizi yapın
+                  </Text>
+                  <Pressable
+                    style={[
+                      styles.emptyCtaButton,
+                      { backgroundColor: colors.secondary.lavender + '20' },
+                    ]}
+                    onPress={() => router.push('/(tabs)/analysis' as Href)}
+                  >
+                    <Camera size={16} color={colors.primary.sunset} />
+                    <Text style={[styles.emptyCtaText, { color: colors.primary.sunset }]}>
+                      İlk Analizi Başlat
+                    </Text>
+                  </Pressable>
+                </View>
               ) : (
-                <View style={styles.recentCardsContainer}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.recentHorizontalScroll}
+                >
                   {recentAnalyses.map((analysis: RecentAnalysis) => (
                     <Pressable
                       key={analysis.id}
-                      style={({ pressed }) => [styles.recentCard, pressed && { opacity: 0.8 }]}
+                      style={({ pressed }) => [
+                        styles.recentCardHorizontal,
+                        { backgroundColor: colors.surface.card },
+                        pressed && { opacity: 0.8 },
+                      ]}
                       onPress={() => router.push(`/analysis/${analysis.id}` as Href)}
                     >
-                      <OrganicContainer style={styles.recentCardInner}>
-                        <View style={styles.recentCardContent}>
-                          <View style={styles.recentCardIcon}>
-                            <Brain size={20} color={Colors.primary.sunset} />
-                          </View>
-                          <View style={styles.recentCardInfo}>
-                            <Text style={styles.recentCardTitle}>
-                              {TASK_TYPE_LABELS[analysis.task_type] || analysis.task_type}
-                            </Text>
-                            <Text style={styles.recentCardDate}>
-                              {formatDate(analysis.created_at)}
-                              {analysis.child_name && ` • ${analysis.child_name}`}
-                            </Text>
-                          </View>
-                          <ChevronRight size={18} color={Colors.neutral.medium} />
-                        </View>
-                      </OrganicContainer>
+                      <View
+                        style={[
+                          styles.recentCardIcon,
+                          { backgroundColor: colors.secondary.lavender + '1F' },
+                        ]}
+                      >
+                        <Brain size={20} color={colors.primary.sunset} />
+                      </View>
+                      <Text
+                        style={[styles.recentCardTitle, { color: colors.text.primary }]}
+                        numberOfLines={1}
+                      >
+                        {TASK_TYPE_LABELS[analysis.task_type] || analysis.task_type}
+                      </Text>
+                      <Text
+                        style={[styles.recentCardDate, { color: colors.text.tertiary }]}
+                        numberOfLines={1}
+                      >
+                        {formatDate(analysis.created_at)}
+                      </Text>
+                      {analysis.child_name && (
+                        <Text
+                          style={[styles.recentCardChild, { color: colors.primary.sunset }]}
+                          numberOfLines={1}
+                        >
+                          {analysis.child_name}
+                        </Text>
+                      )}
                     </Pressable>
                   ))}
-                </View>
+                </ScrollView>
               )}
             </View>
           )}
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, isProfessional && styles.footerTextProfessional]}>
-              {isProfessional ? 'RENKIOO • PROFESYONEL PLATFORM' : 'RENKIOO • DUYGULARIN RENGİ'}
+            <Text
+              style={[
+                styles.footerText,
+                { color: colors.text.tertiary },
+                isProfessional && styles.footerTextProfessional,
+              ]}
+            >
+              {isProfessional
+                ? 'RENKIOO • PROFESYONEL PLATFORM'
+                : 'RENKIOO • GELİŞİM TAKİP PLATFORMU'}
             </Text>
           </View>
         </ScrollView>
@@ -738,15 +683,20 @@ export default function HomeScreen() {
         onRequestClose={() => setShowActionModal(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setShowActionModal(false)}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface.card }]}>
             {/* Handle Bar */}
-            <View style={styles.modalHandle} />
+            <View style={[styles.modalHandle, { backgroundColor: colors.border.light }]} />
 
             {/* Modal Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ne yapmak istersiniz?</Text>
-              <Pressable onPress={() => setShowActionModal(false)} style={styles.modalCloseBtn}>
-                <X size={20} color={Colors.neutral.medium} />
+              <Text style={[styles.modalTitle, { color: colors.text.primary }]}>
+                Ne yapmak istersiniz?
+              </Text>
+              <Pressable
+                onPress={() => setShowActionModal(false)}
+                style={[styles.modalCloseBtn, { backgroundColor: colors.neutral.lightest }]}
+              >
+                <X size={20} color={colors.text.tertiary} />
               </Pressable>
             </View>
 
@@ -760,12 +710,15 @@ export default function HomeScreen() {
                 ]}
                 onPress={() => {
                   setShowActionModal(false);
-                  router.push('/advanced-analysis' as Href);
+                  router.push('/(tabs)/analysis' as Href);
                 }}
               >
-                <LinearGradient colors={[Colors.secondary.indigo, Colors.secondary.violet]} style={styles.actionOptionGradient}>
+                <LinearGradient
+                  colors={[colors.secondary.indigo, colors.secondary.violet]}
+                  style={styles.actionOptionGradient}
+                >
                   <View style={styles.actionOptionIcon}>
-                    <Brain size={28} color={Colors.neutral.white} />
+                    <Brain size={28} color="#FFFFFF" />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>Detaylı Analiz</Text>
@@ -788,9 +741,12 @@ export default function HomeScreen() {
                   router.push('/hayal-atolyesi' as Href);
                 }}
               >
-                <LinearGradient colors={['#EC4899', '#F472B6']} style={styles.actionOptionGradient}>
+                <LinearGradient
+                  colors={[colors.secondary.rose, colors.secondary.roseLight]}
+                  style={styles.actionOptionGradient}
+                >
                   <View style={styles.actionOptionIcon}>
-                    <Wand2 size={28} color={Colors.neutral.white} />
+                    <Wand2 size={28} color="#FFFFFF" />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>Hayal Atölyesi</Text>
@@ -813,9 +769,12 @@ export default function HomeScreen() {
                   router.push('/history' as Href);
                 }}
               >
-                <LinearGradient colors={['#10B981', '#34D399']} style={styles.actionOptionGradient}>
+                <LinearGradient
+                  colors={[colors.secondary.grass, colors.secondary.grassLight]}
+                  style={styles.actionOptionGradient}
+                >
                   <View style={styles.actionOptionIcon}>
-                    <FileText size={28} color={Colors.neutral.white} />
+                    <FileText size={28} color="#FFFFFF" />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>Geçmiş Analizler</Text>
@@ -838,9 +797,12 @@ export default function HomeScreen() {
                   router.push('/chatbot' as Href);
                 }}
               >
-                <LinearGradient colors={[Colors.semantic.amber, '#FBBF24']} style={styles.actionOptionGradient}>
+                <LinearGradient
+                  colors={[colors.semantic.amber, colors.semantic.amberLight]}
+                  style={styles.actionOptionGradient}
+                >
                   <View style={styles.actionOptionIcon}>
-                    <MessageCircle size={28} color={Colors.neutral.white} />
+                    <MessageCircle size={28} color="#FFFFFF" />
                   </View>
                   <View style={styles.actionOptionTextContainer}>
                     <Text style={styles.actionOptionTitle}>{"Ioo'ya Sor"}</Text>
@@ -885,95 +847,79 @@ const styles = StyleSheet.create({
   heroSection: {
     marginBottom: spacing['4'],
   },
-  heroCard: {
-    padding: spacing['5'],
+  heroCardClean: {
+    backgroundColor: Colors.neutral.white,
+    borderRadius: 16,
+    padding: spacing['4'],
+    ...shadows.xs,
   },
   heroContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing['4'],
+    gap: spacing['3'],
   },
-  mascotContainer: {
+  mascotContainerCompact: {
     alignItems: 'center',
-    gap: spacing['1'],
-    marginLeft: -spacing['2'],
-    marginRight: spacing['2'],
-    maxWidth: 110,
-  },
-  chatHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  chatHintText: {
-    fontSize: 10,
-    color: Colors.primary.sunset,
-    fontWeight: '500',
   },
   heroTextContainer: {
     flex: 1,
-    overflow: 'hidden',
   },
   heroGreeting: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: Colors.neutral.darker,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   heroSubtitle: {
     fontSize: 14,
-    color: Colors.neutral.dark,
-    marginBottom: spacing['3'],
-  },
-  mascotIntro: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    flexShrink: 1,
-    overflow: 'hidden',
-  },
-  mascotIntroText: {
-    fontSize: 12,
-    color: Colors.neutral.dark,
-    lineHeight: 18,
-  },
-  mascotName: {
-    fontWeight: '700',
-    color: Colors.primary.sunset,
+    color: Colors.neutral.medium,
   },
 
-  // Progress Section (Gamification + Stats Combined)
-  progressSection: {
+  // 2x2 Quick Action Grid
+  quickActionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing['3'],
     marginBottom: spacing['4'],
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 20,
+  },
+  quickActionItem: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: Colors.neutral.white,
+    borderRadius: 16,
     padding: spacing['4'],
+    alignItems: 'center',
+    gap: spacing['2'],
     ...shadows.xs,
   },
-  sectionHeaderPrimary: {
-    marginBottom: spacing['3'],
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  sectionTitlePrimary: {
-    fontSize: 18,
-    fontWeight: '800',
+  quickActionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
     color: Colors.neutral.darker,
-    letterSpacing: -0.3,
+  },
+
+  // Compact Progress Row
+  progressRowCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['3'],
+    marginBottom: spacing['4'],
+    backgroundColor: Colors.neutral.white,
+    borderRadius: 14,
+    padding: spacing['3'],
+    ...shadows.xs,
   },
   sectionTitleSecondary: {
     fontSize: 16,
     fontWeight: '600',
     color: Colors.neutral.dark,
-  },
-  gamificationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['3'],
-    marginBottom: spacing['3'],
   },
   xpContainer: {
     flex: 1,
@@ -987,144 +933,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...shadows.xs,
   },
-  miniStatsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    backgroundColor: 'rgba(248, 250, 252, 0.8)',
-    borderRadius: 14,
-    paddingVertical: spacing['3'],
-    paddingHorizontal: spacing['2'],
-  },
-  miniStatItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  miniStatNumber: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: Colors.primary.sunset,
-  },
-  miniStatLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: Colors.neutral.medium,
-    marginTop: 2,
-  },
-  miniStatDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: Colors.neutral.lighter,
-  },
   sectionDivider: {
     height: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.04)',
     marginVertical: spacing['3'],
     marginHorizontal: spacing['2'],
-  },
-
-  // Explore Section (Combined Features + Quick Actions)
-  exploreSection: {
-    marginBottom: spacing['4'],
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    gap: spacing['2'],
-    marginTop: spacing['3'],
-  },
-
-  // Primary CTA
-  primaryCtaCard: {
-    marginBottom: spacing['4'],
-    borderRadius: 24,
-    overflow: 'hidden',
-    ...shadows.colored(Colors.secondary.indigo),
-  },
-  primaryCtaGradient: {
-    padding: spacing['5'],
-    position: 'relative',
-  },
-  primaryCtaContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['4'],
-  },
-  primaryCtaIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryCtaTextContainer: {
-    flex: 1,
-  },
-  primaryCtaBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    paddingHorizontal: spacing['2'],
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginBottom: spacing['1'],
-  },
-  primaryCtaBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: Colors.neutral.white,
-    letterSpacing: 1,
-  },
-  primaryCtaTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: Colors.neutral.white,
-    marginBottom: 4,
-  },
-  primaryCtaSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
-    lineHeight: 18,
-  },
-  primaryCtaShine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-
-  // Atolye Card (inside Explore Section)
-  atolyeCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    ...shadows.colored('#B98EFF'),
-  },
-  atolyeGradient: {
-    padding: spacing['5'],
-  },
-  atolyeContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['4'],
-  },
-  atolyeEmoji: {
-    fontSize: 36,
-  },
-  atolyeTextContainer: {
-    flex: 1,
-  },
-  atolyeTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.neutral.darker,
-    marginBottom: 4,
-  },
-  atolyeSubtitle: {
-    fontSize: 13,
-    color: Colors.neutral.dark,
   },
 
   // Section Styles
@@ -1168,55 +981,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyContainer: {
-    overflow: 'hidden',
-  },
-  emptyGradient: {
     alignItems: 'center',
     padding: spacing['6'],
     gap: spacing['3'],
+    backgroundColor: Colors.background.card,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
   },
   emptyIconContainer: {
-    position: 'relative',
-    marginBottom: spacing['2'],
-  },
-  emptyIconRing: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(185, 142, 255, 0.15)',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.primary.soft,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(185, 142, 255, 0.3)',
-  },
-  emptySparkle1: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-  },
-  emptyContent: {
-    alignItems: 'center',
-    gap: spacing['2'],
+    marginBottom: spacing['1'],
   },
   emptyText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: Colors.neutral.darker,
+    fontSize: typography.size.base,
+    fontWeight: typography.weight.bold,
+    color: Colors.neutral.darkest,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    lineHeight: 20,
   },
   emptyCtaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(185, 142, 255, 0.15)',
-    paddingVertical: spacing['3'],
+    backgroundColor: Colors.secondary.lavender + '20',
+    paddingVertical: spacing['2.5'],
     paddingHorizontal: spacing['5'],
-    borderRadius: 20,
-    marginTop: spacing['2'],
+    borderRadius: radius.full,
+    marginTop: spacing['1'],
     gap: spacing['2'],
   },
   emptyCtaText: {
@@ -1224,40 +1023,41 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.primary.sunset,
   },
-  recentCardsContainer: {
+  recentHorizontalScroll: {
+    paddingRight: spacing['4'],
     gap: spacing['3'],
   },
-  recentCard: {
-    // Wrapper for pressable
-  },
-  recentCardInner: {
+  recentCardHorizontal: {
+    backgroundColor: Colors.neutral.white,
+    borderRadius: 14,
     padding: spacing['4'],
-  },
-  recentCardContent: {
-    flexDirection: 'row',
+    width: 140,
     alignItems: 'center',
-    gap: spacing['3'],
+    gap: spacing['2'],
+    ...shadows.xs,
   },
   recentCardIcon: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(185, 142, 255, 0.15)',
+    backgroundColor: 'rgba(185, 142, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  recentCardInfo: {
-    flex: 1,
-  },
   recentCardTitle: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '600',
     color: Colors.neutral.darker,
+    textAlign: 'center',
   },
   recentCardDate: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.neutral.medium,
-    marginTop: 2,
+  },
+  recentCardChild: {
+    fontSize: 11,
+    color: Colors.primary.sunset,
+    fontWeight: '500',
   },
 
   // Footer

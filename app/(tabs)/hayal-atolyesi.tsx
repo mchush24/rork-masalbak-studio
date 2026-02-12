@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import { layout, typography, spacing, radius, shadows } from '@/constants/design-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,6 +22,7 @@ import { useCameraPermissions } from 'expo-camera';
 export default function HayalAtolyesiScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { colors, isDark: _isDark } = useTheme();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [_showCamera, _setShowCamera] = useState(false);
@@ -80,15 +82,15 @@ export default function HayalAtolyesiScreen() {
     }
     // Navigate to advanced analysis with the image
     router.push({
-      pathname: '/(tabs)/advanced-analysis',
+      pathname: '/(tabs)/analysis',
       params: { imageUri: selectedImage },
     } as const);
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background.primary }]}>
       <LinearGradient
-        colors={Colors.background.pageGradient}
+        colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
         style={[styles.gradientContainer, { paddingTop: insets.top }]}
       >
         <ScrollView
@@ -99,33 +101,45 @@ export default function HayalAtolyesiScreen() {
           {/* Header */}
           <View style={styles.header}>
             <LinearGradient
-              colors={[Colors.secondary.mint, Colors.secondary.mintLight]}
+              colors={[colors.secondary.mint, colors.secondary.mintLight] as [string, string]}
               style={styles.headerIcon}
             >
-              <Sparkles size={layout.icon.medium} color={Colors.neutral.white} />
+              <Sparkles size={layout.icon.medium} color="#FFFFFF" />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>🌟 Hayal Atölyesi</Text>
-              <Text style={styles.headerSubtitle}>Çizimini yükle, hayal et, yarat!</Text>
+              <Text style={[styles.headerTitle, { color: colors.text.primary }]}>
+                🌟 Hayal Atölyesi
+              </Text>
+              <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
+                Çizimini yükle, hayal et, yarat!
+              </Text>
             </View>
           </View>
 
           {/* Upload Section */}
           <View style={styles.uploadSection}>
-            <Text style={styles.sectionTitle}>Çizimini Yükle</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+              Çizimini Yükle
+            </Text>
 
             {selectedImage ? (
               <View style={styles.imagePreviewContainer}>
                 <Image
                   source={{ uri: selectedImage }}
-                  style={styles.imagePreview}
+                  style={[styles.imagePreview, { backgroundColor: colors.neutral.lightest }]}
                   contentFit="contain"
                 />
                 <Pressable
-                  style={({ pressed }) => [styles.changeImageButton, pressed && { opacity: 0.8 }]}
+                  style={({ pressed }) => [
+                    styles.changeImageButton,
+                    { backgroundColor: colors.surface.card },
+                    pressed && { opacity: 0.8 },
+                  ]}
                   onPress={() => setSelectedImage(null)}
                 >
-                  <Text style={styles.changeImageText}>Farklı Çizim Seç</Text>
+                  <Text style={[styles.changeImageText, { color: colors.text.primary }]}>
+                    Farklı Çizim Seç
+                  </Text>
                 </Pressable>
               </View>
             ) : (
@@ -138,10 +152,10 @@ export default function HayalAtolyesiScreen() {
                   onPress={pickImageFromLibrary}
                 >
                   <LinearGradient
-                    colors={[Colors.secondary.mint, Colors.secondary.mintLight]}
+                    colors={[colors.secondary.mint, colors.secondary.mintLight] as [string, string]}
                     style={styles.uploadButtonGradient}
                   >
-                    <ImagePlus size={32} color={Colors.neutral.white} />
+                    <ImagePlus size={32} color="#FFFFFF" />
                     <Text style={styles.uploadButtonText}>Galeriden Seç</Text>
                   </LinearGradient>
                 </Pressable>
@@ -154,10 +168,10 @@ export default function HayalAtolyesiScreen() {
                   onPress={takePicture}
                 >
                   <LinearGradient
-                    colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                    colors={[colors.secondary.sky, colors.secondary.skyLight] as [string, string]}
                     style={styles.uploadButtonGradient}
                   >
-                    <Camera size={32} color={Colors.neutral.white} />
+                    <Camera size={32} color="#FFFFFF" />
                     <Text style={styles.uploadButtonText}>Fotoğraf Çek</Text>
                   </LinearGradient>
                 </Pressable>
@@ -168,7 +182,9 @@ export default function HayalAtolyesiScreen() {
           {/* Creation Options */}
           {selectedImage && (
             <View style={styles.optionsSection}>
-              <Text style={styles.sectionTitle}>Ne Yaratmak İstersin?</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+                Ne Yaratmak İstersin?
+              </Text>
 
               {/* Story Option */}
               <Pressable
@@ -178,9 +194,12 @@ export default function HayalAtolyesiScreen() {
                 ]}
                 onPress={handleCreateStory}
               >
-                <LinearGradient colors={Colors.cards.story.bg} style={styles.optionCardGradient}>
+                <LinearGradient
+                  colors={[...colors.cards.story.bg] as [string, string]}
+                  style={styles.optionCardGradient}
+                >
                   <View style={styles.optionIconContainer}>
-                    <BookOpen size={40} color={Colors.neutral.white} />
+                    <BookOpen size={40} color="#FFFFFF" />
                   </View>
                   <View style={styles.optionContent}>
                     <Text style={styles.optionTitle}>📖 AI Masal</Text>
@@ -196,7 +215,7 @@ export default function HayalAtolyesiScreen() {
                       </View>
                     </View>
                   </View>
-                  <ChevronRight size={24} color={Colors.neutral.white} />
+                  <ChevronRight size={24} color="#FFFFFF" />
                 </LinearGradient>
               </Pressable>
 
@@ -209,11 +228,11 @@ export default function HayalAtolyesiScreen() {
                 onPress={handleCreateColoring}
               >
                 <LinearGradient
-                  colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
+                  colors={[colors.secondary.sky, colors.secondary.skyLight] as [string, string]}
                   style={styles.optionCardGradient}
                 >
                   <View style={styles.optionIconContainer}>
-                    <Palette size={40} color={Colors.neutral.white} />
+                    <Palette size={40} color="#FFFFFF" />
                   </View>
                   <View style={styles.optionContent}>
                     <Text style={styles.optionTitle}>🎨 Boyama Sayfası</Text>
@@ -229,7 +248,7 @@ export default function HayalAtolyesiScreen() {
                       </View>
                     </View>
                   </View>
-                  <ChevronRight size={24} color={Colors.neutral.white} />
+                  <ChevronRight size={24} color="#FFFFFF" />
                 </LinearGradient>
               </Pressable>
 
@@ -242,11 +261,13 @@ export default function HayalAtolyesiScreen() {
                 onPress={handleAnalyze}
               >
                 <LinearGradient
-                  colors={[Colors.secondary.lavender, Colors.secondary.lavenderLight]}
+                  colors={
+                    [colors.secondary.lavender, colors.secondary.lavenderLight] as [string, string]
+                  }
                   style={styles.optionCardGradient}
                 >
                   <View style={styles.optionIconContainer}>
-                    <Brain size={40} color={Colors.neutral.white} />
+                    <Brain size={40} color="#FFFFFF" />
                   </View>
                   <View style={styles.optionContent}>
                     <Text style={styles.optionTitle}>🔍 Detaylı Analiz</Text>
@@ -262,7 +283,7 @@ export default function HayalAtolyesiScreen() {
                       </View>
                     </View>
                   </View>
-                  <ChevronRight size={24} color={Colors.neutral.white} />
+                  <ChevronRight size={24} color="#FFFFFF" />
                 </LinearGradient>
               </Pressable>
             </View>
@@ -270,9 +291,9 @@ export default function HayalAtolyesiScreen() {
 
           {/* Info Card */}
           {!selectedImage && (
-            <View style={styles.infoCard}>
-              <Text style={styles.infoTitle}>💡 İpucu</Text>
-              <Text style={styles.infoText}>
+            <View style={[styles.infoCard, { backgroundColor: colors.surface.card }]}>
+              <Text style={[styles.infoTitle, { color: colors.text.primary }]}>💡 İpucu</Text>
+              <Text style={[styles.infoText, { color: colors.text.secondary }]}>
                 Çocuğunuzun çizimini yükleyin. Ardından istediğiniz yaratıcı içeriği seçin: masal,
                 boyama veya detaylı analiz!
               </Text>

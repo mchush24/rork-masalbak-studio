@@ -5,13 +5,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import {
   FileText,
   Download,
@@ -20,7 +14,6 @@ import {
   Users,
   ClipboardList,
   Calendar,
-  Settings,
   ChevronRight,
 } from 'lucide-react-native';
 import { spacing, radius, shadows } from '@/constants/design-system';
@@ -31,7 +24,7 @@ interface ToolItem {
   id: string;
   title: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ size?: number; color?: string }>;
   color: string;
   route?: string;
   badge?: string;
@@ -46,7 +39,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       description: 'Klinik test başlat',
       icon: ClipboardList,
       color: ProfessionalColors.roles.expert.primary,
-      route: '/advanced-analysis',
+      route: '/analysis',
     },
     {
       id: 'reports',
@@ -99,7 +92,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       description: 'Yeni değerlendirme',
       icon: ClipboardList,
       color: ProfessionalColors.roles.teacher.primary,
-      route: '/advanced-analysis',
+      route: '/analysis',
     },
     {
       id: 'batch',
@@ -150,7 +143,7 @@ const getToolsForRole = (role: UserRole): ToolItem[] => {
       description: 'Yeni analiz başlat',
       icon: ClipboardList,
       color: ProfessionalColors.roles.parent.primary,
-      route: '/advanced-analysis',
+      route: '/analysis',
     },
     {
       id: 'children',
@@ -192,10 +185,8 @@ interface ProfessionalToolsSectionProps {
   onToolPress?: (toolId: string, route?: string) => void;
 }
 
-export function ProfessionalToolsSection({
-  onToolPress,
-}: ProfessionalToolsSectionProps) {
-  const { role, config } = useRole();
+export function ProfessionalToolsSection({ onToolPress }: ProfessionalToolsSectionProps) {
+  const { role } = useRole();
   const tools = getToolsForRole(role);
 
   // Get section title based on role
@@ -217,24 +208,16 @@ export function ProfessionalToolsSection({
       </View>
 
       <View style={styles.toolsGrid}>
-        {tools.map((tool) => {
+        {tools.map(tool => {
           const IconComponent = tool.icon;
           return (
             <Pressable
               key={tool.id}
-              style={({ pressed }) => [
-                styles.toolCard,
-                pressed && styles.toolCardPressed,
-              ]}
+              style={({ pressed }) => [styles.toolCard, pressed && styles.toolCardPressed]}
               onPress={() => onToolPress?.(tool.id, tool.route)}
             >
               <View style={styles.toolCardContent}>
-                <View
-                  style={[
-                    styles.toolIconContainer,
-                    { backgroundColor: `${tool.color}15` },
-                  ]}
-                >
+                <View style={[styles.toolIconContainer, { backgroundColor: `${tool.color}15` }]}>
                   <IconComponent size={22} color={tool.color} strokeWidth={2} />
                 </View>
                 <View style={styles.toolTextContainer}>

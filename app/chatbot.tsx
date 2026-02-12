@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,12 +9,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
-  ActivityIndicator,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, Href } from "expo-router";
-import { useAuth } from "@/lib/hooks/useAuth";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter, Href } from 'expo-router';
+import { useAuth } from '@/lib/hooks/useAuth';
 import {
   ChevronLeft,
   Send,
@@ -24,7 +23,7 @@ import {
   HelpCircle,
   Heart,
   ExternalLink,
-} from "lucide-react-native";
+} from 'lucide-react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -33,44 +32,52 @@ import Animated, {
   withTiming,
   FadeInUp,
   FadeInDown,
-} from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
-import { RenkooColors, Colors } from "@/constants/colors";
-import { Ioo as IooMascot } from "@/components/Ioo";
-import { spacing, radius, typography, shadows } from "@/constants/design-system";
-import { trpc } from "@/lib/trpc";
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { Colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme/ThemeProvider';
+import { Ioo as IooMascot } from '@/components/Ioo';
+import {
+  spacing,
+  radius,
+  typography,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
+import { trpc } from '@/lib/trpc';
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Hızlı eylem butonları (ebeveynler için)
+// Hızlı eylem chip'leri (ebeveynler için)
 const QUICK_ACTIONS = [
   {
-    id: "analysis",
+    id: 'analysis',
     icon: BarChart3,
-    label: "Analizimi Açıkla",
+    label: 'Analizimi Açıkla',
     color: Colors.secondary.lavender,
-    message: "Son analiz sonucumu açıklar mısın?"
+    message: 'Son analiz sonucumu açıklar mısın?',
   },
   {
-    id: "coloring",
+    id: 'coloring',
     icon: Palette,
-    label: "Boyama Öner",
-    color: "#4ECDC4",
-    message: "Bugün çocuğumla ne boyasak?"
+    label: 'Boyama Öner',
+    color: Colors.secondary.mint,
+    message: 'Bugün çocuğumla ne boyasak?',
   },
   {
-    id: "tips",
+    id: 'tips',
     icon: Lightbulb,
-    label: "Gelişim İpuçları",
-    color: "#FFB347",
-    message: "Çocuk gelişimi hakkında ipuçları verir misin?"
+    label: 'Gelişim İpuçları',
+    color: Colors.secondary.sunshine,
+    message: 'Çocuk gelişimi hakkında ipuçları verir misin?',
   },
   {
-    id: "help",
+    id: 'help',
     icon: HelpCircle,
-    label: "Nasıl Kullanırım?",
-    color: "#FF9EBF",
-    message: "Uygulamayı nasıl kullanabilirim?"
+    label: 'Nasıl Kullanırım?',
+    color: Colors.secondary.rose,
+    message: 'Uygulamayı nasıl kullanabilirim?',
   },
 ];
 
@@ -101,14 +108,15 @@ interface ConversationMessage {
 // Günün saatine göre selamlama
 const getTimeBasedGreeting = () => {
   const hour = new Date().getHours();
-  if (hour < 12) return "Günaydın";
-  if (hour < 18) return "İyi günler";
-  return "İyi akşamlar";
+  if (hour < 12) return 'Günaydın';
+  if (hour < 18) return 'İyi günler';
+  return 'İyi akşamlar';
 };
 
 export default function ChatbotScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -121,13 +129,13 @@ export default function ChatbotScreen() {
 
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: "1",
+      id: '1',
       text: `${getTimeBasedGreeting()}! 👋\n\nBen Ioo, çocuğunuzun gelişim yolculuğunda yanınızdayım.\n\nSize nasıl yardımcı olabilirim?`,
       isUser: false,
       timestamp: new Date(),
     },
   ]);
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
@@ -138,7 +146,7 @@ export default function ChatbotScreen() {
 
   // Son analizi çek
   const { data: recentAnalysis } = trpc.analysis.list.useQuery(
-    { limit: 1, offset: 0, sortBy: "created_at", sortOrder: "desc" },
+    { limit: 1, offset: 0, sortBy: 'created_at', sortOrder: 'desc' },
     { staleTime: 60000 } // 1 dakika cache
   );
 
@@ -158,13 +166,11 @@ export default function ChatbotScreen() {
 
   useEffect(() => {
     pulseScale.value = withRepeat(
-      withSequence(
-        withTiming(1.05, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
-      ),
+      withSequence(withTiming(1.05, { duration: 1000 }), withTiming(1, { duration: 1000 })),
       -1,
       true
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const pulseStyle = useAnimatedStyle(() => ({
@@ -182,8 +188,8 @@ export default function ChatbotScreen() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputText("");
+    setMessages(prev => [...prev, userMessage]);
+    setInputText('');
     setShowQuickActions(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
@@ -216,10 +222,10 @@ export default function ChatbotScreen() {
         suggestedQuestions: response.suggestedQuestions,
       };
 
-      setMessages((prev) => [...prev, iooMessage]);
+      setMessages(prev => [...prev, iooMessage]);
 
       // Konuşma geçmişine assistant yanıtını ekle
-      setConversationHistory((prev) => [
+      setConversationHistory(prev => [
         ...prev,
         { role: 'assistant' as const, content: response.message },
       ]);
@@ -228,11 +234,11 @@ export default function ChatbotScreen() {
       // Hata durumunda fallback mesaj
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.",
+        text: 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.',
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
     }
@@ -250,22 +256,22 @@ export default function ChatbotScreen() {
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Bugün";
-    if (diffDays === 1) return "Dün";
+    if (diffDays === 0) return 'Bugün';
+    if (diffDays === 1) return 'Dün';
     if (diffDays < 7) return `${diffDays} gün önce`;
-    return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
+    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
   };
 
   // Hızlı eylem seç
-  const handleQuickAction = async (action: typeof QUICK_ACTIONS[0]) => {
+  const handleQuickAction = async (action: (typeof QUICK_ACTIONS)[0]) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     // Analiz açıklama için özel işlem
-    if (action.id === "analysis" && recentAnalysis?.analyses?.[0]) {
+    if (action.id === 'analysis' && recentAnalysis?.analyses?.[0]) {
       const analysis = recentAnalysis.analyses[0];
       const analysisContext = `Son analizim: ${analysis.task_type}, tarih: ${formatAnalysisDate(analysis.created_at)}. Bu analizi açıklar mısın?`;
       sendMessage(analysisContext, action.id);
-    } else if (action.id === "analysis" && !recentAnalysis?.analyses?.[0]) {
+    } else if (action.id === 'analysis' && !recentAnalysis?.analyses?.[0]) {
       // Analiz yoksa özel mesaj
       const noAnalysisMessage: Message = {
         id: Date.now().toString(),
@@ -273,7 +279,7 @@ export default function ChatbotScreen() {
         isUser: true,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, noAnalysisMessage]);
+      setMessages(prev => [...prev, noAnalysisMessage]);
       setShowQuickActions(false);
 
       setTimeout(() => {
@@ -283,10 +289,15 @@ export default function ChatbotScreen() {
           isUser: false,
           timestamp: new Date(),
           actions: [
-            { type: 'navigate' as const, label: 'Yeni Analiz Yap', target: '/quick-analysis', icon: '📊' }
+            {
+              type: 'navigate' as const,
+              label: 'Yeni Analiz Yap',
+              target: '/(tabs)/analysis',
+              icon: '📊',
+            },
           ],
         };
-        setMessages((prev) => [...prev, responseMessage]);
+        setMessages(prev => [...prev, responseMessage]);
       }, 500);
     } else {
       sendMessage(action.message, action.id);
@@ -296,26 +307,28 @@ export default function ChatbotScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={RenkooColors.gradients.chat}
+        colors={[...colors.background.pageGradient] as [string, string, ...string[]]}
         style={[styles.gradient, { paddingTop: insets.top }]}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => router.back()}
-            hitSlop={8}
-          >
-            <ChevronLeft size={28} color={RenkooColors.text.primary} />
+        <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
+          <Pressable style={styles.backButton} onPress={() => router.back()} hitSlop={8}>
+            <ChevronLeft
+              size={iconSizes.navigation}
+              color={colors.text.primary}
+              strokeWidth={iconStroke.standard}
+            />
           </Pressable>
 
           <Animated.View style={pulseStyle}>
-            <IooMascot size="tiny" mood="happy" animated showGlow />
+            <IooMascot size="tiny" mood="happy" animated />
           </Animated.View>
 
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Ioo</Text>
-            <Text style={styles.headerSubtitle}>Gelişim asistanınız</Text>
+            <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Ioo</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
+              Gelişim asistanınız
+            </Text>
           </View>
 
           <View style={styles.headerSpacer} />
@@ -324,7 +337,7 @@ export default function ChatbotScreen() {
         {/* Messages */}
         <KeyboardAvoidingView
           style={styles.chatContainer}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={100}
         >
           <ScrollView
@@ -332,9 +345,7 @@ export default function ChatbotScreen() {
             style={styles.messagesContainer}
             contentContainerStyle={styles.messagesContent}
             showsVerticalScrollIndicator={false}
-            onContentSizeChange={() =>
-              scrollViewRef.current?.scrollToEnd({ animated: true })
-            }
+            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {messages.map((message, index) => (
               <Animated.View
@@ -342,18 +353,30 @@ export default function ChatbotScreen() {
                 entering={FadeInUp.delay(index * 100).springify()}
                 style={[
                   styles.messageBubble,
-                  message.isUser ? styles.userBubble : styles.iooBubble,
+                  message.isUser
+                    ? styles.userBubble
+                    : [
+                        styles.iooBubble,
+                        { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                      ],
                 ]}
               >
                 {!message.isUser && index === 0 && (
-                  <View style={styles.iooAvatarSmall}>
-                    <Heart size={14} color={RenkooColors.brand.jellyPurple} />
+                  <View
+                    style={[
+                      styles.iooAvatarSmall,
+                      { backgroundColor: colors.secondary.lavender + '20' },
+                    ]}
+                  >
+                    <Heart size={14} color={colors.secondary.lavender} />
                   </View>
                 )}
                 <Text
                   style={[
                     styles.messageText,
-                    message.isUser ? styles.userText : styles.iooText,
+                    message.isUser
+                      ? styles.userText
+                      : [styles.iooText, { color: colors.text.primary }],
                   ]}
                 >
                   {message.text}
@@ -367,6 +390,7 @@ export default function ChatbotScreen() {
                         key={actionIndex}
                         style={({ pressed }) => [
                           styles.actionButton,
+                          { backgroundColor: colors.secondary.lavender + '15' },
                           pressed && { opacity: 0.7 },
                         ]}
                         onPress={() => {
@@ -374,13 +398,21 @@ export default function ChatbotScreen() {
                           if (action.type === 'navigate' || action.type === 'create') {
                             // Validate target route before navigating
                             const validRoutes = [
-                              '/(tabs)', '/(tabs)/index', '/(tabs)/discover',
-                              '/(tabs)/hayal-atolyesi', '/(tabs)/history', '/(tabs)/profile',
-                              '/(tabs)/quick-analysis', '/(tabs)/advanced-analysis',
-                              '/(tabs)/stories', '/analysis/', '/interactive-story/',
+                              '/(tabs)',
+                              '/(tabs)/index',
+                              '/(tabs)/discover',
+                              '/(tabs)/hayal-atolyesi',
+                              '/(tabs)/history',
+                              '/(tabs)/profile',
+                              '/(tabs)/analysis',
+                              '/(tabs)/quick-analysis',
+                              '/(tabs)/advanced-analysis',
+                              '/(tabs)/stories',
+                              '/analysis/',
+                              '/interactive-story/',
                             ];
-                            const isValid = validRoutes.some(route =>
-                              action.target === route || action.target?.startsWith(route)
+                            const isValid = validRoutes.some(
+                              route => action.target === route || action.target?.startsWith(route)
                             );
                             if (isValid && action.target) {
                               router.push(action.target as Href);
@@ -391,41 +423,72 @@ export default function ChatbotScreen() {
                         }}
                       >
                         <Text style={styles.actionButtonIcon}>{action.icon}</Text>
-                        <Text style={styles.actionButtonText}>{action.label}</Text>
-                        <ExternalLink size={12} color={RenkooColors.brand.jellyPurple} />
+                        <Text
+                          style={[styles.actionButtonText, { color: colors.secondary.lavender }]}
+                        >
+                          {action.label}
+                        </Text>
+                        <ExternalLink size={12} color={colors.secondary.lavender} />
                       </Pressable>
                     ))}
                   </View>
                 )}
 
                 {/* Önerilen Sorular */}
-                {!message.isUser && message.suggestedQuestions && message.suggestedQuestions.length > 0 && index === messages.length - 1 && (
-                  <View style={styles.suggestedQuestionsContainer}>
-                    <Text style={styles.suggestedQuestionsTitle}>İlgili sorular:</Text>
-                    {message.suggestedQuestions.map((question, qIndex) => (
-                      <Pressable
-                        key={qIndex}
-                        style={({ pressed }) => [
-                          styles.suggestedQuestionButton,
-                          pressed && { opacity: 0.7, backgroundColor: 'rgba(185, 142, 255, 0.1)' },
-                        ]}
-                        onPress={() => {
-                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                          sendMessage(question);
-                        }}
+                {!message.isUser &&
+                  message.suggestedQuestions &&
+                  message.suggestedQuestions.length > 0 &&
+                  index === messages.length - 1 && (
+                    <View
+                      style={[
+                        styles.suggestedQuestionsContainer,
+                        { borderTopColor: colors.border.light },
+                      ]}
+                    >
+                      <Text
+                        style={[styles.suggestedQuestionsTitle, { color: colors.text.tertiary }]}
                       >
-                        <Text style={styles.suggestedQuestionText}>{question}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                )}
+                        İlgili sorular:
+                      </Text>
+                      {message.suggestedQuestions.map((question, qIndex) => (
+                        <Pressable
+                          key={qIndex}
+                          style={({ pressed }) => [
+                            styles.suggestedQuestionButton,
+                            pressed && {
+                              opacity: 0.7,
+                              backgroundColor: colors.secondary.lavender + '15',
+                            },
+                          ]}
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            sendMessage(question);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.suggestedQuestionText,
+                              { color: colors.secondary.lavender },
+                            ]}
+                          >
+                            {question}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
               </Animated.View>
             ))}
 
             {isTyping && (
               <Animated.View
                 entering={FadeInUp.springify()}
-                style={[styles.messageBubble, styles.iooBubble, styles.typingBubble]}
+                style={[
+                  styles.messageBubble,
+                  styles.iooBubble,
+                  styles.typingBubble,
+                  { backgroundColor: colors.surface.card, borderColor: colors.border.light },
+                ]}
               >
                 <View style={styles.typingDots}>
                   <View style={[styles.dot, styles.dot1]} />
@@ -436,41 +499,62 @@ export default function ChatbotScreen() {
             )}
           </ScrollView>
 
-          {/* Hızlı Eylemler */}
+          {/* Hızlı Eylemler - Horizontal Chips */}
           {showQuickActions && (
             <Animated.View
               entering={FadeInDown.delay(300).springify()}
               style={styles.quickActionsSection}
             >
-              <Text style={styles.quickActionsTitle}>Hızlı Eylemler</Text>
-              <View style={styles.quickActionsGrid}>
-                {QUICK_ACTIONS.map((action) => (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.quickActionsRow}
+              >
+                {QUICK_ACTIONS.map(action => (
                   <Pressable
                     key={action.id}
                     style={({ pressed }) => [
-                      styles.quickActionButton,
-                      { borderColor: action.color + "60" },
+                      styles.quickActionChip,
+                      { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                       pressed && { transform: [{ scale: 0.97 }], opacity: 0.8 },
                     ]}
                     onPress={() => handleQuickAction(action)}
                   >
-                    <View style={[styles.quickActionIcon, { backgroundColor: action.color + "20" }]}>
-                      <action.icon size={20} color={action.color} />
-                    </View>
-                    <Text style={styles.quickActionLabel}>{action.label}</Text>
+                    <action.icon
+                      size={iconSizes.inline}
+                      color={action.color}
+                      strokeWidth={iconStroke.standard}
+                    />
+                    <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                      {action.label}
+                    </Text>
                   </Pressable>
                 ))}
-              </View>
+              </ScrollView>
             </Animated.View>
           )}
 
           {/* Input */}
-          <View style={[styles.inputContainer, { paddingBottom: insets.bottom + 8 }]}>
-            <View style={styles.inputWrapper}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                paddingBottom: insets.bottom + 8,
+                backgroundColor: colors.surface.card,
+                borderTopColor: colors.border.light,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.inputWrapper,
+                { backgroundColor: isDark ? colors.neutral.lightest : Colors.neutral.lightest },
+              ]}
+            >
               <TextInput
-                style={styles.textInput}
+                style={[styles.textInput, { color: colors.text.primary }]}
                 placeholder="Bir soru sorun..."
-                placeholderTextColor={RenkooColors.text.tertiary}
+                placeholderTextColor={colors.text.tertiary}
                 value={inputText}
                 onChangeText={setInputText}
                 multiline
@@ -479,16 +563,16 @@ export default function ChatbotScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.sendButton,
-                  !inputText.trim() && styles.sendButtonDisabled,
+                  !inputText.trim() && [
+                    styles.sendButtonDisabled,
+                    { backgroundColor: colors.border.light },
+                  ],
                   pressed && { transform: [{ scale: 0.9 }] },
                 ]}
                 onPress={() => sendMessage(inputText)}
                 disabled={!inputText.trim()}
               >
-                <Send
-                  size={20}
-                  color={inputText.trim() ? Colors.neutral.white : RenkooColors.text.tertiary}
-                />
+                <Send size={20} color={inputText.trim() ? '#FFFFFF' : colors.text.tertiary} />
               </Pressable>
             </View>
           </View>
@@ -506,30 +590,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing['4'],
+    paddingVertical: spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.3)",
+    borderBottomColor: Colors.neutral.lighter,
   },
   backButton: {
-    padding: spacing["2"],
-    marginRight: spacing["2"],
+    padding: spacing['2'],
+    marginRight: spacing['2'],
   },
   headerTextContainer: {
     flex: 1,
-    marginLeft: spacing["3"],
+    marginLeft: spacing['3'],
   },
   headerTitle: {
-    fontSize: typography.size.lg,
-    fontWeight: "700",
-    color: RenkooColors.text.primary,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: Colors.text.primary,
   },
   headerSubtitle: {
     fontSize: typography.size.xs,
-    color: RenkooColors.text.secondary,
-    marginTop: 2,
+    color: Colors.text.secondary,
+    fontWeight: typography.weight.medium,
+    marginTop: 1,
   },
   headerSpacer: {
     width: 40,
@@ -541,25 +626,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContent: {
-    padding: spacing["4"],
-    paddingBottom: spacing["6"],
+    padding: spacing['4'],
+    paddingBottom: spacing['6'],
   },
   messageBubble: {
-    maxWidth: SCREEN_WIDTH * 0.75,
-    padding: spacing["4"],
+    maxWidth: SCREEN_WIDTH * 0.78,
+    padding: spacing['4'],
     borderRadius: radius.xl,
-    marginBottom: spacing["3"],
+    marginBottom: spacing['3'],
   },
   userBubble: {
-    alignSelf: "flex-end",
-    backgroundColor: RenkooColors.brand.jellyPurple,
-    borderBottomRightRadius: spacing["1"],
+    alignSelf: 'flex-end',
+    backgroundColor: Colors.secondary.lavender,
+    borderBottomRightRadius: radius.xs,
   },
   iooBubble: {
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderBottomLeftRadius: spacing["1"],
-    ...shadows.sm,
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.neutral.white,
+    borderBottomLeftRadius: radius.xs,
+    ...shadows.xs,
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
   },
   messageText: {
     fontSize: typography.size.base,
@@ -569,31 +656,31 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
   },
   iooText: {
-    color: RenkooColors.text.primary,
+    color: Colors.text.primary,
   },
   iooAvatarSmall: {
     width: 24,
     height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(185, 142, 255, 0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing["2"],
+    borderRadius: radius.full,
+    backgroundColor: Colors.secondary.lavender + '20',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing['2'],
   },
   typingBubble: {
-    paddingVertical: spacing["3"],
-    paddingHorizontal: spacing["4"],
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['4'],
   },
   typingDots: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
   },
   dot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
-    backgroundColor: RenkooColors.text.tertiary,
+    borderRadius: radius.full,
+    backgroundColor: Colors.neutral.light,
   },
   dot1: {
     opacity: 0.4,
@@ -605,91 +692,76 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   quickActionsSection: {
-    paddingHorizontal: spacing["4"],
-    paddingVertical: spacing["4"],
+    paddingVertical: spacing['3'],
   },
-  quickActionsTitle: {
-    fontSize: typography.size.sm,
-    fontWeight: "600",
-    color: RenkooColors.text.secondary,
-    marginBottom: spacing["3"],
+  quickActionsRow: {
+    paddingHorizontal: spacing['4'],
+    gap: spacing['2'],
   },
-  quickActionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing["2"],
-  },
-  quickActionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    paddingVertical: spacing["3"],
-    paddingHorizontal: spacing["3"],
-    borderRadius: radius.lg,
-    borderWidth: 1.5,
-    gap: spacing["2"],
+  quickActionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.neutral.white,
+    paddingVertical: spacing['2.5'],
+    paddingHorizontal: spacing['4'],
+    borderRadius: radius.full,
+    gap: spacing['2'],
+    borderWidth: 1,
+    borderColor: Colors.neutral.lighter,
     ...shadows.xs,
-  },
-  quickActionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
   },
   quickActionLabel: {
     fontSize: typography.size.sm,
-    fontWeight: "600",
-    color: RenkooColors.text.primary,
+    fontWeight: typography.weight.semibold,
+    color: Colors.text.primary,
   },
   inputContainer: {
-    paddingHorizontal: spacing["4"],
-    paddingTop: spacing["3"],
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    paddingHorizontal: spacing['4'],
+    paddingTop: spacing['3'],
+    backgroundColor: Colors.neutral.white,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.3)",
+    borderTopColor: Colors.neutral.lighter,
   },
   inputWrapper: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    backgroundColor: Colors.neutral.white,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: Colors.neutral.lightest,
     borderRadius: radius.xl,
-    paddingLeft: spacing["4"],
-    paddingRight: spacing["2"],
-    paddingVertical: spacing["2"],
-    ...shadows.sm,
+    paddingLeft: spacing['4'],
+    paddingRight: spacing['2'],
+    paddingVertical: spacing['2'],
   },
   textInput: {
     flex: 1,
     fontSize: typography.size.base,
-    color: RenkooColors.text.primary,
+    color: Colors.text.primary,
     maxHeight: 100,
-    paddingVertical: spacing["2"],
+    paddingVertical: spacing['2'],
   },
   sendButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: RenkooColors.brand.jellyPurple,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: radius.full,
+    backgroundColor: Colors.secondary.lavender,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    backgroundColor: Colors.neutral.lighter,
   },
   // Action butonları
   actionsContainer: {
-    marginTop: spacing["3"],
-    gap: spacing["2"],
+    marginTop: spacing['3'],
+    gap: spacing['2'],
   },
   actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(185, 142, 255, 0.1)",
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
-    borderRadius: radius.md,
-    gap: spacing["2"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.secondary.lavender + '15',
+    paddingVertical: spacing['2.5'],
+    paddingHorizontal: spacing['3'],
+    borderRadius: radius.lg,
+    gap: spacing['2'],
   },
   actionButtonIcon: {
     fontSize: 16,
@@ -697,30 +769,31 @@ const styles = StyleSheet.create({
   actionButtonText: {
     flex: 1,
     fontSize: typography.size.sm,
-    fontWeight: "600",
-    color: RenkooColors.brand.jellyPurple,
+    fontWeight: typography.weight.semibold,
+    color: Colors.secondary.lavender,
   },
   // Önerilen sorular
   suggestedQuestionsContainer: {
-    marginTop: spacing["3"],
-    paddingTop: spacing["3"],
+    marginTop: spacing['3'],
+    paddingTop: spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.05)",
+    borderTopColor: Colors.neutral.lighter,
   },
   suggestedQuestionsTitle: {
     fontSize: typography.size.xs,
-    fontWeight: "600",
-    color: RenkooColors.text.tertiary,
-    marginBottom: spacing["2"],
+    fontWeight: typography.weight.semibold,
+    color: Colors.neutral.medium,
+    marginBottom: spacing['2'],
   },
   suggestedQuestionButton: {
-    paddingVertical: spacing["2"],
-    paddingHorizontal: spacing["3"],
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
     borderRadius: radius.md,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   suggestedQuestionText: {
     fontSize: typography.size.sm,
-    color: RenkooColors.brand.jellyPurple,
+    color: Colors.secondary.lavender,
+    fontWeight: typography.weight.medium,
   },
 });

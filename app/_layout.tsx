@@ -125,6 +125,7 @@ const VALID_RECOVERY_ROUTES = [
   '/(tabs)/hayal-atolyesi',
   '/(tabs)/history',
   '/(tabs)/profile',
+  '/(tabs)/analysis',
   '/(tabs)/quick-analysis',
   '/(tabs)/advanced-analysis',
   '/(tabs)/stories',
