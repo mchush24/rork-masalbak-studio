@@ -17,8 +17,6 @@ import {
   TextInput,
   StyleSheet,
   TextInputProps,
-  TextInputFocusEventData,
-  NativeSyntheticEvent,
   Pressable,
   ViewStyle,
   TextStyle,
@@ -134,13 +132,13 @@ export function AnimatedInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, successScale]);
 
-  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleFocus: TextInputProps['onFocus'] = e => {
     setIsFocused(true);
     tapLight();
     onFocus?.(e);
   };
 
-  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleBlur: TextInputProps['onBlur'] = e => {
     setIsFocused(false);
     onBlur?.(e);
   };

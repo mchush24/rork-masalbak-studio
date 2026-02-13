@@ -47,7 +47,7 @@ export interface FeatureStep {
   id: string;
   title: string;
   description: string;
-  targetRef: React.RefObject<View>;
+  targetRef: React.RefObject<View | null>;
   position?: 'top' | 'bottom' | 'left' | 'right';
 }
 

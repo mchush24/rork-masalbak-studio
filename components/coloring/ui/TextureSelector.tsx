@@ -130,7 +130,6 @@ export interface TextureToggleProps {
 export function GlitterToggle({
   isGlitterEnabled,
   onToggle,
-  _color = '#FFD700',
   disabled = false,
 }: TextureToggleProps) {
   return (

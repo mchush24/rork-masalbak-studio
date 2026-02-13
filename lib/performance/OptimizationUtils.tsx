@@ -248,7 +248,7 @@ export function VirtualizedList<T>({
   style,
 }: VirtualizedListProps<T>) {
   const getItemLayout = useCallback(
-    (_: T[] | null | undefined, index: number) => ({
+    (_: ArrayLike<T> | null | undefined, index: number) => ({
       length: itemHeight,
       offset: itemHeight * index,
       index,

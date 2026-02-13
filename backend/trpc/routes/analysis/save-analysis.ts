@@ -20,6 +20,7 @@ const saveAnalysisInputSchema = z.object({
     'Bender',
     'Rey',
     'Luscher',
+    'FreeDrawing',
   ]),
   childAge: z.number().optional(),
   childName: z.string().optional(),

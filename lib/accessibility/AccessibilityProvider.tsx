@@ -11,7 +11,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { AccessibilityInfo, Platform, View } from 'react-native';
+import { AccessibilityInfo, Platform, View, findNodeHandle } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
@@ -350,7 +350,10 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
 
   const setAccessibilityFocus = useCallback((ref: React.RefObject<View>) => {
     if (ref.current) {
-      AccessibilityInfo.setAccessibilityFocus(ref.current);
+      const nodeHandle = findNodeHandle(ref.current);
+      if (nodeHandle) {
+        AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+      }
     }
   }, []);
 

@@ -42,7 +42,7 @@ import { preprocessImage } from '@/utils/imagePreprocess';
 import { ResultCard } from '@/components/ResultCard';
 import { buildShareText } from '@/services/abTest';
 import { pickFromLibrary, captureWithCamera } from '@/services/imagePick';
-import type { TaskType } from '@/types/AssessmentSchema';
+import type { TaskType } from '@/types/analysis';
 import { trpc } from '@/lib/trpc';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -119,7 +119,7 @@ interface TestConfigItem {
   imageCount: number;
 }
 
-const TEST_CONFIG: Record<TaskType, TestConfigItem> = {
+const TEST_CONFIG: Partial<Record<TaskType, TestConfigItem>> = {
   DAP: {
     icon: '👤',
     gradient: ['#A78BFA', '#C4B5FD'],
@@ -200,6 +200,15 @@ const TEST_CONFIG: Record<TaskType, TestConfigItem> = {
     difficulty: 'Kolay',
     ageRange: '5-14 yaş',
     imageCount: 0,
+  },
+  FreeDrawing: {
+    icon: '✨',
+    gradient: ['#A78BFA', '#F472B6'],
+    description: 'Serbest çizim analizi',
+    duration: '20-40 sn',
+    difficulty: 'Kolay',
+    ageRange: '2-18 yaş',
+    imageCount: 1,
   },
 };
 
@@ -703,7 +712,7 @@ export default function AdvancedAnalysisScreen() {
               contentContainerStyle={styles.testCarousel}
             >
               {TASK_TYPES.map(t => {
-                const config = TEST_CONFIG[t];
+                const config = TEST_CONFIG[t]!;
                 const isActive = task === t;
                 return (
                   <Pressable
@@ -792,14 +801,14 @@ export default function AdvancedAnalysisScreen() {
             {/* Selected Test Info Card */}
             <View style={styles.selectedTestCard}>
               <LinearGradient
-                colors={TEST_CONFIG[task].gradient}
+                colors={TEST_CONFIG[task]?.gradient ?? ['#A78BFA', '#C4B5FD']}
                 style={styles.selectedTestGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
                 <View style={styles.selectedTestContent}>
                   <View style={styles.selectedTestLeft}>
-                    <Text style={styles.selectedTestIcon}>{TEST_CONFIG[task].icon}</Text>
+                    <Text style={styles.selectedTestIcon}>{TEST_CONFIG[task]?.icon}</Text>
                     <View>
                       <Text style={styles.selectedTestName}>{PROTOCOLS[task].title}</Text>
                       <Text style={styles.selectedTestMeta}>
@@ -1140,10 +1149,10 @@ export default function AdvancedAnalysisScreen() {
 
               <View style={[styles.sheetHeader, { borderBottomColor: colors.neutral.lighter }]}>
                 <LinearGradient
-                  colors={TEST_CONFIG[sheetTask].gradient}
+                  colors={TEST_CONFIG[sheetTask]?.gradient ?? ['#A78BFA', '#C4B5FD']}
                   style={styles.sheetHeaderIcon}
                 >
-                  <Text style={styles.sheetHeaderEmoji}>{TEST_CONFIG[sheetTask].icon}</Text>
+                  <Text style={styles.sheetHeaderEmoji}>{TEST_CONFIG[sheetTask]?.icon}</Text>
                 </LinearGradient>
                 <View style={styles.sheetHeaderText}>
                   <Text style={[styles.sheetTitle, { color: colors.text.primary }]}>
@@ -1310,7 +1319,7 @@ export default function AdvancedAnalysisScreen() {
                   style={styles.sheetSelectButton}
                 >
                   <LinearGradient
-                    colors={TEST_CONFIG[sheetTask].gradient}
+                    colors={TEST_CONFIG[sheetTask]?.gradient ?? ['#A78BFA', '#C4B5FD']}
                     style={styles.sheetSelectButtonGradient}
                   >
                     <CheckCircle size={18} color="#FFFFFF" />

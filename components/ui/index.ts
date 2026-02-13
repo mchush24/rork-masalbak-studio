@@ -5,26 +5,14 @@
  */
 
 // Phase 2: Toast System
-export {
-  ToastProvider,
-  useToast,
-  useToastHelpers,
-} from './Toast';
+export { ToastProvider, useToast, useToastHelpers } from './Toast';
 export type { ToastType, ToastOptions, ToastAction } from './Toast';
 
 // Phase 2: Search Input
-export {
-  SearchInput,
-  SearchWithHistory,
-} from './SearchInput';
+export { SearchInput, SearchWithHistory } from './SearchInput';
 
 // Phase 2: Dialog System
-export {
-  BaseDialog,
-  ConfirmDialog,
-  AlertDialog,
-  InputDialog,
-} from './Dialog';
+export { BaseDialog, ConfirmDialog, AlertDialog, InputDialog } from './Dialog';
 export type {
   BaseDialogProps,
   ConfirmDialogProps,
@@ -75,12 +63,7 @@ export {
 } from './ErrorState';
 export type { ErrorType } from './ErrorState';
 
-export {
-  InlineLoader,
-  ButtonLoader,
-  CardLoader,
-  SectionLoader,
-} from './InlineLoader';
+export { InlineLoader, ButtonLoader, CardLoader, SectionLoader } from './InlineLoader';
 
 export {
   AccessibleTouchable,
@@ -98,21 +81,14 @@ export {
 } from './EnhancedRefresh';
 
 // Phase 3: Smart Lists
-export {
-  SmartList,
-  SmartGrid,
-  SmartSectionList,
-} from './SmartList';
+export { SmartList, SmartGrid, SmartSectionList } from './SmartList';
 
 // Phase 6: Offline Indicator
-export {
-  OfflineIndicator,
-  OfflineBadge,
-  OfflineIndicatorProvider,
-} from './OfflineIndicator';
+export { OfflineIndicator, OfflineBadge, OfflineIndicatorProvider } from './OfflineIndicator';
 
 // Phase 6: Crash Recovery
-export {
-  CrashRecoveryDialog,
-  useRecoveryPrompt,
-} from './CrashRecoveryDialog';
+export { CrashRecoveryDialog, useRecoveryPrompt } from './CrashRecoveryDialog';
+
+// Collapsible Section
+export { CollapsibleSection } from './CollapsibleSection';
+export type { CollapsibleSectionProps } from './CollapsibleSection';

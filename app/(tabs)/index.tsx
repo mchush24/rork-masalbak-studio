@@ -66,25 +66,13 @@ import {
   RecentActivityList,
 } from '@/components/dashboard';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const _isSmallDevice = SCREEN_HEIGHT < 700;
+import { DiscoverSection, type DiscoverSectionProps } from '@/components/home/DiscoverSection';
+import type { TaskType } from '@/types/analysis';
+import { TASK_TYPE_LABELS } from '@/constants/task-labels';
 
-type TaskType =
-  | 'DAP'
-  | 'HTP'
-  | 'Family'
-  | 'Cactus'
-  | 'Tree'
-  | 'Garden'
-  | 'BenderGestalt2'
-  | 'ReyOsterrieth'
-  | 'Aile'
-  | 'Kaktus'
-  | 'Agac'
-  | 'Bahce'
-  | 'Bender'
-  | 'Rey'
-  | 'Luscher';
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const _isSmallDevice = SCREEN_HEIGHT < 700;
 
 interface RecentAnalysis {
   id: string;
@@ -108,24 +96,6 @@ interface ProcessedChild {
   avatarUrl?: string;
   age?: number;
 }
-
-const TASK_TYPE_LABELS: Record<TaskType, string> = {
-  DAP: 'İnsan Çizimi',
-  HTP: 'Ev-Ağaç-İnsan',
-  Family: 'Aile Çizimi',
-  Aile: 'Aile Çizimi',
-  Cactus: 'Kaktüs Testi',
-  Kaktus: 'Kaktüs Testi',
-  Tree: 'Ağaç Testi',
-  Agac: 'Ağaç Testi',
-  Garden: 'Bahçe Testi',
-  Bahce: 'Bahçe Testi',
-  BenderGestalt2: 'Bender Gestalt',
-  Bender: 'Bender Gestalt',
-  ReyOsterrieth: 'Rey Figure',
-  Rey: 'Rey Figure',
-  Luscher: 'Luscher Renk',
-};
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -219,6 +189,9 @@ export default function HomeScreen() {
     enabled: !!user?.userId,
   });
 
+  // Fetch discover feed (for DiscoverSection)
+  const discoverFeed = trpc.socialFeed.getDiscoverFeed.useQuery({}, { enabled: !!user?.userId });
+
   // Get dynamic greeting
   const greeting = useMemo(() => {
     return GreetingService.getFormattedGreeting();
@@ -281,9 +254,10 @@ export default function HomeScreen() {
       refetchAnalyses(),
       refetchStats(),
       refreshGamification(),
+      discoverFeed.refetch(),
     ]);
     setRefreshing(false);
-  }, [refetchChildren, refetchAnalyses, refetchStats, refreshGamification]);
+  }, [refetchChildren, refetchAnalyses, refetchStats, refreshGamification, discoverFeed]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -367,6 +341,10 @@ export default function HomeScreen() {
               refreshing={refreshing}
               onRefresh={handleRefresh}
               tintColor={colors.primary.sunset}
+              colors={[colors.primary.sunset, colors.secondary.lavender]}
+              progressBackgroundColor={colors.surface.card}
+              title="Güncelleniyor..."
+              titleColor={colors.text.tertiary}
             />
           }
         >
@@ -552,7 +530,7 @@ export default function HomeScreen() {
           {!isProfessional &&
             showGamification &&
             !gamificationLoading &&
-            (streakData?.currentStreak > 0 || totalXp > 0) && (
+            ((streakData?.currentStreak ?? 0) > 0 || totalXp > 0) && (
               <View style={[styles.progressRowCompact, { backgroundColor: colors.surface.card }]}>
                 <StreakDisplay
                   currentStreak={streakData?.currentStreak || 0}
@@ -562,7 +540,7 @@ export default function HomeScreen() {
                   }
                   streakAtRisk={
                     !streakData?.lastActivityDate ||
-                    (streakData?.currentStreak > 0 &&
+                    ((streakData?.currentStreak ?? 0) > 0 &&
                       streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
                       streakData?.lastActivityDate !==
                         (() => {
@@ -768,6 +746,14 @@ export default function HomeScreen() {
                 </ScrollView>
               )}
             </View>
+          )}
+
+          {/* Discover Section - Keşfet */}
+          {!isProfessional && (
+            <DiscoverSection
+              discoverData={discoverFeed.data as DiscoverSectionProps['discoverData']}
+              isLoading={discoverFeed.isLoading}
+            />
           )}
 
           {/* Footer */}

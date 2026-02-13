@@ -218,7 +218,7 @@ export function ProfessionalToolsSection({ onToolPress }: ProfessionalToolsSecti
             >
               <View style={styles.toolCardContent}>
                 <View style={[styles.toolIconContainer, { backgroundColor: `${tool.color}15` }]}>
-                  <IconComponent size={22} color={tool.color} strokeWidth={2} />
+                  <IconComponent size={22} color={tool.color} />
                 </View>
                 <View style={styles.toolTextContainer}>
                   <View style={styles.toolTitleRow}>

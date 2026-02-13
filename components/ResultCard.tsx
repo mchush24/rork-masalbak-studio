@@ -1,8 +1,21 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { AssessmentOutput } from '@/types/AssessmentSchema';
 import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+interface Hypothesis {
+  theme: string;
+  confidence: number;
+  evidence: string[];
+}
+
+interface AssessmentOutput {
+  task_type: string;
+  reflective_hypotheses: Hypothesis[];
+  conversation_prompts: string[];
+  activity_ideas: string[];
+  safety_flags: { self_harm: boolean; abuse_concern: boolean };
+  disclaimers: string[];
+}
 
 export const ResultCard: React.FC<{
   data: AssessmentOutput;

@@ -42,7 +42,7 @@ export function VirtualizedList<T>({
 
   // Memoize getItemLayout for performance
   const getItemLayout = useCallback(
-    (_: T[] | null | undefined, index: number) => ({
+    (_: ArrayLike<T> | null | undefined, index: number) => ({
       length: estimatedItemSize,
       offset: estimatedItemSize * index,
       index,

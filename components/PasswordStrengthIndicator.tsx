@@ -9,7 +9,7 @@ interface PasswordStrengthIndicatorProps {
 
 export function PasswordStrengthIndicator({
   password,
-  _showFeedback = true,
+  showFeedback: _showFeedback = true,
 }: PasswordStrengthIndicatorProps) {
   // Calculate strength
   let score = 0;

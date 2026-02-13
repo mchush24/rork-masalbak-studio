@@ -253,7 +253,7 @@ interface LiveRegionProps {
 export function LiveRegion({
   children,
   polite = 'polite',
-  _atomic = true,
+  atomic: _atomic = true,
   style,
 }: LiveRegionProps) {
   return (
@@ -617,8 +617,8 @@ export function ColorBlindModeSelector({
 interface CognitiveAccessibilityToggleProps {
   simplifiedLanguage: boolean;
   reducedInformation: boolean;
-  onSimplifiedLanguageChange: (value: boolean) => void;
-  onReducedInformationChange: (value: boolean) => void;
+  onSimplifiedLanguageChange: (value: boolean | string) => void;
+  onReducedInformationChange: (value: boolean | string) => void;
   style?: StyleProp<ViewStyle>;
 }
 

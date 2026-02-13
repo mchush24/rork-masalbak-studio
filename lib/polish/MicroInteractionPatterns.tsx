@@ -20,8 +20,6 @@ import {
   StyleProp,
   TextInput,
   TextInputProps,
-  TextInputFocusEventData,
-  NativeSyntheticEvent,
   Dimensions,
 } from 'react-native';
 import Animated, {
@@ -274,7 +272,7 @@ export function ElasticInput({
   const shadowRadius = useSharedValue(0);
   const scale = useSharedValue(1);
 
-  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleFocus: TextInputProps['onFocus'] = e => {
     borderWidth.value = withSpring(2, { damping: 15 });
     borderColor.value = withTiming(1, { duration: 200 });
     shadowRadius.value = withTiming(8, { duration: 200 });
@@ -285,7 +283,7 @@ export function ElasticInput({
     onFocus?.(e);
   };
 
-  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleBlur: TextInputProps['onBlur'] = e => {
     borderWidth.value = withSpring(1, { damping: 15 });
     borderColor.value = withTiming(0, { duration: 200 });
     shadowRadius.value = withTiming(0, { duration: 200 });

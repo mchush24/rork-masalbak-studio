@@ -23,6 +23,7 @@ const listAnalysesInputSchema = z.object({
       'Bender',
       'Rey',
       'Luscher',
+      'FreeDrawing',
     ])
     .optional(),
   favoritedOnly: z.boolean().optional(),

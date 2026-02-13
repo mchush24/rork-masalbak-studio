@@ -62,7 +62,7 @@ export function IooMascotFinal({
   animated = true,
   onPress,
   showGlow = true,
-  _showSparkles = false, // not used but for API compatibility
+  showSparkles: _showSparkles = false, // not used but kept for API compatibility
 }: Props) {
   // Size hesaplama
   const size = getPixelSize(sizeProp);

@@ -1,14 +1,22 @@
 import { Tabs } from 'expo-router';
-import { Home, Compass, Palette, TrendingUp, User } from 'lucide-react-native';
-import React from 'react';
+import { Home, Palette, Brain, TrendingUp, User } from 'lucide-react-native';
+import React, { useMemo } from 'react';
 import { Colors } from '@/constants/colors';
 import { iconSizes, iconStroke } from '@/constants/design-system';
 import { FloatingTabBar } from '@/components/navigation/AnimatedTabBar';
 
 export default function TabLayout() {
+  // TODO (#34): Implement dynamic badge counts using AsyncStorage "last seen" tracking.
+  // Future implementation:
+  //   - Track last-seen counts per tab (e.g. analysis count, story count)
+  //   - Compare with current tRPC query counts
+  //   - Show badge = (current - lastSeen) when > 0
+  //   - Clear badge on tab focus via navigation listener
+  const badges = useMemo<Record<string, number>>(() => ({}), []);
+
   return (
     <Tabs
-      tabBar={props => <FloatingTabBar {...props} />}
+      tabBar={props => <FloatingTabBar {...props} badges={badges} />}
       screenOptions={{
         tabBarActiveTintColor: Colors.primary.sunset,
         tabBarInactiveTintColor: Colors.neutral.light,
@@ -22,28 +30,43 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Ana Sayfa',
-          tabBarIcon: ({ color }) => (
-            <Home size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Home
+              size={iconSizes.tabBar}
+              strokeWidth={focused ? iconStroke.bold : iconStroke.thin}
+              color={color}
+              fill={focused ? color : 'none'}
+            />
           ),
         }}
       />
-      {/* Tab 2: Keşfet - Social Feed */}
-      <Tabs.Screen
-        name="discover"
-        options={{
-          title: 'Keşfet',
-          tabBarIcon: ({ color }) => (
-            <Compass size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />
-          ),
-        }}
-      />
-      {/* Tab 3: Analiz - Tum yaratim araclari */}
+      {/* Tab 2: Stüdyo - Yaratım araçları */}
       <Tabs.Screen
         name="hayal-atolyesi"
         options={{
+          title: 'Stüdyo',
+          tabBarIcon: ({ color, focused }) => (
+            <Palette
+              size={iconSizes.tabBar}
+              strokeWidth={focused ? iconStroke.bold : iconStroke.thin}
+              color={color}
+              fill={focused ? color : 'none'}
+            />
+          ),
+        }}
+      />
+      {/* Tab 3: Analiz - Çizim analizi (center tab, always bold/filled via CenterTabButton) */}
+      <Tabs.Screen
+        name="analysis"
+        options={{
           title: 'Analiz',
           tabBarIcon: ({ color }) => (
-            <Palette size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />
+            <Brain
+              size={iconSizes.tabBar}
+              strokeWidth={iconStroke.bold}
+              color={color}
+              fill={color}
+            />
           ),
         }}
       />
@@ -52,23 +75,32 @@ export default function TabLayout() {
         name="history"
         options={{
           title: 'Gelişim',
-          tabBarIcon: ({ color }) => (
-            <TrendingUp size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TrendingUp
+              size={iconSizes.tabBar}
+              strokeWidth={focused ? iconStroke.bold : iconStroke.thin}
+              color={color}
+            />
           ),
         }}
       />
-      {/* Tab 5: Hesabım - Profil ve ayarlar */}
+      {/* Tab 5: Profil - Profil ve ayarlar */}
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Hesabım',
-          tabBarIcon: ({ color }) => (
-            <User size={iconSizes.tabBar} strokeWidth={iconStroke.standard} color={color} />
+          title: 'Profil',
+          tabBarIcon: ({ color, focused }) => (
+            <User
+              size={iconSizes.tabBar}
+              strokeWidth={focused ? iconStroke.bold : iconStroke.thin}
+              color={color}
+              fill={focused ? color : 'none'}
+            />
           ),
         }}
       />
       {/* Hidden screens */}
-      <Tabs.Screen name="analysis" options={{ href: null }} />
+      <Tabs.Screen name="discover" options={{ href: null }} />
       <Tabs.Screen name="quick-analysis" options={{ href: null }} />
       <Tabs.Screen name="studio" options={{ href: null }} />
       <Tabs.Screen name="stories" options={{ href: null }} />

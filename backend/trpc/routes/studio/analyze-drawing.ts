@@ -35,6 +35,7 @@ const analysisInputSchema = z.object({
     'Bender',
     'Rey',
     'Luscher',
+    'FreeDrawing',
   ]),
   childAge: z.number().min(0).max(18).optional(),
   childGender: z.enum(['male', 'female']).optional(), // Child's gender for developmental context
@@ -64,6 +65,7 @@ const analysisResponseSchema = z.object({
       'Bender',
       'Rey',
       'Luscher',
+      'FreeDrawing',
     ]),
     age: z.number().optional(),
     language: z.enum(['tr', 'en', 'ru', 'tk', 'uz']),
@@ -228,33 +230,99 @@ function getDisclaimer(language: string): string {
   return disclaimers[language] || disclaimers.tr;
 }
 
-// Exported for testing
-export async function analyzeDrawing(
-  input: AnalysisInput,
-  openaiClient = openai
-): Promise<AnalysisResponse> {
-  logger.info('[Drawing Analysis] 🎯 Starting analysis');
-  logger.info('[Drawing Analysis] 📝 Task type:', input.taskType);
-  logger.info('[Drawing Analysis] 👶 Child age:', input.childAge);
-  logger.info('[Drawing Analysis] 👶 Child gender:', input.childGender);
-  logger.info('[Drawing Analysis] 🖼️  Has single image:', !!input.imageBase64);
-  logger.info('[Drawing Analysis] 🖼️  Has multiple images:', input.images?.length || 0);
+// ---------------------------------------------------------------------------
+// System Prompt Helpers
+// ---------------------------------------------------------------------------
 
-  try {
-    const language = input.language || 'tr';
-    const userRole = input.userRole || 'parent';
-    const culturalContext = input.culturalContext || '';
+function getFreeDrawingSystemPrompt(language: string, userRole: string): string {
+  const audience = userRole === 'parent' ? 'ebeveyn' : 'öğretmen';
+  return `Rolün: Çocuk gelişim gözlem asistanısın. ${audience === 'ebeveyn' ? 'Ebeveynlerin' : 'Öğretmenlerin'} çocukların serbest çizimlerini anlamalarına yardımcı oluyorsun.
 
-    // Görsel listesini oluştur (çoklu veya tekli)
-    const imageList =
-      input.images && input.images.length > 0
-        ? input.images
-        : input.imageBase64
-          ? [{ id: 'main', label: 'Ana Çizim', base64: input.imageBase64 }]
-          : [];
+## MİSYON
+Çocuğun herhangi bir çizimini inceleyerek SICAK, KUTLAYICI ve gelişim odaklı bir gözlem sun. Sen klinik tarama aracı DEĞİLSİN. Sen çocuğun dünyasına açılan bir penceresin. Amacın:
+- Çocuğun güçlü yönlerini keşfetmek ve öne çıkarmak
+- ${audience === 'ebeveyn' ? 'Ebeveyne' : 'Öğretmene'} çocuğuyla bağ kuracak somut aktiviteler önermek
+- Çizimi bir iletişim fırsatına dönüştürmek
 
-    // SYSTEM prompt - role definition
-    const systemPrompt = `Rolün: Çocuk çizimleri için projektif tarama asistanısın. Klinik tanı koymazsın.
+## GÖRSEL ANALİZ
+Görseli DİKKATLE ve DETAYLI incele. Sadece GERÇEKTEN gördüklerini yaz:
+- **Renkler**: Hangi renkler kullanılmış? Sıcak/soğuk tonlar? Renk çeşitliliği? Dominant renkler?
+- **Figürler**: İnsan, hayvan, nesne var mı? Yüz ifadeleri? Beden dili?
+- **Çizgi kalitesi**: Kalem/boya türü, baskı gücü, çizgi akıcılığı, kontrol düzeyi
+- **Kompozisyon**: Sayfanın neresini kullanmış? Merkez mi kenar mı? Dolu mu boş mu?
+- **Detay düzeyi**: Genel mi detaylı mı? Hangi parçalara özen gösterilmiş?
+- **Semboller**: Güneş, kalp, yıldız, gökkuşağı, bulut gibi tekrarlayan motifler
+- **Genel atmosfer**: Resmin verdiği his — neşeli, sakin, hareketli, düşünceli?
+- VARSAYIMDA BULUNMA. Görmediğin bir detayı icat etme.
+
+## YAŞ KALİBRASYONU
+Yaşa göre beklentilerini ayarla — her yaşın çizimi farklı görünür ve HEPSİ değerlidir:
+- **2-3 yaş**: Karalamalar, dairesel hareketler, renk keşfi → motor gelişim başlangıcı, cesaret
+- **3-4 yaş**: İlk şekiller (daireler, çizgiler), "baş-ayaklı" insan figürleri → sembolik düşünce başlangıcı
+- **4-6 yaş**: Tanınabilir figürler, güneş/ev/çiçek, renk tercihleri → hayal gücü patlaması
+- **6-9 yaş**: Zemin çizgisi, detaylar (parmaklar, kıyafet), hikaye anlatımı → planlama becerisi
+- **9-12 yaş**: Perspektif denemeleri, gölgeleme, gerçekçilik çabası → soyut düşünce
+- **12-18 yaş**: Stil arayışı, karmaşık kompozisyonlar, duygusal ifade → kimlik keşfi
+
+## DİL VE TON
+- SICAK, KUTLAYICI, YARGILAMAYAN bir dil kullan.
+- Her içgörüde en az bir olumlu vurgu yap.
+- İyi örnekler: "Bu detay çok dikkat çekici!", "Renk seçimleri harika bir enerji veriyor", "Çizimde güzel bir hikaye gizli"
+- Kötü örnekler: "Yetersiz", "Geliştirilmesi gereken", "Yaşına göre geri", "Endişe verici"
+- Olasılık dili kullan: "olabilir", "gösteriyor olabilir", "ipucu veriyor"
+- Klinik terimlerden, tanı isimlerinden, patoloji etiketlerinden TAMAMEN KAÇIN.
+- Karşılaştırma yapma ("diğer çocuklar şöyle yapıyor" DEMEYİN).
+
+## İÇGÖRÜ YAPISI — TAM 4 MADDE, BU SIRAYLA:
+1. **Güçlü Yönler** — DAIMA ilk, DAIMA olumlu ve somut.
+   Çizimde öne çıkan yetenekler, detaylar, cesaret, özgünlük. Her çizimde mutlaka güçlü bir yan vardır.
+   Örnek: "Renkleri cesurca ve bolca kullanması, görsel ifade gücünün erken geliştiğini gösteriyor."
+
+2. **Gelişimsel Gözlemler** — Destekleyici dille, yaşa uygun bağlam.
+   İnce motor beceriler (kalem kontrolü, detay), bilişsel gelişim (planlama, sembol kullanımı), algısal beceriler (orantı, mekan). Yaş beklentisine göre yorumla ama asla "geri" deme.
+   Örnek: "6 yaş için figürlere eklenen parmak detayları, ince motor becerilerinin güzel geliştiğine işaret ediyor."
+
+3. **Duygusal İfade** — Resmin ruhunu oku.
+   Genel atmosfer, renk psikolojisi (sıcak=enerji, soğuk=sakinlik, karışık=zenginlik), figürlerin duygu durumu, hareket/durağanlık, enerji düzeyi. Olumsuz duygular varsa nazikçe ve normalize ederek ifade et.
+   Örnek: "Resmin genel atmosferi neşeli ve hareketli; sıcak renk tercihleri çocuğun enerjik dünyasını yansıtıyor."
+
+4. **Yaratıcılık & Hayal Gücü** — Sıradışılığı kutla.
+   Özgün detaylar, beklenmedik kombinasyonlar, hikaye anlatımı, fantezi öğeleri, kendi icatları. Basit çizimlerde bile yaratıcılık bul.
+   Örnek: "Ağacın üstüne yerleştirilen gökkuşağı, çocuğun gerçekliği kendi hayal gücüyle zenginleştirdiğini gösteriyor."
+
+## homeTips — "BİRLİKTE YAPILABİLECEKLERİNİZ"
+Çizimden esinlenmiş 3 somut ebeveyn-çocuk aktivitesi. Her biri:
+- Çizimdeki bir detaydan ilham almalı (genel öneriler değil)
+- Eğlenceli VE gelişimsel açıdan faydalı olmalı
+- Ev ortamında kolayca uygulanabilir olmalı
+- Malzeme listesi gerektirmemeli (ya da çok basit malzemeler)
+
+## conversationGuide — HER ZAMAN DOLDUR
+Bu alan SADECE travma için değil, HER çizim için doldurulur. Amaç: ${audience === 'ebeveyn' ? 'ebeveynin' : 'öğretmenin'} çocukla çizim üzerinden sohbet kurmasına yardım.
+- openingQuestions: "Bana bu resmi anlatır mısın?", "Bu resimde en çok neyi seviyorsun?" gibi açık uçlu sorular
+- followUpQuestions: Çizimdeki spesifik detaylardan yola çıkan sorular
+- whatToAvoid: "Neden böyle çizdin?", "Bu ne olacaktı?" gibi yargılayıcı sorulardan kaçın
+- therapeuticResponses: "Çok güzel anlatıyorsun!", "Bu detayı fark etmemiştim, harika!" gibi destekleyici yanıtlar
+
+## RİSK TESPİTİ — NAZİK YAKLAŞIM
+Endişe verici içerik varsa (şiddet, karanlık temalar, kendine zarar sembolleri):
+- PANİK YARATMA. Tek bir çizim = tek bir anlık ifade, tanı değil.
+- "Bu tür temalar zaman zaman normal olabilir, ancak tekrarlanırsa bir uzmanla sohbet etmeyi düşünebilirsiniz" gibi nazik, normalize edici bir dil kullan.
+- ${audience === 'ebeveyn' ? 'Ebeveyni' : 'Öğretmeni'} suçlu hissettirme.
+- riskFlags'i yalnızca gerçekten ciddi endişe varsa doldur.
+- traumaAssessment'ı yalnızca net endişe verici içerik varsa doldur, yoksa null bırak.
+
+## YERELLEŞTİRME
+- Dil: ${language}. Tüm çıktıları bu dilde üret.
+- Hedef okuyucu: ${audience}. Jargonsuz, sıcak, anlaşılır.
+
+## ÇIKTI
+Yalnızca geçerli JSON döndür. Ek cümle, açıklama, markdown yok.
+Şema zorunludur; fazladan alan ekleme.`;
+}
+
+function getTestSpecificSystemPrompt(language: string, userRole: string): string {
+  return `Rolün: Çocuk çizimleri için projektif tarama asistanısın. Klinik tanı koymazsın.
 Görevin: Verilen test türüne (DAP, HTP, Family/KFD, Cactus, Tree, Garden, BenderGestalt2, ReyOsterrieth), yaşa ve özellik vektörüne (features_json) dayanarak ebeveyn/öğretmen için anlaşılır, kısa ve olasılık diliyle yazılmış içgörü ve evde mikro-öneriler üretmek; belirsizliği açıkça ifade etmek; riskli içerikleri saptayıp nazik bir dille "uzman görüşü öner" bayrağı vermek.
 
 ÖNEMLİ - Görsel Analiz:
@@ -388,15 +456,96 @@ Yerelleştirme:
 
 Çıktı formatı: **yalnızca** geçerli JSON döndür. Ek cümle yok.
 Şema zorunludur; fazladan alan ekleme.`;
+}
 
-    // USER prompt - input data
-    const childGenderText =
-      input.childGender === 'male'
-        ? 'Erkek'
-        : input.childGender === 'female'
-          ? 'Kız'
-          : 'bilinmiyor';
-    const userPrompt = `language: ${language}
+// ---------------------------------------------------------------------------
+// User Prompt Builders
+// ---------------------------------------------------------------------------
+
+interface ImageItem {
+  id: string;
+  label: string;
+  base64: string;
+}
+
+function buildFreeDrawingUserPrompt(
+  input: AnalysisInput,
+  language: string,
+  userRole: string,
+  culturalContext: string,
+  childGenderText: string
+): string {
+  return `language: ${language}
+child_age: ${input.childAge || 'bilinmiyor'}
+child_gender: ${childGenderText}
+test_type: FreeDrawing
+context: { "role": "${userRole}", "cultural_context": "${culturalContext}" }
+
+GÖRSEL ANALİZ:
+Bu çocuğun serbest çizimi. Dikkatle incele ve gördüklerini sıcak bir dille yorumla.
+- Görselde GERÇEKTEN ne görüyorsun? Figürler, renkler, şekiller, semboller?
+- Çizgi kalitesi nasıl? Kalem kontrolü, baskı gücü, akıcılık?
+- Sayfayı nasıl kullanmış? Dolu mu boş mu? Merkez mi kenar mı?
+- Resmin genel havası ne? Neşeli, sakin, hareketli, düşünceli?
+- Çizimdeki EN DİKKAT ÇEKİCİ detay ne?
+
+Kurallar:
+- Yalnızca JSON şeması ile cevap ver. Başka metin YAZMA.
+- İçgörüler TAM 4 MADDE, şu sırayla:
+  1. "Güçlü Yönler" — DAIMA olumlu, somut görsel kanıtla
+  2. "Gelişimsel Gözlemler" — Yaşa uygun motor/bilişsel yorumlar, destekleyici dille
+  3. "Duygusal İfade" — Renk, atmosfer, enerji okuma
+  4. "Yaratıcılık & Hayal Gücü" — Özgünlük, sıradışılık kutlama
+- Her insight.summary: 3-5 cümle (100-200 kelime). İLK cümlede somut görsel kanıt, SONRA yaş bağlamı.
+- Her insight.evidence: En az 1 anahtar (örn: "color_variety", "detail_level", "motor_control", "creativity", "spatial_awareness")
+- homeTips: TAM 3 MADDE — çizimden esinlenmiş ebeveyn-çocuk aktiviteleri. Genel değil, spesifik.
+- conversationGuide: MUTLAKA DOLDUR. Çizim hakkında açık uçlu, bağ kurucu sorular.
+- traumaAssessment: Sadece gerçekten endişe verici içerik varsa doldur, aksi halde null.
+- professionalGuidance: Sadece ciddi endişe varsa doldur, aksi halde null.
+- riskFlags: Endişe yoksa boş array [].
+- trendNote: Kısa bir genel değerlendirme notu.
+- disclaimer: Dile uygun sorumluluk reddi.
+- Ton: SICAK, KUTLAYICI, yargısız. "Harika!", "Ne güzel!" gibi ifadeler kullan.
+
+JSON Şeması:
+{
+  "meta": {
+    "testType": "FreeDrawing",
+    "age": ${input.childAge || 'null'},
+    "language": "${language}",
+    "confidence": number,
+    "uncertaintyLevel": "low|mid|high",
+    "dataQualityNotes": [string]
+  },
+  "insights": [
+    { "title": string, "summary": string, "evidence": [string], "strength": "weak|moderate|strong" }
+  ],
+  "homeTips": [
+    { "title": string, "steps": [string], "why": string }
+  ],
+  "riskFlags": [],
+  "traumaAssessment": null,
+  "conversationGuide": {
+    "openingQuestions": [string],
+    "followUpQuestions": [string],
+    "whatToAvoid": [string],
+    "therapeuticResponses": [string]
+  },
+  "professionalGuidance": null,
+  "trendNote": string,
+  "disclaimer": string
+}`;
+}
+
+function buildTestSpecificUserPrompt(
+  input: AnalysisInput,
+  language: string,
+  userRole: string,
+  culturalContext: string,
+  childGenderText: string,
+  imageList: ImageItem[]
+): string {
+  return `language: ${language}
 child_age: ${input.childAge || 'bilinmiyor'}
 child_gender: ${childGenderText}
 test_type: ${input.taskType}
@@ -534,6 +683,57 @@ JSON Şeması:
   "trendNote": string,
   "disclaimer": string
 }`;
+}
+
+// Exported for testing
+export async function analyzeDrawing(
+  input: AnalysisInput,
+  openaiClient = openai
+): Promise<AnalysisResponse> {
+  logger.info('[Drawing Analysis] 🎯 Starting analysis');
+  logger.info('[Drawing Analysis] 📝 Task type:', input.taskType);
+  logger.info('[Drawing Analysis] 👶 Child age:', input.childAge);
+  logger.info('[Drawing Analysis] 👶 Child gender:', input.childGender);
+  logger.info('[Drawing Analysis] 🖼️  Has single image:', !!input.imageBase64);
+  logger.info('[Drawing Analysis] 🖼️  Has multiple images:', input.images?.length || 0);
+
+  try {
+    const language = input.language || 'tr';
+    const userRole = input.userRole || 'parent';
+    const culturalContext = input.culturalContext || '';
+    const isFreeDrawing = input.taskType === 'FreeDrawing';
+
+    // Görsel listesini oluştur (çoklu veya tekli)
+    const imageList =
+      input.images && input.images.length > 0
+        ? input.images
+        : input.imageBase64
+          ? [{ id: 'main', label: 'Ana Çizim', base64: input.imageBase64 }]
+          : [];
+
+    // SYSTEM prompt - branch by task type
+    const systemPrompt = isFreeDrawing
+      ? getFreeDrawingSystemPrompt(language, userRole)
+      : getTestSpecificSystemPrompt(language, userRole);
+
+    // USER prompt - branch by task type
+    const childGenderText =
+      input.childGender === 'male'
+        ? 'Erkek'
+        : input.childGender === 'female'
+          ? 'Kız'
+          : 'bilinmiyor';
+
+    const userPrompt = isFreeDrawing
+      ? buildFreeDrawingUserPrompt(input, language, userRole, culturalContext, childGenderText)
+      : buildTestSpecificUserPrompt(
+          input,
+          language,
+          userRole,
+          culturalContext,
+          childGenderText,
+          imageList
+        );
 
     const messageContent: OpenAI.Chat.ChatCompletionContentPart[] = [
       { type: 'text', text: userPrompt },
@@ -566,9 +766,9 @@ JSON Şeması:
     logger.info('[Drawing Analysis] 🤖 Calling OpenAI API...');
 
     const completion = await openaiClient.chat.completions.create({
-      model: 'gpt-4o-mini',
-      max_tokens: 4000,
-      temperature: 0.7,
+      model: isFreeDrawing ? 'gpt-4o' : 'gpt-4o-mini',
+      max_tokens: isFreeDrawing ? 4500 : 4000,
+      temperature: isFreeDrawing ? 0.8 : 0.7, // FreeDrawing: daha sıcak/yaratıcı ton
       messages: [
         {
           role: 'system',

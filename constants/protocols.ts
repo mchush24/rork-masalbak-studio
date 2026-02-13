@@ -766,6 +766,37 @@ export const PROTOCOLS: Record<string, Protocol> = {
     ],
   },
 
+  FreeDrawing: {
+    title: 'Serbest Çizim Analizi',
+    ageRange: '2-18 yaş',
+    duration: '1-2 dakika',
+    materials: ['Çocuğunuzun herhangi bir çizimi'],
+    phases: [
+      {
+        name: 'Hazırlık',
+        instruction:
+          'Çocuğunuzun serbest çizdiği herhangi bir resmi hazırlayın. Çizim bir test kapsamında yapılmış olmak zorunda değildir.',
+        notes: [
+          'Her türlü çizim uygundur: kalem, boya kalemi, sulu boya, dijital',
+          'Çocuğun kendi isteğiyle, yönlendirilmeden çizmiş olması idealdir',
+          'Çizimin ne zaman yapıldığını not etmeniz faydalı olabilir',
+        ],
+      },
+    ],
+    observations: [],
+    donts: [
+      'Çocuğu yönlendirmek veya ne çizmesi gerektiğini söylemek',
+      'Çizim hakkında olumsuz yorum yapmak',
+      'Çizimi başkalarının çizimleriyle karşılaştırmak',
+    ],
+    captureHints: [
+      'Çizimin tamamı görünmeli',
+      'Doğal ışıkta, gölgesiz fotoğraf çekin',
+      'Çizim düz bir yüzeyde olmalı',
+    ],
+    requiredImages: [{ id: 'quick', label: 'Çizim', description: 'Çocuğunuzun çizimi' }],
+  },
+
   Luscher: {
     title: 'Lüscher Renk Testi (8 Renkli Kısa Form)',
     ageRange: '5+ yaş',

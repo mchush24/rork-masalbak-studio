@@ -134,10 +134,17 @@ app.use(
 // ============================================
 // BODY SIZE LIMITS - Prevent large payload abuse
 // ============================================
-// General limit: 1MB for most endpoints
-app.use('*', bodyLimit({ maxSize: 1 * 1024 * 1024 }));
-// tRPC endpoints: 10MB (base64 image uploads in analyze-drawing)
-app.use('/api/trpc/*', bodyLimit({ maxSize: 10 * 1024 * 1024 }));
+// Use a single middleware that applies the correct limit per route.
+// Previously two separate bodyLimit middlewares caused the 1MB '*' limit
+// to reject tRPC image uploads before the 10MB limit could apply.
+const generalLimit = bodyLimit({ maxSize: 1 * 1024 * 1024 });
+const trpcLimit = bodyLimit({ maxSize: 10 * 1024 * 1024 });
+app.use('*', async (c, next) => {
+  if (c.req.path.startsWith('/api/trpc')) {
+    return trpcLimit(c, next);
+  }
+  return generalLimit(c, next);
+});
 
 // ============================================
 // CSRF Protection - Defense in Depth

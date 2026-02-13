@@ -11,40 +11,53 @@ import { Platform } from 'react-native';
 // File extensions that need conversion
 const HEIC_EXTENSIONS = ['.heic', '.heif', '.HEIC', '.HEIF'];
 
-// HEIC magic bytes patterns (ftyp followed by heic, heif, mif1, msf1)
-const HEIC_MAGIC_PATTERNS = ['ftyp', 'heic', 'heif', 'mif1', 'msf1'];
+// Max dimension (longest side) for uploaded images
+const MAX_DIMENSION = 1920;
+// JPEG compression quality for uploads
+const UPLOAD_JPEG_QUALITY = 0.8;
 
 /**
  * Check if a URI points to a HEIC/HEIF image
  */
 function isHeicImage(uri: string): boolean {
   // Check file extension
-  const hasHeicExtension = HEIC_EXTENSIONS.some(ext => uri.toLowerCase().endsWith(ext.toLowerCase()));
+  const hasHeicExtension = HEIC_EXTENSIONS.some(ext =>
+    uri.toLowerCase().endsWith(ext.toLowerCase())
+  );
 
   // On iOS, images from photo library often have PHAsset URLs without clear extensions
   // They may still be HEIC format internally
-  const isIosPhotoLibrary = Platform.OS === 'ios' && (
-    uri.includes('ph://') ||
-    uri.includes('assets-library://') ||
-    uri.includes('/var/mobile/')
-  );
+  const isIosPhotoLibrary =
+    Platform.OS === 'ios' &&
+    (uri.includes('ph://') || uri.includes('assets-library://') || uri.includes('/var/mobile/'));
 
   return hasHeicExtension || isIosPhotoLibrary;
 }
 
 /**
- * Convert image blob to JPEG using Canvas API (web only)
+ * Compress and resize image using Canvas API (web only).
+ * Converts any browser-decodable format to JPEG, resizes to MAX_DIMENSION.
  */
-async function convertBlobToJpegWeb(blobUrl: string): Promise<string> {
+async function compressImageWeb(uri: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
 
     img.onload = () => {
       try {
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+
+        // Resize if larger than MAX_DIMENSION on either side
+        if (w > MAX_DIMENSION || h > MAX_DIMENSION) {
+          const scale = MAX_DIMENSION / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+
         const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth || img.width;
-        canvas.height = img.naturalHeight || img.height;
+        canvas.width = w;
+        canvas.height = h;
 
         const ctx = canvas.getContext('2d');
         if (!ctx) {
@@ -52,12 +65,11 @@ async function convertBlobToJpegWeb(blobUrl: string): Promise<string> {
           return;
         }
 
-        // Draw image onto canvas (this converts any format to bitmap)
-        ctx.drawImage(img, 0, 0);
-
-        // Export as JPEG data URL
-        const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        console.log('[Preprocess] Web conversion complete');
+        ctx.drawImage(img, 0, 0, w, h);
+        const jpegDataUrl = canvas.toDataURL('image/jpeg', UPLOAD_JPEG_QUALITY);
+        console.log(
+          `[Preprocess] Compressed: ${img.naturalWidth}x${img.naturalHeight} → ${w}x${h}`
+        );
         resolve(jpegDataUrl);
       } catch (error) {
         reject(error);
@@ -65,10 +77,10 @@ async function convertBlobToJpegWeb(blobUrl: string): Promise<string> {
     };
 
     img.onerror = () => {
-      reject(new Error('Failed to load image for conversion'));
+      reject(new Error('Failed to load image for compression'));
     };
 
-    img.src = blobUrl;
+    img.src = uri;
   });
 }
 
@@ -81,47 +93,15 @@ async function convertBlobToJpegWeb(blobUrl: string): Promise<string> {
 export async function preprocessImage(uri: string): Promise<string> {
   console.log('[Preprocess] Processing image:', uri);
 
-  // Handle web platform
+  // Handle web platform — always compress/resize via Canvas.
+  // This handles HEIC conversion (if browser can decode), resizes large images,
+  // and converts everything to JPEG to keep payload small.
   if (Platform.OS === 'web') {
-    console.log('[Preprocess] Web platform - checking if conversion needed');
-
+    console.log('[Preprocess] Web platform - compressing image');
     try {
-      // For blob URLs or data URLs, check if the content is HEIC
-      if (uri.startsWith('blob:') || uri.startsWith('data:')) {
-        // Fetch the blob to check its contents
-        const response = await fetch(uri);
-        const blob = await response.blob();
-
-        // Check MIME type first
-        const mimeType = blob.type.toLowerCase();
-        const isHeicMime = mimeType.includes('heic') || mimeType.includes('heif');
-
-        // If MIME type indicates HEIC, or if it's empty/unknown, check the bytes
-        let needsConversion = isHeicMime;
-
-        if (!needsConversion && (!mimeType || mimeType === 'application/octet-stream' || mimeType === '')) {
-          // Read first bytes to detect HEIC format
-          const arrayBuffer = await blob.slice(0, 32).arrayBuffer();
-          const bytes = new Uint8Array(arrayBuffer);
-          const header = String.fromCharCode(...bytes);
-          needsConversion = HEIC_MAGIC_PATTERNS.some(pattern => header.includes(pattern));
-        }
-
-        if (needsConversion) {
-          console.log('[Preprocess] HEIC detected on web - converting via Canvas');
-          // The browser's Image element can often decode HEIC if the OS supports it
-          // (macOS Safari, iOS Safari). Convert via Canvas to ensure JPEG output.
-          const jpegDataUrl = await convertBlobToJpegWeb(uri);
-          return jpegDataUrl;
-        }
-      }
-
-      // If not HEIC or already a supported format, return as-is
-      console.log('[Preprocess] Web - format OK, no conversion needed');
-      return uri;
+      return await compressImageWeb(uri);
     } catch (error) {
-      console.warn('[Preprocess] Web conversion check failed:', error);
-      // Fall through to return original URI
+      console.warn('[Preprocess] Web compression failed, using original:', error);
       return uri;
     }
   }
@@ -147,7 +127,6 @@ export async function preprocessImage(uri: string): Promise<string> {
 
     console.log('[Preprocess] Conversion complete:', result.uri);
     return result.uri;
-
   } catch (error) {
     console.warn('[Preprocess] Conversion failed, using original:', error);
     // If conversion fails, return original URI and let the API handle it

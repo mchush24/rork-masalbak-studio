@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     left: -SCREEN_WIDTH * 0.25,
     ...Platform.select({
       web: { filter: 'blur(60px)' } as Record<string, string>,
-      default: {},
+      native: {},
     }),
   },
   ambientLight2: {
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     right: -SCREEN_WIDTH * 0.25,
     ...Platform.select({
       web: { filter: 'blur(50px)' } as Record<string, string>,
-      default: {},
+      native: {},
     }),
   },
   ambientLight3: {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     left: -SCREEN_WIDTH * 0.15,
     ...Platform.select({
       web: { filter: 'blur(55px)' } as Record<string, string>,
-      default: {},
+      native: {},
     }),
   },
 
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
       web: {
         boxShadow: '0 0 10px currentColor',
       },
-      default: {
+      native: {
         shadowColor: Colors.neutral.white,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.5,
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
       web: {
         textShadow: '0 0 60px rgba(255, 120, 180, 0.7), 0 4px 8px rgba(0, 0, 0, 0.3)',
       },
-      default: {
+      native: {
         textShadowColor: 'rgba(255, 120, 180, 0.7)',
         textShadowOffset: { width: 0, height: 4 },
         textShadowRadius: 30,
@@ -562,17 +562,14 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     backgroundColor:
       Platform.OS === 'web' ? 'rgba(255, 100, 130, 0.5)' : 'rgba(255, 100, 130, 0.25)',
-    ...Platform.select({
-      web: {
-        filter: 'blur(25px)',
-      } as Record<string, string>,
-      default: {
-        shadowColor: '#FF5080',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6,
-        shadowRadius: 30,
-      },
-    }),
+    ...(Platform.OS === 'web'
+      ? { filter: 'blur(25px)' }
+      : {
+          shadowColor: '#FF5080',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.6,
+          shadowRadius: 30,
+        }),
   },
   ctaButton: {
     borderRadius: 24,
@@ -581,7 +578,7 @@ const styles = StyleSheet.create({
       web: {
         boxShadow: '0 10px 40px rgba(255, 80, 120, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3)',
       },
-      default: {
+      native: {
         shadowColor: Colors.welcome.ctaShadow,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.5,
@@ -604,7 +601,7 @@ const styles = StyleSheet.create({
       web: {
         textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
       },
-      default: {
+      native: {
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 0, height: 2 },
         textShadowRadius: 4,

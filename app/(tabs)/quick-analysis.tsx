@@ -233,7 +233,7 @@ export default function AnalyzeScreen() {
       });
 
       const result = await analyzeMutation.mutateAsync({
-        taskType: 'DAP',
+        taskType: 'FreeDrawing',
         childAge: childAge,
         imageBase64: base64.split(',')[1], // Remove data:image/...;base64, prefix
         language: 'tr',
@@ -300,9 +300,9 @@ export default function AnalyzeScreen() {
 
       {analyzing ? (
         <AnalysisLoadingOverlay
-          message="Çizim analiz ediliyor..."
-          estimatedDuration="15-30 saniye"
-          testType="DAP (Kişi Çizimi)"
+          message="Çizim gözlemleri hazırlanıyor..."
+          estimatedDuration="20-40 saniye"
+          testType="Serbest Çizim Analizi"
         />
       ) : (
         <LinearGradient
@@ -635,7 +635,7 @@ export default function AnalyzeScreen() {
                         strokeWidth={iconStroke.standard}
                       />
                       <Text style={[styles.resultLabel, { color: colors.text.secondary }]}>
-                        İçgörüler
+                        Çizim Gözlemleri
                       </Text>
                     </View>
                     {analysis.insights.map((insight, idx) => (
@@ -685,7 +685,7 @@ export default function AnalyzeScreen() {
                         strokeWidth={iconStroke.standard}
                       />
                       <Text style={[styles.resultLabel, { color: colors.primary.sunset }]}>
-                        Evde Yapabilecekleriniz
+                        Birlikte Yapabilecekleriniz
                       </Text>
                     </View>
                     {analysis.homeTips.map((tip, idx) => (

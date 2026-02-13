@@ -4,37 +4,38 @@
  */
 
 export type TaskType =
-  | "DAP"
-  | "HTP"
-  | "Family"
-  | "Cactus"
-  | "Tree"
-  | "Garden"
-  | "BenderGestalt2"
-  | "ReyOsterrieth"
-  | "Aile"
-  | "Kaktus"
-  | "Agac"
-  | "Bahce"
-  | "Bender"
-  | "Rey"
-  | "Luscher";
+  | 'DAP'
+  | 'HTP'
+  | 'Family'
+  | 'Cactus'
+  | 'Tree'
+  | 'Garden'
+  | 'BenderGestalt2'
+  | 'ReyOsterrieth'
+  | 'Aile'
+  | 'Kaktus'
+  | 'Agac'
+  | 'Bahce'
+  | 'Bender'
+  | 'Rey'
+  | 'Luscher'
+  | 'FreeDrawing';
 
-export type Language = "tr" | "en" | "ru" | "tk" | "uz";
+export type Language = 'tr' | 'en' | 'ru' | 'tk' | 'uz';
 
 export type RiskFlagType =
-  | "self_harm"
-  | "harm_others"
-  | "sexual_inappropriate"
-  | "violence"
-  | "severe_distress"
-  | "trend_regression";
+  | 'self_harm'
+  | 'harm_others'
+  | 'sexual_inappropriate'
+  | 'violence'
+  | 'severe_distress'
+  | 'trend_regression';
 
 export interface Insight {
   title: string;
   summary: string;
   evidence: string[];
-  strength: "weak" | "moderate" | "strong";
+  strength: 'weak' | 'moderate' | 'strong';
 }
 
 export interface HomeTip {
@@ -46,7 +47,7 @@ export interface HomeTip {
 export interface RiskFlag {
   type: RiskFlagType;
   summary: string;
-  action: "consider_consulting_a_specialist";
+  action: 'consider_consulting_a_specialist';
 }
 
 export interface AnalysisMeta {
@@ -54,14 +55,14 @@ export interface AnalysisMeta {
   age?: number;
   language: Language;
   confidence: number;
-  uncertaintyLevel: "low" | "mid" | "high";
+  uncertaintyLevel: 'low' | 'mid' | 'high';
   dataQualityNotes: string[];
 }
 
 export interface TraumaAssessment {
   hasTraumaticContent: boolean;
   contentTypes: string[];
-  severity: "low" | "moderate" | "high";
+  severity: 'low' | 'moderate' | 'high';
   professionalRecommendation: string;
   immediateActions: string[];
 }
@@ -88,7 +89,7 @@ export interface SavedAnalysis {
   userId: string;
   taskType: TaskType;
   childAge?: number;
-  childGender?: "male" | "female";
+  childGender?: 'male' | 'female';
   language: Language;
   analysisResult: AnalysisResponse;
   imageUrl?: string;

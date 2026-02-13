@@ -361,11 +361,7 @@ export function EmptyState({
             { transform: [{ scale: scaleAnim }] },
           ]}
         >
-          <IconComponent
-            size={compact ? 32 : 48}
-            color={ProfessionalColors.text.tertiary}
-            strokeWidth={1.5}
-          />
+          <IconComponent size={compact ? 32 : 48} color={ProfessionalColors.text.tertiary} />
         </Animated.View>
 
         {/* Text Content */}

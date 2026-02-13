@@ -400,7 +400,7 @@ export default function ChatbotScreen() {
                             const validRoutes = [
                               '/(tabs)',
                               '/(tabs)/index',
-                              '/(tabs)/discover',
+                              '/(tabs)/studio',
                               '/(tabs)/hayal-atolyesi',
                               '/(tabs)/history',
                               '/(tabs)/profile',

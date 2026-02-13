@@ -6,6 +6,7 @@
  * - BlurView glassmorphism (expo-blur)
  * - Animated indicator pill sliding between tabs
  * - Scale/opacity animations on tab buttons
+ * - Elevated center button for "Analiz" tab
  * - Hidden tabs filtered out
  * - Badge support
  * - Dark mode support
@@ -20,6 +21,7 @@ import Animated, {
   withSpring,
   interpolateColor,
 } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -35,6 +37,12 @@ const TAB_BAR_HEIGHT = 64;
 const TAB_BAR_RADIUS = 32;
 const INDICATOR_PADDING = 6;
 const BOTTOM_OFFSET = 12;
+const CENTER_TAB_INDEX = 2;
+const CENTER_BUTTON_SIZE = 48;
+
+export const FLOATING_TAB_BAR_TOTAL_HEIGHT = TAB_BAR_HEIGHT + BOTTOM_OFFSET + 20;
+
+const VISIBLE_TAB_NAMES = new Set(['index', 'hayal-atolyesi', 'analysis', 'history', 'profile']);
 
 interface FloatingTabBarProps extends BottomTabBarProps {
   badges?: Record<string, number>;
@@ -50,12 +58,12 @@ export function FloatingTabBar({
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
 
-  // Filter out hidden tabs (href: null in expo-router)
+  // Filter out hidden tabs
   const visibleRoutes = useMemo(() => {
     return state.routes.filter(route => {
       const { options } = descriptors[route.key];
-      // expo-router extends BottomTabNavigationOptions with `href`
-      return (options as Record<string, unknown>).href !== null;
+      if ((options as Record<string, unknown>).href === null) return false;
+      return VISIBLE_TAB_NAMES.has(route.name);
     });
   }, [state.routes, descriptors]);
 
@@ -107,22 +115,31 @@ export function FloatingTabBar({
         />
 
         {/* Glass border */}
-        <View style={styles.glassBorder} />
-
-        {/* Active indicator pill */}
-        <Animated.View
+        <View
           style={[
-            styles.indicator,
+            styles.glassBorder,
             {
-              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(167, 139, 250, 0.15)',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 200, 180, 0.4)',
             },
-            indicatorStyle,
           ]}
         />
 
+        {/* Active indicator pill — skip for center tab */}
+        {visibleActiveIndex !== CENTER_TAB_INDEX && (
+          <Animated.View
+            style={[
+              styles.indicator,
+              {
+                backgroundColor: isDark ? 'rgba(255, 155, 122, 0.15)' : 'rgba(255, 155, 122, 0.12)',
+              },
+              indicatorStyle,
+            ]}
+          />
+        )}
+
         {/* Tab buttons */}
         <View style={styles.tabsRow}>
-          {visibleRoutes.map(route => {
+          {visibleRoutes.map((route, visibleIdx) => {
             const { options } = descriptors[route.key];
             const actualIndex = state.routes.findIndex(r => r.key === route.key);
             const isFocused = state.index === actualIndex;
@@ -156,6 +173,20 @@ export function FloatingTabBar({
               });
             };
 
+            // Center tab: render inline elevated gradient button
+            if (visibleIdx === CENTER_TAB_INDEX) {
+              return (
+                <CenterTabButton
+                  key={route.key}
+                  icon={icon}
+                  label={typeof label === 'string' ? label : route.name}
+                  isFocused={isFocused}
+                  onPress={handlePress}
+                  onLongPress={handleLongPress}
+                />
+              );
+            }
+
             return (
               <FloatingTabButton
                 key={route.key}
@@ -174,6 +205,8 @@ export function FloatingTabBar({
     </View>
   );
 }
+
+// --- Standard Tab Button ---
 
 interface FloatingTabButtonProps {
   icon?: (props: { focused: boolean; color: string; size: number }) => React.ReactNode;
@@ -197,15 +230,20 @@ function FloatingTabButton({
   const scale = useSharedValue(isFocused ? 1 : 0.88);
   const opacity = useSharedValue(isFocused ? 1 : 0.5);
   const colorProgress = useSharedValue(isFocused ? 1 : 0);
+  const focusedSV = useSharedValue(isFocused ? 1 : 0);
 
   useEffect(() => {
     scale.value = withSpring(isFocused ? 1 : 0.88, { damping: 15, stiffness: 200 });
     opacity.value = withSpring(isFocused ? 1 : 0.5, { damping: 15, stiffness: 200 });
     colorProgress.value = withSpring(isFocused ? 1 : 0, { damping: 15, stiffness: 200 });
-  }, [isFocused, scale, opacity, colorProgress]);
+    focusedSV.value = withSpring(isFocused ? 1 : 0, { damping: 15, stiffness: 200 });
+  }, [isFocused, scale, opacity, colorProgress, focusedSV]);
 
   const iconAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [
+      { scale: scale.value },
+      { translateY: withSpring(focusedSV.value * -1, { damping: 15, stiffness: 200 }) },
+    ],
     opacity: opacity.value,
   }));
 
@@ -244,6 +282,60 @@ function FloatingTabButton({
   );
 }
 
+// --- Elevated Center Tab Button ---
+
+interface CenterTabButtonProps {
+  icon?: (props: { focused: boolean; color: string; size: number }) => React.ReactNode;
+  label: string;
+  isFocused: boolean;
+  onPress: () => void;
+  onLongPress: () => void;
+}
+
+function CenterTabButton({ icon, label, isFocused, onPress, onLongPress }: CenterTabButtonProps) {
+  const scale = useSharedValue(1);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.9, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 12, stiffness: 250 });
+  };
+
+  return (
+    <View style={styles.centerSlot}>
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        accessibilityRole="button"
+        accessibilityState={isFocused ? { selected: true } : {}}
+        accessibilityLabel={label}
+        style={styles.centerPressable}
+      >
+        <Animated.View style={animStyle}>
+          <LinearGradient
+            colors={
+              isFocused ? (['#FF8A65', '#FF9B7A'] as const) : (['#FF9B7A', '#FFB299'] as const)
+            }
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.centerGradient}
+          >
+            {icon && icon({ focused: true, color: '#FFFFFF', size: 24 })}
+          </LinearGradient>
+        </Animated.View>
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   outerContainer: {
     position: 'absolute',
@@ -259,9 +351,7 @@ const styles = StyleSheet.create({
     ...shadows.lg,
     shadowColor: Colors.secondary.lavender,
   },
-  barLight: {
-    // shadow is handled by shadows.lg + shadowColor override
-  },
+  barLight: {},
   barDark: {
     shadowColor: 'rgba(0, 0, 0, 0.4)',
   },
@@ -275,7 +365,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderRadius: TAB_BAR_RADIUS,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   indicator: {
     position: 'absolute',
@@ -319,8 +408,31 @@ const styles = StyleSheet.create({
     color: Colors.neutral.white,
   },
   label: {
-    fontSize: 10,
+    fontSize: typography.size.xs,
     fontFamily: typography.family.semibold,
+  },
+  // --- Center button styles ---
+  centerSlot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  centerPressable: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerGradient: {
+    width: CENTER_BUTTON_SIZE,
+    height: CENTER_BUTTON_SIZE,
+    borderRadius: CENTER_BUTTON_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#FF9B7A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
 

@@ -14,7 +14,7 @@
  * - Loading skeletons
  */
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -29,7 +29,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { Compass, Sparkles, ChevronRight, ImageIcon, Heart, Filter } from 'lucide-react-native';
+import { Compass, Sparkles, ImageIcon, Heart, Filter } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
@@ -37,7 +37,8 @@ import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 import { spacing, radius, typography } from '@/constants/design-system';
-import { IooEmptyState } from '@/components/IooEmptyState';
+import { SHOWCASE_GALLERY, SHOWCASE_STORIES } from '@/constants/showcase-data';
+import { SectionHeader, DiscoverEmptyState } from '@/components/discover';
 import {
   ExpertTipCard,
   ActivityCard,
@@ -48,148 +49,22 @@ import {
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
 
-// Showcase data displayed when backend returns empty results
-const SHOWCASE_GALLERY = [
-  {
-    id: 'showcase-1',
-    image_url: '',
-    thumbnail_url: null,
-    child_age: 5,
-    theme: 'family',
-    content_type: 'drawing',
-    likes_count: 24,
-  },
-  {
-    id: 'showcase-2',
-    image_url: '',
-    thumbnail_url: null,
-    child_age: 7,
-    theme: 'nature',
-    content_type: 'coloring',
-    likes_count: 18,
-  },
-  {
-    id: 'showcase-3',
-    image_url: '',
-    thumbnail_url: null,
-    child_age: 4,
-    theme: 'animals',
-    content_type: 'drawing',
-    likes_count: 31,
-  },
-  {
-    id: 'showcase-4',
-    image_url: '',
-    thumbnail_url: null,
-    child_age: 6,
-    theme: 'fantasy',
-    content_type: 'coloring',
-    likes_count: 15,
-  },
-  {
-    id: 'showcase-5',
-    image_url: '',
-    thumbnail_url: null,
-    child_age: 8,
-    theme: 'emotions',
-    content_type: 'drawing',
-    likes_count: 27,
-  },
-  {
-    id: 'showcase-6',
-    image_url: '',
-    thumbnail_url: null,
-    child_age: 5,
-    theme: 'seasons',
-    content_type: 'coloring',
-    likes_count: 12,
-  },
-];
-
-const SHOWCASE_STORIES = [
-  {
-    id: 'showcase-s1',
-    title: 'Renklerle İfade',
-    content:
-      'Kızım boyama yaparken duygularını ifade etmeye başladı. Renk seçimleri ile iç dünyasını anlamamıza yardımcı oldu.',
-    child_age: 6,
-    author_type: 'parent',
-    images: [],
-    likes_count: 42,
-    is_featured: true,
-  },
-  {
-    id: 'showcase-s2',
-    title: 'Masal Dünyası',
-    content:
-      'Oğlum kendi masallarını oluşturmaya bayılıyor. Her gece yatmadan önce birlikte yeni bir hikaye yazıyoruz.',
-    child_age: 5,
-    author_type: 'parent',
-    images: [],
-    likes_count: 35,
-    is_featured: false,
-  },
-  {
-    id: 'showcase-s3',
-    title: 'Çizimle Gelişim',
-    content:
-      'Çocuğumun çizimlerindeki gelişimi izlemek çok güzel. Her hafta daha detaylı ve anlamlı çizimler yapıyor.',
-    child_age: 7,
-    author_type: 'parent',
-    images: [],
-    likes_count: 29,
-    is_featured: false,
-  },
-];
-
-// Section header component - memoized to prevent unnecessary re-renders
-const SectionHeader = memo(function SectionHeader({
-  title,
-  icon: Icon,
-  iconColor = Colors.secondary.violet,
-  onSeeAll,
-}: {
-  title: string;
-  icon: React.ComponentType<{ size: number; color: string }>;
-  iconColor?: string;
-  onSeeAll?: () => void;
-}) {
-  const { colors } = useTheme();
-  return (
-    <View style={styles.sectionHeader}>
-      <View style={styles.sectionTitleRow}>
-        <View style={[styles.sectionIconContainer, { backgroundColor: `${iconColor}15` }]}>
-          <Icon size={16} color={iconColor} />
-        </View>
-        <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>{title}</Text>
-      </View>
-      {onSeeAll && (
-        <Pressable
-          onPress={onSeeAll}
-          style={({ pressed }) => [styles.seeAllButton, pressed && { opacity: 0.7 }]}
-        >
-          <Text style={[styles.seeAllText, { color: colors.secondary.violet }]}>Tümü</Text>
-          <ChevronRight size={14} color={colors.secondary.violet} />
-        </Pressable>
-      )}
-    </View>
-  );
-});
-
-// Empty state component - memoized, uses unified IooEmptyState
-const DiscoverEmptyState = memo(function DiscoverEmptyState({
-  title,
-  message,
-}: {
-  title: string;
-  message: string;
-}) {
-  return (
-    <View style={styles.emptyState}>
-      <IooEmptyState title={title} message={message} compact />
-    </View>
-  );
-});
+// Shape of the discover feed response
+interface DiscoverFeedData {
+  dailyTip?: {
+    id: string;
+    title?: string;
+    content: string;
+    author?: string;
+    source?: string | null;
+    source_title?: string | null;
+    category: string;
+    icon?: string;
+  };
+  suggestions?: { id: string; title: string; [key: string]: unknown }[];
+  gallery?: { id: string; [key: string]: unknown }[];
+  stories?: { id: string; [key: string]: unknown }[];
+}
 
 export default function DiscoverScreen() {
   const _router = useRouter();
@@ -203,7 +78,7 @@ export default function DiscoverScreen() {
     refetch,
     error: _error,
   } = trpc.socialFeed.getDiscoverFeed.useQuery({}) as {
-    data: unknown;
+    data: DiscoverFeedData | undefined;
     isLoading: boolean;
     refetch: () => void;
     error: unknown;
@@ -432,7 +307,7 @@ export default function DiscoverScreen() {
             <SectionHeader
               title="Başarı Hikayeleri"
               icon={Heart}
-              iconColor={Colors.emotion.love}
+              iconColor={Colors.secondary.rose}
               onSeeAll={() => {
                 if (Platform.OS === 'web') {
                   alert('Yakında tüm hikayeler görüntülenebilecek');
@@ -532,42 +407,6 @@ const styles = StyleSheet.create({
   section: {
     marginTop: spacing.xl,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  sectionIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.darkest,
-  },
-  seeAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  seeAllText: {
-    fontSize: 13,
-    fontFamily: typography.family.semibold,
-    color: Colors.secondary.violet,
-  },
   tipPlaceholder: {
     marginHorizontal: spacing.md,
     padding: spacing.xl,
@@ -607,17 +446,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: typography.family.semibold,
     color: Colors.secondary.violet,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-    gap: spacing.sm,
-  },
-  emptyStateText: {
-    fontSize: 14,
-    fontFamily: typography.family.medium,
-    color: Colors.neutral.gray400,
   },
   bottomPadding: {
     height: 100,

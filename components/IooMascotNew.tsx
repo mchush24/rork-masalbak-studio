@@ -59,7 +59,7 @@ const FIBER_TIP_COLORS = IOO_COLORS.fiberTips;
 
 export const IooMascotNew = memo(function IooMascotNew({
   size = 'medium',
-  _mood = 'happy',
+  mood: _mood = 'happy',
   animated = true,
   showGlow = true,
   onPress,

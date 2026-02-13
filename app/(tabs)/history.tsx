@@ -20,8 +20,9 @@ import {
   Trash2,
   Download,
   ChevronRight,
-  Clock,
+  TrendingUp,
   Share2,
+  Clock,
 } from 'lucide-react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -51,49 +52,16 @@ import {
   type TestTypeFilter,
 } from '@/components/history';
 import type { TypedAnalysis, TypedStorybook, Coloring } from '@/types/history';
+import type { TaskType } from '@/types/analysis';
+import { TASK_TYPE_LABELS } from '@/constants/task-labels';
 
 type TabType = 'analyses' | 'stories' | 'colorings';
-
-type TaskType =
-  | 'DAP'
-  | 'HTP'
-  | 'Family'
-  | 'Cactus'
-  | 'Tree'
-  | 'Garden'
-  | 'BenderGestalt2'
-  | 'ReyOsterrieth'
-  | 'Aile'
-  | 'Kaktus'
-  | 'Agac'
-  | 'Bahce'
-  | 'Bender'
-  | 'Rey'
-  | 'Luscher';
 
 export default function HistoryScreen() {
   // Constants - defined inside component
   const TAB_ANALYSES: TabType = 'analyses';
   const TAB_STORIES: TabType = 'stories';
   const TAB_COLORINGS: TabType = 'colorings';
-
-  const TASK_TYPE_LABELS: Record<TaskType, string> = {
-    DAP: 'İnsan Çizimi',
-    HTP: 'Ev-Ağaç-İnsan',
-    Family: 'Aile Çizimi',
-    Aile: 'Aile Çizimi',
-    Cactus: 'Kaktüs Testi',
-    Kaktus: 'Kaktüs Testi',
-    Tree: 'Ağaç Testi',
-    Agac: 'Ağaç Testi',
-    Garden: 'Bahçe Testi',
-    Bahce: 'Bahçe Testi',
-    BenderGestalt2: 'Bender Gestalt',
-    Bender: 'Bender Gestalt',
-    ReyOsterrieth: 'Rey Figure',
-    Rey: 'Rey Figure',
-    Luscher: 'Luscher Renk',
-  };
 
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -409,7 +377,6 @@ export default function HistoryScreen() {
     }
 
     return result;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawAnalyses, searchQuery, dateFilter, testTypeFilter]);
 
   const analyses = filteredAnalyses;
@@ -501,14 +468,12 @@ export default function HistoryScreen() {
               }
               style={styles.headerIcon}
             >
-              <Clock size={layout.icon.medium} color={Colors.neutral.white} />
+              <TrendingUp size={layout.icon.medium} color={Colors.neutral.white} />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
-              <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Geçmiş</Text>
+              <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Gelişim</Text>
               <Text style={[styles.headerSubtitle, { color: colors.text.secondary }]}>
-                {activeTab === TAB_ANALYSES && `${analyses.length} analiz`}
-                {activeTab === TAB_STORIES && `${storybooksList.length} masal`}
-                {activeTab === TAB_COLORINGS && `${coloringsList.length} boyama`}
+                Gelişim takibi & geçmiş
               </Text>
             </View>
           </View>
@@ -632,6 +597,10 @@ export default function HistoryScreen() {
               refreshing={refreshing}
               onRefresh={handleRefresh}
               tintColor={colors.primary.sunset}
+              colors={[colors.primary.sunset, colors.secondary.lavender]}
+              progressBackgroundColor={colors.surface.card}
+              title="Güncelleniyor..."
+              titleColor={colors.text.tertiary}
             />
           }
         >

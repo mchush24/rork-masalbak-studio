@@ -14,6 +14,11 @@ import {
   Image,
   Platform,
 } from 'react-native';
+import ReanimatedLib, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -34,6 +39,8 @@ import {
   MessageCircle,
   Award,
   Shield,
+  Pencil,
+  ClipboardList,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter, Href } from 'expo-router';
@@ -56,7 +63,7 @@ import { strings } from '@/i18n/strings';
 import { preprocessImage } from '@/utils/imagePreprocess';
 import { buildShareText } from '@/services/abTest';
 import { pickFromLibrary, captureWithCamera } from '@/services/imagePick';
-import type { TaskType } from '@/types/AssessmentSchema';
+import type { TaskType } from '@/types/analysis';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useChild } from '@/lib/contexts/ChildContext';
@@ -150,14 +157,20 @@ type Action =
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET_MODE':
-      return { ...state, mode: action.mode };
+      return {
+        ...state,
+        mode: action.mode,
+        advancedExpanded: action.mode === 'advanced',
+        // Reset to FreeDrawing when switching to quick mode
+        ...(action.mode === 'quick' ? { testType: 'FreeDrawing' as TaskType, imageUris: {} } : {}),
+      };
     case 'TOGGLE_ADVANCED':
       return {
         ...state,
         advancedExpanded: !state.advancedExpanded,
         mode: !state.advancedExpanded ? 'advanced' : 'quick',
-        // Reset test type to DAP when collapsing
-        ...(state.advancedExpanded ? { testType: 'DAP' as TaskType, imageUris: {} } : {}),
+        // Reset test type to FreeDrawing when collapsing
+        ...(state.advancedExpanded ? { testType: 'FreeDrawing' as TaskType, imageUris: {} } : {}),
       };
     case 'SET_TEST_TYPE':
       return {
@@ -233,6 +246,137 @@ const STRENGTH_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 // ---------------------------------------------------------------------------
+// Segment Control Sub-Component
+// ---------------------------------------------------------------------------
+interface SegmentControlProps {
+  segments: string[];
+  activeIndex: number;
+  onChange: (index: number) => void;
+}
+
+function SegmentControl({ segments, activeIndex, onChange }: SegmentControlProps) {
+  const { colors } = useTheme();
+  const [containerWidth, setContainerWidth] = React.useState(0);
+  const segmentWidth = segments.length > 0 ? containerWidth / segments.length : 0;
+  const translateX = useSharedValue(activeIndex * segmentWidth);
+
+  // Update translateX when activeIndex or segmentWidth changes
+  useEffect(() => {
+    translateX.value = withSpring(activeIndex * segmentWidth, {
+      damping: 18,
+      stiffness: 180,
+      mass: 0.8,
+    });
+  }, [activeIndex, segmentWidth, translateX]);
+
+  const indicatorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    width: segmentWidth,
+  }));
+
+  return (
+    <View
+      style={[segmentStyles.container, { backgroundColor: colors.neutral.lighter }]}
+      onLayout={e => setContainerWidth(e.nativeEvent.layout.width)}
+    >
+      {/* Animated sliding indicator */}
+      {segmentWidth > 0 && (
+        <ReanimatedLib.View
+          style={[
+            segmentStyles.indicator,
+            { backgroundColor: Colors.primary.sunset },
+            indicatorStyle,
+          ]}
+        />
+      )}
+
+      {/* Segment buttons */}
+      {segments.map((label, index) => {
+        const isActive = index === activeIndex;
+        return (
+          <Pressable
+            key={label}
+            onPress={() => {
+              if (index !== activeIndex) {
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                onChange(index);
+              }
+            }}
+            style={segmentStyles.segmentButton}
+          >
+            <View style={segmentStyles.segmentContent}>
+              {index === 0 ? (
+                <Pencil
+                  size={16}
+                  color={isActive ? Colors.neutral.white : Colors.text.secondary}
+                  strokeWidth={iconStroke.standard}
+                />
+              ) : (
+                <ClipboardList
+                  size={16}
+                  color={isActive ? Colors.neutral.white : Colors.text.secondary}
+                  strokeWidth={iconStroke.standard}
+                />
+              )}
+              <Text
+                style={[
+                  segmentStyles.segmentText,
+                  isActive ? segmentStyles.segmentTextActive : { color: Colors.text.secondary },
+                ]}
+              >
+                {label}
+              </Text>
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+const SEGMENT_HEIGHT = 48;
+const SEGMENT_PADDING = 4;
+
+const segmentStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    borderRadius: radius.full,
+    padding: SEGMENT_PADDING,
+    position: 'relative',
+    height: SEGMENT_HEIGHT,
+  },
+  indicator: {
+    position: 'absolute',
+    top: SEGMENT_PADDING,
+    bottom: SEGMENT_PADDING,
+    left: SEGMENT_PADDING,
+    borderRadius: radius.full - SEGMENT_PADDING,
+    ...shadows.sm,
+  },
+  segmentButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  segmentContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['2'],
+  },
+  segmentText: {
+    fontSize: typography.size.sm,
+    fontFamily: typography.family.semibold,
+  },
+  segmentTextActive: {
+    color: Colors.neutral.white,
+    fontFamily: typography.family.bold,
+  },
+});
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 export default function UnifiedAnalysisScreen() {
@@ -262,7 +406,7 @@ export default function UnifiedAnalysisScreen() {
   const [state, dispatch] = useReducer(reducer, {
     mode: 'quick',
     advancedExpanded: false,
-    testType: 'DAP',
+    testType: 'FreeDrawing' as TaskType,
     childAge: initialAge,
     childQuote: '',
     imageUris: {},
@@ -272,7 +416,7 @@ export default function UnifiedAnalysisScreen() {
     analysisResult: null,
     resultLayer: 1,
     showProtocolSheet: false,
-    protocolSheetTask: 'DAP',
+    protocolSheetTask: 'FreeDrawing' as TaskType,
     showQuotaModal: false,
   });
 
@@ -424,7 +568,7 @@ export default function UnifiedAnalysisScreen() {
 
       try {
         const isQuick = state.mode === 'quick';
-        const taskType = isQuick ? 'DAP' : state.testType;
+        const taskType = isQuick ? 'FreeDrawing' : state.testType;
         const currentRequiredImages = PROTOCOLS[taskType].requiredImages;
 
         // Build images array
@@ -700,6 +844,20 @@ export default function UnifiedAnalysisScreen() {
               <AnalysisStepper currentStep={currentAnalysisStep} />
             </View>
 
+            {/* ============ SEGMENT CONTROL ============ */}
+            <View style={styles.segmentContainer}>
+              <SegmentControl
+                segments={['Serbest Çizim', 'Detaylı Test']}
+                activeIndex={state.mode === 'quick' ? 0 : 1}
+                onChange={index => {
+                  dispatch({
+                    type: 'SET_MODE',
+                    mode: index === 0 ? 'quick' : 'advanced',
+                  });
+                }}
+              />
+            </View>
+
             {/* ============ RESULTS (shown when step=results) ============ */}
             {state.step === 'results' && state.analysisResult && (
               <Animated.View
@@ -712,18 +870,20 @@ export default function UnifiedAnalysisScreen() {
             {/* ============ IMAGE INPUT (shown when step=select) ============ */}
             {state.step === 'select' && (
               <>
-                {/* Quick mode: intro + single image upload */}
-                {!state.advancedExpanded && (
+                {/* Quick mode (Serbest Çizim): intro + single image upload */}
+                {state.mode === 'quick' && (
                   <View style={styles.quickImageSection}>
                     {/* Quick mode intro card */}
                     <View style={[styles.quickIntroCard, { backgroundColor: colors.surface.card }]}>
                       <Text style={[styles.quickIntroTitle, { color: colors.text.primary }]}>
-                        {quickImageUri ? 'Harika, çizim hazır!' : 'Çocuğunuzun çizimini yükleyin'}
+                        {quickImageUri
+                          ? 'Harika, çizim hazır!'
+                          : 'Çocuğunuzun herhangi bir çizimini yükleyin'}
                       </Text>
                       <Text style={[styles.quickIntroDesc, { color: colors.text.tertiary }]}>
                         {quickImageUri
                           ? 'Aşağıdaki butona basarak AI analizini başlatabilirsiniz.'
-                          : 'Bir kişi çizimi (DAP) yükleyin, AI birkaç saniye içinde gelişimsel değerlendirme sunacak.'}
+                          : 'Serbest çizim, AI birkaç saniye içinde gelişim gözlemleri sunacak.'}
                       </Text>
                     </View>
 
@@ -812,50 +972,8 @@ export default function UnifiedAnalysisScreen() {
                   </View>
                 )}
 
-                {/* ============ ADVANCED TOGGLE ============ */}
-                <Pressable
-                  onPress={() => dispatch({ type: 'TOGGLE_ADVANCED' })}
-                  style={({ pressed }) => [
-                    styles.advancedToggle,
-                    {
-                      backgroundColor: colors.surface.card,
-                      borderColor: state.advancedExpanded
-                        ? colors.secondary.indigo + '40'
-                        : 'transparent',
-                      borderWidth: 1,
-                    },
-                    pressed && { opacity: 0.9 },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.advancedToggleIcon,
-                      { backgroundColor: colors.secondary.indigo + '15' },
-                    ]}
-                  >
-                    <Sparkles size={18} color={colors.secondary.indigo} />
-                  </View>
-                  <View style={styles.advancedToggleText}>
-                    <Text style={[styles.advancedToggleTitle, { color: colors.text.primary }]}>
-                      {state.advancedExpanded
-                        ? 'Detaylı Test Modu'
-                        : 'Farklı bir test mi yapmak istiyorsunuz?'}
-                    </Text>
-                    <Text style={[styles.advancedToggleDesc, { color: colors.text.tertiary }]}>
-                      {state.advancedExpanded
-                        ? `${state.testType} seçili`
-                        : 'HTP, Aile, Kaktüs ve 6 test daha'}
-                    </Text>
-                  </View>
-                  <Animated.View
-                    style={{ transform: [{ rotate: state.advancedExpanded ? '180deg' : '0deg' }] }}
-                  >
-                    <ChevronDown size={20} color={colors.secondary.indigo} />
-                  </Animated.View>
-                </Pressable>
-
-                {/* Advanced section content */}
-                {state.advancedExpanded && (
+                {/* Advanced section content (Detaylı Test) */}
+                {state.mode === 'advanced' && (
                   <View style={styles.advancedContent}>
                     {/* Step guide */}
                     <View
@@ -1380,7 +1498,7 @@ export default function UnifiedAnalysisScreen() {
                       <Text style={styles.analyzeButtonText}>
                         {canAnalyze
                           ? 'AI Analizi Başlat'
-                          : state.advancedExpanded
+                          : state.mode === 'advanced'
                             ? requiredCount === 0
                               ? 'AI Analizi Başlat'
                               : `Önce ${requiredCount - uploadedCount} çizim yükleyin`
@@ -1932,7 +2050,7 @@ export default function UnifiedAnalysisScreen() {
               <Pressable
                 onPress={() => {
                   dispatch({ type: 'SET_TEST_TYPE', testType: task });
-                  if (!state.advancedExpanded) dispatch({ type: 'TOGGLE_ADVANCED' });
+                  if (state.mode !== 'advanced') dispatch({ type: 'SET_MODE', mode: 'advanced' });
                   closeSheet();
                 }}
                 style={styles.sheetSelectButton}
@@ -1997,6 +2115,11 @@ const styles = StyleSheet.create({
 
   // Stepper
   stepperContainer: {
+    marginBottom: spacing['4'],
+  },
+
+  // Segment Control
+  segmentContainer: {
     marginBottom: spacing['4'],
   },
 

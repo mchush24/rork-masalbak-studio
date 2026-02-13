@@ -18,6 +18,7 @@ import {
 import { spacing, radius, typography } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
+import { TASK_TYPE_LABELS } from '@/constants/task-labels';
 
 interface RecentAnalysis {
   id: string;
@@ -36,24 +37,6 @@ interface RecentActivityListProps {
   onSeeAllPress?: () => void;
   maxItems?: number;
 }
-
-const TASK_TYPE_LABELS: Record<string, string> = {
-  DAP: 'İnsan Çizimi (DAP)',
-  HTP: 'Ev-Ağaç-İnsan (HTP)',
-  Family: 'Aile Çizimi',
-  Aile: 'Aile Çizimi',
-  Cactus: 'Kaktüs Testi',
-  Kaktus: 'Kaktüs Testi',
-  Tree: 'Ağaç Testi',
-  Agac: 'Ağaç Testi',
-  Garden: 'Bahçe Testi',
-  Bahce: 'Bahçe Testi',
-  BenderGestalt2: 'Bender Gestalt-2',
-  Bender: 'Bender Gestalt',
-  ReyOsterrieth: 'Rey-Osterrieth',
-  Rey: 'Rey Figure',
-  Luscher: 'Lüscher Renk',
-};
 
 // Role-specific labels
 const getRoleLabels = (role: UserRole) => {
@@ -176,7 +159,8 @@ export function RecentActivityList({
 
                   <View style={styles.infoContainer}>
                     <Text style={styles.taskType}>
-                      {TASK_TYPE_LABELS[analysis.taskType] || analysis.taskType}
+                      {TASK_TYPE_LABELS[analysis.taskType as keyof typeof TASK_TYPE_LABELS] ||
+                        analysis.taskType}
                     </Text>
                     <View style={styles.metaRow}>
                       {analysis.childName && (

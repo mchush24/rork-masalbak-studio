@@ -46,7 +46,6 @@ import {
   iconSizes,
   iconStroke,
   iconColors,
-  getRoleStrokeWidth,
 } from '@/constants/design-system';
 import { useHapticFeedback } from '@/lib/haptics';
 import { IooRoleAware } from '@/components/Ioo';
@@ -391,7 +390,6 @@ export function ErrorState({
               <IconComponent
                 size={compact ? iconSizes.header : iconSizes.feature}
                 color={iconColor}
-                strokeWidth={getRoleStrokeWidth(isProfessional)}
               />
             </Animated.View>
           </LinearGradient>
@@ -405,11 +403,7 @@ export function ErrorState({
             colors={gradientColors}
             style={[styles.typeBadge, isProfessional && styles.typeBadgeProfessional]}
           >
-            <IconComponent
-              size={iconSizes.badge}
-              color={iconColor}
-              strokeWidth={iconStroke.standard}
-            />
+            <IconComponent size={iconSizes.badge} color={iconColor} />
             <Text style={[styles.typeBadgeText, { color: iconColor }]}>
               {type === 'network'
                 ? 'Bağlantı'
