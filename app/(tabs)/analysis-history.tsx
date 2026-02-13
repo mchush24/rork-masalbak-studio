@@ -260,8 +260,8 @@ export default function AnalysisHistoryScreen() {
             >
               <Star
                 size={isSmallScreen ? 14 : 16}
-                color={filterFavorites ? '#FFFFFF' : colors.secondary.sunshine}
-                fill={filterFavorites ? '#FFFFFF' : 'none'}
+                color={filterFavorites ? Colors.neutral.white : colors.secondary.sunshine}
+                fill={filterFavorites ? Colors.neutral.white : 'none'}
               />
               <Text
                 style={[
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
     letterSpacing: typography.letterSpacing.tight,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   filtersContainer: {
     flexDirection: 'row',
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   filterChipTextActive: {
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   emptyText: {
@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -650,7 +650,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: typography.size.xs,
     color: Colors.secondary.sky,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   cardActions: {
     flexDirection: 'row',

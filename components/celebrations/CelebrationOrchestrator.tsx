@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
   },
   toastTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     ...textShadows.sm,
   },
@@ -559,19 +559,19 @@ const styles = StyleSheet.create({
   },
   levelNumber: {
     fontSize: 48,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.secondary.lavender,
   },
   fullScreenTitle: {
     fontSize: typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
   },
   fullScreenSubtitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
     textAlign: 'center',
     marginBottom: spacing['6'],
@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
 });

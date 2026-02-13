@@ -1,12 +1,12 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import type { AssessmentOutput } from "@/types/AssessmentSchema";
-import { shadows } from "@/constants/design-system";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import type { AssessmentOutput } from '@/types/AssessmentSchema';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
-export const ResultCard: React.FC<{ 
-  data: AssessmentOutput; 
-  onDetails?: () => void 
+export const ResultCard: React.FC<{
+  data: AssessmentOutput;
+  onDetails?: () => void;
 }> = ({ data, onDetails }) => {
   return (
     <View style={styles.container}>
@@ -14,9 +14,9 @@ export const ResultCard: React.FC<{
       {data.reflective_hypotheses.slice(0, 3).map((h, i) => (
         <View key={i} style={styles.hypothesis}>
           <Text style={styles.hypothesisTitle}>
-            • {h.theme.replaceAll("_", " ")} — {(h.confidence * 100).toFixed(0)}%
+            • {h.theme.replaceAll('_', ' ')} — {(h.confidence * 100).toFixed(0)}%
           </Text>
-          <Text style={styles.evidence}>Kanıt: {h.evidence.join(", ")}</Text>
+          <Text style={styles.evidence}>Kanıt: {h.evidence.join(', ')}</Text>
         </View>
       ))}
 
@@ -24,12 +24,16 @@ export const ResultCard: React.FC<{
 
       <Text style={styles.sectionTitle}>Sohbet Soruları</Text>
       {data.conversation_prompts.map((q, i) => (
-        <Text key={i} style={styles.listItem}>• {q}</Text>
+        <Text key={i} style={styles.listItem}>
+          • {q}
+        </Text>
       ))}
 
       <Text style={[styles.sectionTitle, styles.marginTop]}>Etkinlik Önerileri</Text>
       {data.activity_ideas.map((q, i) => (
-        <Text key={i} style={styles.listItem}>• {q}</Text>
+        <Text key={i} style={styles.listItem}>
+          • {q}
+        </Text>
       ))}
 
       {(data.safety_flags.self_harm || data.safety_flags.abuse_concern) && (
@@ -39,9 +43,7 @@ export const ResultCard: React.FC<{
         </View>
       )}
 
-      <Text style={styles.disclaimer}>
-        {data.disclaimers.join(" ")}
-      </Text>
+      <Text style={styles.disclaimer}>{data.disclaimers.join(' ')}</Text>
 
       {onDetails && (
         <TouchableOpacity onPress={onDetails} style={styles.detailsButton}>
@@ -62,13 +64,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "700" as const,
+    fontFamily: typography.family.bold,
   },
   hypothesis: {
     paddingVertical: 6,
   },
   hypothesisTitle: {
-    fontWeight: "600" as const,
+    fontFamily: typography.family.semibold,
     marginBottom: 2,
   },
   evidence: {
@@ -77,11 +79,11 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#eee",
+    backgroundColor: '#eee',
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "700" as const,
+    fontFamily: typography.family.bold,
   },
   marginTop: {
     marginTop: 8,
@@ -90,31 +92,31 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   safetyAlert: {
-    backgroundColor: "#fee",
+    backgroundColor: '#fee',
     padding: 10,
     borderRadius: 8,
   },
   safetyTitle: {
-    color: "#b00",
-    fontWeight: "700" as const,
+    color: '#b00',
+    fontFamily: typography.family.bold,
   },
   safetyText: {
-    color: "#900",
+    color: '#900',
   },
   disclaimer: {
-    color: "#888",
+    color: '#888',
     fontSize: 12,
     marginTop: 8,
   },
   detailsButton: {
-    backgroundColor: "#0a7",
+    backgroundColor: '#0a7',
     padding: 12,
     borderRadius: 10,
     marginTop: 8,
   },
   detailsButtonText: {
     color: Colors.neutral.white,
-    textAlign: "center",
-    fontWeight: "700" as const,
+    textAlign: 'center',
+    fontFamily: typography.family.bold,
   },
 });

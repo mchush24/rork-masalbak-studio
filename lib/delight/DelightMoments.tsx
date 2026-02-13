@@ -18,7 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   milestoneTitle: {
     fontSize: 32,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     textAlign: 'center',
     marginBottom: 8,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   celebrationButtonText: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 });

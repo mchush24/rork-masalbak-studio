@@ -16,7 +16,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { Sun, Moon, Monitor } from 'lucide-react-native';
 import { useTheme } from './ThemeProvider';
 import { useFeedback } from '@/hooks/useFeedback';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface ThemeToggleProps {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   switchLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   switchTrack: {
     width: 56,
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   },
   segmentedLabel: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     marginTop: 2,
   },
 

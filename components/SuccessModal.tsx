@@ -220,7 +220,7 @@ export function SuccessModal({ visible, title, message, buttonText, onPress }: S
             <Text
               style={{
                 fontSize: typography.size.xl,
-                fontWeight: '700',
+                fontFamily: typography.family.bold,
                 color: 'white',
                 textAlign: 'center',
               }}
@@ -262,7 +262,7 @@ export function SuccessModal({ visible, title, message, buttonText, onPress }: S
               <Text
                 style={{
                   fontSize: typography.size.md,
-                  fontWeight: '600',
+                  fontFamily: typography.family.semibold,
                   color: 'white',
                 }}
               >

@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   childName: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   childNameCompact: {
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
     flex: 1,
   },
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   cardChildName: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   cardChildAge: {
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
   genderBadgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.white,
   },
   selectedCheck: {
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   },
   addChildButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 

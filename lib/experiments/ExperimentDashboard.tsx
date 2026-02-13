@@ -19,6 +19,7 @@ import { Colors } from '@/constants/colors';
 import { useExperimentDashboard } from './useExperiment';
 import { Experiment } from './ExperimentService';
 
+import { typography } from '@/constants/design-system';
 interface ExperimentDashboardProps {
   visible: boolean;
   onClose: () => void;
@@ -340,7 +341,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   closeButton: {
@@ -376,7 +377,7 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   summaryLabel: {
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     marginBottom: 12,
   },
@@ -421,7 +422,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     flex: 1,
   },
@@ -433,7 +434,7 @@ const styles = StyleSheet.create({
   },
   typeText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   cardDescription: {
@@ -464,7 +465,7 @@ const styles = StyleSheet.create({
   },
   variantTextActive: {
     color: Colors.neutral.white,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   overrideIndicator: {
     marginTop: 12,
@@ -517,7 +518,7 @@ const styles = StyleSheet.create({
   },
   detailTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   detailContent: {

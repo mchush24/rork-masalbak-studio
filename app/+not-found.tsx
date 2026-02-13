@@ -42,7 +42,7 @@ export default function NotFoundScreen() {
           onPress={handleGoHome}
         >
           <Home size={20} color="#FFFFFF" />
-          <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>
+          <Text style={[styles.buttonText, { color: Colors.neutral.white }]}>
             {isAuthenticated ? 'Ana Sayfaya Dön' : 'Giriş Sayfasına Dön'}
           </Text>
         </Pressable>
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing.sm,
   },
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   backLink: {

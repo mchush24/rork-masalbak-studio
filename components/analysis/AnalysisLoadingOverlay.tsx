@@ -176,12 +176,12 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   timeValue: {
     fontSize: typography.size.sm,
     color: Colors.secondary.lavender,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   elapsedRow: {
     flexDirection: 'row',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   elapsedValue: {
     fontSize: typography.size.sm,
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   tipContainer: {
     marginTop: spacing.lg,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   testBadgeText: {
     fontSize: typography.size.xs,
     color: Colors.secondary.lavender,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   cancelButton: {
     flexDirection: 'row',
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });
 

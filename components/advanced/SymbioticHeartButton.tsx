@@ -7,6 +7,7 @@
 
 import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Dimensions, Platform } from 'react-native';
+import { typography } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import Animated, {
@@ -93,7 +94,6 @@ const WebHeart: React.FC<{ size: number }> = ({ size }) => {
 // NATIVE HEART (Skia-based)
 // ============================================
 const NativeHeart: React.FC<{ size: number }> = ({ size }) => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const {
     Canvas,
     Path,
@@ -102,6 +102,7 @@ const NativeHeart: React.FC<{ size: number }> = ({ size }) => {
     vec,
     Group,
     Blur,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
   } = require('@shopify/react-native-skia');
 
   const heartPath = Skia.Path.MakeFromSVGString(`
@@ -364,8 +365,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 17,
-    fontWeight: '800',
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: typography.family.extrabold,
     color: '#3D1A1A',
     textAlign: 'center',
     letterSpacing: 0.3,
@@ -382,8 +382,7 @@ const styles = StyleSheet.create({
   },
   subLabel: {
     fontSize: 12,
-    fontWeight: '600',
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: typography.family.semibold,
     color: 'rgba(61, 26, 26, 0.85)',
     textAlign: 'center',
     marginTop: 2,

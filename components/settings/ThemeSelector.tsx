@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   headerSubtitle: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   description: {

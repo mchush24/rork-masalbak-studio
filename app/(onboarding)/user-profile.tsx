@@ -485,19 +485,25 @@ export default function UserProfileScreen() {
                     {theme === 'light' && (
                       <Sun
                         size={16}
-                        color={profile.theme === theme ? '#FFFFFF' : colors.text.tertiary}
+                        color={
+                          profile.theme === theme ? Colors.neutral.white : colors.text.tertiary
+                        }
                       />
                     )}
                     {theme === 'dark' && (
                       <Moon
                         size={16}
-                        color={profile.theme === theme ? '#FFFFFF' : colors.text.tertiary}
+                        color={
+                          profile.theme === theme ? Colors.neutral.white : colors.text.tertiary
+                        }
                       />
                     )}
                     {theme === 'system' && (
                       <Lightbulb
                         size={16}
-                        color={profile.theme === theme ? '#FFFFFF' : colors.text.tertiary}
+                        color={
+                          profile.theme === theme ? Colors.neutral.white : colors.text.tertiary
+                        }
                       />
                     )}
                     <Text
@@ -599,13 +605,16 @@ export default function UserProfileScreen() {
             <Text
               style={[
                 styles.nextButtonText,
-                { color: '#FFFFFF' },
+                { color: Colors.neutral.white },
                 !canProceed() && styles.nextButtonTextDisabled,
               ]}
             >
               {step === totalSteps ? 'Tamamla' : 'Devam'}
             </Text>
-            <ChevronRight size={20} color={canProceed() ? '#FFFFFF' : colors.text.tertiary} />
+            <ChevronRight
+              size={20}
+              color={canProceed() ? Colors.neutral.white : colors.text.tertiary}
+            />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -669,7 +678,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
   },
@@ -712,7 +721,7 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -753,7 +762,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   countTextSelected: {
@@ -793,12 +802,12 @@ const styles = StyleSheet.create({
   },
   experienceText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   experienceTextSelected: {
     color: Colors.secondary.lavender,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Needs grid
@@ -828,7 +837,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.dark,
   },
   needTextSelected: {
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   needCheck: {
@@ -852,7 +861,7 @@ const styles = StyleSheet.create({
   },
   preferenceLabel: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   notificationOptions: {
@@ -875,7 +884,7 @@ const styles = StyleSheet.create({
   },
   notificationText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   notificationTextSelected: {
@@ -903,7 +912,7 @@ const styles = StyleSheet.create({
   },
   themeText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   themeTextSelected: {
@@ -949,7 +958,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   nextButtonTextDisabled: {

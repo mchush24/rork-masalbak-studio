@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: 2,
   },
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   },
   timeoutTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   timeoutDescription: {
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   },
   timeoutOptionTextActive: {
     color: Colors.secondary.lavender,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   changePinButton: {
     flexDirection: 'row',
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   },
   changePinText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   privacyNote: {
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   },
   pinTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginTop: spacing['3'],
   },
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['4'],
     paddingVertical: spacing['3'],
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     letterSpacing: 8,
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
   },
   pinCancelText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   pinSubmitButton: {
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   },
   pinSubmitText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 });

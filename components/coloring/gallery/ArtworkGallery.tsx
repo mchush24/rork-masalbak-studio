@@ -22,8 +22,9 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+import { NoColoringEmpty } from '@/components/ui/EmptyState';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const COLUMN_COUNT = 2;
@@ -347,7 +348,7 @@ export function ArtworkGallery({
   onSharePress,
   onDeletePress,
   isLoading = false,
-  emptyMessage = 'Henüz eser yok',
+  emptyMessage: _emptyMessage = 'Henüz eser yok',
   showChildInfo = true,
   showActions = true,
   title = 'Galeri',
@@ -378,13 +379,7 @@ export function ArtworkGallery({
     />
   );
 
-  const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyIcon}>🖼️</Text>
-      <Text style={styles.emptyText}>{emptyMessage}</Text>
-      <Text style={styles.emptySubtext}>Boyama tamamladığında eserler burada görünecek</Text>
-    </View>
-  );
+  const renderEmpty = () => <NoColoringEmpty compact />;
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -460,7 +455,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#1A1A1A',
   },
   headerCount: {
@@ -505,7 +500,7 @@ const styles = StyleSheet.create({
   statText: {
     color: Colors.neutral.white,
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   featuredBadge: {
     position: 'absolute',
@@ -519,7 +514,7 @@ const styles = StyleSheet.create({
   },
   featuredText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   infoSection: {
@@ -527,7 +522,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1A1A1A',
     marginBottom: 4,
   },
@@ -575,7 +570,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: 8,
   },
@@ -627,7 +622,7 @@ const styles = StyleSheet.create({
   modalCloseText: {
     color: Colors.neutral.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   modalImage: {
     width: '100%',
@@ -639,7 +634,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#1A1A1A',
     marginBottom: 4,
   },
@@ -682,7 +677,7 @@ const styles = StyleSheet.create({
   shareButtonText: {
     color: Colors.neutral.white,
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   deleteButton: {
     backgroundColor: '#FEE2E2',
@@ -690,6 +685,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#DC2626',
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 });

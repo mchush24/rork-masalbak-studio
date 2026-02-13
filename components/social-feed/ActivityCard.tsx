@@ -37,7 +37,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter, Href } from 'expo-router';
-import { spacing, borderRadius, shadows } from '@/constants/design-system';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface ActivityCardProps {
@@ -234,14 +234,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#1F2937',
     lineHeight: 18,
     marginBottom: 4,
   },
   description: {
     fontSize: 11,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: '#6B7280',
     lineHeight: 14,
     flex: 1,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   durationText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#6B7280',
   },
   actionButton: {

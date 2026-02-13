@@ -21,7 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Heart } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { spacing, borderRadius, shadows } from '@/constants/design-system';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
   ageBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.gray700,
   },
   themeTag: {
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   themeTagText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   likesCount: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.gray400,
   },
   likesCountActive: {

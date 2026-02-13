@@ -30,7 +30,7 @@ import {
   Animated,
   Alert,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   mainButtonText: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
 
   // Modal
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.medium,
     marginTop: 12,
   },
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   },
   changeImageText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   },
   colorsSectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: 12,
   },
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   },
   colorSwatchText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   colorSwatchPercentage: {
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
   },
   applyButtonText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

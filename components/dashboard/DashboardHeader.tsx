@@ -8,7 +8,7 @@ import React, { useMemo } from 'react';
 import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MessageCircle, Settings, Bell } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
 import { useRole, useRoleText, useMascotSettings, ROLE_TEXTS } from '@/lib/contexts/RoleContext';
 import { Ioo as IooMascot } from '@/components/Ioo';
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   dashboardTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
   notificationText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   greetingSection: {
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   chatHintText: {
     fontSize: 9,
     color: Colors.primary.sunset,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   greetingTextContainer: {
     flex: 1,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: isSmallDevice ? 18 : 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     marginBottom: 2,
   },
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },

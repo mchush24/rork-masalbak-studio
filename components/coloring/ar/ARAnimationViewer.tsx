@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
-import { shadows, textShadows } from '@/constants/design-system';
+import { shadows, textShadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get('window');
@@ -751,7 +751,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: Colors.neutral.white,
     fontSize: 20,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   titleContainer: {
     alignItems: 'center',
@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
   title: {
     color: Colors.neutral.white,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     ...textShadows.lg,
   },
   subtitle: {
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
   },
   themeSelectorTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: 12,
     textAlign: 'center',
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
   },
   themeName: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
 
@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
   controlLabel: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   captureButton: {
     width: 72,
@@ -899,7 +899,7 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginBottom: 12,
   },
@@ -918,7 +918,7 @@ const styles = StyleSheet.create({
   permissionButtonText: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 
   // AR Button
@@ -932,6 +932,6 @@ const styles = StyleSheet.create({
   },
   arButtonText: {
     color: Colors.neutral.white,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
   },
 });

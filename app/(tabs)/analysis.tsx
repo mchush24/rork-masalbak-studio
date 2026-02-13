@@ -538,8 +538,8 @@ export default function UnifiedAnalysisScreen() {
           }
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       state.mode,
       state.testType,
@@ -802,10 +802,10 @@ export default function UnifiedAnalysisScreen() {
                           onPress={() => dispatch({ type: 'CLEAR_IMAGE', slotId: 'quick' })}
                           style={styles.quickPreviewRemove}
                         >
-                          <X size={18} color="#FFFFFF" />
+                          <X size={18} color={Colors.neutral.white} />
                         </Pressable>
                         <View style={styles.quickPreviewCheck}>
-                          <CheckCircle size={24} color="#10B981" />
+                          <CheckCircle size={24} color={Colors.status.success} />
                         </View>
                       </View>
                     )}
@@ -890,7 +890,7 @@ export default function UnifiedAnalysisScreen() {
                               styles.guideStepNumber,
                               {
                                 backgroundColor:
-                                  uploadedCount > 0 ? '#10B981' : colors.neutral.light,
+                                  uploadedCount > 0 ? Colors.status.success : colors.neutral.light,
                               },
                             ]}
                           >
@@ -1022,7 +1022,7 @@ export default function UnifiedAnalysisScreen() {
                               </View>
                               {isActive && (
                                 <View style={styles.testCardCheck}>
-                                  <CheckCircle size={16} color="#FFFFFF" />
+                                  <CheckCircle size={16} color={Colors.neutral.white} />
                                 </View>
                               )}
                             </LinearGradient>
@@ -1058,7 +1058,7 @@ export default function UnifiedAnalysisScreen() {
                             onPress={() => openSheet(state.testType)}
                             style={styles.selectedTestButton}
                           >
-                            <FileText size={16} color="#FFFFFF" />
+                            <FileText size={16} color={Colors.neutral.white} />
                             <Text style={styles.selectedTestButtonText}>Nasıl uygulanır?</Text>
                           </Pressable>
                         </View>
@@ -1228,7 +1228,7 @@ export default function UnifiedAnalysisScreen() {
                                     }
                                     style={styles.imageCardClear}
                                   >
-                                    <X size={16} color="#EF4444" />
+                                    <X size={16} color={Colors.status.error} />
                                   </Pressable>
                                 )}
                               </View>
@@ -1250,7 +1250,7 @@ export default function UnifiedAnalysisScreen() {
                                     resizeMode="cover"
                                   />
                                   <View style={styles.imagePreviewOverlay}>
-                                    <CheckCircle size={24} color="#10B981" />
+                                    <CheckCircle size={24} color={Colors.status.success} />
                                   </View>
                                 </View>
                               ) : (
@@ -1330,7 +1330,7 @@ export default function UnifiedAnalysisScreen() {
                           style={styles.noImageGradient}
                         >
                           <View style={styles.noImageIcon}>
-                            <Star size={24} color="#10B981" />
+                            <Star size={24} color={Colors.status.success} />
                           </View>
                           <Text
                             style={[
@@ -1376,7 +1376,7 @@ export default function UnifiedAnalysisScreen() {
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      <Sparkles size={22} color="#FFFFFF" />
+                      <Sparkles size={22} color={Colors.neutral.white} />
                       <Text style={styles.analyzeButtonText}>
                         {canAnalyze
                           ? 'AI Analizi Başlat'
@@ -1451,7 +1451,7 @@ export default function UnifiedAnalysisScreen() {
                   style={[
                     styles.insightCard,
                     {
-                      backgroundColor: isDark ? colors.surface.elevated : '#FFFFFF',
+                      backgroundColor: isDark ? colors.surface.elevated : Colors.neutral.white,
                       borderColor: colors.border.light,
                     },
                   ]}
@@ -1698,7 +1698,7 @@ export default function UnifiedAnalysisScreen() {
             colors={[colors.secondary.sky, colors.secondary.skyLight]}
             style={styles.newAnalysisGradient}
           >
-            <Zap size={20} color="#FFFFFF" />
+            <Zap size={20} color={Colors.neutral.white} />
             <Text style={styles.newAnalysisButtonText}>Yeni Analiz</Text>
           </LinearGradient>
         </Pressable>
@@ -1858,7 +1858,7 @@ export default function UnifiedAnalysisScreen() {
                       { backgroundColor: isDark ? colors.surface.elevated : '#FEF2F2' },
                     ]}
                   >
-                    <X size={14} color="#EF4444" />
+                    <X size={14} color={Colors.status.error} />
                     <Text
                       style={[
                         styles.dontText,
@@ -1938,7 +1938,7 @@ export default function UnifiedAnalysisScreen() {
                 style={styles.sheetSelectButton}
               >
                 <LinearGradient colors={config.gradient} style={styles.sheetSelectButtonGradient}>
-                  <CheckCircle size={18} color="#FFFFFF" />
+                  <CheckCircle size={18} color={Colors.neutral.white} />
                   <Text style={styles.sheetSelectButtonText}>Bu Testi Seç</Text>
                 </LinearGradient>
               </Pressable>
@@ -1987,12 +1987,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: 2,
   },
   headerSubtitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // Stepper
@@ -2018,7 +2018,7 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     marginBottom: spacing['1'],
   },
   errorText: {
@@ -2042,7 +2042,7 @@ const styles = StyleSheet.create({
   },
   errorRetryButtonText: {
     color: Colors.neutral.white,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     fontSize: typography.size.sm,
   },
 
@@ -2055,7 +2055,7 @@ const styles = StyleSheet.create({
   },
   quickIntroTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: spacing['1'],
   },
   quickIntroDesc: {
@@ -2088,7 +2088,7 @@ const styles = StyleSheet.create({
   },
   uploadMainText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginTop: spacing['2'],
   },
   uploadHint: {
@@ -2112,13 +2112,13 @@ const styles = StyleSheet.create({
   uploadButtonCamera: {},
   uploadButtonText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   uploadText: {
     fontSize: typography.size.sm,
     marginTop: spacing['3'],
     marginBottom: spacing['4'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // Quick Preview
@@ -2180,7 +2180,7 @@ const styles = StyleSheet.create({
   },
   advancedToggleTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   advancedToggleDesc: {
     fontSize: typography.size.xs,
@@ -2216,12 +2216,12 @@ const styles = StyleSheet.create({
   },
   guideStepNumberText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   guideStepText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   guideStepLine: {
     width: 32,
@@ -2241,7 +2241,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   sectionAction: {
     flexDirection: 'row',
@@ -2252,7 +2252,7 @@ const styles = StyleSheet.create({
   },
   sectionActionText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Test Carousel
@@ -2282,7 +2282,7 @@ const styles = StyleSheet.create({
   },
   testCardName: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: 2,
   },
   testCardNameActive: {
@@ -2311,7 +2311,7 @@ const styles = StyleSheet.create({
   },
   testCardBadgeText: {
     fontSize: 9,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   testCardBadgeTextActive: {
@@ -2357,7 +2357,7 @@ const styles = StyleSheet.create({
   },
   selectedTestName: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   selectedTestMeta: {
@@ -2376,7 +2376,7 @@ const styles = StyleSheet.create({
   },
   selectedTestButtonText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   selectedTestInstruction: {
@@ -2404,7 +2404,7 @@ const styles = StyleSheet.create({
   selectedTestTipText: {
     fontSize: typography.size.xs,
     color: 'rgba(255,255,255,0.85)',
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // Child Info
@@ -2426,7 +2426,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     marginBottom: 8,
   },
   ageInputWrapper: {
@@ -2440,13 +2440,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     width: 56,
     textAlign: 'center',
   },
   ageUnit: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   quoteInput: {
     borderWidth: 2,
@@ -2455,7 +2455,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: typography.size.sm,
     minHeight: 48,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // Upload Progress
@@ -2466,7 +2466,7 @@ const styles = StyleSheet.create({
   },
   uploadProgressText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   uploadProgressBar: {
     width: 60,
@@ -2504,7 +2504,7 @@ const styles = StyleSheet.create({
   },
   imageCardNumberText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   imageCardMeta: {
@@ -2512,7 +2512,7 @@ const styles = StyleSheet.create({
   },
   imageCardLabel: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   imageCardOptional: {
     fontSize: typography.size.xs,
@@ -2520,7 +2520,7 @@ const styles = StyleSheet.create({
   },
   imageCardRequired: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     marginTop: 2,
   },
   imageCardClear: {
@@ -2585,7 +2585,7 @@ const styles = StyleSheet.create({
   },
   noImageTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: 6,
   },
   noImageText: {
@@ -2617,7 +2617,7 @@ const styles = StyleSheet.create({
   },
   analyzeButtonText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 
@@ -2646,7 +2646,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: spacing['1'],
   },
   summarySubtitle: {
@@ -2667,7 +2667,7 @@ const styles = StyleSheet.create({
   },
   layerExpandText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Insights Section (Layer 2)
@@ -2676,7 +2676,7 @@ const styles = StyleSheet.create({
   },
   insightsSectionTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: spacing['3'],
   },
   insightCard: {
@@ -2693,7 +2693,7 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     flex: 1,
     marginRight: spacing['2'],
   },
@@ -2708,7 +2708,7 @@ const styles = StyleSheet.create({
   },
   strengthText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Detail Section (Layer 3)
@@ -2723,7 +2723,7 @@ const styles = StyleSheet.create({
   },
   evidenceTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: spacing['2'],
   },
   evidenceItem: {
@@ -2756,7 +2756,7 @@ const styles = StyleSheet.create({
   },
   homeTipsSectionTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   tipCard: {
     borderRadius: radius.lg,
@@ -2766,7 +2766,7 @@ const styles = StyleSheet.create({
   },
   tipTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: spacing['2'],
   },
   tipStep: {
@@ -2812,7 +2812,7 @@ const styles = StyleSheet.create({
   },
   riskTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   riskItem: {
     marginBottom: spacing['2'],
@@ -2842,7 +2842,7 @@ const styles = StyleSheet.create({
   },
   disclaimerTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   disclaimerText: {
     fontSize: typography.size.xs,
@@ -2865,7 +2865,7 @@ const styles = StyleSheet.create({
   resultActionText: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // New Analysis
@@ -2884,7 +2884,7 @@ const styles = StyleSheet.create({
   newAnalysisButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 
   // Bottom Sheet
@@ -2947,7 +2947,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
   },
   sheetSubtitle: {
     fontSize: typography.size.sm,
@@ -2973,7 +2973,7 @@ const styles = StyleSheet.create({
   },
   sheetSectionTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     marginBottom: 12,
   },
   sheetMaterialsGrid: {
@@ -2988,7 +2988,7 @@ const styles = StyleSheet.create({
   },
   materialChipText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   phaseCard: {
     borderRadius: radius.xl,
@@ -3011,7 +3011,7 @@ const styles = StyleSheet.create({
   },
   phaseNumberText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   phaseMeta: {
@@ -3019,12 +3019,12 @@ const styles = StyleSheet.create({
   },
   phaseName: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   phaseDuration: {
     fontSize: typography.size.xs,
     marginTop: 2,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   phaseInstruction: {
     fontSize: typography.size.sm,
@@ -3117,7 +3117,7 @@ const styles = StyleSheet.create({
   },
   sheetSelectButtonText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

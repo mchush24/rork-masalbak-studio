@@ -22,7 +22,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { shadows, textShadows, zIndex } from '@/constants/design-system';
+import { shadows, textShadows, zIndex, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginBottom: 8,
     textAlign: 'center',
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: 'rgba(255, 255, 255, 0.95)',
     textAlign: 'center',
     lineHeight: 22,

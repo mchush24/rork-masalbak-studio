@@ -6,14 +6,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  Pressable,
-  Modal,
-} from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable, Modal } from 'react-native';
 import { X, Vibrate } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
@@ -36,18 +29,16 @@ export function HapticSettings({ visible, onClose }: HapticSettingsProps) {
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={styles.content} onPress={e => e.stopPropagation()}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerTitle}>
-              <Vibrate size={24} color={isEnabled ? Colors.secondary.lavender : Colors.neutral.medium} />
+              <Vibrate
+                size={24}
+                color={isEnabled ? Colors.secondary.lavender : Colors.neutral.medium}
+              />
               <Text style={styles.title}>Titreşim Ayarları</Text>
             </View>
             <Pressable onPress={onClose} style={styles.closeButton}>
@@ -60,9 +51,7 @@ export function HapticSettings({ visible, onClose }: HapticSettingsProps) {
             <View style={styles.settingRow}>
               <View>
                 <Text style={styles.settingLabel}>Titreşim Geri Bildirimi</Text>
-                <Text style={styles.settingDescription}>
-                  Dokunuşlarda titreşim hisset
-                </Text>
+                <Text style={styles.settingDescription}>Dokunuşlarda titreşim hisset</Text>
               </View>
               <Switch
                 value={isEnabled}
@@ -114,8 +103,8 @@ export function HapticSettings({ visible, onClose }: HapticSettingsProps) {
           {/* Note */}
           <View style={styles.noteContainer}>
             <Text style={styles.noteText}>
-              Titreşim geri bildirimi, uygulama deneyimini daha dokunsal hale getirir.
-              İstediğiniz zaman kapatabilirsiniz.
+              Titreşim geri bildirimi, uygulama deneyimini daha dokunsal hale getirir. İstediğiniz
+              zaman kapatabilirsiniz.
             </Text>
           </View>
         </Pressable>
@@ -156,7 +145,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -169,7 +158,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.medium,
     textTransform: 'uppercase',
     letterSpacing: typography.letterSpacing.wide,
@@ -182,7 +171,7 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },

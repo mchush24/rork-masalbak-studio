@@ -8,20 +8,14 @@
  * - Option to skip and enter age manually
  */
 
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  ScrollView,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { X, Baby, ArrowRight } from "lucide-react-native";
-import { Colors } from "@/constants/colors";
-import { spacing, radius, shadows, typography } from "@/constants/design-system";
-import { AvatarDisplay } from "@/components/AvatarPicker";
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { X, Baby, ArrowRight } from 'lucide-react-native';
+import { Colors } from '@/constants/colors';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
+import { NoChildrenEmpty } from '@/components/ui/EmptyState';
+import { AvatarDisplay } from '@/components/AvatarPicker';
 
 type Child = {
   name: string;
@@ -46,18 +40,13 @@ export function ChildSelector({
   onClose,
 }: ChildSelectorProps) {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 
         <View style={styles.card}>
           <LinearGradient
-            colors={[Colors.neutral.white, "#F8F9FA"]}
+            colors={[Colors.neutral.white, '#F8F9FA']}
             style={styles.cardGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
@@ -71,9 +60,7 @@ export function ChildSelector({
             <View style={styles.header}>
               <Baby size={48} color={Colors.primary.sunset} />
               <Text style={styles.title}>Hangi çocuğunuz için?</Text>
-              <Text style={styles.description}>
-                Bir çocuk seçin veya yaş girmek için atlayın
-              </Text>
+              <Text style={styles.description}>Bir çocuk seçin veya yaş girmek için atlayın</Text>
             </View>
 
             {/* Children List */}
@@ -87,19 +74,13 @@ export function ChildSelector({
                   <Pressable
                     key={index}
                     onPress={() => onSelectChild(child)}
-                    style={({ pressed }) => [
-                      styles.childCard,
-                      pressed && { opacity: 0.7 },
-                    ]}
+                    style={({ pressed }) => [styles.childCard, pressed && { opacity: 0.7 }]}
                   >
                     <LinearGradient
-                      colors={["#FF9B7A", "#FFB299"]}
+                      colors={['#FF9B7A', '#FFB299']}
                       style={styles.childCardGradient}
                     >
-                      <AvatarDisplay
-                        avatarId={child.avatarId}
-                        size={56}
-                      />
+                      <AvatarDisplay avatarId={child.avatarId} size={56} />
                       <View style={styles.childInfo}>
                         <Text style={styles.childName}>{child.name}</Text>
                         <Text style={styles.childAge}>
@@ -112,13 +93,7 @@ export function ChildSelector({
                 ))}
               </ScrollView>
             ) : (
-              <View style={styles.emptyState}>
-                <Baby size={64} color={Colors.neutral.light} />
-                <Text style={styles.emptyText}>Henüz çocuk profili eklenmemiş</Text>
-                <Text style={styles.emptySubtext}>
-                  Profil sayfasından çocuk ekleyebilirsiniz
-                </Text>
-              </View>
+              <NoChildrenEmpty compact />
             )}
 
             {/* Skip Button */}
@@ -135,81 +110,81 @@ export function ChildSelector({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing["4"],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing['4'],
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
   },
   card: {
-    width: "100%",
+    width: '100%',
     maxWidth: 400,
-    maxHeight: "80%",
-    borderRadius: radius["2xl"],
-    overflow: "hidden",
+    maxHeight: '80%',
+    borderRadius: radius['2xl'],
+    overflow: 'hidden',
     ...shadows.xl,
   },
   cardGradient: {
-    padding: spacing["6"],
+    padding: spacing['6'],
   },
   closeButton: {
-    position: "absolute",
-    top: spacing["4"],
-    right: spacing["4"],
+    position: 'absolute',
+    top: spacing['4'],
+    right: spacing['4'],
     zIndex: 10,
     width: 32,
     height: 32,
     borderRadius: radius.full,
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
-    alignItems: "center",
-    marginBottom: spacing["6"],
+    alignItems: 'center',
+    marginBottom: spacing['6'],
   },
   title: {
-    fontSize: typography.size["2xl"],
-    fontWeight: typography.weight.extrabold,
+    fontSize: typography.size['2xl'],
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
-    marginTop: spacing["4"],
-    marginBottom: spacing["2"],
-    textAlign: "center",
+    marginTop: spacing['4'],
+    marginBottom: spacing['2'],
+    textAlign: 'center',
   },
   description: {
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: typography.size.base * 1.5,
   },
   childrenList: {
     maxHeight: 300,
-    marginBottom: spacing["4"],
+    marginBottom: spacing['4'],
   },
   childrenListContent: {
-    gap: spacing["3"],
+    gap: spacing['3'],
   },
   childCard: {
     borderRadius: radius.xl,
-    overflow: "hidden",
+    overflow: 'hidden',
     ...shadows.md,
   },
   childCardGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing["4"],
-    gap: spacing["3"],
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing['4'],
+    gap: spacing['3'],
   },
   childInfo: {
     flex: 1,
   },
   childName: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
-    marginBottom: spacing["1"],
+    marginBottom: spacing['1'],
   },
   childAge: {
     fontSize: typography.size.sm,
@@ -217,32 +192,32 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   emptyState: {
-    alignItems: "center",
-    paddingVertical: spacing["8"],
+    alignItems: 'center',
+    paddingVertical: spacing['8'],
   },
   emptyText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
-    marginTop: spacing["4"],
-    marginBottom: spacing["2"],
+    marginTop: spacing['4'],
+    marginBottom: spacing['2'],
   },
   emptySubtext: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    textAlign: "center",
+    textAlign: 'center',
   },
   skipButton: {
     backgroundColor: Colors.neutral.lighter,
-    paddingVertical: spacing["4"],
-    paddingHorizontal: spacing["6"],
+    paddingVertical: spacing['4'],
+    paddingHorizontal: spacing['6'],
     borderRadius: radius.xl,
-    alignItems: "center",
-    marginTop: spacing["2"],
+    alignItems: 'center',
+    marginTop: spacing['2'],
   },
   skipText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
 });

@@ -34,7 +34,7 @@ import {
   AlertTriangle,
   Share2,
 } from 'lucide-react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 import { PROTOCOLS } from '@/constants/protocols';
 import { strings } from '@/i18n/strings';
@@ -1417,7 +1417,7 @@ const styles = StyleSheet.create({
   },
   premiumHeaderTitle: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.text.primary,
     letterSpacing: -0.5,
   },
@@ -1425,7 +1425,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.neutral.medium,
     marginTop: 4,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   headerBadges: {
     flexDirection: 'row',
@@ -1442,7 +1442,7 @@ const styles = StyleSheet.create({
   },
   headerBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.indigo,
   },
 
@@ -1474,18 +1474,18 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.text.primary,
   },
   statValueSmall: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
   },
   statLabel: {
     fontSize: 11,
     color: Colors.neutral.medium,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   statDivider: {
     width: 1,
@@ -1510,7 +1510,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
   },
   sectionAction: {
@@ -1523,7 +1523,7 @@ const styles = StyleSheet.create({
   sectionActionText: {
     fontSize: 13,
     color: Colors.secondary.indigo,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 
   // Test Carousel
@@ -1553,7 +1553,7 @@ const styles = StyleSheet.create({
   },
   testCardName: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
     marginBottom: 2,
   },
@@ -1593,7 +1593,7 @@ const styles = StyleSheet.create({
   },
   testCardBadgeText: {
     fontSize: 9,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   testCardBadgeTextActive: {
@@ -1638,7 +1638,7 @@ const styles = StyleSheet.create({
   },
   selectedTestName: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   selectedTestMeta: {
@@ -1657,7 +1657,7 @@ const styles = StyleSheet.create({
   },
   selectedTestButtonText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   selectedTestInstruction: {
@@ -1687,7 +1687,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: 8,
   },
@@ -1704,7 +1704,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
     width: 56,
     textAlign: 'center',
@@ -1712,7 +1712,7 @@ const styles = StyleSheet.create({
   ageUnit: {
     fontSize: 14,
     color: Colors.neutral.light,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   quoteInput: {
     backgroundColor: Colors.neutral.lightest,
@@ -1724,7 +1724,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text.primary,
     minHeight: 48,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
 
   // Image Upload Section
@@ -1735,7 +1735,7 @@ const styles = StyleSheet.create({
   },
   uploadProgressText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.indigo,
   },
   uploadProgressBar: {
@@ -1776,7 +1776,7 @@ const styles = StyleSheet.create({
   },
   imageCardNumberText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   imageCardMeta: {
@@ -1784,7 +1784,7 @@ const styles = StyleSheet.create({
   },
   imageCardLabel: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.text.primary,
   },
   imageCardOptional: {
@@ -1795,7 +1795,7 @@ const styles = StyleSheet.create({
   imageCardRequired: {
     fontSize: 11,
     color: Colors.secondary.indigo,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     marginTop: 2,
   },
   imageCardClear: {
@@ -1852,7 +1852,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.light,
     marginTop: 12,
     marginBottom: 16,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   uploadButtons: {
     flexDirection: 'row',
@@ -1874,12 +1874,12 @@ const styles = StyleSheet.create({
   },
   uploadButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.indigo,
   },
   uploadButtonTextDark: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 
@@ -1905,7 +1905,7 @@ const styles = StyleSheet.create({
   },
   noImageTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#166534',
     marginBottom: 6,
   },
@@ -1939,7 +1939,7 @@ const styles = StyleSheet.create({
   },
   analyzeButtonText: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   analyzeButtonShine: {
@@ -1968,7 +1968,7 @@ const styles = StyleSheet.create({
   },
   shareButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.indigo,
   },
   disclaimerCard: {
@@ -1987,7 +1987,7 @@ const styles = StyleSheet.create({
   },
   disclaimerTitle: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#92400E',
   },
   disclaimerText: {
@@ -2058,7 +2058,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.text.primary,
   },
   sheetSubtitle: {
@@ -2087,7 +2087,7 @@ const styles = StyleSheet.create({
   },
   sheetSectionTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
     marginBottom: 12,
   },
@@ -2105,7 +2105,7 @@ const styles = StyleSheet.create({
   materialChipText: {
     fontSize: 13,
     color: Colors.text.secondary,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   phaseCard: {
     backgroundColor: Colors.neutral.lightest,
@@ -2131,7 +2131,7 @@ const styles = StyleSheet.create({
   },
   phaseNumberText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   phaseMeta: {
@@ -2139,14 +2139,14 @@ const styles = StyleSheet.create({
   },
   phaseName: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
   },
   phaseDuration: {
     fontSize: 11,
     color: Colors.secondary.indigo,
     marginTop: 2,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   phaseInstruction: {
     fontSize: 13,
@@ -2250,7 +2250,7 @@ const styles = StyleSheet.create({
   },
   sheetSelectButtonText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

@@ -1668,13 +1668,13 @@ const styles = StyleSheet.create({
   },
   compactStatNumber: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.primary.sunset,
     letterSpacing: typography.letterSpacing.tight,
   },
   compactStatLabel: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
     marginTop: 2,
   },
@@ -1685,7 +1685,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
@@ -1694,7 +1694,7 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   section: {
     marginBottom: spacing['8'],
@@ -1705,7 +1705,7 @@ const styles = StyleSheet.create({
   },
   settingsGroupTitle: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.medium,
     textTransform: 'uppercase' as const,
     letterSpacing: typography.letterSpacing.wider,
@@ -1741,7 +1741,7 @@ const styles = StyleSheet.create({
   compactMenuLabel: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.darkest,
   },
   compactMenuValue: {
@@ -1761,7 +1761,7 @@ const styles = StyleSheet.create({
   logoutCompactText: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.semantic.error,
   },
   badge: {
@@ -1774,7 +1774,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: '#8B5A00',
     letterSpacing: typography.letterSpacing.wide,
   },
@@ -1786,7 +1786,7 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   // Modal Styles
   modalOverlay: {
@@ -1815,7 +1815,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     ...textShadows.sm,
   },
@@ -1849,7 +1849,7 @@ const styles = StyleSheet.create({
   },
   languageName: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   languageNameSecondary: {
@@ -1863,7 +1863,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: -spacing['2'],
   },
@@ -1889,7 +1889,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   // Settings Form Styles
@@ -1905,7 +1905,7 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     flex: 1,
   },
@@ -1925,7 +1925,7 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   // Theme List Styles
@@ -1956,7 +1956,7 @@ const styles = StyleSheet.create({
   },
   themeName: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   themeDescription: {
@@ -1980,7 +1980,7 @@ const styles = StyleSheet.create({
   },
   childrenTitle: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   childrenCount: {
@@ -1991,7 +1991,7 @@ const styles = StyleSheet.create({
   },
   childrenCountText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.lavender,
   },
   addChildButton: {
@@ -2020,7 +2020,7 @@ const styles = StyleSheet.create({
   },
   childName: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   childAge: {
@@ -2053,12 +2053,12 @@ const styles = StyleSheet.create({
   addChildPromptText: {
     fontSize: typography.size.md,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   addChildPromptHint: {
     fontSize: typography.size.xs,
     color: Colors.neutral.light,
-    fontWeight: typography.weight.regular,
+    fontFamily: typography.family.regular,
     marginTop: -spacing['2'],
   },
   childCardContent: {
@@ -2086,7 +2086,7 @@ const styles = StyleSheet.create({
   avatarSelectorText: {
     fontSize: typography.size.md,
     color: Colors.neutral.dark,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   // Web Refresh Button
   webRefreshButton: {
@@ -2105,7 +2105,7 @@ const styles = StyleSheet.create({
   },
   webRefreshText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.grass,
   },
 });

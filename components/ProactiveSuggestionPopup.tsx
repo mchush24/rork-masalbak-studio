@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   },
   openChatText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 

@@ -8,6 +8,7 @@
 import { Platform, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 /**
  * Standardized shadow presets
  */
@@ -102,75 +103,75 @@ export const TYPOGRAPHY = {
   display: {
     fontSize: 36,
     lineHeight: 44,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     letterSpacing: -0.5,
   },
   // Headings
   h1: {
     fontSize: 28,
     lineHeight: 36,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     letterSpacing: -0.3,
   },
   h2: {
     fontSize: 24,
     lineHeight: 32,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
     letterSpacing: -0.2,
   },
   h3: {
     fontSize: 20,
     lineHeight: 28,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
   },
   h4: {
     fontSize: 18,
     lineHeight: 26,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
   },
   // Body
   body: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '400' as const,
+    fontFamily: typography.family.regular,
   },
   bodyMedium: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '500' as const,
+    fontFamily: typography.family.medium,
   },
   bodySemibold: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
   },
   // Small
   small: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '400' as const,
+    fontFamily: typography.family.regular,
   },
   smallMedium: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '500' as const,
+    fontFamily: typography.family.medium,
   },
   // Caption
   caption: {
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '400' as const,
+    fontFamily: typography.family.regular,
   },
   captionMedium: {
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '500' as const,
+    fontFamily: typography.family.medium,
   },
   // Overline
   overline: {
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
     letterSpacing: 0.5,
     textTransform: 'uppercase' as const,
   },
@@ -211,7 +212,7 @@ export const LAYOUT = StyleSheet.create({
   flex1: { flex: 1 },
   flexRow: { flexDirection: 'row' },
   flexWrap: { flexWrap: 'wrap' },
-  
+
   // Alignment
   center: { justifyContent: 'center', alignItems: 'center' },
   centerX: { alignItems: 'center' },
@@ -219,7 +220,7 @@ export const LAYOUT = StyleSheet.create({
   spaceBetween: { justifyContent: 'space-between' },
   spaceAround: { justifyContent: 'space-around' },
   spaceEvenly: { justifyContent: 'space-evenly' },
-  
+
   // Fill
   fillParent: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   fillWidth: { width: '100%' },
@@ -316,10 +317,10 @@ export function responsive(
 ): number {
   const { min, max, scale = 1 } = options || {};
   let value = baseValue * scale;
-  
+
   if (min !== undefined && value < min) value = min;
   if (max !== undefined && value > max) value = max;
-  
+
   return value;
 }
 
@@ -331,7 +332,9 @@ export const colorUtils = {
    * Add opacity to a hex color
    */
   withOpacity: (hex: string, opacity: number): string => {
-    const alpha = Math.round(opacity * 255).toString(16).padStart(2, '0');
+    const alpha = Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, '0');
     return hex + alpha;
   },
 

@@ -31,7 +31,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Quote, Heart, Share2, ChevronDown, ChevronUp, Star } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { spacing, borderRadius, shadows } from '@/constants/design-system';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   featuredText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#D97706',
     textTransform: 'uppercase',
   },
@@ -266,14 +266,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#1F2937',
     marginBottom: spacing.sm,
     lineHeight: 24,
   },
   content: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.gray700,
     lineHeight: 24,
     fontStyle: 'italic',
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   expandText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#EC407A',
   },
   imagesContainer: {
@@ -320,12 +320,12 @@ const styles = StyleSheet.create({
   },
   authorLabel: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#6B7280',
   },
   childAge: {
     fontSize: 11,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.gray400,
     marginTop: 2,
   },
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
   },
   actionCount: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.gray400,
   },
   actionCountActive: {

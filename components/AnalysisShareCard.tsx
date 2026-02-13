@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: typography.size.xl,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: '#2E3F5C',
     letterSpacing: -0.5,
   },
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: typography.size.base,
     color: '#2E3F5C',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
     lineHeight: typography.size.base * 1.5,
   },
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontSize: typography.size.base,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: 'white',
     letterSpacing: -0.3,
   },

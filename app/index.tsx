@@ -31,6 +31,7 @@ import * as Haptics from 'expo-haptics';
 // Components
 import { Ioo as IooMascot } from '@/components/Ioo';
 import { Colors } from '@/constants/colors';
+import { typography } from '@/constants/design-system';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -499,9 +500,8 @@ const styles = StyleSheet.create({
   },
   brandText: {
     fontSize: 15,
-    fontWeight: '700',
-    fontFamily: 'Poppins_700Bold',
-    color: '#FFFFFF',
+    fontFamily: typography.family.bold,
+    color: Colors.neutral.white,
     letterSpacing: 6,
   },
 
@@ -517,8 +517,7 @@ const styles = StyleSheet.create({
   },
   taglineHighlight: {
     fontSize: isSmallDevice ? 40 : 52,
-    fontWeight: '800',
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     letterSpacing: -1,
     ...Platform.select({
@@ -542,8 +541,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: isSmallDevice ? 17 : 20,
-    fontWeight: '600',
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: typography.family.semibold,
     color: 'rgba(255, 255, 255, 0.95)',
     textAlign: 'center',
     lineHeight: isSmallDevice ? 26 : 30,
@@ -599,8 +597,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     fontSize: isSmallDevice ? 22 : 26,
-    fontWeight: '800',
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     letterSpacing: 1,
     ...Platform.select({
@@ -616,8 +613,7 @@ const styles = StyleSheet.create({
   },
   ctaSubtext: {
     fontSize: isSmallDevice ? 13 : 15,
-    fontWeight: '600',
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: typography.family.semibold,
     color: 'rgba(255, 255, 255, 0.95)',
     marginTop: 4,
     letterSpacing: 0.5,
@@ -632,9 +628,8 @@ const styles = StyleSheet.create({
   },
   secondaryText: {
     fontSize: isSmallDevice ? 16 : 18,
-    fontWeight: '700',
-    fontFamily: 'Poppins_700Bold',
-    color: '#FFFFFF',
+    fontFamily: typography.family.bold,
+    color: Colors.neutral.white,
     letterSpacing: 0.5,
   },
 
@@ -645,7 +640,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: typography.family.medium,
     color: 'rgba(255, 255, 255, 0.75)',
     letterSpacing: 1.5,
   },

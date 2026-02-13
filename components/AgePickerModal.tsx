@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   ageButtonText: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   ageButtonTextSelected: {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 });

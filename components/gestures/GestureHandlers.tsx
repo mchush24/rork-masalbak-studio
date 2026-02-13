@@ -26,7 +26,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { Heart, Trash2 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 import { Ioo } from '@/components/Ioo';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   menuItemTextDestructive: {

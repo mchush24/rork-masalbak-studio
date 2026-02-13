@@ -15,7 +15,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { Trash2, Edit2, Brain, Clock, Star } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 import { AvatarDisplay } from '@/components/AvatarPicker';
 
 export interface ChildProfile {
@@ -80,7 +87,12 @@ export function ChildProfileCard({
         {/* Selection Indicator */}
         {isSelected && (
           <View style={styles.selectionIndicator}>
-            <Star size={iconSizes.inline} color={Colors.secondary.sunshine} fill={Colors.secondary.sunshine} strokeWidth={iconStroke.standard} />
+            <Star
+              size={iconSizes.inline}
+              color={Colors.secondary.sunshine}
+              fill={Colors.secondary.sunshine}
+              strokeWidth={iconStroke.standard}
+            />
           </View>
         )}
 
@@ -97,18 +109,28 @@ export function ChildProfileCard({
 
         {/* Info Section */}
         <View style={styles.infoSection}>
-          <Text style={styles.name} numberOfLines={1}>{child.name}</Text>
+          <Text style={styles.name} numberOfLines={1}>
+            {child.name}
+          </Text>
 
           {/* Last Activity */}
           <View style={styles.activityRow}>
-            <Clock size={iconSizes.inline} color={Colors.neutral.medium} strokeWidth={iconStroke.thin} />
+            <Clock
+              size={iconSizes.inline}
+              color={Colors.neutral.medium}
+              strokeWidth={iconStroke.thin}
+            />
             <Text style={styles.activityText}>{formatLastActivity(child.lastActivity)}</Text>
           </View>
 
           {/* Mini Stats */}
           {child.analysisCount !== undefined && child.analysisCount > 0 && (
             <View style={styles.statsRow}>
-              <Brain size={iconSizes.inline} color={Colors.secondary.grass} strokeWidth={iconStroke.standard} />
+              <Brain
+                size={iconSizes.inline}
+                color={Colors.secondary.grass}
+                strokeWidth={iconStroke.standard}
+              />
               <Text style={styles.statsText}>{child.analysisCount} analiz</Text>
             </View>
           )}
@@ -122,7 +144,11 @@ export function ChildProfileCard({
               onPress={onEdit}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Edit2 size={iconSizes.inline} color={Colors.secondary.sky} strokeWidth={iconStroke.standard} />
+              <Edit2
+                size={iconSizes.inline}
+                color={Colors.secondary.sky}
+                strokeWidth={iconStroke.standard}
+              />
             </Pressable>
           )}
           {onDelete && (
@@ -131,7 +157,11 @@ export function ChildProfileCard({
               onPress={onDelete}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Trash2 size={iconSizes.inline} color={Colors.semantic.error} strokeWidth={iconStroke.standard} />
+              <Trash2
+                size={iconSizes.inline}
+                color={Colors.semantic.error}
+                strokeWidth={iconStroke.standard}
+              />
             </Pressable>
           )}
         </View>
@@ -188,7 +218,7 @@ const styles = StyleSheet.create({
   },
   ageText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   infoSection: {
@@ -197,7 +227,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   activityRow: {
@@ -217,7 +247,7 @@ const styles = StyleSheet.create({
   statsText: {
     fontSize: typography.size.xs,
     color: Colors.secondary.grass,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   actions: {
     flexDirection: 'column',

@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: spacing['2'],
     paddingHorizontal: spacing['1'],
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
     flex: 1,
   },

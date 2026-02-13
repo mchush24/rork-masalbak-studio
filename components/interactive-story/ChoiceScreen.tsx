@@ -13,6 +13,7 @@ import { ChoiceCard } from './ChoiceCard';
 import { ChoicePoint, InteractiveCharacter } from '@/types/InteractiveStory';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ChoiceScreenProps {
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
   progressText: {
     color: 'rgba(255,255,255,0.7)',
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   questionContainer: {
     alignItems: 'center',
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
   characterName: {
     color: Colors.neutral.white,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
   },
   questionBubble: {
     backgroundColor: 'rgba(255,255,255,0.95)',
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   questionText: {
     color: '#1E1B4B',
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
     lineHeight: 26,
   },

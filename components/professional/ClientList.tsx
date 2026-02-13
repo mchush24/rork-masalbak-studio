@@ -14,18 +14,9 @@ import {
   RefreshControl,
 } from 'react-native';
 import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
-import {
-  Search,
-  Plus,
-  Filter,
-  Users,
-  Archive,
-  SortAsc,
-  SortDesc,
-  X,
-} from 'lucide-react-native';
+import { Search, Plus, Filter, Users, Archive, SortAsc, SortDesc, X } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { ClientCard, Client } from './ClientCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -61,17 +52,17 @@ export function ClientList({
 
     // Filter by archived status
     if (!showArchived) {
-      result = result.filter((c) => !c.isArchived);
+      result = result.filter(c => !c.isArchived);
     }
 
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
-        (c) =>
+        c =>
           c.name.toLowerCase().includes(query) ||
           c.parentName?.toLowerCase().includes(query) ||
-          c.tags?.some((t) => t.toLowerCase().includes(query))
+          c.tags?.some(t => t.toLowerCase().includes(query))
       );
     }
 
@@ -84,20 +75,15 @@ export function ClientList({
           comparison = a.name.localeCompare(b.name);
           break;
         case 'lastAnalysis':
-          const dateA = a.lastAnalysisDate
-            ? new Date(a.lastAnalysisDate).getTime()
-            : 0;
-          const dateB = b.lastAnalysisDate
-            ? new Date(b.lastAnalysisDate).getTime()
-            : 0;
+          const dateA = a.lastAnalysisDate ? new Date(a.lastAnalysisDate).getTime() : 0;
+          const dateB = b.lastAnalysisDate ? new Date(b.lastAnalysisDate).getTime() : 0;
           comparison = dateA - dateB;
           break;
         case 'analysisCount':
           comparison = a.analysisCount - b.analysisCount;
           break;
         case 'createdAt':
-          comparison =
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
       }
 
@@ -107,12 +93,12 @@ export function ClientList({
     return result;
   }, [clients, searchQuery, showArchived, sortField, sortOrder]);
 
-  const activeClientCount = clients.filter((c) => !c.isArchived).length;
-  const archivedClientCount = clients.filter((c) => c.isArchived).length;
+  const activeClientCount = clients.filter(c => !c.isArchived).length;
+  const archivedClientCount = clients.filter(c => c.isArchived).length;
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
       setSortOrder('desc');
@@ -189,12 +175,7 @@ export function ClientList({
               size={14}
               color={showArchived ? Colors.neutral.white : Colors.neutral.medium}
             />
-            <Text
-              style={[
-                styles.filterChipText,
-                showArchived && styles.filterChipTextActive,
-              ]}
-            >
+            <Text style={[styles.filterChipText, showArchived && styles.filterChipTextActive]}>
               Arşivi Göster
             </Text>
           </Pressable>
@@ -206,13 +187,10 @@ export function ClientList({
               { field: 'lastAnalysis' as SortField, label: 'Son Analiz' },
               { field: 'name' as SortField, label: 'İsim' },
               { field: 'analysisCount' as SortField, label: 'Analiz Sayısı' },
-            ].map((option) => (
+            ].map(option => (
               <Pressable
                 key={option.field}
-                style={[
-                  styles.sortChip,
-                  sortField === option.field && styles.sortChipActive,
-                ]}
+                style={[styles.sortChip, sortField === option.field && styles.sortChipActive]}
                 onPress={() => toggleSort(option.field)}
               >
                 <Text
@@ -265,7 +243,7 @@ export function ClientList({
     <View style={styles.container}>
       <FlatList
         data={filteredClients}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderItem}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
@@ -319,7 +297,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   statLabel: {

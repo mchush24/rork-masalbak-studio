@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: typography.size.xl,
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: typography.family.semibold,
     color: 'white',
     textAlign: 'center',
     marginBottom: spacing.md,
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: typography.size.sm,
     color: 'white',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   // Tip styles
   tipContainer: {
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
   tipLabel: {
     fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     marginBottom: spacing.xs,
   },
   tipText: {

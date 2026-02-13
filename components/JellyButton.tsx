@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: RenkooColors.text.light,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     letterSpacing: typography.letterSpacing.wide,
     ...textShadows.sm,
   },

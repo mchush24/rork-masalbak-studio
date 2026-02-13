@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
   },
   typeBadgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Text
@@ -694,7 +694,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   secondaryButton: {
@@ -786,7 +786,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
   secondaryButtonTextProfessional: {
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   },
   supportButtonText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.secondary.sky,
   },
   supportButtonTextProfessional: {

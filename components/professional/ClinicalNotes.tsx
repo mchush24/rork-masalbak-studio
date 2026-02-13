@@ -20,7 +20,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { StickyNote, Save, Clock, Tag, ChevronDown, ChevronUp, Trash2 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useFeedback } from '@/hooks/useFeedback';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Note {
@@ -287,7 +287,12 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.neutral.dark, flex: 1 },
+  headerTitle: {
+    fontSize: 18,
+    fontFamily: typography.family.bold,
+    color: Colors.neutral.dark,
+    flex: 1,
+  },
   noteCount: {
     fontSize: 13,
     color: Colors.neutral.medium,
@@ -339,7 +344,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   saveButtonDisabled: { backgroundColor: Colors.neutral.light },
-  saveButtonText: { fontSize: 15, fontWeight: '600', color: Colors.neutral.white },
+  saveButtonText: {
+    fontSize: 15,
+    fontFamily: typography.family.semibold,
+    color: Colors.neutral.white,
+  },
   notesList: { flex: 1 },
   noteCard: {
     backgroundColor: Colors.neutral.lighter,
@@ -364,9 +373,18 @@ const styles = StyleSheet.create({
     backgroundColor: `${Colors.secondary.lavender}20`,
     borderRadius: 8,
   },
-  noteTagText: { fontSize: 10, color: Colors.secondary.lavender, fontWeight: '500' },
+  noteTagText: {
+    fontSize: 10,
+    color: Colors.secondary.lavender,
+    fontFamily: typography.family.medium,
+  },
   emptyState: { alignItems: 'center', paddingVertical: 40 },
-  emptyText: { fontSize: 15, fontWeight: '600', color: Colors.neutral.medium, marginTop: 12 },
+  emptyText: {
+    fontSize: 15,
+    fontFamily: typography.family.semibold,
+    color: Colors.neutral.medium,
+    marginTop: 12,
+  },
   emptySubtext: { fontSize: 13, color: Colors.neutral.light, marginTop: 4, textAlign: 'center' },
 });
 

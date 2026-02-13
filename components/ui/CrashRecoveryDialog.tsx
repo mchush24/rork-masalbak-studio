@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
   },
   sessionCardTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   sessionCardTitleProfessional: {
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   sessionValue: {
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     flex: 1,
   },
   sessionValueProfessional: {
@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
   },
   draftsTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.semantic.warning,
   },
   draftsTitleProfessional: {
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
   },
   recoverButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     flex: 1,
     textAlign: 'center',
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
   },
   dismissButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
   dismissButtonTextProfessional: {
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
   safetyText: {
     fontSize: typography.size.xs,
     color: Colors.secondary.grass,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });
 

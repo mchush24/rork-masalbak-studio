@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
 });

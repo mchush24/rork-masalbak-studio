@@ -21,7 +21,7 @@ import {
   UserX,
   RefreshCw,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface DataRetentionSettings {
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   },
   bannerTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#047857',
   },
   bannerSubtitle: {
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   refreshButton: {
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   },
   consentStatValue: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   consentStatLabel: {
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   },
   consentClientName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   consentType: {
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
   },
   consentStatusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   statusActiveText: {
     color: '#059669',
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   },
   seeMoreText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   settingRow: {
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   settingDescription: {
@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
   settingValueText: {
     fontSize: 14,
     color: ProfessionalColors.trust.primary,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -674,14 +674,14 @@ const styles = StyleSheet.create({
   },
   pickerOptionTextSelected: {
     color: ProfessionalColors.trust.primary,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   actionGroup: {
     marginTop: spacing['3'],
   },
   actionGroupTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     marginBottom: spacing['2'],
   },
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   actionButtonDescription: {
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
   },
   dangerButtonFullText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   securityInfo: {

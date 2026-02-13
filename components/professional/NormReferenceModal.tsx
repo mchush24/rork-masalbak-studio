@@ -7,7 +7,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Modal, Pressable, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { X, BookOpen, ChevronDown, ChevronUp, Info } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { height: _SCREEN_HEIGHT } = Dimensions.get('window');
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   headerSubtitle: {
@@ -735,13 +735,13 @@ const styles = StyleSheet.create({
   },
   tableName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   tableSubtest: {
     fontSize: 14,
     color: ProfessionalColors.trust.primary,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     marginTop: 2,
   },
   tableMetaRow: {
@@ -774,7 +774,7 @@ const styles = StyleSheet.create({
   },
   sourceLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
   },
   sourceValue: {
@@ -793,7 +793,7 @@ const styles = StyleSheet.create({
   },
   dataHeaderCell: {
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.secondary,
     textAlign: 'center',
   },
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dataCellMatching: {
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   ageCell: {
@@ -844,7 +844,7 @@ const styles = StyleSheet.create({
   },
   percentileTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: spacing['2'],
   },
@@ -860,7 +860,7 @@ const styles = StyleSheet.create({
   percentileHeaderCell: {
     flex: 1,
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.secondary,
     textAlign: 'center',
   },
@@ -888,7 +888,7 @@ const styles = StyleSheet.create({
   },
   legendTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: spacing['3'],
   },
@@ -905,7 +905,7 @@ const styles = StyleSheet.create({
   },
   legendKey: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.trust.primary,
     backgroundColor: ProfessionalColors.trust.background,
     paddingHorizontal: 6,

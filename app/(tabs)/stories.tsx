@@ -1393,7 +1393,9 @@ export default function StoriesScreen() {
                       >
                         <BookOpen
                           size={28}
-                          color={storyMode === 'normal' ? '#FFFFFF' : colors.neutral.medium}
+                          color={
+                            storyMode === 'normal' ? Colors.neutral.white : colors.neutral.medium
+                          }
                         />
                         <Text
                           style={[
@@ -1437,7 +1439,11 @@ export default function StoriesScreen() {
                         <View style={styles.interactiveBadgeContainer}>
                           <Gamepad2
                             size={28}
-                            color={storyMode === 'interactive' ? '#FFFFFF' : colors.neutral.medium}
+                            color={
+                              storyMode === 'interactive'
+                                ? Colors.neutral.white
+                                : colors.neutral.medium
+                            }
                           />
                           <View style={styles.newBadge}>
                             <Text style={styles.newBadgeText}>YENİ</Text>
@@ -1943,7 +1949,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
     ...textShadows.sm,
@@ -1952,7 +1958,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
     marginTop: spacing['1'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   scrollView: {
     flex: 1,
@@ -2003,7 +2009,7 @@ const styles = StyleSheet.create({
   },
   pdfBadgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   cardContent: {
@@ -2012,7 +2018,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     lineHeight:
       typography.lineHeight.snug * (isSmallDevice ? typography.size.lg : typography.size.xl),
@@ -2032,7 +2038,7 @@ const styles = StyleSheet.create({
   cardMetaText: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   featureBadge: {
     flexDirection: 'row',
@@ -2046,7 +2052,7 @@ const styles = StyleSheet.create({
   },
   featureBadgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.cards.story.icon,
   },
   loadingContainer: {
@@ -2059,7 +2065,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: typography.size.md,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   emptyContainer: {
     flex: 1,
@@ -2074,7 +2080,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     ...textShadows.sm,
@@ -2096,7 +2102,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   createButton: {
@@ -2130,7 +2136,7 @@ const styles = StyleSheet.create({
   },
   createFormTitle: {
     fontSize: isSmallDevice ? typography.size.lg : typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     ...textShadows.sm,
   },
@@ -2152,7 +2158,7 @@ const styles = StyleSheet.create({
   },
   childSelectorLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
@@ -2160,7 +2166,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xs,
     color: Colors.secondary.grass,
     marginTop: spacing['2'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   childSelectorWarning: {
     fontSize: typography.size.xs,
@@ -2177,7 +2183,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.8)',
     marginBottom: spacing['3'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   imagePreviewWrapper: {
     marginBottom: spacing['3'],
@@ -2202,7 +2208,7 @@ const styles = StyleSheet.create({
   imagePreviewBadgeText: {
     color: Colors.neutral.white,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   manualTitleSection: {
     marginTop: spacing['2'],
@@ -2211,7 +2217,7 @@ const styles = StyleSheet.create({
   manualTitleLabel: {
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     marginBottom: spacing['2'],
   },
   inputDisabledLook: {
@@ -2226,12 +2232,12 @@ const styles = StyleSheet.create({
   statusReady: {
     fontSize: typography.size.sm,
     color: Colors.secondary.mint,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   statusWaiting: {
     fontSize: typography.size.sm,
     color: Colors.secondary.sunshine,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   suggestionsTitleRow: {
     flexDirection: 'row',
@@ -2253,7 +2259,7 @@ const styles = StyleSheet.create({
   requiredBadgeText: {
     color: Colors.neutral.white,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   pickButton: {
     marginBottom: spacing['2'],
@@ -2276,7 +2282,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.neutral.white,
     fontSize: isSmallDevice ? typography.size.sm : typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     ...textShadows.sm,
   },
   progressContainer: {
@@ -2288,7 +2294,7 @@ const styles = StyleSheet.create({
   },
   progressTitle: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     ...textShadows.sm,
@@ -2306,7 +2312,7 @@ const styles = StyleSheet.create({
   },
   progressPercentage: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.cards.story.icon,
     textAlign: 'center',
   },
@@ -2314,7 +2320,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.dark,
     textAlign: 'center',
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   progressSteps: {
     flexDirection: 'row',
@@ -2351,11 +2357,11 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   stepLabelActive: {
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   progressFooter: {
     fontSize: typography.size.xs,
@@ -2382,7 +2388,7 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   suggestionsLoading: {
     flexDirection: 'row',
@@ -2396,7 +2402,7 @@ const styles = StyleSheet.create({
   suggestionsLoadingText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   suggestionsContainer: {
     gap: spacing['2'],
@@ -2405,7 +2411,7 @@ const styles = StyleSheet.create({
   suggestionsTitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.dark,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     marginBottom: spacing['1'],
   },
   suggestionCard: {
@@ -2433,17 +2439,17 @@ const styles = StyleSheet.create({
   suggestionTitle: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   suggestionTheme: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.regular,
+    fontFamily: typography.family.regular,
   },
   suggestionCheck: {
     fontSize: 24,
     color: Colors.cards.story.border,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   loadingAnimationContainer: {
     flex: 1,
@@ -2465,7 +2471,7 @@ const styles = StyleSheet.create({
   },
   storyLoadingTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     ...textShadows.lg,
   },
@@ -2486,7 +2492,7 @@ const styles = StyleSheet.create({
   },
   progressPercentageText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     textAlign: 'center',
   },
@@ -2525,11 +2531,11 @@ const styles = StyleSheet.create({
   stepName: {
     fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.6)',
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   stepNameActive: {
     color: Colors.neutral.white,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   stepNameCompleted: {
     color: 'rgba(255, 255, 255, 0.8)',
@@ -2549,7 +2555,7 @@ const styles = StyleSheet.create({
   },
   estimatedTimeValue: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   funTipContainer: {
@@ -2601,7 +2607,7 @@ const styles = StyleSheet.create({
   analysisStepText: {
     fontSize: typography.size.xs,
     color: Colors.neutral.dark,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   analysisStepLine: {
     width: 30,
@@ -2611,7 +2617,7 @@ const styles = StyleSheet.create({
   },
   analysisLoadingTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginTop: spacing['2'],
@@ -2653,7 +2659,7 @@ const styles = StyleSheet.create({
   buttonTextLarge: {
     color: Colors.neutral.white,
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     ...textShadows.md,
   },
   // Content Warning Modal Styles
@@ -2684,7 +2690,7 @@ const styles = StyleSheet.create({
   },
   warningTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['3'],
@@ -2708,7 +2714,7 @@ const styles = StyleSheet.create({
   warningDetailText: {
     fontSize: typography.size.md,
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     lineHeight: 20,
   },
   warningInfoBox: {
@@ -2740,7 +2746,7 @@ const styles = StyleSheet.create({
   warningButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   // Concern type badge
   concernTypeBadge: {
@@ -2757,12 +2763,12 @@ const styles = StyleSheet.create({
   },
   concernTypeLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   // Warning detail title
   warningDetailTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
@@ -2778,7 +2784,7 @@ const styles = StyleSheet.create({
   },
   therapeuticTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.violet,
     marginBottom: spacing['2'],
   },
@@ -2807,7 +2813,7 @@ const styles = StyleSheet.create({
   },
   storyModeSectionTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: spacing['3'],
   },
@@ -2834,7 +2840,7 @@ const styles = StyleSheet.create({
   },
   storyModeOptionTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     textAlign: 'center',
   },
@@ -2863,7 +2869,7 @@ const styles = StyleSheet.create({
   },
   newBadgeText: {
     fontSize: 8,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   // Interactive Info Card
@@ -2886,7 +2892,7 @@ const styles = StyleSheet.create({
   },
   interactiveInfoTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: '#9333EA',
   },
   interactiveInfoFeatures: {

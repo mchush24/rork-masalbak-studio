@@ -29,7 +29,7 @@ import { useChild } from '@/lib/contexts/ChildContext';
 import type { Child } from '@/lib/hooks/useAuth';
 import { useRouter, usePathname, Href } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
+import { ProactiveSuggestionPopup as _ProactiveSuggestionPopup } from './ProactiveSuggestionPopup';
 import { QuickReplyChips, QUICK_REPLIES, QuickReply } from './chat/QuickReplyChips';
 import { TypingBubble } from './chat/TypingIndicator';
 import { AnimatedMessage } from './chat/AnimatedMessage';
@@ -280,12 +280,12 @@ export function ChatBot() {
   }, [isOpen, pendingQuestion, messages.length]);
 
   // Proactive suggestion handlers
-  const handleProactiveQuestionPress = (question: string) => {
+  const _handleProactiveQuestionPress = (question: string) => {
     setPendingQuestion(question);
     setIsOpen(true);
   };
 
-  const handleProactiveOpenChat = () => {
+  const _handleProactiveOpenChat = () => {
     setIsOpen(true);
   };
 
@@ -759,17 +759,8 @@ export function ChatBot() {
         )}
       </Animated.View>
 
-      {/* Proactive Suggestion Popup */}
-      {!isOpen && (
-        <ProactiveSuggestionPopup
-          screen={currentScreen}
-          onQuestionPress={handleProactiveQuestionPress}
-          onOpenChat={handleProactiveOpenChat}
-          position="bottom-right"
-          delay={2000}
-          idleTimeout={45000}
-        />
-      )}
+      {/* Proactive Suggestion Popup - Disabled: too intrusive on home screen */}
+      {/* TODO: Re-enable with smarter triggers (e.g., only on analysis screens after 60s idle) */}
 
       {/* Chat Modal */}
       <Modal visible={isOpen} animationType="slide" transparent={true} onRequestClose={handleClose}>
@@ -796,7 +787,10 @@ export function ChatBot() {
             ]}
           >
             {/* Header */}
-            <LinearGradient colors={[Colors.secondary.violet, Colors.secondary.lavender]} style={styles.header}>
+            <LinearGradient
+              colors={[Colors.secondary.violet, Colors.secondary.lavender]}
+              style={styles.header}
+            >
               <View style={styles.headerContent}>
                 <View style={styles.headerLeft}>
                   <View style={styles.botAvatar}>
@@ -1129,7 +1123,7 @@ const styles = StyleSheet.create({
   },
   childBadgeText: {
     fontSize: 11,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 
@@ -1173,7 +1167,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   headerSubtitle: {
@@ -1297,7 +1291,7 @@ const styles = StyleSheet.create({
   actionLabel: {
     flex: 1,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.secondary.violet,
   },
 
@@ -1328,7 +1322,7 @@ const styles = StyleSheet.create({
   },
   faqTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   faqCategory: {
@@ -1336,7 +1330,7 @@ const styles = StyleSheet.create({
   },
   faqCategoryTitle: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
     marginBottom: spacing['2'],
   },
@@ -1417,13 +1411,13 @@ const styles = StyleSheet.create({
   },
   childAvatarText: {
     fontSize: 14,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.violet,
   },
   childName: {
     flex: 1,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.white,
   },
   childDropdown: {
@@ -1457,7 +1451,7 @@ const styles = StyleSheet.create({
   },
   childOptionAvatarText: {
     fontSize: 16,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   childOptionInfo: {
@@ -1465,7 +1459,7 @@ const styles = StyleSheet.create({
   },
   childOptionName: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   childOptionNameSelected: {
@@ -1486,7 +1480,7 @@ const styles = StyleSheet.create({
   checkmarkText: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: 'bold' as const,
+    fontFamily: typography.family.bold,
   },
 });
 

@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   closeButton: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   question: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
     lineHeight: 24,
   },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   actions: {
     gap: spacing['2'],
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   answerButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   nextButton: {

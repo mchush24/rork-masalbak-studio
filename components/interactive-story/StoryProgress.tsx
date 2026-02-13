@@ -9,6 +9,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 interface StoryProgressProps {
   currentChoice: number;
   totalChoices: number;
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   pageText: {
     fontSize: 12,
     color: '#6B7280',
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     minWidth: 40,
     textAlign: 'right',
   },

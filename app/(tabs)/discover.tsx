@@ -36,7 +36,7 @@ import { useRouter } from 'expo-router';
 import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { spacing, radius } from '@/constants/design-system';
+import { spacing, radius, typography } from '@/constants/design-system';
 import { IooEmptyState } from '@/components/IooEmptyState';
 import {
   ExpertTipCard,
@@ -349,7 +349,11 @@ export default function DiscoverScreen() {
 
           {/* Activity Suggestions */}
           <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.section}>
-            <SectionHeader title="Bugünkü Aktiviteler" icon={Sparkles} iconColor="#66BB6A" />
+            <SectionHeader
+              title="Bugünkü Aktiviteler"
+              icon={Sparkles}
+              iconColor={Colors.secondary.grass}
+            />
 
             {feedData?.suggestions && feedData.suggestions.length > 0 ? (
               <ScrollView
@@ -375,7 +379,7 @@ export default function DiscoverScreen() {
             <SectionHeader
               title="Topluluk Galerisi"
               icon={ImageIcon}
-              iconColor="#AB47BC"
+              iconColor={Colors.secondary.violet}
               onSeeAll={() => {
                 if (Platform.OS === 'web') {
                   alert('Yakında tüm galeri görüntülenebilecek');
@@ -428,7 +432,7 @@ export default function DiscoverScreen() {
             <SectionHeader
               title="Başarı Hikayeleri"
               icon={Heart}
-              iconColor="#EC407A"
+              iconColor={Colors.emotion.love}
               onSeeAll={() => {
                 if (Platform.OS === 'web') {
                   alert('Yakında tüm hikayeler görüntülenebilecek');
@@ -498,7 +502,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(139, 92, 246, 0.1)',
+    borderBottomColor: Colors.secondary.lavender + '1A',
   },
   headerTitle: {
     flexDirection: 'row',
@@ -507,15 +511,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
-    fontWeight: '800',
-    color: '#1F2937',
+    fontFamily: typography.family.extrabold,
+    color: Colors.neutral.darkest,
     letterSpacing: -0.5,
   },
   filterButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(107, 114, 128, 0.1)',
+    backgroundColor: Colors.neutral.medium + '1A',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -549,8 +553,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontFamily: typography.family.bold,
+    color: Colors.neutral.darkest,
   },
   seeAllButton: {
     flexDirection: 'row',
@@ -561,21 +565,21 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.violet,
   },
   tipPlaceholder: {
     marginHorizontal: spacing.md,
     padding: spacing.xl,
-    backgroundColor: 'rgba(255, 167, 38, 0.1)',
+    backgroundColor: Colors.secondary.sunshine + '1A',
     borderRadius: radius.xl,
     alignItems: 'center',
     gap: spacing.sm,
   },
   tipPlaceholderText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#F57C00',
+    fontFamily: typography.family.medium,
+    color: Colors.secondary.sunshine,
   },
   activitiesContainer: {
     paddingHorizontal: spacing.md,
@@ -594,14 +598,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: spacing.md,
     marginBottom: spacing.sm,
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    backgroundColor: Colors.secondary.lavender + '1A',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
   },
   showcaseBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.violet,
   },
   emptyState: {
@@ -612,7 +616,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.gray400,
   },
   bottomPadding: {

@@ -28,6 +28,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Crown, Sparkles } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 interface StaggeredEntranceProps {
   children: React.ReactNode;
   index: number;
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
   },
   newBadgeText: {
     fontSize: 9,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     letterSpacing: 0.5,
   },
@@ -468,7 +469,7 @@ const styles = StyleSheet.create({
   },
   premiumText: {
     fontSize: 9,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     letterSpacing: 0.5,
   },

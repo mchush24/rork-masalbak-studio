@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: Colors.neutral.white,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   buttonDisabled: {
     opacity: buttonStyles.disabledOpacity,
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['0.5'] || 2,
   },
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
 
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
     marginBottom: 6,
   },
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
   },
   exportOptionText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
 

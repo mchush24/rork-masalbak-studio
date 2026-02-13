@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { createTextShadow, shadows } from '@/constants/design-system';
+import { createTextShadow, shadows, typography } from '@/constants/design-system';
 import { useState, useRef, useEffect } from 'react';
 import { Image } from 'expo-image';
 import { ChevronLeft, ChevronRight, Sparkles, BookOpen, Star } from 'lucide-react-native';
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 20,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     letterSpacing: -0.2,
@@ -593,13 +593,13 @@ const styles = StyleSheet.create({
   },
   loadingStepText: {
     fontSize: 16,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     flex: 1,
   },
   loadingMainText: {
     fontSize: 22,
-    fontWeight: '800' as const,
+    fontFamily: typography.family.extrabold,
     color: '#9333EA',
     textAlign: 'center',
     marginTop: 16,
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
   storyTitle: {
     flex: 1,
     fontSize: 24,
-    fontWeight: '800' as const,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: -0.3,
   },
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
   pageNumberText: {
     fontSize: 12,
-    fontWeight: '700' as const,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     letterSpacing: 0.5,
   },
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
   },
   dropCap: {
     fontSize: 48,
-    fontWeight: '800' as const,
+    fontFamily: typography.family.extrabold,
     color: '#9333EA',
     lineHeight: 52,
     marginRight: 4,
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     color: '#2D1B4E',
     textAlign: 'left',
-    fontWeight: '500' as const,
+    fontFamily: typography.family.medium,
     letterSpacing: 0.2,
   },
   // Decorative Elements

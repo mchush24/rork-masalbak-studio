@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.dark,
   },
   categoryNameActive: {
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
 
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   previewPlaceholder: {
     fontSize: 24,
     color: Colors.neutral.light,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
   },
 
   // Placed sticker
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   deleteX: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     lineHeight: 20,
   },
 
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   },
   sizeButtonText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     lineHeight: 22,
   },

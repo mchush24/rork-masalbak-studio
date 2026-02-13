@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { ConfettiAnimation, SuccessAnimation, SparkleAnimation } from './MicroInteractions';
 import { RenkooColors, Colors } from '@/constants/colors';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 
 export type CelebrationType =
   | 'analysis_complete'
@@ -211,14 +211,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.text.primary,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.text.secondary,
     textAlign: 'center',
     marginBottom: 24,

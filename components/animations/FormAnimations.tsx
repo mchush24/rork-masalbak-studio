@@ -37,7 +37,7 @@ import Animated, {
 import { Check, AlertCircle, Eye, EyeOff } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 
 const _AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     left: 16,
     top: 16,
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     backgroundColor: Colors.neutral.white,
     paddingHorizontal: 4,
     zIndex: 1,
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   },
   strengthLabel: {
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
     minWidth: 40,
   },
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
   // Character Counter
   characterCounter: {
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     textAlign: 'right',
   },
 
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   stepLineContainer: {

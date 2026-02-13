@@ -25,7 +25,7 @@ import { X, Sparkles, Star, Flame } from 'lucide-react-native';
 import { Ioo } from './Ioo';
 import { IooEmotionPicker, Emotion } from './IooEmotionPicker';
 import { useEmotionTracker } from '@/lib/hooks/useEmotionTracker';
-import { zIndex } from '@/constants/design-system';
+import { zIndex, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   },
   greetingTitle: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: '#1F2937',
     marginBottom: 4,
   },
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
   streakText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.coral,
   },
   startButton: {
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   buttonPressed: {
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   },
   completeTitle: {
     fontSize: 32,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: '#1F2937',
     marginBottom: 8,
   },
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   },
   xpText: {
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.semantic.amber,
   },
   streakUpdate: {
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   streakUpdateText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.coral,
   },
   doneButton: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   },
   doneButtonText: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

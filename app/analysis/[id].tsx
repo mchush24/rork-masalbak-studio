@@ -648,7 +648,9 @@ export default function AnalysisResultScreen() {
             style={[styles.chatButton, shadows.lg, { backgroundColor: colors.secondary.lavender }]}
           >
             <MessageCircle size={20} color="#FFFFFF" strokeWidth={2} />
-            <Text style={[styles.chatButtonText, { color: '#FFFFFF' }]}>Ioo ile Konuş</Text>
+            <Text style={[styles.chatButtonText, { color: Colors.neutral.white }]}>
+              Ioo ile Konuş
+            </Text>
           </Pressable>
         </View>
 
@@ -693,7 +695,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: typography.size.lg,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: 'white',
     letterSpacing: -0.5,
   },
@@ -709,7 +711,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: 'white',
     marginBottom: spacing.xs,
     ...textShadows.lg,
@@ -717,12 +719,12 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.6)',
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   taskTypeText: {
     fontSize: typography.size.xs,
     color: 'rgba(255, 255, 255, 0.5)',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     marginTop: spacing.xs,
   },
   loadingContainer: {
@@ -734,7 +736,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: typography.size.base,
     color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   errorContainer: {
     flex: 1,
@@ -746,7 +748,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: typography.size.lg,
     color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
   },
   backToHomeButton: {
@@ -757,7 +759,7 @@ const styles = StyleSheet.create({
   },
   backToHomeText: {
     fontSize: typography.size.base,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#2E3F5C',
   },
   stepText: {
@@ -778,7 +780,7 @@ const styles = StyleSheet.create({
   summaryText: {
     fontSize: typography.size.md,
     color: 'white',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
     lineHeight: typography.size.md * 1.4,
   },
@@ -788,7 +790,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.size.base,
     color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     marginBottom: spacing.md,
   },
   indicatorItem: {
@@ -803,12 +805,12 @@ const styles = StyleSheet.create({
   indicatorLabel: {
     fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   indicatorValue: {
     fontSize: typography.size.sm,
     color: 'white',
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   progressBarContainer: {
     height: 8,
@@ -836,7 +838,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: typography.size.base,
     color: 'white',
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     marginLeft: spacing.sm,
   },
   insightItem: {
@@ -857,7 +859,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.85)',
     lineHeight: typography.size.sm * 1.5,
-    fontWeight: '400',
+    fontFamily: typography.family.regular,
   },
   bottomActions: {
     paddingVertical: spacing.md,
@@ -900,7 +902,7 @@ const styles = StyleSheet.create({
   },
   chatButtonText: {
     fontSize: typography.size.base,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     letterSpacing: -0.3,
   },
@@ -914,7 +916,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontSize: typography.size.base,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#2E3F5C',
     letterSpacing: -0.3,
   },
@@ -924,7 +926,7 @@ const styles = StyleSheet.create({
   },
   shareCardTitle: {
     fontSize: typography.size.lg,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: 'white',
     textAlign: 'center',
     marginBottom: spacing.md,

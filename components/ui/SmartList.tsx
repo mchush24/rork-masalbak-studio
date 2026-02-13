@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   loadMoreText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   loadMoreHint: {
     fontSize: typography.size.xs,
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     textTransform: 'uppercase',
     letterSpacing: 0.5,

@@ -228,14 +228,14 @@ const styles = StyleSheet.create({
   stepLabel: {
     marginTop: spacing.xs,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
   },
   stepLabelCompact: {
     fontSize: 10,
   },
   stepLabelActive: {
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   connectorContainer: {
     flex: 1,

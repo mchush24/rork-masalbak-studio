@@ -19,6 +19,7 @@ import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 export interface GradientConfig {
   colors: [string, string];
   direction: 'horizontal' | 'vertical' | 'diagonal-right' | 'diagonal-left';
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#333',
     marginBottom: 4,
   },
@@ -320,7 +321,7 @@ const styles = StyleSheet.create({
   },
   presetName: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#333',
     textAlign: 'center',
     paddingVertical: 6,
@@ -340,7 +341,7 @@ const styles = StyleSheet.create({
   selectedCheck: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   customSection: {
     backgroundColor: '#F8F9FA',
@@ -350,7 +351,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#333',
     marginBottom: 12,
   },
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
   },
   directionLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#666',
     marginBottom: 8,
   },
@@ -433,7 +434,7 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   helperText: {

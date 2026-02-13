@@ -27,7 +27,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Animated, Dimensions, Modal } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { shadows, textShadows } from '@/constants/design-system';
+import { shadows, textShadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   badgeMessage: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     textAlign: 'center',
     marginBottom: 8,
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   },
   badgeSubtitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
   },
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   },
   successText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

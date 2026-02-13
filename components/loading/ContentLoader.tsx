@@ -31,6 +31,7 @@ import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
 import { SkeletonCard, SkeletonList, SkeletonProfile, SkeletonChart } from './SkeletonLoader';
 
+import { typography } from '@/constants/design-system';
 type LoadingState = 'loading' | 'success' | 'error' | 'empty' | 'offline';
 type ContentType = 'list' | 'card' | 'profile' | 'chart' | 'custom';
 
@@ -388,7 +389,7 @@ const styles = StyleSheet.create({
   },
   stateTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     marginBottom: 8,
   },
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   offlineRetryButton: {

@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { User, ChevronRight, FileText, Calendar, Archive } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   info: {
     flex: 1,
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   archivedBadge: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 10,
     color: Colors.secondary.lavender,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   tagMore: {
     backgroundColor: Colors.neutral.lighter,

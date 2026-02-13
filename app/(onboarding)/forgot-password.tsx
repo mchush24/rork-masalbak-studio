@@ -261,7 +261,13 @@ export default function ForgotPasswordScreen() {
               }}
             >
               <ArrowLeft size={20} color="white" />
-              <Text style={{ color: 'white', fontSize: typography.size.sm, fontWeight: '600' }}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: typography.size.sm,
+                  fontFamily: typography.family.semibold,
+                }}
+              >
                 Geri
               </Text>
             </Pressable>
@@ -300,7 +306,7 @@ export default function ForgotPasswordScreen() {
                 <Text
                   style={{
                     fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-                    fontWeight: '800',
+                    fontFamily: typography.family.extrabold,
                     color: 'white',
                     marginBottom: spacing.xs,
                     textAlign: 'center',
@@ -315,7 +321,7 @@ export default function ForgotPasswordScreen() {
                     color: 'rgba(255,255,255,0.95)',
                     marginBottom: spacing.xl,
                     textAlign: 'center',
-                    fontWeight: '500',
+                    fontFamily: typography.family.medium,
                     lineHeight: 22,
                   }}
                 >
@@ -365,7 +371,7 @@ export default function ForgotPasswordScreen() {
                         fontSize: typography.size.md,
                         color: colors.text.primary,
                         paddingVertical: spacing.md,
-                        fontWeight: '500',
+                        fontFamily: typography.family.medium,
                       }}
                     />
                   </View>
@@ -393,7 +399,7 @@ export default function ForgotPasswordScreen() {
                     <Text
                       style={{
                         fontSize: typography.size.md,
-                        fontWeight: 'bold',
+                        fontFamily: typography.family.bold,
                         color: colors.secondary.indigo,
                       }}
                     >
@@ -404,7 +410,7 @@ export default function ForgotPasswordScreen() {
                       <Text
                         style={{
                           fontSize: typography.size.md,
-                          fontWeight: '700',
+                          fontFamily: typography.family.bold,
                           color: email ? colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                         }}
                       >
@@ -441,7 +447,7 @@ export default function ForgotPasswordScreen() {
                 <Text
                   style={{
                     fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-                    fontWeight: '800',
+                    fontFamily: typography.family.extrabold,
                     color: 'white',
                     marginBottom: spacing.xs,
                     textAlign: 'center',
@@ -456,7 +462,7 @@ export default function ForgotPasswordScreen() {
                     color: 'rgba(255,255,255,0.95)',
                     marginBottom: spacing.sm,
                     textAlign: 'center',
-                    fontWeight: '500',
+                    fontFamily: typography.family.medium,
                   }}
                 >
                   6 haneli kodu girin
@@ -477,7 +483,13 @@ export default function ForgotPasswordScreen() {
                   }}
                 >
                   <Mail size={14} color="white" />
-                  <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
+                  <Text
+                    style={{
+                      fontSize: typography.size.sm,
+                      color: 'white',
+                      fontFamily: typography.family.semibold,
+                    }}
+                  >
                     {email}
                   </Text>
                 </View>
@@ -504,7 +516,7 @@ export default function ForgotPasswordScreen() {
                     autoFocus
                     style={{
                       fontSize: typography.size.hero,
-                      fontWeight: '700',
+                      fontFamily: typography.family.bold,
                       color: colors.secondary.indigo,
                       padding: spacing.sm,
                       textAlign: 'center',
@@ -565,7 +577,7 @@ export default function ForgotPasswordScreen() {
                       style={{
                         fontSize: typography.size.sm,
                         color: 'white',
-                        fontWeight: '600',
+                        fontFamily: typography.family.semibold,
                       }}
                     >
                       Kod 10 dakika geçerlidir
@@ -597,7 +609,7 @@ export default function ForgotPasswordScreen() {
                   <Text
                     style={{
                       fontSize: typography.size.md,
-                      fontWeight: '700',
+                      fontFamily: typography.family.bold,
                       color: code.length === 6 ? colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                     }}
                   >
@@ -634,7 +646,7 @@ export default function ForgotPasswordScreen() {
                 <Text
                   style={{
                     fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-                    fontWeight: '800',
+                    fontFamily: typography.family.extrabold,
                     color: 'white',
                     marginBottom: spacing.xs,
                     textAlign: 'center',
@@ -649,7 +661,7 @@ export default function ForgotPasswordScreen() {
                     color: 'rgba(255,255,255,0.95)',
                     marginBottom: spacing.xl,
                     textAlign: 'center',
-                    fontWeight: '500',
+                    fontFamily: typography.family.medium,
                     lineHeight: 22,
                   }}
                 >
@@ -698,7 +710,7 @@ export default function ForgotPasswordScreen() {
                         fontSize: typography.size.md,
                         color: colors.text.primary,
                         paddingVertical: spacing.md,
-                        fontWeight: '500',
+                        fontFamily: typography.family.medium,
                       }}
                     />
                     <Pressable
@@ -737,7 +749,7 @@ export default function ForgotPasswordScreen() {
                       style={{
                         fontSize: typography.size.xs,
                         color: strength.color,
-                        fontWeight: '600',
+                        fontFamily: typography.family.semibold,
                         textAlign: 'right',
                       }}
                     >
@@ -794,7 +806,7 @@ export default function ForgotPasswordScreen() {
                         fontSize: typography.size.md,
                         color: colors.text.primary,
                         paddingVertical: spacing.md,
-                        fontWeight: '500',
+                        fontFamily: typography.family.medium,
                       }}
                     />
                     <Pressable
@@ -834,7 +846,7 @@ export default function ForgotPasswordScreen() {
                     <Text
                       style={{
                         fontSize: typography.size.md,
-                        fontWeight: 'bold',
+                        fontFamily: typography.family.bold,
                         color: colors.secondary.indigo,
                       }}
                     >
@@ -845,7 +857,7 @@ export default function ForgotPasswordScreen() {
                       <Text
                         style={{
                           fontSize: typography.size.md,
-                          fontWeight: '700',
+                          fontFamily: typography.family.bold,
                           color:
                             newPassword && confirmPassword
                               ? colors.secondary.indigo

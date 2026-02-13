@@ -92,13 +92,13 @@ export const BadgeCard = memo(function BadgeCard({
               width: cardSize - 10,
               height: cardSize - 10,
               borderRadius: (cardSize - 10) / 2,
-              backgroundColor: 'rgba(232, 213, 255, 0.15)',
-              borderColor: 'rgba(185, 142, 255, 0.2)',
+              backgroundColor: Colors.secondary.lavender + '18',
+              borderColor: Colors.secondary.lavender + '35',
             },
           ]}
         >
           <View style={styles.lockedOverlay}>
-            <Text style={[styles.icon, styles.lockedIcon, { fontSize: iconSize * 0.7 }]}>
+            <Text style={[styles.icon, styles.lockedIcon, { fontSize: iconSize * 0.8 }]}>
               {icon}
             </Text>
             <View style={styles.lockBadge}>
@@ -164,8 +164,8 @@ export const CompactBadge = memo(function CompactBadge({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: isUnlocked ? rarityConfig.bgColor : 'rgba(232, 213, 255, 0.15)',
-          borderColor: isUnlocked ? rarityConfig.color : 'rgba(185, 142, 255, 0.2)',
+          backgroundColor: isUnlocked ? rarityConfig.bgColor : Colors.secondary.lavender + '18',
+          borderColor: isUnlocked ? rarityConfig.color : Colors.secondary.lavender + '35',
         },
       ]}
     >
@@ -202,10 +202,10 @@ const styles = StyleSheet.create({
   lockedOverlay: {
     justifyContent: 'center',
     alignItems: 'center',
-    opacity: 0.5,
+    opacity: 0.65,
   },
   lockedIcon: {
-    opacity: 0.6,
+    opacity: 0.7,
   },
   lockBadge: {
     position: 'absolute',
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
   },
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   rarityLabel: {
     fontSize: 10,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     marginTop: 2,
   },
   progressContainer: {
@@ -253,13 +253,13 @@ const styles = StyleSheet.create({
   progressBar: {
     width: '100%',
     height: 4,
-    backgroundColor: 'rgba(185, 142, 255, 0.15)',
+    backgroundColor: Colors.secondary.lavender + '25',
     borderRadius: 2,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: Colors.primary.sunset,
+    backgroundColor: Colors.secondary.lavender,
     borderRadius: 2,
   },
   progressText: {

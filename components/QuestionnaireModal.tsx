@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
     marginBottom: spacing['1.5'],
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   timeframeLabel: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['4'],
   },
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.darkest,
     lineHeight: typography.lineHeightPx.base,
     marginBottom: spacing['3'],
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   answersRow: {
     flexDirection: 'row',
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   },
   answerText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   answerTextSelected: {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   completeButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     letterSpacing: typography.letterSpacing.normal,
   },

@@ -92,7 +92,7 @@ export default function SetPasswordScreen() {
         <Text
           style={{
             fontSize: typography.size['2xl'],
-            fontWeight: '700',
+            fontFamily: typography.family.bold,
             color: 'white',
             marginBottom: spacing.sm,
             textAlign: 'center',
@@ -107,7 +107,7 @@ export default function SetPasswordScreen() {
             color: 'rgba(255,255,255,0.9)',
             marginBottom: spacing.xl,
             textAlign: 'center',
-            fontWeight: '500',
+            fontFamily: typography.family.medium,
           }}
         >
           Hesabınızı güvence altına almak için bir şifre belirleyin
@@ -136,7 +136,7 @@ export default function SetPasswordScreen() {
               fontSize: typography.size.base,
               color: colors.text.primary,
               padding: spacing.sm,
-              fontWeight: '500',
+              fontFamily: typography.family.medium,
             }}
           />
           <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
@@ -171,7 +171,7 @@ export default function SetPasswordScreen() {
               fontSize: typography.size.base,
               color: colors.text.primary,
               padding: spacing.sm,
-              fontWeight: '500',
+              fontFamily: typography.family.medium,
             }}
           />
           <Pressable
@@ -208,7 +208,7 @@ export default function SetPasswordScreen() {
             <Text
               style={{
                 fontSize: typography.size.md,
-                fontWeight: 'bold',
+                fontFamily: typography.family.bold,
                 color:
                   password && confirmPassword ? colors.primary.sunset : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',

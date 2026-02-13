@@ -19,7 +19,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Text, Animated } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Canvas, Circle, Group } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Colors } from '@/constants/colors';
@@ -303,8 +303,12 @@ export function ColorWheel({
 
       {/* Current color display */}
       <View style={styles.colorDisplay}>
-        <View style={[styles.colorBox, { backgroundColor: selectedColor || Colors.secondary.coral }]} />
-        <Text style={styles.colorText}>{selectedColor?.toUpperCase() || Colors.secondary.coral}</Text>
+        <View
+          style={[styles.colorBox, { backgroundColor: selectedColor || Colors.secondary.coral }]}
+        />
+        <Text style={styles.colorText}>
+          {selectedColor?.toUpperCase() || Colors.secondary.coral}
+        </Text>
       </View>
 
       {/* Helper text */}
@@ -322,7 +326,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   wheelContainer: {
@@ -358,7 +362,6 @@ const styles = StyleSheet.create({
   },
   colorText: {
     fontSize: 14,
-    fontWeight: '600',
     color: Colors.neutral.darkest,
     fontFamily: 'monospace',
   },

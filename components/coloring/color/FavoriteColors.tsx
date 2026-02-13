@@ -22,6 +22,7 @@ import { View, StyleSheet, Text, Pressable, Animated, Alert } from 'react-native
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 const STORAGE_KEY = '@renkioo_favorite_colors';
 const MAX_FAVORITES = 10;
 
@@ -30,10 +31,7 @@ export interface FavoriteColorsProps {
   onColorSelect: (color: string) => void;
 }
 
-export function FavoriteColors({
-  currentColor,
-  onColorSelect,
-}: FavoriteColorsProps) {
+export function FavoriteColors({ currentColor, onColorSelect }: FavoriteColorsProps) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -89,11 +87,9 @@ export function FavoriteColors({
   }, [currentColor, favorites]);
 
   // Remove color from favorites
-  const removeFromFavorites = useCallback((color: string) => {
-    Alert.alert(
-      'Favorilerden Çıkar',
-      `${color} rengini favorilerden çıkarmak istiyor musunuz?`,
-      [
+  const removeFromFavorites = useCallback(
+    (color: string) => {
+      Alert.alert('Favorilerden Çıkar', `${color} rengini favorilerden çıkarmak istiyor musunuz?`, [
         {
           text: 'İptal',
           style: 'cancel',
@@ -102,13 +98,14 @@ export function FavoriteColors({
           text: 'Çıkar',
           style: 'destructive',
           onPress: () => {
-            const newFavorites = favorites.filter((c) => c !== color);
+            const newFavorites = favorites.filter(c => c !== color);
             saveFavorites(newFavorites);
           },
         },
-      ]
-    );
-  }, [favorites]);
+      ]);
+    },
+    [favorites]
+  );
 
   // Generate empty slots
   const slots = Array.from({ length: MAX_FAVORITES }, (_, i) => {
@@ -136,7 +133,7 @@ export function FavoriteColors({
 
       {/* Color grid */}
       <View style={styles.grid}>
-        {slots.map((slot) => (
+        {slots.map(slot => (
           <ColorSlot
             key={slot.id}
             color={slot.color}
@@ -208,17 +205,9 @@ function ColorSlot({ color, isSelected, onPress, onLongPress }: ColorSlotProps) 
       onLongPress={onLongPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      style={[
-        styles.slot,
-        isSelected && styles.slotSelected,
-      ]}
+      style={[styles.slot, isSelected && styles.slotSelected]}
     >
-      <Animated.View
-        style={[
-          styles.slotInner,
-          { transform: [{ scale: scaleAnim }] },
-        ]}
-      >
+      <Animated.View style={[styles.slotInner, { transform: [{ scale: scaleAnim }] }]}>
         {color ? (
           <>
             <View style={[styles.colorPreview, { backgroundColor: color }]} />
@@ -252,7 +241,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: 4,
   },
@@ -307,7 +296,7 @@ const styles = StyleSheet.create({
   emptyIcon: {
     fontSize: 24,
     color: Colors.neutral.light,
-    fontWeight: '300',
+    fontFamily: typography.family.regular,
   },
   selectedBadge: {
     position: 'absolute',
@@ -323,7 +312,7 @@ const styles = StyleSheet.create({
   selectedCheck: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   addButton: {
     flexDirection: 'row',
@@ -344,7 +333,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginRight: 8,
   },

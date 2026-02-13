@@ -16,7 +16,7 @@ import {
   Calendar,
   ChevronRight,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   toolsGrid: {
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   toolTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   toolDescription: {
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   toolBadgeText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   toolBadgeComingSoon: {

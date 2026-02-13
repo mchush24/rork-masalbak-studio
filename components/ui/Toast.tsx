@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   toastMessage: {
     flex: 1,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     lineHeight: typography.size.sm * typography.lineHeight.snug,
   },
   toastActions: {
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   dismissButton: {

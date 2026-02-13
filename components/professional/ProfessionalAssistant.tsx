@@ -29,7 +29,7 @@ import {
   Info,
   ExternalLink,
 } from 'lucide-react-native';
-import { spacing, radius, shadows, zIndex } from '@/constants/design-system';
+import { spacing, radius, shadows, zIndex, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 import { useRole, useIsProfessional } from '@/lib/contexts/RoleContext';
 import { useHapticFeedback } from '@/lib/haptics';
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   tipTitle: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   closeButton: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   },
   learnMoreText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   dontShowText: {
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
     marginBottom: spacing['1'],
   },
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: ProfessionalColors.text.primary,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
 });
 

@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.white,
   },
   actions: {
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   badgeTextOffline: {
     color: Colors.semantic.error,

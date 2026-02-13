@@ -22,7 +22,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { shadows, textShadows } from '@/constants/design-system';
+import { shadows, textShadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 // ============================================================================
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   temperatureBadge: {
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
   },
   temperatureText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.light,
     marginBottom: 8,
     textTransform: 'uppercase',
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   baseColorHex: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     ...textShadows.md,
   },
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   },
   harmonyTypeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   harmonyTypeTextActive: {
@@ -621,7 +621,6 @@ const styles = StyleSheet.create({
   },
   harmonyColorHex: {
     fontSize: 8,
-    fontWeight: '600',
     color: Colors.neutral.darkest,
     fontFamily: 'monospace',
   },
@@ -649,7 +648,7 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 9,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     ...textShadows.md,
   },
@@ -660,7 +659,7 @@ const styles = StyleSheet.create({
   },
   compactTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: 8,
   },

@@ -30,7 +30,7 @@ import Animated, {
 import { BlurView } from 'expo-blur';
 import * as FileSystem from 'expo-file-system';
 import { Colors } from '@/constants/colors';
-import { radius } from '@/constants/design-system';
+import { radius, typography } from '@/constants/design-system';
 
 // Cache directory
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   avatarFallbackText: {
     color: Colors.secondary.lavender,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   thumbnailContainer: {
     backgroundColor: Colors.neutral.lighter,

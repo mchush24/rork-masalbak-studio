@@ -27,7 +27,7 @@ import Animated, {
 import Svg, { Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { Check, Upload, Loader2 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
   },
   percentageText: {
     position: 'absolute',
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
 
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   stepLabel: {
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
   },
   uploadFileName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   uploadFileSize: {
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   },
   uploadPercentage: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     marginLeft: 12,
   },
 

@@ -11,12 +11,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
+import { Colors } from '@/constants/colors';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { Ioo as IooMascot } from '@/components/Ioo';
 import { getErrorMessage } from '@/lib/utils/error';
 import { useBiometric } from '@/lib/hooks/useBiometric';
 import { useRole } from '@/lib/contexts/RoleContext';
@@ -208,11 +210,14 @@ export default function LoginScreen() {
           <Animated.View
             style={{ flex: 1, opacity: fadeAnim, padding: spacing.lg, justifyContent: 'center' }}
           >
-            {/* Header */}
+            {/* Mascot + Header */}
+            <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
+              <IooMascot size="xs" mood="happy" animated showGlow={false} />
+            </View>
             <Text
               style={{
                 fontSize: typography.size['2xl'],
-                fontWeight: '800',
+                fontFamily: typography.family.extrabold,
                 color: colors.text.primary,
                 marginBottom: spacing.xs,
                 textAlign: 'center',
@@ -226,7 +231,7 @@ export default function LoginScreen() {
                 color: colors.text.secondary,
                 marginBottom: spacing.xl,
                 textAlign: 'center',
-                fontWeight: '500',
+                fontFamily: typography.family.medium,
                 lineHeight: 22,
               }}
             >
@@ -254,9 +259,9 @@ export default function LoginScreen() {
               >
                 <View
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 18,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 10,
                     backgroundColor: colors.secondary.lavender + '1F',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -282,7 +287,7 @@ export default function LoginScreen() {
                     fontSize: typography.size.md,
                     color: colors.text.primary,
                     paddingVertical: spacing.md,
-                    fontWeight: '500',
+                    fontFamily: typography.family.medium,
                   }}
                 />
               </View>
@@ -309,9 +314,9 @@ export default function LoginScreen() {
               >
                 <View
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 18,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 10,
                     backgroundColor: colors.secondary.lavender + '1F',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -336,7 +341,7 @@ export default function LoginScreen() {
                     fontSize: typography.size.md,
                     color: colors.text.primary,
                     paddingVertical: spacing.md,
-                    fontWeight: '500',
+                    fontFamily: typography.family.medium,
                   }}
                 />
                 <Pressable
@@ -374,7 +379,7 @@ export default function LoginScreen() {
                 style={{
                   fontSize: typography.size.sm,
                   color: colors.secondary.lavender,
-                  fontWeight: '600',
+                  fontFamily: typography.family.semibold,
                 }}
               >
                 Şifremi Unuttum
@@ -415,8 +420,8 @@ export default function LoginScreen() {
                   <Text
                     style={{
                       fontSize: typography.size.md,
-                      fontWeight: '700',
-                      color: '#FFFFFF',
+                      fontFamily: typography.family.bold,
+                      color: Colors.neutral.white,
                       textAlign: 'center',
                     }}
                   >
@@ -426,23 +431,44 @@ export default function LoginScreen() {
               </LinearGradient>
             </Pressable>
 
-            {/* Register Link */}
+            {/* Divider */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: colors.border.light }} />
+              <Text
+                style={{
+                  paddingHorizontal: spacing.md,
+                  fontSize: typography.size.xs,
+                  color: colors.text.tertiary,
+                  fontFamily: typography.family.medium,
+                }}
+              >
+                veya
+              </Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: colors.border.light }} />
+            </View>
+
+            {/* Register Button - Outlined */}
             <Pressable
               onPress={() => router.push('/(onboarding)/register')}
-              style={{ paddingVertical: spacing.sm }}
+              style={({ pressed }) => ({
+                borderRadius: radius['2xl'],
+                borderWidth: 2,
+                borderColor: colors.secondary.lavender,
+                paddingVertical: spacing.md,
+                alignItems: 'center',
+                opacity: pressed ? 0.8 : 1,
+                transform: [{ scale: pressed ? 0.97 : 1 }],
+              })}
             >
               <Text
                 style={{
-                  fontSize: typography.size.sm,
-                  color: colors.text.secondary,
+                  fontSize: typography.size.md,
+                  fontFamily: typography.family.bold,
+                  color: colors.secondary.lavender,
                   textAlign: 'center',
-                  fontWeight: '500',
                 }}
               >
-                Hesabınız yok mu?{' '}
-                <Text style={{ fontWeight: '700', color: colors.secondary.lavender }}>
-                  Kayıt olun
-                </Text>
+                Yeni Hesap Oluştur
               </Text>
             </Pressable>
           </Animated.View>

@@ -24,7 +24,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { X, FlaskConical, Check, RefreshCw, Bug } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 import { useABTesting, useExperiment, useFeatureFlag } from './ABTestingProvider';
 
 interface ExperimentSwitchProps {
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   },
   debugTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   debugCloseButton: {
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   debugSectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     marginBottom: 12,
   },
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   },
   debugToggleLabel: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   debugToggle: {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   },
   resetAllText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.emotion.fear,
   },
 
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   experimentName: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   experimentStatus: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
   experimentStatusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   experimentDescription: {
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   variantsLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: 8,
   },
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   variantChipText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   variantChipTextSelected: {
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   conversionEvent: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   conversionDetails: {

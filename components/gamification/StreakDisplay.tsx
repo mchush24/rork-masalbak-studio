@@ -11,6 +11,7 @@ import { Flame, Snowflake, Calendar } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 interface StreakDisplayProps {
   currentStreak: number;
   longestStreak: number;
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
   },
   compactNumber: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#424242',
   },
   riskBadge: {
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   },
   riskBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 
@@ -219,13 +220,13 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     fontSize: 32,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: '#424242',
     lineHeight: 36,
   },
   streakLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#757575',
   },
   freezeBadge: {
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
   },
   freezeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#4FC3F7',
   },
   warningContainer: {
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   },
   warningText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#D32F2F',
     textAlign: 'center',
   },
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
   },
   activeBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#4CAF50',
   },
 });

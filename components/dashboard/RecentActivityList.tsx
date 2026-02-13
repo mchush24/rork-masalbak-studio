@@ -15,7 +15,7 @@ import {
   CheckCircle,
   FileText,
 } from 'lucide-react-native';
-import { spacing, radius } from '@/constants/design-system';
+import { spacing, radius, typography } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
@@ -237,12 +237,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   seeAllText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   loadingContainer: {
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: spacing['1'],
   },
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   taskType: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: 2,
   },
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   scoreContainer: {
     alignItems: 'center',
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   scoreValue: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.trust.primary,
   },
   scoreLabel: {

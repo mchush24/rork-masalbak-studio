@@ -34,7 +34,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useColoring } from '../ColoringContext';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
 
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   magicButtonText: {
     color: Colors.neutral.white,
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     marginTop: -4,
   },
 
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   headerSubtitle: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: 12,
   },
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
   },
   colorItemName: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   colorItemConfidence: {
@@ -627,12 +627,12 @@ const styles = StyleSheet.create({
   },
   recommendedBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   paletteName: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: 8,
   },

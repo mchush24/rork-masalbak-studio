@@ -29,7 +29,7 @@ import {
   TRAIT_DEFINITIONS,
   TherapeuticReportSection,
 } from '@/types/InteractiveStory';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginTop: 12,
   },
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#1F2937',
   },
   sectionDescription: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   traitRankText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#6B7280',
   },
   traitInfo: {
@@ -444,13 +444,13 @@ const styles = StyleSheet.create({
   },
   traitName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
     flex: 1,
   },
   traitPercentage: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#9333EA',
   },
   traitDescription: {
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   timelineDotText: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
   },
   timelineLine: {
     flex: 1,
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   },
   timelineQuestion: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
     marginBottom: 8,
   },
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   },
   timelineTraitText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   activityCard: {
     flexDirection: 'row',
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
   },
   activityTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
     marginBottom: 4,
   },
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EC4899',
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     textAlign: 'center',
     lineHeight: 24,
     marginRight: 12,
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
   downloadButtonText: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
   },
   closeButton: {
     alignItems: 'center',
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#6B7280',
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   // Terapötik Bölüm Stilleri
   therapeuticContainer: {
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
   },
   therapeuticTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginTop: 8,
   },
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
   },
   therapeuticSectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
     marginBottom: 12,
   },
@@ -743,7 +743,7 @@ const styles = StyleSheet.create({
   },
   therapeuticWarningTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#B45309',
   },
   therapeuticTraitsRow: {
@@ -764,7 +764,7 @@ const styles = StyleSheet.create({
   },
   therapeuticTraitName: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   therapeuticDisclaimer: {
     backgroundColor: Colors.neutral.gray50,

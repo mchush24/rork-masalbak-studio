@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.neutral.black,
     textAlign: 'center',
     marginBottom: spacing.xs,
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   cardSelected: {
     borderWidth: 2,
-    backgroundColor: '#FEFEFE',
+    backgroundColor: Colors.neutral.white,
     ...shadows.lg,
   },
   cardPressed: {
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.neutral.black,
     marginBottom: 4,
   },
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: typography.size.xs,
     color: ProfessionalColors.neutral.grayLight,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // CTA
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.neutral.white,
   },
   continueButtonDisabled: {
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   continueButtonTextDisabled: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.neutral.grayLight,
   },
   buttonPressed: {

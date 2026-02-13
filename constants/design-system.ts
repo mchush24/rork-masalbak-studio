@@ -65,8 +65,13 @@ export const layout = {
  *
  * USAGE GUIDE:
  * - ALWAYS use typography.size instead of hardcoded fontSize values
- * - ALWAYS use typography.weight instead of hardcoded fontWeight strings
+ * - ALWAYS use typography.family instead of fontWeight — each family includes its weight
  * - Use typography.lineHeight multipliers or typography.lineHeightPx for line heights
+ * - Use typography.family.display* for playful headings (Fredoka)
+ *
+ * FONTS:
+ * Body/UI: Plus Jakarta Sans (warm, professional, excellent mobile readability)
+ * Display: Fredoka (rounded, friendly, child-themed headings & mascot)
  *
  * SIZE MAPPING (from hardcoded to tokens):
  * 10-11px → typography.size.xs (11)
@@ -81,22 +86,30 @@ export const layout = {
  * 44-48px → typography.size["5xl"] (48)
  * 52-56px → typography.size.hero (56)
  *
- * WEIGHT MAPPING:
- * '400' / 'normal' → typography.weight.regular
- * '500' → typography.weight.medium
- * '600' → typography.weight.semibold
- * '700' / 'bold' → typography.weight.bold
- * '800' → typography.weight.extrabold
- * '900' → typography.weight.black
+ * FONT FAMILY MAPPING (use fontFamily, NOT fontWeight):
+ * Regular (400) → typography.family.regular
+ * Medium (500)  → typography.family.medium
+ * SemiBold (600) → typography.family.semibold
+ * Bold (700)    → typography.family.bold
+ * ExtraBold (800) → typography.family.extrabold
+ * Display headings → typography.family.displayBold / displaySemibold / displayMedium
  */
 export const typography = {
-  // Font families
+  // Font families — Plus Jakarta Sans (body/UI) & Fredoka (display/playful)
+  // Plus Jakarta Sans: warm, professional, excellent mobile readability
+  // Fredoka: rounded, friendly, ideal for headings & child-themed elements
   family: {
-    regular: 'System',
-    medium: 'System',
-    semibold: 'System',
-    bold: 'System',
-    extrabold: 'System',
+    // Plus Jakarta Sans — primary font for body text, UI elements, buttons
+    regular: 'PlusJakartaSans_400Regular',
+    medium: 'PlusJakartaSans_500Medium',
+    semibold: 'PlusJakartaSans_600SemiBold',
+    bold: 'PlusJakartaSans_700Bold',
+    extrabold: 'PlusJakartaSans_800ExtraBold',
+    // Fredoka — display font for playful headings, mascot speech, child-themed elements
+    displayRegular: 'Fredoka_400Regular',
+    displayMedium: 'Fredoka_500Medium',
+    displaySemibold: 'Fredoka_600SemiBold',
+    displayBold: 'Fredoka_700Bold',
   },
 
   /**
@@ -141,11 +154,11 @@ export const typography = {
   },
 
   /**
-   * Weight Scale
+   * Weight Scale (kept for reference — prefer typography.family.* for fontFamily)
    *
-   * Use semantic names instead of numeric strings!
+   * Prefer fontFamily over fontWeight:
    * Bad:  fontWeight: '600'
-   * Good: fontWeight: typography.weight.semibold
+   * Good: fontFamily: typography.family.semibold
    */
   weight: {
     /** 400 - Regular body text */
@@ -982,7 +995,7 @@ export const buttonSizes = {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     iconSize: 14,
     borderRadius: radius.sm,
   },
@@ -991,7 +1004,7 @@ export const buttonSizes = {
     paddingHorizontal: spacing['4'],
     paddingVertical: spacing.sm,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     iconSize: 16,
     borderRadius: radius.md,
   },
@@ -1000,7 +1013,7 @@ export const buttonSizes = {
     paddingHorizontal: spacing['5'],
     paddingVertical: spacing['3'],
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     iconSize: 18,
     borderRadius: radius.md,
   },
@@ -1009,7 +1022,7 @@ export const buttonSizes = {
     paddingHorizontal: spacing['6'],
     paddingVertical: spacing['4'],
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     iconSize: 20,
     borderRadius: radius.lg,
   },
@@ -1018,7 +1031,7 @@ export const buttonSizes = {
     paddingHorizontal: spacing['8'],
     paddingVertical: spacing['5'],
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     iconSize: 24,
     borderRadius: radius.xl,
   },
@@ -1070,7 +1083,7 @@ export const buttonStyles = {
     paddingHorizontal: spacing['3'],
     paddingVertical: spacing.xs,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     borderRadius: radius.full,
   },
 } as const;

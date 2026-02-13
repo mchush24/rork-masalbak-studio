@@ -9,7 +9,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 import { CursorPosition, CollaboratorInfo } from '@/lib/collab/CollaborationManager';
 import { Colors } from '@/constants/colors';
 
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   nameLabelText: {
     color: Colors.neutral.white,
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
   },
   colorIndicator: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   collaboratorInitial: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   hostBadge: {
     position: 'absolute',
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   collaboratorCountText: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 
   // Room code styles
@@ -375,7 +375,6 @@ const styles = StyleSheet.create({
   },
   roomCode: {
     fontSize: 28,
-    fontWeight: '800',
     color: Colors.neutral.darkest,
     letterSpacing: 4,
     fontFamily: 'monospace',

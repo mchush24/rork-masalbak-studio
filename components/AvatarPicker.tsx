@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   modalCloseButton: {
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   categoryTabText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   categoryTabTextSelected: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
     textAlign: 'center',
     marginBottom: spacing['6'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   photoButtons: {
     flexDirection: 'row',
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   photoButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
     textAlign: 'center',
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // Avatar Display Component
@@ -447,6 +447,6 @@ const styles = StyleSheet.create({
     marginTop: spacing['2'],
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });

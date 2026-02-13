@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Colors } from "@/constants/colors";
-import { MapPin, Lightbulb, Heart } from "lucide-react-native";
-import { shadows } from "@/constants/design-system";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Colors } from '@/constants/colors';
+import { MapPin, Lightbulb, Heart } from 'lucide-react-native';
+import { shadows, typography } from '@/constants/design-system';
 
 interface DrawingInsightCardProps {
   placement: string;
@@ -49,9 +49,7 @@ export function DrawingInsightCard({
           <Heart size={16} color={Colors.primary.sunset} />
           <Text style={styles.sectionTitle}>Öneri</Text>
         </View>
-        <Text style={[styles.sectionText, styles.recommendationText]}>
-          {recommendation}
-        </Text>
+        <Text style={[styles.sectionText, styles.recommendationText]}>{recommendation}</Text>
       </View>
     </View>
   );
@@ -66,24 +64,24 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 14,
     paddingBottom: 16,
     borderBottomWidth: 2,
-    borderBottomColor: "#E9D5FF",
+    borderBottomColor: '#E9D5FF',
   },
   iconBadge: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#FAF5FF",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#FAF5FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
-    fontWeight: "800" as const,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: -0.3,
     flex: 1,
@@ -92,21 +90,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#9333EA",
+    backgroundColor: '#9333EA',
   },
   sectionTitle: {
     fontSize: 13,
-    fontWeight: "700" as const,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
-    textTransform: "uppercase" as const,
+    textTransform: 'uppercase' as const,
     letterSpacing: 0.8,
   },
   sectionText: {
@@ -119,14 +117,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.lighter,
   },
   recommendationSection: {
-    backgroundColor: "#FFF9F0",
+    backgroundColor: '#FFF9F0',
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#FCD34D",
+    borderColor: '#FCD34D',
   },
   recommendationText: {
-    color: "#92400E",
-    fontWeight: "500" as const,
+    color: '#92400E',
+    fontFamily: typography.family.medium,
   },
 });

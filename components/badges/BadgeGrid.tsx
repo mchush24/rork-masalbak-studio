@@ -10,9 +10,10 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Award, Lock, TrendingUp } from 'lucide-react-native';
+import { Award, TrendingUp } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { spacing, radius, shadows, typography } from '@/constants/design-system';
+import { Ioo as IooMascot } from '@/components/Ioo';
 import {
   BADGES,
   BADGE_CATEGORY_LABELS,
@@ -210,12 +211,11 @@ export function BadgeGrid({
       {/* Empty State */}
       {unlockedCount === 0 && (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIcon}>
-            <Lock size={48} color={Colors.neutral.light} />
-          </View>
-          <Text style={styles.emptyTitle}>Henüz rozet kazanmadın</Text>
+          <IooMascot size="sm" mood="excited" animated showGlow={false} />
+          <Text style={styles.emptyTitle}>Rozet maceranız başlıyor!</Text>
           <Text style={styles.emptySubtitle}>
-            Analiz yap, masal oluştur ve düzenli kullanarak rozetler kazan!
+            Analiz yapın, masal oluşturun ve düzenli kullanarak rozetler kazanın. İlk rozetiniz sizi
+            bekliyor!
           </Text>
         </View>
       )}
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginBottom: spacing['1'],
   },
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   summaryPercentage: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     marginLeft: spacing['3'],
   },
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     flex: 1,
   },
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   categoryCount: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   horizontalScroll: {
     paddingRight: spacing['4'],
@@ -323,27 +323,21 @@ const styles = StyleSheet.create({
   // Empty State
   emptyState: {
     alignItems: 'center',
-    padding: spacing['8'],
-  },
-  emptyIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.neutral.lighter,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing['4'],
+    paddingVertical: spacing['8'],
+    paddingHorizontal: spacing['6'],
+    gap: spacing['2'],
   },
   emptyTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.semibold,
-    color: Colors.neutral.dark,
-    marginBottom: spacing['2'],
+    fontFamily: typography.family.bold,
+    color: Colors.neutral.darkest,
+    marginTop: spacing['2'],
   },
   emptySubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

@@ -357,7 +357,9 @@ export default function ValuePropositionScreen() {
                     end={{ x: 1, y: 0 }}
                     style={styles.primaryButtonGradient}
                   >
-                    <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>Devam Et</Text>
+                    <Text style={[styles.primaryButtonText, { color: Colors.neutral.white }]}>
+                      Devam Et
+                    </Text>
                     <ArrowRight
                       size={iconSizes.action}
                       color={iconColors.inverted}
@@ -423,7 +425,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
 
@@ -447,7 +449,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -455,7 +457,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.secondary.lavender,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -485,7 +487,7 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: typography.size.base,
     color: Colors.neutral.dark,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     flex: 1,
   },
 
@@ -533,7 +535,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   buttonPressed: {
@@ -561,7 +563,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   skipButton: {
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   iconContainer: {
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['3'],
     textAlign: 'center',
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   nextButton: {
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   nextText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
 });

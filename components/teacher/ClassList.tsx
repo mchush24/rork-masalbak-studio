@@ -5,14 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, TextInput } from 'react-native';
 import {
   Users,
   ChevronRight,
@@ -26,7 +19,7 @@ import {
   Archive,
   BarChart2,
 } from 'lucide-react-native';
-import { spacing, radius, shadows, zIndex } from '@/constants/design-system';
+import { spacing, radius, shadows, zIndex, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface ClassData {
@@ -60,8 +53,8 @@ const GRADE_COLORS: Record<string, string> = {
   '6': '#EC4899',
   '7': '#14B8A6',
   '8': Colors.secondary.indigo,
-  'Anaokulu': '#F97316',
-  'default': ProfessionalColors.trust.primary,
+  Anaokulu: '#F97316',
+  default: ProfessionalColors.trust.primary,
 };
 
 export function ClassList({
@@ -77,8 +70,9 @@ export function ClassList({
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const filteredClasses = classes.filter(cls => {
-    const matchesSearch = cls.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          cls.grade.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      cls.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cls.grade.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesArchive = showArchived ? cls.isArchived : !cls.isArchived;
     return matchesSearch && matchesArchive;
   });
@@ -107,7 +101,8 @@ export function ClassList({
         <View>
           <Text style={styles.title}>Sınıflarım</Text>
           <Text style={styles.subtitle}>
-            {filteredClasses.length} sınıf • {classes.reduce((sum, c) => sum + c.studentCount, 0)} öğrenci
+            {filteredClasses.length} sınıf • {classes.reduce((sum, c) => sum + c.studentCount, 0)}{' '}
+            öğrenci
           </Text>
         </View>
         <Pressable
@@ -140,14 +135,11 @@ export function ClassList({
               {searchQuery ? 'Sınıf bulunamadı' : 'Henüz sınıf yok'}
             </Text>
             <Text style={styles.emptySubtitle}>
-              {searchQuery
-                ? 'Farklı arama kriterleri deneyin'
-                : 'Yeni sınıf ekleyerek başlayın'
-              }
+              {searchQuery ? 'Farklı arama kriterleri deneyin' : 'Yeni sınıf ekleyerek başlayın'}
             </Text>
           </View>
         ) : (
-          filteredClasses.map((cls) => {
+          filteredClasses.map(cls => {
             const gradeColor = getGradeColor(cls.grade);
             const isMenuOpen = activeMenu === cls.id;
 
@@ -164,9 +156,7 @@ export function ClassList({
                 <View style={styles.cardContent}>
                   {/* Grade Badge */}
                   <View style={[styles.gradeBadge, { backgroundColor: `${gradeColor}15` }]}>
-                    <Text style={[styles.gradeText, { color: gradeColor }]}>
-                      {cls.grade}
-                    </Text>
+                    <Text style={[styles.gradeText, { color: gradeColor }]}>{cls.grade}</Text>
                   </View>
 
                   {/* Class Info */}
@@ -199,7 +189,7 @@ export function ClassList({
                   {/* Menu Button */}
                   <Pressable
                     style={styles.menuButton}
-                    onPress={(e) => {
+                    onPress={e => {
                       e.stopPropagation();
                       setActiveMenu(isMenuOpen ? null : cls.id);
                     }}
@@ -217,7 +207,7 @@ export function ClassList({
                       style={[
                         styles.progressFill,
                         {
-                          width: `${cls.completedAnalyses / (cls.completedAnalyses + cls.pendingAnalyses) * 100 || 0}%`,
+                          width: `${(cls.completedAnalyses / (cls.completedAnalyses + cls.pendingAnalyses)) * 100 || 0}%`,
                           backgroundColor: gradeColor,
                         },
                       ]}
@@ -286,7 +276,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   subtitle: {
@@ -310,7 +300,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   searchContainer: {
@@ -340,7 +330,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginTop: spacing['3'],
   },
@@ -380,14 +370,14 @@ const styles = StyleSheet.create({
   },
   gradeText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   classInfo: {
     flex: 1,
   },
   className: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: 4,
   },
@@ -417,7 +407,7 @@ const styles = StyleSheet.create({
   },
   pendingText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#D97706',
   },
   scoreBadge: {
@@ -431,7 +421,7 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   menuButton: {

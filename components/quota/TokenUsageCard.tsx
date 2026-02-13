@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.darkest,
   },
   loadingText: {
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   tierText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     letterSpacing: 0.5,
   },
   usageSection: {
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   usageText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   resetText: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   exceededText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.semantic.error,
   },
   upgradeButton: {
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   upgradeText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
 });

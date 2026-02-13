@@ -18,7 +18,7 @@ import {
   Share2,
   ExternalLink,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface Tip {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   featuredTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   shareButton: {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   carouselTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
   },
   carouselNav: {
@@ -433,11 +433,11 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   carouselCardTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     marginBottom: spacing['2'],
   },
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   },
   carouselActionText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   },
   listTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
   },
   listCard: {
@@ -524,11 +524,11 @@ const styles = StyleSheet.create({
   },
   categoryTextSmall: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   listCardTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
   },
   listBookmarkButton: {
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
   },
   expandedActionText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 });
 

@@ -20,7 +20,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   layerCountBadge: {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   layerCountText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   headerRight: {
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: Colors.neutral.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     marginTop: -2,
   },
   expandIcon: {
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
   },
   layerName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   layerMeta: {
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   layerBlendMode: {
     fontSize: 11,
     color: Colors.secondary.indigo,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   quickActions: {
     flexDirection: 'row',
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   },
   opacityButtonText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   opacityButtonTextActive: {
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
   },
   layerActionText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   deleteButton: {
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
   },
   blendModeTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: 8,
   },
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
   },
   blendModeName: {
     fontSize: 11,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.darkest,
   },
 
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
   },
   quickBarLabel: {
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
 });

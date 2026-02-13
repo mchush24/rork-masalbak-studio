@@ -25,7 +25,7 @@ import { ChevronLeft, ChevronRight, Sparkles, Book } from 'lucide-react-native';
 import { ChoiceScreen } from './ChoiceScreen';
 import { StoryProgress } from './StoryProgress';
 import { StorySegment, ChoicePoint, InteractiveCharacter } from '@/types/InteractiveStory';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 18,
     color: '#7C3AED',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   header: {
     flexDirection: 'row',
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#1F2937',
     maxWidth: SCREEN_WIDTH - 100,
   },
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   pageBadgeText: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   textContainer: {
     maxHeight: 120,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   nextActionText: {
     color: Colors.neutral.white,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
   },
   pageDots: {
     flexDirection: 'row',

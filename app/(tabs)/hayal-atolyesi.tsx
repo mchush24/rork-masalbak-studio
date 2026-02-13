@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
   },
@@ -346,11 +346,11 @@ const styles = StyleSheet.create({
     fontSize: typography.size.base,
     color: Colors.neutral.medium,
     marginTop: spacing['1'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   sectionTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['4'],
   },
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   },
   uploadButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   imagePreviewContainer: {
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   changeImageText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   // Options Section
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   optionDescription: {
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   },
   optionFeatureText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   // Info Card
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
   },

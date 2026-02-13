@@ -19,7 +19,7 @@ import {
   Pause,
   RotateCcw,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface StudentUpload {
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   headerInfo: {},
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   subtitle: {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 28,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   statLabel: {
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     width: 40,
     textAlign: 'right',
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   pauseButton: {
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   },
   pauseButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   buttonPressed: {
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
   },
   studentName: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   statusText: {
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   },
   resultScore: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.trust.primary,
   },
   expandedContent: {
@@ -650,7 +650,7 @@ const styles = StyleSheet.create({
   },
   uploadButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
     marginTop: spacing['2'],
   },
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   analysisProgress: {
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
   },
   resultValue: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
     marginTop: 2,
   },
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
   },
   viewReportText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   completeButton: {
@@ -727,7 +727,7 @@ const styles = StyleSheet.create({
   },
   completeButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 });

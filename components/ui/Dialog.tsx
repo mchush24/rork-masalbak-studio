@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['4'],
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
   },
   confirmTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
   },
   alertTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -756,7 +756,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: buttonSizes.md.fontSize,
-    fontWeight: buttonSizes.md.fontWeight,
+    fontFamily: buttonSizes.md.fontFamily,
     color: Colors.neutral.dark,
   },
   cancelButtonTextProfessional: {
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontSize: buttonSizes.md.fontSize,
-    fontWeight: buttonSizes.md.fontWeight,
+    fontFamily: buttonSizes.md.fontFamily,
     color: Colors.neutral.white,
   },
   alertButton: {
@@ -786,7 +786,7 @@ const styles = StyleSheet.create({
   },
   alertButtonText: {
     fontSize: buttonSizes.md.fontSize,
-    fontWeight: buttonSizes.md.fontWeight,
+    fontFamily: buttonSizes.md.fontFamily,
     color: Colors.neutral.white,
   },
 
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
   },
   inputTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['2'],
@@ -849,7 +849,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

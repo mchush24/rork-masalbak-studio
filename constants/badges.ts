@@ -11,21 +11,21 @@
 export type BadgeRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export type BadgeCategory =
-  | 'first_steps'       // İlk Adımlar
-  | 'creativity'        // Yaratıcılık
-  | 'explorer'          // Kaşif
-  | 'consistency'       // Düzenlilik
-  | 'special'           // Özel Günler
-  | 'secret'            // Gizli
+  | 'first_steps' // İlk Adımlar
+  | 'creativity' // Yaratıcılık
+  | 'explorer' // Kaşif
+  | 'consistency' // Düzenlilik
+  | 'special' // Özel Günler
+  | 'secret' // Gizli
   // Phase 2: Coloring-specific categories
-  | 'coloring_master'   // Boyama Ustası
-  | 'color_explorer'    // Renk Kaşifi
-  | 'brush_master'      // Fırça Ustası
-  | 'smart_artist'      // Akıllı Sanatçı
-  | 'coloring_streak'   // Boyama Serisi
-  | 'dedication'        // Özveri
-  | 'session'           // Oturum
-  | 'persistence';      // Azim
+  | 'coloring_master' // Boyama Ustası
+  | 'color_explorer' // Renk Kaşifi
+  | 'brush_master' // Fırça Ustası
+  | 'smart_artist' // Akıllı Sanatçı
+  | 'coloring_streak' // Boyama Serisi
+  | 'dedication' // Özveri
+  | 'session' // Oturum
+  | 'persistence'; // Azim
 
 export type BadgeRequirementType =
   | 'total_analyses'
@@ -121,19 +121,22 @@ export const BADGE_CATEGORY_ICONS: Record<BadgeCategory, string> = {
 // RARITY CONFIG
 // ============================================
 
-export const BADGE_RARITY_CONFIG: Record<BadgeRarity, {
-  label: string;
-  color: string;
-  bgColor: string;
-  gradient: readonly [string, string];
-  glowColor: string;
-}> = {
+export const BADGE_RARITY_CONFIG: Record<
+  BadgeRarity,
+  {
+    label: string;
+    color: string;
+    bgColor: string;
+    gradient: readonly [string, string];
+    glowColor: string;
+  }
+> = {
   common: {
     label: 'Yaygın',
-    color: '#78716C',
-    bgColor: '#F5F5F4',
-    gradient: ['#F5F5F4', '#E7E5E4'] as const,
-    glowColor: 'rgba(120, 113, 108, 0.15)',
+    color: '#14B8A6',
+    bgColor: '#F0FDFA',
+    gradient: ['#F0FDFA', '#CCFBF1'] as const,
+    glowColor: 'rgba(20, 184, 166, 0.15)',
   },
   rare: {
     label: 'Nadir',
@@ -731,7 +734,7 @@ export const BADGES: Badge[] = [
   {
     id: 'never_give_up',
     name: 'Asla Pes Etme',
-    description: 'Geri al\'ı kullan ve devam et',
+    description: "Geri al'ı kullan ve devam et",
     icon: '💪',
     category: 'persistence',
     rarity: 'common',
@@ -740,7 +743,7 @@ export const BADGES: Badge[] = [
   {
     id: 'persistent_artist',
     name: 'Azimli Sanatçı',
-    description: '10 kez geri al\'ı kullan ve devam et',
+    description: "10 kez geri al'ı kullan ve devam et",
     icon: '🔄',
     category: 'persistence',
     rarity: 'rare',
@@ -865,7 +868,7 @@ export const BADGES: Badge[] = [
   {
     id: 'special_23_nisan',
     name: 'Çocuk Bayramı',
-    description: '23 Nisan\'da uygulamayı kullan',
+    description: "23 Nisan'da uygulamayı kullan",
     icon: '🎈',
     category: 'special',
     rarity: 'rare',
@@ -874,7 +877,7 @@ export const BADGES: Badge[] = [
   {
     id: 'special_29_ekim',
     name: 'Cumhuriyet Çocuğu',
-    description: '29 Ekim\'de uygulamayı kullan',
+    description: "29 Ekim'de uygulamayı kullan",
     icon: '🇹🇷',
     category: 'special',
     rarity: 'rare',
@@ -883,7 +886,7 @@ export const BADGES: Badge[] = [
   {
     id: 'special_new_year',
     name: 'Yeni Yıl Büyücüsü',
-    description: '1 Ocak\'ta uygulamayı kullan',
+    description: "1 Ocak'ta uygulamayı kullan",
     icon: '🎉',
     category: 'special',
     rarity: 'rare',
@@ -892,7 +895,7 @@ export const BADGES: Badge[] = [
   {
     id: 'special_19_mayis',
     name: 'Gençlik Ruhu',
-    description: '19 Mayıs\'ta uygulamayı kullan',
+    description: "19 Mayıs'ta uygulamayı kullan",
     icon: '🏃',
     category: 'special',
     rarity: 'rare',
@@ -915,7 +918,7 @@ export const BADGES: Badge[] = [
   {
     id: 'secret_early_bird',
     name: 'Erken Kalkan',
-    description: 'Sabah 6\'dan önce kullan',
+    description: "Sabah 6'dan önce kullan",
     icon: '🌅',
     category: 'secret',
     rarity: 'rare',
@@ -977,11 +980,14 @@ export function getTotalBadgeCount(): number {
  * Get badges grouped by category
  */
 export function getBadgesGroupedByCategory(): Record<BadgeCategory, Badge[]> {
-  return BADGES.reduce((acc, badge) => {
-    if (!acc[badge.category]) {
-      acc[badge.category] = [];
-    }
-    acc[badge.category].push(badge);
-    return acc;
-  }, {} as Record<BadgeCategory, Badge[]>);
+  return BADGES.reduce(
+    (acc, badge) => {
+      if (!acc[badge.category]) {
+        acc[badge.category] = [];
+      }
+      acc[badge.category].push(badge);
+      return acc;
+    },
+    {} as Record<BadgeCategory, Badge[]>
+  );
 }

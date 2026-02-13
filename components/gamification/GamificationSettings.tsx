@@ -15,7 +15,7 @@ import { View, Text, StyleSheet, Switch, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { Star, Flame, Award, PartyPopper, Info, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useRole, useGamification } from '@/lib/contexts/RoleContext';
-import { spacing, radius } from '@/constants/design-system';
+import { spacing, radius, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface GamificationSettingsProps {
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   mainToggleTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
   },
   mainToggleDescription: {
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   featureLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.gray700,
   },
   featureLabelDisabled: {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
   },
   infoDescription: {

@@ -36,7 +36,7 @@ import { Colors } from '@/constants/colors';
 import { useFeedback } from '@/hooks/useFeedback';
 import { Ioo } from '@/components/Ioo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { useOverlay } from '@/lib/overlay';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
   },
   spotlightTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     textAlign: 'center',
     marginBottom: 8,
@@ -710,7 +710,7 @@ const styles = StyleSheet.create({
   },
   spotlightButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
   },
   tourTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     textAlign: 'center',
     marginBottom: 8,
@@ -794,7 +794,7 @@ const styles = StyleSheet.create({
   },
   tourPrevButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   tourNextButton: {
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   },
   tourNextButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 

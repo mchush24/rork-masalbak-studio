@@ -20,7 +20,7 @@ import { BlurView } from 'expo-blur';
 import { X, Sparkles } from 'lucide-react-native';
 import { Badge, RARITY_COLORS, BadgeRarity } from '@/lib/gamification/badges';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: '#424242',
   },
   badgeIconContainer: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   badgeName: {
     fontSize: 24,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   rarityText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   xpRewardContainer: {
     marginBottom: 24,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   xpRewardText: {
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
   continueButton: {
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   },
   continueText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

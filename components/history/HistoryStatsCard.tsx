@@ -14,7 +14,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Brain, Heart, TrendingUp, Activity } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { typography, spacing, radius, shadows, iconSizes, iconStroke } from '@/constants/design-system';
+import {
+  typography,
+  spacing,
+  radius,
+  shadows,
+  iconSizes,
+  iconStroke,
+} from '@/constants/design-system';
 
 interface HistoryStatsCardProps {
   totalCount: number;
@@ -29,9 +36,8 @@ export function HistoryStatsCard({
   thisWeekCount,
   thisMonthCount,
 }: HistoryStatsCardProps) {
-  const trendPercentage = thisMonthCount > 0
-    ? Math.round((thisWeekCount / thisMonthCount) * 100)
-    : 0;
+  const trendPercentage =
+    thisMonthCount > 0 ? Math.round((thisWeekCount / thisMonthCount) * 100) : 0;
 
   return (
     <Animated.View entering={FadeInDown.duration(400).springify()}>
@@ -42,7 +48,11 @@ export function HistoryStatsCard({
         <View style={styles.header}>
           <Text style={styles.title}>Analiz Özeti</Text>
           <View style={styles.badge}>
-            <Activity size={iconSizes.inline} color={Colors.secondary.lavender} strokeWidth={iconStroke.standard} />
+            <Activity
+              size={iconSizes.inline}
+              color={Colors.secondary.lavender}
+              strokeWidth={iconStroke.standard}
+            />
             <Text style={styles.badgeText}>Bu Hafta: {thisWeekCount}</Text>
           </View>
         </View>
@@ -54,7 +64,11 @@ export function HistoryStatsCard({
               colors={[Colors.secondary.grass, Colors.secondary.grassLight]}
               style={styles.statIcon}
             >
-              <Brain size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+              <Brain
+                size={iconSizes.small}
+                color={Colors.neutral.white}
+                strokeWidth={iconStroke.standard}
+              />
             </LinearGradient>
             <Text style={styles.statValue}>{totalCount}</Text>
             <Text style={styles.statLabel}>Toplam</Text>
@@ -62,11 +76,12 @@ export function HistoryStatsCard({
 
           {/* Favorites */}
           <View style={styles.statItem}>
-            <LinearGradient
-              colors={[Colors.semantic.error, '#FF8A8A']}
-              style={styles.statIcon}
-            >
-              <Heart size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+            <LinearGradient colors={[Colors.semantic.error, '#FF8A8A']} style={styles.statIcon}>
+              <Heart
+                size={iconSizes.small}
+                color={Colors.neutral.white}
+                strokeWidth={iconStroke.standard}
+              />
             </LinearGradient>
             <Text style={styles.statValue}>{favoriteCount}</Text>
             <Text style={styles.statLabel}>Favori</Text>
@@ -78,7 +93,11 @@ export function HistoryStatsCard({
               colors={[Colors.secondary.sky, Colors.secondary.skyLight]}
               style={styles.statIcon}
             >
-              <TrendingUp size={iconSizes.small} color={Colors.neutral.white} strokeWidth={iconStroke.standard} />
+              <TrendingUp
+                size={iconSizes.small}
+                color={Colors.neutral.white}
+                strokeWidth={iconStroke.standard}
+              />
             </LinearGradient>
             <Text style={styles.statValue}>{thisMonthCount}</Text>
             <Text style={styles.statLabel}>Bu Ay</Text>
@@ -86,9 +105,16 @@ export function HistoryStatsCard({
 
           {/* Trend */}
           <View style={styles.statItem}>
-            <View style={[styles.statIcon, styles.trendIcon, {
-              backgroundColor: trendPercentage >= 50 ? Colors.semantic.success : Colors.secondary.sunshine
-            }]}>
+            <View
+              style={[
+                styles.statIcon,
+                styles.trendIcon,
+                {
+                  backgroundColor:
+                    trendPercentage >= 50 ? Colors.semantic.success : Colors.secondary.sunshine,
+                },
+              ]}
+            >
               <Text style={styles.trendText}>%{trendPercentage}</Text>
             </View>
             <Text style={styles.statValue}>{thisWeekCount}</Text>
@@ -115,7 +141,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   badge: {
@@ -129,7 +155,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   statsGrid: {
@@ -154,18 +180,18 @@ const styles = StyleSheet.create({
   },
   trendText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   statValue: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   statLabel: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });
 

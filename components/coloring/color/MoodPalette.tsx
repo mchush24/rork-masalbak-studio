@@ -17,7 +17,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#1A1A1A',
   },
   closeButton: {
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
   },
   moodName: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#333',
     textAlign: 'center',
     marginBottom: 4,
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   },
   paletteTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#1A1A1A',
   },
   paletteDescription: {
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   useAllButtonText: {
     color: '#FFF',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   moodButton: {
     backgroundColor: '#FFF',

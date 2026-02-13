@@ -132,7 +132,7 @@ export function ExistingUserModal({ visible, email, onLogin, onDismiss }: Existi
             <Text
               style={{
                 fontSize: typography.size.xl,
-                fontWeight: '700',
+                fontFamily: typography.family.bold,
                 color: 'white',
                 textAlign: 'center',
               }}
@@ -166,7 +166,7 @@ export function ExistingUserModal({ visible, email, onLogin, onDismiss }: Existi
               <Text
                 style={{
                   fontSize: typography.size.base,
-                  fontWeight: '600',
+                  fontFamily: typography.family.semibold,
                   color: '#1F2937',
                   textAlign: 'center',
                 }}
@@ -194,7 +194,7 @@ export function ExistingUserModal({ visible, email, onLogin, onDismiss }: Existi
               <Text
                 style={{
                   fontSize: typography.size.md,
-                  fontWeight: '600',
+                  fontFamily: typography.family.semibold,
                   color: 'white',
                 }}
               >

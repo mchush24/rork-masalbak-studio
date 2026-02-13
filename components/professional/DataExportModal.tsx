@@ -35,6 +35,7 @@ import { SavedAnalysis } from '@/types/analysis';
 import { dataExportService, ExportOptions, ExportResult } from '@/lib/export';
 import { subDays, subMonths, subYears } from 'date-fns';
 
+import { typography } from '@/constants/design-system';
 interface DataExportModalProps {
   visible: boolean;
   onClose: () => void;
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: 12,
   },
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
   },
   formatOptionLabel: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginLeft: 12,
   },
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
   },
   dateRangeChipTextActive: {
     color: Colors.secondary.lavender,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   countText: {
     fontSize: 12,
@@ -514,7 +515,7 @@ const styles = StyleSheet.create({
   },
   exportButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 
@@ -536,13 +537,13 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: 8,
   },
   successFileName: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
     marginBottom: 4,
   },
@@ -566,7 +567,7 @@ const styles = StyleSheet.create({
   },
   shareButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   doneButton: {
@@ -575,7 +576,7 @@ const styles = StyleSheet.create({
   },
   doneButtonText: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
 });

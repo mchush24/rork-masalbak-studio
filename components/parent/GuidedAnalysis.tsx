@@ -20,7 +20,7 @@ import {
   Play,
   Sparkles,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface AnalysisStep {
@@ -329,7 +329,9 @@ export function GuidedAnalysis({
               color={!isAnalyzeStep || imageUri ? Colors.neutral.white : Colors.neutral.medium}
             />
           )}
-          {isLastStep && <Play size={18} color={imageUri ? Colors.neutral.white : Colors.neutral.medium} />}
+          {isLastStep && (
+            <Play size={18} color={imageUri ? Colors.neutral.white : Colors.neutral.medium} />
+          )}
         </Pressable>
       </View>
     </View>
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
   childInfo: {},
   childName: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   testInfo: {
@@ -373,7 +375,7 @@ const styles = StyleSheet.create({
   },
   stepText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   progressDots: {
@@ -414,7 +416,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     marginBottom: spacing['2'],
   },
@@ -440,7 +442,7 @@ const styles = StyleSheet.create({
   tipsTitle: {
     flex: 1,
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.sky,
   },
   tipsToggle: {
@@ -454,7 +456,7 @@ const styles = StyleSheet.create({
   },
   tipsToggleText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.sky,
   },
   tipsList: {
@@ -512,7 +514,7 @@ const styles = StyleSheet.create({
   },
   captureButtonTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
     marginBottom: 2,
   },
@@ -545,7 +547,7 @@ const styles = StyleSheet.create({
   },
   changeImageText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   readySection: {
@@ -567,7 +569,7 @@ const styles = StyleSheet.create({
   },
   readyTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     marginBottom: spacing['2'],
   },
@@ -587,7 +589,7 @@ const styles = StyleSheet.create({
   helpLinkText: {
     fontSize: 14,
     color: Colors.secondary.sky,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   bottomActions: {
     flexDirection: 'row',
@@ -607,7 +609,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   nextButton: {
@@ -625,7 +627,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   nextButtonTextEnabled: {

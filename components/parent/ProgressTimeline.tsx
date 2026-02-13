@@ -19,8 +19,9 @@ import {
   Heart,
   Smile,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ProgressEntry {
   id: string;
@@ -52,7 +53,12 @@ interface ProgressTimelineProps {
 const LEVEL_CONFIG = {
   excellent: { label: 'Mükemmel', color: '#059669', bgColor: '#ECFDF5', icon: Star },
   good: { label: 'İyi', color: '#3B82F6', bgColor: '#EFF6FF', icon: Smile },
-  developing: { label: 'Gelişiyor', color: Colors.semantic.amber, bgColor: '#FFFBEB', icon: Sparkles },
+  developing: {
+    label: 'Gelişiyor',
+    color: Colors.semantic.amber,
+    bgColor: '#FFFBEB',
+    icon: Sparkles,
+  },
   emerging: { label: 'Başlangıç', color: Colors.secondary.violet, bgColor: '#F5F3FF', icon: Heart },
 };
 
@@ -282,15 +288,17 @@ export function ProgressTimeline({
 
       {/* Empty State */}
       {filteredEntries.length === 0 && (
-        <View style={styles.emptyState}>
-          <Calendar size={48} color={Colors.neutral.light} />
-          <Text style={styles.emptyTitle}>Henüz analiz yok</Text>
-          <Text style={styles.emptySubtitle}>
-            {selectedFilter !== 'all'
+        <EmptyState
+          illustration="no-analysis"
+          title="Henüz analiz yok"
+          description={
+            selectedFilter !== 'all'
               ? 'Bu test türünde henüz analiz yapılmamış'
-              : 'İlk analizi yaparak yolculuğa başlayın'}
-          </Text>
-        </View>
+              : 'İlk analizi yaparak yolculuğa başlayın'
+          }
+          mascotMood="curious"
+          compact
+        />
       )}
 
       {/* View All Button */}
@@ -340,7 +348,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   headerSubtitle: {
@@ -361,7 +369,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   statLabel: {
@@ -396,7 +404,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
   },
   filterChipTextActive: {
@@ -475,7 +483,7 @@ const styles = StyleSheet.create({
   },
   testTypeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.primary.sunset,
   },
   milestoneBadge: {
@@ -491,7 +499,7 @@ const styles = StyleSheet.create({
   },
   milestoneText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#D97706',
   },
   levelBadge: {
@@ -506,7 +514,7 @@ const styles = StyleSheet.create({
   },
   levelText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   highlightsContainer: {
     gap: spacing['1'],
@@ -533,7 +541,7 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.sky,
   },
   emptyState: {
@@ -543,7 +551,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginTop: spacing['3'],
   },
@@ -570,7 +578,7 @@ const styles = StyleSheet.create({
   },
   viewAllButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.sky,
   },
   encouragementCard: {
@@ -595,7 +603,7 @@ const styles = StyleSheet.create({
   },
   encouragementTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     marginBottom: 4,
   },

@@ -20,7 +20,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable, Dimensions } from 'react-native';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useOverlay } from '@/lib/overlay';
 import { Colors } from '@/constants/colors';
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: 8,
   },
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   dismissText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

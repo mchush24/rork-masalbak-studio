@@ -132,7 +132,7 @@ export default function WelcomeScreen() {
                 <Text
                   style={{
                     color: colors.secondary.lavender,
-                    fontWeight: typography.weight.semibold,
+                    fontFamily: typography.family.semibold,
                   }}
                 >
                   Ioo
@@ -155,7 +155,7 @@ export default function WelcomeScreen() {
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
               >
-                <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>
+                <Text style={[styles.primaryButtonText, { color: Colors.neutral.white }]}>
                   Keşfetmeye Başlayın
                 </Text>
                 <ChevronRight
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   hookTitle: {
     fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     lineHeight: isSmallDevice ? 32 : 38,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
     color: Colors.neutral.dark,
     textAlign: 'center',
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     lineHeight: 22,
     paddingHorizontal: spacing.md,
   },
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   buttonPressed: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     color: Colors.secondary.lavender,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Trust Badge
@@ -296,6 +296,6 @@ const styles = StyleSheet.create({
   trustText: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });

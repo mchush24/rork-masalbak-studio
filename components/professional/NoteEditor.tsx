@@ -40,7 +40,7 @@ import {
   List,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { zIndex } from '@/constants/design-system';
+import { zIndex, typography } from '@/constants/design-system';
 import { NoteType, AnalysisNote } from '@/types/analysis';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: 12,
   },
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   typeChipText: {
     fontSize: 13,
     color: Colors.neutral.medium,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   formatButtons: {
     flexDirection: 'row',
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   addTagText: {
     fontSize: 12,
     color: Colors.secondary.lavender,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   customTagInput: {
     flexDirection: 'row',
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   },
   tagChipTextActive: {
     color: Colors.secondary.lavender,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   customTags: {
     flexDirection: 'row',
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
   customTagText: {
     fontSize: 12,
     color: Colors.secondary.lavender,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   optionRow: {
     flexDirection: 'row',
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   saveButton: {
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 });

@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   chipTextActive: {

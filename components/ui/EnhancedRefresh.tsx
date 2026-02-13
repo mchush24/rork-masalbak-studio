@@ -287,12 +287,12 @@ const styles = StyleSheet.create({
   },
   pullText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
   pullTextReady: {
     color: Colors.primary.sunset,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 });
 

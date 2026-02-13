@@ -16,7 +16,7 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 // ============================================
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   lastSyncText: {
     fontSize: 12,
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   syncButtonText: {
     color: Colors.neutral.white,
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   offlineBanner: {
     backgroundColor: '#FEF2F2',
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   pendingBadgeText: {
     color: Colors.neutral.white,
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
 
   // Standalone Banner
@@ -323,6 +323,6 @@ const styles = StyleSheet.create({
   offlineBannerStandaloneText: {
     color: '#DC2626',
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
 });

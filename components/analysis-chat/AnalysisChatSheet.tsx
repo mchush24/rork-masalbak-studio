@@ -176,8 +176,8 @@ export function AnalysisChatSheet({
       } finally {
         setIsLoading(false);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [analysisId, conversationId, isLoading, messages.length, showReflection]
   );
 
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   headerSubtitle: {
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     marginTop: spacing['3'],
     textAlign: 'center',

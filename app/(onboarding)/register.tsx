@@ -44,6 +44,7 @@ import {
   Heart,
   Zap,
 } from 'lucide-react-native';
+import { Ioo as IooMascot } from '@/components/Ioo';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -418,7 +419,7 @@ export default function RegisterScreen() {
   return (
     <LinearGradient
       colors={
-        [colors.secondary.lavender, '#818CF8', colors.secondary.sky] as [
+        [colors.secondary.lavender, colors.secondary.indigo, colors.secondary.sky] as [
           string,
           string,
           ...string[],
@@ -480,7 +481,7 @@ export default function RegisterScreen() {
                   marginLeft: spacing.md,
                   color: 'white',
                   fontSize: typography.size.sm,
-                  fontWeight: '600',
+                  fontFamily: typography.family.semibold,
                   ...textShadows.sm,
                 }}
               >
@@ -620,49 +621,36 @@ function EmailStepNew({
       icon: Brain,
       title: 'Bilimsel Analiz',
       subtitle: 'Uzman onaylı',
-      bgColor: '#EC4899',
-      iconBg: 'rgba(236, 72, 153, 0.2)',
+      bgColor: Colors.secondary.lavender,
+      iconBg: Colors.secondary.lavender + '33',
     },
     {
       icon: ChartLine,
       title: 'Gelişim Takibi',
       subtitle: 'Detaylı raporlar',
-      bgColor: '#10B981',
-      iconBg: 'rgba(16, 185, 129, 0.2)',
+      bgColor: Colors.secondary.grass,
+      iconBg: Colors.secondary.grass + '33',
     },
     {
       icon: Shield,
       title: 'Güvenli Veri',
       subtitle: 'KVKK uyumlu',
-      bgColor: '#3B82F6',
-      iconBg: 'rgba(59, 130, 246, 0.2)',
+      bgColor: Colors.secondary.sky,
+      iconBg: Colors.secondary.sky + '33',
     },
   ];
 
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
-      {/* Sparkle icon */}
+      {/* Mascot */}
       <View style={{ alignItems: 'center', marginBottom: spacing.md }}>
-        <View
-          style={{
-            width: isSmallDevice ? 56 : 72,
-            height: isSmallDevice ? 56 : 72,
-            borderRadius: isSmallDevice ? 28 : 36,
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: 'rgba(255,255,255,0.3)',
-          }}
-        >
-          <Sparkles size={isSmallDevice ? 28 : 36} color="white" strokeWidth={1.5} />
-        </View>
+        <IooMascot size="xs" mood="happy" animated showGlow={false} />
       </View>
 
       <Text
         style={{
           fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-          fontWeight: '800',
+          fontFamily: typography.family.extrabold,
           color: 'white',
           marginBottom: spacing.xs,
           textAlign: 'center',
@@ -677,7 +665,7 @@ function EmailStepNew({
           color: 'rgba(255,255,255,0.95)',
           marginBottom: isSmallDevice ? spacing.lg : spacing.xl,
           textAlign: 'center',
-          fontWeight: '500',
+          fontFamily: typography.family.medium,
           lineHeight: 22,
         }}
       >
@@ -721,7 +709,7 @@ function EmailStepNew({
                 <Text
                   style={{
                     fontSize: isSmallDevice ? 11 : typography.size.xs,
-                    fontWeight: '700',
+                    fontFamily: typography.family.bold,
                     color: 'white',
                     textAlign: 'center',
                     marginBottom: 2,
@@ -755,7 +743,7 @@ function EmailStepNew({
           marginBottom: spacing.md,
           ...shadows.lg,
           borderWidth: emailError ? 3 : 0,
-          borderColor: emailError ? '#EF4444' : 'transparent',
+          borderColor: emailError ? Colors.status.error : 'transparent',
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
@@ -793,7 +781,7 @@ function EmailStepNew({
               fontSize: isSmallDevice ? typography.size.base : typography.size.md,
               color: colors.text.primary,
               paddingVertical: spacing.md,
-              fontWeight: '500',
+              fontFamily: typography.family.medium,
             }}
           />
         </View>
@@ -811,7 +799,13 @@ function EmailStepNew({
           }}
         >
           <Text style={{ fontSize: 16, marginRight: spacing.xs }}>⚠️</Text>
-          <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
+          <Text
+            style={{
+              fontSize: typography.size.sm,
+              color: 'white',
+              fontFamily: typography.family.semibold,
+            }}
+          >
             {emailError}
           </Text>
         </View>
@@ -852,7 +846,7 @@ function EmailStepNew({
           <Text
             style={{
               fontSize: typography.size.md,
-              fontWeight: 'bold',
+              fontFamily: typography.family.bold,
               color: colors.secondary.indigo,
               textAlign: 'center',
             }}
@@ -864,7 +858,7 @@ function EmailStepNew({
             <Text
               style={{
                 fontSize: typography.size.md,
-                fontWeight: '700',
+                fontFamily: typography.family.bold,
                 color: email ? colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',
               }}
@@ -882,23 +876,50 @@ function EmailStepNew({
         )}
       </Pressable>
 
-      {/* Login/Register toggle link */}
+      {/* Divider */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: spacing.lg,
+          marginBottom: spacing.md,
+        }}
+      >
+        <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.3)' }} />
+        <Text
+          style={{
+            paddingHorizontal: spacing.md,
+            fontSize: typography.size.xs,
+            color: 'rgba(255,255,255,0.7)',
+            fontFamily: typography.family.medium,
+          }}
+        >
+          veya
+        </Text>
+        <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.3)' }} />
+      </View>
+
+      {/* Login/Register toggle button */}
       <Pressable
         onPress={isLoginMode ? onRegisterPress : onLoginPress}
-        style={{ marginTop: spacing.lg, paddingVertical: spacing.sm }}
+        style={({ pressed }) => ({
+          borderRadius: radius['2xl'],
+          borderWidth: 2,
+          borderColor: 'rgba(255,255,255,0.5)',
+          paddingVertical: spacing.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: pressed ? 0.7 : 1,
+        })}
       >
         <Text
           style={{
-            fontSize: typography.size.sm,
-            color: 'white',
-            textAlign: 'center',
-            fontWeight: '600',
+            fontFamily: typography.family.bold,
+            fontSize: typography.size.base,
+            color: Colors.neutral.white,
           }}
         >
-          {isLoginMode ? 'Hesabınız yok mu? ' : 'Zaten hesabınız var mı? '}
-          <Text style={{ textDecorationLine: 'underline' }}>
-            {isLoginMode ? 'Kayıt olun' : 'Giriş yapın'}
-          </Text>
+          {isLoginMode ? 'Yeni Hesap Oluştur' : 'Giriş Yap'}
         </Text>
       </Pressable>
     </View>
@@ -949,10 +970,10 @@ function PasswordStepNew({
   // Password strength indicator
   const getPasswordStrength = () => {
     if (password.length === 0) return { level: 0, text: '', color: Colors.neutral.gray400 };
-    if (password.length < 6) return { level: 1, text: 'Zayıf', color: '#EF4444' };
+    if (password.length < 6) return { level: 1, text: 'Zayıf', color: Colors.status.error };
     if (password.length < 8) return { level: 2, text: 'Orta', color: Colors.semantic.amber };
     if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
-      return { level: 3, text: 'Güçlü', color: '#10B981' };
+      return { level: 3, text: 'Güçlü', color: Colors.secondary.grass };
     }
     return { level: 2, text: 'İyi', color: Colors.semantic.amber };
   };
@@ -985,15 +1006,15 @@ function PasswordStepNew({
             <Text
               style={{
                 fontSize: typography.size.md,
-                fontWeight: '700',
-                color: '#92400E',
+                fontFamily: typography.family.bold,
+                color: colors.text.primary,
                 marginLeft: spacing.sm,
               }}
             >
               Hoşgeldiniz tekrar!
             </Text>
           </View>
-          <Text style={{ fontSize: typography.size.sm, color: '#78350F' }}>
+          <Text style={{ fontSize: typography.size.sm, color: colors.text.secondary }}>
             Bu email adresi zaten kayıtlı. Şifrenizi girerek giriş yapabilirsiniz.
           </Text>
         </Animated.View>
@@ -1020,7 +1041,7 @@ function PasswordStepNew({
       <Text
         style={{
           fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-          fontWeight: '800',
+          fontFamily: typography.family.extrabold,
           color: 'white',
           marginBottom: spacing.xs,
           textAlign: 'center',
@@ -1035,7 +1056,7 @@ function PasswordStepNew({
           color: 'rgba(255,255,255,0.95)',
           marginBottom: isSmallDevice ? spacing.lg : spacing.xl,
           textAlign: 'center',
-          fontWeight: '500',
+          fontFamily: typography.family.medium,
           lineHeight: 22,
         }}
       >
@@ -1053,7 +1074,7 @@ function PasswordStepNew({
           marginBottom: spacing.md,
           ...shadows.lg,
           borderWidth: passwordError ? 3 : 0,
-          borderColor: passwordError ? '#EF4444' : 'transparent',
+          borderColor: passwordError ? Colors.status.error : 'transparent',
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm }}>
@@ -1090,7 +1111,7 @@ function PasswordStepNew({
               fontSize: isSmallDevice ? typography.size.base : typography.size.md,
               color: colors.text.primary,
               paddingVertical: spacing.md,
-              fontWeight: '500',
+              fontFamily: typography.family.medium,
             }}
           />
           <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: spacing.sm }}>
@@ -1132,7 +1153,7 @@ function PasswordStepNew({
             style={{
               fontSize: typography.size.xs,
               color: strength.color,
-              fontWeight: '600',
+              fontFamily: typography.family.semibold,
               textAlign: 'right',
             }}
           >
@@ -1151,7 +1172,7 @@ function PasswordStepNew({
             marginBottom: spacing.sm,
             ...shadows.lg,
             borderWidth: passwordError && confirmPassword ? 3 : 0,
-            borderColor: passwordError ? '#EF4444' : 'transparent',
+            borderColor: passwordError ? Colors.status.error : 'transparent',
           }}
         >
           <View
@@ -1164,7 +1185,7 @@ function PasswordStepNew({
                 borderRadius: 20,
                 backgroundColor:
                   password === confirmPassword && confirmPassword.length > 0
-                    ? '#D1FAE5'
+                    ? Colors.secondary.grass + '25'
                     : colors.secondary.lavender + '1F',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -1201,7 +1222,7 @@ function PasswordStepNew({
                 fontSize: isSmallDevice ? typography.size.base : typography.size.md,
                 color: colors.text.primary,
                 paddingVertical: spacing.md,
-                fontWeight: '500',
+                fontFamily: typography.family.medium,
               }}
             />
             <Pressable
@@ -1238,7 +1259,13 @@ function PasswordStepNew({
           }}
         >
           <Text style={{ fontSize: 16, marginRight: spacing.xs }}>⚠️</Text>
-          <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
+          <Text
+            style={{
+              fontSize: typography.size.sm,
+              color: 'white',
+              fontFamily: typography.family.semibold,
+            }}
+          >
             {passwordError}
           </Text>
         </View>
@@ -1269,7 +1296,7 @@ function PasswordStepNew({
               fontSize: typography.size.sm,
               color: 'white',
               textDecorationLine: 'underline',
-              fontWeight: '600',
+              fontFamily: typography.family.semibold,
             }}
           >
             Şifremi Unuttum
@@ -1303,7 +1330,7 @@ function PasswordStepNew({
           <Text
             style={{
               fontSize: typography.size.md,
-              fontWeight: 'bold',
+              fontFamily: typography.family.bold,
               color: colors.secondary.indigo,
               textAlign: 'center',
             }}
@@ -1315,7 +1342,7 @@ function PasswordStepNew({
             <Text
               style={{
                 fontSize: typography.size.md,
-                fontWeight: '700',
+                fontFamily: typography.family.bold,
                 color: (isExistingUser ? password : password && confirmPassword)
                   ? colors.secondary.indigo
                   : 'rgba(255,255,255,0.6)',
@@ -1432,7 +1459,7 @@ function VerifyCodeStepNew({
             width: isSmallDevice ? 56 : 72,
             height: isSmallDevice ? 56 : 72,
             borderRadius: isSmallDevice ? 28 : 36,
-            backgroundColor: '#10B981',
+            backgroundColor: Colors.secondary.grass,
             justifyContent: 'center',
             alignItems: 'center',
             transform: [{ scale: pulseAnim }],
@@ -1446,7 +1473,7 @@ function VerifyCodeStepNew({
       <Text
         style={{
           fontSize: isSmallDevice ? typography.size.xl : typography.size['2xl'],
-          fontWeight: '800',
+          fontFamily: typography.family.extrabold,
           color: 'white',
           marginBottom: spacing.xs,
           textAlign: 'center',
@@ -1461,7 +1488,7 @@ function VerifyCodeStepNew({
           color: 'rgba(255,255,255,0.95)',
           marginBottom: spacing.sm,
           textAlign: 'center',
-          fontWeight: '500',
+          fontFamily: typography.family.medium,
           lineHeight: 22,
         }}
       >
@@ -1487,7 +1514,13 @@ function VerifyCodeStepNew({
           color={iconColors.inverted}
           strokeWidth={iconStroke.standard}
         />
-        <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
+        <Text
+          style={{
+            fontSize: typography.size.sm,
+            color: 'white',
+            fontFamily: typography.family.semibold,
+          }}
+        >
           {email}
         </Text>
       </View>
@@ -1501,7 +1534,7 @@ function VerifyCodeStepNew({
           marginBottom: spacing.md,
           ...shadows.lg,
           borderWidth: codeError ? 3 : 0,
-          borderColor: codeError ? '#EF4444' : 'transparent',
+          borderColor: codeError ? Colors.status.error : 'transparent',
         }}
       >
         <TextInput
@@ -1516,7 +1549,7 @@ function VerifyCodeStepNew({
           textContentType="oneTimeCode"
           style={{
             fontSize: typography.size.hero,
-            fontWeight: '700',
+            fontFamily: typography.family.bold,
             color: colors.secondary.indigo,
             padding: spacing.sm,
             textAlign: 'center',
@@ -1560,7 +1593,13 @@ function VerifyCodeStepNew({
           }}
         >
           <Text style={{ fontSize: 16, marginRight: spacing.xs }}>⚠️</Text>
-          <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
+          <Text
+            style={{
+              fontSize: typography.size.sm,
+              color: 'white',
+              fontFamily: typography.family.semibold,
+            }}
+          >
             {codeError}
           </Text>
         </View>
@@ -1595,7 +1634,13 @@ function VerifyCodeStepNew({
           />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: typography.size.sm, color: 'white', fontWeight: '600' }}>
+          <Text
+            style={{
+              fontSize: typography.size.sm,
+              color: 'white',
+              fontFamily: typography.family.semibold,
+            }}
+          >
             Kod 10 dakika geçerlidir
           </Text>
           <Text style={{ fontSize: typography.size.xs, color: 'rgba(255,255,255,0.7)' }}>
@@ -1619,7 +1664,7 @@ function VerifyCodeStepNew({
             fontSize: typography.size.sm,
             color: resendTimer > 0 ? 'rgba(255,255,255,0.5)' : 'white',
             textDecorationLine: resendTimer > 0 ? 'none' : 'underline',
-            fontWeight: '600',
+            fontFamily: typography.family.semibold,
           }}
         >
           {isResending
@@ -1655,7 +1700,7 @@ function VerifyCodeStepNew({
           <Text
             style={{
               fontSize: typography.size.md,
-              fontWeight: 'bold',
+              fontFamily: typography.family.bold,
               color: colors.secondary.indigo,
               textAlign: 'center',
             }}
@@ -1667,7 +1712,7 @@ function VerifyCodeStepNew({
             <Text
               style={{
                 fontSize: typography.size.md,
-                fontWeight: '700',
+                fontFamily: typography.family.bold,
                 color:
                   verificationCode.length === 6 ? colors.secondary.indigo : 'rgba(255,255,255,0.6)',
                 textAlign: 'center',

@@ -9,7 +9,7 @@ import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star, Zap, TrendingUp } from 'lucide-react-native';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface XPProgressBarProps {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   },
   levelNumber: {
     fontSize: 14,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
   compactProgress: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   fullLevelNumber: {
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     marginTop: -4,
   },
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   levelTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#424242',
   },
   totalXpText: {
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   nextLevelText: {

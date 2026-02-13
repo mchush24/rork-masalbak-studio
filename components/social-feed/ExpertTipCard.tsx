@@ -21,7 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Lightbulb, ChevronRight, Quote, Sparkles } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { spacing, borderRadius, shadows } from '@/constants/design-system';
+import { spacing, borderRadius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#5D4037',
     letterSpacing: 0.3,
   },
@@ -270,13 +270,13 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: '#3E2723',
     lineHeight: 24,
   },
   contentFeatured: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#4E342E',
     lineHeight: 26,
   },
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   source: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#8D6E63',
     fontStyle: 'italic',
   },
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },

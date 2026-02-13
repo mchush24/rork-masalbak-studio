@@ -16,7 +16,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import Slider from '@react-native-community/slider';
 import { useColoring } from '../ColoringContext';
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   sliderContainer: {
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   },
   valueText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.primary.sunset,
     marginLeft: 8,
     minWidth: 50,
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   presetsTitle: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.medium,
     marginBottom: 8,
     textTransform: 'uppercase',

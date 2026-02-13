@@ -17,7 +17,7 @@ import {
   ChevronDown,
   CheckCircle,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   modeSelector: {
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   },
   modeSelectorText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   modeDropdown: {
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     color: ProfessionalColors.text.primary,
   },
   modeOptionTextSelected: {
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   filterContainer: {
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: ProfessionalColors.trust.primary,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   statLabel: {
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   comparisonLabel: {
     flex: 1,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   comparisonMeta: {
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   },
   barValue: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
     width: 45,
     textAlign: 'right',
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
   },
   dataPointScore: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.trust.primary,
   },
   dataPointDate: {
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
   },
   moreIndicatorText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
   },
   emptyState: {
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginTop: spacing['3'],
   },

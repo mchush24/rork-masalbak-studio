@@ -34,7 +34,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   selectorText: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
   premiumBadge: {
     backgroundColor: 'rgba(255,255,255,0.3)',
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
   premiumBadgeText: {
     color: Colors.neutral.white,
     fontSize: 9,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
   },
 
   // Modal
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -714,7 +714,7 @@ const styles = StyleSheet.create({
   },
   brushCardName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   brushCardDescription: {
@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
   },
   lockText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
   },
 
@@ -757,7 +757,7 @@ const styles = StyleSheet.create({
   selectedText: {
     color: Colors.neutral.white,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
   },
 
   // Brush Preview
@@ -787,7 +787,7 @@ const styles = StyleSheet.create({
   },
   compactTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: 8,
   },

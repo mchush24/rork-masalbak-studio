@@ -5,6 +5,7 @@ import { Ioo as IooMascot, IooMood } from '@/components/Ioo';
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 
+import { typography } from '@/constants/design-system';
 const MOODS: IooMood[] = [
   'happy',
   'excited',
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: 4,
@@ -245,14 +246,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     color: '#C77DFF',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   section: {
     marginTop: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: 12,
   },
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 13,
     color: Colors.neutral.medium,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   buttonTextActive: {
     color: Colors.neutral.white,

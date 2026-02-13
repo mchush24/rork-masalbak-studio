@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Star, FileText, Share2, Home } from 'lucide-react-native';
 import { InteractiveCharacter } from '@/types/InteractiveStory';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#7C3AED',
     marginBottom: 8,
   },
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#1F2937',
     marginTop: 4,
   },
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     color: '#9333EA',
   },
   secondaryButtons: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
 });

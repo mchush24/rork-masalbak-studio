@@ -40,7 +40,7 @@ import {
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { useHaptics } from '@/lib/haptics';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.dark,
     textAlign: 'center',
     marginBottom: 16,
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

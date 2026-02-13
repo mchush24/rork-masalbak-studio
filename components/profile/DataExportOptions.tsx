@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   headerSubtitle: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing.xs,
   },
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     textAlign: 'center',
   },

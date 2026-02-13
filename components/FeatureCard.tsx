@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { ChevronRight } from 'lucide-react-native';
 import { RenkooColors, Colors } from '@/constants/colors';
-import { shadows, createShadow } from '@/constants/design-system';
+import { shadows, createShadow, typography } from '@/constants/design-system';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   },
   newBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   },
   comingSoonText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: RenkooColors.text.primary,
     marginBottom: 4,
   },
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
   },
   compactTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: RenkooColors.text.primary,
     textAlign: 'center',
   },

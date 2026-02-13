@@ -20,6 +20,7 @@ import { BadgeCard } from './BadgeCard';
 import { NewBadgeModal } from './NewBadgeModal';
 import { Badge } from '@/lib/gamification/badges';
 
+import { typography } from '@/constants/design-system';
 // ============================================================================
 // ROLE-AWARE XP PROGRESS BAR
 // ============================================================================
@@ -332,7 +333,7 @@ const professionalProgressStyles = StyleSheet.create({
   },
   value: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.gray700,
   },
   progressBar: {

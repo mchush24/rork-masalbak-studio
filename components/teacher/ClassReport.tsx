@@ -21,7 +21,7 @@ import {
   Clock,
   ChevronRight,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { width: _SCREEN_WIDTH } = Dimensions.get('window');
@@ -424,21 +424,21 @@ const styles = StyleSheet.create({
   },
   reportTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   className: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
     marginTop: 2,
   },
   testType: {
     fontSize: 14,
     color: ProfessionalColors.roles.teacher.primary,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     marginTop: 2,
   },
   reportMeta: {
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.roles.teacher.primary,
   },
   section: {
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
     marginBottom: spacing['3'],
   },
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   warningValue: {
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     marginTop: 2,
   },
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   },
   barCount: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: 4,
   },
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
   },
   badgeSuccessText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#059669',
   },
   badgeWarning: {
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   },
   badgeWarningText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#D97706',
   },
   studentRow: {
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   },
   rankText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#059669',
   },
   alertIcon: {
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
   },
   studentName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   studentMeta: {
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   },
   percentileValue: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#059669',
   },
   percentileBadgeLow: {
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
   },
   percentileValueLow: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#D97706',
   },
   warningBanner: {
@@ -744,7 +744,7 @@ const styles = StyleSheet.create({
   },
   recommendationTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: 4,
   },

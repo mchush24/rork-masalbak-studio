@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: buttonSizes.md.fontSize,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   iconButton: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   closeButton: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   },
   successText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.status.success,
   },
   optionsContainer: {
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   optionDesc: {

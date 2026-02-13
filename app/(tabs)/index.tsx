@@ -5,7 +5,7 @@
  * Part of #17: Profesyonel Dashboard Tasarımı
  */
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -24,12 +24,12 @@ import {
   Brain,
   Clock,
   ChevronRight,
-  MessageCircle,
   Trophy,
   Camera,
   X,
   Wand2,
   FileText,
+  MessageCircle,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -56,6 +56,7 @@ import {
 // Components
 import { Ioo as IooMascot } from '@/components/Ioo';
 import { ChildSelectorChip } from '@/components/ChildSelectorChip';
+import { FeatureTour, isFeatureDiscovered } from '@/components/tutorial/FeatureDiscovery';
 
 // Dashboard Components
 import {
@@ -135,6 +136,13 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+
+  // Tour target refs
+  const heroRef = useRef<View>(null);
+  const analysisRef = useRef<View>(null);
+  const storyRef = useRef<View>(null);
+  const coloringRef = useRef<View>(null);
 
   // Role Context hooks
   const { role: _role, config: _roleConfig } = useRole();
@@ -216,6 +224,56 @@ export default function HomeScreen() {
     return GreetingService.getFormattedGreeting();
   }, []);
 
+  // Check if home tour has been completed
+  useEffect(() => {
+    const checkTour = async () => {
+      const discovered = await isFeatureDiscovered('tour_home_intro');
+      if (!discovered && !isProfessional) {
+        // Small delay to let layout settle before measuring
+        setTimeout(() => setShowTour(true), 800);
+      }
+    };
+    checkTour();
+  }, [isProfessional]);
+
+  // Tour steps
+  const tourSteps = useMemo(
+    () => [
+      {
+        id: 'home_ioo',
+        title: 'Merhaba, ben Ioo!',
+        description:
+          'Çocuğunuzun gelişim yolculuğunda size rehberlik edeceğim. Bana her zaman sorularınızı sorabilirsiniz.',
+        targetRef: heroRef,
+        position: 'bottom' as const,
+      },
+      {
+        id: 'home_analysis',
+        title: 'Çizim Analizi',
+        description:
+          'Çocuğunuzun çizimlerini fotoğraflayın, yapay zeka ile derinlemesine psikolojik analiz alın.',
+        targetRef: analysisRef,
+        position: 'bottom' as const,
+      },
+      {
+        id: 'home_story',
+        title: 'AI Masal',
+        description: 'Çocuğunuza özel, kişiselleştirilmiş masallar oluşturun. Her masal benzersiz!',
+        targetRef: storyRef,
+        position: 'bottom' as const,
+      },
+      {
+        id: 'home_coloring',
+        title: 'Boyama Kitabı',
+        description:
+          'Dijital boyama kitabı ile çocuğunuzun yaratıcılığını ve renk algısını destekleyin.',
+        targetRef: coloringRef,
+        position: 'bottom' as const,
+      },
+    ],
+    []
+  );
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([
@@ -240,12 +298,52 @@ export default function HomeScreen() {
   };
 
   const recentAnalyses = recentAnalysesData?.analyses || [];
-  const stats = userStats || {
-    totalAnalyses: 0,
-    totalStorybooks: 0,
-    totalColorings: 0,
-    totalActivities: 0,
-  };
+  const stats = useMemo(
+    () =>
+      userStats || {
+        totalAnalyses: 0,
+        totalStorybooks: 0,
+        totalColorings: 0,
+        totalActivities: 0,
+      },
+    [userStats]
+  );
+
+  // Smart suggestion based on user activity
+  const suggestion = useMemo(() => {
+    const { totalAnalyses, totalStorybooks, totalColorings } = stats;
+    if (totalAnalyses === 0) {
+      return {
+        icon: Camera,
+        color: colors.secondary.lavender,
+        title: 'İlk adımı atın',
+        text: 'Bir çizim fotoğraflayarak çocuğunuzun iç dünyasını keşfedin.',
+        cta: 'Analiz Başlat',
+        route: '/(tabs)/analysis' as Href,
+      };
+    }
+    if (totalStorybooks === 0) {
+      return {
+        icon: BookOpen,
+        color: colors.secondary.sunshine,
+        title: 'Masal dünyasını keşfedin',
+        text: 'Çocuğunuza özel yapay zeka destekli masallar oluşturun.',
+        cta: 'Masal Oluştur',
+        route: '/stories' as Href,
+      };
+    }
+    if (totalColorings === 0) {
+      return {
+        icon: Palette,
+        color: colors.secondary.grass,
+        title: 'Boyama kitabını deneyin',
+        text: 'Dijital boyama ile yaratıcılığı ve renk algısını destekleyin.',
+        cta: 'Boyamaya Başla',
+        route: '/coloring-history' as Href,
+      };
+    }
+    return null; // No suggestion needed — user has tried everything
+  }, [stats, colors]);
 
   // Unified page background for all roles
   const backgroundGradient = colors.background.pageGradient;
@@ -311,7 +409,11 @@ export default function HomeScreen() {
               />
             ) : (
               /* Parent Mode - Clean, minimal greeting card */
-              <View style={[styles.heroCardClean, { backgroundColor: colors.surface.card }]}>
+              <View
+                ref={heroRef}
+                collapsable={false}
+                style={[styles.heroCardClean, { backgroundColor: colors.surface.card }]}
+              >
                 <View style={styles.heroContent}>
                   {/* Mascot - Compact */}
                   {mascotSettings.showOnDashboard && (
@@ -343,133 +445,155 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* 2x2 Quick Action Grid (Parent mode) */}
+          {/* Quick Actions — 3-item horizontal row (Parent mode) */}
           {!isProfessional && (
-            <View style={styles.quickActionGrid}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickActionItem,
-                  { backgroundColor: colors.surface.card },
-                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
-                ]}
-                onPress={() => router.push('/(tabs)/analysis' as Href)}
-              >
-                <View
-                  style={[
-                    styles.quickActionIcon,
-                    { backgroundColor: colors.secondary.lavender + '1F' },
+            <View style={styles.quickActionRow}>
+              <View ref={analysisRef} collapsable={false} style={styles.quickActionRefWrap}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.quickActionItem,
+                    { backgroundColor: colors.surface.card },
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
                   ]}
+                  onPress={() => router.push('/(tabs)/analysis' as Href)}
                 >
-                  <Brain size={24} color={colors.secondary.lavender} />
-                </View>
-                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
-                  Analiz
-                </Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickActionItem,
-                  { backgroundColor: colors.surface.card },
-                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
-                ]}
-                onPress={() => router.push('/stories' as Href)}
-              >
-                <View
-                  style={[
-                    styles.quickActionIcon,
-                    { backgroundColor: colors.secondary.sunshine + '1F' },
+                  <View
+                    style={[
+                      styles.quickActionIcon,
+                      { backgroundColor: colors.secondary.lavender + '1F' },
+                    ]}
+                  >
+                    <Brain size={22} color={colors.secondary.lavender} />
+                  </View>
+                  <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                    Analiz
+                  </Text>
+                </Pressable>
+              </View>
+              <View ref={storyRef} collapsable={false} style={styles.quickActionRefWrap}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.quickActionItem,
+                    { backgroundColor: colors.surface.card },
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
                   ]}
+                  onPress={() => router.push('/stories' as Href)}
                 >
-                  <BookOpen size={24} color={colors.secondary.sunshine} />
-                </View>
-                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>Masal</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickActionItem,
-                  { backgroundColor: colors.surface.card },
-                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
-                ]}
-                onPress={() => router.push('/coloring-history' as Href)}
-              >
-                <View
-                  style={[
-                    styles.quickActionIcon,
-                    { backgroundColor: colors.secondary.grass + '1F' },
+                  <View
+                    style={[
+                      styles.quickActionIcon,
+                      { backgroundColor: colors.secondary.sunshine + '1F' },
+                    ]}
+                  >
+                    <BookOpen size={22} color={colors.secondary.sunshine} />
+                  </View>
+                  <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                    Masal
+                  </Text>
+                </Pressable>
+              </View>
+              <View ref={coloringRef} collapsable={false} style={styles.quickActionRefWrap}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.quickActionItem,
+                    { backgroundColor: colors.surface.card },
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
                   ]}
+                  onPress={() => router.push('/coloring-history' as Href)}
                 >
-                  <Palette size={24} color={colors.secondary.grass} />
-                </View>
-                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
-                  Boyama
-                </Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.quickActionItem,
-                  { backgroundColor: colors.surface.card },
-                  pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
-                ]}
-                onPress={() => router.push('/chatbot' as Href)}
-              >
-                <View
-                  style={[
-                    styles.quickActionIcon,
-                    { backgroundColor: colors.primary.sunset + '1F' },
-                  ]}
-                >
-                  <MessageCircle size={24} color={colors.primary.sunset} />
-                </View>
-                <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
-                  Sohbet
-                </Text>
-              </Pressable>
+                  <View
+                    style={[
+                      styles.quickActionIcon,
+                      { backgroundColor: colors.secondary.grass + '1F' },
+                    ]}
+                  >
+                    <Palette size={22} color={colors.secondary.grass} />
+                  </View>
+                  <Text style={[styles.quickActionLabel, { color: colors.text.primary }]}>
+                    Boyama
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           )}
 
-          {/* Compact Progress Row - Single line: streak + XP + badges */}
-          {!isProfessional && showGamification && !gamificationLoading && (
-            <View style={[styles.progressRowCompact, { backgroundColor: colors.surface.card }]}>
-              <StreakDisplay
-                currentStreak={streakData?.currentStreak || 0}
-                longestStreak={streakData?.longestStreak || 0}
-                isActiveToday={
-                  streakData?.lastActivityDate === new Date().toISOString().split('T')[0]
-                }
-                streakAtRisk={
-                  !streakData?.lastActivityDate ||
-                  (streakData?.currentStreak > 0 &&
-                    streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
-                    streakData?.lastActivityDate !==
-                      (() => {
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        return yesterday.toISOString().split('T')[0];
-                      })())
-                }
-                hasFreezeAvailable={streakData?.streakFreezeAvailable}
-                size="compact"
-                onPress={() => router.push('/profile' as Href)}
-              />
-              <View style={styles.xpContainer}>
-                <XPProgressBar
-                  level={levelInfo.level}
-                  xpProgress={levelInfo.xpProgress}
-                  xpNeeded={levelInfo.xpNeeded}
-                  totalXp={totalXp}
-                  progressPercent={levelInfo.progressPercent}
+          {/* Smart Suggestion Card — contextual based on user activity */}
+          {!isProfessional && suggestion && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.suggestionCard,
+                { backgroundColor: colors.surface.card },
+                pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={() => router.push(suggestion.route)}
+            >
+              <View style={[styles.suggestionIcon, { backgroundColor: suggestion.color + '1F' }]}>
+                <suggestion.icon size={20} color={suggestion.color} />
+              </View>
+              <View style={styles.suggestionContent}>
+                <Text style={[styles.suggestionTitle, { color: colors.text.primary }]}>
+                  {suggestion.title}
+                </Text>
+                <Text
+                  style={[styles.suggestionText, { color: colors.text.tertiary }]}
+                  numberOfLines={2}
+                >
+                  {suggestion.text}
+                </Text>
+              </View>
+              <View style={[styles.suggestionCta, { backgroundColor: suggestion.color }]}>
+                <Text style={styles.suggestionCtaText}>{suggestion.cta}</Text>
+                <ChevronRight size={14} color={Colors.neutral.white} />
+              </View>
+            </Pressable>
+          )}
+
+          {/* Compact Progress Row - Only show when user has activity */}
+          {!isProfessional &&
+            showGamification &&
+            !gamificationLoading &&
+            (streakData?.currentStreak > 0 || totalXp > 0) && (
+              <View style={[styles.progressRowCompact, { backgroundColor: colors.surface.card }]}>
+                <StreakDisplay
+                  currentStreak={streakData?.currentStreak || 0}
+                  longestStreak={streakData?.longestStreak || 0}
+                  isActiveToday={
+                    streakData?.lastActivityDate === new Date().toISOString().split('T')[0]
+                  }
+                  streakAtRisk={
+                    !streakData?.lastActivityDate ||
+                    (streakData?.currentStreak > 0 &&
+                      streakData?.lastActivityDate !== new Date().toISOString().split('T')[0] &&
+                      streakData?.lastActivityDate !==
+                        (() => {
+                          const yesterday = new Date();
+                          yesterday.setDate(yesterday.getDate() - 1);
+                          return yesterday.toISOString().split('T')[0];
+                        })())
+                  }
+                  hasFreezeAvailable={streakData?.streakFreezeAvailable}
                   size="compact"
                   onPress={() => router.push('/profile' as Href)}
                 />
+                <View style={styles.xpContainer}>
+                  <XPProgressBar
+                    level={levelInfo.level}
+                    xpProgress={levelInfo.xpProgress}
+                    xpNeeded={levelInfo.xpNeeded}
+                    totalXp={totalXp}
+                    progressPercent={levelInfo.progressPercent}
+                    size="compact"
+                    onPress={() => router.push('/profile' as Href)}
+                  />
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
+                  onPress={() => router.push('/profile' as Href)}
+                >
+                  <Trophy size={18} color={colors.semantic.amber} />
+                </Pressable>
               </View>
-              <Pressable
-                style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
-                onPress={() => router.push('/profile' as Href)}
-              >
-                <Trophy size={18} color={colors.semantic.amber} />
-              </Pressable>
-            </View>
-          )}
+            )}
 
           {/* Professional Summary Cards - For experts and teachers */}
           {isProfessional && (
@@ -574,26 +698,23 @@ export default function HomeScreen() {
                     { backgroundColor: colors.surface.card, borderColor: colors.border.light },
                   ]}
                 >
-                  <View
-                    style={[styles.emptyIconContainer, { backgroundColor: colors.primary.soft }]}
-                  >
-                    <Brain size={28} color={colors.primary.sunset} />
-                  </View>
+                  <IooMascot size="sm" mood="curious" animated showGlow={false} />
                   <Text style={[styles.emptyText, { color: colors.text.primary }]}>
-                    Henüz analiz yok
+                    Henüz bir analiz yapmadınız
                   </Text>
                   <Text style={[styles.emptySubtext, { color: colors.text.tertiary }]}>
-                    Çizim yükleyerek ilk analizinizi yapın
+                    Çocuğunuzun bir çizimini fotoğraflayın,{'\n'}yapay zeka ile analiz edin
                   </Text>
                   <Pressable
-                    style={[
+                    style={({ pressed }) => [
                       styles.emptyCtaButton,
-                      { backgroundColor: colors.secondary.lavender + '20' },
+                      { backgroundColor: colors.secondary.lavender },
+                      pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
                     ]}
                     onPress={() => router.push('/(tabs)/analysis' as Href)}
                   >
-                    <Camera size={16} color={colors.primary.sunset} />
-                    <Text style={[styles.emptyCtaText, { color: colors.primary.sunset }]}>
+                    <Camera size={16} color={Colors.neutral.white} />
+                    <Text style={[styles.emptyCtaText, { color: Colors.neutral.white }]}>
                       İlk Analizi Başlat
                     </Text>
                   </Pressable>
@@ -665,6 +786,17 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </LinearGradient>
+
+      {/* Home Feature Tour */}
+      {!isProfessional && (
+        <FeatureTour
+          tourId="home_intro"
+          steps={tourSteps}
+          visible={showTour}
+          onComplete={() => setShowTour(false)}
+          onSkip={() => setShowTour(false)}
+        />
+      )}
 
       {/* New Badge Modal */}
       {newlyUnlockedBadge && (
@@ -866,7 +998,7 @@ const styles = StyleSheet.create({
   },
   heroGreeting: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
     marginBottom: 2,
   },
@@ -875,34 +1007,81 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
   },
 
-  // 2x2 Quick Action Grid
-  quickActionGrid: {
+  // Quick Action Row — 3 items, single horizontal line
+  quickActionRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing['3'],
     marginBottom: spacing['4'],
   },
-  quickActionItem: {
+  quickActionRefWrap: {
     flex: 1,
-    minWidth: '45%',
+  },
+  quickActionItem: {
     backgroundColor: Colors.neutral.white,
-    borderRadius: 16,
-    padding: spacing['4'],
+    borderRadius: 14,
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['2'],
     alignItems: 'center',
     gap: spacing['2'],
     ...shadows.xs,
   },
   quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   quickActionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 13,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
+  },
+
+  // Smart Suggestion Card
+  suggestionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.neutral.white,
+    borderRadius: 14,
+    padding: spacing['3'],
+    marginBottom: spacing['4'],
+    gap: spacing['3'],
+    ...shadows.xs,
+  },
+  suggestionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  suggestionContent: {
+    flex: 1,
+    gap: 2,
+  },
+  suggestionTitle: {
+    fontSize: 14,
+    fontFamily: typography.family.semibold,
+    color: Colors.neutral.darker,
+  },
+  suggestionText: {
+    fontSize: 12,
+    color: Colors.neutral.medium,
+    lineHeight: 16,
+  },
+  suggestionCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing['2'],
+    paddingHorizontal: spacing['3'],
+    borderRadius: radius.full,
+    gap: 2,
+  },
+  suggestionCtaText: {
+    fontSize: 12,
+    fontFamily: typography.family.semibold,
+    color: Colors.neutral.white,
   },
 
   // Compact Progress Row
@@ -918,7 +1097,7 @@ const styles = StyleSheet.create({
   },
   sectionTitleSecondary: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   xpContainer: {
@@ -957,7 +1136,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
   },
   sectionHeader: {
@@ -969,7 +1148,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 14,
     color: Colors.primary.sunset,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 
   // Recent Section
@@ -982,25 +1161,17 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: 'center',
-    padding: spacing['6'],
-    gap: spacing['3'],
+    paddingVertical: spacing['6'],
+    paddingHorizontal: spacing['5'],
+    gap: spacing['2'],
     backgroundColor: Colors.background.card,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: Colors.neutral.lighter,
   },
-  emptyIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary.soft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing['1'],
-  },
   emptyText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   emptySubtext: {
@@ -1011,17 +1182,18 @@ const styles = StyleSheet.create({
   emptyCtaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.secondary.lavender + '20',
-    paddingVertical: spacing['2.5'],
-    paddingHorizontal: spacing['5'],
+    backgroundColor: Colors.secondary.lavender,
+    paddingVertical: spacing['3'],
+    paddingHorizontal: spacing['6'],
     borderRadius: radius.full,
-    marginTop: spacing['1'],
+    marginTop: spacing['3'],
     gap: spacing['2'],
+    ...shadows.sm,
   },
   emptyCtaText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: Colors.primary.sunset,
+    fontFamily: typography.family.semibold,
+    color: Colors.neutral.white,
   },
   recentHorizontalScroll: {
     paddingRight: spacing['4'],
@@ -1046,7 +1218,7 @@ const styles = StyleSheet.create({
   },
   recentCardTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
     textAlign: 'center',
   },
@@ -1057,7 +1229,7 @@ const styles = StyleSheet.create({
   recentCardChild: {
     fontSize: 11,
     color: Colors.primary.sunset,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
 
   // Footer
@@ -1107,7 +1279,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
   },
   modalCloseBtn: {
@@ -1145,7 +1317,7 @@ const styles = StyleSheet.create({
   },
   actionOptionTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginBottom: 2,
   },

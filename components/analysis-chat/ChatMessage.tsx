@@ -42,9 +42,10 @@ export function ChatMessage({
   onSuggestedQuestionClick,
 }: ChatMessageProps) {
   const isUser = message.role === 'user';
-  const referencedInsight = message.referencedInsightIndex !== undefined
-    ? insights?.[message.referencedInsightIndex]
-    : null;
+  const referencedInsight =
+    message.referencedInsightIndex !== undefined
+      ? insights?.[message.referencedInsightIndex]
+      : null;
 
   return (
     <View style={[styles.container, isUser ? styles.userContainer : styles.assistantContainer]}>
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
   suggestionText: {
     fontSize: typography.size.xs,
     color: THEME.primary,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   timestamp: {
     fontSize: typography.size.xs,

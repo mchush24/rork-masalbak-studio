@@ -14,7 +14,7 @@
 
 import React, { useCallback, useRef } from 'react';
 import { View, StyleSheet, Text, Animated, Pressable } from 'react-native';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Canvas, Rect, LinearGradient as SkiaGradient, vec } from '@shopify/react-native-skia';
 import { Colors } from '@/constants/colors';
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   trackContainer: {
@@ -269,7 +269,6 @@ const styles = StyleSheet.create({
   },
   valueText: {
     fontSize: 16,
-    fontWeight: '700',
     color: Colors.primary.sunset,
     fontFamily: 'monospace',
   },
@@ -288,7 +287,7 @@ const styles = StyleSheet.create({
   },
   presetText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
   presetTextActive: {

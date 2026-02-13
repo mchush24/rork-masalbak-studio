@@ -15,7 +15,7 @@ import React, { useEffect, useRef, memo } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable, Dimensions } from 'react-native';
 import { Check, Info, X } from 'lucide-react-native';
 import { useIsProfessional, useGamification } from '@/lib/contexts/RoleContext';
-import { spacing, radius, zIndex } from '@/constants/design-system';
+import { spacing, radius, zIndex, typography } from '@/constants/design-system';
 import { ProfessionalColors, Colors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
   },
   message: {

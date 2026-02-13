@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   headerSubtitle: {
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   avatarSelectorText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   nameInput: {
     width: '100%',
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   ageButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   ageButtonTextSelected: {
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   confirmName: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   confirmAge: {
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: typography.size.md,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   nextButton: {
     flex: 1,
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   nextButtonTextDisabled: {

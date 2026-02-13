@@ -10,6 +10,7 @@ import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import { Ioo, IooSize } from '@/components/Ioo';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 type LoaderSize = 'tiny' | 'small' | 'medium';
 type LoaderVariant = 'dots' | 'pulse' | 'bounce' | 'ioo';
 
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
 
   // Pre-built configurations
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
   },
   cardLoaderText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: Colors.neutral.gray400,
   },
   sectionLoaderContainer: {
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
   },
   sectionLoaderText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: '#6B7280',
   },
 });

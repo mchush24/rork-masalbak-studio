@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: 'white',
     marginBottom: spacing.sm,
     textAlign: 'center',
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: 'white',
     marginBottom: spacing.xs,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   enrollButton: {
     backgroundColor: 'white',
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   enrollButtonText: {
     fontSize: typography.size.base,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.primary.sunset,
     textAlign: 'center',
   },

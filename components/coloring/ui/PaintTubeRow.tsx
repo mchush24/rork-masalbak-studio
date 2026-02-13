@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginBottom: spacing['2'],
     paddingHorizontal: spacing['2'],
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     opacity: 0.7,
     textTransform: 'uppercase',

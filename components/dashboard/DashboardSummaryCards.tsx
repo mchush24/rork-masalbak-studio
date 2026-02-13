@@ -17,7 +17,7 @@ import {
   FileText,
   BarChart3,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 import { useRole, UserRole } from '@/lib/contexts/RoleContext';
 
@@ -117,7 +117,10 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Bekleyen',
         value: stats.pendingReviews,
         icon: Clock,
-        gradient: stats.pendingReviews > 0 ? ['#FBBF24', Colors.semantic.amber] : [Colors.neutral.gray400, '#6B7280'],
+        gradient:
+          stats.pendingReviews > 0
+            ? ['#FBBF24', Colors.semantic.amber]
+            : [Colors.neutral.gray400, '#6B7280'],
         subtitle: 'İnceleme bekliyor',
         highlight: stats.pendingReviews > 0,
       },
@@ -147,7 +150,8 @@ const getCardConfigsForRole = (role: UserRole, stats: SummaryStats) => {
         title: 'Bekleyen Vaka',
         value: stats.pendingReviews,
         icon: AlertCircle,
-        gradient: stats.pendingReviews > 0 ? ['#F87171', '#EF4444'] : [Colors.neutral.gray400, '#6B7280'],
+        gradient:
+          stats.pendingReviews > 0 ? ['#F87171', '#EF4444'] : [Colors.neutral.gray400, '#6B7280'],
         subtitle: 'Değerlendirme bekliyor',
         highlight: stats.pendingReviews > 0,
       },
@@ -288,13 +292,13 @@ const styles = StyleSheet.create({
   },
   cardValue: {
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     marginBottom: 2,
   },
   cardTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: 'rgba(255, 255, 255, 0.95)',
     marginBottom: 2,
   },

@@ -11,6 +11,7 @@ import { Badge, RARITY_COLORS, BadgeRarity } from '@/lib/gamification/badges';
 import { USE_NATIVE_DRIVER } from '@/utils/animation';
 import { Colors } from '@/constants/colors';
 
+import { typography } from '@/constants/design-system';
 interface BadgeCardProps {
   badge: Badge;
   isUnlocked: boolean;
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
   },
   smallName: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
   },
 
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
   },
   mediumName: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     textAlign: 'center',
   },
 
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
   },
   largeName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     flex: 1,
   },
 
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
   },
   rarityText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   xpBadge: {
     position: 'absolute',
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
   },
   xpText: {
     fontSize: 9,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#4CAF50',
   },
   lockedOverlay: {

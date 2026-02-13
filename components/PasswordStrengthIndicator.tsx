@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: typography.size.xs,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 });

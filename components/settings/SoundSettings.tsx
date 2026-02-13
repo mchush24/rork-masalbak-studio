@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   closeButton: {
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.medium,
     textTransform: 'uppercase',
     letterSpacing: typography.letterSpacing.wide,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   volumeValue: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.grass,
     textAlign: 'center',
     marginTop: spacing['2'],
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   categoryLabel: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   categoryDescription: {

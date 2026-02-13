@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.darkest,
     padding: 0,
   },
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   filterChipTextActive: {
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   clearHistoryText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });
 

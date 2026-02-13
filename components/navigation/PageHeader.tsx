@@ -12,18 +12,8 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ViewStyle,
-} from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeInDown,
-  SlideInLeft,
-} from 'react-native-reanimated';
+import { View, Text, StyleSheet, Pressable, ViewStyle } from 'react-native';
+import Animated, { FadeIn, FadeInDown, SlideInLeft } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -156,10 +146,7 @@ export function PageHeader({
                   ]}
                   hitSlop={8}
                 >
-                  <ActionIcon
-                    size={20}
-                    color={action.color || colors.icon}
-                  />
+                  <ActionIcon size={20} color={action.color || colors.icon} />
                   {action.badge !== undefined && action.badge > 0 && (
                     <View style={styles.badge}>
                       <Text style={styles.badgeText}>
@@ -177,35 +164,22 @@ export function PageHeader({
       {/* Main Header Content */}
       <Animated.View
         entering={animated ? FadeInDown.delay(150).springify() : undefined}
-        style={[
-          styles.headerContent,
-          compact && styles.headerContentCompact,
-        ]}
+        style={[styles.headerContent, compact && styles.headerContentCompact]}
       >
         {/* Icon Badge */}
         {Icon && (
           <LinearGradient
             colors={iconGradient}
-            style={[
-              styles.iconBadge,
-              compact && styles.iconBadgeCompact,
-            ]}
+            style={[styles.iconBadge, compact && styles.iconBadgeCompact]}
           >
-            <Icon
-              size={compact ? 28 : layout.icon.medium}
-              color={Colors.neutral.white}
-            />
+            <Icon size={compact ? 28 : layout.icon.medium} color={Colors.neutral.white} />
           </LinearGradient>
         )}
 
         {/* Text Content */}
         <View style={styles.textContainer}>
           <Text
-            style={[
-              styles.title,
-              compact && styles.titleCompact,
-              { color: colors.title },
-            ]}
+            style={[styles.title, compact && styles.titleCompact, { color: colors.title }]}
             numberOfLines={1}
           >
             {title}
@@ -290,13 +264,7 @@ export function SimpleHeader({
   };
 
   return (
-    <View
-      style={[
-        styles.simpleContainer,
-        { paddingTop: insets.top + spacing['2'] },
-        style,
-      ]}
-    >
+    <View style={[styles.simpleContainer, { paddingTop: insets.top + spacing['2'] }, style]}>
       {/* Back Button */}
       {showBack ? (
         <Pressable
@@ -315,10 +283,7 @@ export function SimpleHeader({
       )}
 
       {/* Title */}
-      <Text
-        style={[styles.simpleTitle, { color: colors.title }]}
-        numberOfLines={1}
-      >
+      <Text style={[styles.simpleTitle, { color: colors.title }]} numberOfLines={1}>
         {title}
       </Text>
 
@@ -396,7 +361,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 10,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   headerContent: {
@@ -424,7 +389,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     letterSpacing: typography.letterSpacing.tight,
     marginBottom: spacing['1'],
   },
@@ -433,7 +398,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   subtitleCompact: {
     fontSize: typography.size.xs,
@@ -464,7 +429,7 @@ const styles = StyleSheet.create({
   simpleTitle: {
     flex: 1,
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     textAlign: 'center',
     marginHorizontal: spacing['2'],
   },

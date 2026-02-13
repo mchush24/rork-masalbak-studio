@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   speechText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['1'],
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['1'],
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   },
   emotionName: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
   },
   emotionNameCompact: {
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   selectedCheck: {
     color: Colors.neutral.white,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 });
 

@@ -1676,7 +1676,7 @@ const styles = StyleSheet.create({
   },
   selectedCheck: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.black,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
   bottomActions: {
@@ -1694,7 +1694,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
   // Phase 3: Advanced Color Picker Modal Styles
@@ -1736,7 +1736,7 @@ const styles = StyleSheet.create({
   },
   colorPickerTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   colorPickerClose: {
@@ -1753,7 +1753,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
     paddingHorizontal: spacing['4'],
@@ -1773,7 +1773,7 @@ const styles = StyleSheet.create({
   },
   currentColorLabel: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
@@ -1788,7 +1788,6 @@ const styles = StyleSheet.create({
   },
   currentColorHex: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
     color: Colors.neutral.darkest,
     fontFamily: 'monospace',
     marginBottom: spacing['1'],
@@ -1810,7 +1809,7 @@ const styles = StyleSheet.create({
   },
   colorPickerApplyText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   // Phase 7: Sticker and Texture UI Styles

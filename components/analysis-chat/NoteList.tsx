@@ -5,22 +5,8 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-import {
-  Pin,
-  Trash2,
-  Edit2,
-  Share2,
-  MoreVertical,
-  StickyNote,
-} from 'lucide-react-native';
+import { View, Text, Pressable, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { Pin, Trash2, Edit2, Share2, MoreVertical, StickyNote } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
@@ -66,15 +52,9 @@ export function NoteList({
   return (
     <FlatList
       data={notes}
-      keyExtractor={(item) => item.id}
+      keyExtractor={item => item.id}
       renderItem={({ item }) => (
-        <NoteItem
-          note={item}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onPin={onPin}
-          onShare={onShare}
-        />
+        <NoteItem note={item} onEdit={onEdit} onDelete={onDelete} onPin={onPin} onShare={onShare} />
       )}
       contentContainerStyle={styles.listContent}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -114,10 +94,7 @@ function NoteItem({ note, onEdit, onDelete, onPin, onShare }: NoteItemProps) {
         </View>
         <Pressable
           onPress={() => setShowActions(!showActions)}
-          style={({ pressed }) => [
-            styles.moreButton,
-            pressed && styles.moreButtonPressed,
-          ]}
+          style={({ pressed }) => [styles.moreButton, pressed && styles.moreButtonPressed]}
         >
           <MoreVertical size={18} color={Colors.neutral.medium} />
         </Pressable>
@@ -129,7 +106,7 @@ function NoteItem({ note, onEdit, onDelete, onPin, onShare }: NoteItemProps) {
       {/* Tags */}
       {note.tags && note.tags.length > 0 && (
         <View style={styles.tagsRow}>
-          {note.tags.map((tag) => (
+          {note.tags.map(tag => (
             <View key={tag} style={styles.tagChip}>
               <Text style={styles.tagText}>#{tag}</Text>
             </View>
@@ -139,9 +116,7 @@ function NoteItem({ note, onEdit, onDelete, onPin, onShare }: NoteItemProps) {
 
       {/* Footer */}
       <View style={styles.noteFooter}>
-        <Text style={styles.noteDate}>
-          {formatDate(note.createdAt)}
-        </Text>
+        <Text style={styles.noteDate}>{formatDate(note.createdAt)}</Text>
         {note.isSharedWithProfessional && (
           <View style={styles.sharedBadge}>
             <Share2 size={10} color={Colors.secondary.grass} />
@@ -158,17 +133,17 @@ function NoteItem({ note, onEdit, onDelete, onPin, onShare }: NoteItemProps) {
               onPress={() => handleAction(() => onPin(note.id, !note.isPinned))}
               style={styles.actionItem}
             >
-              <Pin size={16} color={note.isPinned ? Colors.secondary.sunshine : Colors.neutral.medium} />
+              <Pin
+                size={16}
+                color={note.isPinned ? Colors.secondary.sunshine : Colors.neutral.medium}
+              />
               <Text style={styles.actionText}>
                 {note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle'}
               </Text>
             </Pressable>
           )}
           {onEdit && (
-            <Pressable
-              onPress={() => handleAction(() => onEdit(note))}
-              style={styles.actionItem}
-            >
+            <Pressable onPress={() => handleAction(() => onEdit(note))} style={styles.actionItem}>
               <Edit2 size={16} color={Colors.neutral.medium} />
               <Text style={styles.actionText}>Düzenle</Text>
             </Pressable>
@@ -178,7 +153,12 @@ function NoteItem({ note, onEdit, onDelete, onPin, onShare }: NoteItemProps) {
               onPress={() => handleAction(() => onShare(note.id, !note.isSharedWithProfessional))}
               style={styles.actionItem}
             >
-              <Share2 size={16} color={note.isSharedWithProfessional ? Colors.secondary.grass : Colors.neutral.medium} />
+              <Share2
+                size={16}
+                color={
+                  note.isSharedWithProfessional ? Colors.secondary.grass : Colors.neutral.medium
+                }
+              />
               <Text style={styles.actionText}>
                 {note.isSharedWithProfessional ? 'Paylaşımı Kaldır' : 'Uzmanla Paylaş'}
               </Text>
@@ -302,7 +282,7 @@ const styles = StyleSheet.create({
   },
   typeLabel: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   pinnedBadge: {
     width: 20,

@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   skipButton: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   stepCounter: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     minWidth: 32,
     textAlign: 'right',
@@ -434,14 +434,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     textAlign: 'center',
     marginBottom: spacing.xs,
     marginTop: spacing.md,
   },
   subtitle: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.dark,
     textAlign: 'center',
     marginBottom: spacing.lg,
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   },
   highlightText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Footer
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   loginText: {
@@ -521,6 +521,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginLink: {
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 });

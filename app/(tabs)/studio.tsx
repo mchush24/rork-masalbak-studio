@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['4xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
@@ -893,13 +893,13 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.cards.coloring.icon,
     marginBottom: spacing['1'],
   },
   statLabel: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     textTransform: 'uppercase',
     letterSpacing: typography.letterSpacing.wider,
@@ -923,7 +923,7 @@ const styles = StyleSheet.create({
   },
   featureBadgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.cards.coloring.icon,
   },
   cardIconContainer: {
@@ -941,7 +941,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     textAlign: 'center',
@@ -983,7 +983,7 @@ const styles = StyleSheet.create({
   },
   imageLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   selectImageButton: {
@@ -1006,7 +1006,7 @@ const styles = StyleSheet.create({
   },
   buttonTextWhite: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   buttonDisabled: {
@@ -1033,7 +1033,7 @@ const styles = StyleSheet.create({
   },
   successBadgeText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.semantic.success,
   },
   resultCard: {
@@ -1058,7 +1058,7 @@ const styles = StyleSheet.create({
   },
   resultTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -1088,7 +1088,7 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -1119,7 +1119,7 @@ const styles = StyleSheet.create({
   },
   featureLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     textAlign: 'center',
   },
@@ -1144,7 +1144,7 @@ const styles = StyleSheet.create({
   },
   aiBadgeText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.lavender,
   },
   aiIconContainer: {
@@ -1159,7 +1159,7 @@ const styles = StyleSheet.create({
   },
   aiCardTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
     marginBottom: spacing['2'],
     textAlign: 'center',
@@ -1180,7 +1180,7 @@ const styles = StyleSheet.create({
   },
   aiButtonText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.lavender,
   },
 
@@ -1213,7 +1213,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
   },
   modalCloseButton: {
@@ -1237,7 +1237,7 @@ const styles = StyleSheet.create({
   },
   instructionsTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
   },
@@ -1263,7 +1263,7 @@ const styles = StyleSheet.create({
     bottom: spacing['3'],
     left: spacing['3'],
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     backgroundColor: 'rgba(0,0,0,0.5)',
     paddingHorizontal: spacing['3'],
@@ -1298,7 +1298,7 @@ const styles = StyleSheet.create({
   },
   modalResultBadgeText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.lavender,
   },
   modalResultImage: {
@@ -1343,7 +1343,7 @@ const styles = StyleSheet.create({
   },
   canvasModalTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
   },
 
@@ -1375,7 +1375,7 @@ const styles = StyleSheet.create({
   },
   warningTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['3'],
@@ -1401,7 +1401,7 @@ const styles = StyleSheet.create({
   },
   concernTypeLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   warningDetailBox: {
     backgroundColor: 'rgba(255, 107, 107, 0.1)',
@@ -1414,14 +1414,14 @@ const styles = StyleSheet.create({
   },
   warningDetailTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
   warningDetailText: {
     fontSize: typography.size.md,
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     lineHeight: 20,
   },
   therapeuticBox: {
@@ -1435,7 +1435,7 @@ const styles = StyleSheet.create({
   },
   therapeuticTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.violet,
     marginBottom: spacing['2'],
   },
@@ -1455,7 +1455,7 @@ const styles = StyleSheet.create({
   },
   coloringThemeTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: '#22C55E',
     marginBottom: spacing['2'],
   },
@@ -1506,6 +1506,6 @@ const styles = StyleSheet.create({
   warningButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 });

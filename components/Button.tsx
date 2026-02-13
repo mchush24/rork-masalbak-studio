@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Pressable,
   Text,
@@ -8,12 +8,12 @@ import {
   ViewStyle,
   TextStyle,
   PressableStateCallbackType,
-} from "react-native";
-import { Colors } from "@/constants/colors";
-import { spacing, typography, radius, shadows, buttonVariants } from "@/constants/design-system";
+} from 'react-native';
+import { Colors } from '@/constants/colors';
+import { spacing, typography, radius, shadows, buttonVariants } from '@/constants/design-system';
 
-export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
   /** Button text label */
@@ -56,8 +56,8 @@ interface ButtonProps {
 export function Button({
   children,
   onPress,
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
   loading = false,
   fullWidth = false,
@@ -76,8 +76,12 @@ export function Button({
       styles[`button_${size}`],
       {
         backgroundColor: variantStyle.backgroundColor,
-        ...('borderColor' in variantStyle && variantStyle.borderColor ? { borderColor: variantStyle.borderColor } : {}),
-        ...('borderWidth' in variantStyle && variantStyle.borderWidth ? { borderWidth: variantStyle.borderWidth } : {}),
+        ...('borderColor' in variantStyle && variantStyle.borderColor
+          ? { borderColor: variantStyle.borderColor }
+          : {}),
+        ...('borderWidth' in variantStyle && variantStyle.borderWidth
+          ? { borderWidth: variantStyle.borderWidth }
+          : {}),
       },
     ];
 
@@ -117,22 +121,11 @@ export function Button({
     >
       <View style={styles.content}>
         {loading ? (
-          <ActivityIndicator
-            size="small"
-            color={getTextColor()}
-            style={styles.spinner}
-          />
+          <ActivityIndicator size="small" color={getTextColor()} style={styles.spinner} />
         ) : (
           icon && <View style={styles.iconContainer}>{icon}</View>
         )}
-        <Text
-          style={[
-            styles.text,
-            styles[`text_${size}`],
-            { color: getTextColor() },
-            textStyle,
-          ]}
-        >
+        <Text style={[styles.text, styles[`text_${size}`], { color: getTextColor() }, textStyle]}>
           {children}
         </Text>
       </View>
@@ -142,9 +135,9 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: radius.md,
     ...shadows.sm,
   },
@@ -164,7 +157,7 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   fullWidth: {
-    width: "100%",
+    width: '100%',
   },
   disabled: {
     opacity: 0.5,
@@ -175,9 +168,9 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   content: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.sm,
   },
   iconContainer: {
@@ -187,9 +180,9 @@ const styles = StyleSheet.create({
     marginRight: spacing.xs,
   },
   text: {
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     letterSpacing: typography.letterSpacing.tight,
-    textAlign: "center",
+    textAlign: 'center',
   },
   text_sm: {
     fontSize: typography.size.sm,

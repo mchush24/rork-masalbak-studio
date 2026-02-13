@@ -162,7 +162,7 @@ export default function ColoringHistoryScreen() {
               }
               style={styles.infoCardGradient}
             >
-              <Text style={[styles.infoCardText, { color: '#FFFFFF' }]}>
+              <Text style={[styles.infoCardText, { color: Colors.neutral.white }]}>
                 💡 Boyama sayfalarınızı PDF olarak indirebilir ve yazdırabilirsiniz
               </Text>
             </LinearGradient>
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
     letterSpacing: typography.letterSpacing.tight,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   infoCard: {
     marginBottom: spacing['6'],
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   infoCardText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     textAlign: 'center',
   },
   loadingContainer: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   emptyText: {
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   emptyButtonText: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   grid: {
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     minHeight: typography.size.base * 2 * 1.5,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   },
   pageCountText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.sky,
   },
   tagsContainer: {
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   favoriteBadge: {
     position: 'absolute',
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   },
   downloadButtonText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   swipeDeleteContainer: {
@@ -582,6 +582,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 });

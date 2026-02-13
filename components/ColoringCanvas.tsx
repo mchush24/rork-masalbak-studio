@@ -968,7 +968,7 @@ const styles = StyleSheet.create({
   },
   selectedCheck: {
     fontSize: 24,
-    fontWeight: '900',
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
 
@@ -990,7 +990,7 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.white,
   },
 });

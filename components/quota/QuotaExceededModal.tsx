@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     textAlign: 'center',
     marginBottom: spacing['4'],
@@ -140,12 +140,12 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   infoValue: {
     fontSize: typography.size.sm,
     color: Colors.neutral.darkest,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   infoDivider: {
     height: 1,
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   upgradeText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   closeAction: {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   closeActionText: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     color: Colors.neutral.medium,
   },
 });

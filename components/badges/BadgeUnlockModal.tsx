@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
   },
   badgeContainer: {
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   },
   badgeName: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     textAlign: 'center',
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   rarityText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   // Progress section
   progressSection: {
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   progressTitle: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: RenkooColors.brand.jellyPurple,
   },
   progressBarContainer: {
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: RenkooColors.brand.jellyPurple,
     minWidth: 50,
     textAlign: 'right',
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
 });

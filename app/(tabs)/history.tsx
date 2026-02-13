@@ -501,7 +501,7 @@ export default function HistoryScreen() {
               }
               style={styles.headerIcon}
             >
-              <Clock size={layout.icon.medium} color="#FFFFFF" />
+              <Clock size={layout.icon.medium} color={Colors.neutral.white} />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
               <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Geçmiş</Text>
@@ -534,7 +534,7 @@ export default function HistoryScreen() {
           >
             <Brain
               size={iconSizes.small}
-              color={activeTab === TAB_ANALYSES ? '#FFFFFF' : colors.text.secondary}
+              color={activeTab === TAB_ANALYSES ? Colors.neutral.white : colors.text.secondary}
               strokeWidth={iconStroke.standard}
             />
             <Text
@@ -561,7 +561,7 @@ export default function HistoryScreen() {
           >
             <BookOpen
               size={iconSizes.small}
-              color={activeTab === TAB_STORIES ? '#FFFFFF' : colors.text.secondary}
+              color={activeTab === TAB_STORIES ? Colors.neutral.white : colors.text.secondary}
               strokeWidth={iconStroke.standard}
             />
             <Text
@@ -588,7 +588,7 @@ export default function HistoryScreen() {
           >
             <Palette
               size={iconSizes.small}
-              color={activeTab === TAB_COLORINGS ? '#FFFFFF' : colors.text.secondary}
+              color={activeTab === TAB_COLORINGS ? Colors.neutral.white : colors.text.secondary}
               strokeWidth={iconStroke.standard}
             />
             <Text
@@ -744,7 +744,7 @@ export default function HistoryScreen() {
                             >
                               <Brain
                                 size={iconSizes.small}
-                                color="#FFFFFF"
+                                color={Colors.neutral.white}
                                 strokeWidth={iconStroke.standard}
                               />
                             </LinearGradient>
@@ -860,7 +860,7 @@ export default function HistoryScreen() {
                   >
                     <Trash2
                       size={iconSizes.action}
-                      color="#FFFFFF"
+                      color={Colors.neutral.white}
                       strokeWidth={iconStroke.standard}
                     />
                     <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
@@ -958,7 +958,7 @@ export default function HistoryScreen() {
                     >
                       <Trash2
                         size={iconSizes.small}
-                        color="#FFFFFF"
+                        color={Colors.neutral.white}
                         strokeWidth={iconStroke.standard}
                       />
                       <Text style={styles.deleteButtonText}>{t.history.delete}</Text>
@@ -1045,12 +1045,12 @@ export default function HistoryScreen() {
                               style={styles.downloadButtonGradient}
                             >
                               {generateColoringPDFMutation.isPending ? (
-                                <ActivityIndicator size="small" color="#FFFFFF" />
+                                <ActivityIndicator size="small" color={Colors.neutral.white} />
                               ) : (
                                 <>
                                   <Download
                                     size={iconSizes.inline}
-                                    color="#FFFFFF"
+                                    color={Colors.neutral.white}
                                     strokeWidth={iconStroke.bold}
                                   />
                                   <Text style={styles.downloadButtonText}>
@@ -1105,7 +1105,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
   },
@@ -1113,7 +1113,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
     marginTop: spacing['1'],
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -1138,7 +1138,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   tabTextActive: {
@@ -1170,7 +1170,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
   },
   emptyText: {
@@ -1197,7 +1197,7 @@ const styles = StyleSheet.create({
   },
   timelineDate: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.secondary.lavender,
   },
   timelineLine: {
@@ -1252,7 +1252,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
@@ -1322,7 +1322,7 @@ const styles = StyleSheet.create({
   },
   storyTitle: {
     fontSize: typography.size.xl,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     lineHeight: typography.lineHeight.snug * typography.size.xl,
   },
@@ -1334,7 +1334,7 @@ const styles = StyleSheet.create({
   storyMetaText: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   // Coloring Card Styles
   coloringsGrid: {
@@ -1372,7 +1372,7 @@ const styles = StyleSheet.create({
   },
   coloringTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     minHeight: typography.size.base * 2 * 1.5,
@@ -1391,7 +1391,7 @@ const styles = StyleSheet.create({
   },
   downloadButtonText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   // Swipe Delete
@@ -1414,6 +1414,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 });

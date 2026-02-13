@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
     letterSpacing: typography.letterSpacing.tight,
   },
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.regular,
+    fontFamily: typography.family.regular,
     color: Colors.neutral.darkest,
     paddingVertical: 0, // Remove default padding
   },
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   message: {
     marginTop: spacing.xs,
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     lineHeight: typography.size.xs * typography.lineHeight.normal,
   },
 });

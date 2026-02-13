@@ -9,7 +9,7 @@ import React, { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { ChoiceOption, TRAIT_DEFINITIONS } from '@/types/InteractiveStory';
 import { Colors } from '@/constants/colors';
 
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   text: {
     color: Colors.neutral.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   checkmarkText: {
     color: '#22C55E',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
   },
   sparkle: {
     position: 'absolute',

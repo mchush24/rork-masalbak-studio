@@ -20,7 +20,7 @@ import {
   TrendingDown,
   Minus,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 interface StudentData {
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   subtitle: {
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
   batchButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   addButton: {
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     width: 50,
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: ProfessionalColors.trust.primary,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   selectAllRow: {
     flexDirection: 'row',
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   },
   selectAllText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: ProfessionalColors.trust.primary,
   },
   listContainer: {
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginTop: spacing['3'],
   },
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   studentInfo: {
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
   },
   studentName: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   metaRow: {
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
   },
   pendingText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#D97706',
   },
   scoreContainer: {
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
   },
   scoreValue: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.trust.primary,
   },
 });

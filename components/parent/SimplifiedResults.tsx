@@ -21,7 +21,7 @@ import {
   Check,
   Lightbulb,
 } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface StrengthItem {
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
   },
   headerSubtitle: {
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   sectionHeader: {
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darker,
   },
   countBadge: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   countBadgeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.primary.sunset,
   },
   sectionContent: {
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   },
   strengthTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
     marginBottom: 4,
   },
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
   developmentName: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
   },
   levelBadge: {
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   levelText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   developmentDescription: {
     fontSize: 13,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
   },
   recommendationTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darker,
     marginBottom: 4,
   },
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   },
   activitiesTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },

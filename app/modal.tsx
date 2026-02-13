@@ -5,6 +5,7 @@ import { Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } 
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 
+import { typography } from '@/constants/design-system';
 export default function ModalScreen() {
   const { colors, isDark } = useTheme();
 
@@ -29,7 +30,7 @@ export default function ModalScreen() {
             style={[styles.closeButton, { backgroundColor: colors.secondary.sky }]}
             onPress={() => router.back()}
           >
-            <Text style={[styles.closeButtonText, { color: '#FFFFFF' }]}>Close</Text>
+            <Text style={[styles.closeButtonText, { color: Colors.neutral.white }]}>Close</Text>
           </TouchableOpacity>
         </View>
       </Pressable>
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     marginBottom: 16,
   },
   description: {
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: 'white',
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     textAlign: 'center',
   },
 });

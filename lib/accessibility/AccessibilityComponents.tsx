@@ -35,7 +35,7 @@ import {
   ColorBlindMode,
 } from './AccessibilityProvider';
 import { Colors } from '@/constants/colors';
-import { shadows, zIndex } from '@/constants/design-system';
+import { shadows, zIndex, typography } from '@/constants/design-system';
 
 interface AccessibleButtonProps {
   children: React.ReactNode;
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   skipLinkText: {
     color: Colors.neutral.white,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 
   // Settings Item
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingsItemLabel: {
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   settingsItemDescription: {
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   },
   colorBlindOptionLabel: {
     fontSize: 16,
-    fontWeight: '600' as const,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.dark,
   },
   colorBlindOptionDescription: {

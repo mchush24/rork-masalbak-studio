@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   typeLabel: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   typeLabelSelected: {
     color: Colors.primary.peach,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   tagCount: {
     fontSize: typography.size.xs,
     color: Colors.primary.sunset,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   submitButton: {
     borderRadius: radius.lg,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
   },
   tagsContainer: {
@@ -322,6 +322,6 @@ const styles = StyleSheet.create({
   },
   tagTextSelected: {
     color: Colors.primary.peach,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });

@@ -11,7 +11,7 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import Svg, { Path, Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { TrendingUp, TrendingDown, Minus, Calendar, Info } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { ChartDataService, TimeRange, EmotionChartData } from '@/lib/professional';
 import { useFeedback } from '@/hooks/useFeedback';
 
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '700', color: Colors.neutral.dark },
+  title: { fontSize: 18, fontFamily: typography.family.bold, color: Colors.neutral.dark },
   subtitle: { fontSize: 14, color: Colors.neutral.medium, marginTop: 2 },
   rangeSelector: {
     flexDirection: 'row',
@@ -308,7 +308,11 @@ const styles = StyleSheet.create({
   },
   rangeButton: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
   rangeButtonActive: { backgroundColor: Colors.neutral.white, ...shadows.xs },
-  rangeButtonText: { fontSize: 12, fontWeight: '600', color: Colors.neutral.medium },
+  rangeButtonText: {
+    fontSize: 12,
+    fontFamily: typography.family.semibold,
+    color: Colors.neutral.medium,
+  },
   rangeButtonTextActive: { color: Colors.secondary.lavender },
   chartContainer: { alignItems: 'center', marginBottom: 16 },
   emptyChart: {
@@ -332,9 +336,9 @@ const styles = StyleSheet.create({
   },
   statItem: { alignItems: 'center' },
   statLabel: { fontSize: 12, color: Colors.neutral.medium, marginBottom: 4 },
-  statValue: { fontSize: 18, fontWeight: '700', color: Colors.neutral.dark },
+  statValue: { fontSize: 18, fontFamily: typography.family.bold, color: Colors.neutral.dark },
   trendContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  trendText: { fontSize: 16, fontWeight: '600' },
+  trendText: { fontSize: 16, fontFamily: typography.family.semibold },
   emotionScroll: { marginBottom: 16 },
   emotionContainer: { gap: 8, paddingHorizontal: 4 },
   emotionPill: {
@@ -349,14 +353,22 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   emotionDot: { width: 8, height: 8, borderRadius: 4 },
-  emotionPillText: { fontSize: 13, fontWeight: '500', color: Colors.neutral.dark },
+  emotionPillText: {
+    fontSize: 13,
+    fontFamily: typography.family.medium,
+    color: Colors.neutral.dark,
+  },
   insightsContainer: {
     backgroundColor: `${Colors.secondary.lavender}10`,
     borderRadius: 12,
     padding: 16,
   },
   insightsHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  insightsTitle: { fontSize: 14, fontWeight: '600', color: Colors.secondary.lavender },
+  insightsTitle: {
+    fontSize: 14,
+    fontFamily: typography.family.semibold,
+    color: Colors.secondary.lavender,
+  },
   insightItem: {
     paddingVertical: 8,
     borderBottomWidth: 1,

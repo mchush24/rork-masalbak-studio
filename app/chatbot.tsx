@@ -572,7 +572,10 @@ export default function ChatbotScreen() {
                 onPress={() => sendMessage(inputText)}
                 disabled={!inputText.trim()}
               >
-                <Send size={20} color={inputText.trim() ? '#FFFFFF' : colors.text.tertiary} />
+                <Send
+                  size={20}
+                  color={inputText.trim() ? Colors.neutral.white : colors.text.tertiary}
+                />
               </Pressable>
             </View>
           </View>
@@ -607,13 +610,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.text.primary,
   },
   headerSubtitle: {
     fontSize: typography.size.xs,
     color: Colors.text.secondary,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
     marginTop: 1,
   },
   headerSpacer: {
@@ -712,7 +715,7 @@ const styles = StyleSheet.create({
   },
   quickActionLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.text.primary,
   },
   inputContainer: {
@@ -769,7 +772,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     flex: 1,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.secondary.lavender,
   },
   // Önerilen sorular
@@ -781,7 +784,7 @@ const styles = StyleSheet.create({
   },
   suggestedQuestionsTitle: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
     marginBottom: spacing['2'],
   },
@@ -794,6 +797,6 @@ const styles = StyleSheet.create({
   suggestedQuestionText: {
     fontSize: typography.size.sm,
     color: Colors.secondary.lavender,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });

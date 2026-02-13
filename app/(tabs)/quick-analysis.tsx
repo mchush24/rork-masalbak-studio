@@ -851,14 +851,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: typography.size['2xl'],
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['0.5'],
   },
   headerSubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   stepperContainer: {
     marginBottom: spacing['6'],
@@ -884,7 +884,7 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.semantic.error,
     marginBottom: spacing['1'],
   },
@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
   },
   errorRetryButtonText: {
     color: Colors.neutral.white,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     fontSize: typography.size.sm,
   },
 
@@ -934,7 +934,7 @@ const styles = StyleSheet.create({
   analyzeButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   loadingContainer: {
     alignItems: 'center',
@@ -945,7 +945,7 @@ const styles = StyleSheet.create({
     marginTop: spacing['3'],
     color: Colors.neutral.dark,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   resultsContainer: {
     backgroundColor: Colors.neutral.white,
@@ -974,14 +974,14 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['1'],
   },
   summarySubtitle: {
     fontSize: typography.size.sm,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 
   // Action Buttons
@@ -1004,7 +1004,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
   secondaryButtonWrapper: {
     marginBottom: spacing['2'],
@@ -1021,7 +1021,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 
   // Camera
@@ -1098,7 +1098,7 @@ const styles = StyleSheet.create({
   },
   resultLabel: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.dark,
     marginBottom: spacing['2'],
   },
@@ -1122,7 +1122,7 @@ const styles = StyleSheet.create({
   tagText: {
     color: Colors.secondary.sky,
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   themeTag: {
     backgroundColor: Colors.secondary.sunshine + '30',
@@ -1147,7 +1147,7 @@ const styles = StyleSheet.create({
   },
   riskTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['3'],
   },
@@ -1163,7 +1163,7 @@ const styles = StyleSheet.create({
   riskAction: {
     fontSize: typography.size.xs,
     color: Colors.neutral.medium,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     fontStyle: 'italic',
   },
   insightCard: {
@@ -1176,7 +1176,7 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
   },
@@ -1190,7 +1190,7 @@ const styles = StyleSheet.create({
   strengthText: {
     fontSize: typography.size.xs,
     color: Colors.secondary.sky,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
   tipCard: {
     backgroundColor: Colors.background.card,
@@ -1202,7 +1202,7 @@ const styles = StyleSheet.create({
   },
   tipTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['3'],
   },
@@ -1251,7 +1251,7 @@ const styles = StyleSheet.create({
   resultActionText: {
     flex: 1,
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.darkest,
   },
   newAnalysisButton: {
@@ -1268,6 +1268,6 @@ const styles = StyleSheet.create({
   newAnalysisButtonText: {
     color: Colors.neutral.white,
     fontSize: typography.size.md,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 });

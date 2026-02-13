@@ -8,7 +8,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, Info } from 'lucide-react-native';
-import { spacing, radius, shadows } from '@/constants/design-system';
+import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   subtitle: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   interpretationText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   mainScoreSection: {
     marginBottom: spacing['4'],
@@ -347,12 +347,12 @@ const styles = StyleSheet.create({
   },
   rawScoreValue: {
     fontSize: 48,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   rawScoreMax: {
     fontSize: 24,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
     color: ProfessionalColors.text.tertiary,
     marginLeft: 4,
   },
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     width: 40,
     textAlign: 'right',
@@ -395,12 +395,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.trust.primary,
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginTop: 2,
   },
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   },
   curveSectionTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
     marginBottom: spacing['2'],
   },
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   curveLabel: {
     fontSize: 10,
     color: ProfessionalColors.text.tertiary,
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   ciSection: {
     backgroundColor: Colors.neutral.gray50,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   ciTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
   },
   ciRange: {
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
   },
   ciValue: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   ciBar: {
@@ -551,11 +551,11 @@ const styles = StyleSheet.create({
   equivalentLabel: {
     fontSize: 11,
     color: '#059669',
-    fontWeight: '500',
+    fontFamily: typography.family.medium,
   },
   equivalentValue: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: '#047857',
     marginTop: 2,
   },
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
   },
   normTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.secondary,
     marginBottom: spacing['2'],
   },
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
   },
   normValue: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   // Compact styles
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
   },
   compactTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: ProfessionalColors.text.primary,
   },
   compactBadge: {
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
   },
   compactBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
   compactScores: {
     flexDirection: 'row',
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
   },
   compactScoreValue: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: ProfessionalColors.text.primary,
   },
   compactScoreLabel: {

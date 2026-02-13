@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     marginBottom: spacing['2'],
   },
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     color: Colors.neutral.white,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: typography.family.bold,
     ...createTextShadow(0, 0, 4, 'rgba(255, 255, 255, 0.8)'),
   },
   sparkle2: {
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   labelSelected: {
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     opacity: 1,
   },
   selectedBadge: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   toggleLabelActive: {
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     opacity: 1,
   },
 });

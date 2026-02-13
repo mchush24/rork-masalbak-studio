@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
   },
 
   // Dots
@@ -460,10 +460,10 @@ const styles = StyleSheet.create({
   },
   counterText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
   counterCurrent: {
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
   },
 
   // Progress Bar
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   },
   barStepText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
+    fontFamily: typography.family.medium,
   },
 });
 

@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: isSmallDevice ? typography.size['2xl'] : typography.size['3xl'],
-    fontWeight: typography.weight.extrabold,
+    fontFamily: typography.family.extrabold,
     color: Colors.neutral.darkest,
     marginBottom: spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: isSmallDevice ? typography.size.base : typography.size.lg,
-    fontWeight: typography.weight.bold,
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
     marginBottom: isSmallDevice ? spacing['1'] : spacing['2'],
     letterSpacing: typography.letterSpacing.tight,
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.white,
     ...textShadows.sm,
   },
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontFamily: typography.family.semibold,
     color: Colors.neutral.medium,
   },
 });

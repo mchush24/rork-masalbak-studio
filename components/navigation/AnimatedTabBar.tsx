@@ -24,7 +24,7 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Colors } from '@/constants/colors';
-import { shadows } from '@/constants/design-system';
+import { shadows, typography } from '@/constants/design-system';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 
@@ -315,12 +315,12 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 9,
-    fontWeight: '700',
+    fontFamily: typography.family.bold,
     color: Colors.neutral.white,
   },
   label: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
   },
 });
 

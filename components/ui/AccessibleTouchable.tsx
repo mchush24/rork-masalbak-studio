@@ -9,22 +9,10 @@
  */
 
 import React, { useCallback } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  ViewStyle,
-  StyleProp,
-  Platform,
-  View,
-  Text,
-} from 'react-native';
+import { Pressable, StyleSheet, ViewStyle, StyleProp, Platform, View, Text } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import {
-  TOUCH_TARGETS,
-  useReduceMotion,
-  getAccessibilityProps,
-} from '@/utils/accessibility';
-import { shadows } from '@/constants/design-system';
+import { TOUCH_TARGETS, useReduceMotion, getAccessibilityProps } from '@/utils/accessibility';
+import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
 
 interface AccessibleTouchableProps {
@@ -247,9 +235,7 @@ export function AccessibleListItem({
         <Text style={[styles.listItemTitle, selected && styles.listItemTitleSelected]}>
           {title}
         </Text>
-        {subtitle && (
-          <Text style={styles.listItemSubtitle}>{subtitle}</Text>
-        )}
+        {subtitle && <Text style={styles.listItemSubtitle}>{subtitle}</Text>}
       </View>
       {rightIcon && <View style={styles.listItemIcon}>{rightIcon}</View>}
     </AccessibleTouchable>
@@ -313,7 +299,7 @@ const styles = StyleSheet.create({
   },
   listItemTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: typography.family.semibold,
     color: '#1F2937',
   },
   listItemTitleSelected: {
