@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { protectedProcedure } from '../../create-context.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
 import { BadgeService } from '../../../lib/badge-service.js';
+import { TRPCError } from '@trpc/server';
 
 export const saveCompletedColoringProcedure = protectedProcedure
   .input(
@@ -35,7 +36,10 @@ export const saveCompletedColoringProcedure = protectedProcedure
 
     if (fetchError || !coloring) {
       logger.error('[SaveCompletedColoring] Coloring not found or access denied:', fetchError);
-      throw new Error("Coloring not found or you don't have permission to update it");
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Boyama bulunamadı veya erişim yetkiniz yok',
+      });
     }
 
     // 2. Upload the completed image to Supabase storage
@@ -58,7 +62,10 @@ export const saveCompletedColoringProcedure = protectedProcedure
 
       if (uploadError) {
         logger.error('[SaveCompletedColoring] Upload error:', uploadError);
-        throw new Error('Failed to upload completed image');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Boyama görseli yüklenirken bir hata oluştu',
+        });
       }
 
       // Get public URL
@@ -85,7 +92,10 @@ export const saveCompletedColoringProcedure = protectedProcedure
 
       if (updateError) {
         logger.error('[SaveCompletedColoring] Update error:', updateError);
-        throw new Error('Failed to update coloring record');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Boyama kaydı güncellenirken bir hata oluştu',
+        });
       }
 
       logger.info('[SaveCompletedColoring] ✅ Successfully saved completed coloring');
@@ -117,6 +127,9 @@ export const saveCompletedColoringProcedure = protectedProcedure
       };
     } catch (error) {
       logger.error('[SaveCompletedColoring] Error:', error);
-      throw new Error('Failed to save completed coloring');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Boyama kaydedilirken bir hata oluştu',
+      });
     }
   });

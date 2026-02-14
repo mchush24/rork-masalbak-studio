@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const listAnalysesInputSchema = z.object({
   limit: z.number().min(1).max(100).default(20),
@@ -64,7 +65,10 @@ export const listAnalysesProcedure = protectedProcedure
 
     if (error) {
       logger.error('[listAnalyses] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Analizler listelenirken bir hata oluştu',
+      });
     }
 
     logger.info('[listAnalyses] Found', count, 'analyses');

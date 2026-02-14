@@ -6,6 +6,7 @@ import { authenticatedAiRateLimit } from '../../middleware/rate-limit.js';
 import { analysisQuota } from '../../middleware/quota.js';
 import { BadgeService } from '../../../lib/badge-service.js';
 import { extractJSON } from '../../../lib/json-extractor.js';
+import { TRPCError } from '@trpc/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -837,7 +838,10 @@ export async function analyzeDrawing(
     return result;
   } catch (error) {
     logger.error('[Drawing Analysis] ❌ Error:', error);
-    throw new Error(`Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Çizim analizi sırasında bir hata oluştu',
+    });
   }
 }
 

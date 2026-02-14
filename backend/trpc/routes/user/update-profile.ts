@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const childSchema = z.object({
   name: z.string().min(1).max(50),
@@ -49,7 +50,10 @@ export const updateProfileProcedure = protectedProcedure
 
     if (error) {
       logger.error('[updateProfile] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Profil güncellenirken bir hata oluştu',
+      });
     }
 
     logger.info('[updateProfile] Profile updated successfully');

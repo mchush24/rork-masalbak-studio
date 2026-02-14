@@ -15,10 +15,10 @@
  * - Premium: unlimited
  *
  * Features:
+ * - Atomic reservation via DB function (prevents race conditions)
  * - Lazy monthly reset (resets when quota_reset_at has passed)
  * - Factory pattern: createTokenMiddleware(actionType)
  * - Turkish error messages with remaining token info
- * - DB triggers handle token deduction on INSERT (analyses/storybooks/colorings)
  */
 import { TRPCError, initTRPC } from '@trpc/server';
 import type { Context } from '../create-context.js';
@@ -67,8 +67,8 @@ interface QuotaInfo {
 }
 
 /**
- * Fetch user token quota info with lazy monthly reset.
- * If quota_reset_at has passed, resets tokens to 0 and advances reset date.
+ * Fetch user token quota info (read-only, for display purposes).
+ * Does NOT reserve tokens — use reserveTokens() for that.
  */
 async function getUserQuotaInfo(userId: string): Promise<QuotaInfo> {
   const { data: user, error } = await supa
@@ -89,34 +89,51 @@ async function getUserQuotaInfo(userId: string): Promise<QuotaInfo> {
   const tokenLimit = TOKEN_LIMITS[tier];
   const now = new Date();
   const resetAt = user.quota_reset_at ? new Date(user.quota_reset_at) : now;
-  let tokensUsed = ((user.quota_used as Record<string, number>)?.tokens ?? 0) as number;
-  let wasReset = false;
+  const tokensUsed = ((user.quota_used as Record<string, number>)?.tokens ?? 0) as number;
 
-  // Lazy reset: if the reset date has passed, zero out and advance by 1 month
-  if (resetAt <= now) {
-    tokensUsed = 0;
-    const newResetAt = new Date(now);
-    newResetAt.setMonth(newResetAt.getMonth() + 1);
+  return { tier, tokensUsed, tokenLimit, quotaResetAt: resetAt, wasReset: false };
+}
 
-    const { error: updateError } = await supa
-      .from('users')
-      .update({
-        quota_used: { tokens: 0 },
-        quota_reset_at: newResetAt.toISOString(),
-      })
-      .eq('id', userId);
+// =============================================================================
+// Atomic Token Reservation
+// =============================================================================
 
-    if (updateError) {
-      logger.error('[Quota] Failed to reset quota:', updateError);
-    } else {
-      wasReset = true;
-      logger.info(`[Quota] Monthly token reset for user ${userId}`);
-    }
+interface ReservationResult {
+  allowed: boolean;
+  tokens_used?: number;
+  remaining?: number;
+  tier?: string;
+  token_limit?: number;
+  cost?: number;
+  was_reset?: boolean;
+  error?: string;
+}
 
-    return { tier, tokensUsed, tokenLimit, quotaResetAt: newResetAt, wasReset };
+/**
+ * Atomically reserve tokens using DB function with row-level locking.
+ * Prevents race conditions where concurrent requests exceed the quota.
+ *
+ * The DB function (reserve_quota_tokens) does:
+ * 1. SELECT ... FOR UPDATE (locks the user row)
+ * 2. Checks if enough tokens remain
+ * 3. Increments quota_used atomically
+ * 4. Returns success/failure with quota details
+ */
+async function reserveTokens(userId: string, cost: number): Promise<ReservationResult> {
+  const { data, error } = await supa.rpc('reserve_quota_tokens', {
+    p_user_id: userId,
+    p_cost: cost,
+  });
+
+  if (error) {
+    logger.error('[Quota] reserve_quota_tokens RPC failed:', error);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Kota kontrolü yapılamadı',
+    });
   }
 
-  return { tier, tokensUsed, tokenLimit, quotaResetAt: resetAt, wasReset };
+  return data as ReservationResult;
 }
 
 // =============================================================================
@@ -134,21 +151,26 @@ function createTokenMiddleware(actionType: ActionType) {
       });
     }
 
-    const { tier, tokensUsed, tokenLimit } = await getUserQuotaInfo(ctx.userId);
     const actionNameTr = ACTION_NAMES_TR[actionType];
 
-    // Premium has unlimited
-    if (tokenLimit === Infinity) {
-      logger.debug(`[Quota] Premium user ${ctx.userId} - unlimited tokens`);
-      return next();
+    // Atomic reservation: check + reserve in one DB transaction
+    const result = await reserveTokens(ctx.userId, cost);
+
+    if (result.error === 'user_not_found') {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Kullanıcı bulunamadı',
+      });
     }
 
-    const remaining = tokenLimit - tokensUsed;
+    if (!result.allowed) {
+      const remaining = result.remaining ?? 0;
+      const tier = (result.tier || 'free') as SubscriptionTier;
 
-    if (remaining < cost) {
       logger.info(
-        `[Quota] User ${ctx.userId} (${tier}) insufficient tokens for ${actionType}: ${tokensUsed}/${tokenLimit}, need ${cost}`
+        `[Quota] User ${ctx.userId} (${tier}) insufficient tokens for ${actionType}: ${result.tokens_used}/${result.token_limit}, need ${cost}`
       );
+
       throw new TRPCError({
         code: 'FORBIDDEN',
         message:
@@ -158,16 +180,20 @@ function createTokenMiddleware(actionType: ActionType) {
           quotaExceeded: true,
           actionType,
           cost,
-          tokensUsed,
-          tokenLimit,
+          tokensUsed: result.tokens_used,
+          tokenLimit: result.token_limit,
           remaining,
           tier,
         },
       });
     }
 
+    if (result.was_reset) {
+      logger.info(`[Quota] Monthly token reset for user ${ctx.userId}`);
+    }
+
     logger.debug(
-      `[Quota] User ${ctx.userId} (${tier}): ${actionType} costs ${cost}, ${remaining} tokens remaining`
+      `[Quota] User ${ctx.userId} (${result.tier}): ${actionType} reserved ${cost} tokens, ${result.remaining} remaining`
     );
 
     return next();

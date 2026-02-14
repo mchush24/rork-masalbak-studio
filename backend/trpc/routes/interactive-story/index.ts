@@ -28,6 +28,7 @@ import {
   TherapeuticReportSection,
 } from '../../../types/InteractiveStory.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 // ============================================
 // Zod Schemas
@@ -112,7 +113,10 @@ export const interactiveStoryRouter = createTRPCRouter({
 
         if (storybookError) {
           logger.error('[Interactive Story API] ❌ Storybook save error:', storybookError);
-          throw new Error('Failed to save interactive story');
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'İnteraktif masal kaydedilemedi',
+          });
         }
 
         // Session oluştur
@@ -131,7 +135,7 @@ export const interactiveStoryRouter = createTRPCRouter({
 
         if (sessionError) {
           logger.error('[Interactive Story API] ❌ Session save error:', sessionError);
-          throw new Error('Failed to create session');
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Oturum oluşturulamadı' });
         }
 
         logger.info('[Interactive Story API] ✅ Interactive story created:', storybook.id);
@@ -179,7 +183,7 @@ export const interactiveStoryRouter = createTRPCRouter({
         .single();
 
       if (sessionError || !session) {
-        throw new Error('Session not found');
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Oturum bulunamadı' });
       }
 
       // Story graph'ı al
@@ -190,7 +194,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       );
 
       if (!selectedOption) {
-        throw new Error('Invalid choice');
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Geçersiz seçim' });
       }
 
       // Seçimi kaydet
@@ -315,7 +319,7 @@ export const interactiveStoryRouter = createTRPCRouter({
       .single();
 
     if (error || !session) {
-      throw new Error('Session not found');
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Oturum bulunamadı' });
     }
 
     const storyGraph = session.storybooks.story_graph;
@@ -368,11 +372,14 @@ export const interactiveStoryRouter = createTRPCRouter({
         .single();
 
       if (error || !session) {
-        throw new Error('Session not found');
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Oturum bulunamadı' });
       }
 
       if (session.status !== 'completed') {
-        throw new Error('Story must be completed to generate report');
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Rapor oluşturmak için hikayenin tamamlanması gerekiyor',
+        });
       }
 
       const storyGraph = session.storybooks.story_graph;
@@ -588,7 +595,10 @@ export const interactiveStoryRouter = createTRPCRouter({
 
     if (error) {
       logger.error('[Interactive Story API] ❌ List error:', error);
-      throw new Error('Failed to list interactive stories');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'İnteraktif masallar listelenirken bir hata oluştu',
+      });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

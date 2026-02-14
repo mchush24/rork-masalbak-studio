@@ -31,7 +31,10 @@ export const getAnalysisProcedure = protectedProcedure
         });
       }
       logger.error('[getAnalysis] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Analiz yüklenirken bir hata oluştu',
+      });
     }
 
     logger.info('[getAnalysis] Analysis found');

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 export const registerPushTokenProcedure = protectedProcedure
   .input(
@@ -31,7 +32,10 @@ export const registerPushTokenProcedure = protectedProcedure
 
     if (error) {
       logger.error('[PushToken] Register error:', error);
-      throw new Error('Push token kaydedilemedi');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Push token kaydedilemedi',
+      });
     }
 
     logger.info(`[PushToken] Token registered for user ${userId}`);
@@ -58,7 +62,10 @@ export const unregisterPushTokenProcedure = protectedProcedure
 
     if (error) {
       logger.error('[PushToken] Unregister error:', error);
-      throw new Error('Push token kaldırılamadı');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Push token kaldırılamadı',
+      });
     }
 
     logger.info(`[PushToken] Token unregistered for user ${userId}`);

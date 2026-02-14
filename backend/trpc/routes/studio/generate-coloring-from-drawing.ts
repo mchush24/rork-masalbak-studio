@@ -12,6 +12,7 @@ import {
   detectAgeGroup,
   detectCategory,
 } from '../../../lib/coloring-prompt-builder.js';
+import { TRPCError } from '@trpc/server';
 
 const BUCKET = process.env.SUPABASE_BUCKET || 'renkioo';
 
@@ -425,7 +426,10 @@ Respond in JSON format:
       })) as { images: { url: string }[] };
 
       if (!result.images || result.images.length === 0) {
-        throw new Error('No image returned from Flux 2.0');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Boyama sayfası görseli oluşturulamadı',
+        });
       }
 
       const colorfulImageUrl = result.images[0].url;
@@ -435,7 +439,10 @@ Respond in JSON format:
       logger.info('[Generate Coloring] 📥 Fetching image for line art conversion...');
       const imageResponse = await fetch(colorfulImageUrl);
       if (!imageResponse.ok) {
-        throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Boyama görseli indirilemedi',
+        });
       }
 
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
@@ -473,9 +480,11 @@ Respond in JSON format:
           : null,
       };
     } catch (error) {
+      if (error instanceof TRPCError) throw error;
       logger.error('[Generate Coloring] ❌ Error:', error);
-      throw new Error(
-        `Coloring page generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Boyama sayfası oluşturulurken bir hata oluştu',
+      });
     }
   });

@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabase.js';
 import { sendVerificationEmail, generateVerificationCode } from '../../../lib/email.js';
 import { hashPassword, validatePasswordStrength } from '../../../lib/password.js';
 import { authRateLimit } from '../../middleware/rate-limit.js';
+import { TRPCError } from '@trpc/server';
 
 const registerInputSchema = z.object({
   email: z.string().email(),
@@ -60,7 +61,10 @@ export const registerProcedure = publicProcedure
 
         if (insertError) {
           logger.error('[Auth] ❌ DB Error:', insertError);
-          throw new Error('Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.');
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.',
+          });
         }
         logger.info('[Auth] ✅ Code stored in DB');
 
@@ -93,7 +97,10 @@ export const registerProcedure = publicProcedure
 
       if (insertError2) {
         logger.error('[Auth] ❌ DB Error:', insertError2);
-        throw new Error('Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.',
+        });
       }
       logger.info('[Auth] ✅ Code stored in DB');
 
@@ -107,7 +114,7 @@ export const registerProcedure = publicProcedure
         logger.info('[Auth] 🔐 Hashing password for new user');
         const strength = validatePasswordStrength(input.password);
         if (!strength.isValid) {
-          throw new Error(strength.feedback.join(', '));
+          throw new TRPCError({ code: 'BAD_REQUEST', message: strength.feedback.join(', ') });
         }
         passwordHash = await hashPassword(input.password);
       }
@@ -131,7 +138,10 @@ export const registerProcedure = publicProcedure
 
       if (createError) {
         logger.error('[Auth] ❌ Error creating user:', createError);
-        throw new Error('Kayıt oluşturulamadı. Lütfen tekrar deneyin.');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Kayıt oluşturulamadı. Lütfen tekrar deneyin.',
+        });
       }
 
       logger.info('[Auth] ✅ User created successfully:', newUser.id);
@@ -142,11 +152,11 @@ export const registerProcedure = publicProcedure
         isNewUser: true,
       };
     } catch (error) {
+      if (error instanceof TRPCError) throw error;
       logger.error('[Auth] ❌ Registration error:', error);
-      // Re-throw user-facing errors as-is, wrap unknown errors
-      if (error instanceof Error && !error.message.includes('Failed to')) {
-        throw error;
-      }
-      throw new Error('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.',
+      });
     }
   });

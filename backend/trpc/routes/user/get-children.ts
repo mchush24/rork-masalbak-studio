@@ -1,6 +1,7 @@
 import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 export const getChildrenProcedure = protectedProcedure.query(async ({ ctx }) => {
   const userId = ctx.userId; // Get from authenticated context
@@ -12,7 +13,10 @@ export const getChildrenProcedure = protectedProcedure.query(async ({ ctx }) => 
 
   if (error) {
     logger.error('[getChildren] Error:', error);
-    throw new Error(error.message);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Çocuk bilgileri alınırken bir hata oluştu',
+    });
   }
 
   logger.info('[getChildren] Children found:', data?.children?.length || 0);

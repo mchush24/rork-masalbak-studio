@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const deleteStorybookInputSchema = z.object({
   storybookId: z.string().uuid(),
@@ -23,7 +24,10 @@ export const deleteStorybookProcedure = protectedProcedure
 
     if (error) {
       logger.error('[deleteStorybook] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Masal silinirken bir hata oluştu',
+      });
     }
 
     logger.info('[deleteStorybook] Storybook deleted successfully');

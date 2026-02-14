@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const completeOnboardingResponseSchema = z.object({
   success: z.boolean(),
@@ -24,7 +25,10 @@ export const completeOnboardingProcedure = protectedProcedure
       if (error) {
         logger.error('[Auth] ❌ Error completing onboarding:', error);
         logger.error('[Auth] ❌ DB Error:', error);
-        throw new Error('Kurulum tamamlanamadı. Lütfen tekrar deneyin.');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Kurulum tamamlanamadı. Lütfen tekrar deneyin.',
+        });
       }
 
       logger.info('[Auth] ✅ Onboarding completed successfully');
@@ -32,6 +36,9 @@ export const completeOnboardingProcedure = protectedProcedure
       return { success: true };
     } catch (error) {
       logger.error('[Auth] ❌ Onboarding error:', error);
-      throw new Error('Kurulum sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Kurulum sırasında bir hata oluştu. Lütfen tekrar deneyin.',
+      });
     }
   });

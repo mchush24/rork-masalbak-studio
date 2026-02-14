@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
 import { supa } from '../../../lib/supabase.js';
+import { TRPCError } from '@trpc/server';
 
 export const getProfileProcedure = protectedProcedure.query(async ({ ctx }) => {
   const userId = ctx.userId; // Get from authenticated context
@@ -13,7 +14,10 @@ export const getProfileProcedure = protectedProcedure.query(async ({ ctx }) => {
 
   if (error) {
     logger.error('[getProfile] Error:', error);
-    throw new Error(error.message);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Profil bilgileri alınırken bir hata oluştu',
+    });
   }
 
   // Quota freshness check: lazy reset if quota_reset_at has passed

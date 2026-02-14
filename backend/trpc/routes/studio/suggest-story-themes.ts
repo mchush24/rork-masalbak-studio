@@ -1,8 +1,9 @@
-import { logger } from "../../../lib/utils.js";
-import { protectedProcedure } from "../../create-context.js";
-import { z } from "zod";
-import OpenAI from "openai";
-import { authenticatedAiRateLimit } from "../../middleware/rate-limit.js";
+import { logger } from '../../../lib/utils.js';
+import { protectedProcedure } from '../../create-context.js';
+import { z } from 'zod';
+import OpenAI from 'openai';
+import { authenticatedAiRateLimit } from '../../middleware/rate-limit.js';
+import { TRPCError } from '@trpc/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +11,7 @@ const openai = new OpenAI({
 
 const suggestStoryThemesInputSchema = z.object({
   imageBase64: z.string().max(5_000_000),
-  language: z.enum(["tr", "en"]).default("tr"),
+  language: z.enum(['tr', 'en']).default('tr'),
 });
 
 type ThemeSuggestion = {
@@ -22,33 +23,33 @@ type ThemeSuggestion = {
 // Comprehensive concern types based on ACEs (Adverse Childhood Experiences) and pediatric psychology
 type ConcernType =
   // Original categories
-  | 'war'                      // Savaş/çatışma
-  | 'violence'                 // Şiddet
-  | 'disaster'                 // Doğal afet
-  | 'loss'                     // Kayıp
-  | 'loneliness'               // Yalnızlık
-  | 'fear'                     // Korku
-  | 'abuse'                    // İstismar (genel)
-  | 'family_separation'        // Aile ayrılığı/boşanma
-  | 'death'                    // Ölüm/yas
+  | 'war' // Savaş/çatışma
+  | 'violence' // Şiddet
+  | 'disaster' // Doğal afet
+  | 'loss' // Kayıp
+  | 'loneliness' // Yalnızlık
+  | 'fear' // Korku
+  | 'abuse' // İstismar (genel)
+  | 'family_separation' // Aile ayrılığı/boşanma
+  | 'death' // Ölüm/yas
   // NEW: ACEs Framework categories
-  | 'neglect'                  // İhmal (fiziksel/duygusal)
-  | 'bullying'                 // Akran zorbalığı
+  | 'neglect' // İhmal (fiziksel/duygusal)
+  | 'bullying' // Akran zorbalığı
   | 'domestic_violence_witness' // Aile içi şiddete tanıklık
-  | 'parental_addiction'       // Ebeveyn bağımlılığı
-  | 'parental_mental_illness'  // Ebeveyn ruhsal hastalığı
+  | 'parental_addiction' // Ebeveyn bağımlılığı
+  | 'parental_mental_illness' // Ebeveyn ruhsal hastalığı
   // NEW: Pediatric psychology categories
-  | 'medical_trauma'           // Tıbbi travma (hastane, hastalık)
-  | 'anxiety'                  // Kaygı bozukluğu
-  | 'depression'               // Depresyon belirtileri
-  | 'low_self_esteem'          // Düşük öz saygı
-  | 'anger'                    // Öfke/saldırganlık
-  | 'school_stress'            // Okul/akademik stres
-  | 'social_rejection'         // Sosyal dışlanma
+  | 'medical_trauma' // Tıbbi travma (hastane, hastalık)
+  | 'anxiety' // Kaygı bozukluğu
+  | 'depression' // Depresyon belirtileri
+  | 'low_self_esteem' // Düşük öz saygı
+  | 'anger' // Öfke/saldırganlık
+  | 'school_stress' // Okul/akademik stres
+  | 'social_rejection' // Sosyal dışlanma
   // NEW: Additional important categories
-  | 'displacement'             // Göç/yerinden edilme
-  | 'poverty'                  // Ekonomik zorluk
-  | 'cyberbullying'            // Siber zorbalık
+  | 'displacement' // Göç/yerinden edilme
+  | 'poverty' // Ekonomik zorluk
+  | 'cyberbullying' // Siber zorbalık
   | 'other';
 
 type ContentAnalysis = {
@@ -59,127 +60,192 @@ type ContentAnalysis = {
 };
 
 // Comprehensive therapeutic frameworks based on ACEs research and bibliotherapy
-const THERAPEUTIC_FRAMEWORKS: Record<string, { approach: string; themes: string[] }> = {
+const _THERAPEUTIC_FRAMEWORKS: Record<string, { approach: string; themes: string[] }> = {
   // === ORIGINAL CATEGORIES ===
   war: {
-    approach: "Barış ve güvenlik temalı metaforlar kullan. Savaşan karakterler yerine koruyucu kahramanlar, güvenli sığınaklar ve barışı getiren büyü/dostluk öğeleri ekle.",
-    themes: ["Barışı bulan köy", "Koruyucu kalkan", "Güvenli liman", "Cesur kalp, nazik eller"]
+    approach:
+      'Barış ve güvenlik temalı metaforlar kullan. Savaşan karakterler yerine koruyucu kahramanlar, güvenli sığınaklar ve barışı getiren büyü/dostluk öğeleri ekle.',
+    themes: ['Barışı bulan köy', 'Koruyucu kalkan', 'Güvenli liman', 'Cesur kalp, nazik eller'],
   },
   violence: {
-    approach: "Güç ve kontrol kazanma odaklı. Karakter güçlü ve korunaklı hisseder. Kötülük dışsal bir varlık olarak gösterilir ve yenilebilir.",
-    themes: ["Korkuyu yenen kahraman", "Sihirli kalkan", "Cesaretin gücü", "Işık karanlığı yener"]
+    approach:
+      'Güç ve kontrol kazanma odaklı. Karakter güçlü ve korunaklı hisseder. Kötülük dışsal bir varlık olarak gösterilir ve yenilebilir.',
+    themes: ['Korkuyu yenen kahraman', 'Sihirli kalkan', 'Cesaretin gücü', 'Işık karanlığı yener'],
   },
   disaster: {
-    approach: "Yeniden yapılanma ve topluluk desteği vurgula. Doğa olayları kontrol edilemez ama birlikte güçlüyüz mesajı.",
-    themes: ["Yeniden kurulan yuva", "Birlikte güçlüyüz", "Fırtınadan sonra gökkuşağı", "Yardım eden eller"]
+    approach:
+      'Yeniden yapılanma ve topluluk desteği vurgula. Doğa olayları kontrol edilemez ama birlikte güçlüyüz mesajı.',
+    themes: [
+      'Yeniden kurulan yuva',
+      'Birlikte güçlüyüz',
+      'Fırtınadan sonra gökkuşağı',
+      'Yardım eden eller',
+    ],
   },
   loss: {
-    approach: "Anı ve bağlantı odaklı. Kaybedilen sevilen hâlâ kalplerimizde yaşar. Üzüntü normaldir ama umut var.",
-    themes: ["Yıldız olan sevgi", "Kalpte yaşayan anılar", "Gökyüzündeki arkadaş", "Sevgi hiç bitmez"]
+    approach:
+      'Anı ve bağlantı odaklı. Kaybedilen sevilen hâlâ kalplerimizde yaşar. Üzüntü normaldir ama umut var.',
+    themes: [
+      'Yıldız olan sevgi',
+      'Kalpte yaşayan anılar',
+      'Gökyüzündeki arkadaş',
+      'Sevgi hiç bitmez',
+    ],
   },
   loneliness: {
-    approach: "Bağlantı ve aidiyet duygusu. Beklenmedik yerlerden gelen dostluklar. Yalnızlık geçicidir.",
-    themes: ["Beklenmeyen arkadaş", "Yalnız değilsin", "Dostluk köprüsü", "Kalbinin sesi"]
+    approach:
+      'Bağlantı ve aidiyet duygusu. Beklenmedik yerlerden gelen dostluklar. Yalnızlık geçicidir.',
+    themes: ['Beklenmeyen arkadaş', 'Yalnız değilsin', 'Dostluk köprüsü', 'Kalbinin sesi'],
   },
   fear: {
-    approach: "Korkunun dışsallaştırılması ve yenilmesi. Korku küçük ve yönetilebilir bir karakter olarak gösterilir.",
-    themes: ["Küçülen korku canavarı", "Cesaret tohumu", "Karanlıktan korkmayan yıldız", "Güç içimizde"]
+    approach:
+      'Korkunun dışsallaştırılması ve yenilmesi. Korku küçük ve yönetilebilir bir karakter olarak gösterilir.',
+    themes: [
+      'Küçülen korku canavarı',
+      'Cesaret tohumu',
+      'Karanlıktan korkmayan yıldız',
+      'Güç içimizde',
+    ],
   },
   abuse: {
-    approach: "Güvenlik, sesini duyurma ve güç kazanma. Çocuk kahramandır, yardım istemek güçtür. Güvenli yetişkinler var.",
-    themes: ["Sesini bulan kuş", "Güvenli kale", "Koruyucu melek", "Güçlü ve değerli"]
+    approach:
+      'Güvenlik, sesini duyurma ve güç kazanma. Çocuk kahramandır, yardım istemek güçtür. Güvenli yetişkinler var.',
+    themes: ['Sesini bulan kuş', 'Güvenli kale', 'Koruyucu melek', 'Güçlü ve değerli'],
   },
   family_separation: {
-    approach: "Sevgi mesafelere rağmen devam eder. Yeni düzenler oluşturulabilir. Ait olma duygusu.",
-    themes: ["İki yuvada bir kalp", "Sevgi köprüsü", "Mesafeleri aşan bağ", "Her yerde seviliyorsun"]
+    approach:
+      'Sevgi mesafelere rağmen devam eder. Yeni düzenler oluşturulabilir. Ait olma duygusu.',
+    themes: [
+      'İki yuvada bir kalp',
+      'Sevgi köprüsü',
+      'Mesafeleri aşan bağ',
+      'Her yerde seviliyorsun',
+    ],
   },
   death: {
-    approach: "Kaybı anlamlandırma ve yaşamı kutlama. Ölüm bir dönüşüm olarak anlatılır. Sevdiklerimiz anılarımızda yaşar.",
-    themes: ["Yıldız olan büyükanne", "Kelebek oldu sevgim", "Anılar bahçesi", "Sonsuza dek kalbimde"]
+    approach:
+      'Kaybı anlamlandırma ve yaşamı kutlama. Ölüm bir dönüşüm olarak anlatılır. Sevdiklerimiz anılarımızda yaşar.',
+    themes: [
+      'Yıldız olan büyükanne',
+      'Kelebek oldu sevgim',
+      'Anılar bahçesi',
+      'Sonsuza dek kalbimde',
+    ],
   },
 
   // === NEW: ACEs FRAMEWORK CATEGORIES ===
   neglect: {
-    approach: "İlgi ve bakım odaklı. Karakter sevilmeyi ve ilgiyi hak eder. Güvenli, sevgi dolu yetişkinler bulur. Temel ihtiyaçların karşılanması hakkı vurgulanır.",
-    themes: ["Sıcak bir yuva", "Sevgi dolu eller", "İlgi gören yıldız", "Değerli hazine"]
+    approach:
+      'İlgi ve bakım odaklı. Karakter sevilmeyi ve ilgiyi hak eder. Güvenli, sevgi dolu yetişkinler bulur. Temel ihtiyaçların karşılanması hakkı vurgulanır.',
+    themes: ['Sıcak bir yuva', 'Sevgi dolu eller', 'İlgi gören yıldız', 'Değerli hazine'],
   },
   bullying: {
-    approach: "Güçlenme ve destek odaklı. Zorbalık yapanın sorunu kendinde. Karakter değerli ve sevilesi. Yardım istemek cesaret gerektirir. Arkadaşlık gücü.",
-    themes: ["Cesur kalp", "Gerçek dostlar", "İç güzellik", "Birlikte güçlüyüz"]
+    approach:
+      'Güçlenme ve destek odaklı. Zorbalık yapanın sorunu kendinde. Karakter değerli ve sevilesi. Yardım istemek cesaret gerektirir. Arkadaşlık gücü.',
+    themes: ['Cesur kalp', 'Gerçek dostlar', 'İç güzellik', 'Birlikte güçlüyüz'],
   },
   domestic_violence_witness: {
-    approach: "Güvenlik ve koruma odaklı. Çocuğun suçu yok. Güvenli yerler ve insanlar var. Duygular normaldir. Şiddet asla kabul edilemez.",
-    themes: ["Güvenli sığınak", "Huzur adası", "Koruyucu melek", "Yeni başlangıç"]
+    approach:
+      'Güvenlik ve koruma odaklı. Çocuğun suçu yok. Güvenli yerler ve insanlar var. Duygular normaldir. Şiddet asla kabul edilemez.',
+    themes: ['Güvenli sığınak', 'Huzur adası', 'Koruyucu melek', 'Yeni başlangıç'],
   },
   parental_addiction: {
-    approach: "Çocuğun suçu olmadığı vurgulanır. Hastalık kavramı (kişi değil). Güvenli yetişkinler var. Duygular geçerlidir. Umut ve iyileşme mümkün.",
-    themes: ["Işığı bulan aile", "Yardım melekleri", "Güçlü fidanlar", "Güneşli yarınlar"]
+    approach:
+      'Çocuğun suçu olmadığı vurgulanır. Hastalık kavramı (kişi değil). Güvenli yetişkinler var. Duygular geçerlidir. Umut ve iyileşme mümkün.',
+    themes: ['Işığı bulan aile', 'Yardım melekleri', 'Güçlü fidanlar', 'Güneşli yarınlar'],
   },
   parental_mental_illness: {
-    approach: "Anne/babanın hastalığı çocuğun suçu değil. Hastalık geçici olabilir. Sevgi devam eder. Çocuk güçlü ve değerli. Yardım almak önemli.",
-    themes: ["Sevgi her zaman", "Bulutların üstündeki güneş", "Güçlü minik kalp", "Sabırlı çiçek"]
+    approach:
+      'Anne/babanın hastalığı çocuğun suçu değil. Hastalık geçici olabilir. Sevgi devam eder. Çocuk güçlü ve değerli. Yardım almak önemli.',
+    themes: ['Sevgi her zaman', 'Bulutların üstündeki güneş', 'Güçlü minik kalp', 'Sabırlı çiçek'],
   },
 
   // === NEW: PEDIATRIC PSYCHOLOGY CATEGORIES ===
   medical_trauma: {
-    approach: "Hastane/tedavi korkusunu normalleştir. Doktorlar yardımcıdır. Vücut iyileşir. Cesaret küçük adımlarla. Kontrol hissi vur.",
-    themes: ["Cesur küçük savaşçı", "İyileşen kahraman", "Beyaz önlüklü dostlar", "Güçlenen vücut"]
+    approach:
+      'Hastane/tedavi korkusunu normalleştir. Doktorlar yardımcıdır. Vücut iyileşir. Cesaret küçük adımlarla. Kontrol hissi vur.',
+    themes: ['Cesur küçük savaşçı', 'İyileşen kahraman', 'Beyaz önlüklü dostlar', 'Güçlenen vücut'],
   },
   anxiety: {
-    approach: "Endişe dışsallaştırılır (örn: 'Endişe Canavarı'). Küçük adımlarla başa çıkma. Nefes ve sakinleşme. Kontrol edilebilir.",
-    themes: ["Küçülen endişe", "Sakin göl", "Cesaret adımları", "Huzur bahçesi"]
+    approach:
+      "Endişe dışsallaştırılır (örn: 'Endişe Canavarı'). Küçük adımlarla başa çıkma. Nefes ve sakinleşme. Kontrol edilebilir.",
+    themes: ['Küçülen endişe', 'Sakin göl', 'Cesaret adımları', 'Huzur bahçesi'],
   },
   depression: {
-    approach: "Üzüntü geçerli bir duygu. Karanlık dönemler geçer. Küçük mutluluklar önemli. Yardım istemek güç. Umut hep var.",
-    themes: ["Güneşi arayan çiçek", "Yavaş yavaş parlayan yıldız", "Renklerin dönüşü", "Umut tohumu"]
+    approach:
+      'Üzüntü geçerli bir duygu. Karanlık dönemler geçer. Küçük mutluluklar önemli. Yardım istemek güç. Umut hep var.',
+    themes: [
+      'Güneşi arayan çiçek',
+      'Yavaş yavaş parlayan yıldız',
+      'Renklerin dönüşü',
+      'Umut tohumu',
+    ],
   },
   low_self_esteem: {
-    approach: "Her çocuk özel ve değerli. Farklılıklar güzeldir. İç güzellik dış güzellikten önemli. Kendini sevmek öğrenilebilir.",
-    themes: ["Eşsiz yıldız", "İç hazine", "Özel sen", "Kendini seven prenses/prens"]
+    approach:
+      'Her çocuk özel ve değerli. Farklılıklar güzeldir. İç güzellik dış güzellikten önemli. Kendini sevmek öğrenilebilir.',
+    themes: ['Eşsiz yıldız', 'İç hazine', 'Özel sen', 'Kendini seven prenses/prens'],
   },
   anger: {
-    approach: "Öfke normal bir duygu. Kontrollü ifade öğrenilebilir. Öfkenin altındaki duygular keşfedilir. Sakinleşme teknikleri.",
-    themes: ["Öfke canavarını evcilleştirmek", "Sakin süper kahraman", "Nefes almayı öğrenen ejderha", "Duygu ustası"]
+    approach:
+      'Öfke normal bir duygu. Kontrollü ifade öğrenilebilir. Öfkenin altındaki duygular keşfedilir. Sakinleşme teknikleri.',
+    themes: [
+      'Öfke canavarını evcilleştirmek',
+      'Sakin süper kahraman',
+      'Nefes almayı öğrenen ejderha',
+      'Duygu ustası',
+    ],
   },
   school_stress: {
-    approach: "Başarı sadece notlarla ölçülmez. Herkesin öğrenme hızı farklı. Hatalar öğretir. Çaba önemli, mükemmellik değil.",
-    themes: ["Kendi hızında koşan tavşan", "Hata yapan bilge", "Öğrenme macerası", "Başarının gerçek anlamı"]
+    approach:
+      'Başarı sadece notlarla ölçülmez. Herkesin öğrenme hızı farklı. Hatalar öğretir. Çaba önemli, mükemmellik değil.',
+    themes: [
+      'Kendi hızında koşan tavşan',
+      'Hata yapan bilge',
+      'Öğrenme macerası',
+      'Başarının gerçek anlamı',
+    ],
   },
   social_rejection: {
-    approach: "Herkes sevilmeyi hak eder. Doğru arkadaşlar bulunur. Kendin olmak önemli. Reddedilmek kişisel değil.",
-    themes: ["Farklı olan güzel", "Gerçek arkadaş", "Kendi ışığın", "Ait olduğun yer"]
+    approach:
+      'Herkes sevilmeyi hak eder. Doğru arkadaşlar bulunur. Kendin olmak önemli. Reddedilmek kişisel değil.',
+    themes: ['Farklı olan güzel', 'Gerçek arkadaş', 'Kendi ışığın', 'Ait olduğun yer'],
   },
 
   // === NEW: ADDITIONAL CATEGORIES ===
   displacement: {
-    approach: "Yeni yer yeni fırsatlar. Anılar kalpte yaşar. Adaptasyon gücü. Kökenler önemli ama gelecek de.",
-    themes: ["Yeni yuva, aynı kalp", "Kökleri taşıyan ağaç", "Dünya vatandaşı", "Cesur yolcu"]
+    approach:
+      'Yeni yer yeni fırsatlar. Anılar kalpte yaşar. Adaptasyon gücü. Kökenler önemli ama gelecek de.',
+    themes: ['Yeni yuva, aynı kalp', 'Kökleri taşıyan ağaç', 'Dünya vatandaşı', 'Cesur yolcu'],
   },
   poverty: {
-    approach: "Değer maddi şeylerle ölçülmez. Aile ve sevgi en büyük zenginlik. Zor zamanlar geçici. Dayanıklılık ve umut.",
-    themes: ["Gerçek hazine", "Kalp zengini", "Paylaşmanın mutluluğu", "Güçlü aile"]
+    approach:
+      'Değer maddi şeylerle ölçülmez. Aile ve sevgi en büyük zenginlik. Zor zamanlar geçici. Dayanıklılık ve umut.',
+    themes: ['Gerçek hazine', 'Kalp zengini', 'Paylaşmanın mutluluğu', 'Güçlü aile'],
   },
   cyberbullying: {
-    approach: "Online dünya gerçek dünya kadar önemli. Ekran arkasındaki sözler de acıtır. Yardım istemek önemli. Güvenli internet kullanımı.",
-    themes: ["Dijital kahraman", "Güvenli ekran", "Gerçek arkadaşlık", "Akıllı gezgin"]
+    approach:
+      'Online dünya gerçek dünya kadar önemli. Ekran arkasındaki sözler de acıtır. Yardım istemek önemli. Güvenli internet kullanımı.',
+    themes: ['Dijital kahraman', 'Güvenli ekran', 'Gerçek arkadaşlık', 'Akıllı gezgin'],
   },
 
   // === FALLBACK ===
   other: {
-    approach: "Genel terapötik yaklaşım: Güvenlik, güç, umut ve bağlantı temalarını kullan. Çocuğun duygularını normalleştir.",
-    themes: ["Cesur küçük kahraman", "İçindeki güç", "Umut ışığı", "Sen özelsin"]
-  }
+    approach:
+      'Genel terapötik yaklaşım: Güvenlik, güç, umut ve bağlantı temalarını kullan. Çocuğun duygularını normalleştir.',
+    themes: ['Cesur küçük kahraman', 'İçindeki güç', 'Umut ışığı', 'Sen özelsin'],
+  },
 };
 
 export const suggestStoryThemesProcedure = protectedProcedure
   .use(authenticatedAiRateLimit)
   .input(suggestStoryThemesInputSchema)
   .mutation(async ({ input }: { input: z.infer<typeof suggestStoryThemesInputSchema> }) => {
-    logger.info("[Suggest Story Themes] 🎨 Analyzing drawing for theme suggestions");
-    logger.info("[Suggest Story Themes] Language:", input.language);
+    logger.info('[Suggest Story Themes] 🎨 Analyzing drawing for theme suggestions');
+    logger.info('[Suggest Story Themes] Language:', input.language);
 
     try {
-      const isTurkish = input.language === "tr";
+      const isTurkish = input.language === 'tr';
 
       const prompt = isTurkish
         ? `Sen bir pediatri uzmanı, çocuk psikoloğu ve bibliotherapy (kitap terapisi) uzmanısın. Bu çocuk çizimini ACEs (Adverse Childhood Experiences) çerçevesinde dikkatle analiz et.
@@ -353,17 +419,17 @@ IMPORTANT:
 Only respond with JSON.`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: 'gpt-4o',
         messages: [
           {
-            role: "user",
+            role: 'user',
             content: [
               {
-                type: "text",
+                type: 'text',
                 text: prompt,
               },
               {
-                type: "image_url",
+                type: 'image_url',
                 image_url: {
                   url: `data:image/jpeg;base64,${input.imageBase64}`,
                 },
@@ -375,22 +441,25 @@ Only respond with JSON.`;
         temperature: 0.5, // Lower temperature for more accurate image analysis
       });
 
-      const content = response.choices[0]?.message?.content || "";
-      logger.info("[Suggest Story Themes] ✅ Raw response:", content);
+      const content = response.choices[0]?.message?.content || '';
+      logger.info('[Suggest Story Themes] ✅ Raw response:', content);
 
       // Parse JSON response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error("Failed to parse JSON from response");
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Tema önerileri işlenirken bir hata oluştu',
+        });
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
 
       // Log visual description first - this helps debug image analysis issues
       if (parsed.visualDescription) {
-        logger.info("[Suggest Story Themes] 👁️ Visual Description:", parsed.visualDescription);
+        logger.info('[Suggest Story Themes] 👁️ Visual Description:', parsed.visualDescription);
       } else {
-        logger.info("[Suggest Story Themes] ⚠️ No visual description provided by model");
+        logger.info('[Suggest Story Themes] ⚠️ No visual description provided by model');
       }
 
       const suggestions: ThemeSuggestion[] = parsed.suggestions || [];
@@ -402,24 +471,35 @@ Only respond with JSON.`;
       };
 
       if (suggestions.length === 0) {
-        throw new Error("No suggestions returned");
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Tema önerileri oluşturulamadı',
+        });
       }
 
       // Log warning if concerning content detected
       if (contentAnalysis.hasConcerningContent) {
-        logger.info("[Suggest Story Themes] ⚠️ CONCERNING CONTENT DETECTED:", contentAnalysis.concernType);
-        logger.info("[Suggest Story Themes] ⚠️ Description:", contentAnalysis.concernDescription);
-        logger.info("[Suggest Story Themes] 💜 Therapeutic approach:", contentAnalysis.therapeuticApproach);
+        logger.info(
+          '[Suggest Story Themes] ⚠️ CONCERNING CONTENT DETECTED:',
+          contentAnalysis.concernType
+        );
+        logger.info('[Suggest Story Themes] ⚠️ Description:', contentAnalysis.concernDescription);
+        logger.info(
+          '[Suggest Story Themes] 💜 Therapeutic approach:',
+          contentAnalysis.therapeuticApproach
+        );
       }
 
-      logger.info("[Suggest Story Themes] ✅ Generated", suggestions.length, "theme suggestions");
-      logger.info("[Suggest Story Themes] Content analysis:", contentAnalysis);
+      logger.info('[Suggest Story Themes] ✅ Generated', suggestions.length, 'theme suggestions');
+      logger.info('[Suggest Story Themes] Content analysis:', contentAnalysis);
       // V2: Return visual description for story-drawing connection
       return { suggestions, contentAnalysis, visualDescription: parsed.visualDescription || null };
     } catch (error) {
-      logger.error("[Suggest Story Themes] ❌ Error:", error);
-      throw new Error(
-        `Story theme suggestion failed: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      if (error instanceof TRPCError) throw error;
+      logger.error('[Suggest Story Themes] ❌ Error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Tema önerileri oluşturulurken bir hata oluştu',
+      });
     }
   });

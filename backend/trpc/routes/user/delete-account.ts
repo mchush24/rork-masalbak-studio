@@ -3,6 +3,7 @@ import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
 import bcrypt from 'bcryptjs';
+import { TRPCError } from '@trpc/server';
 
 const deleteAccountInputSchema = z.object({
   confirmEmail: z.string().email(),
@@ -26,12 +27,12 @@ export const deleteAccountProcedure = protectedProcedure
 
     if (userError || !userData) {
       logger.error('[deleteAccount] User not found:', userError);
-      throw new Error('User not found');
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Kullanıcı bulunamadı' });
     }
 
     if (userData.email !== input.confirmEmail) {
       logger.error('[deleteAccount] Email mismatch');
-      throw new Error('Email does not match');
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'E-posta adresi eşleşmiyor' });
     }
 
     // Verify password
@@ -39,7 +40,7 @@ export const deleteAccountProcedure = protectedProcedure
 
     if (!isPasswordValid) {
       logger.error('[deleteAccount] Invalid password');
-      throw new Error('Invalid password');
+      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Geçersiz şifre' });
     }
 
     logger.info('[deleteAccount] Verification successful, proceeding with cascade delete');
@@ -117,7 +118,10 @@ export const deleteAccountProcedure = protectedProcedure
 
     if (deleteUserError) {
       logger.error('[deleteAccount] Error deleting user:', deleteUserError);
-      throw new Error('Failed to delete account. Please contact support.');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Hesap silinemedi. Lütfen destek ile iletişime geçin.',
+      });
     }
 
     if (errors.length > 0) {

@@ -11,6 +11,7 @@ import type { AnalysisResponse } from './analyze-drawing.js';
 import { authenticatedAiRateLimit } from '../../middleware/rate-limit.js';
 import { storybookQuota } from '../../middleware/quota.js';
 import { BadgeService } from '../../../lib/badge-service.js';
+import { TRPCError } from '@trpc/server';
 
 // Therapeutic context schema for trauma-informed storytelling (ACEs Framework + Pediatric Psychology)
 const therapeuticContextSchema = z
@@ -225,9 +226,11 @@ export const generateStoryFromDrawingProcedure = protectedProcedure
         },
       };
     } catch (error) {
+      if (error instanceof TRPCError) throw error;
       logger.error('[Generate Story] ❌ Error:', error);
-      throw new Error(
-        `Story generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Masal oluşturulurken bir hata oluştu',
+      });
     }
   });

@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const childSchema = z.object({
   name: z.string().min(1, 'İsim gereklidir').max(50, 'İsim çok uzun'),
@@ -36,7 +37,10 @@ export const updateChildrenProcedure = protectedProcedure
 
     if (error) {
       logger.error('[updateChildren] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Çocuk bilgileri güncellenirken bir hata oluştu',
+      });
     }
 
     logger.info('[updateChildren] Children updated successfully:', data?.children?.length || 0);

@@ -48,7 +48,10 @@ export const setPasswordProcedure = protectedProcedure
 
       if (error) {
         logger.error('[Auth] ❌ DB Error:', error);
-        throw new Error('Şifre kaydedilemedi. Lütfen tekrar deneyin.');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Şifre kaydedilemedi. Lütfen tekrar deneyin.',
+        });
       }
 
       logger.info('[Auth] ✅ Password set successfully');

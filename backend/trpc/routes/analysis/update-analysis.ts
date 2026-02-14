@@ -48,7 +48,10 @@ export const updateAnalysisProcedure = protectedProcedure
         });
       }
       logger.error('[updateAnalysis] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Analiz güncellenirken bir hata oluştu',
+      });
     }
 
     logger.info('[updateAnalysis] Analysis updated successfully');

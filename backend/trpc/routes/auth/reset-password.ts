@@ -79,7 +79,7 @@ export const resetPasswordProcedure = publicProcedure
         .single();
 
       if (updateError || !user) {
-        throw new Error('Failed to update password');
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Şifre güncellenemedi' });
       }
 
       // Mark token as used

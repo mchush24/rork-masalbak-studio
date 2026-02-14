@@ -1,6 +1,7 @@
 import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 export const getSettingsProcedure = protectedProcedure.query(async ({ ctx }) => {
   const userId = ctx.userId; // Get from authenticated context
@@ -33,7 +34,10 @@ export const getSettingsProcedure = protectedProcedure.query(async ({ ctx }) => 
         custom_settings: {},
       };
     }
-    throw new Error(error.message);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Ayarlar yüklenirken bir hata oluştu',
+    });
   }
 
   logger.info('[getSettings] Settings found');

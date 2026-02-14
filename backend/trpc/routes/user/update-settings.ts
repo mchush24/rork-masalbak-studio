@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const updateSettingsInputSchema = z.object({
   theme: z.enum(['light', 'dark', 'auto']).optional(),
@@ -70,7 +71,11 @@ export const updateSettingsProcedure = protectedProcedure
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
+      if (error)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Ayarlar güncellenirken bir hata oluştu',
+        });
       result = data;
     } else {
       // Insert new settings
@@ -83,7 +88,11 @@ export const updateSettingsProcedure = protectedProcedure
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
+      if (error)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Ayarlar güncellenirken bir hata oluştu',
+        });
       result = data;
     }
 

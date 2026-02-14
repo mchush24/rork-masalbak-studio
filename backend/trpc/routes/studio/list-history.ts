@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const deleteStorybookInputSchema = z.object({
   storybookId: z.string().uuid(),
@@ -25,7 +26,10 @@ export const listStorybooksProcedure = protectedProcedure.query(async ({ ctx }) 
 
   if (error) {
     logger.error('[History] Error listing storybooks:', error);
-    throw new Error(error.message);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Masallar listelenirken bir hata oluştu',
+    });
   }
 
   return data || [];
@@ -45,7 +49,10 @@ export const listColoringsProcedure = protectedProcedure.query(async ({ ctx }) =
 
   if (error) {
     logger.error('[History] Error listing colorings:', error);
-    throw new Error(error.message);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Boyamalar listelenirken bir hata oluştu',
+    });
   }
 
   return data || [];
@@ -67,7 +74,10 @@ export const deleteStorybookProcedure = protectedProcedure
 
     if (error) {
       logger.error('[History] Error deleting storybook:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Masal silinirken bir hata oluştu',
+      });
     }
 
     return { success: true };
@@ -89,7 +99,10 @@ export const deleteColoringProcedure = protectedProcedure
 
     if (error) {
       logger.error('[History] Error deleting coloring:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Boyama silinirken bir hata oluştu',
+      });
     }
 
     return { success: true };

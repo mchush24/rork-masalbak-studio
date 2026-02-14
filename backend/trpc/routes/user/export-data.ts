@@ -1,6 +1,7 @@
 import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 export const exportDataProcedure = protectedProcedure.mutation(async ({ ctx }) => {
   const userId = ctx.userId;
@@ -20,7 +21,10 @@ export const exportDataProcedure = protectedProcedure.mutation(async ({ ctx }) =
 
   if (userError) {
     logger.error('[exportData] Error fetching user:', userError);
-    throw new Error('Failed to fetch user data');
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Kullanıcı verileri alınırken bir hata oluştu',
+    });
   }
 
   // Remove sensitive fields from export

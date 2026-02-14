@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { uploadBuffer, supa } from '../../../lib/supabase.js';
+import { TRPCError } from '@trpc/server';
 
 const BUCKET = process.env.SUPABASE_BUCKET || 'renkioo';
 
@@ -30,7 +31,10 @@ export const uploadAvatarProcedure = protectedProcedure
 
     if (error) {
       logger.error('[UploadAvatar] DB update error:', error);
-      throw new Error('Avatar kaydedilemedi');
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Avatar kaydedilemedi',
+      });
     }
 
     logger.info(`[UploadAvatar] Avatar updated for user ${userId}`);

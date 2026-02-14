@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const deleteAnalysisInputSchema = z.object({
   analysisId: z.string().uuid(),
@@ -23,7 +24,10 @@ export const deleteAnalysisProcedure = protectedProcedure
 
     if (error) {
       logger.error('[deleteAnalysis] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Analiz silinirken bir hata oluştu',
+      });
     }
 
     logger.info('[deleteAnalysis] Analysis deleted successfully');

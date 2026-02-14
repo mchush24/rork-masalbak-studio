@@ -13,10 +13,55 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Renkioo <onboarding@resend.dev>';
 const REPLY_TO_EMAIL = process.env.RESEND_REPLY_TO || 'support@resend.dev';
 
+// =============================================================================
+// Email Rate Limiting (per-address, in-memory)
+// Prevents email flooding: max 5 emails per address per hour
+// =============================================================================
+
+const EMAIL_RATE_LIMIT = 5;
+const EMAIL_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+const emailRateStore = new Map<string, number[]>();
+
+// Cleanup stale entries every 10 minutes
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [email, timestamps] of emailRateStore.entries()) {
+      const valid = timestamps.filter(t => now - t < EMAIL_RATE_WINDOW_MS);
+      if (valid.length === 0) {
+        emailRateStore.delete(email);
+      } else {
+        emailRateStore.set(email, valid);
+      }
+    }
+  },
+  10 * 60 * 1000
+);
+
+function checkEmailRateLimit(email: string): void {
+  const now = Date.now();
+  const key = email.toLowerCase().trim();
+  const timestamps = emailRateStore.get(key) || [];
+
+  // Remove expired entries
+  const valid = timestamps.filter(t => now - t < EMAIL_RATE_WINDOW_MS);
+
+  if (valid.length >= EMAIL_RATE_LIMIT) {
+    logger.warn(`[Email] Rate limit exceeded for ${key}: ${valid.length} emails in the last hour`);
+    throw new Error('Çok fazla e-posta gönderildi. Lütfen bir süre bekleyin.');
+  }
+
+  valid.push(now);
+  emailRateStore.set(key, valid);
+}
+
 /**
  * Send verification code to user's email
  */
 export async function sendVerificationEmail(email: string, code: string, name?: string) {
+  checkEmailRateLimit(email);
+
   try {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
@@ -210,6 +255,8 @@ export async function storeVerificationCode(
  * Send password reset code to user's email
  */
 export async function sendPasswordResetEmail(email: string, code: string, name?: string) {
+  checkEmailRateLimit(email);
+
   try {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,

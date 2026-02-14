@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const updateBiometricInputSchema = z.object({
   enabled: z.boolean(),
@@ -31,7 +32,10 @@ export const updateBiometricProcedure = protectedProcedure
 
       if (error) {
         logger.error('[Auth] ❌ DB Error:', error);
-        throw new Error('Biyometrik ayarı güncellenemedi. Lütfen tekrar deneyin.');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Biyometrik ayarı güncellenemedi. Lütfen tekrar deneyin.',
+        });
       }
 
       logger.info('[Auth] ✅ Biometric updated successfully');

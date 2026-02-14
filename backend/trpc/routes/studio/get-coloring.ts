@@ -2,6 +2,7 @@ import { logger } from '../../../lib/utils.js';
 import { protectedProcedure } from '../../create-context.js';
 import { z } from 'zod';
 import { getSecureClient } from '../../../lib/supabase-secure.js';
+import { TRPCError } from '@trpc/server';
 
 const getColoringInputSchema = z.object({
   coloringId: z.string().uuid(),
@@ -24,12 +25,18 @@ export const getColoringProcedure = protectedProcedure
 
     if (error) {
       logger.error('[getColoring] Error:', error);
-      throw new Error(error.message);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Boyama verisi alınırken bir hata oluştu',
+      });
     }
 
     if (!data) {
       logger.error('[getColoring] Coloring not found or access denied');
-      throw new Error("Coloring not found or you don't have access");
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Boyama bulunamadı veya erişim yetkiniz yok',
+      });
     }
 
     logger.info('[getColoring] Coloring found successfully');
