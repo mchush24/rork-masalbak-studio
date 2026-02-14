@@ -146,7 +146,10 @@ export type FontSize = keyof typeof responsiveFontSizes;
  * Calculate line height based on font size
  * Uses golden ratio derived multipliers for optimal readability
  */
-export function getLineHeight(fontSize: number, type: 'tight' | 'normal' | 'relaxed' = 'normal'): number {
+export function getLineHeight(
+  fontSize: number,
+  type: 'tight' | 'normal' | 'relaxed' = 'normal'
+): number {
   const multipliers = {
     tight: 1.2,
     normal: 1.5,
@@ -178,131 +181,142 @@ export type FontWeight = '400' | '500' | '600' | '700' | '800' | '900';
 interface TypographyPreset extends TextStyle {
   fontSize: number;
   lineHeight: number;
-  fontWeight: FontWeight;
+  fontFamily: string;
   letterSpacing?: number;
 }
 
 /**
- * Pre-defined typography styles for consistent usage
+ * Pre-defined responsive typography styles
+ *
+ * IMPORTANT: Uses fontFamily (not fontWeight) to avoid iOS system font fallback.
+ * See: https://github.com/facebook/react-native/issues/18820
+ *
+ * Line heights are tuned per role:
+ *   Display/Heading: tighter (1.17-1.33×) — large text needs less leading
+ *   Body: looser (1.50-1.60×) — WCAG minimum 1.5× for paragraphs
+ *   Label: compact (1.33-1.45×) — UI elements stay tight
+ *
+ * Prefer <AppText variant="..."> over direct textStyles usage.
  */
 export const textStyles: Record<string, TypographyPreset> = {
-  // Display styles (for heroes, large headings)
+  // Display — Fredoka (hero, splash, mascot)
   displayLarge: {
     fontSize: responsiveFontSizes.hero,
-    lineHeight: responsiveLineHeights.hero,
-    fontWeight: '800',
-    letterSpacing: -1,
+    lineHeight: Math.round(responsiveFontSizes.hero * 1.17),
+    fontFamily: 'Fredoka_700Bold',
+    letterSpacing: -0.5,
   },
   displayMedium: {
     fontSize: responsiveFontSizes['5xl'],
-    lineHeight: responsiveLineHeights['5xl'],
-    fontWeight: '700',
+    lineHeight: Math.round(responsiveFontSizes['5xl'] * 1.2),
+    fontFamily: 'Fredoka_600SemiBold',
     letterSpacing: -0.5,
   },
   displaySmall: {
     fontSize: responsiveFontSizes['4xl'],
-    lineHeight: responsiveLineHeights['4xl'],
-    fontWeight: '700',
-    letterSpacing: -0.5,
+    lineHeight: Math.round(responsiveFontSizes['4xl'] * 1.25),
+    fontFamily: 'Fredoka_500Medium',
+    letterSpacing: -0.25,
   },
 
-  // Heading styles
+  // Heading — Plus Jakarta Sans Bold (section headers)
   headingLarge: {
     fontSize: responsiveFontSizes['3xl'],
-    lineHeight: responsiveLineHeights['3xl'],
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    lineHeight: Math.round(responsiveFontSizes['3xl'] * 1.25),
+    fontFamily: 'PlusJakartaSans_700Bold',
+    letterSpacing: -0.25,
   },
   headingMedium: {
     fontSize: responsiveFontSizes['2xl'],
-    lineHeight: responsiveLineHeights['2xl'],
-    fontWeight: '600',
+    lineHeight: Math.round(responsiveFontSizes['2xl'] * 1.29),
+    fontFamily: 'PlusJakartaSans_700Bold',
     letterSpacing: 0,
   },
   headingSmall: {
     fontSize: responsiveFontSizes.xl,
-    lineHeight: responsiveLineHeights.xl,
-    fontWeight: '600',
+    lineHeight: Math.round(responsiveFontSizes.xl * 1.33),
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     letterSpacing: 0,
   },
 
-  // Title styles
+  // Title — Plus Jakarta Sans Semibold/Medium (card/component titles)
   titleLarge: {
     fontSize: responsiveFontSizes.lg,
-    lineHeight: responsiveLineHeights.lg,
-    fontWeight: '600',
+    lineHeight: Math.round(responsiveFontSizes.lg * 1.4),
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     letterSpacing: 0,
   },
   titleMedium: {
     fontSize: responsiveFontSizes.md,
-    lineHeight: responsiveLineHeights.md,
-    fontWeight: '600',
-    letterSpacing: 0,
+    lineHeight: Math.round(responsiveFontSizes.md * 1.41),
+    fontFamily: 'PlusJakartaSans_600SemiBold',
+    letterSpacing: 0.15,
   },
   titleSmall: {
     fontSize: responsiveFontSizes.base,
-    lineHeight: responsiveLineHeights.base,
-    fontWeight: '600',
-    letterSpacing: 0,
+    lineHeight: Math.round(responsiveFontSizes.base * 1.47),
+    fontFamily: 'PlusJakartaSans_500Medium',
+    letterSpacing: 0.1,
   },
 
-  // Body styles
+  // Body — Plus Jakarta Sans Regular (main content)
   bodyLarge: {
     fontSize: responsiveFontSizes.md,
-    lineHeight: responsiveLineHeights.md,
-    fontWeight: '400',
-    letterSpacing: 0,
+    lineHeight: Math.round(responsiveFontSizes.md * 1.53),
+    fontFamily: 'PlusJakartaSans_400Regular',
+    letterSpacing: 0.15,
   },
   bodyMedium: {
     fontSize: responsiveFontSizes.base,
-    lineHeight: responsiveLineHeights.base,
-    fontWeight: '400',
-    letterSpacing: 0,
+    lineHeight: Math.round(responsiveFontSizes.base * 1.6),
+    fontFamily: 'PlusJakartaSans_400Regular',
+    letterSpacing: 0.25,
   },
   bodySmall: {
     fontSize: responsiveFontSizes.sm,
-    lineHeight: responsiveLineHeights.sm,
-    fontWeight: '400',
-    letterSpacing: 0,
+    lineHeight: Math.round(responsiveFontSizes.sm * 1.54),
+    fontFamily: 'PlusJakartaSans_400Regular',
+    letterSpacing: 0.4,
   },
 
-  // Label styles
+  // Label — Plus Jakarta Sans Medium/Semibold (buttons, tags)
   labelLarge: {
     fontSize: responsiveFontSizes.base,
-    lineHeight: responsiveLineHeights.base,
-    fontWeight: '500',
+    lineHeight: Math.round(responsiveFontSizes.base * 1.33),
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     letterSpacing: 0.1,
   },
   labelMedium: {
     fontSize: responsiveFontSizes.sm,
-    lineHeight: responsiveLineHeights.sm,
-    fontWeight: '500',
-    letterSpacing: 0.2,
+    lineHeight: Math.round(responsiveFontSizes.sm * 1.38),
+    fontFamily: 'PlusJakartaSans_500Medium',
+    letterSpacing: 0.5,
   },
   labelSmall: {
     fontSize: responsiveFontSizes.xs,
-    lineHeight: responsiveLineHeights.xs,
-    fontWeight: '500',
-    letterSpacing: 0.3,
+    lineHeight: Math.round(responsiveFontSizes.xs * 1.45),
+    fontFamily: 'PlusJakartaSans_500Medium',
+    letterSpacing: 0.5,
   },
 
-  // Special styles
+  // Special
   caption: {
-    fontSize: responsiveFontSizes.xs,
-    lineHeight: responsiveLineHeights.xs,
-    fontWeight: '400',
-    letterSpacing: 0.2,
+    fontSize: normalize(12),
+    lineHeight: Math.round(normalize(12) * 1.33),
+    fontFamily: 'PlusJakartaSans_400Regular',
+    letterSpacing: 0.4,
   },
   overline: {
     fontSize: responsiveFontSizes.xs,
-    lineHeight: responsiveLineHeights.xs,
-    fontWeight: '600',
+    lineHeight: Math.round(responsiveFontSizes.xs * 1.45),
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
   button: {
     fontSize: responsiveFontSizes.md,
-    lineHeight: responsiveLineHeights.md,
-    fontWeight: '600',
+    lineHeight: Math.round(responsiveFontSizes.md * 1.41),
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     letterSpacing: 0.3,
   },
 };
@@ -316,9 +330,7 @@ export type TextStyleName = keyof typeof textStyles;
 /**
  * Get responsive font size based on breakpoint
  */
-export function getResponsiveSize(
-  sizes: Partial<Record<Breakpoint, number>>
-): number {
+export function getResponsiveSize(sizes: Partial<Record<Breakpoint, number>>): number {
   const breakpoint = getCurrentBreakpoint();
   const orderedBreakpoints: Breakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
   const currentIndex = orderedBreakpoints.indexOf(breakpoint);
