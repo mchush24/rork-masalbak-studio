@@ -394,6 +394,8 @@ export function EmptyState({
                 styles.actionButtonProfessional,
                 pressed && { opacity: 0.8 },
               ]}
+              accessibilityRole="button"
+              accessibilityLabel={actionLabel}
             >
               <Text style={styles.actionButtonTextProfessional}>{actionLabel}</Text>
             </Pressable>
@@ -402,6 +404,8 @@ export function EmptyState({
               <Pressable
                 onPress={handleSecondaryAction}
                 style={({ pressed }) => [styles.secondaryButton, pressed && { opacity: 0.7 }]}
+                accessibilityRole="button"
+                accessibilityLabel={secondaryLabel}
               >
                 <Text style={styles.secondaryButtonTextProfessional}>{secondaryLabel}</Text>
               </Pressable>
@@ -476,6 +480,8 @@ export function EmptyState({
           <Pressable
             onPress={handleAction}
             style={({ pressed }) => [styles.actionButton, pressed && styles.actionButtonPressed]}
+            accessibilityRole="button"
+            accessibilityLabel={actionLabel}
           >
             <LinearGradient
               colors={[config.iconColor, Colors.secondary.lavender]}
@@ -491,6 +497,8 @@ export function EmptyState({
             <Pressable
               onPress={handleSecondaryAction}
               style={({ pressed }) => [styles.secondaryButton, pressed && { opacity: 0.7 }]}
+              accessibilityRole="button"
+              accessibilityLabel={secondaryLabel}
             >
               <Text style={styles.secondaryButtonText}>{secondaryLabel}</Text>
             </Pressable>

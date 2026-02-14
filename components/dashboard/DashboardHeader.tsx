@@ -91,6 +91,8 @@ export function DashboardHeader({
                   pressed && styles.actionButtonPressed,
                 ]}
                 onPress={onNotificationsPress}
+                accessibilityRole="button"
+                accessibilityLabel={`Bildirimler${notificationCount > 0 ? `, ${notificationCount} yeni bildirim` : ''}`}
               >
                 <Bell
                   size={20}
@@ -113,6 +115,8 @@ export function DashboardHeader({
                   pressed && styles.actionButtonPressed,
                 ]}
                 onPress={onSettingsPress}
+                accessibilityRole="button"
+                accessibilityLabel="Ayarlar"
               >
                 <Settings
                   size={20}
@@ -127,7 +131,12 @@ export function DashboardHeader({
         <View style={styles.greetingSection}>
           {/* Mascot (conditionally shown) */}
           {showMascot && (
-            <Pressable style={styles.mascotContainer} onPress={onMascotPress}>
+            <Pressable
+              style={styles.mascotContainer}
+              onPress={onMascotPress}
+              accessibilityRole="button"
+              accessibilityLabel="Ioo ile sohbet et"
+            >
               <IooMascot
                 size={isSmallDevice ? 'small' : 'medium'}
                 animated

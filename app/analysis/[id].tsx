@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -298,6 +297,7 @@ export default function AnalysisResultScreen() {
                 <div class="section-title">Gözlemler</div>
                 ${insights
                   .map(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (insight: any) => `
                   <div class="insight-item">
                     <div class="insight-title">${insight.title || 'İçgörü'}</div>
@@ -318,6 +318,7 @@ export default function AnalysisResultScreen() {
                 <div class="section-title">Öneriler</div>
                 ${homeTips
                   .map(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (tip: any) => `
                   <div class="tip-item">
                     <div class="tip-title">${tip.title || 'Öneri'}</div>
@@ -403,7 +404,7 @@ export default function AnalysisResultScreen() {
       >
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#FFFFFF" />
+            <ActivityIndicator size="large" color={Colors.neutral.white} />
             <Text style={styles.loadingText}>Analiz yükleniyor...</Text>
           </View>
         </SafeAreaView>
@@ -430,6 +431,8 @@ export default function AnalysisResultScreen() {
             <Pressable
               onPress={handleBack}
               style={[styles.backToHomeButton, { backgroundColor: colors.surface.card }]}
+              accessibilityRole="button"
+              accessibilityLabel="Geri don"
             >
               <Text style={[styles.backToHomeText, { color: colors.text.primary }]}>Geri Dön</Text>
             </Pressable>
@@ -450,6 +453,7 @@ export default function AnalysisResultScreen() {
   });
 
   // Calculate emotional indicators from insights
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emotionalIndicators = insights.slice(0, 4).map((insight: any, index: number) => {
     const indicatorColors = ['#7ED99C', '#FFD56B', '#A78BFA', '#78C8E8'];
     const strengthValue =
@@ -477,8 +481,13 @@ export default function AnalysisResultScreen() {
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={[styles.header, { paddingHorizontal: screenPadding }]}>
-          <Pressable onPress={handleBack} style={styles.backButton}>
-            <ArrowLeft size={24} color="#FFFFFF" strokeWidth={2} />
+          <Pressable
+            onPress={handleBack}
+            style={styles.backButton}
+            accessibilityRole="button"
+            accessibilityLabel="Geri don"
+          >
+            <ArrowLeft size={24} color={Colors.neutral.white} strokeWidth={2} />
           </Pressable>
           <View style={styles.logoContainer}>
             <Text style={styles.logoText}>
@@ -517,6 +526,7 @@ export default function AnalysisResultScreen() {
           {emotionalIndicators.length > 0 && (
             <View style={styles.indicatorsSection}>
               <Text style={styles.sectionTitle}>Duygusal Göstergeler</Text>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {emotionalIndicators.map((indicator: any, index: number) => (
                 <View key={index} style={styles.indicatorItem}>
                   <View style={styles.indicatorHeader}>
@@ -555,6 +565,7 @@ export default function AnalysisResultScreen() {
                 <Brain size={20} color={colors.secondary.lavender} strokeWidth={2} />
                 <Text style={styles.cardTitle}>Gözlemler</Text>
               </View>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {insights.map((insight: any, index: number) => (
                 <View key={index} style={styles.insightItem}>
                   <View
@@ -583,6 +594,7 @@ export default function AnalysisResultScreen() {
                 <Smile size={20} color={colors.secondary.grass} strokeWidth={2} />
                 <Text style={styles.cardTitle}>Öneriler</Text>
               </View>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {homeTips.map((tip: any, index: number) => (
                 <View key={index} style={styles.insightItem}>
                   <View style={[styles.bulletPoint, { backgroundColor: colors.secondary.grass }]} />
@@ -617,6 +629,9 @@ export default function AnalysisResultScreen() {
             <Pressable
               onPress={handleFavorite}
               style={[styles.iconButton, isFavorited && styles.iconButtonActive]}
+              accessibilityRole="button"
+              accessibilityLabel={isFavorited ? 'Favorilerden cikar' : 'Favorilere ekle'}
+              accessibilityState={{ selected: isFavorited }}
             >
               <Heart
                 size={24}
@@ -625,10 +640,20 @@ export default function AnalysisResultScreen() {
                 strokeWidth={2}
               />
             </Pressable>
-            <Pressable onPress={handleShare} style={styles.iconButton}>
+            <Pressable
+              onPress={handleShare}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Paylas"
+            >
               <Share2 size={24} color="rgba(255, 255, 255, 0.7)" strokeWidth={2} />
             </Pressable>
-            <Pressable onPress={handleDownload} style={styles.iconButton}>
+            <Pressable
+              onPress={handleDownload}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="PDF indir"
+            >
               <Download size={24} color="rgba(255, 255, 255, 0.7)" strokeWidth={2} />
             </Pressable>
             <Pressable
@@ -640,6 +665,8 @@ export default function AnalysisResultScreen() {
                   borderColor: colors.secondary.lavender,
                 },
               ]}
+              accessibilityRole="button"
+              accessibilityLabel="Ioo ile sohbet"
             >
               <MessageCircle size={24} color={colors.secondary.lavender} strokeWidth={2} />
             </Pressable>
@@ -647,8 +674,10 @@ export default function AnalysisResultScreen() {
           <Pressable
             onPress={() => setShowChat(true)}
             style={[styles.chatButton, shadows.lg, { backgroundColor: colors.secondary.lavender }]}
+            accessibilityRole="button"
+            accessibilityLabel="Ioo ile Konus"
           >
-            <MessageCircle size={20} color="#FFFFFF" strokeWidth={2} />
+            <MessageCircle size={20} color={Colors.neutral.white} strokeWidth={2} />
             <Text style={[styles.chatButtonText, { color: Colors.neutral.white }]}>
               Ioo ile Konuş
             </Text>

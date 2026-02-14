@@ -414,6 +414,8 @@ export default function HomeScreen() {
                     <Pressable
                       style={styles.mascotContainerCompact}
                       onPress={() => router.push('/chatbot' as Href)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Ioo ile sohbet et"
                     >
                       <IooMascot size="xs" animated showGlow={false} mood="happy" />
                     </Pressable>
@@ -450,6 +452,8 @@ export default function HomeScreen() {
                     pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
                   ]}
                   onPress={() => router.push('/(tabs)/analysis' as Href)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Çizim analizi başlat"
                 >
                   <View
                     style={[
@@ -472,6 +476,8 @@ export default function HomeScreen() {
                     pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
                   ]}
                   onPress={() => router.push('/stories' as Href)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Masal oluştur"
                 >
                   <View
                     style={[
@@ -494,6 +500,8 @@ export default function HomeScreen() {
                     pressed && { opacity: 0.8, transform: [{ scale: 0.97 }] },
                   ]}
                   onPress={() => router.push('/coloring-history' as Href)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Boyama kitabi"
                 >
                   <View
                     style={[
@@ -520,6 +528,8 @@ export default function HomeScreen() {
                 pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
               ]}
               onPress={() => router.push(suggestion.route)}
+              accessibilityRole="button"
+              accessibilityLabel={`${suggestion.title}: ${suggestion.cta}`}
             >
               <View style={[styles.suggestionIcon, { backgroundColor: suggestion.color + '1F' }]}>
                 <suggestion.icon size={20} color={suggestion.color} />
@@ -583,6 +593,8 @@ export default function HomeScreen() {
                 <Pressable
                   style={({ pressed }) => [styles.badgesButton, pressed && { opacity: 0.8 }]}
                   onPress={() => router.push('/profile' as Href)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Rozetler"
                 >
                   <Trophy size={18} color={colors.semantic.amber} />
                 </Pressable>
@@ -675,6 +687,8 @@ export default function HomeScreen() {
                   <Pressable
                     onPress={() => router.push('/history' as Href)}
                     style={({ pressed }) => [pressed && { opacity: 0.6 }]}
+                    accessibilityRole="button"
+                    accessibilityLabel="Tum analizleri gor"
                   >
                     <Text style={[styles.seeAllText, { color: colors.primary.sunset }]}>
                       Tümünü Gör →
@@ -708,6 +722,8 @@ export default function HomeScreen() {
                       pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
                     ]}
                     onPress={() => router.push('/(tabs)/analysis' as Href)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Ilk cizim analizini baslat"
                   >
                     <Camera size={16} color={Colors.neutral.white} />
                     <Text style={[styles.emptyCtaText, { color: Colors.neutral.white }]}>
@@ -732,6 +748,8 @@ export default function HomeScreen() {
                       onPress={() => {
                         if (analysis.id) router.push(`/analysis/${analysis.id}` as Href);
                       }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${TASK_TYPE_LABELS[analysis.task_type] || analysis.task_type} analizi${analysis.child_name ? `, ${analysis.child_name}` : ''}, ${formatDate(analysis.created_at)}`}
                     >
                       <View
                         style={[
@@ -833,6 +851,8 @@ export default function HomeScreen() {
               <Pressable
                 onPress={() => setShowActionModal(false)}
                 style={[styles.modalCloseBtn, { backgroundColor: colors.neutral.lightest }]}
+                accessibilityRole="button"
+                accessibilityLabel="Kapat"
               >
                 <X size={20} color={colors.text.tertiary} />
               </Pressable>
@@ -850,6 +870,8 @@ export default function HomeScreen() {
                   setShowActionModal(false);
                   router.push('/(tabs)/analysis' as Href);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Detayli Analiz: Projektif testler ile kapsamli degerlendirme"
               >
                 <LinearGradient
                   colors={[colors.secondary.indigo, colors.secondary.violet]}
@@ -878,6 +900,8 @@ export default function HomeScreen() {
                   setShowActionModal(false);
                   router.push('/hayal-atolyesi' as Href);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Hayal Atolyesi: Cizimden masal, boyama ve analiz"
               >
                 <LinearGradient
                   colors={[colors.secondary.rose, colors.secondary.roseLight]}
@@ -906,6 +930,8 @@ export default function HomeScreen() {
                   setShowActionModal(false);
                   router.push('/history' as Href);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Gecmis Analizler: Onceki analizlerinizi goruntuleyin"
               >
                 <LinearGradient
                   colors={[colors.secondary.grass, colors.secondary.grassLight]}
@@ -934,6 +960,8 @@ export default function HomeScreen() {
                   setShowActionModal(false);
                   router.push('/chatbot' as Href);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Ioo'ya Sor: Analiz hakkinda sorularinizi sorun"
               >
                 <LinearGradient
                   colors={[colors.semantic.amber, colors.semantic.amberLight]}

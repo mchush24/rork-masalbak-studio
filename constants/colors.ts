@@ -278,6 +278,18 @@ export const Colors = {
     // Amber (dikkat çekici)
     amber: '#F59E0B',
     amberLight: '#FCD34D',
+
+    // Tailwind-standard semantic colors (for migration from hardcoded hex)
+    successBold: '#10B981', // Emerald-500 - bolder success green
+    errorBold: '#EF4444', // Red-500 - standard error red
+    errorDark: '#DC2626', // Red-600 - darker error/danger red
+    errorBgLight: '#FEF2F2', // Red-50 - light error background
+    errorBgMedium: '#FEE2E2', // Red-100 - medium error background
+    warningBgMedium: '#FEF3C7', // Amber-100 - warning background
+    successBgMedium: '#ECFDF5', // Emerald-50 - success background
+
+    // Award/Star gold
+    gold: '#FFD700', // Standard gold for awards/stars
   },
 
   // Özel Durumlar
@@ -549,6 +561,18 @@ export const DarkColors = {
     // Amber (dikkat çekici)
     amber: '#FFAA40',
     amberLight: '#FFD080',
+
+    // Tailwind-standard semantic colors (dark mode equivalents)
+    successBold: '#34D399', // Emerald-400 for dark
+    errorBold: '#F87171', // Red-400 for dark
+    errorDark: '#EF4444', // Red-500 for dark
+    errorBgLight: '#2A1515', // Dark error bg
+    errorBgMedium: '#2A1818', // Dark error bg medium
+    warningBgMedium: '#2A2510', // Dark warning bg
+    successBgMedium: '#152A1D', // Dark success bg
+
+    // Award/Star gold
+    gold: '#FFD700',
   },
 
   // Özel Durumlar - Dark mode

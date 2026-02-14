@@ -97,12 +97,12 @@ export default function StudioScreen() {
   // Human-readable labels for concern types (Turkish) - Based on ACEs framework
   const concernTypeLabels: Record<string, { label: string; emoji: string; color: string }> = {
     // Original categories
-    war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: '#6B7280' },
-    violence: { label: 'Şiddet', emoji: '💪', color: '#EF4444' },
+    war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: Colors.neutral.medium },
+    violence: { label: 'Şiddet', emoji: '💪', color: Colors.semantic.errorBold },
     disaster: { label: 'Doğal Afet', emoji: '🌈', color: Colors.semantic.amber },
     loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: Colors.secondary.violet },
     loneliness: { label: 'Yalnızlık', emoji: '🤗', color: '#3B82F6' },
-    fear: { label: 'Korku', emoji: '⭐', color: '#10B981' },
+    fear: { label: 'Korku', emoji: '⭐', color: Colors.semantic.successBold },
     abuse: { label: 'İstismar', emoji: '🛡️', color: '#EC4899' },
     family_separation: { label: 'Aile Ayrılığı', emoji: '❤️', color: '#F97316' },
     death: { label: 'Ölüm / Yas', emoji: '🦋', color: Colors.secondary.indigo },
@@ -112,9 +112,13 @@ export default function StudioScreen() {
     domestic_violence_witness: {
       label: 'Aile İçi Şiddete Tanıklık',
       emoji: '🏡',
-      color: '#EF4444',
+      color: Colors.semantic.errorBold,
     },
-    parental_addiction: { label: 'Ebeveyn Bağımlılığı', emoji: '🌱', color: '#10B981' },
+    parental_addiction: {
+      label: 'Ebeveyn Bağımlılığı',
+      emoji: '🌱',
+      color: Colors.semantic.successBold,
+    },
     parental_mental_illness: { label: 'Ebeveyn Ruhsal Hastalığı', emoji: '💙', color: '#3B82F6' },
     // Pediatric psychology categories
     medical_trauma: { label: 'Tıbbi Travma', emoji: '🏥', color: '#06B6D4' },
@@ -247,7 +251,7 @@ export default function StudioScreen() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
             >
-              <Palette size={isSmallScreen ? 28 : 32} color="#FFFFFF" />
+              <Palette size={isSmallScreen ? 28 : 32} color={Colors.neutral.white} />
             </LinearGradient>
           </View>
           <Text
@@ -349,7 +353,7 @@ export default function StudioScreen() {
           </View>
 
           <View style={[styles.aiIconContainer, isSmallScreen && { width: 72, height: 72 }]}>
-            <Wand2 size={isSmallScreen ? 36 : 48} color="#FFFFFF" />
+            <Wand2 size={isSmallScreen ? 36 : 48} color={Colors.neutral.white} />
           </View>
 
           <Text style={[styles.aiCardTitle, isSmallScreen && { fontSize: typography.size.xl }]}>
@@ -555,7 +559,7 @@ export default function StudioScreen() {
                       colors={[colors.secondary.sky, colors.secondary.skyLight]}
                       style={styles.buttonGradient}
                     >
-                      <ImagePlus size={20} color="#FFFFFF" />
+                      <ImagePlus size={20} color={Colors.neutral.white} />
                       <Text style={styles.buttonTextWhite}>
                         {aiDrawingImage ? t.studio.selectDifferentDrawing : t.studio.selectDrawing}
                       </Text>
@@ -581,9 +585,9 @@ export default function StudioScreen() {
                       style={styles.buttonGradient}
                     >
                       {isGenerating ? (
-                        <ActivityIndicator color="#FFFFFF" />
+                        <ActivityIndicator color={Colors.neutral.white} />
                       ) : (
-                        <Wand2 size={20} color="#FFFFFF" />
+                        <Wand2 size={20} color={Colors.neutral.white} />
                       )}
                       <Text style={styles.buttonTextWhite}>
                         {isGenerating ? t.studio.creating : t.studio.generateColoringPage}
@@ -632,7 +636,7 @@ export default function StudioScreen() {
                             colors={[colors.secondary.lavender, colors.secondary.lavenderLight]}
                             style={styles.buttonGradient}
                           >
-                            <Palette size={20} color="#FFFFFF" />
+                            <Palette size={20} color={Colors.neutral.white} />
                             <Text style={styles.buttonTextWhite}>{t.studio.startColoring}</Text>
                           </LinearGradient>
                         </Pressable>
@@ -648,7 +652,7 @@ export default function StudioScreen() {
                             colors={[colors.semantic.success, colors.secondary.grassLight]}
                             style={styles.buttonGradient}
                           >
-                            <Download size={20} color="#FFFFFF" />
+                            <Download size={20} color={Colors.neutral.white} />
                             <Text style={styles.buttonTextWhite}>{t.studio.download}</Text>
                           </LinearGradient>
                         </Pressable>

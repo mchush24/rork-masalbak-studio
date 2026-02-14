@@ -597,7 +597,7 @@ export default function AdvancedAnalysisScreen() {
                         colors={[colors.secondary.indigo, colors.secondary.violet]}
                         style={styles.headerIconGradient}
                       >
-                        <Brain size={32} color="#FFFFFF" strokeWidth={2} />
+                        <Brain size={32} color={Colors.neutral.white} strokeWidth={2} />
                       </LinearGradient>
                       <Animated.View
                         style={[
@@ -652,7 +652,7 @@ export default function AdvancedAnalysisScreen() {
                   colors={[colors.secondary.indigo, colors.secondary.violet]}
                   style={styles.statIconBg}
                 >
-                  <Brain size={18} color="#FFFFFF" />
+                  <Brain size={18} color={Colors.neutral.white} />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
                   <Text style={[styles.statValueSmall, { color: colors.text.primary }]}>
@@ -664,7 +664,7 @@ export default function AdvancedAnalysisScreen() {
               <View style={[styles.statDivider, { backgroundColor: colors.neutral.lighter }]} />
               <View style={styles.statItem}>
                 <LinearGradient colors={['#EC4899', '#F472B6']} style={styles.statIconBg}>
-                  <FileText size={18} color="#FFFFFF" />
+                  <FileText size={18} color={Colors.neutral.white} />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
                   <Text style={[styles.statValueSmall, { color: colors.text.primary }]}>
@@ -676,7 +676,7 @@ export default function AdvancedAnalysisScreen() {
               <View style={[styles.statDivider, { backgroundColor: colors.neutral.lighter }]} />
               <View style={styles.statItem}>
                 <LinearGradient colors={['#10B981', '#34D399']} style={styles.statIconBg}>
-                  <Shield size={18} color="#FFFFFF" />
+                  <Shield size={18} color={Colors.neutral.white} />
                 </LinearGradient>
                 <View style={styles.statTextArea}>
                   <Text style={[styles.statValueSmall, { color: colors.text.primary }]}>
@@ -789,7 +789,7 @@ export default function AdvancedAnalysisScreen() {
                       </View>
                       {isActive && (
                         <View style={styles.testCardCheck}>
-                          <CheckCircle size={16} color="#FFFFFF" />
+                          <CheckCircle size={16} color={Colors.neutral.white} />
                         </View>
                       )}
                     </LinearGradient>
@@ -817,9 +817,9 @@ export default function AdvancedAnalysisScreen() {
                     </View>
                   </View>
                   <Pressable onPress={() => openSheet(task)} style={styles.selectedTestButton}>
-                    <FileText size={16} color="#FFFFFF" />
+                    <FileText size={16} color={Colors.neutral.white} />
                     <Text style={styles.selectedTestButtonText}>Protokol</Text>
-                    <ChevronRight size={14} color="#FFFFFF" />
+                    <ChevronRight size={14} color={Colors.neutral.white} />
                   </Pressable>
                 </View>
                 <Text style={styles.selectedTestInstruction} numberOfLines={2}>
@@ -941,7 +941,7 @@ export default function AdvancedAnalysisScreen() {
                             onPress={() => clearImage(slot.id)}
                             style={styles.imageCardClear}
                           >
-                            <X size={16} color="#EF4444" />
+                            <X size={16} color={Colors.semantic.errorBold} />
                           </Pressable>
                         )}
                       </View>
@@ -962,7 +962,7 @@ export default function AdvancedAnalysisScreen() {
                             resizeMode="cover"
                           />
                           <View style={styles.imagePreviewOverlay}>
-                            <CheckCircle size={24} color="#10B981" />
+                            <CheckCircle size={24} color={Colors.semantic.successBold} />
                           </View>
                         </View>
                       ) : (
@@ -1031,7 +1031,7 @@ export default function AdvancedAnalysisScreen() {
               <View style={styles.noImageCard}>
                 <LinearGradient colors={['#F0FDF4', '#DCFCE7']} style={styles.noImageGradient}>
                   <View style={styles.noImageIcon}>
-                    <Star size={24} color="#10B981" />
+                    <Star size={24} color={Colors.semantic.successBold} />
                   </View>
                   <Text style={styles.noImageTitle}>Görsel Gerekmiyor</Text>
                   <Text style={styles.noImageText}>
@@ -1065,10 +1065,10 @@ export default function AdvancedAnalysisScreen() {
                   end={{ x: 1, y: 1 }}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
+                    <ActivityIndicator color={Colors.neutral.white} size="small" />
                   ) : (
                     <>
-                      <Sparkles size={24} color="#FFFFFF" />
+                      <Sparkles size={24} color={Colors.neutral.white} />
                       <Text style={styles.analyzeButtonText}>
                         {hasRequiredImages
                           ? 'AI Analizi Başlat'
@@ -1110,7 +1110,7 @@ export default function AdvancedAnalysisScreen() {
                     styles.disclaimerCard,
                     {
                       backgroundColor: isDark ? colors.surface.elevated : '#FFFBEB',
-                      borderColor: isDark ? colors.border.light : '#FEF3C7',
+                      borderColor: isDark ? colors.border.light : Colors.semantic.warningBgMedium,
                     },
                   ]}
                 >
@@ -1272,7 +1272,7 @@ export default function AdvancedAnalysisScreen() {
                   </Text>
                   {PROTOCOLS[sheetTask].donts.map((d: string, i: number) => (
                     <View key={i} style={styles.dontItem}>
-                      <X size={14} color="#EF4444" />
+                      <X size={14} color={Colors.semantic.errorBold} />
                       <Text style={styles.dontText}>{d}</Text>
                     </View>
                   ))}
@@ -1322,7 +1322,7 @@ export default function AdvancedAnalysisScreen() {
                     colors={TEST_CONFIG[sheetTask]?.gradient ?? ['#A78BFA', '#C4B5FD']}
                     style={styles.sheetSelectButtonGradient}
                   >
-                    <CheckCircle size={18} color="#FFFFFF" />
+                    <CheckCircle size={18} color={Colors.neutral.white} />
                     <Text style={styles.sheetSelectButtonText}>Bu Testi Seç</Text>
                   </LinearGradient>
                 </Pressable>
@@ -1811,7 +1811,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: Colors.semantic.errorBgLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1986,7 +1986,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: '#FEF3C7',
+    borderColor: Colors.semantic.warningBgMedium,
   },
   disclaimerHeader: {
     flexDirection: 'row',
@@ -2199,7 +2199,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 10,
     marginBottom: 8,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: Colors.semantic.errorBgLight,
     padding: 12,
     borderRadius: 12,
   },

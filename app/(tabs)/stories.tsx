@@ -140,12 +140,12 @@ export default function StoriesScreen() {
   // Human-readable labels for concern types (Turkish) - Based on ACEs framework
   const concernTypeLabels: Record<string, { label: string; emoji: string; color: string }> = {
     // Original categories
-    war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: '#6B7280' },
-    violence: { label: 'Şiddet', emoji: '💪', color: '#EF4444' },
+    war: { label: 'Savaş / Çatışma', emoji: '🕊️', color: Colors.neutral.medium },
+    violence: { label: 'Şiddet', emoji: '💪', color: Colors.semantic.errorBold },
     disaster: { label: 'Doğal Afet', emoji: '🌈', color: Colors.semantic.amber },
     loss: { label: 'Kayıp / Ayrılık', emoji: '💝', color: Colors.secondary.violet },
     loneliness: { label: 'Yalnızlık', emoji: '🤗', color: '#3B82F6' },
-    fear: { label: 'Korku', emoji: '⭐', color: '#10B981' },
+    fear: { label: 'Korku', emoji: '⭐', color: Colors.semantic.successBold },
     abuse: { label: 'İstismar', emoji: '🛡️', color: '#EC4899' },
     family_separation: { label: 'Aile Ayrılığı', emoji: '❤️', color: '#F97316' },
     death: { label: 'Ölüm / Yas', emoji: '🦋', color: Colors.secondary.indigo },
@@ -155,9 +155,13 @@ export default function StoriesScreen() {
     domestic_violence_witness: {
       label: 'Aile İçi Şiddete Tanıklık',
       emoji: '🏡',
-      color: '#EF4444',
+      color: Colors.semantic.errorBold,
     },
-    parental_addiction: { label: 'Ebeveyn Bağımlılığı', emoji: '🌱', color: '#10B981' },
+    parental_addiction: {
+      label: 'Ebeveyn Bağımlılığı',
+      emoji: '🌱',
+      color: Colors.semantic.successBold,
+    },
     parental_mental_illness: { label: 'Ebeveyn Ruhsal Hastalığı', emoji: '💙', color: '#3B82F6' },
     // Pediatric psychology categories
     medical_trauma: { label: 'Tıbbi Travma', emoji: '🏥', color: '#06B6D4' },
@@ -1022,7 +1026,7 @@ export default function StoriesScreen() {
           style={styles.deleteButton}
           onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
         >
-          <Trash2 size={24} color="#FFFFFF" />
+          <Trash2 size={24} color={Colors.neutral.white} />
           <Text style={styles.deleteButtonText}>Sil</Text>
         </Pressable>
       </View>
@@ -1065,7 +1069,7 @@ export default function StoriesScreen() {
                   colors={[colors.secondary.lavender, colors.secondary.lavenderLight]}
                   style={styles.pdfBadge}
                 >
-                  <FileText size={14} color="#FFFFFF" />
+                  <FileText size={14} color={Colors.neutral.white} />
                   <Text style={styles.pdfBadgeText}>PDF</Text>
                 </LinearGradient>
               )}
@@ -1141,7 +1145,7 @@ export default function StoriesScreen() {
               colors={[colors.secondary.sunshine, colors.cards.story.border]}
               style={styles.headerIcon}
             >
-              <BookOpen size={layout.icon.medium} color="#FFFFFF" />
+              <BookOpen size={layout.icon.medium} color={Colors.neutral.white} />
             </LinearGradient>
             <View style={styles.headerTextContainer}>
               <Text style={[styles.headerTitle, { color: colors.neutral.darkest }]}>Masallar</Text>
@@ -1162,7 +1166,7 @@ export default function StoriesScreen() {
                 setShowCreateForm(!showCreateForm);
               }}
             >
-              <Plus size={24} color="#FFFFFF" />
+              <Plus size={24} color={Colors.neutral.white} />
             </Pressable>
           </View>
         </View>
@@ -1414,7 +1418,7 @@ export default function StoriesScreen() {
                     colors={[colors.neutral.medium, colors.neutral.dark]}
                     style={styles.buttonGradient}
                   >
-                    <ImagePlus size={20} color="#FFFFFF" />
+                    <ImagePlus size={20} color={Colors.neutral.white} />
                     <Text style={styles.buttonText}>
                       {storyImage ? 'Farklı Görsel Seç' : 'İlham Görseli Seç'}
                     </Text>
@@ -1475,11 +1479,11 @@ export default function StoriesScreen() {
                   style={styles.buttonGradientLarge}
                 >
                   {loadingStory ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
+                    <ActivityIndicator size="small" color={Colors.neutral.white} />
                   ) : storyMode === 'interactive' ? (
-                    <Gamepad2 size={24} color="#FFFFFF" />
+                    <Gamepad2 size={24} color={Colors.neutral.white} />
                   ) : (
-                    <Sparkles size={24} color="#FFFFFF" />
+                    <Sparkles size={24} color={Colors.neutral.white} />
                   )}
                   <Text style={styles.buttonTextLarge}>
                     {loadingStory
@@ -1978,7 +1982,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing['4'],
   },
   deleteButton: {
-    backgroundColor: '#EF4444',
+    backgroundColor: Colors.semantic.errorBold,
     justifyContent: 'center',
     alignItems: 'center',
     width: 90,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Form Validation System
  * Phase 4: Advanced Features
@@ -86,6 +85,7 @@ function formatZodError(issue: ZodIssue, customMessages?: Record<string, string>
 
   // Map error codes to messages
   // Use `any` cast because Zod v4 changed issue type shapes
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const iss = issue as any;
   switch (iss.code) {
     case 'invalid_type':
@@ -185,6 +185,7 @@ export function useForm<T extends Record<string, unknown>>({
   // Check if form is valid
   const isValid = useMemo(() => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (schema as any).parse(values);
       return true;
     } catch {
@@ -199,6 +200,7 @@ export function useForm<T extends Record<string, unknown>>({
         // Create partial schema for single field
         const fieldSchema = (schema as z.ZodObject<z.ZodRawShape>).shape?.[name];
         if (fieldSchema) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (fieldSchema as any).parse(value);
         }
         return null;
@@ -216,6 +218,7 @@ export function useForm<T extends Record<string, unknown>>({
   // Validate entire form
   const validateForm = useCallback((): Record<string, FieldError> => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (schema as any).parse(values);
       return {};
     } catch (error) {
@@ -404,6 +407,7 @@ export function useFieldValidation<T>(
   const validate = useCallback(
     (value: unknown): FieldError | null => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (schema as any).parse(value);
         return null;
       } catch (error) {
@@ -423,6 +427,7 @@ export function useFieldValidation<T>(
   const isValid = useCallback(
     (value: unknown): boolean => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (schema as any).parse(value);
         return true;
       } catch {

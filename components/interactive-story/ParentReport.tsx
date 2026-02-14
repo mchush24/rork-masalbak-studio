@@ -129,7 +129,7 @@ export function ParentReport({ report, onClose, onDownload }: ParentReportProps)
       {/* Aktivite onerileri */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Lightbulb size={24} color="#10B981" />
+          <Lightbulb size={24} color={Colors.semantic.success} />
           <Text style={styles.sectionTitle}>Aktivite Onerileri</Text>
         </View>
         <Text style={styles.sectionDescription}>
@@ -259,7 +259,10 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
   return (
     <View style={styles.therapeuticContainer}>
       {/* Başlık */}
-      <LinearGradient colors={['#10B981', '#059669']} style={styles.therapeuticHeader}>
+      <LinearGradient
+        colors={[Colors.semantic.success, Colors.semantic.success]}
+        style={styles.therapeuticHeader}
+      >
         <Shield size={28} color={Colors.neutral.white} />
         <Text style={styles.therapeuticTitle}>Terapötik Destek Rehberi</Text>
         <Text style={styles.therapeuticSubtitle}>
@@ -269,7 +272,7 @@ function TherapeuticSection({ section }: { section: TherapeuticReportSection }) 
 
       {/* Cesaretlendirici Mesaj */}
       <View style={styles.therapeuticEncouraging}>
-        <CheckCircle size={24} color="#10B981" />
+        <CheckCircle size={24} color={Colors.semantic.success} />
         <Text style={styles.therapeuticEncouragingText}>{section.encouragingMessage}</Text>
       </View>
 
@@ -399,11 +402,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontFamily: typography.family.bold,
-    color: '#1F2937',
+    color: Colors.neutral.darkest,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
     marginBottom: 16,
   },
   traitsContainer: {
@@ -428,7 +431,7 @@ const styles = StyleSheet.create({
   traitRankText: {
     fontSize: 14,
     fontFamily: typography.family.bold,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
   },
   traitInfo: {
     flex: 1,
@@ -445,17 +448,17 @@ const styles = StyleSheet.create({
   traitName: {
     fontSize: 16,
     fontFamily: typography.family.semibold,
-    color: '#1F2937',
+    color: Colors.neutral.darkest,
     flex: 1,
   },
   traitPercentage: {
     fontSize: 14,
     fontFamily: typography.family.bold,
-    color: '#9333EA',
+    color: Colors.secondary.lavender,
   },
   traitDescription: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
     lineHeight: 18,
   },
   chartContainer: {
@@ -489,7 +492,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
   },
   timelineItem: {
     flexDirection: 'row',
@@ -526,7 +529,7 @@ const styles = StyleSheet.create({
   timelineQuestion: {
     fontSize: 14,
     fontFamily: typography.family.semibold,
-    color: '#1F2937',
+    color: Colors.neutral.darkest,
     marginBottom: 8,
   },
   timelineAnswer: {
@@ -536,7 +539,7 @@ const styles = StyleSheet.create({
   },
   timelineAnswerText: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
     flex: 1,
   },
   timelineTraitBadge: {
@@ -579,12 +582,12 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 15,
     fontFamily: typography.family.semibold,
-    color: '#1F2937',
+    color: Colors.neutral.darkest,
     marginBottom: 4,
   },
   activityDescription: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
     lineHeight: 18,
   },
   conversationItem: {
@@ -638,7 +641,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#9333EA',
+    backgroundColor: Colors.secondary.lavender,
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -653,7 +656,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   closeButtonText: {
-    color: '#6B7280',
+    color: Colors.neutral.medium,
     fontSize: 16,
     fontFamily: typography.family.medium,
   },
@@ -685,7 +688,7 @@ const styles = StyleSheet.create({
   },
   therapeuticEncouraging: {
     flexDirection: 'row',
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBg,
     padding: 16,
     alignItems: 'flex-start',
     gap: 12,
@@ -706,7 +709,7 @@ const styles = StyleSheet.create({
   therapeuticSectionTitle: {
     fontSize: 16,
     fontFamily: typography.family.semibold,
-    color: '#1F2937',
+    color: Colors.neutral.darkest,
     marginBottom: 12,
   },
   therapeuticItem: {
@@ -774,7 +777,7 @@ const styles = StyleSheet.create({
   },
   therapeuticDisclaimerText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: Colors.neutral.medium,
     textAlign: 'center',
     fontStyle: 'italic',
   },

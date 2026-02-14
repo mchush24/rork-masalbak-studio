@@ -66,12 +66,12 @@ interface ClassReportProps {
 }
 
 const PERCENTILE_RANGES = [
-  { min: 0, max: 10, label: '0-10', color: '#DC2626' },
+  { min: 0, max: 10, label: '0-10', color: Colors.semantic.error },
   { min: 10, max: 25, label: '10-25', color: Colors.semantic.amber },
   { min: 25, max: 50, label: '25-50', color: '#EAB308' },
   { min: 50, max: 75, label: '50-75', color: '#84CC16' },
   { min: 75, max: 90, label: '75-90', color: '#22C55E' },
-  { min: 90, max: 100, label: '90-100', color: '#059669' },
+  { min: 90, max: 100, label: '90-100', color: Colors.semantic.success },
 ];
 
 export function ClassReport({
@@ -105,11 +105,11 @@ export function ClassReport({
   const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return '#10B981';
+        return Colors.semantic.success;
       case 'down':
-        return '#EF4444';
+        return Colors.semantic.error;
       default:
-        return '#6B7280';
+        return Colors.neutral.medium;
     }
   };
 
@@ -187,8 +187,10 @@ export function ClassReport({
           </View>
 
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: '#ECFDF5' }]}>
-              <BarChart2 size={20} color="#059669" />
+            <View
+              style={[styles.statIconContainer, { backgroundColor: Colors.semantic.successBg }]}
+            >
+              <BarChart2 size={20} color={Colors.semantic.success} />
             </View>
             <Text style={styles.statValue}>{stats.averagePercentile}%</Text>
             <Text style={styles.statLabel}>Ortalama</Text>
@@ -196,8 +198,10 @@ export function ClassReport({
           </View>
 
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: '#FEF3C7' }]}>
-              <AlertTriangle size={20} color="#D97706" />
+            <View
+              style={[styles.statIconContainer, { backgroundColor: Colors.semantic.warningBg }]}
+            >
+              <AlertTriangle size={20} color={Colors.semantic.warning} />
             </View>
             <Text style={[styles.statValue, stats.needsAttention > 0 && styles.warningValue]}>
               {stats.needsAttention}
@@ -236,7 +240,7 @@ export function ClassReport({
 
         <View style={styles.distributionLegend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#DC2626' }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.semantic.error }]} />
             <Text style={styles.legendText}>Düşük</Text>
           </View>
           <View style={styles.legendItem}>
@@ -244,7 +248,7 @@ export function ClassReport({
             <Text style={styles.legendText}>Ortalama</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#059669' }]} />
+            <View style={[styles.legendDot, { backgroundColor: Colors.semantic.success }]} />
             <Text style={styles.legendText}>Yüksek</Text>
           </View>
         </View>
@@ -256,7 +260,7 @@ export function ClassReport({
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>En Başarılı Öğrenciler</Text>
             <View style={styles.badgeSuccess}>
-              <CheckCircle size={12} color="#059669" />
+              <CheckCircle size={12} color={Colors.semantic.success} />
               <Text style={styles.badgeSuccessText}>{topPerformers.length}</Text>
             </View>
           </View>
@@ -303,13 +307,13 @@ export function ClassReport({
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Dikkat Gereken Öğrenciler</Text>
             <View style={styles.badgeWarning}>
-              <AlertTriangle size={12} color="#D97706" />
+              <AlertTriangle size={12} color={Colors.semantic.warning} />
               <Text style={styles.badgeWarningText}>{needsAttention.length}</Text>
             </View>
           </View>
 
           <View style={styles.warningBanner}>
-            <AlertTriangle size={16} color="#D97706" />
+            <AlertTriangle size={16} color={Colors.semantic.warning} />
             <Text style={styles.warningBannerText}>
               Bu öğrenciler ortalamanın altında performans göstermektedir
             </Text>
@@ -330,7 +334,7 @@ export function ClassReport({
                 onPress={() => onStudentPress?.(student.id)}
               >
                 <View style={styles.alertIcon}>
-                  <AlertTriangle size={16} color="#D97706" />
+                  <AlertTriangle size={16} color={Colors.semantic.warning} />
                 </View>
                 <View style={styles.studentInfo}>
                   <Text style={styles.studentName}>{student.name}</Text>
@@ -361,7 +365,7 @@ export function ClassReport({
 
         <View style={styles.recommendationCard}>
           <View style={styles.recommendationIcon}>
-            <TrendingUp size={20} color="#059669" />
+            <TrendingUp size={20} color={Colors.semantic.success} />
           </View>
           <View style={styles.recommendationContent}>
             <Text style={styles.recommendationTitle}>Genel Değerlendirme</Text>
@@ -376,8 +380,10 @@ export function ClassReport({
 
         {stats.needsAttention > 0 && (
           <View style={styles.recommendationCard}>
-            <View style={[styles.recommendationIcon, { backgroundColor: '#FEF3C7' }]}>
-              <AlertTriangle size={20} color="#D97706" />
+            <View
+              style={[styles.recommendationIcon, { backgroundColor: Colors.semantic.warningBg }]}
+            >
+              <AlertTriangle size={20} color={Colors.semantic.warning} />
             </View>
             <View style={styles.recommendationContent}>
               <Text style={styles.recommendationTitle}>Bireysel Destek</Text>
@@ -506,7 +512,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['3'],
     alignItems: 'center',
@@ -526,7 +532,7 @@ const styles = StyleSheet.create({
     color: ProfessionalColors.text.primary,
   },
   warningValue: {
-    color: '#D97706',
+    color: Colors.semantic.warning,
   },
   statLabel: {
     fontSize: 12,
@@ -608,7 +614,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBg,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -616,13 +622,13 @@ const styles = StyleSheet.create({
   badgeSuccessText: {
     fontSize: 12,
     fontFamily: typography.family.semibold,
-    color: '#059669',
+    color: Colors.semantic.success,
   },
   badgeWarning: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: Colors.semantic.warningBg,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -630,7 +636,7 @@ const styles = StyleSheet.create({
   badgeWarningText: {
     fontSize: 12,
     fontFamily: typography.family.semibold,
-    color: '#D97706',
+    color: Colors.semantic.warning,
   },
   studentRow: {
     flexDirection: 'row',
@@ -653,20 +659,20 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rankText: {
     fontSize: 13,
     fontFamily: typography.family.bold,
-    color: '#059669',
+    color: Colors.semantic.success,
   },
   alertIcon: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: Colors.semantic.warningBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -688,7 +694,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   percentileBadge: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBg,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -696,10 +702,10 @@ const styles = StyleSheet.create({
   percentileValue: {
     fontSize: 14,
     fontFamily: typography.family.bold,
-    color: '#059669',
+    color: Colors.semantic.success,
   },
   percentileBadgeLow: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: Colors.semantic.warningBg,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -707,7 +713,7 @@ const styles = StyleSheet.create({
   percentileValueLow: {
     fontSize: 14,
     fontFamily: typography.family.bold,
-    color: '#D97706',
+    color: Colors.semantic.warning,
   },
   warningBanner: {
     flexDirection: 'row',
@@ -726,7 +732,7 @@ const styles = StyleSheet.create({
   recommendationCard: {
     flexDirection: 'row',
     gap: spacing['3'],
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['3'],
     marginBottom: spacing['2'],
@@ -735,7 +741,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBg,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Memory Manager
  * Phase 19: Performance Optimization
@@ -127,6 +126,7 @@ export function useComponentCleanup(cleanup: () => void) {
 /**
  * Debounce function for preventing excessive updates
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
   func: T,
   wait: number
@@ -154,6 +154,7 @@ export function debounce<T extends (...args: any[]) => void>(
 /**
  * Throttle function for rate limiting
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function throttle<T extends (...args: any[]) => void>(func: T, limit: number): T {
   let inThrottle = false;
 
@@ -171,6 +172,7 @@ export function throttle<T extends (...args: any[]) => void>(func: T, limit: num
 /**
  * Memoize expensive computations
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function memoize<T extends (...args: any[]) => any>(func: T, maxCacheSize: number = 100): T {
   const cache = new Map<string, ReturnType<T>>();
 
@@ -210,6 +212,7 @@ export function runAfterInteractions<T>(task: () => T): Promise<T> {
  */
 export function getMemoryInfo(): { isLowMemory: boolean; usage: number } {
   // This is a simplified check - actual implementation would use native modules
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isLowMemory = Platform.OS !== 'web' && (global as any).gc !== undefined;
   return {
     isLowMemory,
@@ -221,7 +224,9 @@ export function getMemoryInfo(): { isLowMemory: boolean; usage: number } {
  * Force garbage collection if available (development only)
  */
 export function forceGarbageCollection(): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (__DEV__ && (global as any).gc) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (global as any).gc();
   }
 }

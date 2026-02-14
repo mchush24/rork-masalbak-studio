@@ -268,8 +268,8 @@ export function CollapsibleSection({
         onPress={handleToggle}
         accessibilityRole="button"
         accessibilityState={{ expanded: isExpanded }}
-        accessibilityLabel={`${title}, ${isExpanded ? 'expanded' : 'collapsed'}`}
-        accessibilityHint="Double tap to toggle section"
+        accessibilityLabel={`${title}, ${isExpanded ? 'açık' : 'kapalı'}`}
+        accessibilityHint="Bölümü açmak veya kapatmak için iki kez dokunun"
       >
         <View style={styles.headerLeft}>
           {icon && (

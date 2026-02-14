@@ -153,6 +153,9 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={isDisabled}
+        accessibilityRole="button"
+        accessibilityLabel={`${title}${subtitle ? `, ${subtitle}` : ''}${comingSoon ? ', yakında' : ''}${isNew ? ', yeni' : ''}`}
+        accessibilityState={{ disabled: isDisabled }}
       >
         <LinearGradient
           colors={
@@ -300,6 +303,8 @@ export const FeatureCardCompact: React.FC<{
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      accessibilityRole="button"
+      accessibilityLabel={title}
     >
       <BlurView intensity={70} tint="light" style={styles.compactBlur}>
         <LinearGradient

@@ -367,7 +367,7 @@ export function DataPrivacySettings({
           <Text style={[styles.actionGroupTitle, styles.dangerTitle]}>Tehlikeli Bölge</Text>
 
           <View style={styles.warningBanner}>
-            <AlertTriangle size={16} color="#DC2626" />
+            <AlertTriangle size={16} color={Colors.semantic.errorDark} />
             <Text style={styles.warningText}>Bu işlemler geri alınamaz</Text>
           </View>
 
@@ -379,7 +379,7 @@ export function DataPrivacySettings({
             ]}
             onPress={() => confirmDelete('analysis')}
           >
-            <Trash2 size={18} color="#DC2626" />
+            <Trash2 size={18} color={Colors.semantic.errorDark} />
             <View style={styles.actionButtonContent}>
               <Text style={[styles.actionButtonText, styles.dangerButtonText]}>
                 Analiz Verilerini Sil
@@ -396,7 +396,7 @@ export function DataPrivacySettings({
             ]}
             onPress={() => confirmDelete('client')}
           >
-            <UserX size={18} color="#DC2626" />
+            <UserX size={18} color={Colors.semantic.errorDark} />
             <View style={styles.actionButtonContent}>
               <Text style={[styles.actionButtonText, styles.dangerButtonText]}>
                 Danışan Verilerini Sil
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral.gray50,
   },
   complianceBanner: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBgMedium,
     margin: spacing['4'],
     borderRadius: radius.xl,
     padding: spacing['4'],
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   consentSummary: {
     flexDirection: 'row',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['3'],
     marginBottom: spacing['3'],
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing['2'],
   },
   warningText: {
-    color: '#DC2626',
+    color: Colors.semantic.errorDark,
   },
   consentItem: {
     flexDirection: 'row',
@@ -570,13 +570,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   statusActive: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Colors.semantic.successBgMedium,
   },
   statusExpired: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: Colors.semantic.warningBgMedium,
   },
   statusRevoked: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: Colors.semantic.errorBgMedium,
   },
   consentStatusText: {
     fontSize: 11,
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
     color: '#D97706',
   },
   statusRevokedText: {
-    color: '#DC2626',
+    color: Colors.semantic.errorDark,
   },
   seeMoreButton: {
     flexDirection: 'row',
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing['2'],
     paddingVertical: spacing['3'],
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     padding: spacing['3'],
     marginVertical: spacing['2'],
@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing['3'],
     padding: spacing['3'],
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.lg,
     marginBottom: spacing['2'],
   },
@@ -714,25 +714,25 @@ const styles = StyleSheet.create({
     marginTop: spacing['4'],
     paddingTop: spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: '#FEE2E2',
+    borderTopColor: Colors.semantic.errorBgMedium,
   },
   dangerTitle: {
-    color: '#DC2626',
+    color: Colors.semantic.errorDark,
   },
   warningBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing['2'],
-    backgroundColor: '#FEF2F2',
+    backgroundColor: Colors.semantic.errorBgLight,
     padding: spacing['2'],
     borderRadius: radius.md,
     marginBottom: spacing['3'],
   },
   dangerButton: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: Colors.semantic.errorBgLight,
   },
   dangerButtonText: {
-    color: '#DC2626',
+    color: Colors.semantic.errorDark,
   },
   dangerButtonFull: {
     flexDirection: 'row',
@@ -740,7 +740,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing['2'],
     padding: spacing['3'],
-    backgroundColor: '#DC2626',
+    backgroundColor: Colors.semantic.errorDark,
     borderRadius: radius.lg,
     marginTop: spacing['2'],
   },

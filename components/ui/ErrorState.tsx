@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     minHeight: 260,
   },
   containerProfessional: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.neutral.gray50,
     borderRadius: radius.xl,
     margin: spacing['4'],
   },

@@ -921,7 +921,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#8B4513', // Brown wood color
   },
   toolSelectorButtonActive: {
-    backgroundColor: '#FFD700', // Gold color when active
+    backgroundColor: Colors.emotion.joy, // Gold color when active
     borderWidth: 2,
     borderColor: Colors.neutral.white,
     ...shadows.xl,

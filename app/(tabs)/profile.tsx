@@ -178,8 +178,7 @@ export default function ProfileScreen() {
         setAppTheme(mapped);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSettings?.theme]);
+  }, [userSettings?.theme, setAppTheme]);
 
   // Mutations
   const updateSettingsMutation = trpc.user.updateSettings.useMutation();
