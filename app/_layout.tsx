@@ -13,8 +13,8 @@ import { ThemeProvider } from '@/lib/theme';
 import { OverlayProvider } from '@/lib/overlay';
 import { ChatBot } from '@/components/ChatBot';
 import { AppErrorBoundary, ComponentErrorBoundary } from '@/components/ErrorBoundary';
-import { DelightWrapper } from '@/lib/delight';
 import { ToastProvider } from '@/components/ui/Toast';
+import { ComposeProviders } from '@/lib/utils/ComposeProviders';
 import { OfflineIndicator, CrashRecoveryDialog } from '@/components/ui';
 import {
   useFonts,
@@ -114,6 +114,17 @@ const webStyles = StyleSheet.create({
     }),
   },
 });
+
+// Wrapper components for providers that require additional props.
+// Defined at module scope to maintain stable references across renders.
+const TrpcProvider = ({ children }: { children: React.ReactNode }) => (
+  <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    {children}
+  </trpc.Provider>
+);
+const ReactQueryProvider = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
 
 SplashScreen.preventAutoHideAsync();
 
@@ -340,31 +351,23 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AppErrorBoundary>
-        <WebContainer>
-          <ThemeProvider>
-            <LanguageProvider>
-              <RoleProvider>
-                <trpc.Provider client={trpcClient} queryClient={queryClient}>
-                  <QueryClientProvider client={queryClient}>
-                    <AuthProvider>
-                      <ChildProvider>
-                        <OverlayProvider>
-                          <ToastProvider>
-                            <DelightWrapper>
-                              <RootLayoutNav />
-                            </DelightWrapper>
-                          </ToastProvider>
-                        </OverlayProvider>
-                      </ChildProvider>
-                    </AuthProvider>
-                  </QueryClientProvider>
-                </trpc.Provider>
-              </RoleProvider>
-            </LanguageProvider>
-          </ThemeProvider>
-        </WebContainer>
-      </AppErrorBoundary>
+      <ComposeProviders
+        providers={[
+          AppErrorBoundary,
+          WebContainer,
+          ThemeProvider,
+          LanguageProvider,
+          RoleProvider,
+          TrpcProvider,
+          ReactQueryProvider,
+          AuthProvider,
+          ChildProvider,
+          OverlayProvider,
+          ToastProvider,
+        ]}
+      >
+        <RootLayoutNav />
+      </ComposeProviders>
     </GestureHandlerRootView>
   );
 }

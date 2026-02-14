@@ -46,19 +46,20 @@ export default function AnalysisResultScreen() {
   // Get and validate analysis ID from params
   const analysisId = typeof params.id === 'string' ? params.id : undefined;
 
-  // Auth guard - redirect if not authenticated
+  // Auth guard - redirect if not authenticated (runs first)
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.replace('/(onboarding)/welcome');
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // Validate ID parameter
+  // Validate ID parameter (only after auth is resolved)
   useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
     if (!analysisId) {
-      showAlert('Hata', 'Geçersiz analiz ID', () => router.back());
+      showAlert('Hata', 'Geçersiz analiz ID', () => router.replace('/(tabs)/analysis-history'));
     }
-  }, [analysisId, router]);
+  }, [analysisId, authLoading, isAuthenticated, router]);
 
   // Fetch analysis from backend (only when authenticated and ID is valid)
   const {

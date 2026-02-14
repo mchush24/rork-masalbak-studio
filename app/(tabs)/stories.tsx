@@ -11,7 +11,6 @@ import {
   TextInput,
   Dimensions,
   Platform,
-  Modal,
 } from 'react-native';
 import {
   BookOpen,
@@ -22,13 +21,7 @@ import {
   ImagePlus,
   Wand2,
   Trash2,
-  AlertTriangle,
-  Heart,
   Gamepad2,
-  ChevronRight,
-  Star,
-  Users,
-  Brain,
 } from 'lucide-react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,6 +50,10 @@ import { useChild } from '@/lib/contexts/ChildContext';
 import { ChildSelectorChip } from '@/components/ChildSelectorChip';
 import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
 import { showAlert, showConfirmDialog } from '@/lib/platform';
+import { StoryLoadingProgress } from '@/components/stories/StoryLoadingProgress';
+import { StoryModeSelector } from '@/components/stories/StoryModeSelector';
+import { ThemeSuggestionPanel } from '@/components/stories/ThemeSuggestionPanel';
+import { ContentWarningModal } from '@/components/stories/ContentWarningModal';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -1172,84 +1169,7 @@ export default function StoriesScreen() {
 
         {/* Create Story Form / Loading Animation */}
         {showCreateForm && loadingStory ? (
-          <View style={styles.loadingAnimationContainer}>
-            <LinearGradient
-              colors={['#9333EA', '#7C3AED', Colors.secondary.indigo]}
-              style={styles.storyLoadingGradient}
-            >
-              {/* Progress Header */}
-              <View style={styles.storyLoadingHeader}>
-                {storyMode === 'interactive' ? (
-                  <Gamepad2 size={48} color="#FFD700" />
-                ) : (
-                  <Sparkles size={48} color="#FFD700" />
-                )}
-                <Text style={styles.storyLoadingTitle}>
-                  {storyMode === 'interactive'
-                    ? 'İnteraktif Masal Hazırlanıyor'
-                    : 'Masal Hazırlanıyor'}
-                </Text>
-              </View>
-
-              {/* Progress Bar */}
-              <View style={styles.progressBarWrapper}>
-                <View style={styles.progressBarTrack}>
-                  <View
-                    style={[styles.progressBarFillAnimated, { width: `${progress.percentage}%` }]}
-                  />
-                </View>
-                <Text style={styles.progressPercentageText}>{progress.percentage}%</Text>
-              </View>
-
-              {/* Steps Indicator */}
-              <View style={styles.stepsContainer}>
-                {steps.map((step, index) => {
-                  const isCompleted = progress.step > index + 1;
-                  const isActive = progress.step === index + 1;
-                  return (
-                    <View key={index} style={styles.stepRow}>
-                      <View
-                        style={[
-                          styles.stepCircle,
-                          isCompleted && styles.stepCircleCompleted,
-                          isActive && styles.stepCircleActive,
-                        ]}
-                      >
-                        <Text style={styles.stepCircleText}>{isCompleted ? '✓' : step.icon}</Text>
-                      </View>
-                      <View style={styles.stepTextContainer}>
-                        <Text
-                          style={[
-                            styles.stepName,
-                            isActive && styles.stepNameActive,
-                            isCompleted && styles.stepNameCompleted,
-                          ]}
-                        >
-                          {step.message}
-                        </Text>
-                        <Text style={styles.stepDuration}>~{step.duration} saniye</Text>
-                      </View>
-                    </View>
-                  );
-                })}
-              </View>
-
-              {/* Estimated Time */}
-              <View style={styles.estimatedTimeContainer}>
-                <Text style={styles.estimatedTimeLabel}>Tahmini toplam süre</Text>
-                <Text style={styles.estimatedTimeValue}>1-2 dakika</Text>
-              </View>
-
-              {/* Fun Tip */}
-              <View style={styles.funTipContainer}>
-                <Text style={styles.funTipText}>
-                  {storyMode === 'interactive'
-                    ? '💡 AI, çocuğunuzun seçimlerini analiz edebilecek interaktif bir macera oluşturuyor!'
-                    : '💡 AI, çiziminizdeki detaylardan ilham alarak benzersiz bir masal yazıyor!'}
-                </Text>
-              </View>
-            </LinearGradient>
-          </View>
+          <StoryLoadingProgress progress={progress} steps={steps} storyMode={storyMode} />
         ) : showCreateForm && analyzingImage ? (
           /* Image Analysis Loading Animation */
           <LinearGradient
@@ -1354,152 +1274,12 @@ export default function StoriesScreen() {
                 </Text>
 
                 {/* Story Mode Toggle - Normal vs Interactive */}
-                <View style={styles.storyModeSection}>
-                  <Text style={[styles.storyModeSectionTitle, { color: colors.neutral.dark }]}>
-                    Masal Türü Seçin
-                  </Text>
-                  <View style={styles.storyModeToggle}>
-                    {/* Normal Story Option */}
-                    <Pressable
-                      style={[
-                        styles.storyModeOption,
-                        storyMode === 'normal' && styles.storyModeOptionSelected,
-                      ]}
-                      onPress={() => setStoryMode('normal')}
-                    >
-                      <LinearGradient
-                        colors={
-                          storyMode === 'normal'
-                            ? [colors.secondary.sunshine, colors.cards.story.border]
-                            : isDark
-                              ? ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']
-                              : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
-                        }
-                        style={styles.storyModeOptionGradient}
-                      >
-                        <BookOpen
-                          size={28}
-                          color={
-                            storyMode === 'normal' ? Colors.neutral.white : colors.neutral.medium
-                          }
-                        />
-                        <Text
-                          style={[
-                            styles.storyModeOptionTitle,
-                            { color: colors.neutral.dark },
-                            storyMode === 'normal' && styles.storyModeOptionTitleSelected,
-                          ]}
-                        >
-                          Klasik Masal
-                        </Text>
-                        <Text
-                          style={[
-                            styles.storyModeOptionDesc,
-                            { color: colors.neutral.medium },
-                            storyMode === 'normal' && styles.storyModeOptionDescSelected,
-                          ]}
-                        >
-                          Görsellerle hikaye
-                        </Text>
-                      </LinearGradient>
-                    </Pressable>
-
-                    {/* Interactive Story Option */}
-                    <Pressable
-                      style={[
-                        styles.storyModeOption,
-                        storyMode === 'interactive' && styles.storyModeOptionSelected,
-                      ]}
-                      onPress={() => setStoryMode('interactive')}
-                    >
-                      <LinearGradient
-                        colors={
-                          storyMode === 'interactive'
-                            ? ['#9333EA', '#7C3AED']
-                            : isDark
-                              ? ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']
-                              : ['rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)']
-                        }
-                        style={styles.storyModeOptionGradient}
-                      >
-                        <View style={styles.interactiveBadgeContainer}>
-                          <Gamepad2
-                            size={28}
-                            color={
-                              storyMode === 'interactive'
-                                ? Colors.neutral.white
-                                : colors.neutral.medium
-                            }
-                          />
-                          <View style={styles.newBadge}>
-                            <Text style={styles.newBadgeText}>YENİ</Text>
-                          </View>
-                        </View>
-                        <Text
-                          style={[
-                            styles.storyModeOptionTitle,
-                            { color: colors.neutral.dark },
-                            storyMode === 'interactive' && styles.storyModeOptionTitleSelected,
-                          ]}
-                        >
-                          İnteraktif Masal
-                        </Text>
-                        <Text
-                          style={[
-                            styles.storyModeOptionDesc,
-                            { color: colors.neutral.medium },
-                            storyMode === 'interactive' && styles.storyModeOptionDescSelected,
-                          ]}
-                        >
-                          Seçimli macera
-                        </Text>
-                      </LinearGradient>
-                    </Pressable>
-                  </View>
-
-                  {/* Interactive Story Info Card - Show when interactive mode selected */}
-                  {storyMode === 'interactive' && (
-                    <View style={styles.interactiveInfoCard}>
-                      <LinearGradient
-                        colors={['rgba(147, 51, 234, 0.1)', 'rgba(124, 58, 237, 0.05)']}
-                        style={styles.interactiveInfoGradient}
-                      >
-                        <View style={styles.interactiveInfoHeader}>
-                          <Star size={20} color="#9333EA" />
-                          <Text style={[styles.interactiveInfoTitle, { color: '#9333EA' }]}>
-                            İnteraktif Masal Nedir?
-                          </Text>
-                        </View>
-                        <View style={styles.interactiveInfoFeatures}>
-                          <View style={styles.interactiveInfoFeature}>
-                            <View style={styles.featureIconCircle}>
-                              <ChevronRight size={14} color="#9333EA" />
-                            </View>
-                            <Text style={[styles.featureText, { color: colors.neutral.dark }]}>
-                              Çocuğunuz hikayede seçimler yapar
-                            </Text>
-                          </View>
-                          <View style={styles.interactiveInfoFeature}>
-                            <View style={styles.featureIconCircle}>
-                              <Brain size={14} color="#9333EA" />
-                            </View>
-                            <Text style={[styles.featureText, { color: colors.neutral.dark }]}>
-                              Seçimler kişilik özelliklerini yansıtır
-                            </Text>
-                          </View>
-                          <View style={styles.interactiveInfoFeature}>
-                            <View style={styles.featureIconCircle}>
-                              <Users size={14} color="#9333EA" />
-                            </View>
-                            <Text style={[styles.featureText, { color: colors.neutral.dark }]}>
-                              Ebeveynler için detaylı analiz raporu
-                            </Text>
-                          </View>
-                        </View>
-                      </LinearGradient>
-                    </View>
-                  )}
-                </View>
+                <StoryModeSelector
+                  storyMode={storyMode}
+                  onModeChange={setStoryMode}
+                  colors={colors}
+                  isDark={isDark}
+                />
 
                 {/* Child Selector - Show which child the story is for */}
                 <View
@@ -1563,54 +1343,16 @@ export default function StoriesScreen() {
                 )}
 
                 {!loadingSuggestions && themeSuggestions.length > 0 && (
-                  <View style={styles.suggestionsContainer}>
-                    <View style={styles.suggestionsTitleRow}>
-                      <Text style={[styles.suggestionsTitle, { color: colors.neutral.dark }]}>
-                        ✨ Masal Teması Seçin
-                      </Text>
-                      {selectedThemeIndex === null && !storyTitle.trim() && (
-                        <View
-                          style={[styles.requiredBadge, { backgroundColor: colors.primary.sunset }]}
-                        >
-                          <Text style={styles.requiredBadgeText}>Gerekli</Text>
-                        </View>
-                      )}
-                    </View>
-                    <Text style={[styles.suggestionsSubtitle, { color: colors.neutral.medium }]}>
-                      AI çiziminizi analiz etti ve size özel temalar önerdi:
-                    </Text>
-                    {themeSuggestions.map((suggestion, index) => (
-                      <Pressable
-                        key={index}
-                        onPress={() => {
-                          setSelectedThemeIndex(index);
-                          setStoryTitle(''); // Clear manual title
-                        }}
-                        style={({ pressed }) => [
-                          styles.suggestionCard,
-                          selectedThemeIndex === index && styles.suggestionCardSelected,
-                          pressed && { opacity: 0.8 },
-                        ]}
-                      >
-                        <Text style={styles.suggestionEmoji}>{suggestion.emoji}</Text>
-                        <View style={styles.suggestionContent}>
-                          <Text style={[styles.suggestionTitle, { color: colors.neutral.darkest }]}>
-                            {suggestion.title}
-                          </Text>
-                          <Text style={[styles.suggestionTheme, { color: colors.neutral.medium }]}>
-                            {suggestion.theme}
-                          </Text>
-                        </View>
-                        {selectedThemeIndex === index && (
-                          <Text
-                            style={[styles.suggestionCheck, { color: colors.cards.story.border }]}
-                          >
-                            ✓
-                          </Text>
-                        )}
-                      </Pressable>
-                    ))}
-                  </View>
+                  <ThemeSuggestionPanel
+                    suggestions={themeSuggestions}
+                    selectedIndex={selectedThemeIndex}
+                    onSelect={index => {
+                      setSelectedThemeIndex(index);
+                      setStoryTitle('');
+                    }}
+                    storyTitle={storyTitle}
+                    colors={colors}
+                  />
                 )}
 
                 {/* Manual title input - Alternative to theme selection */}
@@ -1785,118 +1527,14 @@ export default function StoriesScreen() {
         )}
 
         {/* Content Warning Modal for Parents */}
-        <Modal
+        <ContentWarningModal
           visible={showContentWarningModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowContentWarningModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <ScrollView
-              style={{ maxHeight: '90%' }}
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={[styles.contentWarningModal, { backgroundColor: colors.surface.card }]}>
-                <View style={styles.warningIconContainer}>
-                  <AlertTriangle size={40} color={colors.secondary.sunshine} />
-                </View>
-
-                <Text style={[styles.warningTitle, { color: colors.neutral.darkest }]}>
-                  Ebeveyn Bildirimi
-                </Text>
-
-                {/* Concern Type Badge */}
-                {contentWarning?.concernType && concernTypeLabels[contentWarning.concernType] && (
-                  <View
-                    style={[
-                      styles.concernTypeBadge,
-                      {
-                        backgroundColor: `${concernTypeLabels[contentWarning.concernType].color}20`,
-                      },
-                    ]}
-                  >
-                    <Text style={styles.concernTypeEmoji}>
-                      {concernTypeLabels[contentWarning.concernType].emoji}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.concernTypeLabel,
-                        { color: concernTypeLabels[contentWarning.concernType].color },
-                      ]}
-                    >
-                      {concernTypeLabels[contentWarning.concernType].label}
-                    </Text>
-                  </View>
-                )}
-
-                <Text style={[styles.warningDescription, { color: colors.neutral.dark }]}>
-                  Çocuğunuzun çiziminde dikkat edilmesi gereken duygusal içerik tespit edildi.
-                </Text>
-
-                {contentWarning?.concernDescription && (
-                  <View style={styles.warningDetailBox}>
-                    <Text style={[styles.warningDetailTitle, { color: colors.neutral.dark }]}>
-                      Tespit Edilen İçerik:
-                    </Text>
-                    <Text style={[styles.warningDetailText, { color: colors.neutral.darkest }]}>
-                      {contentWarning.concernDescription}
-                    </Text>
-                  </View>
-                )}
-
-                {contentWarning?.therapeuticApproach && (
-                  <View style={styles.therapeuticBox}>
-                    <Text style={[styles.therapeuticTitle, { color: colors.secondary.violet }]}>
-                      🎯 Terapötik Yaklaşım:
-                    </Text>
-                    <Text style={[styles.therapeuticText, { color: colors.neutral.dark }]}>
-                      {contentWarning.therapeuticApproach}
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.warningInfoBox}>
-                  <Heart size={20} color={colors.primary.sunset} />
-                  <Text style={[styles.warningInfoText, { color: colors.neutral.dark }]}>
-                    Önerilen masal temaları, bibliotherapy (kitap terapisi) prensipleri
-                    doğrultusunda çocuğunuzun duygularını güvenli bir şekilde işlemesine yardımcı
-                    olmak için özel olarak seçildi. Bu hikayeler dolaylı yoldan iyileşmeyi
-                    destekler.
-                  </Text>
-                </View>
-
-                <View
-                  style={[
-                    styles.professionalNoteBox,
-                    {
-                      backgroundColor: isDark
-                        ? colors.surface.elevated
-                        : 'rgba(156, 163, 175, 0.1)',
-                    },
-                  ]}
-                >
-                  <Text style={[styles.professionalNoteText, { color: colors.neutral.medium }]}>
-                    💡 Not: Bu uygulama profesyonel psikolojik destek yerine geçmez. Endişeleriniz
-                    varsa bir çocuk psikoloğuna danışmanızı öneririz.
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.warningButton}
-                  onPress={() => setShowContentWarningModal(false)}
-                >
-                  <LinearGradient
-                    colors={[colors.primary.sunset, colors.secondary.sunshine]}
-                    style={styles.warningButtonGradient}
-                  >
-                    <Text style={styles.warningButtonText}>Anladım, Devam Et</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </View>
-        </Modal>
+          contentWarning={contentWarning}
+          onClose={() => setShowContentWarningModal(false)}
+          colors={colors}
+          isDark={isDark}
+          concernTypeLabels={concernTypeLabels}
+        />
       </LinearGradient>
 
       <QuotaExceededModal visible={showQuotaModal} onClose={() => setShowQuotaModal(false)} />
@@ -2225,28 +1863,7 @@ const styles = StyleSheet.create({
     color: Colors.secondary.sunshine,
     fontFamily: typography.family.medium,
   },
-  suggestionsTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing['1'],
-  },
-  suggestionsSubtitle: {
-    fontSize: typography.size.xs,
-    color: Colors.neutral.medium,
-    marginBottom: spacing['2'],
-  },
-  requiredBadge: {
-    backgroundColor: Colors.primary.sunset,
-    paddingHorizontal: spacing['2'],
-    paddingVertical: spacing['1'],
-    borderRadius: radius.full,
-  },
-  requiredBadgeText: {
-    color: Colors.neutral.white,
-    fontSize: typography.size.xs,
-    fontFamily: typography.family.bold,
-  },
+  // ThemeSuggestionPanel title/badge styles moved to @/components/stories/ThemeSuggestionPanel.tsx
   pickButton: {
     marginBottom: spacing['2'],
   },
@@ -2390,172 +2007,8 @@ const styles = StyleSheet.create({
     color: Colors.neutral.medium,
     fontFamily: typography.family.medium,
   },
-  suggestionsContainer: {
-    gap: spacing['2'],
-    marginBottom: spacing['3'],
-  },
-  suggestionsTitle: {
-    fontSize: typography.size.sm,
-    color: Colors.neutral.dark,
-    fontFamily: typography.family.semibold,
-    marginBottom: spacing['1'],
-  },
-  suggestionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: isSmallDevice ? spacing['2'] : spacing['3'],
-    padding: isSmallDevice ? spacing['2'] : spacing['3'],
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: radius.lg,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-  },
-  suggestionCardSelected: {
-    borderWidth: 2,
-    borderColor: Colors.cards.story.border,
-    backgroundColor: Colors.cards.story.bg[0] + '20',
-  },
-  suggestionEmoji: {
-    fontSize: 32,
-  },
-  suggestionContent: {
-    flex: 1,
-    gap: spacing['1'],
-  },
-  suggestionTitle: {
-    fontSize: isSmallDevice ? typography.size.sm : typography.size.base,
-    color: Colors.neutral.darkest,
-    fontFamily: typography.family.bold,
-  },
-  suggestionTheme: {
-    fontSize: isSmallDevice ? typography.size.xs : typography.size.sm,
-    color: Colors.neutral.medium,
-    fontFamily: typography.family.regular,
-  },
-  suggestionCheck: {
-    fontSize: 24,
-    color: Colors.cards.story.border,
-    fontFamily: typography.family.bold,
-  },
-  loadingAnimationContainer: {
-    flex: 1,
-    marginHorizontal: layout.screenPadding,
-    borderRadius: radius['2xl'],
-    overflow: 'hidden',
-    ...shadows.xl,
-  },
-  storyLoadingGradient: {
-    flex: 1,
-    padding: spacing['6'],
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing['6'],
-  },
-  storyLoadingHeader: {
-    alignItems: 'center',
-    gap: spacing['3'],
-  },
-  storyLoadingTitle: {
-    fontSize: typography.size['2xl'],
-    fontFamily: typography.family.extrabold,
-    color: Colors.neutral.white,
-    ...textShadows.lg,
-  },
-  progressBarWrapper: {
-    width: '100%',
-    gap: spacing['2'],
-  },
-  progressBarTrack: {
-    height: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: radius.full,
-    overflow: 'hidden',
-  },
-  progressBarFillAnimated: {
-    height: '100%',
-    backgroundColor: '#FFD700',
-    borderRadius: radius.full,
-  },
-  progressPercentageText: {
-    fontSize: typography.size.lg,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.white,
-    textAlign: 'center',
-  },
-  stepsContainer: {
-    width: '100%',
-    gap: spacing['3'],
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: spacing['4'],
-    borderRadius: radius.xl,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['3'],
-  },
-  stepCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  stepCircleActive: {
-    backgroundColor: '#FFD700',
-  },
-  stepCircleCompleted: {
-    backgroundColor: '#10B981',
-  },
-  stepCircleText: {
-    fontSize: typography.size.lg,
-  },
-  stepTextContainer: {
-    flex: 1,
-  },
-  stepName: {
-    fontSize: typography.size.sm,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: typography.family.medium,
-  },
-  stepNameActive: {
-    color: Colors.neutral.white,
-    fontFamily: typography.family.bold,
-  },
-  stepNameCompleted: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    textDecorationLine: 'line-through',
-  },
-  stepDuration: {
-    fontSize: typography.size.xs,
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  estimatedTimeContainer: {
-    alignItems: 'center',
-    gap: spacing['1'],
-  },
-  estimatedTimeLabel: {
-    fontSize: typography.size.sm,
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  estimatedTimeValue: {
-    fontSize: typography.size.xl,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.white,
-  },
-  funTipContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    padding: spacing['4'],
-    borderRadius: radius.lg,
-    marginTop: spacing['2'],
-  },
-  funTipText: {
-    fontSize: typography.size.sm,
-    color: Colors.neutral.white,
-    textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed * typography.size.sm,
-  },
+  // ThemeSuggestionPanel card styles moved to @/components/stories/ThemeSuggestionPanel.tsx
+  // StoryLoadingProgress styles moved to @/components/stories/StoryLoadingProgress.tsx
   // Analysis Loading Animation Styles
   analysisLoadingContainer: {
     marginHorizontal: layout.screenPadding,
@@ -2648,258 +2101,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.family.bold,
     ...textShadows.md,
   },
-  // Content Warning Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing['4'],
-  },
-  contentWarningModal: {
-    backgroundColor: Colors.neutral.white,
-    borderRadius: radius['2xl'],
-    padding: spacing['6'],
-    maxWidth: 400,
-    width: '100%',
-    alignItems: 'center',
-    ...shadows.xl,
-  },
-  warningIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 183, 77, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing['4'],
-  },
-  warningTitle: {
-    fontSize: typography.size.xl,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.darkest,
-    textAlign: 'center',
-    marginBottom: spacing['3'],
-  },
-  warningDescription: {
-    fontSize: typography.size.md,
-    color: Colors.neutral.dark,
-    textAlign: 'center',
-    marginBottom: spacing['3'],
-    lineHeight: 22,
-  },
-  warningDetailBox: {
-    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-    borderRadius: radius.lg,
-    padding: spacing['4'],
-    marginBottom: spacing['4'],
-    width: '100%',
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.primary.sunset,
-  },
-  warningDetailText: {
-    fontSize: typography.size.md,
-    color: Colors.neutral.darkest,
-    fontFamily: typography.family.medium,
-    lineHeight: 20,
-  },
-  warningInfoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 160, 122, 0.1)',
-    borderRadius: radius.lg,
-    padding: spacing['4'],
-    marginBottom: spacing['5'],
-    gap: spacing['3'],
-  },
-  warningInfoText: {
-    flex: 1,
-    fontSize: typography.size.sm,
-    color: Colors.neutral.dark,
-    lineHeight: 20,
-  },
-  warningButton: {
-    width: '100%',
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-  },
-  warningButtonGradient: {
-    paddingVertical: spacing['4'],
-    paddingHorizontal: spacing['6'],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  warningButtonText: {
-    color: Colors.neutral.white,
-    fontSize: typography.size.md,
-    fontFamily: typography.family.bold,
-  },
-  // Concern type badge
-  concernTypeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing['4'],
-    paddingVertical: spacing['2'],
-    borderRadius: radius.full,
-    marginBottom: spacing['4'],
-    gap: spacing['2'],
-  },
-  concernTypeEmoji: {
-    fontSize: 20,
-  },
-  concernTypeLabel: {
-    fontSize: typography.size.sm,
-    fontFamily: typography.family.semibold,
-  },
-  // Warning detail title
-  warningDetailTitle: {
-    fontSize: typography.size.sm,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.dark,
-    marginBottom: spacing['2'],
-  },
-  // Therapeutic approach box
-  therapeuticBox: {
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-    borderRadius: radius.lg,
-    padding: spacing['4'],
-    marginBottom: spacing['4'],
-    width: '100%',
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.secondary.violet,
-  },
-  therapeuticTitle: {
-    fontSize: typography.size.sm,
-    fontFamily: typography.family.bold,
-    color: Colors.secondary.violet,
-    marginBottom: spacing['2'],
-  },
-  therapeuticText: {
-    fontSize: typography.size.sm,
-    color: Colors.neutral.dark,
-    lineHeight: 20,
-  },
-  // Professional note box
-  professionalNoteBox: {
-    backgroundColor: 'rgba(156, 163, 175, 0.1)',
-    borderRadius: radius.lg,
-    padding: spacing['3'],
-    marginBottom: spacing['4'],
-    width: '100%',
-  },
-  professionalNoteText: {
-    fontSize: typography.size.xs,
-    color: Colors.neutral.medium,
-    lineHeight: 18,
-    textAlign: 'center',
-  },
-  // Story Mode Toggle Styles
-  storyModeSection: {
-    marginBottom: spacing['4'],
-  },
-  storyModeSectionTitle: {
-    fontSize: typography.size.sm,
-    fontFamily: typography.family.semibold,
-    color: Colors.neutral.dark,
-    marginBottom: spacing['3'],
-  },
-  storyModeToggle: {
-    flexDirection: 'row',
-    gap: spacing['3'],
-  },
-  storyModeOption: {
-    flex: 1,
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  storyModeOptionSelected: {
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    ...shadows.md,
-  },
-  storyModeOptionGradient: {
-    paddingVertical: spacing['4'],
-    paddingHorizontal: spacing['3'],
-    alignItems: 'center',
-    gap: spacing['2'],
-  },
-  storyModeOptionTitle: {
-    fontSize: typography.size.sm,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.dark,
-    textAlign: 'center',
-  },
-  storyModeOptionTitleSelected: {
-    color: Colors.neutral.white,
-  },
-  storyModeOptionDesc: {
-    fontSize: typography.size.xs,
-    color: Colors.neutral.medium,
-    textAlign: 'center',
-  },
-  storyModeOptionDescSelected: {
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  interactiveBadgeContainer: {
-    position: 'relative',
-  },
-  newBadge: {
-    position: 'absolute',
-    top: -8,
-    right: -16,
-    backgroundColor: '#EF4444',
-    paddingHorizontal: spacing['2'],
-    paddingVertical: 2,
-    borderRadius: radius.full,
-  },
-  newBadgeText: {
-    fontSize: 8,
-    fontFamily: typography.family.bold,
-    color: Colors.neutral.white,
-  },
-  // Interactive Info Card
-  interactiveInfoCard: {
-    marginTop: spacing['4'],
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-  },
-  interactiveInfoGradient: {
-    padding: spacing['4'],
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(147, 51, 234, 0.2)',
-  },
-  interactiveInfoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['2'],
-    marginBottom: spacing['3'],
-  },
-  interactiveInfoTitle: {
-    fontSize: typography.size.sm,
-    fontFamily: typography.family.bold,
-    color: '#9333EA',
-  },
-  interactiveInfoFeatures: {
-    gap: spacing['2'],
-  },
-  interactiveInfoFeature: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['3'],
-  },
-  featureIconCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(147, 51, 234, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  featureText: {
-    fontSize: typography.size.xs,
-    color: Colors.neutral.dark,
-    flex: 1,
-  },
+  // ContentWarningModal styles moved to @/components/stories/ContentWarningModal.tsx
+  // StoryModeSelector styles moved to @/components/stories/StoryModeSelector.tsx
 });

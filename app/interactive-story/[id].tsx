@@ -37,19 +37,20 @@ export default function InteractiveStoryScreen() {
   // Route [id] parametresi session ID olarak kullanilir
   const sessionId = typeof params.id === 'string' ? params.id : undefined;
 
-  // Auth guard - redirect if not authenticated
+  // Auth guard - redirect if not authenticated (runs first)
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.replace('/(onboarding)/welcome');
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // Validate session ID parameter
+  // Validate session ID parameter (only after auth is resolved)
   useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
     if (!sessionId) {
-      showAlert('Hata', 'Geçersiz hikaye oturumu', () => router.back());
+      showAlert('Hata', 'Geçersiz hikaye oturumu', () => router.replace('/(tabs)/history'));
     }
-  }, [sessionId, router]);
+  }, [sessionId, authLoading, isAuthenticated, router]);
 
   const [screenState, setScreenState] = useState<ScreenState>('reading');
   const [currentSegment, setCurrentSegment] = useState<StorySegment | null>(null);

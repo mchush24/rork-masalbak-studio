@@ -51,17 +51,30 @@ export default function StorybookScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   // Check if we're viewing an existing storybook or generating a new one
-  const existingPages = params.pages ? JSON.parse(params.pages as string) : null;
+  let existingPages = null;
+  try {
+    existingPages = params.pages ? JSON.parse(params.pages as string) : null;
+  } catch {
+    existingPages = null;
+  }
   const existingTitle = params.title as string;
 
   // For new storybook generation (from analysis)
   const imageUri = params.imageUri as string;
   const analysisTitle = params.analysisTitle as string;
   const analysisDescription = params.description as string;
-  const themes = params.themes ? JSON.parse(params.themes as string) : [];
-  const drawingAnalysis = params.drawingAnalysis
-    ? JSON.parse(params.drawingAnalysis as string)
-    : null;
+  let themes: string[] = [];
+  try {
+    themes = params.themes ? JSON.parse(params.themes as string) : [];
+  } catch {
+    themes = [];
+  }
+  let drawingAnalysis: Record<string, unknown> | null = null;
+  try {
+    drawingAnalysis = params.drawingAnalysis ? JSON.parse(params.drawingAnalysis as string) : null;
+  } catch {
+    drawingAnalysis = null;
+  }
   const childAge = params.childAge ? parseInt(params.childAge as string, 10) : 5;
 
   // tRPC mutation

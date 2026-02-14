@@ -142,7 +142,7 @@ export default function HomeScreen() {
   // Fetch children
   const {
     data: childrenData,
-    isLoading: _childrenLoading,
+    isLoading: childrenLoading,
     refetch: refetchChildren,
   } = trpc.user.getChildren.useQuery(undefined, {
     enabled: !!user?.userId,
@@ -361,7 +361,11 @@ export default function HomeScreen() {
           }
         >
           {/* Child/Client Selector - Only show if there are children */}
-          {children.length > 0 && (
+          {childrenLoading ? (
+            <View style={styles.childSelectorSection}>
+              <ActivityIndicator size="small" color={colors.primary.sunset} />
+            </View>
+          ) : children.length > 0 ? (
             <View style={styles.childSelectorSection}>
               <ChildSelectorChip
                 selectedChild={
@@ -385,7 +389,7 @@ export default function HomeScreen() {
                 compact
               />
             </View>
-          )}
+          ) : null}
 
           {/* Hero Section with Role-aware content */}
           <View style={styles.heroSection}>
@@ -643,7 +647,9 @@ export default function HomeScreen() {
                 status: 'completed' as const,
               }))}
               isLoading={analysesLoading}
-              onAnalysisPress={id => router.push(`/analysis/${id}` as Href)}
+              onAnalysisPress={id => {
+                if (id) router.push(`/analysis/${id}` as Href);
+              }}
               onSeeAllPress={() => router.push('/history' as Href)}
               maxItems={5}
             />
@@ -723,7 +729,9 @@ export default function HomeScreen() {
                         { backgroundColor: colors.surface.card },
                         pressed && { opacity: 0.8 },
                       ]}
-                      onPress={() => router.push(`/analysis/${analysis.id}` as Href)}
+                      onPress={() => {
+                        if (analysis.id) router.push(`/analysis/${analysis.id}` as Href);
+                      }}
                     >
                       <View
                         style={[

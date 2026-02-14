@@ -189,7 +189,7 @@ export default function LoginScreen() {
     }
   };
 
-  const isEnabled = !!(email && password && !isLoading);
+  const isEnabled = !!(email && password && !isLoading && !loginMutation.isPending);
 
   return (
     <LinearGradient

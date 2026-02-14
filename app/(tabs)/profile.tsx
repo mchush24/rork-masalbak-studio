@@ -10,6 +10,7 @@ import {
   TextInput,
   Switch,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -147,8 +148,11 @@ export default function ProfileScreen() {
   } = trpc.badges.getUserBadges.useQuery(undefined, { enabled: !!user?.userId });
 
   // Fetch badge progress
-  const { data: _badgeProgress, refetch: refetchBadgeProgress } =
-    trpc.badges.getBadgeProgress.useQuery(undefined, { enabled: !!user?.userId });
+  const {
+    data: _badgeProgress,
+    isLoading: badgeProgressLoading,
+    refetch: refetchBadgeProgress,
+  } = trpc.badges.getBadgeProgress.useQuery(undefined, { enabled: !!user?.userId });
 
   // Quota data
   const { refetch: refetchQuota } = useQuota();
@@ -877,29 +881,47 @@ export default function ProfileScreen() {
             <Text style={[styles.settingsGroupTitle, { color: colors.text.tertiary }]}>
               ROZETLER
             </Text>
-            <Pressable
-              style={({ pressed }) => [
-                styles.settingsGroup,
-                { backgroundColor: colors.surface.card },
-                pressed && { opacity: 0.7 },
-              ]}
-              onPress={() => setShowBadgeModal(true)}
-            >
-              <View style={[styles.compactMenuItem, { backgroundColor: colors.surface.card }]}>
-                <View
-                  style={[styles.compactMenuIcon, { backgroundColor: 'rgba(255, 155, 122, 0.15)' }]}
-                >
-                  <Award size={18} color={colors.primary.sunset} />
-                </View>
-                <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
-                  Rozetlerim
-                </Text>
-                <Text style={[styles.compactMenuValue, { color: colors.text.tertiary }]}>
-                  {badgesData?.badges?.length || 0} kazanıldı
-                </Text>
-                <ChevronRight size={16} color={colors.neutral.light} />
+            {badgeProgressLoading ? (
+              <View
+                style={[
+                  styles.settingsGroup,
+                  {
+                    backgroundColor: colors.surface.card,
+                    paddingVertical: spacing['4'],
+                    alignItems: 'center',
+                  },
+                ]}
+              >
+                <ActivityIndicator size="small" color={colors.primary.sunset} />
               </View>
-            </Pressable>
+            ) : (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.settingsGroup,
+                  { backgroundColor: colors.surface.card },
+                  pressed && { opacity: 0.7 },
+                ]}
+                onPress={() => setShowBadgeModal(true)}
+              >
+                <View style={[styles.compactMenuItem, { backgroundColor: colors.surface.card }]}>
+                  <View
+                    style={[
+                      styles.compactMenuIcon,
+                      { backgroundColor: 'rgba(255, 155, 122, 0.15)' },
+                    ]}
+                  >
+                    <Award size={18} color={colors.primary.sunset} />
+                  </View>
+                  <Text style={[styles.compactMenuLabel, { color: colors.text.primary }]}>
+                    Rozetlerim
+                  </Text>
+                  <Text style={[styles.compactMenuValue, { color: colors.text.tertiary }]}>
+                    {badgesData?.badges?.length || 0} kazanıldı
+                  </Text>
+                  <ChevronRight size={16} color={colors.neutral.light} />
+                </View>
+              </Pressable>
+            )}
           </View>
 
           <View style={styles.footer}>

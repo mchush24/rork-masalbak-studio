@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   Pressable,
   ScrollView,
+  FlatList,
   TextInput,
   KeyboardAvoidingView,
   Platform,
@@ -118,7 +119,7 @@ export default function ChatbotScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList<Message>>(null);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Auth guard - redirect if not authenticated
@@ -179,76 +180,79 @@ export default function ChatbotScreen() {
   }));
 
   // Mesaj gönder - Backend API'sine bağlı
-  const sendMessage = async (text: string, _actionType?: string) => {
-    if (!text.trim()) return;
+  const sendMessage = useCallback(
+    async (text: string, _actionType?: string) => {
+      if (!text.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: text,
-      isUser: true,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputText('');
-    setShowQuickActions(false);
-    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
-
-    // Konuşma geçmişini güncelle
-    const newHistory: ConversationMessage[] = [
-      ...conversationHistory,
-      { role: 'user' as const, content: text },
-    ];
-    setConversationHistory(newHistory);
-
-    // Ioo yanıt versin - Backend API
-    setIsTyping(true);
-
-    try {
-      const response = await sendMessageMutation.mutateAsync({
-        message: text,
-        conversationHistory: newHistory.slice(-6), // Son 6 mesaj
-        sessionId,
-        currentScreen: 'chatbot',
-        childAge: childAge,
-        childName: childName,
-      });
-
-      const iooMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response.message,
-        isUser: false,
-        timestamp: new Date(),
-        actions: response.actions as ChatAction[] | undefined,
-        suggestedQuestions: response.suggestedQuestions,
-      };
-
-      setMessages(prev => [...prev, iooMessage]);
-
-      // Konuşma geçmişine assistant yanıtını ekle
-      setConversationHistory(prev => [
-        ...prev,
-        { role: 'assistant' as const, content: response.message },
-      ]);
-    } catch {
-      // Chatbot error - show fallback message
-      // Hata durumunda fallback mesaj
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.',
-        isUser: false,
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: text,
+        isUser: true,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
 
-    // Scroll to bottom
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  };
+      setMessages(prev => [...prev, userMessage]);
+      setInputText('');
+      setShowQuickActions(false);
+      hapticImpact(Haptics.ImpactFeedbackStyle.Light);
+
+      // Konuşma geçmişini güncelle
+      const newHistory: ConversationMessage[] = [
+        ...conversationHistory,
+        { role: 'user' as const, content: text },
+      ];
+      setConversationHistory(newHistory);
+
+      // Ioo yanıt versin - Backend API
+      setIsTyping(true);
+
+      try {
+        const response = await sendMessageMutation.mutateAsync({
+          message: text,
+          conversationHistory: newHistory.slice(-6), // Son 6 mesaj
+          sessionId,
+          currentScreen: 'chatbot',
+          childAge: childAge,
+          childName: childName,
+        });
+
+        const iooMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: response.message,
+          isUser: false,
+          timestamp: new Date(),
+          actions: response.actions as ChatAction[] | undefined,
+          suggestedQuestions: response.suggestedQuestions,
+        };
+
+        setMessages(prev => [...prev, iooMessage]);
+
+        // Konuşma geçmişine assistant yanıtını ekle
+        setConversationHistory(prev => [
+          ...prev,
+          { role: 'assistant' as const, content: response.message },
+        ]);
+      } catch {
+        // Chatbot error - show fallback message
+        // Hata durumunda fallback mesaj
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'Üzgünüm, şu an yanıt veremedim. Lütfen tekrar deneyin.',
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsTyping(false);
+      }
+
+      // Scroll to bottom
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    },
+    [conversationHistory, sendMessageMutation, sessionId, childAge, childName]
+  );
 
   // Tarih formatlama
   const formatAnalysisDate = (dateString: string) => {
@@ -264,46 +268,260 @@ export default function ChatbotScreen() {
   };
 
   // Hızlı eylem seç
-  const handleQuickAction = async (action: (typeof QUICK_ACTIONS)[0]) => {
-    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
+  const handleQuickAction = useCallback(
+    async (action: (typeof QUICK_ACTIONS)[0]) => {
+      hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Analiz açıklama için özel işlem
-    if (action.id === 'analysis' && recentAnalysis?.analyses?.[0]) {
-      const analysis = recentAnalysis.analyses[0];
-      const analysisContext = `Son analizim: ${analysis.task_type}, tarih: ${formatAnalysisDate(analysis.created_at)}. Bu analizi açıklar mısın?`;
-      sendMessage(analysisContext, action.id);
-    } else if (action.id === 'analysis' && !recentAnalysis?.analyses?.[0]) {
-      // Analiz yoksa özel mesaj
-      const noAnalysisMessage: Message = {
-        id: Date.now().toString(),
-        text: action.message,
-        isUser: true,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, noAnalysisMessage]);
-      setShowQuickActions(false);
-
-      setTimeout(() => {
-        const responseMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: "Henüz bir analiz yapmamışsınız. 🎨\n\nİlk analizinizi yapmak için ana sayfadan 'Yeni Analiz' butonuna tıklayın. Çocuğunuzun bir çizimini yükleyin, AI size detaylı bir değerlendirme sunacak!",
-          isUser: false,
+      // Analiz açıklama için özel işlem
+      if (action.id === 'analysis' && recentAnalysis?.analyses?.[0]) {
+        const analysis = recentAnalysis.analyses[0];
+        const analysisContext = `Son analizim: ${analysis.task_type}, tarih: ${formatAnalysisDate(analysis.created_at)}. Bu analizi açıklar mısın?`;
+        sendMessage(analysisContext, action.id);
+      } else if (action.id === 'analysis' && !recentAnalysis?.analyses?.[0]) {
+        // Analiz yoksa özel mesaj
+        const noAnalysisMessage: Message = {
+          id: Date.now().toString(),
+          text: action.message,
+          isUser: true,
           timestamp: new Date(),
-          actions: [
-            {
-              type: 'navigate' as const,
-              label: 'Yeni Analiz Yap',
-              target: '/(tabs)/analysis',
-              icon: '📊',
-            },
-          ],
         };
-        setMessages(prev => [...prev, responseMessage]);
-      }, 500);
-    } else {
-      sendMessage(action.message, action.id);
-    }
-  };
+        setMessages(prev => [...prev, noAnalysisMessage]);
+        setShowQuickActions(false);
+
+        setTimeout(() => {
+          const responseMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: "Henüz bir analiz yapmamışsınız. 🎨\n\nİlk analizinizi yapmak için ana sayfadan 'Yeni Analiz' butonuna tıklayın. Çocuğunuzun bir çizimini yükleyin, AI size detaylı bir değerlendirme sunacak!",
+            isUser: false,
+            timestamp: new Date(),
+            actions: [
+              {
+                type: 'navigate' as const,
+                label: 'Yeni Analiz Yap',
+                target: '/(tabs)/analysis',
+                icon: '📊',
+              },
+            ],
+          };
+          setMessages(prev => [...prev, responseMessage]);
+        }, 500);
+      } else {
+        sendMessage(action.message, action.id);
+      }
+    },
+    [recentAnalysis, sendMessage]
+  );
+
+  // Typing indicator as a special message entry appended to data
+  const TYPING_MESSAGE_ID = '__typing__';
+  const messagesWithTyping = useMemo(() => {
+    if (!isTyping) return messages;
+    return [
+      ...messages,
+      {
+        id: TYPING_MESSAGE_ID,
+        text: '',
+        isUser: false,
+        timestamp: new Date(),
+      } as Message,
+    ];
+  }, [messages, isTyping]);
+
+  const keyExtractor = useCallback((item: Message) => item.id, []);
+
+  // Memoize dynamic style objects that depend on theme colors
+  const iooBubbleThemeStyle = useMemo(
+    () => ({ backgroundColor: colors.surface.card, borderColor: colors.border.light }),
+    [colors.surface.card, colors.border.light]
+  );
+  const iooAvatarThemeStyle = useMemo(
+    () => ({ backgroundColor: colors.secondary.lavender + '20' }),
+    [colors.secondary.lavender]
+  );
+  const iooTextThemeStyle = useMemo(() => ({ color: colors.text.primary }), [colors.text.primary]);
+  const actionButtonThemeStyle = useMemo(
+    () => ({ backgroundColor: colors.secondary.lavender + '15' }),
+    [colors.secondary.lavender]
+  );
+  const actionButtonTextThemeStyle = useMemo(
+    () => ({ color: colors.secondary.lavender }),
+    [colors.secondary.lavender]
+  );
+  const suggestedContainerThemeStyle = useMemo(
+    () => ({ borderTopColor: colors.border.light }),
+    [colors.border.light]
+  );
+  const suggestedTitleThemeStyle = useMemo(
+    () => ({ color: colors.text.tertiary }),
+    [colors.text.tertiary]
+  );
+  const suggestedQuestionTextThemeStyle = useMemo(
+    () => ({ color: colors.secondary.lavender }),
+    [colors.secondary.lavender]
+  );
+  const typingBubbleThemeStyle = useMemo(
+    () => ({ backgroundColor: colors.surface.card, borderColor: colors.border.light }),
+    [colors.surface.card, colors.border.light]
+  );
+  const inputContainerThemeStyle = useMemo(
+    () => ({
+      paddingBottom: insets.bottom + 8,
+      backgroundColor: colors.surface.card,
+      borderTopColor: colors.border.light,
+    }),
+    [insets.bottom, colors.surface.card, colors.border.light]
+  );
+  const inputWrapperThemeStyle = useMemo(
+    () => ({ backgroundColor: isDark ? colors.neutral.lightest : Colors.neutral.lightest }),
+    [isDark, colors.neutral.lightest]
+  );
+
+  const renderItem = useCallback(
+    ({ item: message, index }: { item: Message; index: number }) => {
+      // Typing indicator
+      if (message.id === TYPING_MESSAGE_ID) {
+        return (
+          <Animated.View
+            entering={FadeInUp.springify()}
+            style={[
+              styles.messageBubble,
+              styles.iooBubble,
+              styles.typingBubble,
+              typingBubbleThemeStyle,
+            ]}
+          >
+            <View style={styles.typingDots}>
+              <View style={[styles.dot, styles.dot1]} />
+              <View style={[styles.dot, styles.dot2]} />
+              <View style={[styles.dot, styles.dot3]} />
+            </View>
+          </Animated.View>
+        );
+      }
+
+      const isLastMessage = index === messages.length - 1;
+
+      return (
+        <Animated.View
+          entering={FadeInUp.delay(index * 100).springify()}
+          style={[
+            styles.messageBubble,
+            message.isUser ? styles.userBubble : [styles.iooBubble, iooBubbleThemeStyle],
+          ]}
+        >
+          {!message.isUser && index === 0 && (
+            <View style={[styles.iooAvatarSmall, iooAvatarThemeStyle]}>
+              <Heart size={14} color={colors.secondary.lavender} />
+            </View>
+          )}
+          <Text
+            style={[
+              styles.messageText,
+              message.isUser ? styles.userText : [styles.iooText, iooTextThemeStyle],
+            ]}
+          >
+            {message.text}
+          </Text>
+
+          {/* Aksiyon Butonları */}
+          {!message.isUser && message.actions && message.actions.length > 0 && (
+            <View style={styles.actionsContainer}>
+              {message.actions.map((action, actionIndex) => (
+                <Pressable
+                  key={actionIndex}
+                  style={({ pressed }) => [
+                    styles.actionButton,
+                    actionButtonThemeStyle,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => {
+                    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
+                    if (action.type === 'navigate' || action.type === 'create') {
+                      const validRoutes = [
+                        '/(tabs)',
+                        '/(tabs)/index',
+                        '/(tabs)/studio',
+                        '/(tabs)/hayal-atolyesi',
+                        '/(tabs)/history',
+                        '/(tabs)/profile',
+                        '/(tabs)/analysis',
+                        '/(tabs)/quick-analysis',
+                        '/(tabs)/advanced-analysis',
+                        '/(tabs)/stories',
+                        '/analysis/',
+                        '/interactive-story/',
+                      ];
+                      const isValid = validRoutes.some(
+                        route => action.target === route || action.target?.startsWith(route)
+                      );
+                      if (isValid && action.target) {
+                        router.push(action.target as Href);
+                      } else {
+                        console.warn('[Chatbot] Invalid navigation target:', action.target);
+                      }
+                    }
+                  }}
+                >
+                  <Text style={styles.actionButtonIcon}>{action.icon}</Text>
+                  <Text style={[styles.actionButtonText, actionButtonTextThemeStyle]}>
+                    {action.label}
+                  </Text>
+                  <ExternalLink size={12} color={colors.secondary.lavender} />
+                </Pressable>
+              ))}
+            </View>
+          )}
+
+          {/* Önerilen Sorular */}
+          {!message.isUser &&
+            message.suggestedQuestions &&
+            message.suggestedQuestions.length > 0 &&
+            isLastMessage && (
+              <View style={[styles.suggestedQuestionsContainer, suggestedContainerThemeStyle]}>
+                <Text style={[styles.suggestedQuestionsTitle, suggestedTitleThemeStyle]}>
+                  İlgili sorular:
+                </Text>
+                {message.suggestedQuestions.map((question, qIndex) => (
+                  <Pressable
+                    key={qIndex}
+                    style={({ pressed }) => [
+                      styles.suggestedQuestionButton,
+                      pressed && {
+                        opacity: 0.7,
+                        backgroundColor: colors.secondary.lavender + '15',
+                      },
+                    ]}
+                    onPress={() => {
+                      hapticImpact(Haptics.ImpactFeedbackStyle.Light);
+                      sendMessage(question);
+                    }}
+                  >
+                    <Text style={[styles.suggestedQuestionText, suggestedQuestionTextThemeStyle]}>
+                      {question}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+        </Animated.View>
+      );
+    },
+    [
+      messages.length,
+      colors.secondary.lavender,
+      iooBubbleThemeStyle,
+      iooAvatarThemeStyle,
+      iooTextThemeStyle,
+      actionButtonThemeStyle,
+      actionButtonTextThemeStyle,
+      suggestedContainerThemeStyle,
+      suggestedTitleThemeStyle,
+      suggestedQuestionTextThemeStyle,
+      typingBubbleThemeStyle,
+      sendMessage,
+      router,
+    ]
+  );
 
   return (
     <View style={styles.container}>
@@ -341,164 +559,18 @@ export default function ChatbotScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={100}
         >
-          <ScrollView
-            ref={scrollViewRef}
+          <FlatList
+            ref={flatListRef}
+            data={messagesWithTyping}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
             style={styles.messagesContainer}
             contentContainerStyle={styles.messagesContent}
             showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-          >
-            {messages.map((message, index) => (
-              <Animated.View
-                key={message.id}
-                entering={FadeInUp.delay(index * 100).springify()}
-                style={[
-                  styles.messageBubble,
-                  message.isUser
-                    ? styles.userBubble
-                    : [
-                        styles.iooBubble,
-                        { backgroundColor: colors.surface.card, borderColor: colors.border.light },
-                      ],
-                ]}
-              >
-                {!message.isUser && index === 0 && (
-                  <View
-                    style={[
-                      styles.iooAvatarSmall,
-                      { backgroundColor: colors.secondary.lavender + '20' },
-                    ]}
-                  >
-                    <Heart size={14} color={colors.secondary.lavender} />
-                  </View>
-                )}
-                <Text
-                  style={[
-                    styles.messageText,
-                    message.isUser
-                      ? styles.userText
-                      : [styles.iooText, { color: colors.text.primary }],
-                  ]}
-                >
-                  {message.text}
-                </Text>
-
-                {/* Aksiyon Butonları */}
-                {!message.isUser && message.actions && message.actions.length > 0 && (
-                  <View style={styles.actionsContainer}>
-                    {message.actions.map((action, actionIndex) => (
-                      <Pressable
-                        key={actionIndex}
-                        style={({ pressed }) => [
-                          styles.actionButton,
-                          { backgroundColor: colors.secondary.lavender + '15' },
-                          pressed && { opacity: 0.7 },
-                        ]}
-                        onPress={() => {
-                          hapticImpact(Haptics.ImpactFeedbackStyle.Light);
-                          if (action.type === 'navigate' || action.type === 'create') {
-                            // Validate target route before navigating
-                            const validRoutes = [
-                              '/(tabs)',
-                              '/(tabs)/index',
-                              '/(tabs)/studio',
-                              '/(tabs)/hayal-atolyesi',
-                              '/(tabs)/history',
-                              '/(tabs)/profile',
-                              '/(tabs)/analysis',
-                              '/(tabs)/quick-analysis',
-                              '/(tabs)/advanced-analysis',
-                              '/(tabs)/stories',
-                              '/analysis/',
-                              '/interactive-story/',
-                            ];
-                            const isValid = validRoutes.some(
-                              route => action.target === route || action.target?.startsWith(route)
-                            );
-                            if (isValid && action.target) {
-                              router.push(action.target as Href);
-                            } else {
-                              console.warn('[Chatbot] Invalid navigation target:', action.target);
-                            }
-                          }
-                        }}
-                      >
-                        <Text style={styles.actionButtonIcon}>{action.icon}</Text>
-                        <Text
-                          style={[styles.actionButtonText, { color: colors.secondary.lavender }]}
-                        >
-                          {action.label}
-                        </Text>
-                        <ExternalLink size={12} color={colors.secondary.lavender} />
-                      </Pressable>
-                    ))}
-                  </View>
-                )}
-
-                {/* Önerilen Sorular */}
-                {!message.isUser &&
-                  message.suggestedQuestions &&
-                  message.suggestedQuestions.length > 0 &&
-                  index === messages.length - 1 && (
-                    <View
-                      style={[
-                        styles.suggestedQuestionsContainer,
-                        { borderTopColor: colors.border.light },
-                      ]}
-                    >
-                      <Text
-                        style={[styles.suggestedQuestionsTitle, { color: colors.text.tertiary }]}
-                      >
-                        İlgili sorular:
-                      </Text>
-                      {message.suggestedQuestions.map((question, qIndex) => (
-                        <Pressable
-                          key={qIndex}
-                          style={({ pressed }) => [
-                            styles.suggestedQuestionButton,
-                            pressed && {
-                              opacity: 0.7,
-                              backgroundColor: colors.secondary.lavender + '15',
-                            },
-                          ]}
-                          onPress={() => {
-                            hapticImpact(Haptics.ImpactFeedbackStyle.Light);
-                            sendMessage(question);
-                          }}
-                        >
-                          <Text
-                            style={[
-                              styles.suggestedQuestionText,
-                              { color: colors.secondary.lavender },
-                            ]}
-                          >
-                            {question}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                  )}
-              </Animated.View>
-            ))}
-
-            {isTyping && (
-              <Animated.View
-                entering={FadeInUp.springify()}
-                style={[
-                  styles.messageBubble,
-                  styles.iooBubble,
-                  styles.typingBubble,
-                  { backgroundColor: colors.surface.card, borderColor: colors.border.light },
-                ]}
-              >
-                <View style={styles.typingDots}>
-                  <View style={[styles.dot, styles.dot1]} />
-                  <View style={[styles.dot, styles.dot2]} />
-                  <View style={[styles.dot, styles.dot3]} />
-                </View>
-              </Animated.View>
-            )}
-          </ScrollView>
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+          />
 
           {/* Hızlı Eylemler - Horizontal Chips */}
           {showQuickActions && (
@@ -536,22 +608,8 @@ export default function ChatbotScreen() {
           )}
 
           {/* Input */}
-          <View
-            style={[
-              styles.inputContainer,
-              {
-                paddingBottom: insets.bottom + 8,
-                backgroundColor: colors.surface.card,
-                borderTopColor: colors.border.light,
-              },
-            ]}
-          >
-            <View
-              style={[
-                styles.inputWrapper,
-                { backgroundColor: isDark ? colors.neutral.lightest : Colors.neutral.lightest },
-              ]}
-            >
+          <View style={[styles.inputContainer, inputContainerThemeStyle]}>
+            <View style={[styles.inputWrapper, inputWrapperThemeStyle]}>
               <TextInput
                 style={[styles.textInput, { color: colors.text.primary }]}
                 placeholder="Bir soru sorun..."
