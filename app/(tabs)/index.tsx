@@ -18,6 +18,7 @@ import {
   StatusBar,
   Modal,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   BookOpen,
   Palette,
@@ -258,6 +259,17 @@ export default function HomeScreen() {
     ]);
     setRefreshing(false);
   }, [refetchChildren, refetchAnalyses, refetchStats, refreshGamification, discoverFeed]);
+
+  // Auto-refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refetchChildren();
+      refetchAnalyses();
+      refetchStats();
+      refreshGamification();
+      discoverFeed.refetch();
+    }, [refetchChildren, refetchAnalyses, refetchStats, refreshGamification, discoverFeed])
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

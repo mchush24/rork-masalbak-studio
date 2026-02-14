@@ -21,6 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { celebration } from '@/constants/animations';
+import { hapticNotification, hapticImpact } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -117,7 +118,7 @@ export function Confetti({ active, onComplete, originX, originY }: ConfettiProps
     }));
 
     setPieces(newPieces);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    hapticNotification(Haptics.NotificationFeedbackType.Success);
 
     // Cleanup after animation
     setTimeout(() => {
@@ -235,7 +236,7 @@ export function Stars({ active, onComplete, originX, originY }: StarsProps) {
     }));
 
     setStars(newStars);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
 
     setTimeout(() => {
       setStars([]);
@@ -292,7 +293,7 @@ export function Sparkle({ active, x, y, onComplete }: SparkleProps) {
 
       rotate.value = withTiming(180, { duration: 800 });
 
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      hapticImpact(Haptics.ImpactFeedbackStyle.Light);
 
       setTimeout(() => {
         onComplete?.();

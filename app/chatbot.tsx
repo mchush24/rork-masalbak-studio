@@ -46,6 +46,7 @@ import {
   iconStroke,
 } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
+import { hapticImpact } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -191,7 +192,7 @@ export default function ChatbotScreen() {
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setShowQuickActions(false);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
 
     // Konuşma geçmişini güncelle
     const newHistory: ConversationMessage[] = [
@@ -264,7 +265,7 @@ export default function ChatbotScreen() {
 
   // Hızlı eylem seç
   const handleQuickAction = async (action: (typeof QUICK_ACTIONS)[0]) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
 
     // Analiz açıklama için özel işlem
     if (action.id === 'analysis' && recentAnalysis?.analyses?.[0]) {
@@ -394,7 +395,7 @@ export default function ChatbotScreen() {
                           pressed && { opacity: 0.7 },
                         ]}
                         onPress={() => {
-                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          hapticImpact(Haptics.ImpactFeedbackStyle.Light);
                           if (action.type === 'navigate' || action.type === 'create') {
                             // Validate target route before navigating
                             const validRoutes = [
@@ -461,7 +462,7 @@ export default function ChatbotScreen() {
                             },
                           ]}
                           onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            hapticImpact(Haptics.ImpactFeedbackStyle.Light);
                             sendMessage(question);
                           }}
                         >
@@ -563,18 +564,22 @@ export default function ChatbotScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.sendButton,
-                  !inputText.trim() && [
+                  (!inputText.trim() || sendMessageMutation.isPending) && [
                     styles.sendButtonDisabled,
                     { backgroundColor: colors.border.light },
                   ],
                   pressed && { transform: [{ scale: 0.9 }] },
                 ]}
                 onPress={() => sendMessage(inputText)}
-                disabled={!inputText.trim()}
+                disabled={!inputText.trim() || sendMessageMutation.isPending}
               >
                 <Send
                   size={20}
-                  color={inputText.trim() ? Colors.neutral.white : colors.text.tertiary}
+                  color={
+                    inputText.trim() && !sendMessageMutation.isPending
+                      ? Colors.neutral.white
+                      : colors.text.tertiary
+                  }
                 />
               </Pressable>
             </View>

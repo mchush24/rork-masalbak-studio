@@ -30,7 +30,7 @@ import { AnimatedMessage } from '@/components/chat/AnimatedMessage';
 import { ChatMessage } from './ChatMessage';
 import { QuickPrompts } from './QuickPrompts';
 import { ReflectionCard } from './ReflectionCard';
-import { getKeyboardBehavior, getKeyboardVerticalOffset } from '@/lib/platform';
+import { getKeyboardBehavior, getKeyboardVerticalOffset, hapticImpact } from '@/lib/platform';
 import type { AnalysisResponse } from '@/types/analysis';
 
 // Theme colors for consistency
@@ -121,7 +121,7 @@ export function AnalysisChatSheet({
     async (text: string, insightIndex?: number) => {
       if (!text.trim() || isLoading) return;
 
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      hapticImpact(Haptics.ImpactFeedbackStyle.Light);
 
       const userMessage: Message = {
         id: `user-${Date.now()}`,
@@ -193,7 +193,7 @@ export function AnalysisChatSheet({
   };
 
   const handleClose = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onClose();
   };
 

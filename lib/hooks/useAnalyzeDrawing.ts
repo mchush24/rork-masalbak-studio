@@ -1,5 +1,6 @@
 import { trpc } from '@/lib/trpc';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
@@ -19,6 +20,7 @@ export interface UseAnalyzeDrawingReturn {
 export function useAnalyzeDrawing(): UseAnalyzeDrawingReturn {
   const [analysis, setAnalysis] = useState<unknown | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const mutation = trpc.studio.analyzeDrawing.useMutation({
     onMutate: variables => {
@@ -29,6 +31,10 @@ export function useAnalyzeDrawing(): UseAnalyzeDrawingReturn {
       // Backend'den gelen data'yı olduğu gibi kullan - dönüştürme yapma!
       setAnalysis(data);
       setError(null);
+
+      // Invalidate analysis list so history shows the new analysis immediately
+      queryClient.invalidateQueries({ queryKey: [['analysis']] });
+      queryClient.invalidateQueries({ queryKey: [['studio']] });
     },
     onError: (err: unknown) => {
       console.error('[Hook] ❌ Analysis failed:', err);

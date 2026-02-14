@@ -36,6 +36,7 @@ import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { shadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+import { hapticNotification, hapticImpact } from '@/lib/platform';
 
 const { width: _SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -293,12 +294,12 @@ export function PremiumBrushes({
 
     // Check if premium brush and user is not premium
     if (config.isPremium && !isPremiumUser) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      hapticNotification(Haptics.NotificationFeedbackType.Warning);
       // Could show premium upgrade prompt here
       return;
     }
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     onBrushSelect(brushType, config);
     handleClose();
   };
@@ -541,7 +542,7 @@ export function PremiumBrushesCompact({
     if (config.isPremium && !isPremiumUser) {
       return;
     }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onBrushSelect(brushType, config);
   };
 

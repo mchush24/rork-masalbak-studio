@@ -6,7 +6,6 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
-  Alert,
   Animated,
   Linking,
 } from 'react-native';
@@ -44,6 +43,7 @@ import { useRouter, Href } from 'expo-router';
 import { trpc } from '@/lib/trpc';
 import { useFirstTimeUser } from '@/lib/hooks/useFirstTimeUser';
 import { FirstTimeWelcomeModal } from '@/components/FirstTimeWelcomeModal';
+import { showConfirmDialog } from '@/lib/platform';
 
 import { useAgeCollection } from '@/lib/hooks/useAgeCollection';
 import { AgePickerModal } from '@/components/AgePickerModal';
@@ -270,13 +270,12 @@ export default function AnalyzeScreen() {
           handleAnalysis();
         }, delay);
       } else {
-        Alert.alert(
+        showConfirmDialog(
           '❌ Analiz Başarısız',
           '3 kez deneme yapıldı ancak başarısız oldu. Lütfen daha sonra tekrar deneyin.',
-          [
-            { text: 'Anladım', style: 'default' },
-            { text: 'Ana Sayfaya Dön', onPress: () => router.push('/') },
-          ]
+          () => router.push('/'),
+          undefined,
+          { confirmText: 'Ana Sayfaya Dön', cancelText: 'Anladım' }
         );
       }
     } finally {
@@ -418,22 +417,18 @@ export default function AnalyzeScreen() {
                     if (!cameraPermission.granted) {
                       const { granted } = await requestCameraPermission();
                       if (!granted) {
-                        Alert.alert(
+                        showConfirmDialog(
                           'Kamera İzni Gerekli',
                           'Kamera kullanmak için lütfen ayarlardan izin verin.',
-                          [
-                            { text: 'İptal', style: 'cancel' },
-                            {
-                              text: 'Ayarlar',
-                              onPress: () => {
-                                if (Platform.OS === 'ios') {
-                                  Linking.openURL('app-settings:');
-                                } else {
-                                  Linking.openSettings();
-                                }
-                              },
-                            },
-                          ]
+                          () => {
+                            if (Platform.OS === 'ios') {
+                              Linking.openURL('app-settings:');
+                            } else {
+                              Linking.openSettings();
+                            }
+                          },
+                          undefined,
+                          { confirmText: 'Ayarlar' }
                         );
                         return;
                       }

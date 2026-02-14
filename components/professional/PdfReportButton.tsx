@@ -15,7 +15,6 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import Animated, {
@@ -46,6 +45,7 @@ import {
 } from '@/constants/design-system';
 import { SavedAnalysis } from '@/types/analysis';
 import { pdfService, ClientInfo } from '@/lib/pdf';
+import { showAlert } from '@/lib/platform';
 
 interface PdfReportButtonProps {
   analysis: SavedAnalysis;
@@ -83,7 +83,7 @@ export function PdfReportButton({
 
   const handleExport = async (action: 'download' | 'share' | 'print') => {
     if (!clientName.trim()) {
-      Alert.alert('Uyarı', 'Lütfen danışan adını girin.');
+      showAlert('Uyarı', 'Lütfen danışan adını girin.');
       return;
     }
 
@@ -108,7 +108,7 @@ export function PdfReportButton({
         if (action === 'share') {
           await pdfService.sharePdf(pdfUri);
         } else {
-          Alert.alert('Başarılı', 'PDF raporu kaydedildi.', [{ text: 'Tamam' }]);
+          showAlert('Başarılı', 'PDF raporu kaydedildi.');
         }
       } else if (action === 'print') {
         await pdfService.printPdf(analysis, clientInfo, additionalNotes.trim() || undefined);
@@ -118,7 +118,7 @@ export function PdfReportButton({
       resetForm();
     } catch (error) {
       console.error('PDF export error:', error);
-      Alert.alert('Hata', 'Rapor oluşturulurken bir hata oluştu.');
+      showAlert('Hata', 'Rapor oluşturulurken bir hata oluştu.');
     } finally {
       setIsExporting(false);
     }

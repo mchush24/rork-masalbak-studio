@@ -23,6 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { spring, transforms } from '@/constants/animations';
+import { hapticImpact, hapticSelection } from '@/lib/platform';
 
 const AnimatedPressableComponent = Animated.createAnimatedComponent(Pressable);
 
@@ -75,16 +76,16 @@ export function AnimatedPressable({
       if (haptic !== 'none' && !disabled) {
         switch (haptic) {
           case 'light':
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            hapticImpact(Haptics.ImpactFeedbackStyle.Light);
             break;
           case 'medium':
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
             break;
           case 'heavy':
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            hapticImpact(Haptics.ImpactFeedbackStyle.Heavy);
             break;
           case 'selection':
-            Haptics.selectionAsync();
+            hapticSelection();
             break;
         }
       }

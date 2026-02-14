@@ -6,7 +6,6 @@ import {
   Image,
   Pressable,
   Text,
-  Alert,
   Platform,
   ScrollView,
 } from 'react-native';
@@ -17,6 +16,7 @@ import { spacing, radius, shadows, typography } from '@/constants/design-system'
 import { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import { ArrowLeft, X, Undo, Redo, Paintbrush, PaintBucket, Eraser } from 'lucide-react-native';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const TOOL_PANEL_WIDTH = 100;
@@ -165,17 +165,16 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
   };
 
   const handleClear = () => {
-    Alert.alert('Tümünü Sil?', 'Tüm boyamalar silinecek. Emin misin?', [
-      { text: 'Hayır', style: 'cancel' },
-      {
-        text: 'Evet, Sil',
-        style: 'destructive',
-        onPress: () => {
-          setHistory([[]]);
-          setCurrentIndex(0);
-        },
+    showConfirmDialog(
+      'Tümünü Sil?',
+      'Tüm boyamalar silinecek. Emin misin?',
+      () => {
+        setHistory([[]]);
+        setCurrentIndex(0);
       },
-    ]);
+      undefined,
+      { destructive: true }
+    );
   };
 
   // Touch state for brush painting
@@ -542,7 +541,7 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
         const ctx = canvas.getContext('2d');
 
         if (!ctx) {
-          Alert.alert('Hata', 'Canvas context alınamadı');
+          showAlert('Hata', 'Canvas context alınamadı');
           return;
         }
 
@@ -575,7 +574,7 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
         // Convert to blob and download
         canvas.toBlob(blob => {
           if (!blob) {
-            Alert.alert('Hata', 'Görüntü oluşturulamadı');
+            showAlert('Hata', 'Görüntü oluşturulamadı');
             return;
           }
 
@@ -586,18 +585,18 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
           link.click();
           URL.revokeObjectURL(url);
 
-          Alert.alert('✅ Kaydedildi!', 'Boyama sayfan indirildi.');
+          showAlert('✅ Kaydedildi!', 'Boyama sayfan indirildi.');
         }, 'image/png');
       } else {
         // Native: Use captureRef
         const { status } = await MediaLibrary.requestPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('İzin Gerekli', 'Galeriye kaydetmek için izin gerekiyor.');
+          showAlert('İzin Gerekli', 'Galeriye kaydetmek için izin gerekiyor.');
           return;
         }
 
         if (!canvasRef.current) {
-          Alert.alert('Hata', 'Canvas bulunamadı');
+          showAlert('Hata', 'Canvas bulunamadı');
           return;
         }
 
@@ -607,14 +606,14 @@ export function ColoringCanvas({ backgroundImage, onSave, onClose }: ColoringCan
         });
 
         await MediaLibrary.saveToLibraryAsync(uri);
-        Alert.alert('✅ Kaydedildi!', 'Boyama sayfan galeriye kaydedildi.');
+        showAlert('✅ Kaydedildi!', 'Boyama sayfan galeriye kaydedildi.');
       }
 
       if (onSave) {
         onSave(fills);
       }
     } catch (error) {
-      Alert.alert(
+      showAlert(
         'Hata',
         'Kaydetme sırasında bir hata oluştu: ' +
           (error instanceof Error ? error.message : String(error))

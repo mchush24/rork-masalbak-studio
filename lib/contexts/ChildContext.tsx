@@ -16,6 +16,7 @@ const ChildContext = createContext<ChildContextType | undefined>(undefined);
 export function ChildProvider({ children: childrenProp }: { children: ReactNode }) {
   const { user } = useAuth();
   const [selectedChild, setSelectedChildState] = useState<Child | null>(null);
+  const [storageLoaded, setStorageLoaded] = useState(false);
 
   const userChildren = user?.children || [];
   const hasChildren = userChildren.length > 0;
@@ -25,13 +26,13 @@ export function ChildProvider({ children: childrenProp }: { children: ReactNode 
     loadSelectedChild();
   }, []);
 
-  // Auto-select first child if none selected and children exist
+  // Auto-select first child only after storage has been checked
   useEffect(() => {
-    if (!selectedChild && hasChildren) {
+    if (storageLoaded && !selectedChild && hasChildren) {
       setSelectedChild(userChildren[0]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userChildren, hasChildren]);
+  }, [storageLoaded, userChildren, hasChildren]);
 
   const loadSelectedChild = async () => {
     try {
@@ -42,6 +43,8 @@ export function ChildProvider({ children: childrenProp }: { children: ReactNode 
       }
     } catch (error) {
       console.log('[ChildContext] Error loading selected child:', error);
+    } finally {
+      setStorageLoaded(true);
     }
   };
 

@@ -28,7 +28,6 @@ import {
   Dimensions,
   ActivityIndicator,
   Animated,
-  Alert,
 } from 'react-native';
 import { shadows, typography } from '@/constants/design-system';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -36,6 +35,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
+import { hapticImpact, showAlert } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const IMAGE_SIZE = Math.min(SCREEN_WIDTH - 64, 300);
@@ -177,7 +177,7 @@ export function ReferenceImagePicker({
 
   // Handle opening the picker
   const handleOpen = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     setIsOpen(true);
 
     Animated.spring(modalSlide, {
@@ -206,9 +206,7 @@ export function ReferenceImagePicker({
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permissionResult.granted) {
-        Alert.alert('İzin Gerekli', 'Galeri erişimi için izin vermeniz gerekiyor.', [
-          { text: 'Tamam' },
-        ]);
+        showAlert('İzin Gerekli', 'Galeri erişimi için izin vermeniz gerekiyor.');
         return;
       }
 
@@ -221,13 +219,13 @@ export function ReferenceImagePicker({
       });
 
       if (!result.canceled && result.assets[0]) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        hapticImpact(Haptics.ImpactFeedbackStyle.Light);
         setSelectedImage(result.assets[0].uri);
         await extractColors(result.assets[0].uri);
       }
     } catch (error) {
       console.error('[ReferenceImagePicker] Error picking image:', error);
-      Alert.alert('Hata', 'Görsel seçilirken bir sorun oluştu.');
+      showAlert('Hata', 'Görsel seçilirken bir sorun oluştu.');
     }
   };
 
@@ -258,7 +256,7 @@ export function ReferenceImagePicker({
     // Get color at tap position
     const color = getColorAtPoint(locationX, locationY, IMAGE_SIZE, IMAGE_SIZE);
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onColorSelect(color);
 
     // Animate tap indicator
@@ -278,7 +276,7 @@ export function ReferenceImagePicker({
 
   // Handle color swatch selection
   const handleColorSelect = (color: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onColorSelect(color);
   };
 

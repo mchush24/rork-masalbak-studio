@@ -11,13 +11,7 @@
  */
 
 import React, { useRef, useEffect } from 'react';
-import {
-  View,
-  Pressable,
-  StyleSheet,
-  Animated,
-  ViewStyle,
-} from 'react-native';
+import { View, Pressable, StyleSheet, Animated, ViewStyle } from 'react-native';
 import Svg, {
   Defs,
   LinearGradient,
@@ -31,6 +25,7 @@ import Svg, {
 import * as Haptics from 'expo-haptics';
 import { TextureType } from '../effects/TextureShaders';
 import { Colors } from '@/constants/colors';
+import { hapticImpact } from '@/lib/platform';
 
 // ============================================================================
 // TYPES
@@ -163,7 +158,7 @@ export function PaintTube({
     if (disabled) return;
 
     // Haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
 
     onPress?.();
   };
@@ -206,10 +201,7 @@ export function PaintTube({
         style={[
           styles.tubeContainer,
           {
-            transform: [
-              { scale: scaleAnim },
-              { scaleX: squeezeTransform },
-            ],
+            transform: [{ scale: scaleAnim }, { scaleX: squeezeTransform }],
           },
         ]}
       >
@@ -288,9 +280,21 @@ export function PaintTube({
             {hasGlitter && (
               <>
                 <Ellipse cx={width * 0.3} cy={height * 0.35} rx="2" ry="2" fill="url(#sparkle)" />
-                <Ellipse cx={width * 0.6} cy={height * 0.45} rx="1.5" ry="1.5" fill="url(#sparkle)" />
+                <Ellipse
+                  cx={width * 0.6}
+                  cy={height * 0.45}
+                  rx="1.5"
+                  ry="1.5"
+                  fill="url(#sparkle)"
+                />
                 <Ellipse cx={width * 0.45} cy={height * 0.6} rx="2" ry="2" fill="url(#sparkle)" />
-                <Ellipse cx={width * 0.7} cy={height * 0.3} rx="1.5" ry="1.5" fill="url(#sparkle)" />
+                <Ellipse
+                  cx={width * 0.7}
+                  cy={height * 0.3}
+                  rx="1.5"
+                  ry="1.5"
+                  fill="url(#sparkle)"
+                />
                 <Ellipse cx={width * 0.35} cy={height * 0.55} rx="1" ry="1" fill="url(#sparkle)" />
               </>
             )}

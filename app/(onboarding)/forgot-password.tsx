@@ -366,6 +366,7 @@ export default function ForgotPasswordScreen() {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoFocus
+                      maxLength={254}
                       style={{
                         flex: 1,
                         fontSize: typography.size.md,
@@ -705,6 +706,7 @@ export default function ForgotPasswordScreen() {
                       placeholderTextColor={colors.text.tertiary}
                       secureTextEntry={!showPassword}
                       autoFocus
+                      maxLength={128}
                       style={{
                         flex: 1,
                         fontSize: typography.size.md,
@@ -801,6 +803,7 @@ export default function ForgotPasswordScreen() {
                       placeholder="Şifrenizi tekrar girin"
                       placeholderTextColor={colors.text.tertiary}
                       secureTextEntry={!showConfirmPassword}
+                      maxLength={128}
                       style={{
                         flex: 1,
                         fontSize: typography.size.md,

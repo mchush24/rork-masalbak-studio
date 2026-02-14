@@ -24,6 +24,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from '
 import * as Haptics from 'expo-haptics';
 import { shadows, textShadows, typography } from '@/constants/design-system';
 import { Colors } from '@/constants/colors';
+import { hapticImpact } from '@/lib/platform';
 
 // ============================================================================
 // TYPES
@@ -311,14 +312,14 @@ export function ColorHarmony({ baseColor, onColorSelect, onHarmonySelect }: Colo
 
   // Handle harmony type selection
   const handleHarmonySelect = (harmony: HarmonyResult) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     setSelectedHarmony(harmony.type);
     onHarmonySelect?.(harmony);
   };
 
   // Handle color selection
   const handleColorSelect = (color: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onColorSelect(color);
   };
 
@@ -482,7 +483,7 @@ export function ColorHarmonyCompact({
             key={index}
             style={[styles.compactColorBox, { backgroundColor: color }]}
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              hapticImpact(Haptics.ImpactFeedbackStyle.Light);
               onColorSelect(color);
             }}
             activeOpacity={0.8}

@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { hapticImpact } from '@/lib/platform';
 
 interface AgePickerModalProps {
   visible: boolean;
@@ -18,7 +19,7 @@ export function AgePickerModal({ visible, onSelectAge, onSkip }: AgePickerModalP
   const [selectedAge, setSelectedAge] = useState<number | null>(null);
 
   const handleSelectAge = (age: number) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedAge(age);
     // Small delay for visual feedback
     setTimeout(() => {
@@ -27,7 +28,7 @@ export function AgePickerModal({ visible, onSelectAge, onSkip }: AgePickerModalP
   };
 
   const handleSkip = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onSkip();
   };
 

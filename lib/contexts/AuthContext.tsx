@@ -116,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Refresh token when app comes back to foreground
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+  const refreshLockRef = useRef<Promise<boolean> | null>(null);
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active' && user) {
@@ -130,48 +131,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Try to refresh the access token using the stored refresh token.
+   * Uses a lock to prevent concurrent refresh calls from racing.
    * Returns true if refresh was successful, false otherwise.
    */
   const tryRefreshToken = async (): Promise<boolean> => {
-    try {
-      const refreshToken = await secureStorage.getItem(REFRESH_TOKEN_KEY);
-      if (!refreshToken) return false;
+    // If a refresh is already in progress, wait for it instead of starting another
+    if (refreshLockRef.current) {
+      console.log('[Auth] Token refresh already in progress, waiting...');
+      return refreshLockRef.current;
+    }
 
-      console.log('[Auth] Attempting token refresh...');
-      const result = await trpcClient.auth.refreshToken.mutate({ refreshToken });
+    const doRefresh = async (): Promise<boolean> => {
+      try {
+        const refreshToken = await secureStorage.getItem(REFRESH_TOKEN_KEY);
+        if (!refreshToken) return false;
 
-      if (result.success && result.accessToken && result.refreshToken) {
-        await secureStorage.setItem(ACCESS_TOKEN_KEY, result.accessToken);
-        await secureStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
-        console.log('[Auth] Token refreshed successfully');
+        console.log('[Auth] Attempting token refresh...');
+        const result = await trpcClient.auth.refreshToken.mutate({ refreshToken });
 
-        // Re-fetch profile with new token
-        try {
-          const profile = await trpcClient.user.getProfile.query();
-          if (profile) {
-            const updatedUser: UserSession = {
-              userId: profile.id,
-              email: profile.email,
-              name: profile.name || undefined,
-              children: profile.children as unknown as Child[] | undefined,
-              avatarUrl: profile.avatar_url || undefined,
-              language: profile.language || undefined,
-              preferences: profile.preferences as Record<string, unknown> | undefined,
-            };
-            setUser(updatedUser);
-            await AsyncStorage.setItem(MANUAL_SESSION_KEY, JSON.stringify(updatedUser));
+        if (result.success && result.accessToken && result.refreshToken) {
+          await secureStorage.setItem(ACCESS_TOKEN_KEY, result.accessToken);
+          await secureStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
+          console.log('[Auth] Token refreshed successfully');
+
+          // Re-fetch profile with new token
+          try {
+            const profile = await trpcClient.user.getProfile.query();
+            if (profile) {
+              const updatedUser: UserSession = {
+                userId: profile.id,
+                email: profile.email,
+                name: profile.name || undefined,
+                children: profile.children as unknown as Child[] | undefined,
+                avatarUrl: profile.avatar_url || undefined,
+                language: profile.language || undefined,
+                preferences: profile.preferences as Record<string, unknown> | undefined,
+              };
+              setUser(updatedUser);
+              await AsyncStorage.setItem(MANUAL_SESSION_KEY, JSON.stringify(updatedUser));
+            }
+          } catch {
+            // Profile fetch failed but token is refreshed
           }
-        } catch {
-          // Profile fetch failed but token is refreshed
+
+          return true;
         }
 
-        return true;
+        return false;
+      } catch (error) {
+        console.error('[Auth] Token refresh failed:', getErrorMessage(error));
+        return false;
       }
+    };
 
-      return false;
-    } catch (error) {
-      console.error('[Auth] Token refresh failed:', getErrorMessage(error));
-      return false;
+    refreshLockRef.current = doRefresh();
+    try {
+      return await refreshLockRef.current;
+    } finally {
+      refreshLockRef.current = null;
     }
   };
 

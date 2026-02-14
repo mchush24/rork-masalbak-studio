@@ -6,7 +6,6 @@ import {
   Dimensions,
   ActivityIndicator,
   Platform,
-  Alert,
   Animated,
   ScrollView,
 } from 'react-native';
@@ -22,6 +21,7 @@ import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { trpc } from '@/lib/trpc';
+import { showAlert } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PAGE_WIDTH = SCREEN_WIDTH * 0.85;
@@ -140,7 +140,7 @@ export default function StorybookScreen() {
 
   async function generateStory() {
     if (!drawingAnalysis) {
-      Alert.alert(
+      showAlert(
         'Eksik Bilgi',
         'Masal oluşturmak için çizim analizi gerekli. Lütfen önce bir çizim analiz edin.'
       );
@@ -181,7 +181,7 @@ export default function StorybookScreen() {
       }
     } catch (error: unknown) {
       console.error('[Storybook] ❌ Story generation error:', error);
-      Alert.alert(
+      showAlert(
         'Hata',
         (error instanceof Error ? error.message : null) ||
           'Masal oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.'

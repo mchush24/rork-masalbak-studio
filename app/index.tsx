@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Dimensions, Pressable, Platform } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable, Platform, AppState } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +20,7 @@ import Animated, {
   withSequence,
   withSpring,
   withDelay,
+  cancelAnimation,
   Easing,
   FadeIn,
   FadeInDown,
@@ -68,15 +69,12 @@ const FloatingParticle: React.FC<FloatingParticleProps> = ({
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.5);
 
-  useEffect(() => {
-    // Fade in
+  const startFloat = useCallback(() => {
     opacity.value = withDelay(delay, withTiming(0.8, { duration: 2000 }));
     scale.value = withDelay(
       delay,
       withTiming(1, { duration: 1500, easing: Easing.out(Easing.back(1.5)) })
     );
-
-    // Float
     translateY.value = withDelay(
       delay,
       withRepeat(
@@ -88,6 +86,23 @@ const FloatingParticle: React.FC<FloatingParticleProps> = ({
         true
       )
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    startFloat();
+
+    // Pause animations when app goes to background to save battery
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        startFloat();
+      } else {
+        cancelAnimation(translateY);
+        cancelAnimation(opacity);
+        cancelAnimation(scale);
+      }
+    });
+    return () => subscription.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -131,9 +146,8 @@ export default function PremiumHomeScreen() {
   const ctaScale = useSharedValue(1);
   const ctaGlow = useSharedValue(0);
   const secondaryScale = useSharedValue(1);
-  const _gradientProgress = useSharedValue(0);
 
-  useEffect(() => {
+  const startMainAnimations = useCallback(() => {
     // Mascot gentle floating
     mascotY.value = withDelay(
       500,
@@ -169,16 +183,23 @@ export default function PremiumHomeScreen() {
         true
       )
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // Background gradient animation (reserved for future use)
-    _gradientProgress.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 8000, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0, { duration: 8000, easing: Easing.inOut(Easing.sin) })
-      ),
-      -1,
-      true
-    );
+  useEffect(() => {
+    startMainAnimations();
+
+    // Pause animations when app goes to background to save battery
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        startMainAnimations();
+      } else {
+        cancelAnimation(mascotY);
+        cancelAnimation(mascotRotate);
+        cancelAnimation(ctaGlow);
+      }
+    });
+    return () => subscription.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

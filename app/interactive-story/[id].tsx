@@ -5,11 +5,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Alert } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/theme/ThemeProvider';
+import { showAlert } from '@/lib/platform';
 import {
   InteractiveStoryReader,
   EndingCelebration,
@@ -46,9 +47,7 @@ export default function InteractiveStoryScreen() {
   // Validate session ID parameter
   useEffect(() => {
     if (!sessionId) {
-      Alert.alert('Hata', 'Geçersiz hikaye oturumu', [
-        { text: 'Tamam', onPress: () => router.back() },
-      ]);
+      showAlert('Hata', 'Geçersiz hikaye oturumu', () => router.back());
     }
   }, [sessionId, router]);
 
@@ -124,7 +123,7 @@ export default function InteractiveStoryScreen() {
 
   // Secim yapildiginda
   const handleChoiceMade = (optionId: string) => {
-    if (!sessionId || !currentChoicePoint) return;
+    if (!sessionId || !currentChoicePoint || makeChoiceMutation.isPending) return;
 
     makeChoiceMutation.mutate({
       sessionId: sessionId,

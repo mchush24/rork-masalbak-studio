@@ -11,6 +11,7 @@ import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows, zIndex } from '@/constants/design-system';
 import type { AnalysisNote, NoteType } from '@/types/analysis';
+import { hapticImpact } from '@/lib/platform';
 
 interface NoteListProps {
   notes: AnalysisNote[];
@@ -75,7 +76,7 @@ function NoteItem({ note, onEdit, onDelete, onPin, onShare }: NoteItemProps) {
   const [showActions, setShowActions] = React.useState(false);
 
   const handleAction = (action: () => void) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     action();
     setShowActions(false);
   };

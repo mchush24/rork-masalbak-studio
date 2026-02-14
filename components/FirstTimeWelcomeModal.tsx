@@ -7,6 +7,7 @@ import { useRouter, Href } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows, textShadows } from '@/constants/design-system';
+import { hapticImpact } from '@/lib/platform';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -20,7 +21,7 @@ export function FirstTimeWelcomeModal({ visible, onDismiss }: FirstTimeWelcomeMo
   const router = useRouter();
 
   const handleAction = (route: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     onDismiss();
     // Small delay for smooth transition
     setTimeout(() => {

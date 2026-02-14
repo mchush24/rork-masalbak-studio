@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { RenkooColors } from '@/constants/colors';
 import { textShadows, shadows, typography, buttonSizes } from '@/constants/design-system';
+import { hapticImpact } from '@/lib/platform';
 
 interface JellyButtonProps {
   title: string;
@@ -47,7 +48,7 @@ export const JellyButton: React.FC<JellyButtonProps> = ({
       stiffness: 300,
       mass: 0.8,
     });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const handlePressOut = () => {

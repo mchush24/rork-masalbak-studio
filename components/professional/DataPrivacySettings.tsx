@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, Switch } from 'react-native';
 import {
   Shield,
   Lock,
@@ -23,6 +23,7 @@ import {
 } from 'lucide-react-native';
 import { spacing, radius, shadows, typography } from '@/constants/design-system';
 import { Colors, ProfessionalColors } from '@/constants/colors';
+import { showConfirmDialog } from '@/lib/platform';
 
 interface DataRetentionSettings {
   analysisRetentionDays: number;
@@ -107,14 +108,13 @@ export function DataPrivacySettings({
       analysis: 'Analiz Verilerini Sil',
     };
 
-    Alert.alert(titles[type], 'Bu işlem geri alınamaz. Devam etmek istediğinizden emin misiniz?', [
-      { text: 'İptal', style: 'cancel' },
-      {
-        text: 'Sil',
-        style: 'destructive',
-        onPress: () => onDeleteData(type),
-      },
-    ]);
+    showConfirmDialog(
+      titles[type],
+      'Bu işlem geri alınamaz. Devam etmek istediğinizden emin misiniz?',
+      () => onDeleteData(type),
+      undefined,
+      { destructive: true }
+    );
   };
 
   const getRetentionLabel = (days: number) => {

@@ -12,6 +12,7 @@ import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import type { NoteType } from '@/types/analysis';
+import { hapticImpact } from '@/lib/platform';
 
 interface NoteInputProps {
   onSubmit: (content: string, noteType: NoteType, tags: string[]) => Promise<void>;
@@ -51,7 +52,7 @@ export function NoteInput({
   const handleSubmit = async () => {
     if (!content.trim() || isSubmitting) return;
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
 
     await onSubmit(content.trim(), selectedType, selectedTags);
 
@@ -62,12 +63,12 @@ export function NoteInput({
   };
 
   const handleTypeSelect = (type: NoteType) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     setSelectedType(type);
   };
 
   const handleTagToggle = (tag: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     setSelectedTags(prev => (prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]));
   };
 

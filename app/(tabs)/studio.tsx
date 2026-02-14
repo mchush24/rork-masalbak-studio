@@ -4,7 +4,6 @@ import {
   Text,
   View,
   ScrollView,
-  Alert,
   Image,
   Pressable,
   Modal,
@@ -45,6 +44,7 @@ import { ColoringCanvas } from '@/components/ColoringCanvas';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLocalSearchParams } from 'expo-router';
+import { showAlert } from '@/lib/platform';
 
 export default function StudioScreen() {
   const insets = useSafeAreaInsets();
@@ -154,7 +154,7 @@ export default function StudioScreen() {
 
   async function handleGenerateAIColoring() {
     if (!aiDrawingImage) {
-      Alert.alert(t.studio.selectDrawingFirst);
+      showAlert(t.studio.selectDrawingFirst);
       return;
     }
 
@@ -200,10 +200,10 @@ export default function StudioScreen() {
       if (result?.contentAnalysis?.hasConcerningContent) {
         setShowContentWarningModal(true);
       } else {
-        Alert.alert(t.studio.success, t.studio.coloringPageCreated);
+        showAlert(t.studio.success, t.studio.coloringPageCreated);
       }
     } catch {
-      Alert.alert(t.common.error, t.studio.coloringPageError);
+      showAlert(t.common.error, t.studio.coloringPageError);
     }
   }
 
@@ -701,7 +701,7 @@ export default function StudioScreen() {
               backgroundImage={coloringPage.imageUrl}
               onClose={() => setShowColoringCanvas(false)}
               onSave={() => {
-                Alert.alert(t.studio.great, t.studio.coloringSaved);
+                showAlert(t.studio.great, t.studio.coloringSaved);
                 setShowColoringCanvas(false);
               }}
             />

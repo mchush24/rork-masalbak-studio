@@ -216,6 +216,7 @@ export function SearchInput({
           returnKeyType="search"
           autoCorrect={false}
           autoCapitalize="none"
+          maxLength={200}
           {...textInputProps}
         />
 

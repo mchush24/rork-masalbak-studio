@@ -131,6 +131,7 @@ export default function SetPasswordScreen() {
             placeholder="Şifreniz (min 6 karakter)"
             placeholderTextColor={colors.text.tertiary}
             secureTextEntry={!showPassword}
+            maxLength={128}
             style={{
               flex: 1,
               fontSize: typography.size.base,
@@ -166,6 +167,7 @@ export default function SetPasswordScreen() {
             placeholder="Şifrenizi tekrar girin"
             placeholderTextColor={colors.text.tertiary}
             secureTextEntry={!showConfirmPassword}
+            maxLength={128}
             style={{
               flex: 1,
               fontSize: typography.size.base,

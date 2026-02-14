@@ -33,18 +33,11 @@
  *    - Premium Pixar-quality SVG
  *    - Use for: Special occasions, celebrations
  *
- * 6. Ioo3D / IooMascot3D
- *    - Real 3D model (~13MB)
- *    - Use for: Special 3D experiences only
- *
  * For detailed configuration, see: @/constants/ioo-config.ts
  */
 
 // Export the custom image mascot as the default Ioo
 export { IooMascotImage as Ioo, IooMascotImage as default } from './IooMascotImage';
-
-// Export the real 3D version for native apps
-export { IooMascot3D as Ioo3D, IooMascot3D } from './IooMascot3D';
 
 // Also export the SVG version for cases where it might be needed
 export { IooMascotNew as IooSvg } from './IooMascotNew';
@@ -54,12 +47,7 @@ export { IooMascotFinal } from './IooMascotFinal';
 export { IooMascotPro } from './IooMascotPro';
 
 // Role-aware mascot component (Part of #21: Maskot Kullanımını Yetişkin Odaklı Yap)
-export {
-  IooRoleAware,
-  AssistantIcon,
-  ChatAvatar,
-  useRoleMascotProps,
-} from './IooRoleAware';
+export { IooRoleAware, AssistantIcon, ChatAvatar, useRoleMascotProps } from './IooRoleAware';
 
 // Re-export types from config for consistency
 export type { IooMood, IooSize } from '@/constants/ioo-config';

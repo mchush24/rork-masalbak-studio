@@ -119,7 +119,6 @@ import {
   Dimensions,
   Pressable,
   Text,
-  Alert,
   ScrollView,
   Animated,
   Platform,
@@ -146,6 +145,7 @@ import {
 } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { captureRef } from 'react-native-view-shot';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const TOOL_PANEL_WIDTH = 100;
@@ -546,19 +546,18 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
     // Haptic feedback from context
     triggerHaptic();
 
-    Alert.alert('Tümünü Sil?', 'Tüm boyamalar silinecek. Emin misin?', [
-      { text: 'Hayır', style: 'cancel' },
-      {
-        text: 'Evet, Sil',
-        style: 'destructive',
-        onPress: () => {
-          triggerHaptic();
-          setFillLayer([]);
-          setStrokeLayer([]);
-          // Clear history through context (already handled)
-        },
+    showConfirmDialog(
+      'Tümünü Sil?',
+      'Tüm boyamalar silinecek. Emin misin?',
+      () => {
+        triggerHaptic();
+        setFillLayer([]);
+        setStrokeLayer([]);
+        // Clear history through context (already handled)
       },
-    ]);
+      undefined,
+      { destructive: true }
+    );
   };
 
   const handleColorChange = (palette: ColorPalette) => {
@@ -959,7 +958,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       console.log('[Save] Capturing canvas...');
 
       if (!canvasRef.current) {
-        Alert.alert('Hata', 'Canvas bulunamadı. Lütfen tekrar deneyin.');
+        showAlert('Hata', 'Canvas bulunamadı. Lütfen tekrar deneyin.');
         return;
       }
 
@@ -987,9 +986,7 @@ function ColoringCanvasSkiaInner({ backgroundImage, onSave, onClose }: ColoringC
       setShowCelebration(true);
     } catch (error) {
       console.error('[Save] Error capturing canvas:', error);
-      Alert.alert('Hata', 'Boyama kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin.', [
-        { text: 'Tamam' },
-      ]);
+      showAlert('Hata', 'Boyama kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin.');
     }
   };
 

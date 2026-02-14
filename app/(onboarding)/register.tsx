@@ -776,6 +776,7 @@ function EmailStepNew({
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            maxLength={254}
             style={{
               flex: 1,
               fontSize: isSmallDevice ? typography.size.base : typography.size.md,
@@ -1106,6 +1107,7 @@ function PasswordStepNew({
             placeholderTextColor={colors.text.tertiary}
             secureTextEntry={!showPassword}
             autoComplete="password-new"
+            maxLength={128}
             style={{
               flex: 1,
               fontSize: isSmallDevice ? typography.size.base : typography.size.md,
@@ -1217,6 +1219,7 @@ function PasswordStepNew({
               placeholderTextColor={colors.text.tertiary}
               secureTextEntry={!showConfirmPassword}
               autoComplete="password-new"
+              maxLength={128}
               style={{
                 flex: 1,
                 fontSize: isSmallDevice ? typography.size.base : typography.size.md,

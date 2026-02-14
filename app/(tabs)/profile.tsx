@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   Switch,
   Dimensions,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Settings,
   Globe,
@@ -193,7 +194,19 @@ export default function ProfileScreen() {
     setRefreshing(false);
   };
 
+  // Auto-refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refetchStats();
+      refetchSettings();
+      refetchBadges();
+      refetchBadgeProgress();
+      refetchQuota();
+    }, [refetchStats, refetchSettings, refetchBadges, refetchBadgeProgress, refetchQuota])
+  );
+
   const handleLanguageChange = async (selectedLang: Language) => {
+    if (updateSettingsMutation.isPending) return;
     try {
       // Update local language context
       await setAppLanguage(selectedLang);
@@ -232,6 +245,7 @@ export default function ProfileScreen() {
   };
 
   const handleAvatarChange = async (avatarId: string) => {
+    if (updateProfileMutation.isPending) return;
     try {
       await updateProfileMutation.mutateAsync({
         avatarUrl: avatarId, // Using avatarUrl field to store avatarId for now

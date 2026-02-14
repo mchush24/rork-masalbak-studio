@@ -12,6 +12,7 @@ import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
 import type { ReflectionPrompt } from '@/types/analysis';
+import { hapticImpact } from '@/lib/platform';
 
 interface ReflectionCardProps {
   prompts: ReflectionPrompt[];
@@ -44,12 +45,12 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
   const currentPrompt = prompts[currentIndex];
 
   const handleSelect = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     onSelect(currentPrompt.question);
   };
 
   const handleNext = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     if (currentIndex < prompts.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
@@ -58,7 +59,7 @@ export function ReflectionCard({ prompts, onSelect, onDismiss }: ReflectionCardP
   };
 
   const handleDismiss = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 100,

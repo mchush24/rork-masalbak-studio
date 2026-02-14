@@ -11,6 +11,7 @@ import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius } from '@/constants/design-system';
 import type { Insight } from '@/types/analysis';
+import { hapticImpact } from '@/lib/platform';
 
 interface InsightTagProps {
   insight: Insight;
@@ -20,7 +21,7 @@ interface InsightTagProps {
 
 export function InsightTag({ insight, index, onPress }: InsightTagProps) {
   const handlePress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onPress?.(index);
   };
 

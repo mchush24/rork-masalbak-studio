@@ -324,12 +324,6 @@ export const ROLE_ANIMATION_CONFIG = {
  *    - Most detailed and heaviest
  *    - Best for: Special occasions, loading screens
  *    - Features: Full mood animations, touch response
- *
- * 6. IooMascot3D
- *    - Real 3D model with react-three-fiber
- *    - Very heavy (~13MB)
- *    - Best for: Special 3D experiences only
- *    - Features: True 3D rotation, lighting
  */
 export const COMPONENT_RECOMMENDATIONS = {
   // General purpose
@@ -349,7 +343,6 @@ export const COMPONENT_RECOMMENDATIONS = {
   // By platform
   mobile: 'IooMascotImage',
   web: 'IooMascotNew',
-  native3D: 'IooMascot3D',
 
   // By role
   parent: 'IooMascotImage',

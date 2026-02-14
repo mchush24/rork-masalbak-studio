@@ -433,8 +433,11 @@ export function ColoringProvider({ children }: { children: React.ReactNode }) {
 
   const triggerHaptic = useCallback(
     (style = Haptics.ImpactFeedbackStyle.Medium) => {
-      if (hapticsEnabled && Platform.OS !== 'web') {
-        Haptics.impactAsync(style);
+      if (hapticsEnabled) {
+        // Platform check is already handled by hapticImpact
+        if (Platform.OS !== 'web') {
+          Haptics.impactAsync(style);
+        }
       }
     },
     [hapticsEnabled]

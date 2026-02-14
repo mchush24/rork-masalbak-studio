@@ -7,7 +7,6 @@ import {
   Pressable,
   StyleSheet,
   Share,
-  Alert,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -33,6 +32,7 @@ import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
+import { showAlert } from '@/lib/platform';
 
 export default function AnalysisResultScreen() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function AnalysisResultScreen() {
   // Validate ID parameter
   useEffect(() => {
     if (!analysisId) {
-      Alert.alert('Hata', 'Geçersiz analiz ID', [{ text: 'Tamam', onPress: () => router.back() }]);
+      showAlert('Hata', 'Geçersiz analiz ID', () => router.back());
     }
   }, [analysisId, router]);
 
@@ -90,7 +90,7 @@ export default function AnalysisResultScreen() {
       });
     } catch {
       setIsFavorited(!newFavoritedState); // Revert on error
-      Alert.alert('Hata', 'Favori güncellenemedi');
+      showAlert('Hata', 'Favori güncellenemedi');
     }
   };
 
@@ -371,20 +371,20 @@ export default function AnalysisResultScreen() {
             UTI: 'com.adobe.pdf',
           });
         } else {
-          Alert.alert('Başarılı', 'PDF oluşturuldu: ' + uri);
+          showAlert('Başarılı', 'PDF oluşturuldu: ' + uri);
         }
       } else {
         // Web: Print directly
         await Print.printAsync({ uri });
       }
     } catch {
-      Alert.alert('Hata', 'PDF oluşturulurken bir hata oluştu');
+      showAlert('Hata', 'PDF oluşturulurken bir hata oluştu');
     }
   };
 
   const handleSave = () => {
     // Analysis is already saved in backend
-    Alert.alert('Bilgi', 'Analiz zaten kaydedildi!');
+    showAlert('Bilgi', 'Analiz zaten kaydedildi!');
   };
 
   // Loading state

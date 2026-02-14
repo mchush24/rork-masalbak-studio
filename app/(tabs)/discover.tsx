@@ -103,6 +103,7 @@ export default function DiscoverScreen() {
 
   const handleGalleryLike = useCallback(
     (id: string) => {
+      if (likeMutation.isPending) return;
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
@@ -122,6 +123,7 @@ export default function DiscoverScreen() {
 
   const handleStoryLike = useCallback(
     (id: string) => {
+      if (storyLikeMutation.isPending) return;
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }

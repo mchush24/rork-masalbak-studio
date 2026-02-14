@@ -5,6 +5,7 @@
  */
 
 import { Platform, Alert } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 /**
  * Platform-safe confirmation dialog
@@ -21,11 +22,7 @@ export function showConfirmDialog(
     destructive?: boolean;
   }
 ): void {
-  const {
-    confirmText = 'Tamam',
-    cancelText = 'İptal',
-    destructive = false,
-  } = options || {};
+  const { confirmText = 'Tamam', cancelText = 'İptal', destructive = false } = options || {};
 
   if (Platform.OS === 'web') {
     const confirmed = window.confirm(`${title}\n\n${message}`);
@@ -35,22 +32,18 @@ export function showConfirmDialog(
       onCancel?.();
     }
   } else {
-    Alert.alert(
-      title,
-      message,
-      [
-        {
-          text: cancelText,
-          style: 'cancel',
-          onPress: onCancel,
-        },
-        {
-          text: confirmText,
-          style: destructive ? 'destructive' : 'default',
-          onPress: onConfirm,
-        },
-      ]
-    );
+    Alert.alert(title, message, [
+      {
+        text: cancelText,
+        style: 'cancel',
+        onPress: onCancel,
+      },
+      {
+        text: confirmText,
+        style: destructive ? 'destructive' : 'default',
+        onPress: onConfirm,
+      },
+    ]);
   }
 }
 
@@ -58,20 +51,12 @@ export function showConfirmDialog(
  * Platform-safe alert dialog (single button)
  * Uses window.alert on web, Alert.alert on native
  */
-export function showAlert(
-  title: string,
-  message?: string,
-  onDismiss?: () => void
-): void {
+export function showAlert(title: string, message?: string, onDismiss?: () => void): void {
   if (Platform.OS === 'web') {
     window.alert(message ? `${title}\n\n${message}` : title);
     onDismiss?.();
   } else {
-    Alert.alert(
-      title,
-      message,
-      [{ text: 'Tamam', onPress: onDismiss }]
-    );
+    Alert.alert(title, message, [{ text: 'Tamam', onPress: onDismiss }]);
   }
 }
 
@@ -80,11 +65,7 @@ export function showAlert(
  * Uses window.prompt on web, custom implementation on native would be needed
  * For now, returns null on native (not supported natively)
  */
-export function showPrompt(
-  title: string,
-  message?: string,
-  defaultValue?: string
-): string | null {
+export function showPrompt(title: string, message?: string, defaultValue?: string): string | null {
   if (Platform.OS === 'web') {
     return window.prompt(message ? `${title}\n\n${message}` : title, defaultValue);
   }
@@ -136,6 +117,32 @@ export function getKeyboardVerticalOffset(headerHeight: number = 0): number {
   }
   // Android and web typically don't need offset
   return 0;
+}
+
+/**
+ * Platform-safe haptic feedback
+ * No-op on web where Haptics API is unavailable
+ */
+export function hapticImpact(
+  style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light
+): void {
+  if (Platform.OS !== 'web') {
+    Haptics.impactAsync(style);
+  }
+}
+
+export function hapticNotification(
+  type: Haptics.NotificationFeedbackType = Haptics.NotificationFeedbackType.Success
+): void {
+  if (Platform.OS !== 'web') {
+    Haptics.notificationAsync(type);
+  }
+}
+
+export function hapticSelection(): void {
+  if (Platform.OS !== 'web') {
+    Haptics.selectionAsync();
+  }
 }
 
 /**

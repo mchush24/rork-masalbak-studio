@@ -14,7 +14,6 @@ import {
   Pressable,
   Switch,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
@@ -34,6 +33,7 @@ import { Colors } from '@/constants/colors';
 import { SavedAnalysis } from '@/types/analysis';
 import { dataExportService, ExportOptions, ExportResult } from '@/lib/export';
 import { subDays, subMonths, subYears } from 'date-fns';
+import { showAlert } from '@/lib/platform';
 
 import { typography } from '@/constants/design-system';
 interface DataExportModalProps {
@@ -145,7 +145,7 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
       setExportResult(result);
     } catch (error) {
       console.error('Export error:', error);
-      Alert.alert('Hata', 'Dışa aktarma sırasında bir hata oluştu.');
+      showAlert('Hata', 'Dışa aktarma sırasında bir hata oluştu.');
     } finally {
       setIsExporting(false);
     }
@@ -158,7 +158,7 @@ export function DataExportModal({ visible, onClose, analyses }: DataExportModalP
       await dataExportService.shareFile(exportResult);
     } catch (error) {
       console.error('Share error:', error);
-      Alert.alert('Hata', 'Paylaşım sırasında bir hata oluştu.');
+      showAlert('Hata', 'Paylaşım sırasında bir hata oluştu.');
     }
   };
 

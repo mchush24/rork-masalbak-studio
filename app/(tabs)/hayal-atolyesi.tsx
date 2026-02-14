@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Pressable, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import {
   Camera,
   ImagePlus,
@@ -18,6 +18,7 @@ import { layout, typography, spacing, radius, shadows } from '@/constants/design
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useCameraPermissions } from 'expo-camera';
+import { showAlert } from '@/lib/platform';
 
 export default function HayalAtolyesiScreen() {
   const insets = useSafeAreaInsets();
@@ -43,17 +44,17 @@ export default function HayalAtolyesiScreen() {
     if (!cameraPermission?.granted) {
       const permission = await requestCameraPermission();
       if (!permission.granted) {
-        Alert.alert('Kamera İzni', 'Kamera kullanmak için izin vermelisiniz.');
+        showAlert('Kamera İzni', 'Kamera kullanmak için izin vermelisiniz.');
         return;
       }
     }
     // Navigate to camera screen or show camera view
-    Alert.alert('Kamera', 'Kamera özelliği yakında eklenecek!');
+    showAlert('Kamera', 'Kamera özelliği yakında eklenecek!');
   };
 
   const handleCreateStory = () => {
     if (!selectedImage) {
-      Alert.alert('Görsel Seç', 'Lütfen önce bir çizim yükleyin.');
+      showAlert('Görsel Seç', 'Lütfen önce bir çizim yükleyin.');
       return;
     }
     // Navigate to stories with the image
@@ -65,7 +66,7 @@ export default function HayalAtolyesiScreen() {
 
   const handleCreateColoring = () => {
     if (!selectedImage) {
-      Alert.alert('Görsel Seç', 'Lütfen önce bir çizim yükleyin.');
+      showAlert('Görsel Seç', 'Lütfen önce bir çizim yükleyin.');
       return;
     }
     // Navigate to studio with the image
@@ -77,7 +78,7 @@ export default function HayalAtolyesiScreen() {
 
   const handleAnalyze = () => {
     if (!selectedImage) {
-      Alert.alert('Görsel Seç', 'Lütfen önce bir çizim yükleyin.');
+      showAlert('Görsel Seç', 'Lütfen önce bir çizim yükleyin.');
       return;
     }
     // Navigate to advanced analysis with the image

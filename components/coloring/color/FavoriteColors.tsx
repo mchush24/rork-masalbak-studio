@@ -18,9 +18,10 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Text, Pressable, Animated, Alert } from 'react-native';
+import { View, StyleSheet, Text, Pressable, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '@/constants/colors';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 
 import { typography } from '@/constants/design-system';
 const STORAGE_KEY = '@renkioo_favorite_colors';
@@ -69,13 +70,13 @@ export function FavoriteColors({ currentColor, onColorSelect }: FavoriteColorsPr
 
     // Check if already in favorites
     if (favorites.includes(currentColor)) {
-      Alert.alert('Zaten Favorilerde', 'Bu renk zaten favorilerinizde!');
+      showAlert('Zaten Favorilerde', 'Bu renk zaten favorilerinizde!');
       return;
     }
 
     // Check if favorites full
     if (favorites.length >= MAX_FAVORITES) {
-      Alert.alert(
+      showAlert(
         'Favoriler Dolu',
         'En fazla 10 favori renk ekleyebilirsiniz. Bir rengi silmek için üzerine uzun basın.'
       );
@@ -89,20 +90,14 @@ export function FavoriteColors({ currentColor, onColorSelect }: FavoriteColorsPr
   // Remove color from favorites
   const removeFromFavorites = useCallback(
     (color: string) => {
-      Alert.alert('Favorilerden Çıkar', `${color} rengini favorilerden çıkarmak istiyor musunuz?`, [
-        {
-          text: 'İptal',
-          style: 'cancel',
-        },
-        {
-          text: 'Çıkar',
-          style: 'destructive',
-          onPress: () => {
-            const newFavorites = favorites.filter(c => c !== color);
-            saveFavorites(newFavorites);
-          },
-        },
-      ]);
+      showConfirmDialog(
+        'Favorilerden Çıkar',
+        `${color} rengini favorilerden çıkarmak istiyor musunuz?`,
+        () => {
+          const newFavorites = favorites.filter(c => c !== color);
+          saveFavorites(newFavorites);
+        }
+      );
     },
     [favorites]
   );

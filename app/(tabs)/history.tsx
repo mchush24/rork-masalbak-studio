@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,10 +7,10 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
-  Alert,
   Linking,
   Share,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Brain,
   BookOpen,
@@ -33,6 +33,7 @@ import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 import {
   layout,
   typography,
@@ -124,6 +125,19 @@ export default function HistoryScreen() {
     setRefreshing(false);
   };
 
+  // Auto-refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (activeTab === TAB_ANALYSES) {
+        refetchAnalyses();
+      } else if (activeTab === TAB_STORIES) {
+        refetchStories();
+      } else if (activeTab === TAB_COLORINGS) {
+        refetchColorings();
+      }
+    }, [activeTab, refetchAnalyses, refetchStories, refetchColorings])
+  );
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -147,34 +161,29 @@ export default function HistoryScreen() {
       });
       refetchAnalyses();
     } catch (_error) {
-      Alert.alert('Hata', 'Favori durumu değiştirilemedi');
+      showAlert('Hata', 'Favori durumu değiştirilemedi');
     }
   };
 
   const handleDeleteAnalysis = (analysisId: string) => {
-    Alert.alert(
+    showConfirmDialog(
       t.history.deleteConfirm,
       'Bu analizi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: t.history.delete,
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteAnalysisMutation.mutateAsync({ analysisId });
-              refetchAnalyses();
-            } catch (_error) {
-              Alert.alert('Hata', 'Analiz silinemedi');
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          await deleteAnalysisMutation.mutateAsync({ analysisId });
+          refetchAnalyses();
+        } catch (_error) {
+          showAlert('Hata', 'Analiz silinemedi');
+        }
+      },
+      undefined,
+      { confirmText: t.history.delete, destructive: true }
     );
   };
 
   const handleViewAnalysis = (_analysisId: string) => {
-    Alert.alert('Analiz Detayı', 'Analiz detay ekranı yakında eklenecek!');
+    showAlert('Analiz Detayı', 'Analiz detay ekranı yakında eklenecek!');
   };
 
   const handleShareAnalysis = async (analysis: TypedAnalysis) => {
@@ -199,20 +208,15 @@ export default function HistoryScreen() {
 
   // Story Handlers
   const handleDeleteStorybook = (storybookId: string, storybookTitle: string) => {
-    Alert.alert(
+    showConfirmDialog(
       t.history.deleteConfirm,
       `"${storybookTitle}" adlı masalı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
-      [
-        { text: 'Vazgeç', style: 'cancel' },
-        {
-          text: t.history.delete,
-          style: 'destructive',
-          onPress: async () => {
-            await deleteStorybookMutation.mutateAsync({ storybookId });
-            refetchStories();
-          },
-        },
-      ]
+      async () => {
+        await deleteStorybookMutation.mutateAsync({ storybookId });
+        refetchStories();
+      },
+      undefined,
+      { confirmText: t.history.delete, cancelText: 'Vazgeç', destructive: true }
     );
   };
 
@@ -236,47 +240,42 @@ export default function HistoryScreen() {
 
       // If PDF doesn't exist, generate it first
       if (!pdfUrlToOpen || pdfUrlToOpen.trim() === '') {
-        Alert.alert(
+        showConfirmDialog(
           'PDF Oluşturuluyor',
           'PDF dosyası henüz oluşturulmamış. Şimdi oluşturulacak, biraz zaman alabilir.',
-          [
-            { text: 'İptal', style: 'cancel' },
-            {
-              text: 'Oluştur',
-              onPress: async () => {
-                try {
-                  // Show loading indicator
-                  Alert.alert('Lütfen Bekleyin', 'PDF oluşturuluyor...');
+          async () => {
+            try {
+              // Show loading indicator
+              showAlert('Lütfen Bekleyin', 'PDF oluşturuluyor...');
 
-                  const result = await generateColoringPDFMutation.mutateAsync({
-                    pages: [coloring.coloring_image_url],
-                    title: coloring.title || 'Boyama Sayfası',
-                    size: 'A4',
-                  });
+              const result = await generateColoringPDFMutation.mutateAsync({
+                pages: [coloring.coloring_image_url],
+                title: coloring.title || 'Boyama Sayfası',
+                size: 'A4',
+              });
 
-                  pdfUrlToOpen = result.pdf_url;
+              pdfUrlToOpen = result.pdf_url;
 
-                  // Refresh colorings list to show updated PDF URL
-                  await refetchColorings();
+              // Refresh colorings list to show updated PDF URL
+              await refetchColorings();
 
-                  // Open the newly generated PDF
-                  const supported = await Linking.canOpenURL(pdfUrlToOpen);
-                  if (supported) {
-                    await Linking.openURL(pdfUrlToOpen);
-                  } else {
-                    Alert.alert(
-                      'Başarılı',
-                      'PDF oluşturuldu ancak otomatik açılamadı. Lütfen geçmişten tekrar deneyin.'
-                    );
-                  }
-                } catch (error: unknown) {
-                  const errorMessage =
-                    error instanceof Error ? error.message : 'PDF oluşturulamadı';
-                  Alert.alert('Hata', errorMessage);
-                }
-              },
-            },
-          ]
+              // Open the newly generated PDF
+              const supported = await Linking.canOpenURL(pdfUrlToOpen);
+              if (supported) {
+                await Linking.openURL(pdfUrlToOpen);
+              } else {
+                showAlert(
+                  'Başarılı',
+                  'PDF oluşturuldu ancak otomatik açılamadı. Lütfen geçmişten tekrar deneyin.'
+                );
+              }
+            } catch (error: unknown) {
+              const errorMessage = error instanceof Error ? error.message : 'PDF oluşturulamadı';
+              showAlert('Hata', errorMessage);
+            }
+          },
+          undefined,
+          { confirmText: 'Oluştur' }
         );
         return;
       }
@@ -286,28 +285,23 @@ export default function HistoryScreen() {
       if (supported) {
         await Linking.openURL(pdfUrlToOpen);
       } else {
-        Alert.alert('Hata', 'PDF açılamadı');
+        showAlert('Hata', 'PDF açılamadı');
       }
     } catch (_error) {
-      Alert.alert('Hata', 'PDF indirilemedi');
+      showAlert('Hata', 'PDF indirilemedi');
     }
   };
 
   const handleDeleteColoring = (coloringId: string, coloringTitle: string) => {
-    Alert.alert(
+    showConfirmDialog(
       t.history.deleteConfirm,
       `"${coloringTitle}" adlı boyamayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
-      [
-        { text: 'Vazgeç', style: 'cancel' },
-        {
-          text: t.history.delete,
-          style: 'destructive',
-          onPress: async () => {
-            await deleteColoringMutation.mutateAsync({ coloringId });
-            refetchColorings();
-          },
-        },
-      ]
+      async () => {
+        await deleteColoringMutation.mutateAsync({ coloringId });
+        refetchColorings();
+      },
+      undefined,
+      { confirmText: t.history.delete, cancelText: 'Vazgeç', destructive: true }
     );
   };
 
@@ -781,7 +775,11 @@ export default function HistoryScreen() {
                     <View style={[styles.cardActions, { borderTopColor: colors.border.light }]}>
                       <Pressable
                         onPress={() => handleToggleFavorite(analysis.id, analysis.favorited)}
-                        style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
+                        style={({ pressed }) => [
+                          styles.actionButton,
+                          (pressed || updateAnalysisMutation.isPending) && { opacity: 0.6 },
+                        ]}
+                        disabled={updateAnalysisMutation.isPending}
                       >
                         <Heart
                           size={iconSizes.small}
@@ -802,7 +800,11 @@ export default function HistoryScreen() {
                       </Pressable>
                       <Pressable
                         onPress={() => handleDeleteAnalysis(analysis.id)}
-                        style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.6 }]}
+                        style={({ pressed }) => [
+                          styles.actionButton,
+                          (pressed || deleteAnalysisMutation.isPending) && { opacity: 0.6 },
+                        ]}
+                        disabled={deleteAnalysisMutation.isPending}
                       >
                         <Trash2
                           size={iconSizes.small}
@@ -826,6 +828,7 @@ export default function HistoryScreen() {
                   <Pressable
                     style={styles.deleteButton}
                     onPress={() => handleDeleteStorybook(storybook.id, storybook.title)}
+                    disabled={deleteStorybookMutation.isPending}
                   >
                     <Trash2
                       size={iconSizes.action}
@@ -924,6 +927,7 @@ export default function HistoryScreen() {
                     <Pressable
                       style={styles.deleteButton}
                       onPress={() => handleDeleteColoring(coloring.id, coloring.title)}
+                      disabled={deleteColoringMutation.isPending}
                     >
                       <Trash2
                         size={iconSizes.small}

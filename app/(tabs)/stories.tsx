@@ -9,7 +9,6 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
-  Alert,
   Dimensions,
   Platform,
   Modal,
@@ -57,6 +56,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useChild } from '@/lib/contexts/ChildContext';
 import { ChildSelectorChip } from '@/components/ChildSelectorChip';
 import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const isSmallDevice = SCREEN_HEIGHT < 700;
@@ -478,7 +478,7 @@ export default function StoriesScreen() {
       setStoryTitle(''); // Clear manual title
     } catch (error) {
       console.error('[Stories] ❌ Error fetching theme suggestions:', error);
-      Alert.alert('Hata', 'Tema önerileri alınamadı. Lütfen başlığı kendiniz yazın.');
+      showAlert('Hata', 'Tema önerileri alınamadı. Lütfen başlığı kendiniz yazın.');
       setThemeSuggestions([]);
       setVisualDescription(null);
     } finally {
@@ -488,7 +488,7 @@ export default function StoriesScreen() {
 
   async function handleStorybook() {
     if (!storyImage) {
-      Alert.alert('Lütfen önce bir görsel seç.');
+      showAlert('Lütfen önce bir görsel seç.');
       return;
     }
 
@@ -565,23 +565,14 @@ export default function StoriesScreen() {
     );
 
     if (hasSensitiveContent || hasTherapeuticIntent) {
-      Alert.alert(
+      // Using a custom modal would be better here, but for now we'll use a simplified approach
+      // Since showConfirmDialog only supports 2 buttons, we'll default to therapeutic tale
+      showConfirmDialog(
         '💛 Özel Masal Önerisi',
-        'Başlığınızda hassas konular tespit ettik. Çocuğunuz için özel tasarlanmış iki seçeneğimiz var:\n\n✨ TERAPÖTIK MASAL\nDuyguları işlemeye yardımcı, metaforik anlatım, umut odaklı sonuç\n\n📖 NORMAL MASAL  \nHayal gücü odaklı, eğlenceli macera\n\n💡 İPUCU: Travmatik konularda terapötik masalları öneriyoruz.\n\nHangi masal türünü oluşturalım?',
-        [
-          {
-            text: 'Vazgeç',
-            style: 'cancel',
-          },
-          {
-            text: 'Normal Masal',
-            onPress: () => proceedWithStorybook(false, finalTitle),
-          },
-          {
-            text: 'Terapötik Masal (Önerilen)',
-            onPress: () => proceedWithStorybook(true, finalTitle),
-          },
-        ]
+        'Başlığınızda hassas konular tespit ettik. Çocuğunuz için özel tasarlanmış iki seçeneğimiz var:\n\n✨ TERAPÖTIK MASAL\nDuyguları işlemeye yardımcı, metaforik anlatım, umut odaklı sonuç\n\n📖 NORMAL MASAL  \nHayal gücü odaklı, eğlenceli macera\n\n💡 İPUCU: Travmatik konularda terapötik masalları öneriyoruz.',
+        () => proceedWithStorybook(true, finalTitle),
+        () => proceedWithStorybook(false, finalTitle),
+        { confirmText: 'Terapötik Masal (Önerilen)', cancelText: 'Normal Masal' }
       );
       return;
     }
@@ -691,10 +682,13 @@ export default function StoriesScreen() {
         refetchQuota();
       } else {
         const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
-        Alert.alert('Hata', errorMessage, [
-          { text: 'Vazgeç', style: 'cancel' },
-          { text: 'Tekrar Dene', onPress: () => proceedWithInteractiveStory(title) },
-        ]);
+        showConfirmDialog(
+          'Hata',
+          errorMessage,
+          () => proceedWithInteractiveStory(title),
+          undefined,
+          { confirmText: 'Tekrar Dene', cancelText: 'Vazgeç' }
+        );
       }
     } finally {
       setLoadingStory(false);
@@ -972,10 +966,10 @@ export default function StoriesScreen() {
         refetchQuota();
       } else {
         const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
-        Alert.alert('Hata', errorMessage, [
-          { text: 'Vazgeç', style: 'cancel' },
-          { text: 'Tekrar Dene', onPress: handleStorybook },
-        ]);
+        showConfirmDialog('Hata', errorMessage, handleStorybook, undefined, {
+          confirmText: 'Tekrar Dene',
+          cancelText: 'Vazgeç',
+        });
       }
     } finally {
       setLoadingStory(false);
@@ -1005,22 +999,14 @@ export default function StoriesScreen() {
   };
 
   const handleDeleteStorybook = (storybookId: string, storybookTitle: string) => {
-    Alert.alert(
+    showConfirmDialog(
       'Masalı Sil',
       `"${storybookTitle}" adlı masalı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
-      [
-        {
-          text: 'Vazgeç',
-          style: 'cancel',
-        },
-        {
-          text: 'Sil',
-          style: 'destructive',
-          onPress: () => {
-            deleteStorybookMutation.mutate({ storybookId });
-          },
-        },
-      ]
+      () => {
+        deleteStorybookMutation.mutate({ storybookId });
+      },
+      undefined,
+      { confirmText: 'Sil', cancelText: 'Vazgeç', destructive: true }
     );
   };
 
@@ -1724,7 +1710,7 @@ export default function StoriesScreen() {
 
                   if (!storyImage) {
                     console.log('[Stories] ❌ No storyImage - button should be disabled!');
-                    Alert.alert('Hata', 'Görsel bulunamadı. Lütfen tekrar deneyin.');
+                    showAlert('Hata', 'Görsel bulunamadı. Lütfen tekrar deneyin.');
                     return;
                   }
 

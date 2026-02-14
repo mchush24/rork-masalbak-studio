@@ -7,7 +7,6 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
-  Alert,
   Share,
   Dimensions,
   Animated,
@@ -46,6 +45,7 @@ import type { TaskType } from '@/types/analysis';
 import { trpc } from '@/lib/trpc';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { showAlert } from '@/lib/platform';
 
 import { AnalysisStepper, AnalysisStep } from '@/components/analysis/AnalysisStepper';
 import { AnalysisLoadingOverlay } from '@/components/analysis/AnalysisLoadingOverlay';
@@ -423,7 +423,7 @@ export default function AdvancedAnalysisScreen() {
 
       const imageEntries = Object.entries(imageUris);
       if (imageEntries.length === 0 && requiredImages.length > 0) {
-        Alert.alert('Hata', 'Lütfen en az bir görsel yükleyin.');
+        showAlert('Hata', 'Lütfen en az bir görsel yükleyin.');
         setLoading(false);
         return;
       }
@@ -499,7 +499,7 @@ export default function AdvancedAnalysisScreen() {
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen bir hata oluştu';
-      Alert.alert('Hata', errorMessage);
+      showAlert('Hata', errorMessage);
     } finally {
       setLoading(false);
     }

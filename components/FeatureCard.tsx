@@ -17,6 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useFeedback } from '@/hooks/useFeedback';
+import { hapticImpact } from '@/lib/platform';
 
 type FeatureType = 'analysis' | 'chat' | 'story' | 'emotion' | 'reward' | 'coloring';
 
@@ -286,7 +287,7 @@ export const FeatureCardCompact: React.FC<{
 
   const handlePressIn = () => {
     scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const handlePressOut = () => {

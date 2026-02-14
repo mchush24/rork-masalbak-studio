@@ -26,6 +26,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { spring, duration } from '@/constants/animations';
+import { hapticNotification } from '@/lib/platform';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const _AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -96,9 +97,9 @@ export function SuccessAnimation({
 
     // Trigger haptic
     if (type === 'success') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      hapticNotification(Haptics.NotificationFeedbackType.Success);
     } else if (type === 'error') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      hapticNotification(Haptics.NotificationFeedbackType.Error);
       // Add shake for error
       shake.value = withSequence(
         withTiming(-10, { duration: 50 }),
@@ -108,7 +109,7 @@ export function SuccessAnimation({
         withTiming(0, { duration: 50 })
       );
     } else if (type === 'warning') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      hapticNotification(Haptics.NotificationFeedbackType.Warning);
     }
 
     // Call onComplete

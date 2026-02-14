@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, TextInput, Platform } from 'react-native';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -30,6 +30,7 @@ import {
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, shadows } from '@/constants/design-system';
+import { showAlert } from '@/lib/platform';
 
 const STORAGE_KEYS = {
   APP_LOCK_ENABLED: '@renkioo_app_lock_enabled',
@@ -183,7 +184,7 @@ export function AppLockSettings({ visible, onClose }: AppLockSettingsProps) {
 
   const handleBiometricToggle = async () => {
     if (!biometricAvailable) {
-      Alert.alert('Uyarı', 'Cihazınızda biyometrik doğrulama kullanılamıyor.');
+      showAlert('Uyarı', 'Cihazınızda biyometrik doğrulama kullanılamıyor.');
       return;
     }
 

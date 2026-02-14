@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,9 +7,9 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
-  Alert,
   useWindowDimensions,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Brain,
   Calendar,
@@ -31,6 +31,7 @@ import { layout, typography, spacing, radius, shadows } from '@/constants/design
 import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
 import type { TaskType } from '@/types/analysis';
 import { TASK_TYPE_LABELS } from '@/constants/task-labels';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 
 interface AnalysisInsightPreview {
   title: string;
@@ -94,6 +95,13 @@ export default function AnalysisHistoryScreen() {
     setRefreshing(false);
   };
 
+  // Auto-refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
   const handleToggleFavorite = async (analysisId: string, currentFavorited: boolean) => {
     try {
       await updateAnalysisMutation.mutateAsync({
@@ -102,29 +110,24 @@ export default function AnalysisHistoryScreen() {
       });
       refetch();
     } catch (_error) {
-      Alert.alert('Hata', 'Favori durumu değiştirilemedi');
+      showAlert('Hata', 'Favori durumu değiştirilemedi');
     }
   };
 
   const handleDelete = (analysisId: string) => {
-    Alert.alert(
+    showConfirmDialog(
       'Analizi Sil',
       'Bu analizi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: 'Sil',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteAnalysisMutation.mutateAsync({ analysisId });
-              refetch();
-            } catch (_error) {
-              Alert.alert('Hata', 'Analiz silinemedi');
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          await deleteAnalysisMutation.mutateAsync({ analysisId });
+          refetch();
+        } catch (_error) {
+          showAlert('Hata', 'Analiz silinemedi');
+        }
+      },
+      undefined,
+      { confirmText: 'Sil', destructive: true }
     );
   };
 
@@ -252,7 +255,7 @@ export default function AnalysisHistoryScreen() {
                 },
                 pressed && { opacity: 0.7 },
               ]}
-              onPress={() => Alert.alert('Filtre', 'Test tipi filtreleme yakında!')}
+              onPress={() => showAlert('Filtre', 'Test tipi filtreleme yakında!')}
             >
               <Filter size={isSmallScreen ? 14 : 16} color={colors.text.secondary} />
               <Text
@@ -407,8 +410,9 @@ export default function AnalysisHistoryScreen() {
                     style={({ pressed }) => [
                       styles.actionButton,
                       isSmallScreen && { padding: spacing['1.5'] },
-                      pressed && { opacity: 0.6 },
+                      (pressed || updateAnalysisMutation.isPending) && { opacity: 0.6 },
                     ]}
+                    disabled={updateAnalysisMutation.isPending}
                   >
                     <Heart
                       size={isSmallScreen ? 18 : 20}
@@ -422,8 +426,9 @@ export default function AnalysisHistoryScreen() {
                     style={({ pressed }) => [
                       styles.actionButton,
                       isSmallScreen && { padding: spacing['1.5'] },
-                      pressed && { opacity: 0.6 },
+                      (pressed || deleteAnalysisMutation.isPending) && { opacity: 0.6 },
                     ]}
+                    disabled={deleteAnalysisMutation.isPending}
                   >
                     <Trash2 size={isSmallScreen ? 18 : 20} color={colors.text.tertiary} />
                   </Pressable>

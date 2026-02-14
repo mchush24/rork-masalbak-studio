@@ -37,6 +37,7 @@ import { useColoring } from '../ColoringContext';
 import { shadows, zIndex, typography } from '@/constants/design-system';
 import { trpc } from '@/lib/trpc';
 import { Colors } from '@/constants/colors';
+import { hapticImpact } from '@/lib/platform';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -96,7 +97,7 @@ export function AISuggestions({
   const modalSlide = useRef(new Animated.Value(SCREEN_WIDTH)).current;
   const sparkleAnim = useRef(new Animated.Value(0)).current;
 
-  const { setCustomColor, triggerHaptic } = useColoring();
+  const { setCustomColor } = useColoring();
 
   const suggestColorsMutation = trpc.studio.suggestColors.useMutation();
 
@@ -123,7 +124,7 @@ export function AISuggestions({
 
   // Handle opening the AI suggestions panel
   const handleOpen = async () => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     setIsOpen(true);
 
     // Animate modal slide in
@@ -187,7 +188,7 @@ export function AISuggestions({
 
   // Handle color selection
   const handleColorSelect = (color: string) => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     setCustomColor(color);
     onColorSelect(color);
 
@@ -208,7 +209,7 @@ export function AISuggestions({
 
   // Handle palette selection
   const handlePaletteSelect = (paletteId: string) => {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedPalette(paletteId);
 
     // Apply first color from palette

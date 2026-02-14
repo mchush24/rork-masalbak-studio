@@ -79,6 +79,7 @@ export function HistorySearchBar({
         returnKeyType="search"
         autoCorrect={false}
         autoCapitalize="none"
+        maxLength={100}
       />
       {value.length > 0 && (
         <Pressable

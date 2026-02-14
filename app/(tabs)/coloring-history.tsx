@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,9 +7,9 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
-  Alert,
   Linking,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Palette, Calendar, Download, Trash2, Star, ArrowLeft } from 'lucide-react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +23,7 @@ import { layout, typography, spacing, radius, shadows } from '@/constants/design
 import { Image } from 'expo-image';
 import { IooEmptyState, EMPTY_STATE_PRESETS } from '@/components/IooEmptyState';
 import type { Coloring } from '@/types/history';
+import { showAlert, showConfirmDialog } from '@/lib/platform';
 
 export default function ColoringHistoryScreen() {
   const insets = useSafeAreaInsets();
@@ -50,46 +51,45 @@ export default function ColoringHistoryScreen() {
     setRefreshing(false);
   };
 
+  // Auto-refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
   const handleDownloadPDF = async (pdfUrl: string, _title: string) => {
     try {
       const supported = await Linking.canOpenURL(pdfUrl);
       if (supported) {
         await Linking.openURL(pdfUrl);
       } else {
-        Alert.alert('Hata', 'PDF açılamadı');
+        showAlert('Hata', 'PDF açılamadı');
       }
     } catch (_error) {
-      Alert.alert('Hata', 'PDF indirilemedi');
+      showAlert('Hata', 'PDF indirilemedi');
     }
   };
 
   const handleViewColoring = (coloringId: string, pdfUrl: string, title: string) => {
-    Alert.alert(title, "PDF'i açmak ister misiniz?", [
-      { text: 'İptal', style: 'cancel' },
-      {
-        text: 'PDF Aç',
-        onPress: () => handleDownloadPDF(pdfUrl, title),
-      },
-    ]);
+    showConfirmDialog(
+      title,
+      "PDF'i açmak ister misiniz?",
+      () => handleDownloadPDF(pdfUrl, title),
+      undefined,
+      { confirmText: 'PDF Aç' }
+    );
   };
 
   const handleDeleteColoring = (coloringId: string, coloringTitle: string) => {
-    Alert.alert(
+    showConfirmDialog(
       'Boyamayı Sil',
       `"${coloringTitle}" adlı boyamayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
-      [
-        {
-          text: 'Vazgeç',
-          style: 'cancel',
-        },
-        {
-          text: 'Sil',
-          style: 'destructive',
-          onPress: () => {
-            deleteColoringMutation.mutate({ coloringId });
-          },
-        },
-      ]
+      () => {
+        deleteColoringMutation.mutate({ coloringId });
+      },
+      undefined,
+      { confirmText: 'Sil', cancelText: 'Vazgeç', destructive: true }
     );
   };
 
@@ -198,6 +198,7 @@ export default function ColoringHistoryScreen() {
                     <Pressable
                       style={styles.deleteButton}
                       onPress={() => handleDeleteColoring(coloring.id, coloring.title)}
+                      disabled={deleteColoringMutation.isPending}
                     >
                       <Trash2 size={20} color="#FFFFFF" />
                       <Text style={styles.deleteButtonText}>Sil</Text>

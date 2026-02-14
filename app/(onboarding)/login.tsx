@@ -282,6 +282,7 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
+                  maxLength={254}
                   style={{
                     flex: 1,
                     fontSize: typography.size.md,
@@ -336,6 +337,7 @@ export default function LoginScreen() {
                   placeholderTextColor={colors.text.tertiary}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
+                  maxLength={128}
                   style={{
                     flex: 1,
                     fontSize: typography.size.md,

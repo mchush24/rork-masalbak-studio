@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Colors } from '@/constants/colors';
 import { typography, spacing, radius, shadows } from '@/constants/design-system';
+import { hapticImpact } from '@/lib/platform';
 
 interface QuickPrompt {
   id: string;
@@ -60,7 +61,7 @@ export function QuickPrompts({ prompts, onSelect, isLoading }: QuickPromptsProps
   }
 
   const handleSelect = (prompt: QuickPrompt) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact(Haptics.ImpactFeedbackStyle.Light);
     onSelect(prompt.question);
   };
 
